@@ -1,4 +1,5 @@
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySanitizerUtils.h"
 #import "SentrySpanInternal+Private.h"
@@ -88,7 +89,12 @@ NS_ASSUME_NONNULL_BEGIN
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
 
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
-    for (id<SentrySpan> span in self.spans) {
+    for (id<SentryInternalSerializable> span in self.spans) {
+#if SDK_V10
+        if (![span conformsToProtocol:@protocol(SentryInternalSerializable)]) {
+            continue;
+        }
+#endif
         [serializedSpans addObject:[span serialize]];
     }
     serializedData[@"spans"] = serializedSpans;

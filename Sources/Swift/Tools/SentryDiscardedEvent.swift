@@ -3,7 +3,7 @@ import Foundation
 
 @objcMembers
 @_spi(Private)
-public final class SentryDiscardedEvent: NSObject, SentrySerializable {
+public final class SentryDiscardedEvent: NSObject {
     
     let reason: String
     let category: String
@@ -24,4 +24,7 @@ public final class SentryDiscardedEvent: NSObject, SentrySerializable {
         ]
     }
 }
+#if !SDK_V10
+extension SentryDiscardedEvent: SentrySerializable { }
+#endif
 // swiftlint:enable missing_docs

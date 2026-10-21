@@ -39356,43 +39356,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A8FeedbackC9serializeSDySSypGyF",
-            "moduleName": "Sentry",
-            "name": "serialize",
-            "objc_name": "serialize",
-            "printedName": "serialize()",
-            "usr": "c:@CM@Sentry@objc(cs)SentryFeedback(im)serialize"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "Int",
                     "printedName": "Swift.Int",
                     "usr": "s:Si"
@@ -39720,12 +39683,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -45383,6 +45340,43 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "DebugMeta",
+                "printedName": "Sentry.DebugMeta",
+                "usr": "c:objc(cs)SentryDebugMeta"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize9debugMetaSDySSypGSo0a5DebugG0C_tF",
+            "moduleName": "Sentry",
+            "name": "serialize",
+            "printedName": "serialize(debugMeta:)",
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize9debugMetaSDySSypGSo0a5DebugG0C_tF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -45416,6 +45410,43 @@
             "name": "serialize",
             "printedName": "serialize(event:)",
             "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGSo0A5EventC_tF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGSo0A5ScopeC_tF",
+            "moduleName": "Sentry",
+            "name": "serialize",
+            "printedName": "serialize(scope:)",
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGSo0A5ScopeC_tF"
           }
         ],
         "conformances": [

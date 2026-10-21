@@ -115,7 +115,7 @@ class SentrySpanTests: XCTestCase {
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
@@ -134,7 +134,7 @@ class SentrySpanTests: XCTestCase {
         SentryContinuousProfiler.stop()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
@@ -153,7 +153,7 @@ class SentrySpanTests: XCTestCase {
         SentryContinuousProfiler.stop()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
@@ -171,7 +171,7 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
@@ -194,7 +194,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(profileId1, profileId2)
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId1)
     }
     
@@ -204,14 +204,14 @@ class SentrySpanTests: XCTestCase {
     /// +-------span-------+
     ///                          +----profile----+
     /// ```
-    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() {
+    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() throws {
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
         SentryContinuousProfiler.stop()
         let span = fixture.getSut()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertNil(serialized["profile_id"])
     }
 #endif // os(iOS) || os(macOS)
@@ -519,7 +519,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(actual["flag.evaluation.flag-10"])
     }
 
-    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() {
+    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() throws {
         // -- Arrange --
         let span: Span = SentryNoOpSpan.shared()
 
@@ -527,7 +527,7 @@ class SentrySpanTests: XCTestCase {
         span.addFeatureFlag(name: "checkout", result: true)
 
         // -- Assert --
-        XCTAssertEqual(span.serialize().count, 0)
+        XCTAssertEqual(try XCTUnwrap(span as? SentrySpanInternal).serialize().count, 0)
     }
 
     func testFeatureFlags_whenStartingChildSpan_shouldNotInheritParentFlags() throws {
@@ -539,10 +539,10 @@ class SentrySpanTests: XCTestCase {
         let child = parent.startChild(operation: fixture.someOperation)
 
         // -- Assert --
-        let parentData = try XCTUnwrap(parent.serialize()["data"] as? [String: Any])
+        let parentData = try XCTUnwrap(try XCTUnwrap(parent as? SentrySpanInternal).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(parentData["flag.evaluation.checkout"] as? Bool), true)
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap(try XCTUnwrap(child as? SentrySpanInternal).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.checkout"])
     }
     
@@ -559,7 +559,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(span.tags[fixture.extraKey])
     }
     
-    func testSerialization() {
+    func testSerialization() throws {
         let span = fixture.getSut()
         
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
@@ -570,7 +570,7 @@ class SentrySpanTests: XCTestCase {
         span.parentSpanId = SpanId()
         span.spanDescription = "Span Description"
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
         XCTAssertEqual(serialization["trace_id"] as? String, span.traceId.sentryIdString)
@@ -608,13 +608,13 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(callStack)
     }
     
-    func testSanitizeData() {
+    func testSanitizeData() throws {
         let span = fixture.getSut()
         
         span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         let data = serialization["data"] as? [String: Any]
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
@@ -630,10 +630,10 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
     
-    func testSerialization_WithNoDataAndTag() {
+    func testSerialization_WithNoDataAndTag() throws {
         let span = fixture.getSut()
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(serialization["tag"])
     }

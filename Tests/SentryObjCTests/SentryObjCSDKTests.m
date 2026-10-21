@@ -12,7 +12,8 @@
 {
     __block NSArray<NSDictionary<NSString *, id> *> *values = nil;
     [SentryObjCSDK configureScope:^(SentryObjCScope *scope) {
-        NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+        NSDictionary<NSString *, id> *context =
+            [SentryObjCSDK.internal.serializer serializeScope:scope][@"context"];
         NSDictionary<NSString *, id> *flags = context[@"flags"];
         values = flags[@"values"];
     }];

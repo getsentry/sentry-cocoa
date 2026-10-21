@@ -5680,14 +5680,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "serialize",
-    "parent": "SentryObjCScope",
+    "name": "serializeDebugMeta:",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "serializeEvent:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializeScope:",
     "parent": "SentryObjCInternalSerializerApi",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
