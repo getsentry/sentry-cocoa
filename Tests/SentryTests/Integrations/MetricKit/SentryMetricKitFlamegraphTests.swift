@@ -125,7 +125,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
 
     func testFlamegraphAttachment_whenFramesRepeat_shouldDeduplicateAcrossSeparateTrees() throws {
         // -- Arrange --
-        let tree = try SentryMXCallStackTree.from(data: hangTreeJSON)
+        let tree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: hangTreeJSON)
         let repeatedTree = SentryMXCallStackTree(callStacks: tree.callStacks + tree.callStacks, callStackPerThread: false)
 
         // -- Act --
@@ -174,7 +174,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
             // -- Arrange --
             let json = try XCTUnwrap(String(data: hangTreeJSON, encoding: .utf8))
                 .replacingOccurrences(of: "\"sampleCount\":100,\"subFrames\":[", with: "\"sampleCount\":\(invalidCount),\"subFrames\":[", options: [], range: nil)
-            let tree = try SentryMXCallStackTree.from(data: Data(json.utf8))
+            let tree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: Data(json.utf8))
 
             // -- Act --
             let attachment = tree.flamegraphAttachment(inAppLogic: SentryInAppLogic(inAppIncludes: ["App"]))

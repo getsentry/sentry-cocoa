@@ -718,6 +718,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCPrivacyOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCProfileOptions",
     "super": "NSObject",
     "has_inner": true
@@ -2559,8 +2565,15 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "excludeViewTypeFromSubtreeTraversal:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "excludedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "returnType": "NSSet<NSString *> * _Nonnull",
     "instance": true
   },
   {
@@ -3049,8 +3062,15 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "includeViewTypeInSubtreeTraversal:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "includedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "returnType": "NSSet<NSString *> * _Nonnull",
     "instance": true
   },
   {
@@ -3407,6 +3427,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4274,14 +4301,14 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "maskAllImages",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "maskAllText",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -4295,7 +4322,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "maskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "NSArray<Class> * _Nonnull",
     "instance": true
   },
@@ -5274,6 +5301,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "privacy",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCPrivacyOptions * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "profileAppStarts",
     "parent": "SentryObjCProfileOptions",
     "returnType": "BOOL",
@@ -5694,14 +5728,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "serialize",
-    "parent": "SentryObjCScope",
+    "name": "serializeDebugMeta:",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "serializeEvent:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializeScope:",
     "parent": "SentryObjCInternalSerializerApi",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
@@ -6913,21 +6954,21 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaskAllImages:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaskAllText:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaskedViewClasses:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7320,6 +7361,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setPreContext:",
     "parent": "SentryObjCFrame",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setPrivacy:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7949,7 +7997,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setUnmaskedViewClasses:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
@@ -8922,7 +8970,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "unmaskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "NSArray<Class> * _Nonnull",
     "instance": true
   },
@@ -9955,6 +10003,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "excludedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "type": "NSSet<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "experimental",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCExperimentalOptions * _Nonnull"
@@ -10225,6 +10279,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "includedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "type": "NSSet<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "initialScope",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCScope * _Nonnull (^ _Nonnull)(SentryObjCScope * _Nonnull)"
@@ -10424,19 +10484,19 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maskAllImages",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "maskAllText",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "maskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "NSArray<Class> * _Nonnull"
   },
   {
@@ -10966,6 +11026,12 @@
     "name": "preContext",
     "parent": "SentryObjCFrame",
     "type": "NSArray<NSString *> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "privacy",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCPrivacyOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11762,7 +11828,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "unmaskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "NSArray<Class> * _Nonnull"
   },
   {

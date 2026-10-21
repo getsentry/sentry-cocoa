@@ -2,6 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryDefines.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentrySampleDecision.h"
 #import "SentryScope+Private.h"

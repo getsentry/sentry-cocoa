@@ -18,6 +18,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"

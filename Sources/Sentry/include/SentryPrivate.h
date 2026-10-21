@@ -16,6 +16,7 @@
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
+#import "SentryInternalSerializable.h"
 #if SDK_V10
 #    import "SentryKSCrashManagedSignal.h"
 #    import "SentryKSCrashReportWriterCallbacks.h"

@@ -1,4 +1,5 @@
 #import "SentryProfilerSerialization.h"
+#import "SentryInternalSerializable.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 

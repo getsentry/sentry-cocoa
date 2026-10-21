@@ -45,11 +45,12 @@ public final class SentryFeedback: NSObject {
     }
 }
 
-extension SentryFeedback: SentrySerializable { }
-
 extension SentryFeedback {
 
-    public func serialize() -> [String: Any] {
+    #if SDK_V10
+    @_spi(Private)
+    #endif
+    @objc public func serialize() -> [String: Any] {
         return internalSerialize()
     }
 
@@ -75,6 +76,10 @@ extension SentryFeedback {
     }
 }
  
+#if !SDK_V10
+extension SentryFeedback: SentrySerializable { }
+#endif
+
 // MARK: Public
 extension SentryFeedback {
     /// - note: This dictionary is to pass to the block `SentryUserFeedbackConfiguration.onSubmitSuccess`, describing the contents submitted. This is different from the serialized form of the feedback for envelope transmission, because there are some internal details in that serialization that are irrelevant to the consumer and are not available at the time `onSubmitSuccess` is called.

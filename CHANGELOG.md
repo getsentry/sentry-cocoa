@@ -8,7 +8,13 @@
 
 ### Fixes
 
+- Keep the UI profiler running when `SentrySDK.startProfiler()` is called before a requested stop takes effect at the end of the current chunk (#9401)
 - Increase the crash report read limit in SentryCrash to 20 MB (#9386)
+
+### Internal
+
+- Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
+  The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
 
 ## 9.30.2
 
