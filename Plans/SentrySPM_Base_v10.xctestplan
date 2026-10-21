@@ -60,6 +60,96 @@
         "identifier" : "SentryDistributionTests",
         "name" : "SentryDistributionTests"
       }
+    },
+    {
+      "parallelizable": false,
+      "skippedTests": [
+        "SentryInternalApiTests/testProfilingStartAndCollect()",
+        "SentryANRTrackerTests/testANRButAppInBackground_NoANR()",
+        "SentryANRTrackerTests/testMultipleListeners()",
+        "SentryCoreDataTrackerTests/testFetchRequestBackgroundThread()",
+        "SentryCoreDataTrackerTests/testSaveBackgroundThread()",
+        "SentryCrashCTests",
+        "SentryCrashDoctorTests",
+        "SentryCrashInstallationReporterTests",
+        "SentryCrashInstallationTests",
+        "SentryCrashIntegrationTests",
+        "SentryCrashReportSinkTests",
+        "SentryCrashReportTests",
+        "SentryCrashScopeObserverTests",
+        "SentryCrashStackCursorSelfThreadTests",
+        "SentryCrashStackEntryMapperTests",
+        "SentryFileManagerTests/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
+        "SentryHttpTransportFlushIntegrationTests",
+        "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()",
+        "SentryNetworkDetailSwizzlingTests",
+        "SentryNetworkTrackerIntegrationTestServerTests",
+        "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()",
+        "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()",
+        "SentryReachabilityTest/testMultipleReachabilityObservers",
+        "SentrySDKIntegrationTestsBase",
+        "SentrySDKInternalTests/testResumeAndPauseAppHangTracking()",
+        "SentrySDKTests/testStartOnTheMainThread()",
+        "SentrySessionGeneratorTests/testSendSessions()",
+        "SentrySubClassFinderTests/testActOnSubclassesOfViewController()",
+        "SentryThreadInspectorTests/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
+        "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()",
+        "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()",
+        "SentryWatchdogTerminationTrackerTests/testTerminateApp_RunsOnMainThread()"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTests",
+        "name": "SentryTests"
+      }
+    },
+    {
+      "parallelizable": false,
+      "skippedTests": [
+        "SentryCrashBinaryImageCacheTests",
+        "SentryCrashCPU_Tests",
+        "SentryCrashCachedData_Tests",
+        "SentryCrashDebug_Tests",
+        "SentryCrashDynamicLinkerTests",
+        "SentryCrashDynamicLinker_Tests",
+        "SentryCrashFileUtils_Tests",
+        "SentryCrashJSONCodec_Tests",
+        "SentryCrashMach_O_Tests",
+        "SentryCrashMach_Tests",
+        "SentryCrashMachineContextTests",
+        "SentryCrashMemory_Tests",
+        "SentryCrashMonitor_AppState_Tests",
+        "SentryCrashMonitor_NSException_StackCursor_Tests",
+        "SentryCrashMonitor_NSException_Tests",
+        "SentryCrashMonitor_Signal_Tests",
+        "SentryCrashMonitor_Tests",
+        "SentryCrashObjC_Tests",
+        "SentryCrashReportConverterTests",
+        "SentryCrashReportFilter_Tests",
+        "SentryCrashReportFixer_Tests",
+        "SentryCrashReportStore_Tests",
+        "SentryCrashSignalInfo_Tests",
+        "SentryCrashString_Tests",
+        "SentryCrashSysCtl_Tests",
+        "SentryCrashTests"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTestsObjC",
+        "name": "SentryTestsObjC"
+      }
+    },
+    {
+      "parallelizable": false,
+      "skippedTests": [
+        "SentryCrashCxaThrowSwapper_Tests",
+        "SentryCrashMonitor_CppException_Tests"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTestsObjCpp",
+        "name": "SentryTestsObjCpp"
+      }
     }
   ],
   "version" : 1

@@ -76,6 +76,7 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
             (path: "/System/Library/Frameworks/EventKit.framework/EventKit", marker: "EventKit.framework/EventKit"),
             (path: "/System/Library/Frameworks/MapKit.framework/MapKit", marker: "MapKit.framework/MapKit"),
             (path: "/System/Library/Frameworks/PDFKit.framework/PDFKit", marker: "PDFKit.framework/PDFKit"),
+            (path: "/System/Library/Frameworks/GameplayKit.framework/GameplayKit", marker: "GameplayKit.framework/GameplayKit"),
             (path: "/usr/lib/libbz2.dylib", marker: "libbz2")
         ]
 

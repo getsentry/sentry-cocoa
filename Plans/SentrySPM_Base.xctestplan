@@ -82,6 +82,66 @@
         "identifier" : "SentryProfilerTestsObjC",
         "name" : "SentryProfilerTestsObjC"
       }
+    },
+    {
+      "parallelizable": false,
+      "skippedTests": [
+        "SentryInternalApiTests/testProfilingStartAndCollect()",
+        "SentryANRTrackerTests/testANRButAppInBackground_NoANR()",
+        "SentryANRTrackerTests/testMultipleListeners()",
+        "SentryCoreDataTrackerTests/testFetchRequestBackgroundThread()",
+        "SentryCoreDataTrackerTests/testSaveBackgroundThread()",
+        "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()",
+        "SentryDispatchSourceWrapperTests/testDispatchSourceWrapper_Repeats()",
+        "SentryFileManagerTests/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
+        "SentryHttpTransportFlushIntegrationTests",
+        "SentryInternalProfilingApiIntegrationTests/testCollect_shouldContainProfileStructure()",
+        "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()",
+        "SentryNetworkDetailSwizzlingTests",
+        "SentryNetworkTrackerIntegrationTestServerTests",
+        "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()",
+        "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()",
+        "SentryReachabilityTest/testMultipleReachabilityObservers",
+        "SentrySDKIntegrationTestsBase",
+        "SentrySDKInternalTests/testResumeAndPauseAppHangTracking()",
+        "SentrySDKTests/testStartOnTheMainThread()",
+        "SentrySessionGeneratorTests/testSendSessions()",
+        "SentrySubClassFinderTests/testActOnSubclassesOfViewController()",
+        "SentryThreadInspectorTests/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
+        "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()",
+        "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()",
+        "SentryWatchdogTerminationTrackerTests/testTerminateApp_RunsOnMainThread()"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTests",
+        "name": "SentryTests"
+      }
+    },
+    {
+      "parallelizable": false,
+      "skippedTests": [
+        "SentryCrashBinaryImageCacheTests/testRemoveImageAddAgain",
+        "SentryCrashBinaryImageCacheTests/testRemoveImageFromBeginning",
+        "SentryCrashBinaryImageCacheTests/testRemoveImageFromTail",
+        "SentryCrashReportStore_Tests/testCrashReportCount1",
+        "SentryCrashReportStore_Tests/testDeleteAllReports",
+        "SentryCrashReportStore_Tests/testPruneReports",
+        "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTestsObjC",
+        "name": "SentryTestsObjC"
+      }
+    },
+    {
+      "parallelizable": false,
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTestsObjCpp",
+        "name": "SentryTestsObjCpp"
+      }
     }
   ],
   "version" : 1

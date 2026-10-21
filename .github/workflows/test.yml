@@ -89,7 +89,7 @@ jobs:
         if: failure()
 
   distribution-tests:
-    name: Distribution Tests ${{ matrix.mode }}
+    name: SPM Tests ${{ matrix.mode }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
