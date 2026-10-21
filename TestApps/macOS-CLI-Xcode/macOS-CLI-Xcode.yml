@@ -38,11 +38,29 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.macOS-CLI-Xcode
         SWIFT_VERSION: "5.0"
+  macOS-CLI-XcodeTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "12.0"
+    sources:
+      - Tests/Sources
+    dependencies:
+      - target: macOS-CLI-Xcode
+        link: false
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.0"
 schemes:
   macOS-CLI-Xcode:
     build:
       targets:
         macOS-CLI-Xcode: all
+        macOS-CLI-XcodeTests: test
+    test:
+      config: Debug
+      targets:
+        - macOS-CLI-XcodeTests
     run:
       config: Debug
     archive:

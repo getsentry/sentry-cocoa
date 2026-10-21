@@ -24,7 +24,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let cache: SentryBinaryImageCache
         
         init() {
-            cache = SentryBinaryImageCache(provider: NoOpBinaryImageProvider())
+            cache = SentryBinaryImageCache(provider: NoOpBinaryImageProvider(), processInfoWrapper: MockSentryProcessInfo())
         }
         
         func getSut(images: [SentryBinaryImageInfo] = []) -> SentryDebugImageProvider {
