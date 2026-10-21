@@ -4,6 +4,8 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
+import SentryTestUtilsObjC
 import XCTest
 
 final class SentryCrashStackCursorSelfThreadTests: XCTestCase {

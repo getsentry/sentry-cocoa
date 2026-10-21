@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
@@ -182,7 +183,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
 
-        let transport = SentryHttpTransport(
+        let transport = SentryHttpTransportWrapper.make(
             dsn: try XCTUnwrap(options.parsedDsn),
             sendClientReports: options.sendClientReports,
             cachedEnvelopeSendDelay: 0.0,

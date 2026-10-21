@@ -9,11 +9,14 @@ import XCTest
 final class TestLogOutput {
     
     private let logsToConsole: Bool
+    private let thread: Thread?
     private var _loggedMessages: [String] = []
     private let lock = NSLock()
 
-    init(logsToConsole: Bool = true) {
+    // Opt in to isolation for synchronous tests; asynchronous tests still capture every thread.
+    init(logsToConsole: Bool = true, thread: Thread? = nil) {
         self.logsToConsole = logsToConsole
+        self.thread = thread
     }
 
     var loggedMessages: [String] {
@@ -23,6 +26,9 @@ final class TestLogOutput {
     }
     
     func log(_ message: String) {
+        if let thread, thread !== Thread.current {
+            return
+        }
         if logsToConsole {
             print(message)
         }
@@ -64,6 +70,23 @@ class TestLogOutPutTests: XCTestCase {
         XCTAssertEqual(sut.loggedMessages.count, iterations)
     }
     
+    func testLog_whenThreadIsSelected_shouldIgnoreOtherThreads() {
+        // -- Arrange --
+        let sut = TestLogOutput(logsToConsole: false, thread: Thread.current)
+        let completed = expectation(description: "Background log completed")
+
+        // -- Act --
+        sut.log("Selected thread")
+        DispatchQueue.global().async {
+            sut.log("Other thread")
+            completed.fulfill()
+        }
+        wait(for: [completed], timeout: 5.0)
+
+        // -- Assert --
+        XCTAssertEqual(sut.loggedMessages, ["Selected thread"])
+    }
+
     func testInitialState_LoggedMessagesIsEmpty() {
         // Arrange
         let sut = TestLogOutput(logsToConsole: false)

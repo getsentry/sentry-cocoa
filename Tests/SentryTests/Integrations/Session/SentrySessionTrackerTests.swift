@@ -4,9 +4,11 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
-#if !os(watchOS)
+// This fixture exercises automatic session tracking through UIKit/AppKit lifecycle notifications.
+#if !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
 class SentrySessionTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")

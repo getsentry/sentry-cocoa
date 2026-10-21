@@ -1,14 +1,15 @@
 #if !SDK_V10
 #if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
-#if os(macOS)
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
 private var exceptionHandlerCallCount = 0
 private func countingExceptionHandler(exception: NSException) {
@@ -91,6 +92,6 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 }
 
-#endif // os(macOS)
+#endif // os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
 #endif // !SDK_V10

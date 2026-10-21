@@ -1,10 +1,10 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length type_body_length
@@ -95,7 +95,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         var sut: SentryAppStartTracker {
             #if SDK_V10
             let sut = SentryAppStartTracker(
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
@@ -105,7 +104,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             )
             #else
             let sut = SentryAppStartTracker(
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
                 framesTracker: framesTracker,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,

@@ -2,7 +2,6 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -765,11 +764,8 @@ static BOOL sdkStarted;
         }
     }
 
-    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
-        SENTRY_LOG_WARN(@"There is already a profile session running.");
-        return;
-    }
-
+    // When the profiler already runs, this cancels a pending stop instead of starting a new
+    // session.
     [SentryContinuousProfiler start];
 }
 

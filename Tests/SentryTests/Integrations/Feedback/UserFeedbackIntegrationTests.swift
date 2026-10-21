@@ -5,6 +5,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 #if os(iOS)
@@ -52,7 +53,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let viewRenderer = SentryDefaultViewRenderer()
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: Options().screenshot,
+            redactOptions: TestRedactOptions(),
             enableMaskRendererV2: false)
         return SentryScreenshotSource(photographer: photographer)
     }
@@ -988,7 +989,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             self.screenshots = screenshots
             super.init(photographer: SentryViewPhotographer(
                 renderer: SentryDefaultViewRenderer(),
-                redactOptions: Options().screenshot,
+                redactOptions: TestRedactOptions(),
                 enableMaskRendererV2: false))
         }
 

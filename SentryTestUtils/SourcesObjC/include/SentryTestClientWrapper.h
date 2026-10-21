@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));
 
+- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+                         withScope:(SentryScope *)scope
+                              hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint
+    NS_SWIFT_NAME(wrapper_capture(event:scope:hint:));
+
 - (SentryId *)wrapper_captureFatalEvent:(SentryEvent *)event
                             withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
                               withScope:(SentryScope *)scope
@@ -58,6 +63,11 @@ NS_ASSUME_NONNULL_BEGIN
                        quantity:(NSUInteger)quantity
     NS_SWIFT_NAME(wrapper_recordLostEvent(_:reason:quantity:));
 
+@end
+
+@interface SentryClientInternal (TestFeedbackAccess)
+- (void)captureFeedback:(SENTRY_SWIFT_MIGRATION_ID(SentryFeedback))feedback
+              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 @end
 
 NS_ASSUME_NONNULL_END

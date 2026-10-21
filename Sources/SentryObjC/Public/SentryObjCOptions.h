@@ -24,6 +24,9 @@
 @class SentryObjCMetric;
 @class SentryObjCProfileOptions;
 @class SentryObjCReplayOptions;
+#if SDK_V10
+@class SentryObjCPrivacyOptions;
+#endif // SDK_V10
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
 @class SentryObjCSpan;
@@ -708,6 +711,11 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+
+#    if SDK_V10
+/// Shared masking and traversal settings for replay and screenshot attachments.
+@property (nonatomic, strong) SentryObjCPrivacyOptions *privacy;
+#    endif // SDK_V10
 
 /// Configuration options for Session Replay.
 @property (nonatomic, strong) SentryObjCReplayOptions *sessionReplay;

@@ -1,10 +1,10 @@
 #if SWIFT_PACKAGE
 @_spi(Private) import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) import Sentry
 #endif
 @_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 final class SentryTestHelperModuleTests: XCTestCase {

@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySerializable.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // This class used to be named SentrySpan, but it was renamed to SentrySpanInternal to avoid
 // confusion with the public SentrySpan protocol.
-@interface SentrySpanInternal : NSObject <SentrySpan, SentrySerializable>
+@interface SentrySpanInternal : NSObject <SentrySpan, SentryInternalSerializable>
 SENTRY_NO_INIT
 
 /**
@@ -68,6 +68,8 @@ SENTRY_NO_INIT
 
 /**
  * The timestamp of which the span ended.
+ * @note The accessors are synchronized together with @c isFinished because the tracer reads the
+ * timestamps of finished child spans from another thread.
  */
 @property (nullable, nonatomic, strong) NSDate *timestamp;
 

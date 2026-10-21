@@ -8,6 +8,7 @@ let package = Package(
         .executable(name: "CrashE2ERunner", targets: ["CrashE2ERunner"])
     ],
     targets: [
-        .executableTarget(name: "CrashE2ERunner")
+        .executableTarget(name: "CrashE2ERunner"),
+        .testTarget(name: "CrashE2ERunnerTests", dependencies: ["CrashE2ERunner"])
     ]
 )

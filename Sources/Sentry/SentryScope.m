@@ -5,6 +5,7 @@
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLevel.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
@@ -953,8 +954,14 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
+#if SDK_V10
+    // Public spans no longer require the SDK's internal serialization contract.
+    if ([span conformsToProtocol:@protocol(SentryInternalSerializable)]) {
+#else
     if (span != nil) {
-        NSDictionary *dict = [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
+#endif
+        NSDictionary *dict = [(id<SentryInternalSerializable>)SENTRY_UNWRAP_NULLABLE_VALUE(
+            id<SentrySpan>, span) serialize];
         if (dict[kSentryScopeSpanStatusSerializationKey] != nil) {
             return dict;
         }

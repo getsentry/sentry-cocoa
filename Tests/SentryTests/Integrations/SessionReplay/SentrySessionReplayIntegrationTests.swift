@@ -1,13 +1,13 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
 #if canImport(UIKit)
 import UIKit
 #endif
+#if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 // swiftlint:disable file_length
 import Foundation
 import XCTest
@@ -63,6 +63,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     override func tearDown() {
+        // Crash recovery encodes on the replay processing queue and only deletes the
+        // session folder and `replay.last` after the recovered replay was captured. Tests
+        // return as soon as the capture fulfills their expectation, so without this wait
+        // the leftover work races the next test, which writes the same replay folder.
+        XCTAssertTrue(
+            SentryDependencyContainer.sharedInstance().replayRecoveryIdleGate.waitForIdle(timeout: 10),
+            "Replay crash recovery did not finish before tearDown"
+        )
         super.tearDown()
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
@@ -191,6 +199,25 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // A crash belongs to the previous session, recovered and sent separately, so its trace
         // must not be attached to the current session's replay segment.
         XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+    }
+
+    func testGlobalEventProcessor_whenEventFromPreviousProcess_shouldNotAssociateCurrentReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event(error: NSError(domain: "Error", code: 1))
+        event.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+        event.isFromPreviousProcess = true
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        // The event describes a previous process, such as a MetricKit diagnostic delivered on a later
+        // launch, which the current replay didn't record.
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+        XCTAssertNil(event.context?["replay"])
     }
 
     func testCaptureFeedback_whenBuffering_shouldCaptureReplayAndAssociateFeedback() throws {
@@ -892,7 +919,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         ]
         globalEventProcessor.reportAll(crash)
         
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: 10)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
         
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
@@ -938,7 +965,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         ]
         globalEventProcessor.reportAll(crash)
 
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: 10)
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
         XCTAssertEqual(breadcrumbs.count, 1)
@@ -964,7 +991,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         crash.isFatalEvent = true
         globalEventProcessor.reportAll(crash)
 
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: 10)
 
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
@@ -1097,7 +1124,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         class AnotherLabel: UILabel {}
 
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            #if SDK_V10
+            options.privacy.maskedViewClasses = [AnotherLabel.self]
+            #else
             options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
+            #endif // SDK_V10
         }
 
         // -- Act --
@@ -1112,7 +1143,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         class AnotherLabel: UILabel {}
 
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            #if SDK_V10
+            options.privacy.unmaskedViewClasses = [AnotherLabel.self]
+            #else
             options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
+            #endif // SDK_V10
         }
 
         // -- Act --
@@ -1435,7 +1470,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testMaskPreview_whenSuperviewResizes_shouldResize() {
         // -- Arrange --
         let superview = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
-        let preview = SentryMaskingPreviewView(redactOptions: SentryReplayOptions())
+        let preview = SentryMaskingPreviewView(redactOptions: TestRedactOptions())
         superview.addSubview(preview)
 
         // -- Act --
@@ -1738,7 +1773,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         crash.isFatalEvent = true
         globalEventProcessor.reportAll(crash)
 
-        wait(for: [replayCapture], timeout: 1)
+        wait(for: [replayCapture], timeout: expectCapture ? 10 : 1)
         return (crash, hub.capturedReplayRecordingVideo.first)
     }
     

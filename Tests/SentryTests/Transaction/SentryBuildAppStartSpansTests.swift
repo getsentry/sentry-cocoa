@@ -3,6 +3,8 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 #if canImport(UIKit) && !os(watchOS)

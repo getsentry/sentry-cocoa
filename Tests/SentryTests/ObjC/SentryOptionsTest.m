@@ -93,12 +93,12 @@
         infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
 }
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 - (void)testEnableReportingUncaughtNSExceptions
 {
     [self testBooleanField:@"enableUncaughtNSExceptionReporting" defaultValue:NO];
 }
-#endif // TARGET_OS_OSX
+#endif // TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
 - (void)testEnvironment
 {

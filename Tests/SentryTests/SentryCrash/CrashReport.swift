@@ -1,9 +1,10 @@
+import SentryTestUtilsObjC
 import XCTest
 
 extension XCTestCase {
     
     private func jsonDataOfResource(resource: String) throws -> Data {
-        let jsonPath = Bundle(for: type(of: self)).path(forResource: resource, ofType: "json")
+        let jsonPath = sentryTestResourceBundle(for: type(of: self)).path(forResource: resource, ofType: "json")
         return try Data(contentsOf: URL(fileURLWithPath: jsonPath ?? ""))
     }
     

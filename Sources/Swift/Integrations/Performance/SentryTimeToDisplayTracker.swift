@@ -133,7 +133,7 @@ public class SentryTimeToDisplayTracker: NSObject, SentryFramesTrackerListener, 
                 SentryDependencyContainer.sharedInstance().framesTracker.removeListener(self)
                 #if os(iOS)
                 if sentry_isLaunchProfileCorrelatedToTraces() {
-                    sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub())
+                    SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer(hub: SentrySDKInternal.currentHub())
                 }
                 #endif
             }
@@ -146,7 +146,7 @@ public class SentryTimeToDisplayTracker: NSObject, SentryFramesTrackerListener, 
             fullDisplaySpan?.finish()
             #if os(iOS)
             if sentry_isLaunchProfileCorrelatedToTraces() {
-                sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub())
+                SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer(hub: SentrySDKInternal.currentHub())
             }
             #endif
         }

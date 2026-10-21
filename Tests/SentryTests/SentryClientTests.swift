@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 extension SentryClientInternal {
@@ -707,7 +708,7 @@ final class SentryClientTests: XCTestCase {
         let hub = SentryHubInternal(client: sut, andScope: Scope(), activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
         SentrySDK.setStart(with: sut.options)
         SentrySDKInternal.setCurrentHub(hub)
-        let integration = try XCTUnwrap(SentryMetricKitIntegration(with: sut.options, dependencies: ()))
+        let integration = try XCTUnwrap(SentryMetricKitIntegration(with: sut.options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
         let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
@@ -731,45 +732,22 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(attachment.data, rawDiagnostic)
     }
 
-    func testCaptureEvent_whenMetricKitDiagnosticFromPreviousAppVersion_shouldSendDiagnosticVersions() throws {
+    func testCaptureEvent_whenMetricKitDiagnosticFromPreviousProcess_shouldSendDiagnosticVersionsWithoutCurrentScopeData() throws {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
             options.releaseName = "io.sentry.app@2.0.0+20"
         })
-        let scope = Scope()
-        let hub = SentryHubInternal(client: sut, andScope: scope, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
-        SentrySDK.setStart(with: sut.options)
-        SentrySDKInternal.setCurrentHub(hub)
-        // Creating the hub enriches the scope with the contexts of the running app, so the
-        // contexts of the current app version are set afterwards.
-        scope.setContext(value: ["name": "iOS", "version": "26.0", "build": "23A341", "kernel_version": "Darwin 25.0.0", "rooted": false], key: "os")
-        scope.setContext(value: ["app_identifier": "io.sentry.app", "app_name": "App", "app_version": "2.0.0", "app_build": "20", "build_type": "app store", "app_start_time": "2026-10-05T10:00:00.000Z"], key: "app")
-        let manager = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            releaseName: sut.options.releaseName,
-            bundleInfo: [
-                "CFBundleIdentifier": "io.sentry.app",
-                "CFBundleShortVersionString": "2.0.0",
-                "CFBundleVersion": "20"
-            ]
-        )
-        let metaData = TestMXMetaData()
-        metaData.overrides.applicationBuildVersion = "45"
-        metaData.overrides.osVersion = "iPhone OS 18.6.2 (22G100)"
-        let diagnostic = TestMXHangDiagnostic()
-        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
-        diagnostic.overrides.metaData = metaData
-        diagnostic.overrides.applicationVersion = "1.2.3"
-        let payload = TestMXDiagnosticPayload()
-        payload.overrides.hangDiagnostic = [diagnostic]
+        let scope = givenHubScopeWithCurrentRunData(client: sut)
+        let manager = givenMetricKitManager(releaseName: sut.options.releaseName)
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", pid: 1_337, timeStampBegin: Self.metricKitProcessStartDate.addingTimeInterval(-3_600))
 
         // -- Act --
         manager.didReceive([payload])
 
         // -- Assert --
-        let event = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first).event
+        let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        let event = capture.event
+        XCTAssertEqual(event.isFromPreviousProcess, true)
         XCTAssertEqual(event.releaseName, "io.sentry.app@1.2.3+45")
         XCTAssertEqual(event.dist, "45")
         // Only the attributes known for the diagnostic are sent. The running kernel version,
@@ -787,6 +765,108 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(appContext["app_name"])
         XCTAssertNil(appContext["build_type"])
         XCTAssertNil(appContext["app_start_time"])
+        // The client adds no state of the running process either.
+        XCTAssertNil(appContext["app_memory"])
+        XCTAssertNil(appContext["in_foreground"])
+        XCTAssertNil(appContext["is_active"])
+        XCTAssertNil(appContext["view_names"])
+        let deviceContext = try XCTUnwrap(event.context?["device"])
+        XCTAssertEqual(deviceContext["model"] as? String, "iPhone17,1")
+        XCTAssertEqual(deviceContext["arch"] as? String, "arm64e")
+        XCTAssertNil(deviceContext[SentryDeviceContextFreeMemoryKey])
+        XCTAssertNil(deviceContext["processor_count"])
+        XCTAssertNil(event.context?["culture"])
+        XCTAssertNil(event.context?["trace"])
+        XCTAssertNil(event.tags)
+        XCTAssertNil(event.extra)
+        XCTAssertNil(event.breadcrumbs)
+        XCTAssertNil(event.user?.email)
+        XCTAssertEqual(capture.attachments.count, 0)
+        XCTAssertEqual(fixture.eventContextEnricher.enrichWithAppStateInvocations.count, 0)
+        // The hub's scope stays as it was.
+        XCTAssertEqual(scope.tags, ["tag": "value"])
+        XCTAssertEqual(scope.breadcrumbs().count, 1)
+    }
+
+    func testCaptureEvent_whenMetricKitDiagnosticFromCurrentAppRun_shouldApplyScope() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.releaseName = "io.sentry.app@2.0.0+20"
+        })
+        givenHubScopeWithCurrentRunData(client: sut)
+        let manager = givenMetricKitManager(releaseName: sut.options.releaseName)
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", pid: Self.metricKitProcessIdentifier, timeStampBegin: Self.metricKitProcessStartDate.addingTimeInterval(60))
+
+        // -- Act --
+        manager.didReceive([payload])
+
+        // -- Assert --
+        let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        let event = capture.event
+        XCTAssertEqual(event.isFromPreviousProcess, false)
+        XCTAssertEqual(event.releaseName, "io.sentry.app@2.0.0+20")
+        XCTAssertEqual(event.tags, ["tag": "value"])
+        XCTAssertEqual(event.breadcrumbs?.count, 1)
+        XCTAssertEqual(event.user?.email, "user@sentry.io")
+        let appContext = try XCTUnwrap(event.context?["app"])
+        XCTAssertEqual(appContext["app_version"] as? String, "2.0.0")
+        XCTAssertEqual(appContext["build_type"] as? String, "app store")
+        let deviceContext = try XCTUnwrap(event.context?["device"])
+        XCTAssertEqual(deviceContext["model"] as? String, "iPhone17,1")
+        XCTAssertEqual(deviceContext[SentryDeviceContextFreeMemoryKey] as? Int, 123_456)
+        XCTAssertEqual(capture.attachments, [TestData.dataAttachment])
+    }
+
+    private static let metricKitProcessIdentifier: pid_t = 4_242
+    private static let metricKitProcessStartDate = Date(timeIntervalSince1970: 1_700_000_000)
+
+    @discardableResult
+    private func givenHubScopeWithCurrentRunData(client: SentryClientInternal) -> Scope {
+        let scope = Scope()
+        let hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
+        SentrySDK.setStart(with: client.options)
+        SentrySDKInternal.setCurrentHub(hub)
+        // Creating the hub enriches the scope with the contexts of the running app, so the
+        // contexts of the current app version are set afterwards.
+        scope.setContext(value: ["name": "iOS", "version": "26.0", "build": "23A341", "kernel_version": "Darwin 25.0.0", "rooted": false], key: "os")
+        scope.setContext(value: ["app_identifier": "io.sentry.app", "app_name": "App", "app_version": "2.0.0", "app_build": "20", "build_type": "app store", "app_start_time": "2026-10-05T10:00:00.000Z"], key: "app")
+        scope.setContext(value: ["model": "iPhone17,1", "arch": "arm64e", SentryDeviceContextFreeMemoryKey: 1_000], key: "device")
+        scope.setTag(value: "value", key: "tag")
+        scope.setUser(TestData.user)
+        scope.addBreadcrumb(TestData.crumb)
+        scope.addAttachment(TestData.dataAttachment)
+        return scope
+    }
+
+    private func givenMetricKitManager(releaseName: String?) -> SentryMXManager {
+        SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            releaseName: releaseName,
+            bundleInfo: [
+                "CFBundleIdentifier": "io.sentry.app",
+                "CFBundleShortVersionString": "2.0.0",
+                "CFBundleVersion": "20"
+            ],
+            processIdentifier: Self.metricKitProcessIdentifier,
+            processStartDate: Self.metricKitProcessStartDate
+        )
+    }
+
+    private func givenHangPayload(appVersion: String, appBuild: String, pid: pid_t, timeStampBegin: Date) throws -> TestMXDiagnosticPayload {
+        let metaData = TestMXMetaData()
+        metaData.overrides.applicationBuildVersion = appBuild
+        metaData.overrides.osVersion = "iPhone OS 18.6.2 (22G100)"
+        metaData.overrides.pid = pid
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        diagnostic.overrides.metaData = metaData
+        diagnostic.overrides.applicationVersion = appVersion
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+        return payload
     }
 
     func testCaptureEvent_whenMetricKitHasNoStacktrace_shouldNotAttachCurrentThreads() throws {
@@ -837,6 +917,78 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(actual.exceptions?.first?.stacktrace, stacktrace)
     }
 #endif
+
+    func testCaptureEvent_whenEventIsFromPreviousProcess_shouldNotApplyScopeOrCurrentState() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+        })
+        let scope = fixture.scope
+        scope.setUser(fixture.user)
+        scope.addBreadcrumb(TestData.crumb)
+        scope.setExtra(value: "extra", key: "key")
+        scope.setLevel(.fatal)
+        scope.span = SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil)
+        let event = Event(level: .warning)
+        event.message = fixture.message
+        event.context = ["app": ["app_version": "1.0.0"], "device": ["model": "iPhone17,1"]]
+        event.isFromPreviousProcess = true
+
+        // -- Act --
+        sut.capture(event: event, scope: scope)
+
+        // -- Assert --
+        let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        let actual = capture.event
+        XCTAssertNil(actual.tags)
+        XCTAssertNil(actual.extra)
+        XCTAssertNil(actual.breadcrumbs)
+        XCTAssertNil(actual.user?.email)
+        XCTAssertEqual(actual.level, .warning)
+        XCTAssertEqual(actual.environment, sut.options.environment)
+        XCTAssertNil(actual.threads)
+        XCTAssertNil(actual.debugMeta)
+        XCTAssertNil(actual.context?["trace"])
+        XCTAssertNil(actual.context?["culture"])
+        XCTAssertEqual(actual.context?["app"] as? [String: String], ["app_version": "1.0.0"])
+        XCTAssertEqual(actual.context?["device"] as? [String: String], ["model": "iPhone17,1"])
+        XCTAssertEqual(fixture.eventContextEnricher.enrichWithAppStateInvocations.count, 0)
+        XCTAssertEqual(capture.attachments.count, 0)
+    }
+
+    func testCaptureEvent_whenEventIsFromPreviousProcess_shouldNotOverlayCurrentScope() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "layer")
+        let event = Event()
+        event.isFromPreviousProcess = true
+
+        // -- Act --
+        SentryDependencyContainer.sharedInstance().currentScopeStorage.withScope(currentScope) {
+            sut.capture(event: event, scope: Scope())
+        }
+
+        // -- Assert --
+        XCTAssertNil(try lastSentEvent().tags)
+    }
+
+    func testCaptureEvent_whenEventIsFromPreviousProcessWithHintAttachment_shouldSendOnlyHintAttachment() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let event = Event()
+        event.isFromPreviousProcess = true
+        let hint = Hint()
+        let attachment = Attachment(data: Data("diagnostic".utf8), filename: "MXDiagnosticPayload.json")
+        hint.attachments = [attachment]
+
+        // -- Act --
+        sut.capture(event: event, scope: fixture.scope, hint: hint)
+
+        // -- Assert --
+        let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(capture.attachments, [attachment])
+    }
 
     func testCaptureEventWithAttachStacktrace() throws {
         let event = Event(level: SentryLevel.fatal)
@@ -1155,6 +1307,29 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions).count, 2)
         XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.first?.mechanism?.meta?.error).code, 101)
         XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.last?.mechanism?.meta?.error).code, 100)
+    }
+
+    func testSessionDelegate_whenHandlerReturnsSession_shouldBridgeIdenticalObject() {
+        // -- Arrange --
+        let session = fixture.session
+        let delegate = SentryTestSessionDelegate { session }
+
+        // -- Act --
+        let result = Dynamic(delegate).incrementSessionErrors().asObject
+
+        // -- Assert --
+        XCTAssertIdentical(result, session)
+    }
+
+    func testSessionDelegate_whenHandlerReturnsNil_shouldBridgeNil() {
+        // -- Arrange --
+        let delegate = SentryTestSessionDelegate { nil }
+
+        // -- Act --
+        let result = Dynamic(delegate).incrementSessionErrors().asObject
+
+        // -- Assert --
+        XCTAssertNil(result)
     }
 
     func testCaptureErrorWithSession() throws {
@@ -3243,6 +3418,7 @@ final class SentryClientTests: XCTestCase {
 #endif // SDK_V10
     }
 
+#if !SDK_V10
     func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
         let scope = fixture.scope
         scope.setUser(fixture.user)
@@ -3252,6 +3428,65 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.user.userId, actual.user?.userId)
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
+#endif // !SDK_V10
+
+#if SDK_V10
+    func testCapture_whenUserHasNoId_shouldApplyInstallationIdFallback() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+        let user = fixture.user
+        user.username = "jane"
+        scope.setUser(user)
+        let sut = fixture.getSut()
+
+        // -- Act --
+        sut.capture(message: "any message", scope: scope)
+
+        // -- Assert --
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: sut.options.cacheDirectoryPath), actual.user?.userId)
+        XCTAssertEqual(actual.user?.email, user.email)
+        XCTAssertEqual(actual.user?.username, "jane")
+        XCTAssertNil(user.userId)
+    }
+
+    func testCapture_whenEventUserHasEmptyId_shouldApplyInstallationIdFallback() throws {
+        // -- Arrange --
+        let event = Event()
+        let user = User()
+        user.userId = ""
+        user.username = "jane"
+        event.user = user
+        let sut = fixture.getSut()
+
+        // -- Act --
+        sut.capture(event: event)
+
+        // -- Assert --
+        let actual = try lastSentEvent()
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: sut.options.cacheDirectoryPath), actual.user?.userId)
+        XCTAssertEqual(actual.user?.username, "jane")
+    }
+
+    func testCapture_whenUserInfoCollectionIsDisabled_shouldNotApplyInstallationIdFallback() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let user = User()
+        user.username = "jane"
+        scope.setUser(user)
+        let sut = fixture.getSut { options in
+            options.dataCollection.userInfo = false
+        }
+
+        // -- Act --
+        sut.capture(message: "any message", scope: scope)
+
+        // -- Assert --
+        let actual = try lastSentEvent()
+        XCTAssertNil(actual.user?.userId)
+        XCTAssertEqual(actual.user?.username, "jane")
+    }
+#endif // SDK_V10
 
     func testInstallationIdNotSetWhenUserIsSetWithId() throws {
         let scope = Scope()
@@ -3659,7 +3894,7 @@ final class SentryClientTests: XCTestCase {
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
         //Not a video url, but its ok for test the envelope
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(sentryTestResourceBundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
 
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
@@ -3675,7 +3910,7 @@ final class SentryClientTests: XCTestCase {
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(sentryTestResourceBundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
 
         //Nothing should be captured because beforeSend returned a non ReplayEvent
@@ -3691,7 +3926,7 @@ final class SentryClientTests: XCTestCase {
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(sentryTestResourceBundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
 
         //Nothing should be captured because beforeSend returned nil
@@ -3720,7 +3955,7 @@ final class SentryClientTests: XCTestCase {
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
         //Not a video url, but its ok for test the envelope
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(sentryTestResourceBundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
 
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
@@ -3739,7 +3974,7 @@ final class SentryClientTests: XCTestCase {
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
         //Not a video url, but its ok for test the envelope
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(sentryTestResourceBundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
 
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
@@ -4067,14 +4302,14 @@ final class SentryClientTests: XCTestCase {
 
 extension SentryClientTests {
 
-    final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
+    final class SentryTestSessionDelegate: SentryTestSessionDelegateWrapper {
         private let handler: () -> SentrySession?
 
         init(handler: @escaping () -> SentrySession?) {
             self.handler = handler
         }
 
-        func incrementSessionErrors() -> SentrySession? {
+        override func wrapper_incrementSessionErrors() -> Any? {
             handler()
         }
     }

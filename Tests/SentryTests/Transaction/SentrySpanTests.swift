@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 class SentrySpanTests: XCTestCase {
@@ -114,7 +115,7 @@ class SentrySpanTests: XCTestCase {
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
@@ -133,7 +134,7 @@ class SentrySpanTests: XCTestCase {
         SentryContinuousProfiler.stop()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
@@ -152,7 +153,7 @@ class SentrySpanTests: XCTestCase {
         SentryContinuousProfiler.stop()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
@@ -170,7 +171,7 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
@@ -193,7 +194,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(profileId1, profileId2)
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId1)
     }
     
@@ -203,14 +204,14 @@ class SentrySpanTests: XCTestCase {
     /// +-------span-------+
     ///                          +----profile----+
     /// ```
-    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() {
+    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() throws {
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
         SentryContinuousProfiler.stop()
         let span = fixture.getSut()
         span.finish()
         
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertNil(serialized["profile_id"])
     }
 #endif // os(iOS) || os(macOS)
@@ -344,6 +345,32 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
     }
     
+    func testFinish_whenTimestampIsBeingSet_shouldNotReportFinishedWithoutTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = BlockingDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        let span = fixture.getSutWithTracer()
+        dateProvider.blockNextDateCall()
+
+        // -- Act --
+        let finished = expectation(description: "span finished")
+        DispatchQueue.global().async {
+            span.finish()
+            finished.fulfill()
+        }
+        XCTAssertEqual(dateProvider.waitUntilDateCallIsBlocked(), .success)
+
+        // -- Assert --
+        // A span observable as finished must already carry its end timestamp. The tracer
+        // relies on this when it reads the timestamps of its finished children.
+        XCTAssertEqual(span.isFinished, span.timestamp != nil)
+
+        dateProvider.unblockDateCall()
+        wait(for: [finished], timeout: 5)
+        XCTAssertTrue(span.isFinished)
+        XCTAssertNotNil(span.timestamp)
+    }
+
     func testFinishWithChild() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
@@ -492,7 +519,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(actual["flag.evaluation.flag-10"])
     }
 
-    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() {
+    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() throws {
         // -- Arrange --
         let span: Span = SentryNoOpSpan.shared()
 
@@ -500,7 +527,7 @@ class SentrySpanTests: XCTestCase {
         span.addFeatureFlag(name: "checkout", result: true)
 
         // -- Assert --
-        XCTAssertEqual(span.serialize().count, 0)
+        XCTAssertEqual(try XCTUnwrap(span as? SentrySpanInternal).serialize().count, 0)
     }
 
     func testFeatureFlags_whenStartingChildSpan_shouldNotInheritParentFlags() throws {
@@ -512,10 +539,10 @@ class SentrySpanTests: XCTestCase {
         let child = parent.startChild(operation: fixture.someOperation)
 
         // -- Assert --
-        let parentData = try XCTUnwrap(parent.serialize()["data"] as? [String: Any])
+        let parentData = try XCTUnwrap(try XCTUnwrap(parent as? SentrySpanInternal).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(parentData["flag.evaluation.checkout"] as? Bool), true)
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap(try XCTUnwrap(child as? SentrySpanInternal).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.checkout"])
     }
     
@@ -532,7 +559,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(span.tags[fixture.extraKey])
     }
     
-    func testSerialization() {
+    func testSerialization() throws {
         let span = fixture.getSut()
         
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
@@ -543,7 +570,7 @@ class SentrySpanTests: XCTestCase {
         span.parentSpanId = SpanId()
         span.spanDescription = "Span Description"
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
         XCTAssertEqual(serialization["trace_id"] as? String, span.traceId.sentryIdString)
@@ -581,13 +608,13 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(callStack)
     }
     
-    func testSanitizeData() {
+    func testSanitizeData() throws {
         let span = fixture.getSut()
         
         span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         let data = serialization["data"] as? [String: Any]
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
@@ -603,10 +630,10 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
     
-    func testSerialization_WithNoDataAndTag() {
+    func testSerialization_WithNoDataAndTag() throws {
         let span = fixture.getSut()
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(serialization["tag"])
     }
@@ -816,4 +843,44 @@ class SentrySpanTests: XCTestCase {
         return (displayLinkWrapper, framesTracker)
     }
 #endif // os(iOS) || os(tvOS)
+}
+
+/// Blocks inside `date()` once requested so a test can observe span state in the middle of `finish()`.
+private final class BlockingDateProvider: NSObject, SentryCurrentDateProvider {
+    private let lock = NSLock()
+    private var shouldBlockNextDateCall = false
+    private let dateCallEntered = DispatchSemaphore(value: 0)
+    private let dateCallMayProceed = DispatchSemaphore(value: 0)
+
+    func blockNextDateCall() {
+        lock.synchronized { shouldBlockNextDateCall = true }
+    }
+
+    func waitUntilDateCallIsBlocked() -> DispatchTimeoutResult {
+        dateCallEntered.wait(timeout: .now() + 5)
+    }
+
+    func unblockDateCall() {
+        dateCallMayProceed.signal()
+    }
+
+    func date() -> Date {
+        let shouldBlock = lock.synchronized {
+            defer { shouldBlockNextDateCall = false }
+            return shouldBlockNextDateCall
+        }
+        if shouldBlock {
+            dateCallEntered.signal()
+            dateCallMayProceed.wait()
+        }
+        return TestData.timestamp
+    }
+
+    func timezoneOffset() -> Int { 0 }
+
+    func systemTime() -> UInt64 { 0 }
+
+    func systemUptime() -> TimeInterval { 0 }
+
+    func getAbsoluteTime() -> UInt64 { 0 }
 }

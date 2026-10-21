@@ -8,6 +8,7 @@ import Foundation
 import SentryTestUtilsObjC
 import XCTest
 
+// swiftlint:disable type_body_length
 /// `open` because subclassed in test targets, e.g. to override `getTelemetryProcessor()`.
 open class TestClient: SentryTestClientWrapper {
 
@@ -77,36 +78,6 @@ open class TestClient: SentryTestClientWrapper {
         )
     }
 
-    @_spi(Private) @nonobjc public convenience init(
-        options: NSObject,
-        dateProvider: SentryCurrentDateProvider,
-        transportAdapter: SentryTransportAdapter,
-        fileManager: SentryFileManager,
-        threadInspector: SentryDefaultThreadInspector,
-        debugImageProvider: SentryDebugImageProvider,
-        random: SentryRandomProtocol,
-        locale: Locale,
-        timezone: TimeZone,
-        eventContextEnricher: SentryEventContextEnricher,
-        binaryImageCache: SentryBinaryImageCache,
-        dispatchQueueWrapper: SentryDispatchQueueWrapper
-    ) {
-        self.init(
-            options: options,
-            dateProvider: dateProvider as Any,
-            transportAdapter: transportAdapter as Any,
-            fileManager: fileManager as Any,
-            threadInspector: threadInspector as Any,
-            debugImageProvider: debugImageProvider as Any,
-            random: random as Any,
-            locale: locale,
-            timezone: timezone,
-            eventContextEnricher: eventContextEnricher as Any,
-            binaryImageCache: binaryImageCache as Any,
-            dispatchQueueWrapper: dispatchQueueWrapper as Any
-        )
-    }
-    
     @_spi(Private)
     public var captureSessionInvocations = Invocations<SentrySession>()
     @_spi(Private)
@@ -131,6 +102,15 @@ open class TestClient: SentryTestClientWrapper {
             return event.eventId
         }
         captureEventWithScopeInvocations.record((event, scope, additionalEnvelopeItems))
+        return event.eventId
+    }
+
+    public var captureEventWithScopeAndHintInvocations = Invocations<(event: Event, scope: Scope, hint: Hint?)>()
+    public override func wrapper_capture(event: Event, scope: Scope, hint: Any?) -> SentryId {
+        // Also recorded as a capture with scope, so assertions don't depend on whether the
+        // captured event came with a hint.
+        captureEventWithScopeInvocations.record((event, scope, []))
+        captureEventWithScopeAndHintInvocations.record((event, scope, hint as? Hint))
         return event.eventId
     }
     

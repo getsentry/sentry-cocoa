@@ -1,20 +1,22 @@
-// SwiftPM replacement for the profiler portion of SentryTests-Bridging-Header.h.
-// Xcode project tests continue to use their bridging header directly.
+#import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
-
-#if SWIFT_PACKAGE && !SDK_V10 && SENTRY_TARGET_PROFILING_SUPPORTED
 @import _SentryPrivate;
+
+// These original headers are directly importable by both Xcode and SwiftPM tests,
+// including V10's main-suite profiling tests.
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler+Test.h"
-#    import "SentryFileManager+Test.h"
-#    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryProfilerDefines.h"
 #    import "SentryProfilerSerialization+Test.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentrySDKInternal+Tests.h"
 #    import "SentryTraceProfiler+Test.h"
+#endif
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryFileManager+Test.h"
+#    import "SentryProfilerSerialization.h"
+#    import "SentrySDKInternal+Tests.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,19 +26,19 @@ FOUNDATION_EXPORT void sentry_test_sdkInitProfilerTasks(NSObject *options, Sentr
     NS_SWIFT_NAME(sentry_sdkInitProfilerTasks(_:_:));
 FOUNDATION_EXPORT void sentry_test_configureContinuousProfiling(NSObject *options)
     NS_SWIFT_NAME(sentry_configureContinuousProfiling(_:));
-FOUNDATION_EXPORT void sentry_test_configureLaunchProfilingForNextLaunch(NSObject *options)
-    NS_SWIFT_NAME(sentry_configureLaunchProfilingForNextLaunch(_:));
-FOUNDATION_EXPORT BOOL sentry_test_willProfileNextLaunch(NSObject *options)
-    NS_SWIFT_NAME(sentry_willProfileNextLaunch(_:));
 
-#    if SENTRY_HAS_UIKIT
-// Redeclare the initializer without its Swift-defined protocol parameter, which SwiftPM's
-// Clang importer cannot resolve through the superclass's forward declaration.
+NS_ASSUME_NONNULL_END
+#endif
+
+#if SENTRY_HAS_UIKIT
+NS_ASSUME_NONNULL_BEGIN
+
+// Shared by main-suite and profiler tests in both SDK versions and build systems.
+// The implementation restores the Swift-defined protocol behind the Clang module boundary.
 @interface TestDelayedWrapper : SentryDelayedFramesTracker
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
                                      dateProvider:(id)dateProvider; // OK: Swift protocol bridge.
 @end
-#    endif
 
 NS_ASSUME_NONNULL_END
 #endif

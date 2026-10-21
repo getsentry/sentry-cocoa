@@ -1,16 +1,14 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import Foundation
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(visionOS)
-class TestDelayedWrapper: SentryDelayedFramesTracker {}
-
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {

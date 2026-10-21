@@ -3,6 +3,7 @@
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"

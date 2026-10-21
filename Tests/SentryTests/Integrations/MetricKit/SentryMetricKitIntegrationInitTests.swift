@@ -16,14 +16,14 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
     func testOptionEnabled_MetricKitManagerInitialized() {
           let options = Options()
           options.enableMetricKit = true
-          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+          let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
           XCTAssertNotNil(sut)
     }
 
     func testOptionDisabled_MetricKitManagerNotInitialized() {
           let options = Options()
           options.enableMetricKit = false
-          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+          let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
           XCTAssertNil(sut)
     }
 
@@ -33,7 +33,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         options.enableMetricKit = true
 
         // -- Act --
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         // -- Assert --
         XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang])
@@ -46,7 +46,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         options.experimental.metricKit.enabledDiagnosticReports = [.hang]
 
         // -- Act --
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         // -- Assert --
         // Before v10 a configured set of reports opts in on its own.
@@ -60,7 +60,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         options.experimental.metricKit.enabledDiagnosticReports = [.hang, .crash]
 
         // -- Act --
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         // -- Assert --
         XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.hang, .crash])
@@ -75,7 +75,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         options.experimental.metricKit.enabledDiagnosticReports = []
 
         // -- Act --
-        let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+        let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
 
         // -- Assert --
 #if SDK_V10
@@ -91,7 +91,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         let options = Options()
 
         // -- Act --
-        let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+        let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
 
         // -- Assert --
 #if SDK_V10

@@ -136,6 +136,16 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitHangReportingModeFlamegraphAttachment",
+    "parent": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitHangReportingModeLegacy",
+    "parent": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCProfileLifecycleManual",
     "parent": "SentryObjCProfileLifecycle"
   },
@@ -361,6 +371,10 @@
   {
     "kind": "EnumDecl",
     "name": "SentryObjCLogLevel"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCMetricKitHangReportingMode"
   },
   {
     "kind": "EnumDecl",
@@ -674,6 +688,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCMetricKitOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCMetricValue",
     "super": "NSObject",
     "has_inner": true
@@ -693,6 +713,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCPrivacyOptions",
     "super": "NSObject",
     "has_inner": true
   },
@@ -2532,8 +2558,15 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "excludeViewTypeFromSubtreeTraversal:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "excludedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "returnType": "NSSet<NSString *> * _Nonnull",
     "instance": true
   },
   {
@@ -2846,6 +2879,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "hangReportingMode",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "SentryObjCMetricKitHangReportingMode",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "hasIntegration:",
     "parent": "SentryObjCHub",
     "returnType": "BOOL",
@@ -3015,8 +3055,15 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "includeViewTypeInSubtreeTraversal:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "includedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "returnType": "NSSet<NSString *> * _Nonnull",
     "instance": true
   },
   {
@@ -3344,6 +3391,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCMetricValue",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -3366,6 +3420,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4233,14 +4294,14 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "maskAllImages",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "maskAllText",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -4254,7 +4315,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "maskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "NSArray<Class> * _Nonnull",
     "instance": true
   },
@@ -4396,6 +4457,13 @@
     "name": "method",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "metrickit",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "SentryObjCMetricKitOptions * _Nonnull",
     "instance": true
   },
   {
@@ -4821,6 +4889,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCMetricValue",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -5215,6 +5290,13 @@
     "name": "preContext",
     "parent": "SentryObjCFrame",
     "returnType": "NSArray<NSString *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "privacy",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCPrivacyOptions * _Nonnull",
     "instance": true
   },
   {
@@ -5639,14 +5721,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "serialize",
-    "parent": "SentryObjCScope",
+    "name": "serializeDebugMeta:",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "serializeEvent:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializeScope:",
     "parent": "SentryObjCInternalSerializerApi",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
@@ -6605,6 +6694,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setHangReportingMode:",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setHeaders:",
     "parent": "SentryObjCRequest",
     "returnType": "void",
@@ -6844,21 +6940,21 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaskAllImages:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaskAllText:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaskedViewClasses:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7251,6 +7347,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setPreContext:",
     "parent": "SentryObjCFrame",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setPrivacy:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7880,7 +7983,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setUnmaskedViewClasses:",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "void",
     "instance": true
   },
@@ -8853,7 +8956,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "unmaskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "returnType": "NSArray<Class> * _Nonnull",
     "instance": true
   },
@@ -9880,6 +9983,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "excludedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "type": "NSSet<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "experimental",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCExperimentalOptions * _Nonnull"
@@ -10030,6 +10139,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "hangReportingMode",
+    "parent": "SentryObjCMetricKitOptions",
+    "type": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "header",
     "parent": "SentryObjCEnvelope",
     "type": "SentryObjCEnvelopeHeader * _Nonnull"
@@ -10141,6 +10256,12 @@
     "name": "inAppIncludes",
     "parent": "SentryObjCOptions",
     "type": "NSArray<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "includedViewClasses",
+    "parent": "SentryObjCPrivacyOptions",
+    "type": "NSSet<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10343,19 +10464,19 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maskAllImages",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "maskAllText",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "maskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "NSArray<Class> * _Nonnull"
   },
   {
@@ -10477,6 +10598,12 @@
     "name": "method",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "metrickit",
+    "parent": "SentryObjCExperimentalOptions",
+    "type": "SentryObjCMetricKitOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10879,6 +11006,12 @@
     "name": "preContext",
     "parent": "SentryObjCFrame",
     "type": "NSArray<NSString *> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "privacy",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCPrivacyOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11675,7 +11808,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "unmaskedViewClasses",
-    "parent": "SentryObjCReplayOptions",
+    "parent": "SentryObjCPrivacyOptions",
     "type": "NSArray<Class> * _Nonnull"
   },
   {
@@ -11844,6 +11977,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCLogLevel",
     "type": "enum SentryObjCLogLevel"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCMetricKitHangReportingMode",
+    "type": "enum SentryObjCMetricKitHangReportingMode"
   },
   {
     "kind": "TypedefDecl",

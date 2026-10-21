@@ -2,6 +2,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"

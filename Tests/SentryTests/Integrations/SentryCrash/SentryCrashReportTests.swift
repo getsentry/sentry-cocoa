@@ -1,10 +1,12 @@
 #if !SDK_V10
 #if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
 #endif
 @_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryCrashReportTests: XCTestCase {

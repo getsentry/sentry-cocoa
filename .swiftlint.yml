@@ -6,7 +6,6 @@ excluded:
   - DependencyManagerTests
   - Sources/SentryCrash
   - vendor
-  - Tests/Perf
   - SentryTestUtils/Dynamic/**
   - .build/**
   - "**/.build/**"

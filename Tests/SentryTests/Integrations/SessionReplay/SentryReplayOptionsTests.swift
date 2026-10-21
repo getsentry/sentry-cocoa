@@ -8,6 +8,12 @@ import Foundation
 import XCTest
 
 class SentryReplayOptionsTests: XCTestCase {
+    #if SDK_V10
+    private typealias MaskingOptions = SentryPrivacyOptions
+    #else
+    private typealias MaskingOptions = SentryReplayOptions
+    #endif // SDK_V10
+
     // MARK: - Initializer
 
     func testInit_withoutArguments_shouldUseDefaults() {
@@ -17,13 +23,17 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.sessionSampleRate, 0)
         XCTAssertEqual(options.onErrorSampleRate, 0)
+        #if !SDK_V10
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
+        #endif // !SDK_V10
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
 
+        #if !SDK_V10
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+        #endif // !SDK_V10
         XCTAssertEqual(options.quality, .medium)
         XCTAssertEqual(options.frameRate, 1)
         XCTAssertEqual(options.errorReplayDuration, 30)
@@ -41,6 +51,14 @@ class SentryReplayOptionsTests: XCTestCase {
     func testInit_withAllArguments_shouldSetValues() {
         // -- Act --
         // Use the opposite of the default values to check if they are set correctly
+        #if SDK_V10
+        let options = SentryReplayOptions(
+            sessionSampleRate: 0.5,
+            onErrorSampleRate: 0.8,
+            enableViewRendererV2: false,
+            enableFastViewRendering: true
+        )
+        #else
         let options = SentryReplayOptions(
             sessionSampleRate: 0.5,
             onErrorSampleRate: 0.8,
@@ -49,6 +67,7 @@ class SentryReplayOptionsTests: XCTestCase {
             enableViewRendererV2: false,
             enableFastViewRendering: true
         )
+        #endif // SDK_V10
         
         // Set network details options after initialization since they're not in the public initializer
         options.networkDetailAllowUrls = ["https://api.example.com", "https://test.example.org"]
@@ -60,13 +79,17 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.sessionSampleRate, 0.5)
         XCTAssertEqual(options.onErrorSampleRate, 0.8)
+        #if !SDK_V10
         XCTAssertFalse(options.maskAllText)
         XCTAssertFalse(options.maskAllImages)
+        #endif // !SDK_V10
         XCTAssertFalse(options.enableViewRendererV2)
         XCTAssertTrue(options.enableFastViewRendering)
 
+        #if !SDK_V10
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+        #endif // !SDK_V10
         XCTAssertEqual(options.quality, .medium)
         XCTAssertEqual(options.frameRate, 1)
         XCTAssertEqual(options.errorReplayDuration, 30)
@@ -84,6 +107,13 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInit_sessionSampleRateOmitted_shouldUseDefaultValues() {
         // -- Act --
+        #if SDK_V10
+        let options = SentryReplayOptions(
+            onErrorSampleRate: 0.8,
+            enableViewRendererV2: false,
+            enableFastViewRendering: true
+        )
+        #else
         let options = SentryReplayOptions(
             onErrorSampleRate: 0.8,
             maskAllText: false,
@@ -91,6 +121,7 @@ class SentryReplayOptionsTests: XCTestCase {
             enableViewRendererV2: false,
             enableFastViewRendering: true
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertEqual(options.sessionSampleRate, 0)
@@ -98,6 +129,13 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInit_onErrorSampleRateOmitted_shouldUseDefaultValues() {
         // -- Act --
+        #if SDK_V10
+        let options = SentryReplayOptions(
+            sessionSampleRate: 0.5,
+            enableViewRendererV2: false,
+            enableFastViewRendering: true
+        )
+        #else
         let options = SentryReplayOptions(
             sessionSampleRate: 0.5,
             maskAllText: false,
@@ -105,11 +143,22 @@ class SentryReplayOptionsTests: XCTestCase {
             enableViewRendererV2: false,
             enableFastViewRendering: true
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertEqual(options.onErrorSampleRate, 0)
     }
 
+    #if SDK_V10
+    func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
+        // -- Act --
+        var options = SentryPrivacyOptions()
+        options.maskAllImages = false
+
+        // -- Assert --
+        XCTAssertTrue(options.maskAllText)
+    }
+    #else
     func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
         // -- Act --
         let options = SentryReplayOptions(
@@ -123,7 +172,18 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
     }
+    #endif // SDK_V10
 
+    #if SDK_V10
+    func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
+        // -- Act --
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
+
+        // -- Assert --
+        XCTAssertTrue(options.maskAllImages)
+    }
+    #else
     func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
         // -- Act --
         let options = SentryReplayOptions(
@@ -137,9 +197,17 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllImages)
     }
+    #endif // SDK_V10
 
     func testInit_enableViewRendererV2Omitted_shouldUseDefaultValues() {
         // -- Act --
+        #if SDK_V10
+        let options = SentryReplayOptions(
+            sessionSampleRate: 0.5,
+            onErrorSampleRate: 0.8,
+            enableFastViewRendering: true
+        )
+        #else
         let options = SentryReplayOptions(
             sessionSampleRate: 0.5,
             onErrorSampleRate: 0.8,
@@ -147,6 +215,7 @@ class SentryReplayOptionsTests: XCTestCase {
             maskAllImages: false,
             enableFastViewRendering: true
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertTrue(options.enableViewRendererV2)
@@ -154,6 +223,13 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInit_enableFastViewRenderingOmitted_shouldUseDefaultValues() {
         // -- Act --
+        #if SDK_V10
+        let options = SentryReplayOptions(
+            sessionSampleRate: 0.5,
+            onErrorSampleRate: 0.8,
+            enableViewRendererV2: false
+        )
+        #else
         let options = SentryReplayOptions(
             sessionSampleRate: 0.5,
             onErrorSampleRate: 0.8,
@@ -161,6 +237,7 @@ class SentryReplayOptionsTests: XCTestCase {
             maskAllImages: false,
             enableViewRendererV2: false
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertFalse(options.enableFastViewRendering)
@@ -229,13 +306,17 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.sessionSampleRate, 0)
         XCTAssertEqual(options.onErrorSampleRate, 0)
+        #if !SDK_V10
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
+        #endif // !SDK_V10
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
 
+        #if !SDK_V10
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+        #endif // !SDK_V10
         XCTAssertEqual(options.quality, .medium)
         XCTAssertEqual(options.frameRate, 1)
         XCTAssertEqual(options.errorReplayDuration, 30)
@@ -278,25 +359,35 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.sessionSampleRate, 0.44)
         XCTAssertEqual(options.onErrorSampleRate, 0.44)
+        #if !SDK_V10
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
+        #endif // !SDK_V10
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
 
+        #if !SDK_V10
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         let maskedViewClass: AnyClass = try XCTUnwrap(options.maskedViewClasses.first)
         XCTAssertEqual(ObjectIdentifier(maskedViewClass), ObjectIdentifier(NSString.self))
+        #endif // !SDK_V10
 
+        #if !SDK_V10
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         let unmaskedViewClass: AnyClass = try XCTUnwrap(options.unmaskedViewClasses.first)
         XCTAssertEqual(ObjectIdentifier(unmaskedViewClass), ObjectIdentifier(NSNumber.self))
+        #endif // !SDK_V10
 
+        #if !SDK_V10
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
         XCTAssertTrue(options.excludedViewClasses.contains("AnotherView"))
         XCTAssertEqual(options.excludedViewClasses.count, 2)
+        #endif // !SDK_V10
 
+        #if !SDK_V10
         XCTAssertTrue(options.includedViewClasses.contains("CameraUI.ChromeSwiftUIView"))
         XCTAssertEqual(options.includedViewClasses.count, 1)
+        #endif // !SDK_V10
 
         XCTAssertEqual(options.quality, .low)
         XCTAssertEqual(options.frameRate, 2)
@@ -360,7 +451,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenValidValue_shouldSetValue() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": ["NSString"]
         ])
 
@@ -372,7 +463,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenMultipleValidValue_shouldKeepAll() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": ["NSString", "NSNumber"]
         ])
 
@@ -387,7 +478,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenInvalidValue_shouldExcludedClass() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": "invalid_value"
         ])
 
@@ -397,7 +488,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenInvalidArrayValue_shouldFilterInvalidValues() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": [
                 "NSString",         // Valid class
                 "some.class",       // Invalid class name
@@ -417,7 +508,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenMixedValidAndInvalidValues_shouldKeepOnlyValidValues() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": [
                 "NSString",         // Valid class
                 "NSNumber",         // Valid class
@@ -437,7 +528,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenKeyOmitted_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [:])
+        let options = MaskingOptions(dictionary: [:])
 
         // -- Assert --
         XCTAssertEqual(options.maskedViewClasses.count, 0)
@@ -447,7 +538,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_unmaskedViewClasses_whenValidValue_shouldSetValue() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": ["NSString"]
         ])
 
@@ -459,7 +550,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testInitFromDict_unmaskedViewClasses_whenMultipleValidValue_shouldKeepAll() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": ["NSString", "NSNumber"]
         ])
 
@@ -474,7 +565,7 @@ class SentryReplayOptionsTests: XCTestCase {
         
     func testInitFromDict_unmaskedViewClasses_whenNotValidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": "invalid_value"
         ])
 
@@ -484,7 +575,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_unmaskedViewClasses_whenInvalidArrayValues_shouldUseDefaultValue() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": [
                 "not.a.class",      // Invalid class name
                 123,                // Invalid type (number)
@@ -501,7 +592,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testInitFromDict_unmaskedViewClasses_whenMixedValidAndInvalidValues_shouldKeepOnlyValidValues() throws {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": [
                 "NSString",         // Valid class
                 "NSNumber",         // Valid class
@@ -521,7 +612,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_unmaskedViewClasses_whenKeyOmitted_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [:])
+        let options = MaskingOptions(dictionary: [:])
 
         // -- Assert --
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
@@ -531,14 +622,14 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllText_whenValidValue_shouldSetValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllText": true
         ])
 
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
 
-        let options2 = SentryReplayOptions(dictionary: [
+        let options2 = MaskingOptions(dictionary: [
             "maskAllText": false
         ])
 
@@ -548,7 +639,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllText_whenNotValidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllText": "invalid_value"
         ])
 
@@ -558,14 +649,14 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllImages_whenValidValue_shouldSetValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllImages": true
         ])
 
         // -- Assert --
         XCTAssertTrue(options.maskAllImages)
 
-        let options2 = SentryReplayOptions(dictionary: [
+        let options2 = MaskingOptions(dictionary: [
             "maskAllImages": false
         ])
 
@@ -575,7 +666,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllImages_whenNotValidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllImages": "invalid_value"
         ])
 
@@ -680,14 +771,18 @@ class SentryReplayOptionsTests: XCTestCase {
 
         XCTAssertEqual(options.sessionSampleRate, 0.5)
         XCTAssertEqual(options.onErrorSampleRate, 0.8)
+        #if !SDK_V10
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
+        #endif // !SDK_V10
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(NSNumber.self))
+        #endif // !SDK_V10
         XCTAssertEqual(options.quality, .low)
     }
 
@@ -952,7 +1047,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testInitFromDict_excludedViewClasses_whenValidValue_shouldSetValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "excludedViewClasses": ["MyCustomView"]
         ])
         
@@ -963,7 +1058,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testInitFromDict_excludedViewClasses_whenMultipleValidValues_shouldKeepAll() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "excludedViewClasses": ["MyCustomView1", "MyCustomView2", "MyCustomView3"]
         ])
         
@@ -976,7 +1071,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testInitFromDict_excludedViewClasses_whenInvalidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "excludedViewClasses": "invalid_value"
         ])
         
@@ -986,7 +1081,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testInitFromDict_excludedViewClasses_whenKeyOmitted_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryReplayOptions(dictionary: [:])
+        let options = MaskingOptions(dictionary: [:])
         
         // -- Assert --
         XCTAssertEqual(options.excludedViewClasses.count, 0)
@@ -995,7 +1090,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_defaultInitialization_shouldBeEmpty() {
         // -- Act --
-        let options = SentryReplayOptions()
+        let options = MaskingOptions()
         
         // -- Assert --
         XCTAssertEqual(options.excludedViewClasses.count, 0)
@@ -1004,7 +1099,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_shouldAddViewType() {
         // -- Arrange --
-        let options = SentryReplayOptions()
+        #if SDK_V10
+        var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
@@ -1016,7 +1115,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_multipleCalls_shouldAddAllViewTypes() {
         // -- Arrange --
-        let options = SentryReplayOptions()
+        #if SDK_V10
+        var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView1")
@@ -1032,7 +1135,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAddViewType() {
         // -- Arrange --
-        let options = SentryReplayOptions()
+        #if SDK_V10
+        var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
         
@@ -1046,7 +1153,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAllowRemovingDefaultCameraUIView() {
         // -- Arrange --
-        let options = SentryReplayOptions()
+        #if SDK_V10
+        var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         
         // -- Act --
         options.includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")
@@ -1058,7 +1169,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_nonExistentViewType_shouldNotCrash() {
         // -- Arrange --
-        let options = SentryReplayOptions()
+        #if SDK_V10
+        var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         let initialCount = options.includedViewClasses.count
         
         // -- Act --

@@ -1,10 +1,10 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling
@@ -118,13 +118,23 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 #endif
 
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
+        // -- Arrange --
         try ensureTestServerIsRunning()
 
         let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-baggage-header"))
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try Data("unrelated file read".utf8).write(to: fileURL)
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(at: fileURL)) }
 
-        startSDK()
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
+
+        // Framework file reads must not add unrelated spans to this network-only test.
+        _ = try NSData(contentsOf: fileURL, options: .uncached)
 
         let expect = expectation(description: "Request completed")
         // Cancelling the task in defer can trigger the completion handler again.
@@ -144,9 +154,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         defer { dataTask.cancel() }
 
+        // -- Act --
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
+        // -- Assert --
         let children = try XCTUnwrap(Dynamic(transaction).children as [Span]?)
 
         XCTAssertEqual(children.count, 1) //Span was created in task resume swizzle.
