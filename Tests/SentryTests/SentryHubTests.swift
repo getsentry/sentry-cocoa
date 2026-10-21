@@ -575,15 +575,12 @@ class SentryHubTests: XCTestCase {
     
     func testFlush_withPendingTransactionCapture_waitsForCaptureBeforeFlushingClient() throws {
         // Arrange
-        // Hold the async capture block instead of running it inline, which mimics a busy
-        // io.sentry.default queue that hasn't run the capture yet when flush is called.
         fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0, "Precondition: capture must still be pending.")
 
-        // Run the pending capture on another thread shortly after flush has started waiting.
         let captureQueue = DispatchQueue(label: "SentryHubTests.pendingTransactionCapture")
         captureQueue.asyncAfter(deadline: .now() + 0.2) {
             self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
@@ -605,7 +602,6 @@ class SentryHubTests: XCTestCase {
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
 
         // Act
-        // The capture never runs during flush, so flush must give up after the timeout.
         let expectation = expectation(description: "flush returns after the timeout")
         DispatchQueue.global().async {
             self.sut.flush(timeout: 0.1)
@@ -618,7 +614,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(fixture.client.flushInvocations.count, 1, "flush must still flush the client after the wait timed out.")
         XCTAssertEqual(fixture.client.flushInvocations.first, 0.0, "The whole timeout budget was spent waiting for the capture.")
 
-        // Run the held capture so the hub ends in a consistent state.
         fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
         XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
     }
@@ -633,7 +628,7 @@ class SentryHubTests: XCTestCase {
     }
 
     func testFlush_afterTransactionCaptureRan_flushesClientWithFullTimeout() throws {
-        // Arrange: the test dispatch queue runs the capture block inline, so the capture already finished.
+        // Arrange
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
@@ -655,7 +650,6 @@ class SentryHubTests: XCTestCase {
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0, "Precondition: capture must still be pending.")
 
-        // Run the pending capture on another thread shortly after close has started waiting.
         let captureQueue = DispatchQueue(label: "SentryHubTests.pendingTransactionCaptureOnClose")
         captureQueue.asyncAfter(deadline: .now() + 0.2) {
             self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()

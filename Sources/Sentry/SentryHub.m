@@ -42,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryHubInternal {
     NSObject *_sessionLock;
     NSObject *_integrationsLock;
-    /** Guards @c _pendingTransactionCaptureCount and lets @c flush: wait for it to reach zero. */
     NSCondition *_pendingTransactionCapturesCondition;
     NSUInteger _pendingTransactionCaptureCount;
 }
@@ -393,8 +392,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     // When a user calls finish on a transaction, which calls captureTransaction, the calling thread
     // here could be the main thread, which we only want to block as long as required. Therefore, we
-    // capture the transaction on a background thread. We count the capture as pending until the
-    // block ran, so that flush: can wait for it; see waitForPendingTransactionCaptures:.
+    // capture the transaction on a background thread. We keep track of pending captures so that
+    // flush and close can wait for them.
     [self pendingTransactionCaptureStarted];
     __weak SentryHubInternal *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
@@ -425,8 +424,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Waits until all pending transaction captures ran, or until @c timeout elapsed.
- * @return The part of @c timeout that is left after waiting, or @c 0 when the wait timed out.
+ * Transactions are captured on a background thread. Without waiting for pending captures, flush
+ * could find nothing to send and return before a transaction that finished right before the call
+ * is even stored.
+ * @return The remaining timeout after waiting, or @c 0 if waiting timed out.
  */
 - (NSTimeInterval)waitForPendingTransactionCaptures:(NSTimeInterval)timeout
 {
@@ -434,18 +435,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     [_pendingTransactionCapturesCondition lock];
     if (_pendingTransactionCaptureCount > 0) {
-        SENTRY_LOG_DEBUG(@"Waiting for %lu pending transaction capture(s) before flushing.",
+        SENTRY_LOG_DEBUG(@"Waiting for %lu pending transaction captures.",
             (unsigned long)_pendingTransactionCaptureCount);
     }
-    // waitUntilDate: can wake up spuriously, so we re-check the count until the deadline passes.
+    // waitUntilDate can return early, so we check the count again until the deadline passes.
     while (_pendingTransactionCaptureCount > 0 &&
         [_pendingTransactionCapturesCondition waitUntilDate:deadline]) { }
     BOOL timedOut = _pendingTransactionCaptureCount > 0;
     [_pendingTransactionCapturesCondition unlock];
 
     if (timedOut) {
-        SENTRY_LOG_WARN(
-            @"Waiting for pending transaction captures timed out after %f seconds.", timeout);
+        SENTRY_LOG_WARN(@"Waiting for pending transaction captures timed out.");
         return 0.0;
     }
     return fmax(0.0, [deadline timeIntervalSinceNow]);
@@ -1113,9 +1113,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    // Transactions are captured async on the dispatch queue (see captureTransaction:). Without
-    // waiting for them, flush could find nothing to send and return before a transaction that
-    // finished right before the call reached the transport. The wait counts against the timeout.
+    // The time spent waiting for pending transaction captures counts against the timeout.
     NSTimeInterval remainingTimeout = [self waitForPendingTransactionCaptures:timeout];
     [client flush:remainingTimeout];
 }
@@ -1124,8 +1122,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
-        // Wait before closing the client, because a closed client drops captures. The client's own
-        // shutdown flush keeps its full shutdownTimeInterval on top of this wait.
+        // A closed client doesn't capture anymore, so we wait for pending transaction captures
+        // first. The client then flushes with the full shutdownTimeInterval.
         [self waitForPendingTransactionCaptures:client.options.shutdownTimeInterval];
         [client close];
     }
