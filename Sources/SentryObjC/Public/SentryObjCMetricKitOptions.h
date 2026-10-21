@@ -10,7 +10,7 @@ typedef NS_ENUM(NSInteger, SentryObjCMetricKitHangReportingMode) {
     SentryObjCMetricKitHangReportingModeFlamegraphAttachment = 1,
 };
 
-/// Experimental options for MetricKit diagnostics. Requires enableMetricKit.
+/// Experimental options for the MetricKit integration.
 @interface SentryObjCMetricKitOptions : NSObject
 
 /// How hang diagnostics are reported. Defaults to SentryObjCMetricKitHangReportingModeLegacy.

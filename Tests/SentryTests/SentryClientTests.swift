@@ -701,7 +701,7 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
             // A configured report set enables the integration in every SDK version.
-            options.experimental.metricKit.enabledDiagnosticReports = [.hang]
+            options.experimental.metrickit.enabledDiagnosticReports = [.hang]
             options.enableMetricKitRawPayload = true
             options.attachStacktrace = true
         })

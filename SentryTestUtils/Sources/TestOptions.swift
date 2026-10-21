@@ -34,7 +34,7 @@ public extension Options {
         beforeSendMetric = { metric in metric }
         #if canImport(MetricKit) && !os(tvOS)
         #if SDK_V10
-        experimental.metricKit.enabledDiagnosticReports = []
+        experimental.metrickit.enabledDiagnosticReports = []
         #else
         enableMetricKit = false
         #endif // SDK_V10

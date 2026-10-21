@@ -238,7 +238,7 @@ public struct SentrySDKWrapper {
         let enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
 #if SDK_V10
         if !enableMetricKit {
-            options.experimental.metricKit.enabledDiagnosticReports = []
+            options.experimental.metrickit.enabledDiagnosticReports = []
         }
 #else
         options.enableMetricKit = enableMetricKit

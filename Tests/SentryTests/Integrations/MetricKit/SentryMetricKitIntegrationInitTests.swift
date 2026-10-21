@@ -43,7 +43,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.enableMetricKit = false
-        options.experimental.metricKit.enabledDiagnosticReports = [.hang]
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
 
         // -- Act --
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
@@ -57,7 +57,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
     func testInit_whenDiagnosticReportsConfigured_shouldUseConfiguredDiagnostics() throws {
         // -- Arrange --
         let options = Options()
-        options.experimental.metricKit.enabledDiagnosticReports = [.hang, .crash]
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang, .crash]
 
         // -- Act --
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
@@ -72,7 +72,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         #if !SDK_V10
         options.enableMetricKit = true
         #endif // !SDK_V10
-        options.experimental.metricKit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledDiagnosticReports = []
 
         // -- Act --
         let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())

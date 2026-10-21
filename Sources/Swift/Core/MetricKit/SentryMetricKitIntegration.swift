@@ -33,7 +33,7 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     }
 
     private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
-        let enabledDiagnosticReports = options.experimental.metricKit.enabledDiagnosticReports
+        let enabledDiagnosticReports = options.experimental.metrickit.enabledDiagnosticReports
         #if SDK_V10
         return enabledDiagnosticReports
         #else

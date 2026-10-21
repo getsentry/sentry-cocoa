@@ -2,7 +2,7 @@
 extension SentryMetricKit {
     /// A MetricKit diagnostic report the SDK can capture as an event.
     ///
-    /// Used by ``SentryMetricKit/Options/enabledDiagnosticReports`` to choose which reports to capture.
+    /// Used by ``SentryMetricKitOptions/enabledDiagnosticReports`` to choose which reports to capture.
     public enum DiagnosticReport: Hashable, CaseIterable, Sendable {
         /// A crash of the app, reported by `MXCrashDiagnostic`.
         ///

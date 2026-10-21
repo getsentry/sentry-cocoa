@@ -41,7 +41,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         #if !SDK_V10
         options.enableMetricKit = true
         #endif // !SDK_V10
-        options.experimental.metricKit.enabledDiagnosticReports = [.crash]
+        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let crashDiagnostic = TestMXCrashDiagnostic()
         crashDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")

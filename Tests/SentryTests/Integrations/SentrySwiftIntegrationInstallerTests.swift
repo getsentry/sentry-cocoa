@@ -46,7 +46,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         #if SDK_V10
-        options.experimental.metricKit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledDiagnosticReports = []
         #else
         options.enableMetricKit = false
         #endif // SDK_V10
@@ -93,7 +93,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         #if SDK_V10
-        options.experimental.metricKit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledDiagnosticReports = []
         #else
         options.enableMetricKit = false
         #endif // SDK_V10
