@@ -201,6 +201,25 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
     }
 
+    func testGlobalEventProcessor_whenEventFromPreviousProcess_shouldNotAssociateCurrentReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event(error: NSError(domain: "Error", code: 1))
+        event.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+        event.isFromPreviousProcess = true
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        // The event describes a previous process, such as a MetricKit diagnostic delivered on a later
+        // launch, which the current replay didn't record.
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+        XCTAssertNil(event.context?["replay"])
+    }
+
     func testCaptureFeedback_whenBuffering_shouldCaptureReplayAndAssociateFeedback() throws {
         // -- Arrange --
         var capturedEvent: Event?

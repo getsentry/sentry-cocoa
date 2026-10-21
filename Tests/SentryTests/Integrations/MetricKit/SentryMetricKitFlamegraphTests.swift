@@ -18,7 +18,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = hangTreeJSON
@@ -29,14 +29,14 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         sut.mxManager.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { capturedEvent, scope, _ in
+        try assertEventWithScopeCaptured { capturedEvent, _, _ in
             let event = try XCTUnwrap(capturedEvent)
             let exception = try XCTUnwrap(event.exceptions?.first)
             XCTAssertNil(exception.stacktrace)
             XCTAssertNil(exception.threadId)
             XCTAssertTrue(event.threads?.isEmpty ?? true)
             XCTAssertEqual(exception.mechanism?.type, "mx_hang_diagnostic")
-            let attachment = try XCTUnwrap(scope?.attachments.first { $0.filename == "flamegraph.json" })
+            let attachment = try XCTUnwrap(capturedHintAttachments().first { $0.filename == "flamegraph.json" })
             XCTAssertEqual(attachment.contentType, "application/json")
             XCTAssertEqual(attachment.attachmentType, .flamegraph)
             let item = try XCTUnwrap(SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: 20 * 1_024 * 1_024))
@@ -71,7 +71,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
         let diagnostic = TestMXHangDiagnostic()
         let json = try XCTUnwrap(String(data: hangTreeJSON, encoding: .utf8))
@@ -84,7 +84,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         sut.mxManager.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { capturedEvent, scope, _ in
+        try assertEventWithScopeCaptured { capturedEvent, _, _ in
             let event = try XCTUnwrap(capturedEvent)
             let exception = try XCTUnwrap(event.exceptions?.first)
             let frames = try XCTUnwrap(exception.stacktrace).frames
@@ -94,7 +94,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(exception.threadId, event.threads?.first?.threadId)
             XCTAssertFalse(event.threads?.isEmpty ?? true)
             XCTAssertFalse(event.debugMeta?.isEmpty ?? true)
-            XCTAssertFalse(scope?.attachments.contains { $0.filename == "flamegraph.json" } ?? false)
+            XCTAssertFalse(try capturedHintAttachments().contains { $0.filename == "flamegraph.json" })
         }
     }
 
@@ -103,7 +103,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         givenSdkWithHub(scope: Scope())
         let options = Options()
         options.enableMetricKit = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = hangTreeJSON
@@ -201,6 +201,13 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(trees.first?["thread_attributed"])
         XCTAssertNil(trees.first?["thread_id"])
         XCTAssertEqual(typeForSentryAttachmentName("event.flamegraph"), .flamegraph)
+    }
+
+    private func capturedHintAttachments() throws -> [Attachment] {
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeAndHintInvocations.count, 1)
+        let capture = try XCTUnwrap(client.captureEventWithScopeAndHintInvocations.first)
+        return capture.hint?.attachments ?? []
     }
 
     private var hangTreeJSON: Data {

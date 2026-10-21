@@ -23,7 +23,9 @@ final class SentryMXManagerTests: XCTestCase {
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
             enabledDiagnostics: SentryMXManager.Diagnostic.all
-                .subtracting(disableCrashDiagnostics ? [.crash] : [])
+                .subtracting(disableCrashDiagnostics ? [.crash] : []),
+            // Every payload counts as recorded by this process.
+            processStartDate: .distantPast
         )
 
         return sut
