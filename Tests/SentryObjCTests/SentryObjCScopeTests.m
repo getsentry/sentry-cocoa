@@ -8,7 +8,8 @@
 
 - (NSArray<NSDictionary<NSString *, id> *> *)featureFlagValuesFromScope:(SentryObjCScope *)scope
 {
-    NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+    NSDictionary<NSString *, id> *context =
+        [SentryObjCSDK.internal.serializer serializeScope:scope][@"context"];
     NSDictionary<NSString *, id> *flags = context[@"flags"];
     return flags[@"values"];
 }
@@ -399,7 +400,7 @@
     SentryObjCScope *scope = [[SentryObjCScope alloc] init];
 
     // -- Act --
-    NSDictionary<NSString *, id> *result = [scope serialize];
+    NSDictionary<NSString *, id> *result = [SentryObjCSDK.internal.serializer serializeScope:scope];
 
     // -- Assert --
     XCTAssertNotNil(result);
@@ -412,7 +413,7 @@
     [scope setTagValue:@"val" forKey:@"key"];
 
     // -- Act --
-    NSDictionary<NSString *, id> *result = [scope serialize];
+    NSDictionary<NSString *, id> *result = [SentryObjCSDK.internal.serializer serializeScope:scope];
 
     // -- Assert --
     XCTAssertNotNil(result);

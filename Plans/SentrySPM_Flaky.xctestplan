@@ -1,0 +1,82 @@
+{
+  "configurations": [
+    {
+      "id": "A451EF21-C702-4095-835C-4F189D10635A",
+      "name": "Configuration 1",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "codeCoverage": true,
+    "language": "en",
+    "region": "US",
+    "targetForVariableExpansion": {
+      "containerPath": "container:",
+      "identifier": "SentryObjCInternal",
+      "name": "SentryObjCInternal"
+    },
+    "uiTestingScreenshotsLifetime": "keepAlways",
+    "testExecutionOrdering": "random",
+    "testRepetitionMode": "retryOnFailure",
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "parallelizable": false,
+      "selectedTests": [
+        "SentryInternalApiTests/testProfilingStartAndCollect()",
+        "SentryDispatchSourceWrapperTests/testDispatchSourceWrapper_Repeats()",
+        "SentryFileManagerTests/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
+        "SentryHttpTransportFlushIntegrationTests",
+        "SentryInternalProfilingApiIntegrationTests/testCollect_shouldContainProfileStructure()",
+        "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()",
+        "SentrySubClassFinderTests/testActOnSubclassesOfViewController()",
+        "SentryWatchdogTerminationTrackerTests/testTerminateApp_RunsOnMainThread()"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTests",
+        "name": "SentryTests"
+      }
+    },
+    {
+      "parallelizable": false,
+      "selectedTests": [
+        "SentryCrashBinaryImageCacheTests/testRemoveImageAddAgain",
+        "SentryCrashBinaryImageCacheTests/testRemoveImageFromBeginning",
+        "SentryCrashBinaryImageCacheTests/testRemoveImageFromTail",
+        "SentryCrashReportStore_Tests/testCrashReportCount1",
+        "SentryCrashReportStore_Tests/testDeleteAllReports",
+        "SentryCrashReportStore_Tests/testPruneReports"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTestsObjC",
+        "name": "SentryTestsObjC"
+      }
+    },
+    {
+      "parallelizable": false,
+      "selectedTests": [
+        "SentryContinuousProfilerTests/testStoppingProfilerTransmitsLastFullChunk()"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryProfilerTests",
+        "name": "SentryProfilerTests"
+      }
+    },
+    {
+      "parallelizable": false,
+      "selectedTests": [
+        "SentryObjCInternalProfilingApiIntegrationTests/testCollect_shouldContainTransactionInfo"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryObjCTests",
+        "name": "SentryObjCTests"
+      }
+    }
+  ],
+  "version": 1
+}

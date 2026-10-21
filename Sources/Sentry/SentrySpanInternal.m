@@ -1,4 +1,5 @@
 #import "SentryBaggage.h"
+#import "SentryInternalSerializable.h"
 #if SDK_V10
 #    import "SentryThreadSnapshot.h"
 #else

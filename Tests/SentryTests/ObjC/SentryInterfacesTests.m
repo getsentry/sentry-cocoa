@@ -1,3 +1,4 @@
+#import "SentryInternalSerializable.h"
 #import <XCTest/XCTest.h>
 
 #import "SentryBreadcrumb+Private.h"
