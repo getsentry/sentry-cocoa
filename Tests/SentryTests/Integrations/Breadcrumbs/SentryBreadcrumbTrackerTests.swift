@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 #else
@@ -6,6 +7,11 @@
 import _SentryPrivate
 import SentryTestUtils
 import XCTest
+
+#if os(iOS) || os(tvOS)
+private final class ExcludedBreadcrumbContainerView: UIView {}
+private final class UnmaskedBreadcrumbContainerView: UIView {}
+#endif
 
 final class SentryBreadcrumbTrackerTests: XCTestCase {
     
@@ -23,6 +29,68 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         clearTestState()
     }
     
+#if os(iOS) || os(tvOS) || os(visionOS)
+    func testInit_whenUsingLegacyInitializer_shouldDisableBreadcrumbTextExtraction() {
+        // -- Act --
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertFalse(sut.enableBreadcrumbTextExtraction)
+    }
+
+    func testExtractData_whenUsingLegacyCompatibilityPath_shouldNotTraverseChildLabels() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Child text"
+        view.addSubview(label)
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: false
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["label"])
+    }
+
+    func testExtractData_whenBreadcrumbTextExtractionDisabled_shouldIncludeDirectButtonTitle() {
+        // -- Arrange --
+        let sut = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            enableBreadcrumbTextExtraction: false
+        )
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+
+        // -- Act --
+        let result = sut.extractData(from: button)
+
+        // -- Assert --
+        XCTAssertFalse(sut.enableBreadcrumbTextExtraction)
+        XCTAssertEqual(result["title"] as? String, "Button title")
+    }
+
+    func testExtractData_whenBreadcrumbTextExtractionDisabled_shouldNotTraverseChildLabels() {
+        // -- Arrange --
+        let sut = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            enableBreadcrumbTextExtraction: false
+        )
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Child text"
+        view.addSubview(label)
+
+        // -- Act --
+        let result = sut.extractData(from: view)
+
+        // -- Assert --
+        XCTAssertNil(result["label"])
+    }
+#endif
+
 #if os(iOS) || os(tvOS)
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
@@ -398,6 +466,273 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(crumbData["accessibilityIdentifier"] as? String, "TestAccessibilityIdentifier")
     }
 
+    func testExtractData_whenTextIsMasked_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        button.accessibilityIdentifier = "safe-id"
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+        XCTAssertEqual(result["accessibilityIdentifier"] as? String, "safe-id")
+    }
+
+    func testExtractData_whenMaskAllTextAndAncestorClassIsUnmasked_shouldNotIncludeOrdinaryLabel() {
+        // -- Arrange --
+        let view = UnmaskedBreadcrumbContainerView()
+        let label = UILabel()
+        label.text = "Sensitive"
+        view.addSubview(label)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false,
+            unmaskedViewClasses: [UnmaskedBreadcrumbContainerView.self]
+        ))
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: false,
+            redactBuilder: redactBuilder,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenMaskAllTextAndChildLabelIsExplicitlyUnmasked_shouldIncludeLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Visible label"
+        SentryRedactViewHelper.unmaskView(label)
+        view.addSubview(label)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["label"] as? String, "Visible label")
+    }
+
+    func testExtractData_whenMaskAllTextAndButtonIsExplicitlyUnmasked_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+        SentryRedactViewHelper.unmaskView(button)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: false,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
+    func testExtractData_whenAncestorIsMasked_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let ancestor = UIView()
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        ancestor.addSubview(button)
+        SentryRedactViewHelper.maskView(ancestor)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+    }
+
+    func testExtractData_whenButtonTitleLabelIsMasked_shouldOmitButtonTitle() throws {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        button.accessibilityIdentifier = "safe-id"
+        let titleLabel = try XCTUnwrap(button.titleLabel)
+        SentryRedactViewHelper.maskView(titleLabel)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+        XCTAssertEqual(result["accessibilityIdentifier"] as? String, "safe-id")
+    }
+
+    func testExtractData_whenChildButtonTitleLabelIsMasked_shouldOmitButtonTitle() throws {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        view.addSubview(button)
+        let titleLabel = try XCTUnwrap(button.titleLabel)
+        SentryRedactViewHelper.maskView(titleLabel)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["label"])
+    }
+
+    func testExtractData_whenAncestorSubtreeIsExcluded_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let ancestor = ExcludedBreadcrumbContainerView()
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        ancestor.addSubview(button)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false,
+            excludedViewClasses: [type(of: ancestor).description()]
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+    }
+
+    func testExtractData_whenTextIsNotMasked_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
+    func testExtractData_whenUsingPublicCompatibilityPath_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
+    func testExtractData_whenReplayActivationChanges_shouldApplyRedactionDynamically() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        var isReplayActive = false
+        let tracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            redactOptions: TestRedactOptions(maskAllText: true, maskAllImages: false),
+            shouldApplyRedaction: { isReplayActive }
+        )
+
+        // -- Act --
+        let beforeReplayStarts = tracker.extractData(from: button)
+        isReplayActive = true
+        let afterReplayStarts = tracker.extractData(from: button)
+
+        // -- Assert --
+        XCTAssertEqual(beforeReplayStarts["title"] as? String, "Sensitive title")
+        XCTAssertNil(afterReplayStarts["title"])
+    }
+
+    func testExtractData_whenActiveReplayBuilderChanges_shouldUseLatestRedactionState() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        let activeReplayBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+        let tracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            redactOptions: TestRedactOptions(maskAllText: false, maskAllImages: false),
+            shouldApplyRedaction: { true },
+            redactBuilderProvider: { activeReplayBuilder }
+        )
+
+        // -- Act --
+        let initial = tracker.extractData(from: button)
+        activeReplayBuilder.addRedactClass(UILabel.self)
+        let redacted = tracker.extractData(from: button)
+
+        // -- Assert --
+        XCTAssertEqual(initial["title"] as? String, "Sensitive title")
+        XCTAssertNil(redacted["title"])
+    }
+
     func testBreadcrumbViewControllerCustomScreenName() throws {
         let testReachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().reachability = testReachability
@@ -514,6 +849,762 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertNil(data["window_isKeyWindow"])
         XCTAssertNil(data["window_windowLevel"])
         XCTAssertNil(data["is_window_rootViewController"])
+    }
+
+    func testExtractData_whenChildLabelHasText_shouldAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Child text"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Child text")
+    }
+
+    func testExtractData_whenTappedLabelHasText_shouldAddLabel() {
+        // -- Arrange --
+        let label = UILabel()
+        label.text = "Tapped label"
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: label,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Tapped label")
+    }
+
+    func testExtractData_whenHiddenChildLabelHasText_shouldIgnoreIt() {
+        // -- Arrange --
+        let view = UIView()
+        let hiddenLabel = UILabel()
+        hiddenLabel.text = "Hidden"
+        hiddenLabel.isHidden = true
+        view.addSubview(hiddenLabel)
+        let visibleLabel = UILabel()
+        visibleLabel.text = "Visible"
+        view.addSubview(visibleLabel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Visible")
+    }
+
+    func testExtractData_whenChildLabelIsMasked_shouldIgnoreIt() {
+        // -- Arrange --
+        let view = UIView()
+        let maskedLabel = UILabel()
+        maskedLabel.text = "Sensitive"
+        SentryRedactViewHelper.maskView(maskedLabel)
+        view.addSubview(maskedLabel)
+        let visibleLabel = UILabel()
+        visibleLabel.text = "Visible"
+        view.addSubview(visibleLabel)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Visible")
+    }
+
+    func testExtractData_whenAccessibilityIdentifierExists_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        view.accessibilityIdentifier = "identifier"
+        let label = UILabel()
+        label.text = "Child text"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["accessibilityIdentifier"] as? String, "identifier")
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenButtonHasTitle_shouldNotAddLabel() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        let label = UILabel()
+        label.text = "Child text"
+        button.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: button, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["title"] as? String, "Button title")
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenMultipleChildLabelsHaveText_shouldJoinNonEmptyText() {
+        // -- Arrange --
+        let view = UIView()
+        for text in ["  First  ", "   ", "Second"] {
+            let label = UILabel()
+            label.text = text
+            view.addSubview(label)
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "First Second")
+    }
+
+    func testExtractData_whenChildButtonHasTitle_shouldAddTitleOnce() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title")
+    }
+
+    func testExtractData_whenChildButtonHasNoTitle_shouldNotCreateSubviews() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        view.addSubview(button)
+        let subviewCount = button.subviews.count
+
+        // -- Act --
+        _ = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(button.subviews.count, subviewCount)
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenChildButtonHasConfigurationTitle_shouldAddTitleOnce() {
+        // -- Arrange --
+        let view = UIView()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        let button = UIButton(configuration: configuration)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Configured title")
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenTappedButtonHasConfigurationTitle_shouldUseTitleField() {
+        // -- Arrange --
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        let button = UIButton(configuration: configuration)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: button, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["title"] as? String, "Configured title")
+        XCTAssertNil(data["label"])
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenButtonHasStateAndConfigurationTitles_shouldPreferCurrentTitle() {
+        // -- Arrange --
+        let view = UIView()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        let button = UIButton(configuration: configuration)
+        button.setTitle("Current title", for: .normal)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Current title")
+    }
+
+    func testExtractData_whenChildButtonHasAttributedTitleAtMaximumDepth_shouldAddTitle() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        let button = UIButton()
+        button.setAttributedTitle(NSAttributedString(string: "Attributed title"), for: .normal)
+        secondLevel.addSubview(button)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Attributed title")
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenChildButtonHasAttributedConfigurationTitleAtMaximumDepth_shouldAddTitle() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        var configuration = UIButton.Configuration.plain()
+        configuration.attributedTitle = AttributedString("Attributed configuration title")
+        let button = UIButton(configuration: configuration)
+        secondLevel.addSubview(button)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Attributed configuration title")
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenConfigurationTitleLabelIsUnavailable_shouldAddTitleOnce() {
+        // -- Arrange --
+        let view = UIView()
+        let button = ButtonWithoutTitleLabel()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        button.configuration = configuration
+        let internalLabel = UILabel()
+        internalLabel.text = "Configured title"
+        button.addSubview(internalLabel)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Configured title")
+    }
+
+    func testExtractData_whenButtonTitleLabelIsNestedInWrapper_shouldAddTitleOnce() throws {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        let titleLabel = try XCTUnwrap(button.titleLabel)
+        let wrapper = UIView()
+        wrapper.addSubview(titleLabel)
+        button.addSubview(wrapper)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title")
+    }
+
+    func testExtractData_whenTitledChildButtonHasCustomLabel_shouldAddBothTexts() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        let label = UILabel()
+        label.text = "Detail"
+        button.addSubview(label)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title Detail")
+    }
+
+    func testExtractData_whenChildLabelHasNestedLabel_shouldAddBothTexts() {
+        // -- Arrange --
+        let view = UIView()
+        let parentLabel = UILabel()
+        parentLabel.text = "Parent"
+        let childLabel = UILabel()
+        childLabel.text = "Child"
+        parentLabel.addSubview(childLabel)
+        view.addSubview(parentLabel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Parent Child")
+    }
+
+    func testExtractData_whenAllChildLabelsAreEmpty_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        for text in [nil, "", "   "] {
+            let label = UILabel()
+            label.text = text
+            view.addSubview(label)
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenLabelHasMaximumCharacterCount_shouldNotTruncateLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = String(repeating: "e\u{301}", count: 64)
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, String(repeating: "e\u{301}", count: 64))
+    }
+
+    func testExtractData_whenLabelIsAtThirdChildLevel_shouldAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        let label = UILabel()
+        label.text = "Third level"
+        secondLevel.addSubview(label)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Third level")
+    }
+
+    func testExtractData_whenLabelIsAtFourthChildLevel_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        let thirdLevel = UIView()
+        let label = UILabel()
+        label.text = "Fourth level"
+        thirdLevel.addSubview(label)
+        secondLevel.addSubview(thirdLevel)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenFiveSiblingLabelsHaveText_shouldAddAllLabels() {
+        // -- Arrange --
+        let view = UIView()
+        for text in ["First", "Second", "Third", "Fourth", "Fifth"] {
+            let label = UILabel()
+            label.text = text
+            view.addSubview(label)
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "First Second Third Fourth Fifth")
+    }
+
+    func testExtractData_whenTextIsInSixthSibling_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        for _ in 0..<5 {
+            view.addSubview(UIView())
+        }
+        let label = UILabel()
+        label.text = "Sixth sibling"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenHiddenButtonTitleLabelsExhaustInspectionBudget_shouldNotInspectLaterLabel() {
+        // -- Arrange --
+        let view = UIView()
+        var descendant = view
+        for _ in 0..<29 {
+            let ancestor = UIView()
+            ancestor.addSubview(descendant)
+            descendant = ancestor
+        }
+
+        for containerIndex in 0..<5 {
+            let container = UIView()
+            view.addSubview(container)
+            let buttonCount = containerIndex < 4 ? 5 : 4
+            for buttonIndex in 0..<buttonCount {
+                let button = HiddenTitleLabelButton()
+                button.setTitle("Hidden title \(containerIndex)-\(buttonIndex)", for: .normal)
+                container.addSubview(button)
+            }
+            if containerIndex == 4 {
+                let label = UILabel()
+                label.text = "Beyond hidden title labels"
+                container.addSubview(label)
+            }
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenChildLabelHasZeroAlpha_shouldOmitText() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Invisible"
+        label.alpha = 0
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenChildLabelHasZeroOpacityAncestor_shouldOmitText() {
+        // -- Arrange --
+        let view = UIView()
+        let transparentContainer = UIView()
+        transparentContainer.layer.opacity = 0
+        let label = UILabel()
+        label.text = "Invisible"
+        transparentContainer.addSubview(label)
+        view.addSubview(transparentContainer)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenLabelTextStartsBeyondTextInspectionBudget_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = String(repeating: " ", count: 65) + "Sensitive"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenSkippedViewsExceedInspectionBudget_shouldNotInspectLaterViews() {
+        // -- Arrange --
+        let view = UIView()
+        for _ in 0..<60 {
+            let hiddenView = UIView()
+            hiddenView.isHidden = true
+            view.addSubview(hiddenView)
+        }
+        let label = UILabel()
+        label.text = "Beyond inspection budget"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenExcludedButtonTitleLabelPrecedesViewAtBudget_shouldNotConsumeBudget() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        view.addSubview(button)
+
+        let firstContainer = UIView()
+        for _ in 0..<5 {
+            let branch = UIView()
+            for _ in 0..<4 {
+                branch.addSubview(UIView())
+            }
+            firstContainer.addSubview(branch)
+        }
+        view.addSubview(firstContainer)
+
+        let secondContainer = UIView()
+        secondContainer.addSubview(UIView())
+        let label = UILabel()
+        label.text = "At budget"
+        secondContainer.addSubview(label)
+        view.addSubview(secondContainer)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title At budget")
+    }
+
+    func testExtractData_whenTextIsAtTotalViewBudget_shouldAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        addBudgetFiller(to: view, finalLeafCount: 3)
+        let label = UILabel()
+        label.text = "At budget"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "At budget")
+    }
+
+    func testExtractData_whenTextIsOutsideTotalViewBudget_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        addBudgetFiller(to: view, finalLeafCount: 4)
+        let label = UILabel()
+        label.text = "Outside budget"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenLabelExceedsMaximumCharacterCount_shouldTruncateLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = String(repeating: "e\u{301}", count: 65)
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, String(repeating: "e\u{301}", count: 64) + "...")
+    }
+
+    private func addBudgetFiller(to view: UIView, finalLeafCount: Int) {
+        let firstLevel = UIView()
+        for index in 0..<5 {
+            let secondLevel = UIView()
+            let leafCount = index == 4 ? finalLeafCount : 5
+            for _ in 0..<leafCount {
+                secondLevel.addSubview(UIView())
+            }
+            firstLevel.addSubview(secondLevel)
+        }
+        view.addSubview(firstLevel)
+    }
+
+    private final class HiddenTitleLabelButton: UIButton {
+        private lazy var hiddenTitleLabel: UILabel = {
+            let label = UILabel()
+            label.isHidden = true
+            return label
+        }()
+
+        override var titleLabel: UILabel? { hiddenTitleLabel }
+    }
+
+    private final class ButtonWithoutTitleLabel: UIButton {
+        override var titleLabel: UILabel? { nil }
     }
 
     private class TestEvent: UIEvent {

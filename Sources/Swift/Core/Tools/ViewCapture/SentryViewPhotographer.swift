@@ -31,9 +31,13 @@ import UIKit
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dateProvider: SentryCurrentDateProvider
-    private let dispatchQueue = SentryDispatchQueueWrapper()
+    private var dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: SentryViewRenderer
+
+    var redactBuilderForTextExtraction: SentryUIRedactBuilder {
+        redactBuilder
+    }
 
     /// Creates a view photographer used to convert a view hierarchy to an image.
     ///
@@ -55,6 +59,22 @@ import UIKit
         self.dateProvider = dateProvider
         redactBuilder = SentryUIRedactBuilder(options: redactOptions)
         super.init()
+    }
+
+    convenience init(
+        renderer: SentryViewRenderer,
+        redactOptions: SentryRedactOptions,
+        enableMaskRendererV2: Bool,
+        dateProvider: SentryCurrentDateProvider,
+        dispatchQueue: SentryDispatchQueueWrapper
+    ) {
+        self.init(
+            renderer: renderer,
+            redactOptions: redactOptions,
+            enableMaskRendererV2: enableMaskRendererV2,
+            dateProvider: dateProvider
+        )
+        self.dispatchQueue = dispatchQueue
     }
 
     public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
@@ -115,22 +135,30 @@ import UIKit
 
     @objc(addIgnoreClasses:)
     public func addIgnoreClasses(classes: [AnyClass]) {
-        redactBuilder.addIgnoreClasses(classes)
+        dispatchQueue.dispatchSyncOnMainQueue { [redactBuilder] in
+            redactBuilder.addIgnoreClasses(classes)
+        }
     }
 
     @objc(addRedactClasses:)
     public func addRedactClasses(classes: [AnyClass]) {
-        redactBuilder.addRedactClasses(classes)
+        dispatchQueue.dispatchSyncOnMainQueue { [redactBuilder] in
+            redactBuilder.addRedactClasses(classes)
+        }
     }
 
     @objc(setIgnoreContainerClass:)
     public func setIgnoreContainerClass(_ containerClass: AnyClass) {
-        redactBuilder.setIgnoreContainerClass(containerClass)
+        dispatchQueue.dispatchSyncOnMainQueue { [redactBuilder] in
+            redactBuilder.setIgnoreContainerClass(containerClass)
+        }
     }
 
     @objc(setRedactContainerClass:)
     public func setRedactContainerClass(_ containerClass: AnyClass) {
-        redactBuilder.setRedactContainerClass(containerClass)
+        dispatchQueue.dispatchSyncOnMainQueue { [redactBuilder] in
+            redactBuilder.setRedactContainerClass(containerClass)
+        }
     }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
