@@ -453,14 +453,18 @@ jobs:
       # Craft writes the CHANGELOG.md section of this release in "Prepare
       # release" below, after the apple-binaries archive is built. Generate the
       # same section from the same commit now so the archive includes it. Keep
-      # CRAFT_VERSION in sync with the getsentry/craft pin below.
+      # CRAFT_VERSION in sync with the getsentry/craft pin below. The step gets
+      # the release bot token, so the binary is pinned by its SHA-256 digest;
+      # take it from the `digest` of the `craft` asset of the Craft release.
       - name: Generate release changelog
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           CRAFT_VERSION: 2.34.1
+          CRAFT_SHA256: 471de085a5b9c7e112c2e340683f63ff660a61f0a184a24f3e16ae4bca6cc28a
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         run: |
           curl -fsSL -o "$RUNNER_TEMP/craft" "https://github.com/getsentry/craft/releases/download/${CRAFT_VERSION}/craft"
+          echo "${CRAFT_SHA256}  $RUNNER_TEMP/craft" | sha256sum --check --strict
           chmod +x "$RUNNER_TEMP/craft"
           "$RUNNER_TEMP/craft" changelog > "$RUNNER_TEMP/release-changelog.md"
           if [ "$(cat "$RUNNER_TEMP/release-changelog.md")" = "No changelog entries found." ]; then
