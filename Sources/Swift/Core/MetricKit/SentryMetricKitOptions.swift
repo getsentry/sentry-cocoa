@@ -4,6 +4,18 @@ public enum SentryMetricKitHangReportingMode {
     case legacy
     /// Attaches aggregated call trees as a flame graph for server-side processing.
     case flamegraphAttachment
+
+    /// Resolves the mode from its case name, as passed by hybrid SDKs through `Options(dictionary:)`.
+    static func fromName(_ name: String?) -> SentryMetricKitHangReportingMode? {
+        switch name {
+        case "legacy":
+            return .legacy
+        case "flamegraphAttachment":
+            return .flamegraphAttachment
+        default:
+            return nil
+        }
+    }
 }
 
 /// Experimental options for MetricKit diagnostics. Requires `Options.enableMetricKit`.

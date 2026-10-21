@@ -115,6 +115,9 @@ import Foundation
         if options.experimental.enableUIViewControllerInitSwizzling {
             features.append("uiViewControllerInitSwizzling")
         }
+        if options.experimental.metrickit.hangReportingMode == .flamegraphAttachment {
+            features.append("metricKitHangFlamegraphAttachment")
+        }
 
         return features
     }
