@@ -37,9 +37,7 @@ extension SentryMXFrame {
         result.type = "macho"
         result.debugID = binaryUUID.uuidString
         result.codeFile = binaryName
-        if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            result.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-        }
+        result.imageAddress = SentryMetricKit.imageAddress(address: address, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment)
         return [result] + (subFrames?.flatMap { $0.toDebugMeta() } ?? [])
     }
 
@@ -61,14 +59,23 @@ extension SentryMXFrame {
         let frame = Frame()
         frame.package = binaryName
         frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
+        if binaryUUID != nil {
+            frame.imageAddress = SentryMetricKit.imageAddress(address: address, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment)
         }
 
         frame.parentIndex = parentFrameIndex as NSNumber
         frame.sampleCount = sampleCount as NSNumber?
 
         return frame
+    }
+}
+
+extension SentryMetricKit {
+    static func imageAddress(address: UInt64, offsetIntoBinaryTextSegment: Int) -> String? {
+        guard offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address else {
+            return nil
+        }
+        return sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
     }
 }
 

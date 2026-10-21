@@ -14,8 +14,8 @@ extension SentryMXSampleFrame {
         let frame = Frame()
         frame.package = binaryName
         frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
+        if binaryUUID != nil {
+            frame.imageAddress = SentryMetricKit.imageAddress(address: address, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment)
         }
         return frame
     }
