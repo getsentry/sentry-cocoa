@@ -6,7 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryAppState;
 @class SentryDispatchQueueWrapper;
-@class SentryEvent;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
 @class SentryOptions;
@@ -103,8 +102,6 @@ SENTRY_NO_INIT
 
 #if !SDK_V10
 #    pragma mark - AppHangs
-- (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
-- (nullable SentryEvent *)readAppHangEvent;
 - (BOOL)appHangEventExists;
 - (void)deleteAppHangEvent;
 #endif // !SDK_V10
@@ -187,3 +184,5 @@ SENTRY_EXTERN void removeSentryStaticBasePath(void);
 @end
 
 NS_ASSUME_NONNULL_END
+
+#import "SentryFileManagerHelper+SwiftPrivate.h"

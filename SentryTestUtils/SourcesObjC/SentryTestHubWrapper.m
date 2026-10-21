@@ -1,6 +1,5 @@
 #import "SentryTestHubWrapper.h"
 
-#import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentrySwift.h"
 

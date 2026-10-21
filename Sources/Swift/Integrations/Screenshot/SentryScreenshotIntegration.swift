@@ -74,7 +74,10 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
 
     // MARK: - SentryClientAttachmentProcessor
 
-    func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
+    func processAttachments(_ attachments: [Attachment], for event: Any) -> [Attachment] {
+        guard let event = event as? Event else {
+            return attachments
+        }
         // We don't take screenshots if there is no exception/error.
         // We don't take screenshots if the event is a metric kit event.
         // Screenshots are added via an alternate codepath for crashes, see

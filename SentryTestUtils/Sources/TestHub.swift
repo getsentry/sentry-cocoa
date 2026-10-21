@@ -37,17 +37,29 @@ public class TestHub: SentryTestHubWrapper {
     }
     
     public var sentFatalEvents = Invocations<Event>()
-    public override func captureFatalEvent(_ event: Event) {
+    public override func captureFatalEvent(_ event: Any) {
+        guard let event = event as? Event else {
+            XCTFail("TestHub.captureFatalEvent: Expected Event, got \(type(of: event))")
+            return
+        }
         sentFatalEvents.record(event)
     }
     
     public var sentFatalEventsWithScope = Invocations<(event: Event, scope: Scope)>()
-    public override func captureFatalEvent(_ event: Event, with scope: Scope) {
+    public override func captureFatalEvent(_ event: Any, with scope: Scope) {
+        guard let event = event as? Event else {
+            XCTFail("TestHub.captureFatalEvent: Expected Event, got \(type(of: event))")
+            return
+        }
         sentFatalEventsWithScope.record((event, scope))
     }
     
     @_spi(Private) public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func wrapper_capture(event: Event, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
+    public override func wrapper_capture(event: Any, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestHub.wrapper_capture: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         guard let additionalEnvelopeItems = additionalEnvelopeItems as? [SentryEnvelopeItem] else {
             XCTFail("TestHub.wrapper_capture: Expected [SentryEnvelopeItem], got \(additionalEnvelopeItems.map { type(of: $0) })")
             return event.eventId
@@ -58,13 +70,21 @@ public class TestHub: SentryTestHubWrapper {
 
     @_spi(Private) public var capturedErrorEvents = Invocations<Event>()
     @_spi(Private) public var capturedErrorHints = Invocations<Hint>()
-    public override func captureErrorEvent(event: Event) -> SentryId {
+    public override func captureErrorEvent(event: Any) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestHub.captureErrorEvent: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         self.capturedErrorEvents.record((event))
 
         return event.eventId
     }
 
-    public override func captureErrorEvent(_ event: Event, withHint hint: Any?) -> SentryId {
+    public override func captureErrorEvent(_ event: Any, withHint hint: Any?) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestHub.captureErrorEvent: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         self.capturedErrorEvents.record(event)
         if let hint = hint as? Hint {
             self.capturedErrorHints.record(hint)

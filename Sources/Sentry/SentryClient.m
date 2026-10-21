@@ -15,7 +15,6 @@
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
@@ -585,6 +584,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
 
         [context setValue:sentry_sanitize_dictionary(userInfo) forKey:@"user info"];
+        event.context = context;
     }
 }
 

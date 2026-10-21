@@ -29,17 +29,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)wrapper_captureSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
     NS_SWIFT_NAME(wrapper_capture(session:));
 
-- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                          withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));
 
-- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                          withScope:(SentryScope *)scope
                               hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint
     NS_SWIFT_NAME(wrapper_capture(event:scope:hint:));
 
-- (SentryId *)wrapper_captureFatalEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                             withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
                               withScope:(SentryScope *)scope
     NS_SWIFT_NAME(wrapper_captureFatalEvent(_:session:scope:));

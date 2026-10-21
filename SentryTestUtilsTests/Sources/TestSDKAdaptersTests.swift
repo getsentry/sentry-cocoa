@@ -323,7 +323,11 @@ final class TestSDKAdaptersTests: XCTestCase {
     }
 
     private final class SessionCaptureClient: TestClient {
-        override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Scope) -> SentryId {
+        override func wrapper_captureFatalEvent(_ event: Any, session: Any, scope: Scope) -> SentryId {
+            guard let event = event as? Event else {
+                XCTFail("SessionCaptureClient.wrapper_captureFatalEvent: Expected Event, got \(type(of: event))")
+                return SentryId.empty
+            }
             _ = super.wrapper_captureFatalEvent(event, session: session, scope: scope)
             return event.eventId
         }

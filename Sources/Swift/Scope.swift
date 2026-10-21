@@ -12,4 +12,11 @@ extension Scope {
     }
 }
 
+extension Scope {
+    @discardableResult
+    func applyTo(event: Event?, maxBreadcrumbs: UInt) -> Event? {
+        applyToEvent(event, maxBreadcrumb: maxBreadcrumbs) as? Event
+    }
+}
+
 // swiftlint:enable missing_docs

@@ -3,7 +3,6 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
-#import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLevel.h"

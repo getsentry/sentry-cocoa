@@ -63,10 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
-- (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
-                         maxBreadcrumb:(NSUInteger)maxBreadcrumbs
-    NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
-
 - (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
 
 /**
@@ -78,3 +74,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#import "SentryScope+SwiftPrivate.h"

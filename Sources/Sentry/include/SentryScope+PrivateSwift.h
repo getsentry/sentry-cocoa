@@ -61,8 +61,6 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 - (void)performWithBreadcrumbsLocked:(void(NS_NOESCAPE ^)(void))block
     NS_SWIFT_NAME(performWithBreadcrumbsLocked(_:));
 
-- (void)overlayOnEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
-
 - (void)addFeatureFlagWithName:(NSString *)name
                         result:(BOOL)result NS_SWIFT_NAME(addFeatureFlagInternal(name:result:));
 

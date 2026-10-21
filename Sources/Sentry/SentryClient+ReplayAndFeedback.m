@@ -1,6 +1,5 @@
 #import "SentryAttachment.h"
 #import "SentryClient+ReplayAndFeedback.h"
-#import "SentryEvent+Private.h"
 #import "SentryId+Private.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"

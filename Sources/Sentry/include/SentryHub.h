@@ -9,7 +9,6 @@
 
 @class SentryBreadcrumb;
 @class SentryClientInternal;
-@class SentryEvent;
 @class SentryFeedback;
 @class SentryId;
 @class SentryScope;
@@ -42,22 +41,6 @@ SENTRY_NO_INIT
  * @param timestamp The timestamp to end the session with.
  */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
-
-/**
- * Captures a manually created event and sends it to Sentry.
- * @param event The event to send to Sentry.
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
- */
-- (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
-
-/**
- * Captures a manually created event and sends it to Sentry.
- * @param event The event to send to Sentry.
- * @param scope The scope containing event metadata.
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
- */
-- (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -170,18 +153,6 @@ SENTRY_NO_INIT
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
- * Captures a manually created event and sends it to Sentry with a user-provided hint.
- * @param event The event to send to Sentry.
- * @param scope The scope containing event metadata.
- * @param hint The hint providing additional context for callbacks.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
- */
-- (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
-    NS_SWIFT_NAME(capture(event:scope:hint:));
-
-/**
  * Captures an error event and sends it to Sentry with a user-provided hint.
  * @param error The error to send to Sentry.
  * @param scope The scope containing event metadata.
@@ -292,3 +263,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#import "SentryHub+SwiftPrivate.h"

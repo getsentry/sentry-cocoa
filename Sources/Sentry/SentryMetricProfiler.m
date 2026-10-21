@@ -2,7 +2,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"

@@ -26,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryClientAttachmentProcessor <NSObject>
 
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(SentryEvent *)event;
+                                           forEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+    NS_SWIFT_NAME(processAttachments(_:for:));
 
 @end
 
@@ -35,10 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)populateHintAttachments:(SentryHint *)hint
                           scope:(SentryScope *)scope
           isFromPreviousProcess:(BOOL)isFromPreviousProcess;
-
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments;
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
@@ -96,11 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal (EventCapturePrivate)
 
-- (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
-    NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
-
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
           attachAllThreads:(nullable NSNumber *)attachAllThreads
@@ -115,10 +107,6 @@ NS_ASSUME_NONNULL_BEGIN
                    withScope:(SentryScope *)scope
             attachAllThreads:(nullable NSNumber *)attachAllThreads
     NS_SWIFT_NAME(capture(message:scope:attachAllThreads:));
-
-- (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-                      hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(event:scope:hint:));
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
@@ -138,34 +126,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal (EventPreparation)
 
-- (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
-
-- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent;
-
-- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                                  hint:(SentryHint *)hint;
-
-- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(nullable SentryScope *)currentScope;
-
 - (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
                          withReason:(SentryDiscardReason)reason
                withCurrentSpanCount:(NSUInteger *)currentSpanCount;
 
 - (BOOL)isSampled:(nullable NSNumber *)sampleRate;
-
-- (nullable SentryEvent *)callEventProcessors:(SentryEvent *)event;
 
 - (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason;
 
@@ -173,70 +138,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryClientInternal (EventSending)
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                      hint:(SentryHint *)hint;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-              isFatalEvent:(BOOL)isFatalEvent;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-              isFatalEvent:(BOOL)isFatalEvent
-                      hint:(SentryHint *)hint;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-               isFatalEvent:(BOOL)isFatalEvent
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-               isFatalEvent:(BOOL)isFatalEvent
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
-                       hint:(SentryHint *)hint;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-            withSession:(nullable SentrySession *)session
-              withScope:(SentryScope *)scope;
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-            withSession:(nullable SentrySession *)session
-              withScope:(SentryScope *)scope
-                   hint:(SentryHint *)hint;
-
-@end
-
 @interface SentryClientInternal (SessionsAndCrashes)
-
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
-
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                    withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope;
 
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
                    withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope;
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                                   hint:(SentryHint *)hint;
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 

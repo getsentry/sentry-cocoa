@@ -1,6 +1,5 @@
 #import "SentryBreadcrumb.h"
 #import "SentryDebugMeta.h"
-#import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryGeo.h"
@@ -40,9 +39,6 @@ SENTRY_NO_INIT
 @end
 
 @interface SentryException () <SentryInternalSerializable>
-@end
-
-@interface SentryEvent () <SentryInternalSerializable>
 @end
 
 @interface SentryRequest () <SentryInternalSerializable>

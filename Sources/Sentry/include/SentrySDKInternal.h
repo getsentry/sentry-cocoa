@@ -11,7 +11,6 @@
 @protocol SentrySpan;
 
 @class SentryBreadcrumb;
-@class SentryEvent;
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
@@ -60,36 +59,6 @@ SENTRY_NO_INIT
  * reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
  */
 + (void)startWithOptions:(SentryOptionsObjC *)options NS_SWIFT_NAME(start(options:));
-
-/**
- * Captures a manually created event and sends it to Sentry.
- * @param event The event to send to Sentry.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
- *
- */
-+ (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
-
-/**
- * Captures a manually created event and sends it to Sentry. Only the data in this scope object will
- * be added to the event. The global scope will be ignored.
- * @param event The event to send to Sentry.
- * @param scope The scope containing event metadata.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
- *
- */
-+ (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
-
-/**
- * Captures a manually created event and sends it to Sentry. Maintains the global scope but mutates
- * scope data for only this call.
- * @param event The event to send to Sentry.
- * @param block The block mutating the scope only for this call.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
- *
- */
-+ (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -244,18 +213,6 @@ SENTRY_NO_INIT
 + (SentryId *)captureMessage:(NSString *)message
               withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
-
-/**
- * Captures a manually created event and sends it to Sentry with a user-provided hint.
- * @param event The event to send to Sentry.
- * @param scope The scope containing event metadata.
- * @param hint The hint providing additional context for callbacks.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
- */
-+ (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
-    NS_SWIFT_NAME(capture(event:scope:hint:));
 
 /**
  * Captures an error event and sends it to Sentry with a user-provided hint.
@@ -462,3 +419,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#import "SentrySDK+SwiftPrivate.h"

@@ -118,7 +118,6 @@
 
 @class SentryAttribute;
 @class SentryBreadcrumb;
-@class SentryEvent;
 #if SDK_V10
 @class SentryTransaction;
 #endif // SDK_V10
@@ -154,8 +153,10 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
 /**
  * Block can be used to mutate event before it's sent.
  * To avoid sending the event altogether, return nil instead.
+ * Deprecated. Use ``BeforeSendEventCallback``.
  */
-typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+typedef id _Nullable (^SentryBeforeSendEventCallback)(id _Nonnull event)
+    NS_SWIFT_UNAVAILABLE("Use BeforeSendEventCallback");
 
 #if SDK_V10
 /**
@@ -179,21 +180,27 @@ typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> 
 /**
  * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
  * SDK should capture a screenshot, return @c false if not. This callback doesn't work for crashes.
+ * Deprecated. Use ``BeforeCaptureScreenshotCallback``.
  */
-typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull event);
+typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(id _Nonnull event)
+    NS_SWIFT_UNAVAILABLE("Use BeforeCaptureScreenshotCallback");
 
 /**
  * Block can be used to decide if the SDK should capture a view hierarchy or not. Return @c true if
  * the SDK should capture a view hierarchy, return @c false if not. This callback doesn't work for
  * crashes.
+ * Deprecated. Use ``BeforeCaptureViewHierarchyCallback``.
  */
-typedef BOOL (^SentryBeforeCaptureViewHierarchyCallback)(SentryEvent *_Nonnull event);
+typedef BOOL (^SentryBeforeCaptureViewHierarchyCallback)(id _Nonnull event)
+    NS_SWIFT_UNAVAILABLE("Use BeforeCaptureViewHierarchyCallback");
 
 #if !SDK_V10
 /**
  * A callback to be notified when the last program execution terminated with a crash.
+ * Deprecated. Use ``OnCrashedLastRunCallback``.
  */
-typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
+typedef void (^SentryOnCrashedLastRunCallback)(id _Nonnull event)
+    NS_SWIFT_UNAVAILABLE("Use OnCrashedLastRunCallback");
 #endif
 
 /**

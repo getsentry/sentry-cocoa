@@ -47,7 +47,7 @@ open class Transaction: Event {
 
     /// Unavailable. Transactions must be initialized with a trace.
     @available(*, unavailable)
-    public required convenience init() {
+    public required init() {
         fatalError("init() is unavailable")
     }
 

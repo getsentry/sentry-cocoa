@@ -173,7 +173,7 @@
     @objc public var maxCacheItems: UInt = 30
 
     /// This block can be used to modify the event before it will be serialized and sent.
-    @objc public var beforeSend: SentryBeforeSendEventCallback?
+    @objc public var beforeSend: BeforeSendEventCallback?
 
     /// This block can be used to modify the event with access to the hint before it will be sent.
     /// If set, this takes precedence over ``beforeSend``.
@@ -236,12 +236,12 @@
     /// You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
     /// if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
     /// crashes.
-    @objc public var beforeCaptureScreenshot: SentryBeforeCaptureScreenshotCallback?
+    @objc public var beforeCaptureScreenshot: BeforeCaptureScreenshotCallback?
 
     /// You can use this callback to decide if the SDK should capture a view hierarchy or not. Return
     /// @c true if the SDK should capture a view hierarchy, return @c false if not. This callback doesn't
     /// work for crashes.
-    @objc public var beforeCaptureViewHierarchy: SentryBeforeCaptureScreenshotCallback?
+    @objc public var beforeCaptureViewHierarchy: BeforeCaptureScreenshotCallback?
 
     #if !SDK_V10
     /// A block called shortly after the initialization of the SDK when the last program execution
@@ -253,7 +253,7 @@
     /// @warning It is not guaranteed that this is called on the main thread.
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @available(*, deprecated, message: "Use onLastRunStatusDetermined instead, which is called regardless of whether the app crashed.")
-    @objc public var onCrashedLastRun: SentryOnCrashedLastRunCallback?
+    @objc public var onCrashedLastRun: OnCrashedLastRunCallback?
     #endif
 
     /// A block called shortly after the initialization of the SDK when the crash status of the

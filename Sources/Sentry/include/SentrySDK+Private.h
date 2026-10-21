@@ -21,14 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySDKInternal ()
 
-+ (void)captureFatalEvent:(SentryEvent *)event;
-
-+ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
-
-#if SENTRY_HAS_UIKIT && !SDK_V10
-+ (void)captureFatalAppHangEvent:(SentryEvent *)event;
-#endif // SENTRY_HAS_UIKIT && !SDK_V10
-
 /**
  * SDK private field to store the state if onLastRunStatusDetermined (or the deprecated
  * onCrashedLastRun) callback was already called for the current SDK lifecycle.

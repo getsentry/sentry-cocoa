@@ -4489,7 +4489,10 @@ extension SentryClientTests {
             self.callback = callback
         }
 
-        func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
+        func processAttachments(_ attachments: [Attachment], for event: Any) -> [Attachment] {
+            guard let event = event as? Event else {
+                return attachments
+            }
             return callback(attachments, event)
         }
     }

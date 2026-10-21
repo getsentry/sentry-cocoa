@@ -1,6 +1,5 @@
 #import "SentryClient+ErrorEvents.h"
 #import "SentryClient+EventCapture.h"
-#import "SentryEvent+Private.h"
 #import "SentryMessage.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"

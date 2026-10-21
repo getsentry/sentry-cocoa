@@ -1,5 +1,7 @@
 #import "SentryClient+Private.h"
 
+@class SentryEvent;
+
 NS_ASSUME_NONNULL_BEGIN
 
 // Referenced by SentryClient.m so static linkers load the category's object file.

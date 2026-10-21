@@ -3,7 +3,6 @@
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 
 #    import "SentryContinuousProfiler+Test.h"
-#    import "SentryEvent+Private.h"
 #    import "SentryHub.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"

@@ -68,7 +68,6 @@
 #import "SentryDelayedFramesTracker.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryMsgPackSerializer.h"
