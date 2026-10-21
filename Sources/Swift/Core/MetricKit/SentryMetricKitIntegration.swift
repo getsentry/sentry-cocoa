@@ -1,7 +1,7 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration {
+final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, SwiftIntegration {
     
     let mxManager: SentryMXManager
     
@@ -14,7 +14,8 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
             enabledDiagnostics: [.cpuException, .diskWriteException, .hang],
-            releaseName: options.releaseName
+            releaseName: options.releaseName,
+            processStartDate: dependencies.sysctlWrapper.processStartTimestamp
         )
         super.init()
 
