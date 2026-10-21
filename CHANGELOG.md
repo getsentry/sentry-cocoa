@@ -15,7 +15,7 @@
 
 ### Deprecations
 
-- Deprecate `SentryBeforeSendEventCallback`, `SentryBeforeCaptureScreenshotCallback`, `SentryBeforeCaptureViewHierarchyCallback`, and `SentryOnCrashedLastRunCallback`. Use `BeforeSendEventCallback`, `BeforeCaptureScreenshotCallback`, `BeforeCaptureViewHierarchyCallback`, and `OnCrashedLastRunCallback`. (#9397)
+- Deprecate `SentryBeforeSendEventCallback`, `SentryBeforeCaptureScreenshotCallback`, `SentryBeforeCaptureViewHierarchyCallback`, and `SentryOnCrashedLastRunCallback`. Use `BeforeSendEventCallback`, `BeforeCaptureScreenshotCallback`, `BeforeCaptureViewHierarchyCallback`, and `OnCrashedLastRunCallback`. (#9418)
 
 ## 9.30.2
 
