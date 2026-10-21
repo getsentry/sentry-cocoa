@@ -48,6 +48,8 @@
 - Mark live stack frames from the main executable as in-app even when `inAppIncludes` is empty, including command-line tools. Main executable detection uses cached binary-image identity (#9393).
 - Use the installation ID as the fallback user ID when a user has a missing or empty ID, preserving other user fields. Disable automatic user information with `options.dataCollection.userInfo` (#9384)
 
+- Move session replay and screenshot masking and subtree traversal settings to `options.privacy`. Rendering settings remain on `sessionReplay` and `screenshot` (#9399).
+
 ### Fixes
 
 - Migrate managed-runtime signal handling and SDK-close report-persistence lifecycle to `SentryV10` (#9051)
