@@ -1,4 +1,5 @@
 #if !SDK_V10
+#    import "SentryInternalSerializable.h"
 
 #    import "SentrySwift.h"
 #    import <SentryBreadcrumb.h>

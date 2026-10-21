@@ -76,18 +76,28 @@ protocol SentryBinaryImageProvider: AnyObject {
     // The V9 provider synchronously re-enters while registering its initial callbacks.
     private let lock = NSRecursiveLock()
     private let provider: SentryBinaryImageProvider
-
-    @objc public override init() {
 #if SDK_V10
-        self.provider = SentryKSCrash.BinaryImageProvider()
-#else
-        self.provider = SentryCrashBinaryImageProvider()
+    private let processInfoWrapper: SentryProcessInfoSource
+    private var mainExecutableAddress: UInt64?
 #endif
-        super.init()
+
+    @objc public override convenience init() {
+        self.init(processInfoWrapper: Dependencies.processInfoWrapper)
     }
 
-    init(provider: SentryBinaryImageProvider) {
+    convenience init(processInfoWrapper: SentryProcessInfoSource) {
+#if SDK_V10
+        self.init(provider: SentryKSCrash.BinaryImageProvider(), processInfoWrapper: processInfoWrapper)
+#else
+        self.init(provider: SentryCrashBinaryImageProvider(), processInfoWrapper: processInfoWrapper)
+#endif
+    }
+
+    init(provider: SentryBinaryImageProvider, processInfoWrapper: SentryProcessInfoSource) {
         self.provider = provider
+#if SDK_V10
+        self.processInfoWrapper = processInfoWrapper
+#endif
         super.init()
     }
 
@@ -101,6 +111,16 @@ protocol SentryBinaryImageProvider: AnyObject {
             self.cache = []
             provider.start(registry: self)
             provider.refresh()
+#if SDK_V10
+            // Resolve once per cache lifetime. Live frame mapping compares image addresses,
+            // not executable filenames, which may also belong to unrelated loaded images.
+            if let processPath = self.processInfoWrapper.processPath {
+                let executableURL = URL(fileURLWithPath: processPath).resolvingSymlinksInPath()
+                self.mainExecutableAddress = self.cache?.first {
+                    URL(fileURLWithPath: $0.name).resolvingSymlinksInPath() == executableURL
+                }?.address
+            }
+#endif
         }
     }
 
@@ -112,6 +132,9 @@ protocol SentryBinaryImageProvider: AnyObject {
             }
             provider.stop()
             self.cache = nil
+#if SDK_V10
+            self.mainExecutableAddress = nil
+#endif
         }
     }
 
@@ -199,6 +222,15 @@ protocol SentryBinaryImageProvider: AnyObject {
         provider.refresh()
         return lock.synchronized { imageContaining(address: address) }
     }
+
+#if SDK_V10
+    /// Identifies the current process's main executable for live frame mapping.
+    /// Stored crash reports and MetricKit payloads require their own process-specific identity.
+    @objc
+    public func isMainExecutableImage(_ image: SentryBinaryImageInfo) -> Bool {
+        lock.synchronized { mainExecutableAddress == image.address }
+    }
+#endif
 
     @objc
     func getAllBinaryImages() -> [SentryBinaryImageInfo] {

@@ -12,7 +12,8 @@
 {
     __block NSArray<NSDictionary<NSString *, id> *> *values = nil;
     [SentryObjCSDK configureScope:^(SentryObjCScope *scope) {
-        NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+        NSDictionary<NSString *, id> *context =
+            [SentryObjCSDK.internal.serializer serializeScope:scope][@"context"];
         NSDictionary<NSString *, id> *flags = context[@"flags"];
         values = flags[@"values"];
     }];
@@ -636,7 +637,7 @@
 
 #pragma mark - Extended App Start
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+#if SENTRY_OBJC_HAS_UIKIT
 - (void)testExtendAppStart_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
@@ -711,7 +712,7 @@
 
 #pragma mark - Platform-Conditional
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if (TARGET_OS_IOS || TARGET_OS_TV) && SENTRY_OBJC_REPLAY_SUPPORTED
 - (void)testReplay_shouldReturnReplayApi
 {
     // -- Arrange & Act --
@@ -738,7 +739,7 @@
 }
 #endif
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_OBJC_HAS_UIKIT
 - (void)testFeedback_shouldReturnFeedbackApi
 {
     // -- Arrange & Act --

@@ -157,6 +157,28 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+    func testManuallyStartingContinuousProfilerV2BeforePendingStopCompletesKeepsProfiling() throws {
+        // Arrange
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+        }
+        givenSdkWithHub()
+        SentrySDK.startProfiler()
+        SentrySDK.stopProfiler()
+
+        // Act
+        SentrySDK.startProfiler()
+        fixture.currentDate.advance(by: 60)
+        try fixture.timerFactory.check()
+
+        // Assert
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Clean up
+        try stopProfilerV2()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
     func testManuallyStartingAndStoppingContinuousProfilerV2NotSampled() throws {
         // Arrange
         fixture.options.configureProfiling = {
@@ -436,7 +458,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     func testSessionSampleRateReevaluationOnAppBecomingActive_whenNewSessionStarts_shouldReevaluate() {
         // Arrange
         fixture.options.sessionTrackingIntervalMillis = 10_000
@@ -522,7 +544,7 @@ extension SentryProfilingPublicAPITests {
         // Assert
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 private extension SentryProfilingPublicAPITests {

@@ -16,7 +16,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         let defaultOptions: Options
 
         init() {
+            #if SDK_V10
+            let redactOptions = SentryPrivacyOptions()
+            #else
             let redactOptions = SentryViewScreenshotOptions()
+            #endif // SDK_V10
             let renderer = TestSentryViewRenderer()
             let photographer = TestSentryViewPhotographer(
                 renderer: renderer,

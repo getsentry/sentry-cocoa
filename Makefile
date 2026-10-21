@@ -916,6 +916,30 @@ build-testapp-v10-macOS-CLI-Xcode:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
+## Test the macOS CLI in a subprocess with the V10 and NoUIFramework traits
+.PHONY: test-testapp-v10-macOS-CLI-Xcode
+test-testapp-v10-macOS-CLI-Xcode:
+	scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+	set -o pipefail && xcodebuild \
+		-project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+		-scheme macOS-CLI-Xcode \
+		-configuration Debug \
+		-destination 'platform=macOS' \
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		test | xcbeautify --preserve-unbeautified
+
+## Test the macOS CLI in a subprocess with NoUIFramework
+.PHONY: test-testapp-macOS-CLI-Xcode
+test-testapp-macOS-CLI-Xcode: xcode-ci-macOS-CLI-Xcode
+	set -o pipefail && xcodebuild \
+		-project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+		-scheme macOS-CLI-Xcode \
+		-configuration Debug \
+		-destination 'platform=macOS' \
+		CODE_SIGNING_ALLOWED="NO" \
+		test | xcbeautify --preserve-unbeautified
+
 ## Build the macOS-Swift test app app with the V10 trait
 .PHONY: build-testapp-v10-macOS-Swift
 build-testapp-v10-macOS-Swift:

@@ -294,8 +294,15 @@ targets += [
         name: "SentryTestUtilsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
+        // One fixture bundle shared by Swift and Clang tests. Copy preserves nested paths.
+        resources: [
+            .copy("../../Tests/Resources"),
+            .copy("../../Tests/SentryTests/Helper/InfoPlist/TestInfoPlist.plist")
+        ],
         cSettings: [
             .headerSearchPath("."),
+            // Xcode's generated ObjC resource accessor has a non-prototype C function.
+            .unsafeFlags(["-Wno-strict-prototypes"]),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + cSettings,
         linkerSettings: [
@@ -360,6 +367,74 @@ targets += [
     )
 ]
 
+// SwiftPM cannot mix Swift and Clang test sources in one target.
+// Keep the main suite's existing language directories and V9/V10 source guards.
+targets += [
+    .testTarget(
+        name: "SentryTests",
+        dependencies: [
+            "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
+            .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
+        ] + (envSelectsV10 ? [] : [.target(name: "SentryCrashV9Swift")]),
+        path: "Tests/SentryTests",
+        exclude: [
+            "ObjC",
+            "ObjCpp",
+            "Info.plist",
+            "Helper/InfoPlist/TestInfoPlist.plist",
+            "OptionsInSyncWithDocs/README.md"
+        ],
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings,
+        swiftSettings: [
+            .enableUpcomingFeature("BareSlashRegexLiterals"),
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + swiftSettings
+    )
+]
+targets += [
+    .testTarget(
+        name: "SentryTestsObjC",
+        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
+        path: "Tests/SentryTests/ObjC",
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings
+    ),
+    .testTarget(
+        name: "SentryTestsObjCpp",
+        dependencies: ["SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjCpp"],
+        path: "Tests/SentryTests/ObjCpp",
+        cxxSettings: cxxSettings,
+        linkerSettings: [.linkedLibrary("c++")]
+    )
+]
+
+// Public API tests exercise the hand-written ObjC headers, not the Swift compat implementation.
+targets += [
+    .testTarget(
+        name: "SentryObjCTests",
+        dependencies: ["SentryObjC"],
+        path: "Tests/SentryObjCTests",
+        exclude: ["Swift"],
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings
+    ),
+    .testTarget(
+        name: "SentryObjCTestsSwift",
+        dependencies: ["SentryObjC", "SentryTestUtils"],
+        path: "Tests/SentryObjCTests/Swift",
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings,
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + swiftSettings
+    )
+]
+
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Environment V10 excludes the V9-only profiler suite.
 if !envSelectsV10 {
@@ -369,19 +444,28 @@ if !envSelectsV10 {
             dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
-            cSettings: cSettings,
-            swiftSettings: swiftSettings
+            // Keep Swift's Clang importer consistent with the NoUI SDK declarations.
+            cSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cSettings,
+            swiftSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+            ] + swiftSettings
         ),
         .testTarget(
             name: "SentryProfilerTestsObjC",
             dependencies: ["SentryObjCInternal", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests/ObjC",
             cSettings: [
-                .headerSearchPath("../../../Sources/Sentry")
+                .headerSearchPath("../../../Sources/Sentry"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
             ] + cSettings,
             // Xcode disables C++ modules for package test bundles by default. The ObjC++
             // tests import SentrySwift's generated Objective-C interface as a Clang module.
-            cxxSettings: [.unsafeFlags(["-fmodules", "-fcxx-modules"])] + cxxSettings,
+            cxxSettings: [
+                .unsafeFlags(["-fmodules", "-fcxx-modules"]),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cxxSettings,
             linkerSettings: [.linkedLibrary("c++")]
         )
     ]
@@ -406,6 +490,11 @@ for target in targets where target.type == .regular || target.type == .test {
 }
 
 let packageDependencies: [Package.Dependency] = [
+    // Test-only: keep this local dependency unreachable from all SDK products.
+    .package(
+        path: "SentryTestUtilsDynamic",
+        traits: [.trait(name: "NoUIFramework", condition: .when(traits: ["NoUIFramework"]))]
+    ),
     .package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")
 ]
 

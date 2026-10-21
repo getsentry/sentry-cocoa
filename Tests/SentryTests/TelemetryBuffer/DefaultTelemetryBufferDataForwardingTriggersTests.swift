@@ -6,7 +6,7 @@
 #endif
 import XCTest
 
-#if os(iOS) || os(tvOS) || os(macOS)
+#if (os(iOS) || os(tvOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 private class MockDelegate: TelemetryBufferItemForwardingDelegate {
     var forwardItemsCallCount = 0
@@ -150,4 +150,4 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
         XCTAssertEqual(delegate.forwardItemsCallCount, 0)
     }
 }
-#endif // os(iOS) || os(tvOS) || os(macOS)
+#endif // (os(iOS) || os(tvOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK

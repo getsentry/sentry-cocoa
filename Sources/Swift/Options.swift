@@ -382,6 +382,12 @@
     ///   immersive spaces or volumetric windows rendered via RealityKit is not included.
     @objc public var attachScreenshot: Bool = false
 
+    #if SDK_V10
+    /// Shared masking and view traversal settings for session replay and screenshot attachments.
+    /// Text and non-bundled images are masked by default.
+    public var privacy: SentryPrivacyOptions = SentryPrivacyOptions()
+    #endif // SDK_V10
+
     /// Settings to configure screenshot attachments.
     @objc public var screenshot: SentryViewScreenshotOptions = SentryViewScreenshotOptions()
 

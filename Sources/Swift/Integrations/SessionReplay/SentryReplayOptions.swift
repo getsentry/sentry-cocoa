@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-public class SentryReplayOptions: NSObject, SentryRedactOptions {
+public class SentryReplayOptions: NSObject {
     /**
      * Default values for the session replay options.
      *
@@ -11,12 +11,15 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public class DefaultValues {
         public static let sessionSampleRate: Float = 0
         public static let onErrorSampleRate: Float = 0
+        #if !SDK_V10
         public static let maskAllText: Bool = true
         public static let maskAllImages: Bool = true
+        #endif // !SDK_V10
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
         public static let quality: SentryReplayQuality = .medium
 
+        #if !SDK_V10
         // The following properties are public because they are used by SentrySwiftUI.
 
         public static let maskedViewClasses: [AnyClass] = []
@@ -24,6 +27,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
         public static let excludedViewClasses: Set<String> = []
         public static let includedViewClasses: Set<String> = []
+        #endif // !SDK_V10
 
         // Network capture configuration defaults
         public static let networkDetailAllowUrls: [SentryUrlMatchable] = []
@@ -128,6 +132,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public var onErrorSampleRate: Float
 
+    #if !SDK_V10
     /**
      * Indicates whether session replay should redact all text in the app
      * by drawing a black rectangle over it.
@@ -144,6 +149,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public var maskAllImages: Bool
 
+    #endif // !SDK_V10
     /**
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
@@ -152,6 +158,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public var quality: SentryReplayQuality
 
+    #if !SDK_V10
     /**
      * A list of custom UIView subclasses that need
      * to be masked during session replay.
@@ -246,6 +253,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         includedViewClasses.insert(viewType)
     }
 
+    #endif // !SDK_V10
     #if !SDK_V10
     /**
      * Alias for ``enableViewRendererV2``.
@@ -611,6 +619,56 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         )
     }
 
+    #if SDK_V10
+    /**
+     * Initializes a new instance of ``SentryReplayOptions`` with the specified parameters.
+     *
+     * - Parameters:
+     *   - sessionSampleRate: Sample rate used to determine the percentage of replays of sessions that will be uploaded.
+     *   - onErrorSampleRate: Sample rate used to determine the percentage of replays of error events that will be uploaded.
+     *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
+     *   - enableFastViewRendering: Enables faster but incomplete view rendering. See ``SentryReplayOptions.enableFastViewRendering`` for more information.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
+     */
+    public convenience init(
+        sessionSampleRate: Float = DefaultValues.sessionSampleRate,
+        onErrorSampleRate: Float = DefaultValues.onErrorSampleRate,
+        enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
+        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering
+    ) {
+        // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
+        //   with default values result in a single initializer requiring all parameters.
+        // - Each parameter has a default value, so the parameter can be omitted, which is not possible for Objective-C.
+        // - Parameter values are not optional, because SDK users should not be able to set them to nil.
+        // - The publicly available property `quality` is omitted in this initializer, because adding it would break backwards compatibility
+        //   with the automatically bridged Objective-C initializer.
+        self.init(
+            sessionSampleRate: sessionSampleRate,
+            onErrorSampleRate: onErrorSampleRate,
+            maskAllText: nil,
+            maskAllImages: nil,
+            enableViewRendererV2: enableViewRendererV2,
+            enableFastViewRendering: enableFastViewRendering,
+            maskedViewClasses: nil,
+            unmaskedViewClasses: nil,
+            quality: nil,
+            sdkInfo: nil,
+            frameRate: nil,
+            errorReplayDuration: nil,
+            sessionSegmentDuration: nil,
+            maximumDuration: nil,
+            excludedViewClasses: nil,
+            includedViewClasses: nil,
+            networkDetailAllowUrls: nil,
+            networkDetailDenyUrls: nil,
+            networkCaptureBodies: nil,
+            networkRequestHeaders: nil,
+            networkResponseHeaders: nil
+        )
+    }
+
+    #else
     /**
      * Initializes a new instance of ``SentryReplayOptions`` with the specified parameters.
      *
@@ -663,6 +721,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         )
     }
 
+    #endif // SDK_V10
+
     // swiftlint:disable:next function_parameter_count cyclomatic_complexity
     private init(
         sessionSampleRate: Float?,
@@ -689,20 +749,26 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     ) {
         self.sessionSampleRate = sessionSampleRate ?? DefaultValues.sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate ?? DefaultValues.onErrorSampleRate
+        #if !SDK_V10
         self.maskAllText = maskAllText ?? DefaultValues.maskAllText
         self.maskAllImages = maskAllImages ?? DefaultValues.maskAllImages
+        #endif // !SDK_V10
         self.enableViewRendererV2 = enableViewRendererV2 ?? DefaultValues.enableViewRendererV2
         self.enableFastViewRendering = enableFastViewRendering ?? DefaultValues.enableFastViewRendering
+        #if !SDK_V10
         self.maskedViewClasses = maskedViewClasses ?? DefaultValues.maskedViewClasses
         self.unmaskedViewClasses = unmaskedViewClasses ?? DefaultValues.unmaskedViewClasses
+        #endif // !SDK_V10
         self.quality = quality ?? DefaultValues.quality
         self.sdkInfo = sdkInfo ?? DefaultValues.sdkInfo
         self.frameRate = frameRate ?? DefaultValues.frameRate
         self.errorReplayDuration = errorReplayDuration ?? DefaultValues.errorReplayDuration
         self.sessionSegmentDuration = sessionSegmentDuration ?? DefaultValues.sessionSegmentDuration
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
+        #if !SDK_V10
         self.excludedViewClasses = excludedViewClasses ?? DefaultValues.excludedViewClasses
         self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
+        #endif // !SDK_V10
         self.networkDetailAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
         self.networkDetailDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
         self.networkCaptureBodies = networkCaptureBodies ?? DefaultValues.networkCaptureBodies
@@ -745,4 +811,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     }
 
 }
+#if !SDK_V10
+extension SentryReplayOptions: SentryRedactOptions {}
+#endif // !SDK_V10
 // swiftlint:enable file_length missing_docs type_body_length
