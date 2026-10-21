@@ -5,7 +5,8 @@
 #    import <SentryObjC/SentryObjCDefines.h>
 #endif
 
-#if SDK_V10 && (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+#if SDK_V10
+#    if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 NS_ASSUME_NONNULL_BEGIN
 
 /// Shared masking and view traversal settings for session replay and screenshot attachments.
@@ -34,4 +35,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-#endif // SDK_V10 && UI platforms
+#    endif // UI platforms
+#endif // SDK_V10
