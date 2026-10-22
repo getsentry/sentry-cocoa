@@ -9,6 +9,7 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySessionEndStatus.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
@@ -150,12 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifySessionStarted:newSession];
 }
 
-- (void)endSession
-{
-    [self endSessionWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
-}
-
-- (void)endSessionWithTimestamp:(NSDate *)timestamp
+- (nullable SentrySession *)removeCurrentSession
 {
     SentrySession *currentSession = nil;
     @synchronized(_sessionLock) {
@@ -164,7 +160,17 @@ NS_ASSUME_NONNULL_BEGIN
         _errorsBeforeSession = 0;
         [self deleteCurrentSession];
     }
+    return currentSession;
+}
 
+- (void)endSession
+{
+    [self endSessionWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+}
+
+- (void)endSessionWithTimestamp:(NSDate *)timestamp
+{
+    SentrySession *currentSession = [self removeCurrentSession];
     if (currentSession == nil) {
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
@@ -172,6 +178,46 @@ NS_ASSUME_NONNULL_BEGIN
     [currentSession endSessionNormallyWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
+    [self notifySessionEnded:currentSession];
+}
+
+- (void)endSessionWithStatus:(SentrySessionEndStatus)status
+{
+    [self endSessionWithStatus:status
+                     timestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+}
+
+- (void)endSessionWithStatus:(SentrySessionEndStatus)status timestamp:(NSDate *)timestamp
+{
+    if (status != kSentrySessionEndStatusExited && status != kSentrySessionEndStatusCrashed
+        && status != kSentrySessionEndStatusAbnormal
+        && status != kSentrySessionEndStatusUnhandled) {
+        SENTRY_LOG_ERROR(@"Invalid session status: %lu.", (unsigned long)status);
+        return;
+    }
+
+    SentrySession *currentSession = [self removeCurrentSession];
+    if (currentSession == nil) {
+        SENTRY_LOG_DEBUG(@"No session to end with status.");
+        return;
+    }
+
+    switch (status) {
+    case kSentrySessionEndStatusExited:
+        [currentSession endSessionExitedWithTimestamp:timestamp];
+        break;
+    case kSentrySessionEndStatusCrashed:
+        [currentSession endSessionCrashedWithTimestamp:timestamp];
+        break;
+    case kSentrySessionEndStatusAbnormal:
+        [currentSession endSessionAbnormalWithTimestamp:timestamp];
+        break;
+    case kSentrySessionEndStatusUnhandled:
+        [currentSession endSessionUnhandledWithTimestamp:timestamp];
+        break;
+    }
+
+    [self captureSession:currentSession];
     [self notifySessionEnded:currentSession];
 }
 

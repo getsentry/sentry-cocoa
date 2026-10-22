@@ -83,6 +83,14 @@ enum SentrySessionStatus: String {
         _pendingUnhandled = pendingUnhandled
     }
 
+    private func end(withTimestamp timestamp: Date, andStatus status: SentrySessionStatus) {
+        lock.synchronized {
+            changed()
+            _status = status
+            endSession(withTimestamp: timestamp)
+        }
+    }
+
     /**
      * Initializes @c SentrySession from a JSON object.
      * @param jsonObject The @c jsonObject containing the session.
@@ -180,22 +188,24 @@ enum SentrySessionStatus: String {
         }
     }
 
+    @objc(endSessionExitedWithTimestamp:)
+    public func endExited(withTimestamp timestamp: Date) {
+        end(withTimestamp: timestamp, andStatus: .exited)
+    }
+
     @objc(endSessionCrashedWithTimestamp:)
     public func endCrashed(withTimestamp timestamp: Date) {
-        lock.synchronized {
-            changed()
-            _status = .crashed
-            endSession(withTimestamp: timestamp)
-        }
+        end(withTimestamp: timestamp, andStatus: .crashed)
     }
 
     @objc(endSessionAbnormalWithTimestamp:)
     public func endAbnormal(withTimestamp timestamp: Date) {
-        lock.synchronized {
-            changed()
-            _status = .abnormal
-            endSession(withTimestamp: timestamp)
-        }
+        end(withTimestamp: timestamp, andStatus: .abnormal)
+    }
+
+    @objc(endSessionUnhandledWithTimestamp:)
+    public func endUnhandled(withTimestamp timestamp: Date) {
+        end(withTimestamp: timestamp, andStatus: .unhandled)
     }
 
     @objc public func incrementErrors() {

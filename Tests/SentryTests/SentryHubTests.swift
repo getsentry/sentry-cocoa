@@ -1077,6 +1077,25 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, listener.endedSessions.count)
     }
 
+    func testEndSessionWithStatus_whenSessionActive_shouldNotifyListenerOnMainQueue() throws {
+        sut.startSession()
+
+        let listener = TestSessionListener()
+        sut.registerSessionListener(listener)
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { false }
+
+        sut.endSession(with: .crashed)
+
+        XCTAssertEqual(1, fixture.dispatchQueueWrapper.blockOnMainInvocations.count)
+        XCTAssertEqual(0, listener.endedSessions.count)
+
+        fixture.dispatchQueueWrapper.blockOnMainInvocations.last?()
+
+        XCTAssertEqual(1, listener.endedSessions.count)
+        let endedSession = try XCTUnwrap(listener.endedSessions.last)
+        XCTAssertEqual(SentrySessionStatus.crashed, endedSession.status)
+    }
+
     func testCloseCachedSession_whenActiveCrashReporterCrashedLastLaunch_shouldPreserveCurrentSession() {
         // -- Arrange --
         let activeCrashReporterState = TestSentryCrashReporterState()

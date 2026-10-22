@@ -630,6 +630,20 @@ static BOOL sdkStarted;
     [SentrySDKInternal.currentHub endSession];
 }
 
++ (void)endSessionWithStatus:(SentrySessionEndStatus)status
+{
+    if (status != kSentrySessionEndStatusExited && status != kSentrySessionEndStatusCrashed
+        && status != kSentrySessionEndStatusAbnormal
+        && status != kSentrySessionEndStatusUnhandled) {
+        SENTRY_LOG_ERROR(@"Invalid session end status: %lu.", (unsigned long)status);
+        return;
+    }
+
+    [SentrySDKInternal.currentHub
+        endSessionWithStatus:status
+                   timestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+}
+
 /**
  * Install integrations and keeps ref in @c SentryHub.integrations
  */

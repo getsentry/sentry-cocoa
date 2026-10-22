@@ -6,6 +6,10 @@
 
 - Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree, which is also retained when flame graph attachment creation fails (#9347, #9421)
 
+### Features
+
+- Add `SentrySDK.endSession(status:)` to end the current session with an explicit status (#9355).
+
 ### Fixes
 
 - Resolve the application state at `UIApplicationDidFinishLaunchingNotification` when the SDK starts before `UIApplication` exists, such as from a SwiftUI `App.init`. A process launched in the background was treated as active for its whole lifetime, which let the app hang tracker report fatal app hangs with an idle main thread (#8988)
