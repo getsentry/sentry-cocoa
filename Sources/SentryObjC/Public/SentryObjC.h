@@ -158,6 +158,7 @@
 // --- Configuration ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCExperimentalOptions.h"
+#    import "SentryObjCMetricKitOptions.h"
 #    import "SentryObjCOptions.h"
 #    import "SentryObjCPrivacyOptions.h"
 #    import "SentryObjCProfileOptions.h"
@@ -168,6 +169,7 @@
 #    import "SentryObjCUserFeedbackThemeConfiguration.h"
 #else
 #    import <SentryObjC/SentryObjCExperimentalOptions.h>
+#    import <SentryObjC/SentryObjCMetricKitOptions.h>
 #    import <SentryObjC/SentryObjCOptions.h>
 #    import <SentryObjC/SentryObjCPrivacyOptions.h>
 #    import <SentryObjC/SentryObjCProfileOptions.h>

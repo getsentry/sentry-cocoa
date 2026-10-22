@@ -325,6 +325,30 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
+    func testMetricKitHangReportingMode_whenFlamegraphAttachment_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("metricKitHangFlamegraphAttachment"))
+    }
+
+    func testMetricKitHangReportingMode_whenLegacy_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.hangReportingMode = .legacy
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("metricKitHangFlamegraphAttachment"))
+    }
+
     #if !SDK_V10
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
