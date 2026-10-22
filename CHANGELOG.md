@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add breadcrumbs for hinge state changes on foldable devices such as iPhone Duo, which requires iOS 27.1 or later (#9426)
+
 ## 9.31.0
 
 ### Features
