@@ -5,7 +5,7 @@
 #endif
 import XCTest
 
-final class SentryRelayWireFormatAttachmentsProfilingTests: XCTestCase {
+final class SentryRelayWireFormatProfilingTests: XCTestCase {
     func testEncodeFrame_whenAllFieldsArePresent_shouldUseProfilingWireKeys() throws {
         // -- Arrange --
         let frame = SentryRelayWireFormat.Profiling.V2.Frame(instructionAddress: "0x100001000", package: "ExampleApp", inApp: true)
