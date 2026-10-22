@@ -1,9 +1,14 @@
 # Changelog
 
-## Unreleased
+## 9.31.0
+
+### Features
+
+- Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree, which is also retained when flame graph attachment creation fails (#9347, #9421)
 
 ### Fixes
 
+- Resolve the application state at `UIApplicationDidFinishLaunchingNotification` when the SDK starts before `UIApplication` exists, such as from a SwiftUI `App.init`. A process launched in the background was treated as active for its whole lifetime, which let the app hang tracker report fatal app hangs with an idle main thread (#8988)
 - Keep the UI profiler running when `SentrySDK.startProfiler()` is called before a requested stop takes effect at the end of the current chunk (#9401)
 - Increase the crash report read limit in SentryCrash to 20 MB (#9386)
 - Stop applying the current scope, app state and mutable device data to MetricKit events from an earlier app run. These events carry the app and OS versions of the diagnostic and the stable device attributes, while breadcrumbs, user, tags, extras, scope attachments and the current replay stay out. Diagnostics recorded by the running process keep the scope data (#9297)

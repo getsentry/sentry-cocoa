@@ -15,6 +15,7 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
             enabledDiagnostics: [.cpuException, .diskWriteException, .hang],
             releaseName: options.releaseName,
+            hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp
         )
         super.init()
