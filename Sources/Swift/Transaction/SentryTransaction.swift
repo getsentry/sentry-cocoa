@@ -3,11 +3,11 @@ import Foundation
 
 /// An event containing a trace and its child spans.
 @objc(SentryTransaction)
-open class Transaction: Event {
+public class Transaction: Event {
     internal var trace: SentryTracer
 
     /// The child spans belonging to this transaction.
-    @objc open var spans: [any Span] = []
+    @objc public var spans: [any Span] = []
 
     /// The names of views shown while the transaction was active.
     @_spi(Private) @objc public var viewNames: [String]?
@@ -46,8 +46,9 @@ open class Transaction: Event {
     }
 
     /// Unavailable. Transactions must be initialized with a trace.
+    /// Kept internal so the resilient interface does not restate Event.init().
     @available(*, unavailable)
-    public required convenience init() {
+    required init() {
         fatalError("init() is unavailable")
     }
 
@@ -62,7 +63,7 @@ open class Transaction: Event {
         fatalError("init(error:) is unavailable")
     }
 
-    @objc open override var tags: [String: String]? {
+    @objc public override var tags: [String: String]? {
         get {
             return (super.tags ?? [:]).merging(trace.tags) { _, tracerValue in
                 tracerValue
@@ -81,7 +82,17 @@ open class Transaction: Event {
         }
     }
 
-    @_spi(Private) open override func serialize() -> [String: Any] {
+#if SDK_V10
+    @objc override func serialize() -> [String: Any] {
+        serializeTransaction()
+    }
+#else
+    @_spi(Private) public override func serialize() -> [String: Any] {
+        serializeTransaction()
+    }
+#endif
+
+    private func serializeTransaction() -> [String: Any] {
         var serializedData = super.serialize()
 #if SDK_V10
         serializedData["spans"] = spans.compactMap {

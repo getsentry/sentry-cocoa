@@ -30,7 +30,8 @@
     return event.eventId;
 }
 
-- (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                 withScope:(SentryScope *)scope
 {
     [self wrapper_captureTransaction:transaction withScope:scope];
     [super captureTransaction:transaction withScope:scope];

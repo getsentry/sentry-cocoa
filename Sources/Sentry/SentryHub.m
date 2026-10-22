@@ -366,9 +366,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 
-- (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                 withScope:(SentryScope *)scope
 {
-    [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
+    [self captureTransaction:(SentryTransaction *)transaction
+                      withScope:scope
+        additionalEnvelopeItems:@[]];
 }
 
 - (void)captureTransaction:(SentryTransaction *)transaction
@@ -396,9 +399,10 @@ NS_ASSUME_NONNULL_BEGIN
     }];
 }
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction
+- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
 {
-    SentrySampleDecision decision = ((SentryTracer *)transaction.trace).sampled;
+    SentryTransaction *typedTransaction = (SentryTransaction *)transaction;
+    SentrySampleDecision decision = ((SentryTracer *)typedTransaction.trace).sampled;
 
     if (decision != kSentrySampleDecisionYes) {
         // No need to update client reports when we're crashing cause they get lost anyways.

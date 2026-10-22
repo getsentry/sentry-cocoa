@@ -110,7 +110,8 @@
     [self wrapper_captureEnvelope:envelope];
 }
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                   withScope:(SentryScope *)scope
 {
     [self wrapper_saveCrashTransaction:transaction withScope:scope];
 }
