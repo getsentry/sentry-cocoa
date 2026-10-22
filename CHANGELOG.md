@@ -5,6 +5,7 @@
 ### Features
 
 - Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree, which is also retained when flame graph attachment creation fails (#9347, #9421)
+- Report MetricKit watchdog terminations as fatal hangs with structured termination metadata. Flame graph mode also attaches the recorded watchdog stack trees, omitting threads without stacks. Use the Swift MetricKit API with diagnostic-time state context on iOS 27 and the existing subscriber on older systems (#9425)
 
 ### Fixes
 

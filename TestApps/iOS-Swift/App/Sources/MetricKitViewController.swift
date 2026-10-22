@@ -1,6 +1,9 @@
 import Foundation
 import SentrySwift
 import UIKit
+#if compiler(>=6.4) && canImport(StateReporting)
+import StateReporting
+#endif
 
 final class MetricKitViewController: UIViewController {
     private let diskWriteStressor = MetricKitDiskWriteStressor()
@@ -29,6 +32,21 @@ final class MetricKitViewController: UIViewController {
     @IBAction func triggerHangDiagnostic(_ sender: UIButton) {
         highlightButton(sender)
         hangStressor.start()
+    }
+
+    @IBAction func triggerFatalHangDiagnostic(_ sender: UIButton) {
+        let alert = UIAlertController(
+            title: "Trigger Fatal Hang?",
+            message: "This freezes the app indefinitely. Use a physical device without a debugger. Background the app and wait. If iOS does not terminate it, close it manually, then relaunch. MetricKit reports may be delayed or absent.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Freeze App", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            self.highlightButton(sender)
+            self.hangStressor.startFatalHang()
+        })
+        present(alert, animated: true)
     }
 }
 
@@ -194,7 +212,29 @@ private final class MetricKitDiskWriteStressor {
 }
 
 private final class MetricKitHangStressor {
-    private static let duration: TimeInterval = 10
+    private static let duration: TimeInterval = 3
+
+    private func reportState(_ label: String?) {
+        #if compiler(>=6.4) && canImport(StateReporting)
+        if #available(iOS 27.0, *) {
+            StateReporter<Never, Never>.reporter(for: "io.sentry.sample.metrickit").reportTransition(to: label)
+        }
+        #endif
+    }
+
+    func startFatalHang() {
+        reportState("fatal_hang")
+        SentrySDK.logger.fatal(
+            "MetricKit fatal hang stressor started",
+            attributes: ["stressor": "fatal_hang", "workload": "main_thread_blocking"]
+        )
+
+        // Intentionally never return to the main run loop. Watchdog termination and MetricKit
+        // delivery require manual device testing because their timing is controlled by the OS.
+        while true {
+            Thread.sleep(forTimeInterval: 1)
+        }
+    }
 
     func start() {
         let endTime = Date().addingTimeInterval(Self.duration)
@@ -206,6 +246,9 @@ private final class MetricKitHangStressor {
             )
             return
         }
+
+        reportState("non_fatal_hang")
+        defer { reportState(nil) }
 
         SentrySDK.logger.info(
             "MetricKit hang stressor started",

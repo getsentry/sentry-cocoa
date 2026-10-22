@@ -2059,7 +2059,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="ppk-0Y-Ki7">
-                                <rect key="frame" x="16" y="180" width="361" height="185.33333333333337"/>
+                                <rect key="frame" x="16" y="180" width="361" height="235.66666666666669"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4BA-Uh-TgP">
                                         <rect key="frame" x="0.0" y="0.0" width="361" height="34.333333333333336"/>
@@ -2088,9 +2088,17 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vaw-bR-gqD">
                                         <rect key="frame" x="0.0" y="151" width="361" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Hang Diagnostic"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Non-Fatal Hang Diagnostic"/>
                                         <connections>
                                             <action selector="triggerHangDiagnostic:" destination="3U9-VC-HIs" eventType="touchUpInside" id="vah-q7-dIj"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vfa-3H-r9N">
+                                        <rect key="frame" x="0.0" y="201.33333333333334" width="361" height="34.333333333333343"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Fatal Hang Diagnostic"/>
+                                        <connections>
+                                            <action selector="triggerFatalHangDiagnostic:" destination="3U9-VC-HIs" eventType="touchUpInside" id="Fha-2S-t8W"/>
                                         </connections>
                                     </button>
                                 </subviews>
