@@ -1122,9 +1122,10 @@ NS_ASSUME_NONNULL_BEGIN
     SentryClientInternal *client = self.client;
     if (client != nil) {
         // A closed client doesn't capture anymore, so we wait for pending transaction captures
-        // first. The client then flushes with the full shutdownTimeInterval.
-        [self waitForPendingTransactionCaptures:client.options.shutdownTimeInterval];
-        [client close];
+        // first. The time spent waiting counts against the shutdownTimeInterval.
+        NSTimeInterval remainingTimeout =
+            [self waitForPendingTransactionCaptures:client.options.shutdownTimeInterval];
+        [client closeWithTimeout:remainingTimeout];
     }
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
 }

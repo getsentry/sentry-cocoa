@@ -661,7 +661,37 @@ class SentryHubTests: XCTestCase {
         // Assert
         XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1, "close must wait for the pending transaction capture before closing the client, because a closed client drops captures.")
         XCTAssertEqual(fixture.client.flushInvocations.count, 1)
-        XCTAssertEqual(fixture.client.flushInvocations.first, fixture.options.shutdownTimeInterval, "The client's own shutdown flush keeps its full budget.")
+        XCTAssertLessThan(fixture.client.flushInvocations.first ?? .infinity, fixture.options.shutdownTimeInterval, "The time spent waiting counts against the shutdownTimeInterval.")
+    }
+
+    func testClose_withPendingTransactionCaptureExceedingTimeout_closesClientWithoutRemainingTimeout() throws {
+        // Arrange
+        fixture.options.shutdownTimeInterval = 0.1
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+
+        // Act
+        let expectation = expectation(description: "close returns after the shutdownTimeInterval")
+        DispatchQueue.global().async {
+            self.sut.close()
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1, "close must still close the client after the wait timed out.")
+        XCTAssertEqual(fixture.client.flushInvocations.first, 0.0, "The whole shutdownTimeInterval was spent waiting for the capture.")
+    }
+
+    func testClose_withoutPendingTransactionCapture_closesClientWithFullShutdownTimeInterval() {
+        // Act
+        sut.close()
+
+        // Assert
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1)
+        XCTAssertGreaterThan(fixture.client.flushInvocations.first ?? 0, fixture.options.shutdownTimeInterval - 0.1, "close must not spend the shutdownTimeInterval when nothing is pending.")
     }
 
     func testCaptureSampledTransaction_RecordsLostEvent() throws {
