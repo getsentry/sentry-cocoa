@@ -34,26 +34,36 @@ protocol SentryHingeObserving: AnyObject {
     func stop()
 }
 
+// `UIHingeInteraction` and `UIHinge` ship with the iOS 27.1 SDK. Xcode 27.0 and Xcode 27.1 both
+// ship Swift 6.4, so `#if compiler(>=6.4)` cannot tell their SDKs apart. The UIKit module version
+// can: the iOS 27.0 SDK ships UIKit 9127.0.84 and the iOS 27.1 SDK ships UIKit 9127.0.85. This gate
+// is repeated in `SentryHingeObserverTests`, because Swift cannot define a compilation condition
+// from source. The version is not a number, so it must not get a thousands separator.
+// swiftlint:disable:next number_separator
+#if canImport(UIKit, _underlyingVersion: 9127.0.85)
+
+extension SentryHingeStatus {
+    @available(iOS 27.1, *)
+    init(_ status: UIHinge.Status) {
+        switch status {
+        case .unknown: self = .unknown
+        case .closed: self = .closed
+        case .partiallyOpen: self = .partiallyOpen
+        case .fullyOpen: self = .fullyOpen
+        @unknown default: self = .unknown
+        }
+    }
+}
+
 /// Observes the hinge of foldable devices, such as iPhone Duo, through `UIHingeInteraction`.
 ///
-/// `UIHingeInteraction` and `UIHinge` only exist in the iOS 27.1 SDK, which is newer than the oldest
-/// Xcode this SDK supports, so the interaction is created through the Objective-C runtime instead of
-/// referencing the symbols directly. On a runtime without the class, `start` is a no-op.
-///
-/// Referencing the symbols behind a `#if compiler(>=6.4)` gate with `#available(iOS 27.1, *)` would
-/// work when building from source with Xcode 27.1 or later, such as with SwiftPM. It would silently
-/// drop this feature from the prebuilt XCFramework, because that is compiled with an older Xcode
-/// whose SDK lacks the symbols. The runtime lookup keeps the feature in every distribution.
+/// This implementation is only compiled with the iOS 27.1 SDK or later, so the feature is available
+/// when building from source, such as with SwiftPM, with Xcode 27.1 or later. The prebuilt
+/// XCFramework is compiled with an older Xcode and gets the no-op observer below instead.
 ///
 /// A hinge interaction only receives updates while attached to a view hierarchy, so the observer
 /// attaches one interaction to every window of the app and to every window that becomes key later.
 final class SentryHingeObserver: NSObject, SentryHingeObserving {
-    private static let interactionClassName = "UIHingeInteraction"
-    private static let initSelector = NSSelectorFromString("initWithUpdateHandler:")
-    private static let hingeSelector = NSSelectorFromString("hinge")
-    private static let statusSelector = NSSelectorFromString("status")
-    private static let angleSelector = NSSelectorFromString("angle")
-
     private struct State {
         var handler: ((SentryHingeState) -> Void)?
     }
@@ -64,7 +74,9 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
 
     /// Only accessed on the main thread, because UIKit owns both the windows and the interactions.
-    private let interactionsByWindow = NSMapTable<UIWindow, AnyObject>.weakToStrongObjects()
+    /// The values are `UIHingeInteraction`, stored as `UIInteraction` because the property can't
+    /// carry the iOS 27.1 availability of the concrete type.
+    private let interactionsByWindow = NSMapTable<UIWindow, UIInteraction>.weakToStrongObjects()
 
     init(
         applicationProvider: @escaping () -> SentryApplication?,
@@ -81,16 +93,20 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
         notificationCenterWrapper.removeObserver(self, name: nil, object: nil)
     }
 
-    /// Whether the current runtime provides `UIHingeInteraction`, which requires iOS 27.1 or later.
-    static var isHingeInteractionAvailable: Bool {
-        NSClassFromString(interactionClassName) != nil
+    /// Whether this build can observe the hinge, which requires the iOS 27.1 SDK at compile time
+    /// and iOS 27.1 or later at runtime.
+    static var isSupported: Bool {
+        if #available(iOS 27.1, *) {
+            return true
+        }
+        return false
     }
 
     // MARK: - SentryHingeObserving
 
     func start(handler: @escaping (SentryHingeState) -> Void) {
-        guard Self.isHingeInteractionAvailable else {
-            SentrySDKLog.debug("\(Self.interactionClassName) is not available. Won't observe hinge state changes.")
+        guard Self.isSupported else {
+            SentrySDKLog.debug("UIHingeInteraction requires iOS 27.1. Won't observe hinge state changes.")
             return
         }
 
@@ -147,13 +163,15 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
     }
 
     private func attach(to window: UIWindow) {
+        guard #available(iOS 27.1, *) else {
+            return
+        }
         let isRunning = state.withLock { $0.handler != nil }
         guard isRunning, interactionsByWindow.object(forKey: window) == nil else {
             return
         }
-        guard let interaction = makeInteraction() else {
-            SentrySDKLog.warning("Could not create \(Self.interactionClassName). Won't observe hinge state changes.")
-            return
+        let interaction = UIHingeInteraction { [weak self] _, update in
+            self?.handleUpdate(update)
         }
         window.addInteraction(interaction)
         interactionsByWindow.setObject(interaction, forKey: window)
@@ -161,66 +179,52 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
 
     private func detachFromAllWindows() {
         for case let window as UIWindow in interactionsByWindow.keyEnumerator() {
-            if let interaction = interactionsByWindow.object(forKey: window) as? UIInteraction {
+            if let interaction = interactionsByWindow.object(forKey: window) {
                 window.removeInteraction(interaction)
             }
         }
         interactionsByWindow.removeAllObjects()
     }
 
-    // MARK: - Dynamic UIHingeInteraction
-
-    private func makeInteraction() -> UIInteraction? {
-        guard let interactionClass = NSClassFromString(Self.interactionClassName) as? NSObject.Type,
-              interactionClass.instancesRespond(to: Self.initSelector) else {
-            return nil
-        }
-
-        // The handler signature is (UIHingeInteraction *, UIHingeInteractionUpdate *).
-        let handler: @convention(block) (AnyObject, AnyObject) -> Void = { [weak self] _, update in
-            self?.handleUpdate(update)
-        }
-        let handlerBlock = unsafeBitCast(handler, to: AnyObject.self)
-
-        // `alloc` returns a +1 reference that `initWithUpdateHandler:` consumes, and init returns a
-        // +1 reference that we take ownership of. Taking the alloc result unretained keeps the
-        // retain counts balanced even if init returns a different object.
-        guard let allocated = (interactionClass as AnyObject).perform(NSSelectorFromString("alloc"))?.takeUnretainedValue(),
-              let interaction = allocated.perform(Self.initSelector, with: handlerBlock)?.takeRetainedValue() else {
-            return nil
-        }
-        return interaction as? UIInteraction
-    }
-
-    private func handleUpdate(_ update: AnyObject) {
+    @available(iOS 27.1, *)
+    private func handleUpdate(_ update: UIHingeInteraction.Update) {
         guard let handler = state.withLock({ $0.handler }) else {
             return
         }
         // A nil hinge means the interaction left a hierarchy that provides hinge updates, which
         // is not a state change of the device.
-        guard let hingeState = Self.hingeState(from: update) else {
+        guard let hinge = update.hinge else {
             return
         }
-        handler(hingeState)
-    }
-
-    /// Reads the `hinge` of a `UIHingeInteractionUpdate` through key-value coding.
-    ///
-    /// Every key is guarded with `responds(to:)` first, because an undefined key raises an
-    /// Objective-C exception that Swift cannot catch.
-    static func hingeState(from update: AnyObject) -> SentryHingeState? {
-        guard let update = update as? NSObject,
-              update.responds(to: hingeSelector),
-              let hinge = update.value(forKey: "hinge") as? NSObject,
-              hinge.responds(to: statusSelector),
-              hinge.responds(to: angleSelector),
-              let rawStatus = hinge.value(forKey: "status") as? Int,
-              let angle = hinge.value(forKey: "angle") as? Double else {
-            return nil
-        }
-        let status = SentryHingeStatus(rawValue: rawStatus) ?? .unknown
-        return SentryHingeState(status: status, angle: angle)
+        handler(SentryHingeState(status: SentryHingeStatus(hinge.status), angle: hinge.angle))
     }
 }
+
+#else
+
+/// The hinge observer for builds without the iOS 27.1 SDK, where `UIHingeInteraction` doesn't
+/// exist. `start` is a no-op, so the hinge breadcrumbs are never added.
+final class SentryHingeObserver: NSObject, SentryHingeObserving {
+    /// Always false, because `UIHingeInteraction` is not available at compile time.
+    static var isSupported: Bool { false }
+
+    init(
+        applicationProvider: @escaping () -> SentryApplication?,
+        notificationCenterWrapper: SentryNSNotificationCenterWrapper,
+        dispatchQueueWrapper: SentryDispatchQueueWrapper
+    ) {
+        super.init()
+    }
+
+    func start(handler: @escaping (SentryHingeState) -> Void) {
+        SentrySDKLog.debug("Sentry was compiled without the iOS 27.1 SDK. Won't observe hinge state changes.")
+    }
+
+    func stop() {
+        // Nothing was started.
+    }
+}
+
+#endif // canImport(UIKit, _underlyingVersion: 9127.0.85)
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
