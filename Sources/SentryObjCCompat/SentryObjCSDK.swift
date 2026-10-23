@@ -75,6 +75,13 @@ import Foundation
         SentryObjCId(SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads))
     }
 
+    @objc(captureEvent:attachAllThreads:withScopeBlock:)
+    @discardableResult public static func capture(event: SentryObjCEvent, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads) { scope in
+            block(SentryObjCScope(scope))
+        })
+    }
+
     @objc(captureEvent:withHint:)
     @discardableResult public static func capture(event: SentryObjCEvent, hint: SentryObjCHint) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(event: event.wrapped, hint: hint.wrapped))
@@ -142,6 +149,13 @@ import Foundation
         SentryObjCId(SentrySDK.capture(error: error, attachAllThreads: attachAllThreads))
     }
 
+    @objc(captureError:attachAllThreads:withScopeBlock:)
+    @discardableResult public static func capture(error: Error, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(error: error, attachAllThreads: attachAllThreads) { scope in
+            block(SentryObjCScope(scope))
+        })
+    }
+
     @objc(captureError:withHint:)
     @discardableResult public static func capture(error: Error, hint: SentryObjCHint) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(error: error, hint: hint.wrapped))
@@ -181,6 +195,13 @@ import Foundation
         SentryObjCId(SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads))
     }
 
+    @objc(captureException:attachAllThreads:withScopeBlock:)
+    @discardableResult public static func capture(exception: NSException, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads) { scope in
+            block(SentryObjCScope(scope))
+        })
+    }
+
     @objc(captureException:withHint:)
     @discardableResult public static func capture(exception: NSException, hint: SentryObjCHint) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(exception: exception, hint: hint.wrapped))
@@ -218,6 +239,13 @@ import Foundation
     @objc(captureMessage:attachAllThreads:)
     @discardableResult public static func capture(message: String, attachAllThreads: Bool) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(message: message, attachAllThreads: attachAllThreads))
+    }
+
+    @objc(captureMessage:attachAllThreads:withScopeBlock:)
+    @discardableResult public static func capture(message: String, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(message: message, attachAllThreads: attachAllThreads) { scope in
+            block(SentryObjCScope(scope))
+        })
     }
 
     @objc(captureMessage:withHint:)
