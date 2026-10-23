@@ -700,7 +700,8 @@ final class SentryClientTests: XCTestCase {
     func testCaptureEvent_whenHangDecodingFails_shouldSendRawDiagnosticWithoutCurrentStacktrace() throws {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
-            options.enableMetricKit = true
+            // A configured report set enables the integration in every SDK version.
+            options.experimental.metrickit.enabledDiagnosticReports = [.hang]
             options.enableMetricKitRawPayload = true
             options.attachStacktrace = true
         })
