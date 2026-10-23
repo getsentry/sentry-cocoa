@@ -13,7 +13,6 @@
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -367,16 +366,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 
-- (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                 withScope:(SentryScope *)scope
 {
-    [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
+    [self captureTransaction:(SentryTransaction *)transaction
+                      withScope:scope
+        additionalEnvelopeItems:@[]];
 }
 
 - (void)captureTransaction:(SentryTransaction *)transaction
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    SentrySampleDecision decision = transaction.trace.sampled;
+    SentrySampleDecision decision = ((SentryTracer *)transaction.trace).sampled;
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:SentryDataCategoryTransaction
                               reason:SentryDiscardReasonSampleRate];
@@ -397,9 +399,10 @@ NS_ASSUME_NONNULL_BEGIN
     }];
 }
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction
+- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
 {
-    SentrySampleDecision decision = transaction.trace.sampled;
+    SentryTransaction *typedTransaction = (SentryTransaction *)transaction;
+    SentrySampleDecision decision = ((SentryTracer *)typedTransaction.trace).sampled;
 
     if (decision != kSentrySampleDecisionYes) {
         // No need to update client reports when we're crashing cause they get lost anyways.

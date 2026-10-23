@@ -48,6 +48,7 @@ void sentry_startLaunchProfile(void);
 BOOL sentry_isTracingAppLaunch(void);
 void sentry_setIsTracingAppLaunch(BOOL isTracingAppLaunch);
 SentryTracer *_Nullable sentry_getLaunchTracer(void);
+SentryTracer *_Nullable sentry_tracerForTransaction(id transaction);
 
 #if SENTRY_HAS_UIKIT
 #    if !SDK_V10
