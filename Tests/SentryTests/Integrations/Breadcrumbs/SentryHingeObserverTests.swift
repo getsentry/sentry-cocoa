@@ -28,6 +28,17 @@ class SentryHingeObserverTests: XCTestCase {
         )
     }
 
+    func testCurrentState_whenNoUpdateWasObserved_shouldBeNil() {
+        // -- Arrange --
+        let sut = getSut()
+
+        // -- Act --
+        sut.start { _ in }
+
+        // -- Assert --
+        XCTAssertNil(sut.currentState)
+    }
+
     func testStop_whenNotStarted_shouldNotRemoveObservers() {
         // -- Arrange --
         let sut = getSut()

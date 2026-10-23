@@ -274,9 +274,22 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+    private var _hingeObserver: SentryHingeObserver?
+    /// Shared between the hinge breadcrumbs, which start it, and the extra device context, which
+    /// reads its current state.
+    var hingeObserver: SentryHingeObserver {
+        getLazyVar(\._hingeObserver) {
+            SentryHingeObserver(
+                applicationProvider: { [weak self] in self?.application() },
+                notificationCenterWrapper: self.notificationCenterWrapper,
+                dispatchQueueWrapper: self.dispatchQueueWrapper
+            )
+        }
+    }
+
     private var _extraContextProvider: SentryExtraContextProvider?
     @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
-        SentryExtraContextProvider(memoryMetricsProvider: self.memoryMetricsProvider, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper, reachability: self.reachability)
+        SentryExtraContextProvider(memoryMetricsProvider: self.memoryMetricsProvider, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper, hingeObserver: self.hingeObserver, reachability: self.reachability)
     }
 #else
     private var _extraContextProvider: SentryExtraContextProvider?
@@ -934,6 +947,13 @@ protocol ApplicationProvider {
     func application() -> SentryApplication?
 }
 extension SentryDependencyContainer: ApplicationProvider {}
+
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+protocol HingeObserverProvider {
+    var hingeObserver: SentryHingeObserver { get }
+}
+extension SentryDependencyContainer: HingeObserverProvider {}
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol DispatchFactoryProvider {
     var dispatchFactory: SentryDispatchFactory { get }
