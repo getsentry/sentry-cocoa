@@ -21,23 +21,26 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     }
 
     func count(key: String, value: UInt, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes)
+        captureMetric(name: key, value: .counter(value), unit: nil, timestamp: nil, attributes: attributes)
     }
 
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
+        captureMetric(name: key, value: .distribution(value), unit: unit, timestamp: nil, attributes: attributes)
     }
 
     func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
+        captureMetric(name: key, value: .gauge(value), unit: unit, timestamp: nil, attributes: attributes)
     }
 
-    // MARK: - Private
+    // MARK: - Capture
 
-    private func captureMetric(
+    // Internal rather than private so the timestamp overloads in SentryMetricsApi+Internal.swift
+    // can reach it.
+    func captureMetric(
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
+        timestamp: Date?,
         attributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
@@ -66,7 +69,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         let traceId = dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
 
         let metric = SentryMetric(
-            timestamp: dependencies.dateProvider.date(),
+            timestamp: timestamp ?? dependencies.dateProvider.date(),
             traceId: traceId,
             name: name,
             value: value,
