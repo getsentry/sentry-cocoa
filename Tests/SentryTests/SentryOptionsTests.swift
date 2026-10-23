@@ -34,7 +34,7 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
 #if SDK_V10
-        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.cpuException, .diskWriteException, .hang])
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.cpuException, .diskWriteException, .hang, .appLaunch])
 #else
         XCTAssertTrue(options.experimental.metrickit.enabledDiagnosticReports.isEmpty)
 #endif

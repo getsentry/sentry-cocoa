@@ -15,9 +15,10 @@ public final class SentryMetricKitOptions {
     /// An empty set disables the MetricKit integration.
     ///
     /// - Note: Defaults to ``SentryMetricKit/DiagnosticReport/cpuException``,
-    ///   ``SentryMetricKit/DiagnosticReport/diskWriteException`` and
-    ///   ``SentryMetricKit/DiagnosticReport/hang``.
-    public var enabledDiagnosticReports: Set<SentryMetricKit.DiagnosticReport> = [.cpuException, .diskWriteException, .hang]
+    ///   ``SentryMetricKit/DiagnosticReport/diskWriteException``,
+    ///   ``SentryMetricKit/DiagnosticReport/hang`` and
+    ///   ``SentryMetricKit/DiagnosticReport/appLaunch``.
+    public var enabledDiagnosticReports: Set<SentryMetricKit.DiagnosticReport> = [.cpuException, .diskWriteException, .hang, .appLaunch]
     #else
     /// The MetricKit diagnostic reports the SDK captures as events.
     ///

@@ -50803,6 +50803,43 @@
                 ],
                 "declKind": "EnumElement",
                 "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO9appLaunchyA2EmF",
+                "moduleName": "Sentry",
+                "name": "appLaunch",
+                "printedName": "appLaunch",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO9appLaunchyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.DiagnosticReport.Type) -> Sentry.SentryMetricKit.DiagnosticReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
                 "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO12cpuExceptionyA2EmF",
                 "moduleName": "Sentry",
                 "name": "cpuException",
