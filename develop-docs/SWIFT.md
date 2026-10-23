@@ -1,96 +1,126 @@
-# Swift Usage
+# Swift and Objective-C
 
-Starting from version 8.0.0, it is now possible to include Swift code in the project. All Swift files should be placed under the `/Sources/Swift` directory.
+Rules for the mixed-language SDK, and for converting a public type in `Sources/Sentry/Public` to Swift without breaking callers. SDK Swift belongs in `Sources/Swift`.
 
-> In this document, `SentryPrivate` refers to the library written in Swift, while `Sentry` represents the framework written in Objective-C. The term `SentryPrivate` public API refers to the API that will be consumed by `Sentry` and is not intended for direct use by users.
+## Glossary
 
-## How to bridge Swift and ObjC
+- **`Sentry`** — The framework users import. The Xcode target `Sentry` in `Sentry.xcodeproj` builds `Sentry.framework` from source.
+- **`SentrySwift`** — SwiftPM target for `Sources/Swift`. Compiled into `Sentry`.
+- **`SentryObjCInternal`** — SwiftPM target for the Objective-C and C implementation under `Sources/Sentry`.
+- **`SentryHeaders`** — Public Objective-C headers in `Sources/Sentry/Public`. Umbrella: `Sentry.h` in `Sources/Resources/Sentry.modulemap`.
+- **`_SentryPrivate`** — Private Objective-C headers for SDK Swift. List: `Sources/Sentry/include/SentryPrivate.h`. Users do not import this module.
+- **`SentrySwift.h`** — Shim at `Sources/Sentry/include/SentrySwift.h`. Objective-C imports this to call Swift.
+- **`SentryObjC`** — Separate Objective-C client API. Update a wrapper only when a converted type is mirrored. See [SENTRY-OBJC.md](./SENTRY-OBJC.md).
 
-In general, an API that mixes languages cannot be used by a language other than the language the API was written in. The one exception is public ObjC types can be used by Swift code and that Swift code can still be used by ObjC.
+Depending on how you interact with building the SDK, it's likely that you'll typically only build `Sentry` from within the `.xcodeproj` file. The list above is mainly meant to help navigate the different moving parts of migrating Objective-C code to Swift.
 
-Examples
+## Rules
 
-- If you use an ObjC class from a Swift API like `func doSomething() -> MyObjCType`, that function would always be usable from Swift, but can only be visible from ObjC if `MyObjCType` is public, like `SentryUser`. This is why we have a CI job to analyze ObjC to Swift conversion. An ObjC class that uses a non-public ObjC type in it's API is not ready to be converted to Swift until the type it uses is also converted to Swift.
+- Objective-C makes Swift code callable to itself with `#import "SentrySwift.h"`. This is a shim that forwards to the generated Swift header.
+- Swift can call private (or rather, internal to the SDK) Objective-C with `internal import _SentryPrivate`, after the header is added to `SentryPrivate.h`. Use `internal import`. A plain import breaks prebuilt XCFrameworks with `no such module '_SentryPrivate'`.
+- Headers in `SentryPrivate.h` cannot depend on public interfaces.
+- A type from `_SentryPrivate` may be used in Swift code. However, it must not appear in a public signature. Convert private types before using them in public Swift signatures.
+- A public `.h` referenced through `Sentry.h` must not contain code that uses a Swift type. Doing so will lead to Swift seeing a duplicate definition of the Swift type which breaks the import.
+- `@objc` signatures in Swift cannot use generics, structs, Swift enums, tuples, or non-`@objc` protocols. Using these features is fine on internal Swift and on public API that is already Swift-only.
+- This migration keeps `@objc` on converted public types and does not change the API they expose. Declare classes `open`. Do not use `final`. Nothing here is gated on `SDK_V10`.
+- Members from a `+Private.h` that `.m` files call become `@_spi(Private) @objc public`. Leave public API unmarked. Hybrid SPI is described in [`Sources/AGENTS.md`](../Sources/AGENTS.md).
+- Tests find `_SentryPrivate` through `HEADER_SEARCH_PATHS` in `Tests/Configuration/SentryTests.xcconfig`. Leave that path off `SentrySwiftUI`.
 
-- If you use a Swift class from an ObjC header file, like `- (MySwiftClass *)doSomething`, that function is not visible from Swift. This is why we sometimes need wrapper classes in ObjC that call these functions, or we need to treat the type as `NSObject` and force-cast. However, force casting can break if a user links the Sentry framework twice because there are two implementations of the same class. We can never user a Swift class in a public .h file because then our users would find the interface to be broken when they use it from Swift code. For example if `SentryUser.h` has a property of type `SentryId`, `SentryId` must be written in ObjC.
+## Converting a public type
 
-## Notes
+The examples below outline aspects of migrating an Objective-C class named `SentryUser`, with a Swift name of `User`. First, check that `SentryUser` is no longer referenced in any public Objective-C headers. If some headers still leverage the class you're migrating, those types must be converted first.
 
-1. All Swift code will be bundled within the `SentryPrivate` library, which `Sentry` depends on.
-2. User-facing APIs cannot be written in Swift because their components will be accessed through imports from "SentryPrivate."
-3. `SentryPrivate` does not have access to `Sentry` classes to avoid cyclic references. As a result, any code written in Objective-C is not accessible from the Swift layer.
-   - However, it is possible to create Dependency Injection (DI) APIs in Swift, allowing `Sentry` to inject its objects for use within `SentryPrivate`.
-4. `SentryPrivate` public APIs (code consumed by `Sentry`) cannot utilize certain Objective-C incompatible features, including:
-   - Generics
-   - Non-@objc protocols and protocol extensions
-   - Top-level functions and properties
-   - Global variables
-   - Structs
-   - Swift-only enums
-   - Swift-only optionals
-   - Swift-only tuples
+Internal headers that reference a converted type are not deleted to unblock the conversion. Instead, those headers name the Swift type as `id` through `SENTRY_SWIFT_MIGRATION_ID`, shown further down.
 
-## Objective-C Interoperability
+When naming your Swift class, you should keep the old names whenever possible. The Objective-C name stays on `@objc`, and the Swift name stays the one `NS_SWIFT_NAME` already declared. A new Swift-friendly name is allowed only when the old name still compiles, through `typealias`, `@objc`, or `NS_SWIFT_NAME`. New Swift classes should be `open` by default. Do not use `final`.
 
-- **ObjC to Swift**: Import `#import "SentrySwift.h"`
-- **Swift to ObjC**: Add header to `SentryInternal.h`, then `@_implementationOnly import _SentryPrivate`
-- **Module system**: `_SentryPrivate` module for internal ObjC headers accessible to Swift
-
-When making an Objective-C class visible for Swift SDK code, do the following:
-
-- Add it to SentryPrivate.h
-- Remove existing imports from any test bridging headers.
-- Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
-  the Objective-C class.
-
-To make internal Swift code accessible to ObjC it needs to be `public`. This allows the ObjC header to be generated by Swift Package Manager.
-To discourage use outside of the SDK, add `@_spi(Private)` to these declarations. This ensures they can only be used when the import also
-adds the SPI attribute.
-
-Public Objective-C classes, made public
-[through the umbrella header](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target),
-are automatically visible to Swift without imports. Our umbrella header is defined in the `Sentry.modulemap`.
-Accessing private Objective-C classes doesn't
-work out of the box. One approach to making this work is to define a private module that contains
-all the private ObjC headers. To define such a module, we added a module.modulemap file to our
-project with the name _SentryPrivate. We added the prefix `_`because Xcode autocomplete seems to ignore such modules. This modulemap file points to a header called`SentryPrivate.h`, which include all private ObjC headers that should be available for Swift. When importing the generated _SentryPrivate module we have to use `@\_implementationOnly import \_SentryPrivate`.
-[@_implementationOnly](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_implementationonly) will most likely be superseded by [access level imports](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md) in a future Swift version. Not using `@\_implementationOnly` leads to errors when including the
-prebuilt XCFramwork into projects, such as:
-
-```sh
-Sentry.swiftmodule/arm64-apple-ios.private.swiftinterface:10:8: error: no such module '_SentryPrivate'
-
-import _SentryPrivate
+```objc
+NS_SWIFT_NAME(User)
+@interface SentryUser : NSObject
 ```
 
-Adding Objective-C classes to the \_SentryPrivate module also exposes them to test classes written in
-Swift. When making an Objective-C class public to SDK Swift code, we must remove it from test
-bridging headers because this can lead to compiler errors. The SentryTests only find the
-\_SentryPrivate module when adding setting `HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**`
-which we must not set for SwiftUI, because this uses its own implementation of SentryInternal.h.
-Setting the `HEADER_SEARCH_PATHS` for SwiftUI breaks the build.
+```swift
+@objc(SentryUser)
+open class User: NSObject {}
+```
 
-See also [decision to remove SentryPrivate](./DECISIONS.md#removing-sentryprivate).
+Delete the public header `Sources/Sentry/Public/SentryUser.h`. Both umbrella headers import that file, so delete the matching line from each one.
 
-Useful resources:
+```objc
+// Sources/Sentry/Public/Sentry.h
+#    import <Sentry/SentryUser.h>
+```
 
-- [Module Map Syntax](https://clang.llvm.org/docs/Modules.html#module-map-file)
-- Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
-- [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
-- [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
+```objc
+// Sources/Sentry/Public/SentryWithoutUIKit.h
+#    import <SentryWithoutUIKit/SentryUser.h>
+```
 
-## Public Protocols
+Members from `SentryUser+Private.h` that `.m` files call become `@_spi(Private) @objc public`:
 
-pod lib lint fails with the warning duplicate protocol definition when including a public header for
-a protocol in a private ObjC class header, when adding that header to `SentryPrivate.h` to expose it
-to internal SDK Swift code, as `SentrySDKInfo.h`. To solve this problem we have to use the
-`SentryInternalSerializable` for internal classes implementing serializable.
+```objc
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+```
 
-## Compatibility Notes
+```swift
+@_spi(Private)
+@objc
+public init(dictionary: NSDictionary) {}
+```
 
-- **visionOS**: Requires `SWIFT_OBJC_INTEROP_MODE=objcxx` for static framework
-- **C Functions**: Cannot call C functions directly from Swift with visionOS settings
+Internal headers that Swift can see must not name the Swift class. Move those declarations to a `+SwiftPrivate.h` header and type them with `SENTRY_SWIFT_MIGRATION_ID`, which is `id`. This declaration is in `Sources/Sentry/include/SentryHub.h`:
 
-## Converting to Swift
+```objc
+// Sources/Sentry/include/SentryHub.h
+- (void)setUser:(SentryUser *_Nullable)user;
+```
 
-Converting internal ObjC classes to Swift needs to be done following a partial order. The scripts in `Utils/SwiftConversion` generate this ordering and can be used to guide ObjC to Swift conversions.
+Move it to `Sources/Sentry/include/SentryHub+SwiftPrivate.h`:
+
+```objc
+// Sources/Sentry/include/SentryHub+SwiftPrivate.h
+- (void)setUser:(SENTRY_SWIFT_MIGRATION_ID(SentryUser))user;
+```
+
+When the value comes back to Swift, cast it in one extension for that class. Use `as?`.
+
+```swift
+guard let user = scope.userObject as? User else { return }
+```
+
+`userObject` is in `Sources/Sentry/include/SentryScope+PrivateSwift.h`. After that property uses the macro, the cast above is how Swift reads it.
+
+Run `make generate-public-api`. In `sdk_api.json` and `sdk_api_objc.json`, `User` keeps `objc_name` `SentryUser`. The diff should be that declaration moving from the Objective-C header to Swift, with no public members renamed or removed. Existing test plans still pass.
+
+Build `SentryObjC` and `SentryObjCCompat`. When the type is mirrored, the wrapper delegates to it. Updating that wrapper is a side effect of the conversion, not a separate goal. Update an example project only when it imports the deleted header. The wrapper for `User` looks like this:
+
+```swift
+@objc(SentryObjCUser) public final class SentryObjCUser: NSObject {
+    internal let wrapped: User
+
+    @objc public var userId: String? {
+        get { wrapped.userId }
+        set { wrapped.userId = newValue }
+    }
+}
+```
+
+### Accepted exceptions
+
+- Objective-C can no longer subclass a converted class, because Objective-C cannot subclass a Swift class. Swift subclassing still works because the class is `open`. `SentryCrashExceptionApplication` stays Objective-C so Objective-C apps can keep subclassing it.
+- Public C functions and constants get Swift equivalents and are deprecated, so callers see a warning. Removing the deprecated C API is a follow-up. A plain type conversion has no changelog entry. Deprecating a C function or constant, or adding a renamed typealias, does.
+- Block typedefs in `SentryDefines.h` get new Swift names. The old names stay as deprecated aliases. Both names must build under Xcode, SwiftPM, and CocoaPods.
+
+### Out of scope
+
+- `Sources/Sentry/include` and `Utils/SwiftConversion`. See [Internal conversions](#internal-conversions).
+- Hybrid headers `PrivateSentrySDKOnly`, `PrivatesHeader`, `SentryAppStartMeasurement`, and `SentrySessionReplayHybridSDK`.
+- Removing `@objc`, deleting the remaining public headers, or changing the `SentryObjC` product.
+- Stripping `@objc` from types that are already Swift, including the V10 `SentrySDK` pattern.
+- `SentryDefines.h` and `SentryProfilingConditionals.h`, which are macro-only.
+- `SentryError.h` and `SentrySpanStatus.h`. They stay Objective-C while C functions take those enums.
+- Internal classes that only need the `id` seam: `SentryHubInternal`, `SentryClientInternal`, `SentrySDKInternal`, `SentryTracer`, and `SentrySpanInternal`.
+
+## Internal conversions
+
+`make generate-swift-conversion-diagram` orders private headers in `Sources/Sentry/include` only. It skips headers whose names contain `+` and does not order `Sources/Sentry/Public`. A private type used in one of those headers has to become Swift before the header that exposes it, because `internal import` cannot put that type on a public signature.
