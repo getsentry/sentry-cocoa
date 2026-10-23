@@ -49,8 +49,7 @@ class SentryHingeObserverTests: XCTestCase {
     }
 
     // Same gate as SentryHingeObserver: the iOS 27.1 SDK is the first one shipping UIHingeInteraction.
-    // swiftlint:disable:next number_separator
-    #if canImport(UIKit, _underlyingVersion: 9127.0.85)
+    #if canImport(SwiftUI, _version: 8.0.85)
 
     // Hinge updates are only delivered by foldable hardware, so these tests cover the window
     // attachment and the status mapping, which run on every iOS 27.1 device.
@@ -192,6 +191,6 @@ class SentryHingeObserverTests: XCTestCase {
         XCTAssertFalse(window.interactions.contains { NSStringFromClass(type(of: $0)) == "UIHingeInteraction" })
     }
 
-    #endif // canImport(UIKit, _underlyingVersion: 9127.0.85)
+    #endif // canImport(SwiftUI, _version: 8.0.85)
 }
 #endif // os(iOS)

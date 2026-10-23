@@ -35,12 +35,14 @@ protocol SentryHingeObserving: AnyObject {
 }
 
 // `UIHingeInteraction` and `UIHinge` ship with the iOS 27.1 SDK. Xcode 27.0 and Xcode 27.1 both
-// ship Swift 6.4, so `#if compiler(>=6.4)` cannot tell their SDKs apart. The UIKit module version
-// can: the iOS 27.0 SDK ships UIKit 9127.0.84 and the iOS 27.1 SDK ships UIKit 9127.0.85. This gate
+// ship Swift 6.4, so `#if compiler(>=6.4)` cannot tell their SDKs apart. The SwiftUI module version
+// can: the iOS 27.0 SDK ships SwiftUI 8.0.84 and the iOS 27.1 SDK ships SwiftUI 8.0.85, and the
+// Mac Catalyst SDK of Xcode 27.1 still ships 8.0.84 together with the iOS 27.0 UIKit. SwiftUI is
+// checked instead of UIKit because it is a pure Swift module, whose version is always readable,
+// while the Clang module version of UIKit is not available in every build configuration. This gate
 // is repeated in `SentryHingeObserverTests`, because Swift cannot define a compilation condition
-// from source. The version is not a number, so it must not get a thousands separator.
-// swiftlint:disable:next number_separator
-#if canImport(UIKit, _underlyingVersion: 9127.0.85)
+// from source.
+#if canImport(SwiftUI, _version: 8.0.85)
 
 extension SentryHingeStatus {
     @available(iOS 27.1, *)
@@ -225,6 +227,6 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
     }
 }
 
-#endif // canImport(UIKit, _underlyingVersion: 9127.0.85)
+#endif // canImport(SwiftUI, _version: 8.0.85)
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
