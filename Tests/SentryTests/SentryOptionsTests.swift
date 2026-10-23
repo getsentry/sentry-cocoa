@@ -39,6 +39,97 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertTrue(options.experimental.metrickit.enabledDiagnosticReports.isEmpty)
 #endif
     }
+
+    func testInitWithDictionary_whenMetricKitIsAbsent_shouldUseDefault() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1"
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, SentryMetricKitOptions().enabledDiagnosticReports)
+    }
+
+    func testInitWithDictionary_whenMetricKitIsEmpty_shouldUseDefault() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [:]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, SentryMetricKitOptions().enabledDiagnosticReports)
+    }
+
+    func testInitWithDictionary_whenDiagnosticReportsConfigured_shouldSetEnabledDiagnosticReports() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledDiagnosticReports": ["crash", "hang", "cpuException", "diskWriteException"]
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.crash, .hang, .cpuException, .diskWriteException])
+    }
+
+    func testInitWithDictionary_whenDiagnosticReportsEmpty_shouldDisableAllDiagnosticReports() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledDiagnosticReports": []
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertTrue(options.experimental.metrickit.enabledDiagnosticReports.isEmpty)
+    }
+
+    func testInitWithDictionary_whenDiagnosticReportsContainUnknownValues_shouldIgnoreThem() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledDiagnosticReports": ["hang", "unknown", 1, NSNull()]
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.hang])
+    }
+
+    func testInitWithDictionary_whenDiagnosticReportsIsNotAnArray_shouldUseDefault() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledDiagnosticReports": "hang"
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, SentryMetricKitOptions().enabledDiagnosticReports)
+    }
 #endif // canImport(MetricKit) && !os(tvOS)
 
     // MARK: - Data Collection
