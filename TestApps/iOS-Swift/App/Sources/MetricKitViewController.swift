@@ -26,9 +26,18 @@ final class MetricKitViewController: UIViewController {
         cpuStressor.start()
     }
 
-    @IBAction func triggerHangDiagnostic(_ sender: UIButton) {
+    @IBAction func triggerCatalogHangDiagnostic(_ sender: UIButton) {
         highlightButton(sender)
-        hangStressor.start()
+        hangStressor.start(workload: "catalog_refresh") {
+            try MetricKitCatalogService().refreshCatalog()
+        }
+    }
+
+    @IBAction func triggerCheckoutHangDiagnostic(_ sender: UIButton) {
+        highlightButton(sender)
+        hangStressor.start(workload: "checkout") {
+            try MetricKitCheckoutService().checkout()
+        }
     }
 }
 
@@ -194,41 +203,153 @@ private final class MetricKitDiskWriteStressor {
 }
 
 private final class MetricKitHangStressor {
-    private static let duration: TimeInterval = 10
-
-    func start() {
-        let endTime = Date().addingTimeInterval(Self.duration)
-        guard let imageData = Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")
-            .flatMap({ try? Data(contentsOf: $0) }) else {
-            SentrySDK.logger.error(
-                "MetricKit hang stressor image could not be loaded",
-                attributes: ["stressor": "hang"]
-            )
-            return
-        }
-
+    func start(workload: String, operation: () throws -> Int) {
         SentrySDK.logger.info(
             "MetricKit hang stressor started",
-            attributes: [
-                "stressor": "hang",
-                "duration_seconds": Self.duration,
-                "workload": "image_decoding"
-            ]
+            attributes: ["stressor": "hang", "workload": workload]
         )
 
-        while Date() < endTime {
-            autoreleasepool {
-                _ = UIImage(data: imageData)?.preparingForDisplay()
+        // Run all four batches synchronously on the main thread for one continuous ~4 second hang.
+        let startTime = ProcessInfo.processInfo.systemUptime
+        do {
+            var checksum = 0
+            for _ in 0..<4 {
+                checksum &+= try operation()
             }
+            SentrySDK.logger.info(
+                "MetricKit hang stressor completed",
+                attributes: [
+                    "stressor": "hang",
+                    "workload": workload,
+                    "duration_seconds": ProcessInfo.processInfo.systemUptime - startTime,
+                    "checksum": checksum
+                ]
+            )
+        } catch {
+            SentrySDK.logger.error(
+                "MetricKit hang stressor failed",
+                attributes: ["stressor": "hang", "workload": workload, "error": error.localizedDescription]
+            )
         }
+    }
+}
 
-        SentrySDK.logger.info(
-            "MetricKit hang stressor completed",
-            attributes: [
-                "stressor": "hang",
-                "duration_seconds": Self.duration,
-                "workload": "image_decoding"
-            ]
-        )
+private struct MetricKitProduct: Codable {
+    let name: String
+    let price: Double
+}
+
+// Keep service frames in optimized builds. Each leaf does real CPU work for ~250 ms rather
+// than sleeping or funneling every sample into a shared busy-wait function.
+private final class MetricKitCatalogService {
+    private let serialization = MetricKitSerializationService()
+    private let pricing = MetricKitPricingService()
+    private let search = MetricKitSearchService()
+
+    @inline(never)
+    func refreshCatalog() throws -> Int {
+        let products = try serialization.decodeProducts()
+        let total = pricing.calculateTotal(products)
+        let index = search.buildIndex(products)
+        let matches = search.rankProducts(products)
+        return Int(total) + index.count + matches.count
+    }
+}
+
+private final class MetricKitCheckoutService {
+    private let serialization = MetricKitSerializationService()
+    private let pricing = MetricKitPricingService()
+
+    @inline(never)
+    func checkout() throws -> Int {
+        let products = try serialization.decodeProducts()
+        let total = pricing.calculateTotal(products)
+        let shipping = calculateShipping(products)
+        let receipt = try serialization.encodeReceipt(products)
+        return Int(total + shipping) + receipt.count
+    }
+
+    @inline(never)
+    private func calculateShipping(_ products: [MetricKitProduct]) -> Double {
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.25
+        var shipping = 0.0
+        repeat {
+            for zone in 1...100 {
+                shipping = products.reduce(0) { $0 + sqrt($1.price * Double(zone)) }
+            }
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return shipping
+    }
+}
+
+private final class MetricKitSerializationService {
+    private let payload = Data(
+        ("[" + (0..<200).map { "{\"name\":\"Product \($0)\",\"price\":\($0 + 1)}" }.joined(separator: ",") + "]").utf8
+    )
+
+    @inline(never)
+    func decodeProducts() throws -> [MetricKitProduct] {
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.25
+        let decoder = JSONDecoder()
+        var products: [MetricKitProduct]
+        repeat {
+            products = try decoder.decode([MetricKitProduct].self, from: payload)
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return products
+    }
+
+    @inline(never)
+    func encodeReceipt(_ products: [MetricKitProduct]) throws -> Data {
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.25
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        var receipt: Data
+        repeat {
+            receipt = try encoder.encode(products)
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return receipt
+    }
+}
+
+private final class MetricKitPricingService {
+    @inline(never)
+    func calculateTotal(_ products: [MetricKitProduct]) -> Double {
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.25
+        var total = 0.0
+        repeat {
+            for discount in 1...100 {
+                total = products.reduce(0) { $0 + ($1.price * (1 - Double(discount) / 1_000)).rounded() }
+            }
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return total
+    }
+}
+
+private final class MetricKitSearchService {
+    @inline(never)
+    func buildIndex(_ products: [MetricKitProduct]) -> [String: [Int]] {
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.25
+        var index: [String: [Int]]
+        repeat {
+            index = [:]
+            for (productID, product) in products.enumerated() {
+                for word in product.name.lowercased().split(separator: " ") {
+                    index[String(word), default: []].append(productID)
+                }
+            }
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return index
+    }
+
+    @inline(never)
+    func rankProducts(_ products: [MetricKitProduct]) -> [MetricKitProduct] {
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.25
+        var ranked: [MetricKitProduct]
+        repeat {
+            ranked = products.sorted {
+                $0.name.localizedStandardCompare($1.name) == .orderedAscending
+            }
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return ranked
     }
 }
