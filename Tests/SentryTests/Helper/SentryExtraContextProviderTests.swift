@@ -15,6 +15,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let memoryMetricsProvider = TestSentryMemoryMetricsProvider()
 #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
+        let hingeObserver = TestSentryHingeObserver()
 #endif // os(iOS)
         let processWrapper = MockSentryProcessInfo()
         var reachability = SentryReachability()
@@ -25,6 +26,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
                     memoryMetricsProvider: memoryMetricsProvider,
                     processInfoWrapper: processWrapper,
                     deviceWrapper: deviceWrapper,
+                    hingeObserver: hingeObserver,
                     reachability: reachability)
             #else
             return SentryExtraContextProvider(
@@ -78,6 +80,47 @@ final class SentryExtraContextProviderTests: XCTestCase {
 #endif // os(iOS)
     }
     
+    func testExtraDeviceInfo_whenHingeStateIsKnown_shouldSetHingeStatus() throws {
+#if os(iOS)
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.hingeObserver.currentState = SentryHingeState(status: .partiallyOpen, angle: 1.0)
+
+        // -- Act --
+        let device = sut.getExtraContext()["device"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertEqual(device?["hinge_status"] as? String, "partially_open")
+#endif // os(iOS)
+    }
+
+    func testExtraDeviceInfo_whenHingeStateIsUnknown_shouldNotSetHingeStatus() throws {
+#if os(iOS)
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.hingeObserver.currentState = SentryHingeState(status: .unknown, angle: 0)
+
+        // -- Act --
+        let device = sut.getExtraContext()["device"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertNil(device?["hinge_status"])
+#endif // os(iOS)
+    }
+
+    func testExtraDeviceInfo_whenNoHingeState_shouldNotSetHingeStatus() throws {
+#if os(iOS)
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // -- Act --
+        let device = sut.getExtraContext()["device"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertNil(device?["hinge_status"])
+#endif // os(iOS)
+    }
+
     func testExtraProcessInfo() throws {
         let sut = fixture.getSut()
         fixture.processWrapper.overrides.processorCount = 12

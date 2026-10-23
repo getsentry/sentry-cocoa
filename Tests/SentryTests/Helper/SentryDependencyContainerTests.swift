@@ -192,6 +192,9 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dateProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().notificationCenterWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().extraContextProvider)
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().hingeObserver)
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().memoryMetricsProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextEnricher)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)
