@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, which requires iOS 27.1 or later (#9426)
+- Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, which requires building from source with Xcode 27.1 or later and iOS 27.1 or later (#9433)
 
 ## 9.31.0
 
