@@ -51,6 +51,7 @@
 
 - Move session replay and screenshot masking and subtree traversal settings to `options.privacy`. Rendering settings remain on `sessionReplay` and `screenshot` (#9399).
 - Remove `enableMetricKit`; the MetricKit integration is enabled by default and `options.experimental.metrickit.enabledDiagnosticReports` set to an empty set disables it (#9267)
+- Capture MetricKit app launch diagnostics by default (#9441)
 
 ### Fixes
 

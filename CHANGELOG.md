@@ -5,6 +5,7 @@
 ### Features
 
 - Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
+- Capture MetricKit app launch diagnostics on iOS 16 and later and on visionOS when `options.experimental.metrickit.enabledDiagnosticReports` contains `.appLaunch` (#9441)
 
 ## 9.31.0
 
