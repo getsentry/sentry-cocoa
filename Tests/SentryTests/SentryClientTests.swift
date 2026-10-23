@@ -876,7 +876,7 @@ final class SentryClientTests: XCTestCase {
             options.attachAllThreads = true
         })
 
-        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic"] {
+        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic", "mx_app_launch_diagnostic"] {
             let event = Event(level: .warning)
             let exception = Exception(value: "Diagnostic without a decoded call stack", type: "MetricKit")
             exception.mechanism = Mechanism(type: mechanism)
