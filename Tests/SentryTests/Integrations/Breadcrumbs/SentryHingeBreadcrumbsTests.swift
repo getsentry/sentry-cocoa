@@ -26,8 +26,8 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
             stopInvocations += 1
         }
 
-        func simulateUpdate(status: SentryHingeStatus, angle: Double) {
-            handler?(SentryHingeState(status: status, angle: angle))
+        func simulateUpdate(status: SentryHingeStatus, degrees: Double) {
+            handler?(SentryHingeState(status: status, angle: degrees * .pi / 180))
         }
     }
 
@@ -63,12 +63,12 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
         XCTAssertFalse(hingeObserver.isRunning)
     }
 
-    func testHingeUpdate_whenStatusChanges_shouldAddBreadcrumb() throws {
+    func testHingeUpdate_whenOpeningPastThreshold_shouldAddOpeningBreadcrumb() throws {
         // -- Arrange --
-        hingeObserver.simulateUpdate(status: .closed, angle: 0)
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
 
         // -- Act --
-        hingeObserver.simulateUpdate(status: .fullyOpen, angle: .pi)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
 
         // -- Assert --
         XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
@@ -78,79 +78,192 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
         XCTAssertEqual(crumb.level, SentryLevel.info)
         let data = try XCTUnwrap(crumb.data)
         XCTAssertEqual(data["action"] as? String, "HINGE_STATE_CHANGE")
+        XCTAssertEqual(data["direction"] as? String, "opening")
         XCTAssertEqual(data["status"] as? String, "fully_open")
         XCTAssertEqual(data["previous_status"] as? String, "closed")
-        XCTAssertEqual(data["angle_degrees"] as? Int, 180)
+        XCTAssertNil(data["angle_degrees"])
     }
 
-    func testHingeUpdate_whenPartiallyOpen_shouldRoundAngleToDegrees() throws {
+    func testHingeUpdate_whenClosingPastThreshold_shouldAddClosingBreadcrumb() throws {
         // -- Arrange --
-        hingeObserver.simulateUpdate(status: .closed, angle: 0)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
 
         // -- Act --
-        hingeObserver.simulateUpdate(status: .partiallyOpen, angle: .pi / 2 + 0.001)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 100)
 
         // -- Assert --
-        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.first)
-        let data = try XCTUnwrap(crumb.data)
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
+        let data = try XCTUnwrap(delegate.addCrumbInvocations.first?.data)
+        XCTAssertEqual(data["direction"] as? String, "closing")
         XCTAssertEqual(data["status"] as? String, "partially_open")
-        XCTAssertEqual(data["angle_degrees"] as? Int, 90)
+        XCTAssertEqual(data["previous_status"] as? String, "fully_open")
+    }
+
+    func testHingeUpdate_whenMovedExactlyThreshold_shouldAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 45)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
+    }
+
+    func testHingeUpdate_whenMovedLessThanThreshold_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 20)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 44)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
+    }
+
+    func testHingeUpdate_whenMovedInSmallSteps_shouldMeasureFromLastBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 30)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 60)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 90)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 120)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 2)
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["direction"] as? String }, ["opening", "opening"])
+    }
+
+    func testHingeUpdate_whenFullyOpenBelowThreshold_shouldAddOpeningBreadcrumb() throws {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 170)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
+        let data = try XCTUnwrap(delegate.addCrumbInvocations.first?.data)
+        XCTAssertEqual(data["direction"] as? String, "opening")
+        XCTAssertEqual(data["status"] as? String, "fully_open")
+        XCTAssertEqual(data["previous_status"] as? String, "partially_open")
+    }
+
+    func testHingeUpdate_whenClosedBelowThreshold_shouldAddClosingBreadcrumb() throws {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 10)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
+        let data = try XCTUnwrap(delegate.addCrumbInvocations.first?.data)
+        XCTAssertEqual(data["direction"] as? String, "closing")
+        XCTAssertEqual(data["status"] as? String, "closed")
+        XCTAssertEqual(data["previous_status"] as? String, "partially_open")
+    }
+
+    func testHingeUpdate_whenEndPositionReportedAgain_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 170)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 179)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
+    }
+
+    func testHingeUpdate_whenPartiallyOpenBelowThreshold_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 170)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
+    }
+
+    func testHingeUpdate_whenFullSweepInSmallSteps_shouldEndWithEndPosition() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Act --
+        for degrees in stride(from: 10, through: 170, by: 10) {
+            hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: Double(degrees))
+        }
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["status"] as? String }, ["partially_open", "partially_open", "partially_open", "fully_open"])
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["direction"] as? String }, ["opening", "opening", "opening", "opening"])
+    }
+
+    func testHingeUpdate_whenWobblingBelowThreshold_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 90)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 110)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 70)
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 100)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
+    }
+
+    func testHingeUpdate_whenDirectionReverses_shouldAddBreadcrumbForEachDirection() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .partiallyOpen, degrees: 90)
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 2)
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["direction"] as? String }, ["opening", "closing"])
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["status"] as? String }, ["partially_open", "closed"])
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["previous_status"] as? String }, ["closed", "partially_open"])
     }
 
     func testHingeUpdate_whenFirstUpdate_shouldNotAddBreadcrumb() {
         // -- Act --
-        hingeObserver.simulateUpdate(status: .fullyOpen, angle: .pi)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
 
         // -- Assert --
         XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
     }
 
-    func testHingeUpdate_whenOnlyAngleChanges_shouldNotAddBreadcrumb() {
+    func testHingeUpdate_whenStatusUnknown_shouldNotAddBreadcrumbOrResetState() throws {
         // -- Arrange --
-        hingeObserver.simulateUpdate(status: .partiallyOpen, angle: 1)
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
 
         // -- Act --
-        hingeObserver.simulateUpdate(status: .partiallyOpen, angle: 1.5)
-        hingeObserver.simulateUpdate(status: .partiallyOpen, angle: 2)
-
-        // -- Assert --
-        XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
-    }
-
-    func testHingeUpdate_whenStatusUnknown_shouldNotAddBreadcrumbOrResetStatus() throws {
-        // -- Arrange --
-        hingeObserver.simulateUpdate(status: .closed, angle: 0)
-
-        // -- Act --
-        hingeObserver.simulateUpdate(status: .unknown, angle: 0)
-        hingeObserver.simulateUpdate(status: .fullyOpen, angle: .pi)
+        hingeObserver.simulateUpdate(status: .unknown, degrees: 180)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
 
         // -- Assert --
         XCTAssertEqual(delegate.addCrumbInvocations.count, 1)
-        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.first)
-        XCTAssertEqual(crumb.data?["previous_status"] as? String, "closed")
-    }
-
-    func testHingeUpdate_whenStatusChangesTwice_shouldAddBreadcrumbForEachChange() {
-        // -- Arrange --
-        hingeObserver.simulateUpdate(status: .closed, angle: 0)
-
-        // -- Act --
-        hingeObserver.simulateUpdate(status: .partiallyOpen, angle: 1)
-        hingeObserver.simulateUpdate(status: .fullyOpen, angle: .pi)
-
-        // -- Assert --
-        XCTAssertEqual(delegate.addCrumbInvocations.count, 2)
-        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["status"] as? String }, ["partially_open", "fully_open"])
+        let data = try XCTUnwrap(delegate.addCrumbInvocations.first?.data)
+        XCTAssertEqual(data["direction"] as? String, "opening")
+        XCTAssertEqual(data["previous_status"] as? String, "closed")
     }
 
     func testHingeUpdate_afterStop_shouldNotAddBreadcrumb() {
         // -- Arrange --
-        hingeObserver.simulateUpdate(status: .closed, angle: 0)
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
         sut.stop()
 
         // -- Act --
-        hingeObserver.simulateUpdate(status: .fullyOpen, angle: .pi)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
 
         // -- Assert --
         XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
