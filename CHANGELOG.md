@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
+
 ## 9.31.0
 
 ### Features
