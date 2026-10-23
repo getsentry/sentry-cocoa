@@ -40,6 +40,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
     private let isManuallyPaused = SentryMutex(false)
+    /// The replay the global crash-sync info was last started for. Segments arrive on the processing
+    /// queue, so this is guarded instead of reading `sessionReplay`.
+    private let crashSyncReplayId = SentryMutex<SentryId?>(nil)
 
     /// Getter to get the current application at runtime
     ///
@@ -365,6 +368,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
                 options: replayOptions,
                 replayType: fullSession ? .session : .buffer
             )
+            crashSyncReplayId.withLock { $0 = replayId }
         }
     }
     
@@ -559,6 +563,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             return 
         }
         SentrySDKInternal.currentHub().captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
+        // A late segment of a stopped replay (e.g. flush then stop then start) must not overwrite the
+        // crash info of the replay that replaced it.
+        guard crashSyncReplayId.withLock({ $0 == replayEvent.eventId }) else { return }
         sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
     }
 
