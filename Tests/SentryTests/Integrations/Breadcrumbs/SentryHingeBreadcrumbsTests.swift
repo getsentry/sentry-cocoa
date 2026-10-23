@@ -234,6 +234,31 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
         XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["previous_status"] as? String }, ["closed", "partially_open"])
     }
 
+    func testHingeUpdate_whenClosedReportedAgainWithLargerAngleChange_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+        // The hinge reports the closed status before the angle settles.
+        hingeObserver.simulateUpdate(status: .closed, degrees: 60)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["status"] as? String }, ["closed"])
+    }
+
+    func testHingeUpdate_whenFullyOpenReportedAgainWithLargerAngleChange_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 120)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.invocations.map { $0.data?["status"] as? String }, ["fully_open"])
+    }
+
     func testHingeUpdate_whenFirstUpdate_shouldNotAddBreadcrumb() {
         // -- Act --
         hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)

@@ -50,9 +50,16 @@ final class SentryHingeBreadcrumbs {
             return
         }
 
+        let isEndPosition = hingeState.status == .closed || hingeState.status == .fullyOpen
+        if isEndPosition && hingeState.status == lastReportedState.status {
+            // The hinge can report an end position before its angle settles. The position was
+            // already reported, so only track the settled angle for the next movement.
+            self.lastReportedState = hingeState
+            return
+        }
+
         let angleDelta = hingeState.angle - lastReportedState.angle
-        let reachedEndPosition = hingeState.status != lastReportedState.status
-            && (hingeState.status == .closed || hingeState.status == .fullyOpen)
+        let reachedEndPosition = isEndPosition && hingeState.status != lastReportedState.status
         guard reachedEndPosition || abs(angleDelta) >= Self.reportingThreshold else {
             return
         }
