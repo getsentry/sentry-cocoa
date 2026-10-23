@@ -29,6 +29,8 @@ struct SentryHingeState: Equatable {
 }
 
 protocol SentryHingeObserving: AnyObject {
+    /// The most recent hinge state, or nil before the first update and after `stop`.
+    var currentState: SentryHingeState? { get }
     /// Starts delivering hinge updates to `handler`. The handler is called on the main thread.
     func start(handler: @escaping (SentryHingeState) -> Void)
     func stop()
@@ -56,9 +58,14 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
 
     private struct State {
         var handler: ((SentryHingeState) -> Void)?
+        var currentState: SentryHingeState?
     }
 
     private let state = SentryMutex<State>(State())
+
+    var currentState: SentryHingeState? {
+        state.withLock { $0.currentState }
+    }
     private let applicationProvider: () -> SentryApplication?
     private let notificationCenterWrapper: SentryNSNotificationCenterWrapper
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
@@ -122,6 +129,7 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
         let wasRunning = state.withLock { state -> Bool in
             let wasRunning = state.handler != nil
             state.handler = nil
+            state.currentState = nil
             return wasRunning
         }
         guard wasRunning else {
@@ -201,6 +209,7 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
         guard let hingeState = Self.hingeState(from: update) else {
             return
         }
+        state.withLock { $0.currentState = hingeState }
         handler(hingeState)
     }
 

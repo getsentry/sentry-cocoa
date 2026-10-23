@@ -11,6 +11,7 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
 
     private final class TestHingeObserver: SentryHingeObserving {
         private var handler: ((SentryHingeState) -> Void)?
+        var currentState: SentryHingeState?
         var startInvocations = 0
         var stopInvocations = 0
 
@@ -27,7 +28,9 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
         }
 
         func simulateUpdate(status: SentryHingeStatus, degrees: Double) {
-            handler?(SentryHingeState(status: status, angle: degrees * .pi / 180))
+            let state = SentryHingeState(status: status, angle: degrees * .pi / 180)
+            currentState = state
+            handler?(state)
         }
     }
 
