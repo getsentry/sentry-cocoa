@@ -5,7 +5,7 @@ import UIKit
 #endif
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider
+typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider & HingeObserverProvider
 #else
 typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider
 #endif
@@ -15,6 +15,7 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
 
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     private var systemEventBreadcrumbs: SentrySystemEventBreadcrumbs?
+    private var hingeBreadcrumbs: SentryHingeBreadcrumbs?
     #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
     init?(with options: Options, dependencies: Dependencies) {
@@ -54,6 +55,12 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         )
         self.systemEventBreadcrumbs = systemEventBreadcrumbs
         systemEventBreadcrumbs.start(with: self)
+
+        // Apple doesn't provide any easy way to detect if the device has a hinge,
+        // but it will never report a hinge state change if the device doesn't have a hinge.
+        let hingeBreadcrumbs = SentryHingeBreadcrumbs(hingeObserver: dependencies.hingeObserver)
+        self.hingeBreadcrumbs = hingeBreadcrumbs
+        hingeBreadcrumbs.start(with: self)
         #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     }
 
@@ -64,6 +71,8 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         systemEventBreadcrumbs?.stop()
         systemEventBreadcrumbs = nil
+        hingeBreadcrumbs?.stop()
+        hingeBreadcrumbs = nil
         #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     }
 

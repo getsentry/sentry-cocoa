@@ -108,7 +108,7 @@ final class SentryClientTests: XCTestCase {
             debugImageProvider.debugImages = [TestData.debugImage]
 
 #if os(iOS)
-            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper, reachability: TestSentryReachability())
+            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper, hingeObserver: TestSentryHingeObserver(), reachability: TestSentryReachability())
             #else
             extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, reachability: TestSentryReachability())
 #endif // os(iOS)
@@ -1515,6 +1515,7 @@ final class SentryClientTests: XCTestCase {
                                     "charging": true,
                                     "battery_level": 60,
                                     "thermal_state": "nominal",
+                                    "hinge_status": "closed",
                                     "something": "else"
                                 ],
                             "app": [
