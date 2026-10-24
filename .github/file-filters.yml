@@ -788,6 +788,38 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Makefile"
   - "Brewfile*"
 
+run_size_analysis_for_prs: &run_size_analysis_for_prs
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
+  - "TestApps/**"
+
+  # GH Actions
+  - ".github/workflows/size-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"
+
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
   - "Sources/Configuration/**"
   - "Sources/include/**"
