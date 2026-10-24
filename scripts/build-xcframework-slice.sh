@@ -97,12 +97,6 @@ fi
 # Each slice uses the same derived-data directory, so clear it before building.
 rm -rf "$build_path/DerivedData"
 
-## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
-## For other dynamic frameworks, add -make_mergeable (append to existing flags)
-if [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" != "staticlib" ]; then
-    OTHER_LDFLAGS="$OTHER_LDFLAGS -Wl,-make_mergeable"
-fi
-
 slice_id="${scheme}${suffix}-${sdk}"
 mkdir -p "$build_path"
 raw_build_log="$build_path/raw-build-output.log"
