@@ -1575,6 +1575,24 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(weakSut)
     }
 
+    func testStart_shouldNotRetainRootView() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        weak var weakRootView: UIView?
+
+        // -- Act --
+        autoreleasepool {
+            let rootView = UIView()
+            weakRootView = rootView
+            sut.start(rootView: rootView, fullSession: true)
+        }
+
+        // -- Assert --
+        // The replay can be released on a background thread, so it must not own a UIView.
+        XCTAssertNil(weakRootView)
+    }
+
     @available(iOS 16.0, tvOS 16, *)
     func testDealloc_RetainsSessionReplayOnlyUntilVideoCreationCompletes() throws {
         let fixture = Fixture()

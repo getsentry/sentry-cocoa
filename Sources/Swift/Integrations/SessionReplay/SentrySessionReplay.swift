@@ -101,7 +101,9 @@ private struct SessionSegmentState {
     public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
-    private var rootView: UIView?
+    /// Weak, because a pending video encoding can release the replay on a background thread, where a
+    /// UIView must not be deallocated. The app owns the window this points to.
+    private weak var rootView: UIView?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var lastScreenshotAt: Date?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).

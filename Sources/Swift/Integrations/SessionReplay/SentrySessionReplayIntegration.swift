@@ -362,13 +362,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         
         if let replayId = newSessionReplay.sessionReplayId {
-            replayFileManager.saveCurrentSessionInfo(
-                replayId,
-                path: sessionDocs.path,
-                options: replayOptions,
-                replayType: fullSession ? .session : .buffer
-            )
-            crashSyncReplayId.withLock { $0 = replayId }
+            // Under the lock, so a segment check in `sessionReplayNewSegment` can't interleave with the reset.
+            crashSyncReplayId.withLock {
+                replayFileManager.saveCurrentSessionInfo(
+                    replayId,
+                    path: sessionDocs.path,
+                    options: replayOptions,
+                    replayType: fullSession ? .session : .buffer
+                )
+                $0 = replayId
+            }
         }
     }
     
@@ -565,8 +568,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKInternal.currentHub().captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
         // A late segment of a stopped replay (e.g. flush then stop then start) must not overwrite the
         // crash info of the replay that replaced it.
-        guard crashSyncReplayId.withLock({ $0 == replayEvent.eventId }) else { return }
-        sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
+        crashSyncReplayId.withLock {
+            guard $0 == replayEvent.eventId else { return }
+            sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
+        }
     }
 
     public func sessionReplayStarted(replayId: SentryId) {
