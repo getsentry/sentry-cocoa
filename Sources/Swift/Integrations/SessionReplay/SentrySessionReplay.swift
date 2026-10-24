@@ -101,7 +101,9 @@ private struct SessionSegmentState {
     public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
-    private var rootView: UIView?
+    /// Weak, because a pending video encoding can release the replay on a background thread, where a
+    /// UIView must not be deallocated. The app owns the window this points to.
+    private weak var rootView: UIView?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var lastScreenshotAt: Date?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
@@ -801,8 +803,9 @@ private struct SessionSegmentState {
     ) {
         SentrySDKLog.debug("[Session Replay] Creating replay video started at date: \(startedAt), replayType: \(replayType)")
         // Creating a video is computationally expensive, therefore perform it on a background queue.
-        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: endedAt) { [weak self] videos in
-            guard let self = self else { return }
+        // Capture self strongly so a pending segment (e.g. from flush) is still sent when the replay
+        // is stopped and released before encoding finishes. The closure is released after it runs.
+        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: endedAt) { videos in
             SentrySDKLog.debug("[Session Replay] Created replay video with \(videos.count) segments")
             for video in videos {
                 self.processNewlyAvailableSegment(videoInfo: video, replayType: replayType)
