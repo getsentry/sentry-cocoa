@@ -550,7 +550,7 @@ class SentrySpanTests: XCTestCase {
     func testSetMeasurement_whenChildSpan_shouldSerializeLocallyWithoutOverwritingTransaction() throws {
         // -- Arrange --
         let tracer = fixture.getSut() as! SentryTracer
-        let span = tracer.startChild(operation: "child")
+        let span = try XCTUnwrap(tracer.startChild(operation: "child") as? SentrySpanInternal)
         tracer.setMeasurement(name: "duration", value: 12, unit: MeasurementUnitDuration.second)
 
         // -- Act --
@@ -568,9 +568,9 @@ class SentrySpanTests: XCTestCase {
     func testSetMeasurement_whenNestedSpans_shouldKeepMeasurementsIndependent() throws {
         // -- Arrange --
         let tracer = fixture.getSut() as! SentryTracer
-        let child = tracer.startChild(operation: "child")
-        let grandchild = child.startChild(operation: "grandchild")
-        let sibling = tracer.startChild(operation: "sibling")
+        let child = try XCTUnwrap(tracer.startChild(operation: "child") as? SentrySpanInternal)
+        let grandchild = try XCTUnwrap(child.startChild(operation: "grandchild") as? SentrySpanInternal)
+        let sibling = try XCTUnwrap(tracer.startChild(operation: "sibling") as? SentrySpanInternal)
 
         // -- Act --
         child.setMeasurement(name: "count", value: 1)
@@ -589,7 +589,7 @@ class SentrySpanTests: XCTestCase {
     func testSetMeasurement_whenWritingConcurrently_shouldSerializeAllSpanMeasurements() throws {
         // -- Arrange --
         let tracer = fixture.getSut() as! SentryTracer
-        let span = tracer.startChild(operation: "child")
+        let span = try XCTUnwrap(tracer.startChild(operation: "child") as? SentrySpanInternal)
         let writes = expectation(description: "Measurements written")
         writes.expectedFulfillmentCount = 100
         let queue = DispatchQueue(label: "span-measurements", attributes: .concurrent)
@@ -616,14 +616,14 @@ class SentrySpanTests: XCTestCase {
     func testSetMeasurement_whenTracerReleased_shouldRetainMeasurement() throws {
         // -- Arrange --
         var transaction: Span? = fixture.getSut()
-        let child = try XCTUnwrap(transaction).startChild(operation: "child")
+        let child = try XCTUnwrap(try XCTUnwrap(transaction).startChild(operation: "child") as? SentrySpanInternal)
         transaction = nil
 
         // -- Act --
         child.setMeasurement(name: "count", value: 1)
 
         // -- Assert --
-        XCTAssertNil((child as? SentrySpanInternal)?.tracer)
+        XCTAssertNil(child.tracer)
         let measurements = try XCTUnwrap(child.serialize()["measurements"] as? [String: [String: NSNumber]])
         XCTAssertEqual(measurements, ["count": ["value": 1]])
     }

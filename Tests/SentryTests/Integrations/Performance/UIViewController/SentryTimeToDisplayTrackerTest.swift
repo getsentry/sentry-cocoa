@@ -592,8 +592,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let tracer = try fixture.getTracer()
         let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
         XCTAssertTrue(sut.start(for: tracer))
-        let initialSpan = try XCTUnwrap(sut.initialDisplaySpan)
-        let fullSpan = try XCTUnwrap(sut.fullDisplaySpan)
+        let initialSpan = try XCTUnwrap(sut.initialDisplaySpan as? SentrySpanInternal)
+        let fullSpan = try XCTUnwrap(sut.fullDisplaySpan as? SentrySpanInternal)
 
         // -- Act --
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
