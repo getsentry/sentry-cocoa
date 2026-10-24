@@ -108,7 +108,8 @@ extern NSString *const DropSessionLogMessage;
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
                        hint:(SentryHint *)hint
 {
-    [self populateHintAttachments:hint scope:scope isFatalEvent:isFatalEvent];
+    BOOL isFromPreviousProcess = isFatalEvent || event.isFromPreviousProcess;
+    [self populateHintAttachments:hint scope:scope isFromPreviousProcess:isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -120,10 +121,10 @@ extern NSString *const DropSessionLogMessage;
         return SentryId.empty;
     }
 
-    SentryTraceContext *traceContext =
-        [self getTraceStateWithEvent:event
-                           withScope:scope
-                        currentScope:isFatalEvent ? nil : [self.currentScopeStorage scope]];
+    SentryTraceContext *traceContext = [self
+        getTraceStateWithEvent:event
+                     withScope:scope
+                  currentScope:isFromPreviousProcess ? nil : [self.currentScopeStorage scope]];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -138,7 +139,9 @@ extern NSString *const DropSessionLogMessage;
               withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:event.isFatalEvent];
+    [self populateHintAttachments:hint
+                            scope:scope
+            isFromPreviousProcess:event.isFatalEvent || event.isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
@@ -163,7 +166,9 @@ extern NSString *const DropSessionLogMessage;
     SentryTraceContext *traceContext =
         [self getTraceStateWithEvent:event
                            withScope:scope
-                        currentScope:event.isFatalEvent ? nil : [self.currentScopeStorage scope]];
+                        currentScope:(event.isFatalEvent || event.isFromPreviousProcess)
+                ? nil
+                : [self.currentScopeStorage scope]];
 
     if (session == nil) {
         [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];

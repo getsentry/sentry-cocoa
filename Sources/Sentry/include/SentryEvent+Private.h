@@ -11,6 +11,15 @@
  */
 @property (nonatomic) BOOL isFatalEvent;
 
+/**
+ * This indicates whether this event describes something that happened in a previous process of
+ * the app, such as a MetricKit diagnostic delivered on a later launch. The client doesn't apply
+ * the current scope or the running process's state and mutable device data to such events,
+ * because that data describes the running process. Fatal events are always from a previous
+ * process and are identified through @c isFatalEvent instead.
+ */
+@property (nonatomic) BOOL isFromPreviousProcess;
+
 #if !SDK_V10
 /**
  * This indicates whether this event represents an app hang.

@@ -346,6 +346,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
 
+    // Fatal events and events flagged as coming from a previous process, such as MetricKit
+    // diagnostics delivered on a later launch, describe a process that no longer exists. The
+    // current scope, the running app's state and mutable device data don't apply to them.
+    BOOL isFromPreviousProcess = isFatalEvent || event.isFromPreviousProcess;
+
     // We don't want to attach debug meta and stacktraces for transactions, replays or user
     // feedback.
     if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback) {
@@ -360,7 +365,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
 
-        if (!isFatalEvent && shouldAttachStacktrace && threadsNotAttached) {
+        if (!isFromPreviousProcess && shouldAttachStacktrace && threadsNotAttached) {
             BOOL attachAll = event.attachAllThreadsOverride != nil
                 ? event.attachAllThreadsOverride.boolValue
                 : self.options.attachAllThreads;
@@ -373,7 +378,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-        if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
+        if (!isFromPreviousProcess && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
             event.debugMeta = [self.debugImageProvider
                 getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
@@ -382,21 +387,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
 #if SENTRY_HAS_UIKIT
-    if (!isFatalEvent && eventIsNotReplay) {
+    if (!isFromPreviousProcess && eventIsNotReplay) {
         NSDictionary *currentContext = event.context ?: @{ };
         event.context = [self.eventContextEnricher enrichWithAppState:currentContext];
     }
 #endif
 
-    // Crash events are from a previous run. Applying the current scope would potentially apply
-    // current data.
-    if (!isFatalEvent) {
+    // Applying the current scope to an event from a previous process would attach data of the
+    // current process.
+    if (!isFromPreviousProcess) {
         // Unwrapping the event because we assume that the event will be returned
         event = SENTRY_UNWRAP_NULLABLE(
             SentryEvent, [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs]);
     }
 
-    if (!isFatalEvent && currentScope != nil && event != nil) {
+    if (!isFromPreviousProcess && currentScope != nil && event != nil) {
         [currentScope overlayOnEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)
                        maxBreadcrumb:self.options.maxBreadcrumbs];
     }
@@ -410,10 +415,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // Remove some mutable properties from the device/app contexts which are no longer
         // applicable
         [self removeExtraDeviceContextFromEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
-    } else if (!isFatalEvent) {
+    } else if (!isFromPreviousProcess) {
         // Store the current free memory battery level and more mutable properties,
-        // at the time of this event, but not for crashes as the current data isn't guaranteed to be
-        // the same as when the app crashed.
+        // at the time of this event, but not for events from a previous process as the current
+        // data isn't guaranteed to be the same as when they happened.
         [self applyExtraDeviceContextToEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
         [self applyCultureContextToEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
 #if SENTRY_HAS_UIKIT
