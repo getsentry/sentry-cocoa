@@ -795,6 +795,8 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Sources/Sentry/**"
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Swift/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
