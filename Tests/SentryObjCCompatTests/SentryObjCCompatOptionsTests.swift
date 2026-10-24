@@ -11,6 +11,23 @@ import XCTest
 
 final class SentryObjCCompatOptionsTests: XCTestCase {
 
+    func testHangReportingMode_whenSetThroughObjCOptions_shouldUpdateSDKOptions() {
+        // -- Arrange --
+        let options = SentryObjCOptions()
+
+        // -- Act --
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
+
+        // -- Assert --
+        XCTAssertEqual(options.wrapped.experimental.metrickit.hangReportingMode, .flamegraphAttachment)
+
+        // -- Act --
+        options.experimental.metrickit.hangReportingMode = .legacy
+
+        // -- Assert --
+        XCTAssertEqual(options.wrapped.experimental.metrickit.hangReportingMode, .legacy)
+    }
+
     #if SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func testPrivacy_whenWrapperIsModified_shouldUpdateBaseOptions() {
         // -- Arrange --

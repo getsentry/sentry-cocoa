@@ -236,6 +236,7 @@ public struct SentrySDKWrapper {
 
 #if !os(tvOS) && !os(watchOS)
         options.enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         options.enableMetricKitRawPayload =
             options.enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
 #endif // !os(tvOS) && !os(watchOS)

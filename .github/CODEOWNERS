@@ -2,3 +2,15 @@
 
 # Public API surface — also request a mobile SDK team review on API changes
 /sdk_api*.json @philprime @noahsmartin @itaybre @NinjaLikesCheez @getsentry/team-mobile
+
+# KSCrash integration — the upstream KSCrash dependency and the code that bridges it into the SDK
+/Sources/Sentry/KSCrash/ @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Sources/Sentry/include/SentryKSCrash*.h @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Sources/Sentry/SentryThreadSnapshotKSCrash.c @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Sources/Swift/Integrations/KSCrash/ @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Tests/SentryTests/Integrations/KSCrash/ @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Tests/SentryTests/ObjC/Integrations/KSCrash/ @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Tests/SentryTests/ObjCpp/Integrations/KSCrash/ @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/Tests/ThreadInspectionHarness/Sources/ThreadSnapshot/SentryThreadSnapshotKSCrash.c @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/develop-docs/KSCRASH_DOWNSTREAM_AUDIT.md @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
+/develop-docs/KSCrash_MANAGED_SIGNAL_PLUGIN_MAINTENANCE.md @philprime @noahsmartin @itaybre @NinjaLikesCheez @supervacuus
