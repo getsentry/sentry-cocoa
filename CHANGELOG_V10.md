@@ -45,6 +45,7 @@
 - Enable `enableFileManagerSwizzling` by default (#9134)
 - Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
 - Move `experimental.enableUnhandledCPPExceptionsV2` to the stable `options.enableUnhandledCPPExceptionsV2` API for the KSCrash implementation. The default remains `false`: unhandled C++ exceptions are captured through `std::terminate`; opt in to capture stacks at the throw site. The V2 name distinguishes these two modes (#9175).
+- Store child span measurements on the span instead of forwarding them to the root transaction. TTID and TTFD remain available as transaction measurements (#9387).
 - Send unfinished spans without changing their status or setting an end timestamp when a transaction finishes normally. Self-hosted installations require Relay 22.12.0 or newer (#9392).
 - Make `Breadcrumb.data` read-only. Use `setData(value:key:)` to add, update, or remove individual values (#9391).
 - Mark live stack frames from the main executable as in-app even when `inAppIncludes` is empty, including command-line tools. Main executable detection uses cached binary-image identity (#9393).

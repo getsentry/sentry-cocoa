@@ -1268,6 +1268,7 @@ class SentryTracerTests: XCTestCase {
 
 #endif // os(iOS) || os(tvOS)
     
+#if !SDK_V10
     func testMeasurementOnChildSpan_SetTwice_OverwritesMeasurement() throws {
         let name = "something"
         let value: NSNumber = -12.34
@@ -1291,6 +1292,32 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(unit.unit, try XCTUnwrap(measurement["unit"] as? String))
     }
 
+#endif
+
+#if SDK_V10
+    func testSetMeasurement_whenFinishingTransaction_shouldSerializeChildMeasurementsSeparately() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: "child")
+
+        // -- Act --
+        sut.setMeasurement(name: "count", value: 12)
+        child.setMeasurement(name: "count", value: 34)
+        child.finish()
+        sut.finish()
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first?.event)
+        let serialized = event.serialize()
+        let measurements = try XCTUnwrap(serialized["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(measurements, ["count": ["value": 12]])
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        let serializedChild = try XCTUnwrap(spans.first { $0["span_id"] as? String == child.spanId.sentrySpanIdString })
+        let childMeasurements = try XCTUnwrap(serializedChild["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(childMeasurements, ["count": ["value": 34]])
+    }
+#endif
+
     func testMeasurement_NameIsNil_MeasurementsGetsDiscarded() throws {
         // Arrange
         let sut = fixture.getSut()
@@ -1308,6 +1335,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(serializedTransaction?["measurements"])
     }
 
+#if !SDK_V10
     func testMeasurements_WriteFromDifferentThreads_SetsAllMeasurements() throws {
         // Arrange
         let iterations = 100
@@ -1348,6 +1376,8 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(try XCTUnwrap(spanMeasurement["value"] as? NSNumber), 10.0)
         }
     }
+
+#endif
 
     func testMeasurements_ReadWhileWritingOnDifferentThreads() throws {
         // Arrange
