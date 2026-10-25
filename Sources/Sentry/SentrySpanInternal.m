@@ -433,7 +433,14 @@ NS_ASSUME_NONNULL_BEGIN
                              forKey:kSentrySpanStatusSerializationKey];
     }
 
+#if SDK_V10
+    NSDate *timestamp = self.timestamp;
+    if (timestamp != nil) {
+        mutableDictionary[@"timestamp"] = @(timestamp.timeIntervalSince1970);
+    }
+#else
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
+#endif
 
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
