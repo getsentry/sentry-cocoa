@@ -477,7 +477,7 @@ run_crash_e2e_for_prs:
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
   - "Sources/Swift/**"
-  # Includes the runner's Swift package and its standalone regression tests.
+  # Includes the app, Swift runner, and regression/live harness tests.
   - "TestApps/CrashE2E/**"
 
   # GH Actions
