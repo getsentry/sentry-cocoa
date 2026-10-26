@@ -135,6 +135,23 @@ final class SentryAppStateManagerTests: XCTestCase {
         XCTAssertFalse(stateAfterStop!.isSDKRunning)
     }
 
+    func testStopWithForce_whenStartCountAlreadyZero_shouldMarkSDKAsNotRunning() throws {
+        // -- Arrange --
+        // Mirrors SentrySDK.close() when only the watchdog termination tracker started the
+        // manager: uninstalling the integration stops it before close() forces the stop.
+        sut.start()
+        sut.stop()
+        XCTAssertEqual(sut.startCount, 0)
+        XCTAssertTrue(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+
+        // -- Act --
+        sut.stop(withForce: true)
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+        XCTAssertEqual(sut.startCount, 0)
+    }
+
     func testDidBecomeActiveUpdatesAppState() {
         // -- Arrange --
         sut.start()

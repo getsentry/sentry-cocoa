@@ -129,14 +129,20 @@ import UIKit
     }
 
     @objc public func stop(withForce forceStop: Bool) {
+        // SentrySDK.close() uninstalls the integrations before forcing the stop, which can already
+        // bring startCount to 0. Mark the SDK as not running anyway, so the next launch doesn't
+        // report a false watchdog termination, see GH-9446.
+        if forceStop {
+            dispatchQueue.dispatchAsync { [self] in
+                _updateAppState { $0.isSDKRunning = false }
+            }
+        }
+
         guard startCount > 0 else {
             return
         }
 
         if forceStop {
-            dispatchQueue.dispatchAsync { [self] in
-                _updateAppState { $0.isSDKRunning = false }
-            }
             startCount = 0
         } else {
             startCount -= 1
