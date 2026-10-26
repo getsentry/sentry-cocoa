@@ -185,6 +185,15 @@ public struct SentrySDKWrapper {
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.Replay.disable.boolValue {
+            #if SDK_V10
+            options.sessionReplay = SentryReplayOptions(
+                sessionSampleRate: SentrySDKOverrides.Replay.sessionSampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.Replay.onErrorSampleRate.floatValue ?? 1,
+                enableViewRendererV2: !SentrySDKOverrides.Replay.disableViewRendererV2.boolValue,
+                // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+                enableFastViewRendering: SentrySDKOverrides.Replay.enableFastViewRendering.boolValue
+            )
+            #else
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: SentrySDKOverrides.Replay.sessionSampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.Replay.onErrorSampleRate.floatValue ?? 1,
@@ -194,6 +203,7 @@ public struct SentrySDKWrapper {
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
                 enableFastViewRendering: SentrySDKOverrides.Replay.enableFastViewRendering.boolValue
             )
+            #endif // SDK_V10
 
             // Configure network detail capture for testing
             options.sessionReplay.networkDetailAllowUrls = [
@@ -226,6 +236,7 @@ public struct SentrySDKWrapper {
 
 #if !os(tvOS) && !os(watchOS)
         options.enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         options.enableMetricKitRawPayload =
             options.enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
 #endif // !os(tvOS) && !os(watchOS)
@@ -259,8 +270,13 @@ public struct SentrySDKWrapper {
         options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
         // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
         options.screenshot.enableFastViewRendering = SentrySDKOverrides.Screenshot.enableFastViewRendering.boolValue
+        #if SDK_V10
+        options.privacy.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue && !SentrySDKOverrides.Replay.disableMaskAllImages.boolValue
+        options.privacy.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue && !SentrySDKOverrides.Replay.disableMaskAllText.boolValue
+        #else
         options.screenshot.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue
         options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
+        #endif // SDK_V10
 
         options.attachViewHierarchy = !SentrySDKOverrides.ViewHierarchy.disableAttachment.boolValue
 #endif // !os(macOS) && !os(watchOS)

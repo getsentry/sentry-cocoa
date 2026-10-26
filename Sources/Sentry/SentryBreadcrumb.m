@@ -3,10 +3,12 @@
 #import "SentryCompiler.h"
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLevel.h"
 #import "SentrySanitizerUtils.h"
 #import "SentrySwift.h"
 
+#if !SDK_V10
 /**
  * Recursively copies a value, producing immutable collections at every level.
  * For @c NSDictionary / @c NSArray (including mutable subclasses) a new immutable copy is
@@ -41,6 +43,7 @@ sentry_deepCopyValue(id value)
     }
     return value;
 }
+#endif
 
 @implementation SentryBreadcrumb {
     // Mutable so setDataValue:forKey: can update in place.
@@ -141,12 +144,14 @@ sentry_deepCopyValue(id value)
     }
 }
 
+#if !SDK_V10
 - (void)setData:(NSDictionary<NSString *, id> *)data
 {
     @synchronized(self) {
         _data = data ? [sentry_deepCopyValue(data) mutableCopy] : nil;
     }
 }
+#endif
 
 - (NSDictionary<NSString *, id> *)data
 {
@@ -197,9 +202,13 @@ sentry_deepCopyValue(id value)
             } else if ([key isEqualToString:@"message"] && isString) {
                 self.message = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
+#if SDK_V10
+                _data = [value mutableCopy];
+#else
                 ALLOW_DEPRECATED_DECLARATIONS_BEGIN
                 self.data = value;
                 ALLOW_DEPRECATED_DECLARATIONS_END
+#endif
             }
         }
     }

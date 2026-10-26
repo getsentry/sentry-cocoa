@@ -71,7 +71,7 @@ jobs:
           version: "26"
           resolve-simulators: "false"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+        uses: ruby/setup-ruby@824c0e29fdfc7d689c191c27acc969d2d04b7dd8 # v1.331.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -280,7 +280,7 @@ jobs:
       - run: make init-ci-build
       - run: make xcode-ci-macOS-CLI-Xcode
 
-      - name: Build macOS-CLI-Xcode test app
+      - name: Test CLI subprocesses
         run: |
           set -o pipefail && xcodebuild \
             -project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
@@ -288,7 +288,7 @@ jobs:
             -configuration Debug \
             -destination 'platform=macOS' \
             -derivedDataPath "$GITHUB_WORKSPACE/cli-xcode-build" \
-            CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+            CODE_SIGNING_ALLOWED="NO" test | xcbeautify --preserve-unbeautified
 
       - name: Ensure CLI binary does not link AppKit
         run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework AppKit

@@ -1,4 +1,5 @@
 #import "SentryBreadcrumb.h"
+#import "SentryInternalSerializable.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentryUser.h"

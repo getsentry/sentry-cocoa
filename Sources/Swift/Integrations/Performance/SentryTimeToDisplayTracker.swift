@@ -72,19 +72,19 @@ public class SentryTimeToDisplayTracker: NSObject, SentryFramesTrackerListener, 
                     initialSpan.finish()
                 }
                 initialSpan.startTimestamp = tracer.startTimestamp
-                addTimeToDisplayMeasurement(initialSpan, name: "time_to_initial_display")
+                addTimeToDisplayMeasurement(initialSpan, name: "time_to_initial_display", tracer: tracer)
             }
 
             guard let fullSpan else { return }
             fullSpan.startTimestamp = tracer.startTimestamp
-            addTimeToDisplayMeasurement(fullSpan, name: "time_to_full_display")
+            addTimeToDisplayMeasurement(fullSpan, name: "time_to_full_display", tracer: tracer)
 
             guard fullSpan.status == .deadlineExceeded else { return }
             if let initialSpan {
                 fullSpan.timestamp = initialSpan.timestamp
             }
             fullSpan.spanDescription = "\(fullSpan.spanDescription ?? "(null)") - Deadline Exceeded"
-            addTimeToDisplayMeasurement(fullSpan, name: "time_to_full_display")
+            addTimeToDisplayMeasurement(fullSpan, name: "time_to_full_display", tracer: tracer)
         }
 
         return true
@@ -156,10 +156,14 @@ public class SentryTimeToDisplayTracker: NSObject, SentryFramesTrackerListener, 
         }
     }
 
-    private func addTimeToDisplayMeasurement(_ span: any Span, name: String) {
+    private func addTimeToDisplayMeasurement(_ span: any Span, name: String, tracer: SentryTracer) {
         guard let startTimestamp = span.startTimestamp else { return }
         let duration = (span.timestamp?.timeIntervalSince(startTimestamp) ?? 0) * 1_000
         span.setMeasurement(name: name, value: NSNumber(value: duration), unit: MeasurementUnitDuration.millisecond)
+        #if SDK_V10
+        // TTID and TTFD remain transaction measurements even when child measurements are local.
+        tracer.setMeasurement(name: name, value: NSNumber(value: duration), unit: MeasurementUnitDuration.millisecond)
+        #endif
     }
 }
 

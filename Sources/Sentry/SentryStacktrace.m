@@ -2,6 +2,7 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -153,6 +153,9 @@ private struct SessionSegmentState {
     /// Guarded independently of `state` because it is a distinct concern with its own callers.
     private let traceIdBuffer = SentryMutex<[SentryId]>([])
 
+    #if SDK_V10
+    var privacyOptions = SentryPrivacyOptions()
+    #endif // SDK_V10
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
     private let dateProvider: SentryCurrentDateProvider
@@ -168,6 +171,14 @@ private struct SessionSegmentState {
         state.withLock {
             $0.captureSchedulerToken != nil
         }
+    }
+
+    private var redactOptions: SentryRedactOptions {
+        #if SDK_V10
+        return privacyOptions
+        #else
+        return replayOptions
+        #endif // SDK_V10
     }
 
     public var screenshotProvider: SentryViewScreenshotProvider
@@ -485,7 +496,7 @@ private struct SessionSegmentState {
 
         let captureActivityReason = isInteractiveRunLoopMode
             ? nil
-            : rootView.flatMap { SentrySessionReplayCaptureGuard.captureActivityReason(rootView: $0, options: replayOptions) }
+            : rootView.flatMap { SentrySessionReplayCaptureGuard.captureActivityReason(rootView: $0, options: redactOptions) }
         let isInteractionCapture = isInteractiveRunLoopMode || captureActivityReason == .interaction
 
         guard shouldCaptureScreenshot(at: now, usesAdaptiveBackoff: !isInteractionCapture) else {
@@ -855,7 +866,7 @@ private struct SessionSegmentState {
             if let customOptions = replayTags {
                 events.append(SentryRRWebOptionsEvent(timestamp: video.start, customOptions: customOptions))
             } else {
-                events.append(SentryRRWebOptionsEvent(timestamp: video.start, options: self.replayOptions))
+                events.append(SentryRRWebOptionsEvent(timestamp: video.start, options: self.replayOptions, redactOptions: self.redactOptions))
             }
         }
 

@@ -416,7 +416,7 @@ jobs:
             ${{ runner.temp }}/v9-no-ui-framework/*.exit-status
       - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
-      - name: Build macOS-CLI-Xcode test app
+      - name: Test CLI subprocesses
         run: |
           set -o pipefail && xcodebuild \
             -project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
@@ -424,7 +424,7 @@ jobs:
             -configuration Debug \
             -destination 'platform=macOS' \
             -derivedDataPath "$GITHUB_WORKSPACE/cli-xcode-build" \
-            CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+            CODE_SIGNING_ALLOWED="NO" test | xcbeautify --preserve-unbeautified
 
       - name: Ensure CLI binary does not link AppKit
         run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework AppKit

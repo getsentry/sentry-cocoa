@@ -120,3 +120,23 @@ without a closing keyword is not enough.
 
 Each Unreleased or version block may only have one heading per section type, for example a single
 `### Features` block. Duplicate section headings are rejected by `make check-changelog`.
+
+### Changelog merge conflicts
+
+`.gitattributes` marks `CHANGELOG.md` and `CHANGELOG_V10.md` with Git's built-in `merge=union`
+driver, so a local merge or rebase keeps the entries from both sides instead of reporting a
+conflict. GitHub ignores this attribute: the pull request conflict check, the **Update branch**
+button, and the web conflict editor still report changelog conflicts. When a pull request only
+conflicts in a changelog, update it locally and push:
+
+```sh
+git fetch origin
+git merge origin/main
+git push
+```
+
+`git rebase origin/main` followed by `git push --force-with-lease` works too.
+
+The union driver keeps the lines from both sides without understanding Markdown. Check the merged
+changelog: if both sides edited the same entry, it keeps both versions. `make check-changelog`
+rejects duplicate section headings.

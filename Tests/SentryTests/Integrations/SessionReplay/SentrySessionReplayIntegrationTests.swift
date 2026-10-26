@@ -201,6 +201,25 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
     }
 
+    func testGlobalEventProcessor_whenEventFromPreviousProcess_shouldNotAssociateCurrentReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event(error: NSError(domain: "Error", code: 1))
+        event.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+        event.isFromPreviousProcess = true
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        // The event describes a previous process, such as a MetricKit diagnostic delivered on a later
+        // launch, which the current replay didn't record.
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+        XCTAssertNil(event.context?["replay"])
+    }
+
     func testCaptureFeedback_whenBuffering_shouldCaptureReplayAndAssociateFeedback() throws {
         // -- Arrange --
         var capturedEvent: Event?
@@ -1105,7 +1124,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         class AnotherLabel: UILabel {}
 
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            #if SDK_V10
+            options.privacy.maskedViewClasses = [AnotherLabel.self]
+            #else
             options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
+            #endif // SDK_V10
         }
 
         // -- Act --
@@ -1120,7 +1143,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         class AnotherLabel: UILabel {}
 
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            #if SDK_V10
+            options.privacy.unmaskedViewClasses = [AnotherLabel.self]
+            #else
             options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
+            #endif // SDK_V10
         }
 
         // -- Act --
@@ -1443,7 +1470,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testMaskPreview_whenSuperviewResizes_shouldResize() {
         // -- Arrange --
         let superview = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
-        let preview = SentryMaskingPreviewView(redactOptions: SentryReplayOptions())
+        let preview = SentryMaskingPreviewView(redactOptions: TestRedactOptions())
         superview.addSubview(preview)
 
         // -- Act --

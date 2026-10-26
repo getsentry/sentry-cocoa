@@ -11,6 +11,56 @@ import XCTest
 
 final class SentryObjCCompatOptionsTests: XCTestCase {
 
+    func testHangReportingMode_whenSetThroughObjCOptions_shouldUpdateSDKOptions() {
+        // -- Arrange --
+        let options = SentryObjCOptions()
+
+        // -- Act --
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
+
+        // -- Assert --
+        XCTAssertEqual(options.wrapped.experimental.metrickit.hangReportingMode, .flamegraphAttachment)
+
+        // -- Act --
+        options.experimental.metrickit.hangReportingMode = .legacy
+
+        // -- Assert --
+        XCTAssertEqual(options.wrapped.experimental.metrickit.hangReportingMode, .legacy)
+    }
+
+    #if SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testPrivacy_whenWrapperIsModified_shouldUpdateBaseOptions() {
+        // -- Arrange --
+        let options = Options()
+        let wrapper = SentryObjCOptions(options)
+
+        // -- Act --
+        wrapper.privacy.maskAllText = false
+        wrapper.privacy.maskedViewClasses = [NSString.self]
+        wrapper.privacy.excludeViewTypeFromSubtreeTraversal("CustomView")
+
+        // -- Assert --
+        XCTAssertFalse(options.privacy.maskAllText)
+        XCTAssertEqual(options.privacy.maskedViewClasses.map(ObjectIdentifier.init), [ObjectIdentifier(NSString.self)])
+        XCTAssertEqual(options.privacy.excludedViewClasses, ["CustomView"])
+    }
+
+    func testPrivacy_whenAssignedFromWrapper_shouldCopySettings() {
+        // -- Arrange --
+        let options = SentryObjCOptions()
+        let privacy = SentryObjCPrivacyOptions()
+        privacy.maskAllText = false
+        options.privacy = privacy
+
+        // -- Act --
+        privacy.maskAllText = true
+
+        // -- Assert --
+        XCTAssertFalse(options.privacy.maskAllText)
+        XCTAssertTrue(privacy.maskAllText)
+    }
+    #endif // SDK_V10 && UI platforms
+
     override func tearDown() {
         SentryObjCSDK.close()
         super.tearDown()

@@ -34,7 +34,7 @@ class SentrySDKLogTests: XCTestCase {
     }
     
     func testDefault_PrintsFatalAndError() {
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(true, diagnosticLevel: .error)
         
@@ -52,7 +52,7 @@ class SentrySDKLogTests: XCTestCase {
     
     func testConfigureWithoutDebug_PrintsOnlyAlwaysThreshold() {
         // -- Arrange --
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
 
         // -- Act --
@@ -70,7 +70,7 @@ class SentrySDKLogTests: XCTestCase {
     }
     
     func testLevelNone_PrintsEverythingExceptNone() {
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         
         SentrySDKLogSupport.configure(true, diagnosticLevel: SentryLevel.none)
@@ -89,7 +89,7 @@ class SentrySDKLogTests: XCTestCase {
     }
     
     func testMacroLogsErrorMessage() {
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(true, diagnosticLevel: SentryLevel.error)
         
@@ -99,7 +99,7 @@ class SentrySDKLogTests: XCTestCase {
     }
     
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(true, diagnosticLevel: SentryLevel.info)
         
@@ -110,7 +110,7 @@ class SentrySDKLogTests: XCTestCase {
     
     func testConvenienceLogs_whenDebuggingIsDisabled_shouldNotEvaluateMessages() {
         // -- Arrange --
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(false, diagnosticLevel: .debug)
         var evaluations = 0
@@ -139,7 +139,7 @@ class SentrySDKLogTests: XCTestCase {
         ]
         for (diagnosticLevel, expectedLevels) in cases {
             // -- Arrange --
-            let logOutput = TestLogOutput()
+            let logOutput = TestLogOutput(thread: Thread.current)
             SentrySDKLog.setLogOutput(logOutput)
             SentrySDKLogSupport.configure(true, diagnosticLevel: diagnosticLevel)
             var evaluations = 0
@@ -164,7 +164,7 @@ class SentrySDKLogTests: XCTestCase {
 
     func testConvenienceLogs_whenEnabled_shouldEvaluateMessagesOnceAndPreserveSourceLocation() {
         // -- Arrange --
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
         var evaluations = 0
@@ -190,7 +190,8 @@ class SentrySDKLogTests: XCTestCase {
         ], logOutput.loggedMessages)
     }
 
-    #if !SDK_V10
+    // Deferred to the V9 crash SwiftPM test target; keep the Xcode-project coverage.
+    #if !SDK_V10 && !SWIFT_PACKAGE
     func testV9ConvenienceLogs_whenMessagesAreFiltered_shouldOnlyEvaluateEnabledMessages() {
         let cases: [(Bool, SentryLevel, [SentryLevel])] = [
             (false, .debug, []),
@@ -200,7 +201,7 @@ class SentrySDKLogTests: XCTestCase {
         ]
         for (debug, diagnosticLevel, expectedLevels) in cases {
             // -- Arrange --
-            let logOutput = TestLogOutput()
+            let logOutput = TestLogOutput(thread: Thread.current)
             SentrySDKLog.setLogOutput(logOutput)
             SentrySDKLogSupport.configure(debug, diagnosticLevel: diagnosticLevel)
             var evaluations = 0
@@ -224,7 +225,7 @@ class SentrySDKLogTests: XCTestCase {
 
     func testFatal_whenDebuggingIsDisabled_shouldStillEvaluateAndLogMessage() {
         // -- Arrange --
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
         var evaluations = 0
@@ -246,7 +247,7 @@ class SentrySDKLogTests: XCTestCase {
         // -- Arrange --
         // Configure first: it initializes the async log file, which emits a debug log on first use.
         SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.resetWillLogCallCount()
 
@@ -265,7 +266,7 @@ class SentrySDKLogTests: XCTestCase {
     func testLogMessageAndLevel_whenFiltered_shouldCheckWillLogOncePerLog() {
         // -- Arrange --
         SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.resetWillLogCallCount()
 
@@ -285,7 +286,7 @@ class SentrySDKLogTests: XCTestCase {
     func testConvenienceLogs_whenEnabled_shouldCheckWillLogOncePerLog() {
         // -- Arrange --
         SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.resetWillLogCallCount()
 
@@ -303,7 +304,7 @@ class SentrySDKLogTests: XCTestCase {
     func testConvenienceLogs_whenFiltered_shouldCheckWillLogOncePerLog() {
         // -- Arrange --
         SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.resetWillLogCallCount()
 
@@ -321,7 +322,7 @@ class SentrySDKLogTests: XCTestCase {
     func testFatal_whenCalled_shouldLogWithoutCheckingWillLog() {
         // -- Arrange --
         SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
-        let logOutput = TestLogOutput()
+        let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.resetWillLogCallCount()
 
@@ -378,6 +379,31 @@ class SentrySDKLogTests: XCTestCase {
         dispatchQueue.activate()
 
         wait(for: [expectation], timeout: 5.0)
+    }
+
+    func testLogMessageAndLevel_whenOtherThreadsLog_shouldIgnoreTheirCallsAndMessages() {
+        // -- Arrange --
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let logOutput = TestLogOutput(thread: Thread.current)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.resetWillLogCallCount()
+        let completed = expectation(description: "Unrelated background logs completed")
+
+        // -- Act --
+        SentrySDKLog.log(message: "Test thread", andLevel: .debug)
+        DispatchQueue.global().async {
+            // Reproduce the cellular monitoring logs that contaminated the CI assertions.
+            SentrySDKLog.debug("Stopped monitoring the cellular network technology.")
+            SentrySDKLog.debug("No radio access technology reported. The device may have no cellular service.")
+            SentrySDKLog.debug("Started monitoring the cellular network technology: unknown")
+            SentrySDKLog.fatal("Unrelated background fatal log")
+            completed.fulfill()
+        }
+        wait(for: [completed], timeout: 5.0)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKLog.getWillLogCallCount(), 1)
+        XCTAssertEqual(logOutput.loggedMessages, ["[Sentry] [debug] [\(timeIntervalSince1970)] Test thread"])
     }
 
 }

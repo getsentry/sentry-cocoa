@@ -7,6 +7,12 @@ import Foundation
 import XCTest
 
 class SentryViewScreenshotOptionsTests: XCTestCase {
+    #if SDK_V10
+    private typealias MaskingOptions = SentryPrivacyOptions
+    #else
+    private typealias MaskingOptions = SentryViewScreenshotOptions
+    #endif // SDK_V10
+
     // MARK: - Initializer
 
     func testInit_withoutArguments_shouldUseDefaults() {
@@ -16,15 +22,23 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+        #endif // !SDK_V10
     }
 
     func testInit_withAllArguments_shouldSetValues() {
         // -- Act --
         // Use the opposite of the default values to check if they are set correctly
+        #if SDK_V10
+        let options = SentryViewScreenshotOptions(
+            enableViewRendererV2: false,
+            enableFastViewRendering: true
+        )
+        #else
         let options = SentryViewScreenshotOptions(
             enableViewRendererV2: false,
             enableFastViewRendering: true,
@@ -33,25 +47,34 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
             maskedViewClasses: [NSString.self],
             unmaskedViewClasses: [NSNumber.self]
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertFalse(options.enableViewRendererV2)
         XCTAssertTrue(options.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertFalse(options.maskAllText)
         XCTAssertFalse(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses[0]), ObjectIdentifier(NSString.self))
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses[0]), ObjectIdentifier(NSNumber.self))
+        #endif // !SDK_V10
     }
 
     func testInit_enableViewRendererV2Omitted_shouldUseDefaultValues() {
         // -- Act --
+        #if SDK_V10
+        let options = SentryViewScreenshotOptions(
+            enableFastViewRendering: true
+        )
+        #else
         let options = SentryViewScreenshotOptions(
             enableFastViewRendering: true,
             maskAllText: false,
             maskAllImages: false
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertTrue(options.enableViewRendererV2)
@@ -59,16 +82,32 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInit_enableFastViewRenderingOmitted_shouldUseDefaultValues() {
         // -- Act --
+        #if SDK_V10
+        let options = SentryViewScreenshotOptions(
+            enableViewRendererV2: false
+        )
+        #else
         let options = SentryViewScreenshotOptions(
             enableViewRendererV2: false,
             maskAllText: false,
             maskAllImages: false
         )
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertFalse(options.enableFastViewRendering)
     }
 
+    #if SDK_V10
+    func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
+        // -- Act --
+        var options = SentryPrivacyOptions()
+        options.maskAllImages = false
+
+        // -- Assert --
+        XCTAssertTrue(options.maskAllText)
+    }
+    #else
     func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
         // -- Act --
         let options = SentryViewScreenshotOptions(
@@ -80,7 +119,18 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
     }
+    #endif // SDK_V10
 
+    #if SDK_V10
+    func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
+        // -- Act --
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
+
+        // -- Assert --
+        XCTAssertTrue(options.maskAllImages)
+    }
+    #else
     func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
         // -- Act --
         let options = SentryViewScreenshotOptions(
@@ -92,7 +142,20 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllImages)
     }
+    #endif // SDK_V10
 
+    #if SDK_V10
+    func testInit_maskedViewClassesOmitted_shouldUseDefaultValues() {
+        // -- Act --
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
+        options.maskAllImages = false
+        options.unmaskedViewClasses = [NSString.self]
+
+        // -- Assert --
+        XCTAssertEqual(options.maskedViewClasses.count, 0)
+    }
+    #else
     func testInit_maskedViewClassesOmitted_shouldUseDefaultValues() {
         // -- Act --
         let options = SentryViewScreenshotOptions(
@@ -106,7 +169,20 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.maskedViewClasses.count, 0)
     }
+    #endif // SDK_V10
 
+    #if SDK_V10
+    func testInit_unmaskedViewClassesOmitted_shouldUseDefaultValues() {
+        // -- Act --
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
+        options.maskAllImages = false
+        options.maskedViewClasses = [NSString.self]
+
+        // -- Assert --
+        XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+    }
+    #else
     func testInit_unmaskedViewClassesOmitted_shouldUseDefaultValues() {
         // -- Act --
         let options = SentryViewScreenshotOptions(
@@ -120,6 +196,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
     }
+    #endif // SDK_V10
 
     // MARK: - Dictionary Initialization
 
@@ -130,10 +207,12 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+        #endif // !SDK_V10
     }
 
     func testInitFromDict_allValues_shouldSetValues() throws {
@@ -150,16 +229,22 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.enableViewRendererV2)
         XCTAssertTrue(options.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertFalse(options.maskAllText)
         XCTAssertFalse(options.maskAllImages)
+        #endif // !SDK_V10
 
+        #if !SDK_V10
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         let maskedViewClass: AnyClass = try XCTUnwrap(options.maskedViewClasses.first)
         XCTAssertEqual(ObjectIdentifier(maskedViewClass), ObjectIdentifier(NSString.self))
+        #endif // !SDK_V10
 
+        #if !SDK_V10
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         let unmaskedViewClass: AnyClass = try XCTUnwrap(options.unmaskedViewClasses.first)
         XCTAssertEqual(ObjectIdentifier(unmaskedViewClass), ObjectIdentifier(NSNumber.self))
+        #endif // !SDK_V10
     }
 
     // MARK: - enableViewRendererV2
@@ -224,14 +309,14 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllText_whenValidValue_shouldSetValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllText": true
         ])
 
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
 
-        let options2 = SentryViewScreenshotOptions(dictionary: [
+        let options2 = MaskingOptions(dictionary: [
             "maskAllText": false
         ])
 
@@ -241,7 +326,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllText_whenNotValidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllText": "invalid_value"
         ])
 
@@ -253,14 +338,14 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllImages_whenValidValue_shouldSetValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllImages": true
         ])
 
         // -- Assert --
         XCTAssertTrue(options.maskAllImages)
 
-        let options2 = SentryViewScreenshotOptions(dictionary: [
+        let options2 = MaskingOptions(dictionary: [
             "maskAllImages": false
         ])
 
@@ -270,7 +355,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskAllImages_whenNotValidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskAllImages": "invalid_value"
         ])
 
@@ -282,7 +367,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenValidValue_shouldSetValue() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": ["NSString"]
         ])
 
@@ -294,7 +379,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenMultipleValidValue_shouldKeepAll() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": ["NSString", "NSNumber"]
         ])
 
@@ -309,7 +394,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenInvalidValue_shouldExcludedClass() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": "invalid_value"
         ])
 
@@ -319,7 +404,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenInvalidArrayValue_shouldFilterInvalidValues() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": [
                 "NSString",         // Valid class
                 "some.class",       // Invalid class name
@@ -339,7 +424,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenMixedValidAndInvalidValues_shouldKeepOnlyValidValues() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "maskedViewClasses": [
                 "NSString",         // Valid class
                 "NSNumber",         // Valid class
@@ -359,7 +444,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_maskedViewClasses_whenKeyOmitted_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [:])
+        let options = MaskingOptions(dictionary: [:])
 
         // -- Assert --
         XCTAssertEqual(options.maskedViewClasses.count, 0)
@@ -369,7 +454,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_unmaskedViewClasses_whenValidValue_shouldSetValue() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": ["NSString"]
         ])
 
@@ -381,7 +466,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
     
     func testInitFromDict_unmaskedViewClasses_whenMultipleValidValue_shouldKeepAll() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": ["NSString", "NSNumber"]
         ])
 
@@ -396,7 +481,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         
     func testInitFromDict_unmaskedViewClasses_whenNotValidValue_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": "invalid_value"
         ])
 
@@ -406,7 +491,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_unmaskedViewClasses_whenInvalidArrayValues_shouldUseDefaultValue() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": [
                 "not.a.class",      // Invalid class name
                 123,                // Invalid type (number)
@@ -423,7 +508,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
     
     func testInitFromDict_unmaskedViewClasses_whenMixedValidAndInvalidValues_shouldKeepOnlyValidValues() throws {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [
+        let options = MaskingOptions(dictionary: [
             "unmaskedViewClasses": [
                 "NSString",         // Valid class
                 "NSNumber",         // Valid class
@@ -443,7 +528,7 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
     func testInitFromDict_unmaskedViewClasses_whenKeyOmitted_shouldUseDefaultValue() {
         // -- Act --
-        let options = SentryViewScreenshotOptions(dictionary: [:])
+        let options = MaskingOptions(dictionary: [:])
 
         // -- Assert --
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
@@ -463,16 +548,19 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
 
         XCTAssertFalse(options.enableViewRendererV2)
         XCTAssertTrue(options.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertFalse(options.maskAllText)
         XCTAssertFalse(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(NSNumber.self))
+        #endif // !SDK_V10
     }
 
     // MARK: - Description
 
+    #if !SDK_V10
     func testDescription_shouldContainAllProperties() {
         // -- Arrange --
         let options = SentryViewScreenshotOptions(
@@ -496,15 +584,18 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
         XCTAssertTrue(description.contains("maskedViewClasses"))
         XCTAssertTrue(description.contains("unmaskedViewClasses"))
     }
+    #endif // !SDK_V10
 
     // MARK: - Default Values
 
     func testDefaultValues_shouldMatchExpectedValues() {
         XCTAssertTrue(SentryViewScreenshotOptions.DefaultValues.enableViewRendererV2)
         XCTAssertFalse(SentryViewScreenshotOptions.DefaultValues.enableFastViewRendering)
+        #if !SDK_V10
         XCTAssertTrue(SentryViewScreenshotOptions.DefaultValues.maskAllText)
         XCTAssertTrue(SentryViewScreenshotOptions.DefaultValues.maskAllImages)
         XCTAssertEqual(SentryViewScreenshotOptions.DefaultValues.maskedViewClasses.count, 0)
         XCTAssertEqual(SentryViewScreenshotOptions.DefaultValues.unmaskedViewClasses.count, 0)
+        #endif // !SDK_V10
     }
 }

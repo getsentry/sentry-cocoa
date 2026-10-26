@@ -68,6 +68,9 @@ final class SentryMXManager: NSObject {
     let enabledDiagnostics: Set<Diagnostic>
     let releaseName: String?
     let bundleInfo: [String: Any]
+    let hangReportingMode: SentryMetricKitHangReportingMode
+    let processIdentifier: pid_t
+    let processStartDate: Date
 
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
@@ -75,7 +78,10 @@ final class SentryMXManager: NSObject {
         attachDiagnosticAsAttachment: Bool,
         enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
         releaseName: String? = nil,
-        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:]
+        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
+        hangReportingMode: SentryMetricKitHangReportingMode = .legacy,
+        processIdentifier: pid_t = ProcessInfo.processInfo.processIdentifier,
+        processStartDate: Date
     ) {
         self.metricManager = metricManager
         self.inAppLogic = inAppLogic
@@ -83,6 +89,9 @@ final class SentryMXManager: NSObject {
         self.enabledDiagnostics = enabledDiagnostics
         self.releaseName = releaseName
         self.bundleInfo = bundleInfo
+        self.hangReportingMode = hangReportingMode
+        self.processIdentifier = processIdentifier
+        self.processStartDate = processStartDate
         super.init()
     }
 
@@ -218,7 +227,13 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     ) {
         var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
-        applyMetadata(of: diagnostic, to: event)
+
+        if isFromPreviousProcess(diagnostic: diagnostic, payloadTimeStampBegin: timeStampBegin) {
+            // The client doesn't apply the current scope to events from a previous process, so the
+            // event itself has to carry the release and the contexts known for the diagnostic.
+            event.isFromPreviousProcess = true
+            applyMetadata(of: diagnostic, to: event, runningScope: SentrySDKInternal.currentHub().scope)
+        }
 
         let mechanism = Mechanism(type: diagnosticReport.mechanism)
         mechanism.handled = NSNumber(value: handled)
@@ -228,8 +243,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         exception.mechanism = mechanism
         event.exceptions = [exception]
 
+        var flamegraphAttachment: Attachment?
         do {
-            try apply(
+            flamegraphAttachment = try apply(
                 callStackTree: diagnostic.callStackTree,
                 toEvent: &event,
                 useFullCallStackTree: useFullCallStackTree,
@@ -250,20 +266,12 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         // Therefore we don't call captureFatalEvent.
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
 
-        // The event is captured with a copy of the current scope, so the changes below only
-        // apply to this event and never reach the hub's scope.
-        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
-
-        // The app and OS contexts have to be set on the scope rather than the event. The scope
-        // merge can only add or replace keys, so an event could never drop the running app and
-        // OS attributes that are unknown for the time the diagnostic was recorded.
-        if let appContext = Self.diagnosticAppContext(for: diagnostic, runningApp: scope.getContextForKey("app")) {
-            scope.setContext(value: appContext, key: "app")
+        // Diagnostic attachments travel in the hint rather than on the scope, because the client
+        // doesn't send the scope's attachments with events from a previous process.
+        let hint = Hint()
+        if let flamegraphAttachment {
+            hint.attachments = [flamegraphAttachment]
         }
-        if let osContext = Self.diagnosticOSContext(for: diagnostic, runningOS: scope.getContextForKey("os")) {
-            scope.setContext(value: osContext, key: "os")
-        }
-
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()
             let attachmentData: Data
@@ -274,27 +282,33 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                 SentrySDKLog.warning("Failed to compact MetricKit diagnostic JSON: \(error)")
                 attachmentData = diagnosticJSON
             }
-            scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
+            hint.attachments.append(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
         }
 
-        SentrySDKInternal.capture(event: event, scope: scope)
+        SentrySDKInternal.capture(event: event, scope: SentrySDKInternal.currentHub().scope, hint: hint)
         SentrySDKLog.debug("Captured MetricKit payload as event")
     }
 
-    private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws {
+    private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws -> Attachment? {
         SentrySDKLog.debug("Applying MetricKit call stack tree to event with id: \(event.eventId)")
         guard let exception = event.exceptions?.first else {
             SentrySDKLog.warning("MetricKit event does not have an exception set, skipping call stack tree decoding")
-            return
+            return nil
         }
 
         let encodedCallStackTree = callStackTree.jsonRepresentation()
-        let decodedCallStackTree = try SentryMXCallStackTree.from(data: encodedCallStackTree)
+        let decoder = JSONDecoder()
+        let decodedCallStackTree = try decoder.decode(SentryMXCallStackTree.self, from: encodedCallStackTree)
+
+        if useFullCallStackTree && hangReportingMode == .flamegraphAttachment,
+           let attachment = decodedCallStackTree.flamegraphAttachment(inAppLogic: inAppLogic) {
+            return attachment
+        }
 
         let debugMeta = decodedCallStackTree.toDebugMeta()
         let threads: [SentryThread]
         if useFullCallStackTree {
-            // For hang diagnostics, use the flattened tree to preserve all samples
+            // Legacy hang reporting preserves every sampled frame and its tree metadata.
             threads = decodedCallStackTree.flattenedBacktrace(inAppLogic: inAppLogic, handled: isHandled)
         } else {
             threads = decodedCallStackTree.sentryMXBacktrace(inAppLogic: inAppLogic, handled: isHandled)
@@ -308,10 +322,11 @@ extension SentryMXManager: MXMetricManagerSubscriber {
 
         guard let exceptionThread else {
             SentrySDKLog.warning("MetricKit call stack threads are empty")
-            return
+            return nil
         }
         exception.stacktrace = exceptionThread.stacktrace
         exception.threadId = exceptionThread.threadId
+        return nil
     }
 }
 

@@ -89,6 +89,7 @@ SentrySDK (public API)
 - Before the pull request exists, either estimate its number from the current highest issue or pull request, or add the changelog in a follow-up commit after opening the pull request
 - Other pull request types require `#skip-changelog` in the pull request description, never in a commit message
 - V10-only changes go in `CHANGELOG_V10.md` and require `#skip-changelog` in the pull request description
+- Resolve changelog conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
 - Pull request titles follow the commit subject format
 - Add `run-full-ci` only when the pull request is ready for comprehensive testing
 - After committing, include any `Agent transcript:` link from `git log main..HEAD` in the pull request description
