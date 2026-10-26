@@ -68,6 +68,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Package*.swift"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
@@ -222,6 +224,8 @@ run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "scripts/ci-utils.sh"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "Brewfile*"
 
 run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
@@ -306,6 +310,8 @@ run_release_for_prs: &run_release_for_prs
   - "TestApps/SPM-Dynamic/**"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
 
@@ -544,6 +550,7 @@ run_build_for_prs: &run_build_for_prs
   - "scripts/.xcodegen-version"
 
   # Build configuration
+  - ".ruby-version"
   - "fastlane/**"
   - "Gemfile.lock"
   - "Makefile"
@@ -561,6 +568,8 @@ run_testflight_for_prs: &run_testflight_for_prs
   - "scripts/ci-utils.sh"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
 
@@ -702,6 +711,8 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "TestApps/Shared/**"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
@@ -742,6 +753,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
+  - ".ruby-version"
   - "fastlane/**"
   - "Gemfile.lock"
   - "Makefile"
