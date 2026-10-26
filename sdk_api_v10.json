@@ -54647,6 +54647,7 @@
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
+        "isOpen": true,
         "kind": "TypeDecl",
         "mangledName": "$s6Sentry0A9ReplayApiC",
         "moduleName": "Sentry",

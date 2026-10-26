@@ -10,7 +10,7 @@ import UIKit
 /// operation completes and execute serially in call order.
 @objc(SentryReplayApi)
 @objcMembers
-public class SentryReplayApi: NSObject {
+open class SentryReplayApi: NSObject {
 
     /// Creates a session replay API.
     ///
