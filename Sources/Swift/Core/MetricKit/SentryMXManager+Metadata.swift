@@ -130,15 +130,25 @@ extension SentryMXManager {
     ]
 
     private func applyRelease(appVersion: String, appBuild: String, to event: Event) {
-        guard !appVersion.isEmpty, !appBuild.isEmpty else {
+        guard let recordedReleaseName = releaseName(appVersion: appVersion, appBuild: appBuild) else {
             return
+        }
+        event.releaseName = recordedReleaseName
+        event.dist = appBuild
+    }
+
+    /// The release name of the app version and build MetricKit recorded a report with, or `nil`
+    /// when the running release already describes it or the release can't be reconstructed.
+    func releaseName(appVersion: String, appBuild: String) -> String? {
+        guard !appVersion.isEmpty, !appBuild.isEmpty else {
+            return nil
         }
 
         let currentAppVersion = bundleInfo["CFBundleShortVersionString"] as? String
         let currentAppBuild = bundleInfo["CFBundleVersion"] as? String
         guard appVersion != currentAppVersion || appBuild != currentAppBuild else {
-            // The release and dist the client applies already match the diagnostic.
-            return
+            // The release and dist the SDK applies already match the report.
+            return nil
         }
 
         // MetricKit only knows the app version and build, so a custom release name of a
@@ -147,17 +157,16 @@ extension SentryMXManager {
         guard let appIdentifier = bundleInfo["CFBundleIdentifier"] as? String,
               let releaseName,
               releaseName == SentryReleaseName.defaultName(bundleInfo: bundleInfo) else {
-            SentrySDKLog.debug("MetricKit diagnostic is from app version \(appVersion) (\(appBuild)), but the release name is custom, keeping the current release")
-            return
+            SentrySDKLog.debug("MetricKit report is from app version \(appVersion) (\(appBuild)), but the release name is custom, keeping the current release")
+            return nil
         }
 
-        event.releaseName = SentryReleaseName.format(appIdentifier: appIdentifier, appVersion: appVersion, appBuild: appBuild)
-        event.dist = appBuild
+        return SentryReleaseName.format(appIdentifier: appIdentifier, appVersion: appVersion, appBuild: appBuild)
     }
 
     /// Extracts version and build from the MetricKit format, for example
     /// `iPhone OS 18.6.2 (22G100)`.
-    private static func parseOSVersion(_ osVersion: String) -> (version: String, build: String?)? {
+    static func parseOSVersion(_ osVersion: String) -> (version: String, build: String?)? {
         let version = osVersion.split(separator: " ").first { component in
             component.first?.isNumber == true && component.allSatisfy { $0.isNumber || $0 == "." }
         }

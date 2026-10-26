@@ -5,6 +5,7 @@
 ### Features
 
 - Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
+- Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
 
 ## 9.31.0
 

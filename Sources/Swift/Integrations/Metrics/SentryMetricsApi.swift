@@ -21,27 +21,28 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     }
 
     func count(key: String, value: UInt, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .counter(value), unit: nil, timestamp: nil, attributes: attributes)
+        captureMetric(name: key, value: .counter(value), unit: nil, timestamp: nil, attributes: attributes, overridingAttributes: [:])
     }
 
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .distribution(value), unit: unit, timestamp: nil, attributes: attributes)
+        captureMetric(name: key, value: .distribution(value), unit: unit, timestamp: nil, attributes: attributes, overridingAttributes: [:])
     }
 
     func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .gauge(value), unit: unit, timestamp: nil, attributes: attributes)
+        captureMetric(name: key, value: .gauge(value), unit: unit, timestamp: nil, attributes: attributes, overridingAttributes: [:])
     }
 
     // MARK: - Capture
 
-    // Internal rather than private so the timestamp overloads in SentryMetricsApi+Internal.swift
-    // can reach it.
+    // Internal rather than private so the overloads in SentryMetricsApi+Internal.swift can reach
+    // it.
     func captureMetric(
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
         timestamp: Date?,
-        attributes: [String: SentryAttributeValue]
+        attributes: [String: SentryAttributeValue],
+        overridingAttributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
             SentrySDKLog.warning("Metric '\(name)' was not captured because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
@@ -79,7 +80,14 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             }
         )
         let currentScope = dependencies.currentScopeStorage.scope()
-        integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
+        integration.addMetric(
+            metric,
+            scope: dependencies.scope,
+            currentScope: currentScope,
+            overridingAttributes: overridingAttributes.mapValues { attributable in
+                attributable.asSentryAttributeContent
+            }
+        )
     }
 }
 

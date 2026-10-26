@@ -243,6 +243,7 @@ public struct SentrySDKWrapper {
 #else
         options.enableMetricKit = enableMetricKit
 #endif // SDK_V10
+        options.experimental.metrickit.enabledMetricReports = enableMetricKit ? .all : []
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         options.enableMetricKitRawPayload =
             enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
