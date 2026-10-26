@@ -47,15 +47,15 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertTrue(launch.contains("--stdout="))
         XCTAssertTrue(launch.contains("--stderr="))
         XCTAssertTrue(launch.contains("\(process.processIdentifier)"))
-        for name in ["timeout.log", "process.log", "sample-command.log", "process-after-sample.log",
-                     "host-load.log", "host-memory.log", "launchctl.log"] {
+        for name in ["timeout.log", "process.log", "stackshot.spindump", "stackshot-command.log",
+                     "process-after-stackshot.log", "host-load.log", "host-memory.log", "launchctl.log"] {
             XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent(name).path), name)
         }
 
         let launchctl = try String(contentsOf: directory.appendingPathComponent("launchctl.log"), encoding: .utf8)
         XCTAssertTrue(launchctl.contains("status 1"))
-        XCTAssertEqual(fixture.commands.calls.map(\.tool), ["xcrun", "ps", "sample", "ps", "uptime", "vm_stat", "xcrun"])
-        XCTAssertEqual(fixture.commands.calls.map(\.timeout), [30, 5, 8, 5, 5, 5, 5])
+        XCTAssertEqual(fixture.commands.calls.map(\.tool), ["xcrun", "ps", "sudo", "ps", "uptime", "vm_stat", "xcrun"])
+        XCTAssertEqual(fixture.commands.calls.map(\.timeout), [30, 5, nil, 5, 5, 5, 5])
         XCTAssertTrue(fixture.commands.calls.allSatisfy { $0.captureOutput && $0.allowFailure })
 
         let launchCall = try XCTUnwrap(fixture.commands.calls.first)
