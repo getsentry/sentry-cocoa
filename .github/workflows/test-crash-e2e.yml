@@ -104,6 +104,7 @@ jobs:
       # Reuse the app built above, even if an ordinary scenario failed. This is a separate
       # expected-failure test, not a retry of any SDK scenario or a replacement for its result.
       - name: Test timeout recovery
+        id: timeout-recovery
         if: ${{ !cancelled() && matrix.platform == 'iOS' && steps.crash-scenarios.outcome != 'skipped' }}
         timeout-minutes: 10
         env:
@@ -115,7 +116,7 @@ jobs:
         run: swift test --package-path TestApps/CrashE2E/Runner --filter HarnessTimeoutIntegrationTests
 
       - name: Archive timeout recovery
-        if: ${{ always() && matrix.platform == 'iOS' }}
+        if: ${{ always() && matrix.platform == 'iOS' && steps.timeout-recovery.outcome != 'skipped' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: crash-e2e-harness-timeout-${{ matrix.reporter }}
