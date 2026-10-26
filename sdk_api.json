@@ -59168,6 +59168,69 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Error",
+                "printedName": "any Swift.Error",
+                "usr": "s:s5ErrorP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC7capture5error16attachAllThreads5blockSo0A2IdCs5Error_p_SbySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureError:attachAllThreads:scopeBlock:",
+            "printedName": "capture(error:attachAllThreads:block:)",
+            "static": true,
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureError:attachAllThreads:scopeBlock:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Error",
                 "printedName": "any Swift.Error",
                 "usr": "s:s5ErrorP"
@@ -59442,6 +59505,69 @@
             "printedName": "capture(event:attachAllThreads:)",
             "static": true,
             "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureEvent:attachAllThreads:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:objc(cs)SentryEvent"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC7capture5event16attachAllThreads5blockSo0A2IdCSo0A5EventC_SbySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureEvent:attachAllThreads:scopeBlock:",
+            "printedName": "capture(event:attachAllThreads:block:)",
+            "static": true,
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureEvent:attachAllThreads:scopeBlock:"
           },
           {
             "children": [
@@ -59776,6 +59902,69 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC7capture9exception16attachAllThreads5blockSo0A2IdCSo11NSExceptionC_SbySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureException:attachAllThreads:scopeBlock:",
+            "printedName": "capture(exception:attachAllThreads:block:)",
+            "static": true,
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureException:attachAllThreads:scopeBlock:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "NSException",
                 "printedName": "Foundation.NSException",
                 "usr": "c:objc(cs)NSException"
@@ -60080,6 +60269,69 @@
             "printedName": "capture(message:attachAllThreads:)",
             "static": true,
             "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureMessage:attachAllThreads:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC7capture7message16attachAllThreads5blockSo0A2IdCSS_SbySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureMessage:attachAllThreads:scopeBlock:",
+            "printedName": "capture(message:attachAllThreads:block:)",
+            "static": true,
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureMessage:attachAllThreads:scopeBlock:"
           },
           {
             "children": [
