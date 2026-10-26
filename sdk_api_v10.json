@@ -689,16 +689,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentrySamplingContext",
-        "printedName": "Sentry.SentrySamplingContext"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryScope",
         "printedName": "Sentry.SentryScope"
       },
@@ -1305,7 +1295,7 @@
                 "kind": "TypeNominal",
                 "name": "SamplingContext",
                 "printedName": "Sentry.SamplingContext",
-                "usr": "c:objc(cs)SentrySamplingContext"
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
               }
             ],
             "kind": "TypeFunc",
@@ -28525,7 +28515,7 @@
                                 "kind": "TypeNominal",
                                 "name": "SamplingContext",
                                 "printedName": "Sentry.SamplingContext",
-                                "usr": "c:objc(cs)SentrySamplingContext"
+                                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -28551,7 +28541,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC13tracesSamplerSo8NSNumberCSgSo0A15SamplingContextCcSgvg",
+                "mangledName": "$s6Sentry7OptionsC13tracesSamplerSo8NSNumberCSgAA15SamplingContextCcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -28584,7 +28574,7 @@
                                 "kind": "TypeNominal",
                                 "name": "SamplingContext",
                                 "printedName": "Sentry.SamplingContext",
-                                "usr": "c:objc(cs)SentrySamplingContext"
+                                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -28615,7 +28605,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC13tracesSamplerSo8NSNumberCSgSo0A15SamplingContextCcSgvs",
+                "mangledName": "$s6Sentry7OptionsC13tracesSamplerSo8NSNumberCSgAA15SamplingContextCcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -28647,7 +28637,7 @@
                             "kind": "TypeNominal",
                             "name": "SamplingContext",
                             "printedName": "Sentry.SamplingContext",
-                            "usr": "c:objc(cs)SentrySamplingContext"
+                            "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
                           }
                         ],
                         "kind": "TypeFunc",
@@ -28675,7 +28665,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC13tracesSamplerSo8NSNumberCSgSo0A15SamplingContextCcSgvp",
+            "mangledName": "$s6Sentry7OptionsC13tracesSamplerSo8NSNumberCSgAA15SamplingContextCcSgvp",
             "moduleName": "Sentry",
             "name": "tracesSampler",
             "printedName": "tracesSampler",
@@ -29651,32 +29641,7 @@
                 "kind": "TypeNominal",
                 "name": "SamplingContext",
                 "printedName": "Sentry.SamplingContext",
-                "usr": "c:objc(cs)SentrySamplingContext"
-              }
-            ],
-            "declAttributes": [
-              "Dynamic",
-              "ObjC",
-              "Override"
-            ],
-            "declKind": "Constructor",
-            "implicit": true,
-            "init_kind": "Designated",
-            "kind": "Constructor",
-            "moduleName": "Sentry",
-            "name": "init",
-            "objc_name": "init",
-            "overriding": true,
-            "printedName": "init()",
-            "usr": "c:objc(cs)NSObject(im)init"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SamplingContext",
-                "printedName": "Sentry.SamplingContext",
-                "usr": "c:objc(cs)SentrySamplingContext"
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
               },
               {
                 "kind": "TypeNominal",
@@ -29686,44 +29651,52 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC0ACSo0a11TransactionC0C_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithTransactionContext:",
             "printedName": "init(transactionContext:)",
-            "usr": "c:objc(cs)SentrySamplingContext(im)initWithTransactionContext:"
+            "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(im)initWithTransactionContext:"
           },
           {
             "children": [
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
                     "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "usr": "s:SD"
                   }
                 ],
                 "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "usr": "s:Sq"
               },
               {
                 "kind": "TypeNominal",
                 "name": "SamplingContext",
                 "printedName": "Sentry.SamplingContext",
-                "usr": "c:objc(cs)SentrySamplingContext"
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
               },
               {
                 "kind": "TypeNominal",
@@ -29733,17 +29706,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC006custombC0ACSo0a11TransactionC0C_SDySSypGSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithTransactionContext:customSamplingContext:",
             "printedName": "init(transactionContext:customSamplingContext:)",
-            "usr": "c:objc(cs)SentrySamplingContext(im)initWithTransactionContext:customSamplingContext:"
+            "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(im)initWithTransactionContext:customSamplingContext:"
           },
           {
             "accessors": [
@@ -29779,18 +29752,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry15SamplingContextC06custombC0SDySSypGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "customSamplingContext",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentrySamplingContext(im)customSamplingContext"
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(im)customSamplingContext"
               }
             ],
             "children": [
@@ -29823,17 +29795,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry15SamplingContextC06custombC0SDySSypGSgvp",
             "moduleName": "Sentry",
             "name": "customSamplingContext",
-            "objc_name": "customSamplingContext",
             "printedName": "customSamplingContext",
-            "usr": "c:objc(cs)SentrySamplingContext(py)customSamplingContext"
+            "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(py)customSamplingContext"
           },
           {
             "accessors": [
@@ -29848,18 +29822,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry15SamplingContextC011transactionC0So0a11TransactionC0Cvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "transactionContext",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentrySamplingContext(im)transactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(im)transactionContext"
               }
             ],
             "children": [
@@ -29871,17 +29844,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC0So0a11TransactionC0Cvp",
             "moduleName": "Sentry",
             "name": "transactionContext",
-            "objc_name": "transactionContext",
             "printedName": "transactionContext",
-            "usr": "c:objc(cs)SentrySamplingContext(py)transactionContext"
+            "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(py)transactionContext"
           }
         ],
         "conformances": [
@@ -29942,13 +29917,13 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
-          "ObjC"
+          "ObjC",
+          "ObjCMembers"
         ],
         "declKind": "Class",
-        "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry15SamplingContextC",
         "moduleName": "Sentry",
         "name": "SamplingContext",
         "objc_name": "SentrySamplingContext",
@@ -29957,7 +29932,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentrySamplingContext"
+        "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
       },
       {
         "children": [

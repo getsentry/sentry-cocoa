@@ -30021,21 +30021,29 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
                     "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "usr": "s:SD"
                   }
                 ],
                 "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "usr": "s:Sq"
               },
               {
                 "kind": "TypeNominal",
@@ -30056,7 +30064,7 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry15SamplingContextC011transactionC006custombC0ACSo0a11TransactionC0C_SDySSypGtcfc",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC006custombC0ACSo0a11TransactionC0C_SDySSypGSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithTransactionContext:customSamplingContext:",
@@ -30067,6 +30075,51 @@
             "accessors": [
               {
                 "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ProtocolComposition",
+                            "printedName": "Any"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Any]",
+                        "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Any]?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry15SamplingContextC06custombC0SDySSypGSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(im)customSamplingContext"
+              }
+            ],
+            "children": [
+              {
                 "children": [
                   {
                     "children": [
@@ -30088,39 +30141,10 @@
                     "usr": "s:SD"
                   }
                 ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry15SamplingContextC06custombC0SDySSypGvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext(im)customSamplingContext"
-              }
-            ],
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
                 "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "usr": "s:Sq"
               }
             ],
             "declAttributes": [
@@ -30132,7 +30156,7 @@
             "hasStorage": true,
             "isLet": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry15SamplingContextC06custombC0SDySSypGvp",
+            "mangledName": "$s6Sentry15SamplingContextC06custombC0SDySSypGSgvp",
             "moduleName": "Sentry",
             "name": "customSamplingContext",
             "printedName": "customSamplingContext",
