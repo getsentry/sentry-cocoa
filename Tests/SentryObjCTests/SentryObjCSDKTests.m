@@ -211,7 +211,7 @@
     SentryObjCId *result =
         [SentryObjCSDK captureEvent:event
                    attachAllThreads:YES
-                     withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+                         scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
@@ -379,7 +379,7 @@
     SentryObjCId *result =
         [SentryObjCSDK captureError:error
                    attachAllThreads:YES
-                     withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+                         scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
@@ -471,7 +471,7 @@
     SentryObjCId *result =
         [SentryObjCSDK captureException:exception
                        attachAllThreads:YES
-                         withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+                             scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
@@ -544,7 +544,7 @@
     SentryObjCId *result =
         [SentryObjCSDK captureMessage:@"hello"
                      attachAllThreads:YES
-                       withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+                           scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);

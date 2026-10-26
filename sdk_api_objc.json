@@ -1212,7 +1212,7 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureError:attachAllThreads:withScopeBlock:",
+    "name": "captureError:attachAllThreads:scopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1303,7 +1303,7 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureEvent:attachAllThreads:withScopeBlock:",
+    "name": "captureEvent:attachAllThreads:scopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1394,7 +1394,7 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureException:attachAllThreads:withScopeBlock:",
+    "name": "captureException:attachAllThreads:scopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1506,7 +1506,7 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureMessage:attachAllThreads:withScopeBlock:",
+    "name": "captureMessage:attachAllThreads:scopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false

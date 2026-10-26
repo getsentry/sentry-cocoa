@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `capture(event:attachAllThreads:block:)`, `capture(error:attachAllThreads:block:)`, `capture(exception:attachAllThreads:block:)`, and `capture(message:attachAllThreads:block:)` to combine a per-call `attachAllThreads` override with a scope block, also available through `SentryObjC` (#9424)
+- Add `attachAllThreads` and scope block overloads for `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)`, also available through `SentryObjC` (#9424)
 
 ## 9.31.0
 

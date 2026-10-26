@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryObjCId *)captureEvent:(SentryObjCEvent *)event
               attachAllThreads:(BOOL)attachAllThreads
-                withScopeBlock:(void (^)(SentryObjCScope *))block;
+                    scopeBlock:(void (^)(SentryObjCScope *))block;
 
 /**
  * Captures a manually created event and sends it to Sentry with a user-provided hint.
@@ -282,7 +282,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryObjCId *)captureError:(NSError *)error
               attachAllThreads:(BOOL)attachAllThreads
-                withScopeBlock:(void (^)(SentryObjCScope *))block;
+                    scopeBlock:(void (^)(SentryObjCScope *))block;
 
 /**
  * Captures an error event and sends it to Sentry with a user-provided hint.
@@ -361,7 +361,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryObjCId *)captureException:(NSException *)exception
                   attachAllThreads:(BOOL)attachAllThreads
-                    withScopeBlock:(void (^)(SentryObjCScope *))block;
+                        scopeBlock:(void (^)(SentryObjCScope *))block;
 
 /**
  * Captures an exception event and sends it to Sentry with a user-provided hint.
@@ -440,7 +440,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryObjCId *)captureMessage:(NSString *)message
                 attachAllThreads:(BOOL)attachAllThreads
-                  withScopeBlock:(void (^)(SentryObjCScope *))block;
+                      scopeBlock:(void (^)(SentryObjCScope *))block;
 
 /**
  * Captures a message event and sends it to Sentry with a user-provided hint.
