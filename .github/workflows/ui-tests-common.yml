@@ -81,9 +81,11 @@ jobs:
           path: |
             ~/.rbenv/versions
             ~/.rbenv/cache
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
+          # The openssl3 segment invalidates caches built against Homebrew's
+          # openssl@4, which cache-hit runners don't have installed.
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
           restore-keys: |
-            ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-
+            ruby-${{ runner.os }}-${{ runner.arch }}-openssl3-${{ hashFiles('.ruby-version') }}-
 
       - name: Install Ruby
         env:
@@ -92,11 +94,15 @@ jobs:
           # Only touch Homebrew / build Ruby when the cache missed.
           if [ "$CACHE_HIT" != "true" ]; then
             brew upgrade ruby-build
-            rbenv install -s
+            # Link against the image's openssl@3. Upgrading ruby-build pulls in
+            # openssl@4, but cache-hit runners skip that upgrade, so a Ruby
+            # linked against openssl@4 fails to load openssl from the cache.
+            RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)" rbenv install -s
           else
             echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
             rbenv rehash
           fi
+          ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
           bundle install
 
       - name: Setup Xcode
