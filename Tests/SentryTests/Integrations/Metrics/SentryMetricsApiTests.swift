@@ -25,7 +25,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
 
         // -- Act --
-        sut.count(key: "network.request.count", value: 1)
+        sut.count("network.request.count", value: 1)
 
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -49,9 +49,9 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
 
         // -- Act --
-        sut.count(key: "network.request.count", value: 1, attributes: [
+        sut.count("network.request.count", value: 1, options: SentryMetricOptions(attributes: [
             "other-key": "other-value"
-        ])
+        ]))
 
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -75,7 +75,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.count(key: "test.metric", value: 1)
+        sut.count("test.metric", value: 1)
         
         // -- Assert --
         XCTAssertEqual(dependencies.metricsIntegration?.addMetricInvocations.count, 0, "No metrics should be created when SDK is disabled")
@@ -91,7 +91,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.count(key: "test.metric", value: 1)
+        sut.count("test.metric", value: 1)
         
         // -- Assert --
         // When metricsIntegration is nil (metrics disabled), the API returns early without
@@ -110,7 +110,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.count(key: "button.click", value: 0)
+        sut.count("button.click", value: 0)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -129,7 +129,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.count(key: "events.processed", value: 1_000_000_000)
+        sut.count("events.processed", value: 1_000_000_000)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -149,14 +149,16 @@ final class SentryMetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.count(
-            key: "api.request.count",
+            "api.request.count",
             value: 1,
-            attributes: [
-                "endpoint": "api/users",
-                "success": true,
-                "status_code": 200,
-                "response_time": 0.125
-            ]
+            options: SentryMetricOptions(
+                attributes: [
+                    "endpoint": "api/users",
+                    "success": true,
+                    "status_code": 200,
+                    "response_time": 0.125
+                ]
+            )
         )
         
         // -- Assert --
@@ -183,7 +185,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.distribution(key: "http.request.duration", value: 187.5)
+        sut.distribution("http.request.duration", value: 187.5)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -202,7 +204,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.distribution(key: "test.metric", value: 1.0)
+        sut.distribution("test.metric", value: 1.0)
         
         // -- Assert --
         XCTAssertEqual(dependencies.metricsIntegration?.addMetricInvocations.count, 0, "No metrics should be captured when SDK is disabled")
@@ -218,7 +220,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.distribution(key: "test.metric", value: 1.0)
+        sut.distribution("test.metric", value: 1.0)
         
         // -- Assert --
         // When metricsIntegration is nil (metrics disabled), the API returns early without
@@ -237,7 +239,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.distribution(key: "response.time", value: 0.0)
+        sut.distribution("response.time", value: 0.0)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -256,7 +258,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.distribution(key: "processing.duration", value: 999_999.99)
+        sut.distribution("processing.duration", value: 999_999.99)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -275,7 +277,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.distribution(key: "latency", value: -10.5)
+        sut.distribution("latency", value: -10.5)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -295,14 +297,16 @@ final class SentryMetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.distribution(
-            key: "db.query.duration",
+            "db.query.duration",
             value: 45.7,
-            attributes: [
-                "database": "postgres",
-                "cached": false,
-                "query_count": 3,
-                "cache_hit_rate": 0.85
-            ]
+            options: SentryMetricOptions(
+                attributes: [
+                    "database": "postgres",
+                    "cached": false,
+                    "query_count": 3,
+                    "cache_hit_rate": 0.85
+                ]
+            )
         )
         
         // -- Assert --
@@ -329,7 +333,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.gauge(key: "memory.usage", value: 1_024.0)
+        sut.gauge("memory.usage", value: 1_024.0)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -348,7 +352,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.gauge(key: "test.metric", value: 1.0)
+        sut.gauge("test.metric", value: 1.0)
         
         // -- Assert --
         XCTAssertEqual(dependencies.metricsIntegration?.addMetricInvocations.count, 0, "No metrics should be captured when SDK is disabled")
@@ -364,7 +368,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.gauge(key: "test.metric", value: 1.0)
+        sut.gauge("test.metric", value: 1.0)
         
         // -- Assert --
         // When metricsIntegration is nil (metrics disabled), the API returns early without
@@ -383,7 +387,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.gauge(key: "queue.depth", value: 0.0)
+        sut.gauge("queue.depth", value: 0.0)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -402,7 +406,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.gauge(key: "active.connections", value: 50_000.0)
+        sut.gauge("active.connections", value: 50_000.0)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -421,7 +425,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
         
         // -- Act --
-        sut.gauge(key: "temperature", value: -5.0)
+        sut.gauge("temperature", value: -5.0)
         
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -441,14 +445,16 @@ final class SentryMetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.gauge(
-            key: "system.cpu.usage",
+            "system.cpu.usage",
             value: 75.5,
-            attributes: [
-                "process": "main_app",
-                "compressed": true,
-                "core_count": 8,
-                "utilization": 0.755
-            ]
+            options: SentryMetricOptions(
+                attributes: [
+                    "process": "main_app",
+                    "compressed": true,
+                    "core_count": 8,
+                    "utilization": 0.755
+                ]
+            )
         )
         
         // -- Assert --
@@ -479,7 +485,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
 
         storage.withScope(currentScope) {
-            sut.count(key: "test.count")
+            sut.count("test.count")
         }
 
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
@@ -495,11 +501,144 @@ final class SentryMetricsApiTests: XCTestCase {
         )
         let sut = SentryMetricsApi(dependencies: dependencies)
 
-        sut.count(key: "test.count")
+        sut.count("test.count")
 
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
         XCTAssertNil(invocation.currentScope)
     }
+
+    func testCount_withOptionsScope_passesOptionsScopeAsCurrentScope() throws {
+        // -- Arrange --
+        let storage = SentryCurrentScopeStorage()
+        let threadScope = Scope()
+        let optionsScope = Scope()
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            currentScopeStorage: storage
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        storage.withScope(threadScope) {
+            sut.count("test.count", value: 1, options: SentryMetricOptions(scope: optionsScope))
+        }
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertIdentical(invocation.currentScope, optionsScope, "The options scope should replace the thread's current scope")
+        XCTAssertIdentical(invocation.scope, scope, "The global scope should still be passed to the integration")
+    }
+
+    // MARK: - Options
+
+    func testCount_withOptionsTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 2_000))
+        let timestamp = Date(timeIntervalSince1970: 1_000)
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count("test.count", value: 1, options: SentryMetricOptions(timestamp: timestamp))
+        sut.distribution("test.distribution", value: 1, options: SentryMetricOptions(timestamp: timestamp))
+        sut.gauge("test.gauge", value: 1, options: SentryMetricOptions(timestamp: timestamp))
+
+        // -- Assert --
+        let metrics = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.invocations.map(\.metric))
+        XCTAssertEqual(metrics.map(\.timestamp), [timestamp, timestamp, timestamp])
+    }
+
+    func testCount_withoutOptionsTimestamp_shouldUseCurrentDate() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        let now = Date(timeIntervalSince1970: 2_000)
+        dateProvider.setDate(date: now)
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count("test.count")
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertEqual(invocation.metric.timestamp, now)
+    }
+
+    func testCount_withOptionsUnit_shouldIgnoreUnit() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count("test.count", value: 1, options: SentryMetricOptions(unit: .millisecond))
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertNil(invocation.metric.unit, "Count metrics have no unit")
+    }
+
+    #if !SDK_V10
+    // MARK: - Deprecated key-based API
+
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
+    func testDeprecatedKeyBasedApi_shouldForwardToOptionsApi() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut: SentryMetricsApiProtocol = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count(key: "test.count", value: 2, attributes: ["a": "b"])
+        sut.distribution(key: "test.distribution", value: 3, unit: .millisecond, attributes: ["c": 1])
+        sut.gauge(key: "test.gauge", value: 4, unit: .byte, attributes: ["d": true])
+
+        // -- Assert --
+        let metrics = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.invocations.map(\.metric))
+        XCTAssertEqual(metrics.map(\.name), ["test.count", "test.distribution", "test.gauge"])
+        XCTAssertEqual(metrics.map(\.value), [.counter(2), .distribution(3), .gauge(4)])
+        XCTAssertEqual(metrics.map(\.unit), [nil, .millisecond, .byte])
+        XCTAssertEqual(metrics[0].attributes["a"]?.anyValue as? String, "b")
+        XCTAssertEqual(metrics[1].attributes["c"]?.anyValue as? Int, 1)
+        XCTAssertEqual(metrics[2].attributes["d"]?.anyValue as? Bool, true)
+    }
+
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
+    func testLegacyConformer_optionsApi_shouldFallBackToKeyBasedRequirements() throws {
+        // -- Arrange --
+        let sut = LegacyMetricsApi()
+
+        // -- Act --
+        sut.count("test.count", value: 2, options: SentryMetricOptions(attributes: ["a": "b"]))
+        sut.distribution("test.distribution", value: 3, options: SentryMetricOptions(unit: .millisecond))
+        sut.gauge("test.gauge", value: 4)
+
+        // -- Assert --
+        XCTAssertEqual(sut.invocations.map(\.key), ["test.count", "test.distribution", "test.gauge"])
+        XCTAssertEqual(sut.invocations.map(\.value), [2, 3, 4])
+        XCTAssertEqual(sut.invocations.map(\.unit), [nil, .millisecond, nil])
+        XCTAssertEqual(sut.invocations[0].attributes["a"] as? String, "b")
+    }
+    #endif // !SDK_V10
 }
 
 // MARK: - Mock Dependencies
@@ -532,3 +671,23 @@ fileprivate struct MockMetricsApiDependencies: SentryMetricsApiDependencies {
         self.metricsIntegration = metricsIntegration
     }
 }
+
+#if !SDK_V10
+/// A conformer written before the options-based requirements existed.
+@available(*, deprecated, message: "Testing the deprecated key-based API")
+fileprivate final class LegacyMetricsApi: SentryMetricsApiProtocol {
+    var invocations: [(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue])] = []
+
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
+        invocations.append((key, Double(value), nil, attributes))
+    }
+
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        invocations.append((key, value, unit, attributes))
+    }
+
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        invocations.append((key, value, unit, attributes))
+    }
+}
+#endif // !SDK_V10
