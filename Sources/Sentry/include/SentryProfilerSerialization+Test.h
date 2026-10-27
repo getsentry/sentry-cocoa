@@ -26,10 +26,10 @@ SENTRY_EXTERN NSString *sentry_profilerTruncationReasonName(SentryProfilerTrunca
 SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
+    NSArray<SentryDebugMeta *> *_Nullable debugMeta, SentryHubInternal *hub
 #        if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *gpuData
+    SentryScreenFrames *_Nullable gpuData
 #        endif // SENTRY_HAS_UIKIT
 );
 

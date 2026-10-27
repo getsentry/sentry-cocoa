@@ -59,7 +59,7 @@ SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
  * transactions to finish. Once we move to continuous profiling only, this won't be needed as the
  * data can be directly marshaled to the serialization function.
  */
-@property (strong, nonatomic) SentryScreenFrames *screenFrameData;
+@property (strong, nonatomic, nullable) SentryScreenFrames *screenFrameData;
 #    endif // SENTRY_HAS_UIKIT
 
 SENTRY_NO_INIT

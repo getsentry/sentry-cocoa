@@ -26,7 +26,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *gpuData
+    SentryScreenFrames *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 );
 

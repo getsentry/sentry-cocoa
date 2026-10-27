@@ -15,6 +15,7 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
@@ -109,10 +110,10 @@ NSMutableDictionary<NSString *, id> *
 sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
+    NSArray<SentryDebugMeta *> *_Nullable debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *gpuData
+    SentryScreenFrames *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
@@ -183,34 +184,37 @@ sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *metrics = serializedMetrics;
 
 #    if SENTRY_HAS_UIKIT
-    NSMutableDictionary<NSString *, id> *mutableMetrics =
-        [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    NSArray<SentrySerializedMetricEntry *> *slowFrames
-        = sentry_sliceTraceProfileGPUData(gpuData.slowFrameTimestamps, startSystemTime,
-            endSystemTime, /*useMostRecentFrameRate */ NO);
-    if (slowFrames.count > 0) {
-        mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] =
-            @ { @"unit" : @"nanosecond", @"values" : slowFrames };
-    }
-
-    NSArray<SentrySerializedMetricEntry *> *frozenFrames = sentry_sliceTraceProfileGPUData(
-        gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
-        /*useMostRecentFrameRate */ NO);
-    if (frozenFrames.count > 0) {
-        mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] =
-            @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
-    }
-
-    if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        NSArray<SentrySerializedMetricEntry *> *frameRates = sentry_sliceTraceProfileGPUData(
-            gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
-            /*useMostRecentFrameRate */ YES);
-        if (frameRates.count > 0) {
-            mutableMetrics[kSentryProfilerSerializationKeyFrameRates] =
-                @ { @"unit" : @"hz", @"values" : frameRates };
+    if (gpuData != nil) {
+        SentryScreenFrames *_Nonnull frames = SENTRY_UNWRAP_NULLABLE(SentryScreenFrames, gpuData);
+        NSMutableDictionary<NSString *, id> *mutableMetrics =
+            [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
+        NSArray<SentrySerializedMetricEntry *> *slowFrames
+            = sentry_sliceTraceProfileGPUData(frames.slowFrameTimestamps, startSystemTime,
+                endSystemTime, /*useMostRecentFrameRate */ NO);
+        if (slowFrames.count > 0) {
+            mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] =
+                @ { @"unit" : @"nanosecond", @"values" : slowFrames };
         }
+
+        NSArray<SentrySerializedMetricEntry *> *frozenFrames = sentry_sliceTraceProfileGPUData(
+            frames.frozenFrameTimestamps, startSystemTime, endSystemTime,
+            /*useMostRecentFrameRate */ NO);
+        if (frozenFrames.count > 0) {
+            mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] =
+                @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
+        }
+
+        if (slowFrames.count > 0 || frozenFrames.count > 0) {
+            NSArray<SentrySerializedMetricEntry *> *frameRates = sentry_sliceTraceProfileGPUData(
+                frames.frameRateTimestamps, startSystemTime, endSystemTime,
+                /*useMostRecentFrameRate */ YES);
+            if (frameRates.count > 0) {
+                mutableMetrics[kSentryProfilerSerializationKeyFrameRates] =
+                    @ { @"unit" : @"hz", @"values" : frameRates };
+            }
+        }
+        metrics = mutableMetrics;
     }
-    metrics = mutableMetrics;
 #    endif // SENTRY_HAS_UIKIT
 
     if (metrics.count > 0) {
@@ -223,10 +227,10 @@ sentry_serializedTraceProfileData(
 NSMutableDictionary<NSString *, id> *
 sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
+    NSArray<SentryDebugMeta *> *_Nullable debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *gpuData
+    SentryScreenFrames *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
@@ -269,31 +273,34 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *metrics = serializedMetrics;
 
 #    if SENTRY_HAS_UIKIT
-    NSMutableDictionary<NSString *, id> *mutableMetrics =
-        [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    if (gpuData.slowFrameTimestamps.count > 0) {
-        NSMutableDictionary *values = [NSMutableDictionary dictionary];
-        values[@"unit"] = @"nanosecond";
-        values[@"values"] = gpuData.slowFrameTimestamps;
-        mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] = values;
-    }
-
-    if (gpuData.frozenFrameTimestamps.count > 0) {
-        NSMutableDictionary *values = [NSMutableDictionary dictionary];
-        values[@"unit"] = @"nanosecond";
-        values[@"values"] = gpuData.frozenFrameTimestamps;
-        mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] = values;
-    }
-
-    if (gpuData.slowFrameTimestamps.count > 0 || gpuData.frozenFrameTimestamps.count > 0) {
-        if (gpuData.frameRateTimestamps.count > 0) {
+    if (gpuData != nil) {
+        SentryScreenFrames *_Nonnull frames = SENTRY_UNWRAP_NULLABLE(SentryScreenFrames, gpuData);
+        NSMutableDictionary<NSString *, id> *mutableMetrics =
+            [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
+        if (frames.slowFrameTimestamps.count > 0) {
             NSMutableDictionary *values = [NSMutableDictionary dictionary];
-            values[@"unit"] = @"hz";
-            values[@"values"] = gpuData.frameRateTimestamps;
-            mutableMetrics[kSentryProfilerSerializationKeyFrameRates] = values;
+            values[@"unit"] = @"nanosecond";
+            values[@"values"] = frames.slowFrameTimestamps;
+            mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] = values;
         }
+
+        if (frames.frozenFrameTimestamps.count > 0) {
+            NSMutableDictionary *values = [NSMutableDictionary dictionary];
+            values[@"unit"] = @"nanosecond";
+            values[@"values"] = frames.frozenFrameTimestamps;
+            mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] = values;
+        }
+
+        if (frames.slowFrameTimestamps.count > 0 || frames.frozenFrameTimestamps.count > 0) {
+            if (frames.frameRateTimestamps.count > 0) {
+                NSMutableDictionary *values = [NSMutableDictionary dictionary];
+                values[@"unit"] = @"hz";
+                values[@"values"] = frames.frameRateTimestamps;
+                mutableMetrics[kSentryProfilerSerializationKeyFrameRates] = values;
+            }
+        }
+        metrics = mutableMetrics;
     }
-    metrics = mutableMetrics;
 #    endif // SENTRY_HAS_UIKIT
 
     if (metrics.count > 0) {
@@ -309,15 +316,16 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *gpuData
+    SentryScreenFrames *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
+    SentryDebugImageProvider *debugImageProvider
+        = SentryProfilerSDKAdapter.shared.debugImageProvider;
     SentryId *chunkID = [[SentryId alloc] init];
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
         profileID, chunkID, profileState, metricProfilerState,
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache],
-        SentrySDKInternal.currentHub
+        [debugImageProvider getDebugImagesFromCache], SentrySDKInternal.currentHub
 #    if SENTRY_HAS_UIKIT
         ,
         gpuData
@@ -361,8 +369,9 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
-    NSArray<SentryDebugMeta *> *images =
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache];
+    SentryDebugImageProvider *debugImageProvider
+        = SentryProfilerSDKAdapter.shared.debugImageProvider;
+    NSArray<SentryDebugMeta *> *images = [debugImageProvider getDebugImagesFromCache];
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedTraceProfileData(
         profilingData, transaction.startSystemTime, transaction.endSystemTime,
         sentry_profilerTruncationReasonName(profiler.truncationReason),
@@ -422,11 +431,13 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSD
         return nil;
     }
 
+    SentryDebugImageProvider *debugImageProvider
+        = SentryProfilerSDKAdapter.shared.debugImageProvider;
     return sentry_serializedTraceProfileData([profiler.state copyProfilingData], startSystemTime,
         endSystemTime, sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:startSystemTime
                                                                  and:endSystemTime],
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache], hub
+        [debugImageProvider getDebugImagesFromCache], hub
 #    if SENTRY_HAS_UIKIT
         ,
         profiler.screenFrameData

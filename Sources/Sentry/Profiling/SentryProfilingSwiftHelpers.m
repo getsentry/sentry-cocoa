@@ -2,12 +2,12 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryClient.h"
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 
@@ -32,18 +32,6 @@ NSString *
 sentry_stringFromSentryID(SentryId *sentryID)
 {
     return sentryID.sentryIdString;
-}
-
-NSDate *
-sentry_getDate(void)
-{
-    return [SentryDependencyContainer.sharedInstance.dateProvider date];
-}
-
-uint64_t
-sentry_getSystemTime(void)
-{
-    return SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 }
 
 SentryId *
@@ -93,97 +81,6 @@ sentry_isNotSampled(SentryTransactionContext *context)
     return context.sampled != kSentrySampleDecisionYes;
 }
 
-void
-sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
-{
-    [wrapper dispatchAsyncWithBlock:block];
-}
-
-void
-sentry_dispatchAsyncOnMainIfNotMainThread(
-    SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
-{
-    [wrapper dispatchAsyncOnMainQueueIfNotMainThread:block];
-}
-
-void
-sentry_removeObserver(id object)
-{
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:object
-                                                                                  name:nil
-                                                                                object:nil];
-}
-
-void
-sentry_addObserver(id observer, SEL selector, NSNotificationName name, _Nullable id object)
-{
-    return [SentryDependencyContainer.sharedInstance.notificationCenterWrapper addObserver:observer
-                                                                                  selector:selector
-                                                                                      name:name
-                                                                                    object:object];
-}
-
-void
-sentry_postNotification(NSNotification *notification)
-{
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        postNotification:notification];
-}
-
-id
-sentry_addObserverForName(NSNotificationName name, dispatch_block_t block)
-{
-    return [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        addObserverForName:name
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *_Nonnull notification) { block(); }];
-}
-
-NSTimer *
-sentry_scheduledTimer(NSTimeInterval interval, BOOL repeats, dispatch_block_t block)
-{
-    return [SentryDependencyContainer.sharedInstance.timerFactory
-        scheduledTimerWithTimeInterval:interval
-                               repeats:repeats
-                                 block:^(NSTimer *_Nonnull timer) { block(); }];
-}
-
-NSTimer *
-sentry_scheduledTimerWithTarget(
-    NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats)
-{
-    return [SentryDependencyContainer.sharedInstance.timerFactory
-        scheduledTimerWithTimeInterval:interval
-                                target:target
-                              selector:selector
-                              userInfo:userInfo
-                               repeats:repeats];
-}
-
-void
-sentry_startLaunchProfile(void)
-{
-    [SentryLaunchProfiling startLaunchProfile];
-}
-
-BOOL
-sentry_isTracingAppLaunch(void)
-{
-    return SentryLaunchProfiling.isTracingAppLaunch;
-}
-
-void
-sentry_setIsTracingAppLaunch(BOOL isTracingAppLaunch)
-{
-    SentryLaunchProfiling.isTracingAppLaunch = isTracingAppLaunch;
-}
-
-SentryTracer *_Nullable sentry_getLaunchTracer(void)
-{
-    return (SentryTracer *)SentryLaunchProfiling.launchTracer;
-}
-
 #    if SENTRY_HAS_UIKIT
 #        if !SDK_V10
 BOOL
@@ -205,29 +102,7 @@ sentry_autoPerformanceTracingDisabled(void)
     }
     return ![options enableAutoPerformanceTracing];
 }
-void
-sentry_startFramesTracker(void)
-{
-    [SentryDependencyContainer.sharedInstance.framesTracker start];
-}
 
-void
-sentry_stopFramesTracker(void)
-{
-    [SentryDependencyContainer.sharedInstance.framesTracker stop];
-}
-
-void
-sentry_framesTrackerResetProfilingTimestamps(void)
-{
-    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
-}
-
-SentryScreenFrames *
-sentry_framesTrackerGetCurrentFrames(void)
-{
-    return [SentryDependencyContainer.sharedInstance.framesTracker currentFrames];
-}
 #    endif // SENTRY_HAS_UIKIT
 
 void
@@ -277,7 +152,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
 
     sentry_configureContinuousProfiling(options);
 
-    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
+    [SentryProfilerSDKAdapter.shared dispatchAsync:^{
         if (configurationFromLaunch.isProfilingThisLaunch) {
             BOOL shouldStopAndTransmitLaunchProfile = YES;
 
@@ -315,7 +190,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
         }
 
         [SentryLaunchProfiling configureLaunchProfilingForNextLaunchWithOptions:options];
-    });
+    }];
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

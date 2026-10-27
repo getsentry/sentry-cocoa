@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryOptionsObjC.h"
+#import "SentryProfilerSDKAdapter.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
@@ -11,6 +12,21 @@
 @class SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+// SDK-side backend. Its implementation may bridge Swift; the profiling proxy must not.
+@interface SentryDefaultProfilerSDKBackend : NSObject <SentryProfilerSDKBackend>
+- (void)activate;
+@end
+
+#    ifdef __cplusplus
+extern "C" {
+#    endif
+void sentry_bootstrapProfilerSDKAdapter(void);
+#    ifdef __cplusplus
+}
+#    endif
+#endif
 
 @interface SentryDefaultRedactOptions : NSObject
 

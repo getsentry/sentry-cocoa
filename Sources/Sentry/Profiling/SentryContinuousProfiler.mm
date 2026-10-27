@@ -2,14 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    include <mutex>
@@ -72,9 +71,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
-    SentryScreenFrames *screenFrameData =
-        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
-    sentry_framesTrackerResetProfilingTimestamps();
+    SentryScreenFrames *screenFrameData = [SentryProfilerSDKAdapter.shared copyCurrentFrames];
+    [SentryProfilerSDKAdapter.shared resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
     // Capture profiler ID on main thread since we need it for the background work
@@ -82,7 +80,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
-    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
+    [SentryProfilerSDKAdapter.shared dispatchAsync:^{
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
         SentryEnvelope *_Nullable envelope
@@ -97,7 +95,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             return;
         }
         [SentrySDKInternal captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
-    });
+    }];
 }
 
 void
@@ -136,17 +134,20 @@ _sentry_unsafe_stopTimerAndCleanup()
         dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
     }
-    sentry_postNotification(
-        [[NSNotification alloc] initWithName:kSentryNotificationContinuousProfileStarted
-                                      object:nil
-                                    userInfo:nil]);
+    [SentryProfilerSDKAdapter.shared
+        postNotification:[[NSNotification alloc]
+                             initWithName:kSentryNotificationContinuousProfileStarted
+                                   object:nil
+                                 userInfo:nil]];
     [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
-    _observerToken = sentry_addObserverForName(UIApplicationWillResignActiveNotification, ^{
-        sentry_removeObserver(_observerToken);
-        [self stopTimerAndCleanup];
-    });
+    _observerToken = [SentryProfilerSDKAdapter.shared
+        addObserverForName:UIApplicationWillResignActiveNotification
+                     block:^{
+                         [SentryProfilerSDKAdapter.shared removeObserver:_observerToken];
+                         [self stopTimerAndCleanup];
+                     }];
 #    endif // SENTRY_HAS_UIKIT
 }
 
@@ -197,19 +198,21 @@ _sentry_unsafe_stopTimerAndCleanup()
  */
 + (void)scheduleTimer
 {
-    sentry_dispatchAsyncOnMainIfNotMainThread(
-        SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
-            std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-            if (_chunkTimer != nil) {
-                SENTRY_LOG_WARN(
-                    @"There was already a timer in flight, but this codepath shouldn't be "
-                    @"taken if there is no profiler running.");
-                return;
-            }
+    [SentryProfilerSDKAdapter.shared dispatchAsyncOnMainIfNotMainThread:^{
+        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+        if (_chunkTimer != nil) {
+            SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
+                            @"taken if there is no profiler running.");
+            return;
+        }
 
-            _chunkTimer = sentry_scheduledTimerWithTarget(
-                kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
-        });
+        _chunkTimer = [SentryProfilerSDKAdapter.shared
+            scheduledTimerWithInterval:kSentryProfilerChunkExpirationInterval
+                                target:self
+                              selector:@selector(timerExpired)
+                              userInfo:nil
+                               repeats:YES];
+    }];
 }
 
 + (void)timerExpired
@@ -234,7 +237,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
-        sentry_removeObserver(_observerToken);
+        [SentryProfilerSDKAdapter.shared removeObserver:_observerToken];
     }
 #    endif // SENTRY_HAS_UIKIT
 
