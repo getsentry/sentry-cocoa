@@ -159,6 +159,8 @@ jobs:
 
   build-v10-spm:
     name: SPM V10 ${{ matrix.mode }}
+    env:
+      SDK_V10: "1"
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
@@ -169,7 +171,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [environment, trait, base-manifest]
+        mode: [environment, environment-and-trait, base-manifest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
@@ -186,23 +188,19 @@ jobs:
           ./scripts/test-v10-sentryobjc-slice-inventory.sh --work-dir "$RUNNER_TEMP/v10-slice-audit"
       - name: Build Swift with environment
         if: matrix.mode == 'environment'
-        env:
-          SDK_V10: "1"
         run: swift build -v --target SentrySwift --scratch-path .build/v10-environment 2>&1 | tee v10-environment.log
       - name: Build source SDK with environment
         if: matrix.mode == 'environment'
-        env:
-          SDK_V10: "1"
         run: |
           swift build -v --target SentryObjCInternal --scratch-path .build/v10-environment 2>&1 | tee -a v10-environment.log
           swift build -v --target SentryTestUtils --scratch-path .build/v10-environment 2>&1 | tee -a v10-environment.log
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment \
             --build-log v10-environment.log
-      - name: Build Swift with trait
-        if: matrix.mode == 'trait'
+      - name: Build Swift with environment and trait
+        if: matrix.mode == 'environment-and-trait'
         run: swift build -v --target SentrySwift --traits V10 --scratch-path .build/v10-trait 2>&1 | tee v10-trait.log
-      - name: Verify SentryCrash sources with trait
-        if: matrix.mode == 'trait'
+      - name: Verify SentryCrash sources with environment and trait
+        if: matrix.mode == 'environment-and-trait'
         run: |
           swift build -v --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait 2>&1 | tee -a v10-trait.log
           swift build -v --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait 2>&1 | tee -a v10-trait.log
@@ -210,15 +208,11 @@ jobs:
             --build-log v10-trait.log
       - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
-        env:
-          SDK_V10: "1"
         run: |
           rm Package@swift-6.1.swift Package@swift-6.2.swift
           swift build -v --target SentrySwift --scratch-path .build/v10-base-manifest 2>&1 | tee v10-base-manifest.log
       - name: Build source SDK with base manifest
         if: matrix.mode == 'base-manifest'
-        env:
-          SDK_V10: "1"
         run: |
           swift build -v --target SentryObjCInternal --scratch-path .build/v10-base-manifest 2>&1 | tee -a v10-base-manifest.log
           swift build -v --target SentryTestUtils --scratch-path .build/v10-base-manifest 2>&1 | tee -a v10-base-manifest.log
@@ -384,6 +378,8 @@ jobs:
 
   check-v10-macOS-CLI-Xcode-no-UI-framework:
     name: Verify CLI UI Linkage
+    env:
+      SDK_V10: "1"
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
@@ -400,6 +396,8 @@ jobs:
           resolve-simulators: "false"
 
       - run: make init-ci-build
+      - name: Test V10 development selection
+        run: ./scripts/test-v10-development-selection.sh --work-dir "$RUNNER_TEMP/v10-development-selection"
       - name: Test crash backend selection
         run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
       - name: Test V9 NoUI linkage
@@ -410,6 +408,9 @@ jobs:
         with:
           name: crash-backend-selection-logs
           path: |
+            ${{ runner.temp }}/v10-development-selection/**/*.log
+            ${{ runner.temp }}/v10-development-selection/**/generated.yml
+            ${{ runner.temp }}/v10-development-selection/**/*-env
             ${{ runner.temp }}/crash-backend-selection/*.log
             ${{ runner.temp }}/crash-backend-selection/*.exit-status
             ${{ runner.temp }}/v9-no-ui-framework/*.log

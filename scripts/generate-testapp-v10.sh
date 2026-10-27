@@ -23,8 +23,9 @@ usage() {
     log_info "Usage: $(basename "$0")"
     log_info "  -s, --spec <path>        XcodeGen YAML spec (repeatable; all eligible"
     log_info "                           TestApps/ specs when omitted)"
-    log_info "  -p, --product <name>     Product name to replace in the generate copy"
-    log_info "  -w, --with <name>        Replacement product name (required with --product)"
+    log_info "  -p, --product <name>     Product name to replace (default: SentrySPM)"
+    log_info "  -w, --with <name>        Replacement product name (default: Sentry)"
+    log_info "SDK_V10=1 is required. When overriding product names, provide both options."
     exit 1
 }
 
@@ -45,6 +46,17 @@ fi
 if [[ -z "$PRODUCT" && -n "$WITH" ]]; then
     log_error "--product is required when --with is set"
     usage
+fi
+
+if [[ "${SDK_V10:-0}" != "1" ]]; then
+    log_error "V10 project generation requires SDK_V10=1. Use make switch-v10 or make build-testapp-v10-<name>."
+    exit 1
+fi
+
+# Every V10 project uses the same source product as the environment-selected SDK.
+if [[ -z "$PRODUCT" ]]; then
+    PRODUCT="SentrySPM"
+    WITH="Sentry"
 fi
 
 if ! command -v yq >/dev/null 2>&1; then
@@ -131,12 +143,10 @@ patch_and_generate() {
             --spec "$tmp" \
             --swift-condition SDK_V10 \
             --c-define SDK_V10=1
-        if [[ -n "$PRODUCT" ]]; then
-            "$SCRIPT_DIR/swap-xcodegen-product-name.sh" \
-                --spec "$tmp" \
-                --product "$PRODUCT" \
-                --with "$WITH"
-        fi
+        "$SCRIPT_DIR/swap-xcodegen-product-name.sh" \
+            --spec "$tmp" \
+            --product "$PRODUCT" \
+            --with "$WITH"
         begin_group "generate V10: $spec"
         xcodegen --spec "$tmp"
         log_info "  Generated"
@@ -156,6 +166,4 @@ for spec in "${SPECS[@]}"; do
 done
 
 log_info "Done: generated ${#SPECS[@]} V10 project(s)"
-if [[ -n "$PRODUCT" ]]; then
-    log_info "Product refs rewritten from '$PRODUCT' to '$WITH'. Open Xcode with SDK_V10=1."
-fi
+log_info "Product refs rewritten from '$PRODUCT' to '$WITH'. Open Xcode with SDK_V10=1."

@@ -794,11 +794,15 @@ build-testapps: \
 	build-testapp-watchOS-SwiftUI-SPM
 
 
-## Build all SPM-based test apps with the V10 trait enabled
+# The environment selects both V10 compilation and source products. Export it for
+# generation and building, including direct invocations of individual targets.
+build-testapp-v10-% test-testapp-v10-% switch-v10: export SDK_V10 = 1
+
+## Build all SPM-based test apps with SDK_V10=1
 #
 # Builds every test app that uses the local Sentry Swift package after adding
-# the V10 trait to its XcodeGen spec. Use 'make build-testapp-v10-<name>'
-# for a single test app.
+# the compatibility V10 trait and selecting the Sentry source product.
+# Use 'make build-testapp-v10-<name>' for a single test app.
 .PHONY: build-testapps-v10
 build-testapps-v10: \
 	build-testapp-v10-DistributionSample \
@@ -814,11 +818,11 @@ build-testapps-v10: \
 	build-testapp-v10-visionOS-Swift \
 	build-testapp-v10-watchOS-Swift
 
-# App-target SDK_V10 flags for V10 testapp builds. Package targets get SDK_V10
-# from the V10 Swift package trait; $$ keeps Make from expanding $(inherited).
+# App-target flags are separate from the SDK package's environment-selected flags.
+# $$ keeps Make from expanding $(inherited).
 V10_SDK_FLAGS = GCC_PREPROCESSOR_DEFINITIONS='$$(inherited) SDK_V10=1' SWIFT_ACTIVE_COMPILATION_CONDITIONS='$$(inherited) SDK_V10'
 
-## Build the iOS-Swift test app with the V10 trait
+## Build the iOS-Swift test app with SDK_V10=1
 .PHONY: build-testapp-v10-iOS-Swift
 build-testapp-v10-iOS-Swift:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -832,7 +836,7 @@ build-testapp-v10-iOS-Swift:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the iOS-SwiftUI test app with the V10 trait
+## Build the iOS-SwiftUI test app with SDK_V10=1
 .PHONY: build-testapp-v10-iOS-SwiftUI
 build-testapp-v10-iOS-SwiftUI:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -846,7 +850,7 @@ build-testapp-v10-iOS-SwiftUI:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the iOS-ObjectiveC test app with the V10 trait
+## Build the iOS-ObjectiveC test app with SDK_V10=1
 .PHONY: build-testapp-v10-iOS-ObjectiveC
 build-testapp-v10-iOS-ObjectiveC:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -860,7 +864,7 @@ build-testapp-v10-iOS-ObjectiveC:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the iOS-ObjectiveCpp-NoModules test app with the V10 trait
+## Build the iOS-ObjectiveCpp-NoModules test app with SDK_V10=1
 .PHONY: build-testapp-v10-iOS-ObjectiveCpp-NoModules
 build-testapp-v10-iOS-ObjectiveCpp-NoModules:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -875,7 +879,7 @@ build-testapp-v10-iOS-ObjectiveCpp-NoModules:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the SPM test app with the V10 trait
+## Build the SPM test app with SDK_V10=1
 .PHONY: build-testapp-v10-SPM
 build-testapp-v10-SPM:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -888,7 +892,7 @@ build-testapp-v10-SPM:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the DistributionSample app with the V10 trait
+## Build the DistributionSample app with SDK_V10=1
 .PHONY: build-testapp-v10-DistributionSample
 build-testapp-v10-DistributionSample:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -901,7 +905,7 @@ build-testapp-v10-DistributionSample:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the macOS-CLI-Xcode test app with the V10 and NoUIFramework traits
+## Build the macOS-CLI-Xcode test app with SDK_V10=1 and NoUIFramework
 .PHONY: build-testapp-v10-macOS-CLI-Xcode
 build-testapp-v10-macOS-CLI-Xcode:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -916,7 +920,7 @@ build-testapp-v10-macOS-CLI-Xcode:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Test the macOS CLI in a subprocess with the V10 and NoUIFramework traits
+## Test the macOS CLI in a subprocess with SDK_V10=1 and NoUIFramework
 .PHONY: test-testapp-v10-macOS-CLI-Xcode
 test-testapp-v10-macOS-CLI-Xcode:
 	scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
@@ -940,7 +944,7 @@ test-testapp-macOS-CLI-Xcode: xcode-ci-macOS-CLI-Xcode
 		CODE_SIGNING_ALLOWED="NO" \
 		test | xcbeautify --preserve-unbeautified
 
-## Build the macOS-Swift test app app with the V10 trait
+## Build the macOS-Swift test app with SDK_V10=1
 .PHONY: build-testapp-v10-macOS-Swift
 build-testapp-v10-macOS-Swift:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -953,7 +957,7 @@ build-testapp-v10-macOS-Swift:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the macOS-SwiftUI test app with the V10 trait
+## Build the macOS-SwiftUI test app with SDK_V10=1
 .PHONY: build-testapp-v10-macOS-SwiftUI
 build-testapp-v10-macOS-SwiftUI:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -966,7 +970,7 @@ build-testapp-v10-macOS-SwiftUI:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the tvOS-Swift test app with the V10 trait
+## Build the tvOS-Swift test app with SDK_V10=1
 .PHONY: build-testapp-v10-tvOS-Swift
 build-testapp-v10-tvOS-Swift:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -980,7 +984,7 @@ build-testapp-v10-tvOS-Swift:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the visionOS-Swift test app with the V10 trait
+## Build the visionOS-Swift test app with SDK_V10=1
 .PHONY: build-testapp-v10-visionOS-Swift
 build-testapp-v10-visionOS-Swift:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"
@@ -994,7 +998,7 @@ build-testapp-v10-visionOS-Swift:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
-## Build the watchOS-Swift test app with the V10 trait
+## Build the watchOS-Swift test app with SDK_V10=1
 .PHONY: build-testapp-v10-watchOS-Swift
 build-testapp-v10-watchOS-Swift:
 	@echo "[MAKE] $@: Generating V10 Xcode projects"

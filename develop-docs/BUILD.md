@@ -57,6 +57,16 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
 
+### SwiftPM V10 selection
+
+`SDK_V10=1` is the authoritative SwiftPM V10 selector: it controls compiler definitions, KSCrash dependencies, and products. Do not select V10 with compiler flags alone. Default V9 remains unchanged, including with no default traits or only `NoUIFramework` enabled.
+
+The `V10` trait originally selected compilation independently. On Swift 6.2+, it is now only a temporary compatibility marker, declared when the environment selects V10; trait-only selection is rejected. Older SDK manifests use the environment alone. Unrelated traits keep their existing behavior. The Swift module remains `SentrySwift` in both versions; environment-selected V10 uses the `Sentry` product, while V9 uses `SentrySPM`.
+
+`SentrySampleShared/Package.swift` uses the same environment for product and compiler settings. `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export `SDK_V10=1` for generation and building. The generator rewrites `SentrySPM` references to `Sentry`, retains the compatibility trait, and sets the separate app-target compiler definitions. Direct generator or Xcode invocations must also receive `SDK_V10=1`.
+
+At the V9 branch split, remove the temporary environment selector and compatibility trait. Released V10 must not require consumers to enable either.
+
 ### 1. Test the verification scripts
 
 Run their regression tests before using the verifiers on your checkout:
@@ -65,7 +75,10 @@ Run their regression tests before using the verifiers on your checkout:
 ./scripts/test-v10-compiler-log.sh
 ./scripts/test-v10-empty-objects.sh
 ./scripts/test-v10-sentryobjc-slice-inventory.sh
+./scripts/test-v10-development-selection.sh
 ```
+
+The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions. Run `./scripts/test-spm-crash-backend-selection.swift` separately for real consumer builds.
 
 ### 2. Check source ownership
 

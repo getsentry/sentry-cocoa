@@ -24,18 +24,23 @@ private struct BuildCase {
     var swift61Manifest = false
     var nativeBuild = false
     var sharedTestApp = false
+    var expectInvalidTrait = false
 }
 
 private let cases = [
     BuildCase(name: "disabled-defaults-v9", traits: []),
     BuildCase(name: "default-v9", traits: nil),
     BuildCase(name: "default-v9-native", traits: nil, nativeBuild: true),
-    BuildCase(name: "trait-v10", traits: ["V10"]),
+    BuildCase(name: "environment-and-trait-v10", traits: ["V10"], environmentV10: true),
+    BuildCase(name: "reject-trait-only-v10", traits: ["V10"], nativeBuild: true, expectInvalidTrait: true),
+    BuildCase(name: "reject-trait-only-v10-swift61", traits: ["V10"], swift61Manifest: true, nativeBuild: true, expectInvalidTrait: true),
+    BuildCase(name: "reject-shared-trait-only-v10", traits: ["V10"], nativeBuild: true, sharedTestApp: true, expectInvalidTrait: true),
     BuildCase(name: "no-ui-only", traits: ["NoUIFramework"]),
     BuildCase(name: "no-ui-defaults", traits: ["NoUIFramework"], includeDefaultTraits: true),
-    BuildCase(name: "no-ui-v10", traits: ["V10", "NoUIFramework"]),
+    BuildCase(name: "no-ui-v10", traits: ["V10", "NoUIFramework"], environmentV10: true),
     BuildCase(name: "environment-v10", traits: [], environmentV10: true),
     BuildCase(name: "environment-v10-defaults", traits: nil, environmentV10: true),
+    BuildCase(name: "environment-v10-no-ui", traits: ["NoUIFramework"], environmentV10: true),
     BuildCase(name: "base-v9", traits: nil, baseManifest: true),
     BuildCase(name: "base-v9-native", traits: nil, baseManifest: true, nativeBuild: true),
     BuildCase(name: "base-v10", traits: nil, environmentV10: true, baseManifest: true),
@@ -43,7 +48,8 @@ private let cases = [
     BuildCase(name: "no-ui-only-swift61", traits: ["NoUIFramework"], swift61Manifest: true, nativeBuild: true),
     BuildCase(name: "environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true),
     BuildCase(name: "shared-testapp-default-v9", traits: nil, sharedTestApp: true),
-    BuildCase(name: "shared-testapp-v10", traits: ["V10"], sharedTestApp: true),
+    BuildCase(name: "shared-testapp-environment-and-trait-v10", traits: ["V10"], environmentV10: true, sharedTestApp: true),
+    BuildCase(name: "shared-testapp-environment-v10", traits: [], environmentV10: true, sharedTestApp: true),
     BuildCase(name: "shared-testapp-environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true, sharedTestApp: true)
 ]
 
@@ -119,8 +125,7 @@ private func prepareSDK(root: URL, scenario: BuildCase) throws -> URL {
     return sdk
 }
 
-private func test(_ scenario: BuildCase, root: URL) throws {
-    let sdk = try prepareSDK(root: root, scenario: scenario)
+private func prepareConsumer(_ scenario: BuildCase, sdk: URL, root: URL) throws -> URL {
     let consumer = root.appendingPathComponent(scenario.name)
     let traits = scenario.traits.map { names in
         let entries = names.map { String(reflecting: $0) } + (scenario.includeDefaultTraits ? [".defaults"] : [])
@@ -144,14 +149,30 @@ private func test(_ scenario: BuildCase, root: URL) throws {
 
     // Referencing SDK startup also exercises the backend registration linkage. Do not run
     // startup here; these are compile/link contract checks, not SDK runtime tests.
-    let v10 = scenario.environmentV10 || scenario.traits?.contains("V10") == true
+    let v10 = scenario.environmentV10
+    // The optional V10 trait is only a compatibility marker, never another SDK mode.
     let publicHeaderCheck = v10 ? "import SentryHeaders\nlet _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
     let sharedImport = scenario.sharedTestApp ? "import SentrySampleShared\nlet _ = SentrySDKWrapper.shared\n" : ""
-    try write("import SentrySwift\n\(sharedImport)\(publicHeaderCheck)SentrySDK.start { _ in }\n", to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
+    try write("import SentrySwift\n\(sharedImport)\(publicHeaderCheck)SentrySDK.start { _ in }\n",
+              to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
+    return consumer
+}
 
+private func test(_ scenario: BuildCase, root: URL) throws {
+    let sdk = try prepareSDK(root: root, scenario: scenario)
+    let consumer = try prepareConsumer(scenario, sdk: sdk, root: root)
     var command = ["swift", "build", "--package-path", consumer.path, "--scratch-path",
                    consumer.appendingPathComponent("build").path]
     if scenario.nativeBuild { command += ["--build-system", "native"] }
+    if scenario.expectInvalidTrait {
+        let log = root.appendingPathComponent(scenario.name + ".log")
+        let status = try run(command, in: consumer, log: log, v10: scenario.environmentV10)
+        let diagnostic = try String(contentsOf: log, encoding: .utf8)
+        try require(status != 0 && diagnostic.contains("Trait 'V10'") && diagnostic.contains("is not declared by package"),
+                    "\(scenario.name): expected rejection of the unavailable V10 trait; see \(log.path)")
+        print("PASS \(scenario.name)")
+        return
+    }
     let pathLog = root.appendingPathComponent(scenario.name + "-bin-path.log")
     let pathStatus = try run(command + ["--show-bin-path"], in: consumer, log: pathLog, v10: scenario.environmentV10)
     let binPath = try String(contentsOf: pathLog, encoding: .utf8)
@@ -163,7 +184,7 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     let status = try run(command + ["-v"], in: consumer, log: log, v10: scenario.environmentV10)
     try require(status == 0 && files.fileExists(atPath: binary.path),
                 "\(scenario.name): expected a linked consumer; see \(log.path)")
-    if v10 {
+    if scenario.environmentV10 {
         let auditLog = root.appendingPathComponent(scenario.name + "-object-audit.log")
         let auditStatus = try run(["swift", repository.appendingPathComponent("scripts/verify-v10-empty-objects.swift").path,
                                    "--build-path", consumer.appendingPathComponent("build").path,
@@ -237,7 +258,7 @@ do {
 
     if selected == nil { try testHeaderContexts(root: root) }
 
-    print("All \(requested.count) backend-selection consumer builds passed")
+    print("All \(requested.count) backend-selection build scenarios passed")
 
     if work == nil { try files.removeItem(at: root) }
 } catch {
