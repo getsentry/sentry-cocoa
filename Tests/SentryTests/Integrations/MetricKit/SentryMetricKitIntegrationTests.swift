@@ -30,25 +30,43 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         clearTestState()
     }
 
-    func testOptionEnabled_MetricKitManagerInitialized() {
-          let options = Options()
-          options.enableMetricKit = true
-          let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-          XCTAssertNotNil(sut)
-    }
+    func testDidReceive_whenCrashDiagnosticHasExceptionInfo_shouldFormatExceptionValue() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        #if !SDK_V10
+        options.enableMetricKit = true
+        #endif // !SDK_V10
+        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let crashDiagnostic = TestMXCrashDiagnostic()
+        crashDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        crashDiagnostic.overrides.exceptionType = 1
+        crashDiagnostic.overrides.exceptionCode = 0
+        crashDiagnostic.overrides.signal = 11
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [crashDiagnostic]
 
-    func testOptionDisabled_MetricKitManagerNotInitialized() {
-          let options = Options()
-          options.enableMetricKit = false
-          let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-          XCTAssertNil(sut)
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let exception = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(exception.value, "MachException Type:1 Code:0 Signal:11")
+            XCTAssertEqual(exception.type, "MXCrashDiagnostic")
+            XCTAssertEqual(exception.mechanism?.type, "MXCrashDiagnostic")
+            XCTAssertEqual(exception.mechanism?.handled, false)
+        }
     }
 
     func testMXCrashPayloadReceived() throws {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
@@ -95,7 +113,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
@@ -146,7 +166,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
@@ -188,7 +210,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = false
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
@@ -210,7 +234,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         scope.addAttachment(TestData.dataAttachment)
         givenSdkWithHub(scope: scope)
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
@@ -263,7 +289,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -286,7 +314,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.add(inAppInclude: "iOS-Swift")
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
@@ -312,7 +342,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -372,7 +404,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
             let options = Options()
+            #if !SDK_V10
             options.enableMetricKit = true
+            #endif // !SDK_V10
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -409,7 +443,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -466,7 +502,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -524,7 +562,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -646,12 +686,27 @@ class TestMXCallStackTree: MXCallStackTree {
 class TestMXCrashDiagnostic: MXCrashDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
+        var exceptionType: NSNumber?
+        var exceptionCode: NSNumber?
+        var signal: NSNumber?
     }
 
     public var overrides = Override()
 
     override var callStackTree: MXCallStackTree {
         return overrides.callStackTree
+    }
+
+    override var exceptionType: NSNumber? {
+        return overrides.exceptionType
+    }
+
+    override var exceptionCode: NSNumber? {
+        return overrides.exceptionCode
+    }
+
+    override var signal: NSNumber? {
+        return overrides.signal
     }
 }
 

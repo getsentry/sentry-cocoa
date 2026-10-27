@@ -1,7 +1,7 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-enum SentryMetricKit {
+extension SentryMetricKit {
     protocol CallStackTreeProviding {
         var callStackTree: MXCallStackTree { get }
     }
