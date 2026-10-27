@@ -80,6 +80,8 @@ enum Reporter: String, CaseIterable {
 }
 
 enum Scenario: String, CaseIterable {
+    // Explicit opt-in only: validates the harness, not SDK crash reporting.
+    case harnessTimeout = "harness-timeout"
     case signal
     case nsException = "ns-exception"
     case nsExceptionRethrow = "ns-exception-rethrow"

@@ -573,6 +573,127 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
     }
     
+    func testFlush_withPendingTransactionCapture_waitsForCaptureBeforeFlushingClient() throws {
+        // Arrange
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0, "Precondition: capture must still be pending.")
+
+        let captureQueue = DispatchQueue(label: "SentryHubTests.pendingTransactionCapture")
+        captureQueue.asyncAfter(deadline: .now() + 0.2) {
+            self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+        }
+
+        // Act
+        sut.flush(timeout: 5.0)
+
+        // Assert
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1, "flush must wait for the pending transaction capture before returning.")
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1)
+    }
+
+    func testFlush_withPendingTransactionCaptureExceedingTimeout_flushesClientWithoutRemainingTimeout() throws {
+        // Arrange
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+
+        // Act
+        let expectation = expectation(description: "flush returns after the timeout")
+        DispatchQueue.global().async {
+            self.sut.flush(timeout: 0.1)
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0)
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1, "flush must still flush the client after the wait timed out.")
+        XCTAssertEqual(fixture.client.flushInvocations.first, 0.0, "The whole timeout budget was spent waiting for the capture.")
+
+        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+    }
+
+    func testFlush_withoutPendingTransactionCapture_flushesClientWithFullTimeout() {
+        // Act
+        sut.flush(timeout: 2.0)
+
+        // Assert
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1)
+        XCTAssertGreaterThan(fixture.client.flushInvocations.first ?? 0, 1.9, "flush must not spend the timeout budget when nothing is pending.")
+    }
+
+    func testFlush_afterTransactionCaptureRan_flushesClientWithFullTimeout() throws {
+        // Arrange
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+
+        // Act
+        sut.flush(timeout: 2.0)
+
+        // Assert
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1)
+        XCTAssertGreaterThan(fixture.client.flushInvocations.first ?? 0, 1.9, "A capture that already ran must not count as pending.")
+    }
+
+    func testClose_withPendingTransactionCapture_waitsForCaptureBeforeClosingClient() throws {
+        // Arrange
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0, "Precondition: capture must still be pending.")
+
+        let captureQueue = DispatchQueue(label: "SentryHubTests.pendingTransactionCaptureOnClose")
+        captureQueue.asyncAfter(deadline: .now() + 0.2) {
+            self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+        }
+
+        // Act
+        sut.close()
+
+        // Assert
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1, "close must wait for the pending transaction capture before closing the client, because a closed client drops captures.")
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1)
+        XCTAssertLessThan(fixture.client.flushInvocations.first ?? .infinity, fixture.options.shutdownTimeInterval, "The time spent waiting counts against the shutdownTimeInterval.")
+    }
+
+    func testClose_withPendingTransactionCaptureExceedingTimeout_closesClientWithoutRemainingTimeout() throws {
+        // Arrange
+        fixture.options.shutdownTimeInterval = 0.1
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+
+        // Act
+        let expectation = expectation(description: "close returns after the shutdownTimeInterval")
+        DispatchQueue.global().async {
+            self.sut.close()
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1, "close must still close the client after the wait timed out.")
+        XCTAssertEqual(fixture.client.flushInvocations.first, 0.0, "The whole shutdownTimeInterval was spent waiting for the capture.")
+    }
+
+    func testClose_withoutPendingTransactionCapture_closesClientWithFullShutdownTimeInterval() {
+        // Act
+        sut.close()
+
+        // Assert
+        XCTAssertEqual(fixture.client.flushInvocations.count, 1)
+        XCTAssertGreaterThan(fixture.client.flushInvocations.first ?? 0, fixture.options.shutdownTimeInterval - 0.1, "close must not spend the shutdownTimeInterval when nothing is pending.")
+    }
+
     func testCaptureSampledTransaction_RecordsLostEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no, sampleRate: nil, sampleRand: nil))
 
