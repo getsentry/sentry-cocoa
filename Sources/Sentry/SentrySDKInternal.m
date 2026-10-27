@@ -270,6 +270,7 @@ static BOOL sdkStarted;
         sdkStarted = YES;
     }
     if (alreadyStarted) {
+        [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
         SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
                         @"close() may lead to undefined behavior.");
     }
@@ -312,6 +313,10 @@ static BOOL sdkStarted;
     SentryScope *scope = options.initialScope(
         [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
                                     maxFeatureFlags:options.maxFeatureFlags]);
+    if (options.enableScopePersistence) {
+        [SentryDependencyContainer.sharedInstance.scopePersistentStore
+            startPersistingUserInScope:scope];
+    }
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
@@ -678,6 +683,7 @@ static BOOL sdkStarted;
         startTimestamp = nil;
 
         SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        [hub.scope configureUserPersistence:nil];
         [hub removeAllIntegrations];
 
         SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");

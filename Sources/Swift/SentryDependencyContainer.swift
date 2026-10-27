@@ -544,7 +544,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _scopePersistentStore: SentryScopePersistentStore?
     @objc public lazy var scopePersistentStore = getOptionalLazyVar(\._scopePersistentStore) {
-        SentryScopePersistentStore(fileManager: fileManager)
+        SentryScopePersistentStore(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
     }
     private var _globalEventProcessor: SentryGlobalEventProcessor?
     @objc public lazy var globalEventProcessor = getLazyVar(\._globalEventProcessor) {

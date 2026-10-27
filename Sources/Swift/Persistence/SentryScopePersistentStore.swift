@@ -34,11 +34,48 @@ enum SentryScopeField: UInt, CaseIterable {
 @objc
 @_spi(Private) public class SentryScopePersistentStore: NSObject {
     private let fileManager: SentryFileManagerProtocol
+    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     
-    init?(fileManager: SentryFileManagerProtocol?) {
+    init?(fileManager: SentryFileManagerProtocol?, dispatchQueueWrapper: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()) {
         guard let fileManager else { return nil }
         
         self.fileManager = fileManager
+        self.dispatchQueueWrapper = dispatchQueueWrapper
+    }
+
+    // This identity is independent of the rotating watchdog snapshots. Only explicit setUser
+    // calls reach the callback, so automatically inferred user fields cannot be retained here.
+    @objc(startPersistingUserInScope:)
+    public func startPersistingUser(in scope: Scope) {
+        scope.configureUserPersistence { [weak self] user in
+            self?.persistUser(user)
+        }
+        dispatchQueueWrapper.dispatchAsync { [self, weak scope] in
+            do {
+                let data = try fileManager.readData(fromPath: persistedUserPath)
+                if let user = decodeUser(from: data) {
+                    scope?.restorePersistedUser(user)
+                }
+            } catch {
+                // A first launch has no retained identity. Storage failures must not prevent startup.
+                SentrySDKLog.debug("Could not restore persisted user.")
+            }
+        }
+    }
+
+    private var persistedUserPath: String {
+        fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state").path
+    }
+
+    private func persistUser(_ user: User?) {
+        let data = user.flatMap { encode(user: $0) }
+        dispatchQueueWrapper.dispatchAsync { [self] in
+            if let data {
+                fileManager.write(data, toPath: persistedUserPath)
+            } else {
+                fileManager.removeFile(atPath: persistedUserPath)
+            }
+        }
     }
     
     // MARK: - General

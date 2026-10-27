@@ -17,9 +17,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
 #if SDK_V10
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["swiftAsyncStacktraces", "standaloneAppStartTracing", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer", "watchdogTerminationsV2"])
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "scopePersistence", "standaloneAppStartTracing", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer", "watchdogTerminationsV2"])
     #else
-        XCTAssertEqual(features, ["swiftAsyncStacktraces", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics"])
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "scopePersistence", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics"])
     #endif
 #else
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -28,6 +28,30 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertEqual(features, ["dataSwizzling", "captureFailedRequests", "metrics"])
     #endif
 #endif
+    }
+
+    func testEnableScopePersistence_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableScopePersistence = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("scopePersistence"))
+    }
+
+    func testEnableScopePersistence_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableScopePersistence = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("scopePersistence"))
     }
 
     func testEnableAllFeatures() throws {

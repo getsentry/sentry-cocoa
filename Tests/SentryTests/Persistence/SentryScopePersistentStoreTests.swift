@@ -37,6 +37,99 @@ class SentryScopePersistentStoreTests: XCTestCase {
         sut = try fixture.getSut()
     }
 
+    // MARK: - Explicit User Persistence
+
+    func testRestorePersistedUser_whenUserClearedDuringRead_shouldNotRestoreStaleIdentity() throws {
+        // -- Arrange --
+        let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")
+        try Data(#"{"id":"previous-user"}"#.utf8).write(to: url)
+        defer { fixture.fileManager.removeFile(atPath: url.path) }
+        let queue = TestSentryDispatchQueueWrapper()
+        queue.dispatchAsyncExecutesBlock = false
+        let store = try XCTUnwrap(SentryScopePersistentStore(fileManager: fixture.fileManager, dispatchQueueWrapper: queue))
+        let scope = Scope()
+        store.startPersistingUser(in: scope)
+        scope.setUser(nil)
+
+        // -- Act --
+        try XCTUnwrap(queue.dispatchAsyncInvocations.invocations.first)()
+
+        // -- Assert --
+        XCTAssertNil(scope.userObject)
+    }
+
+    func testRestorePersistedUser_whenPersistenceStoppedDuringRead_shouldNotRestoreUser() throws {
+        // -- Arrange --
+        let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")
+        try Data(#"{"id":"previous-user"}"#.utf8).write(to: url)
+        defer { fixture.fileManager.removeFile(atPath: url.path) }
+        let queue = TestSentryDispatchQueueWrapper()
+        queue.dispatchAsyncExecutesBlock = false
+        let store = try XCTUnwrap(SentryScopePersistentStore(fileManager: fixture.fileManager, dispatchQueueWrapper: queue))
+        let scope = Scope()
+        store.startPersistingUser(in: scope)
+        scope.configureUserPersistence(nil)
+
+        // -- Act --
+        try XCTUnwrap(queue.dispatchAsyncInvocations.invocations.first)()
+
+        // -- Assert --
+        XCTAssertNil(scope.userObject)
+    }
+
+    func testRestorePersistedUser_whenFileCorrupt_shouldLeaveScopeUnchanged() throws {
+        // -- Arrange --
+        let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")
+        try Data("invalid json".utf8).write(to: url)
+        defer { fixture.fileManager.removeFile(atPath: url.path) }
+        let queue = TestSentryDispatchQueueWrapper()
+        let store = try XCTUnwrap(SentryScopePersistentStore(fileManager: fixture.fileManager, dispatchQueueWrapper: queue))
+        let scope = Scope()
+
+        // -- Act --
+        store.startPersistingUser(in: scope)
+
+        // -- Assert --
+        XCTAssertNil(scope.userObject)
+    }
+
+    func testPersistUser_whenCallerMutatesUserBeforeWrite_shouldSaveSnapshot() throws {
+        // -- Arrange --
+        let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")
+        defer { fixture.fileManager.removeFile(atPath: url.path) }
+        let queue = TestSentryDispatchQueueWrapper()
+        queue.dispatchAsyncExecutesBlock = false
+        let store = try XCTUnwrap(SentryScopePersistentStore(fileManager: fixture.fileManager, dispatchQueueWrapper: queue))
+        let scope = Scope()
+        store.startPersistingUser(in: scope)
+        let user = User(userId: "explicit-user")
+        scope.setUser(user)
+        user.userId = "changed-after-set"
+
+        // -- Act --
+        try XCTUnwrap(queue.dispatchAsyncInvocations.invocations.last)()
+
+        // -- Assert --
+        let data = try Data(contentsOf: url)
+        XCTAssertEqual(store.decodeUser(from: data)?.userId, "explicit-user")
+    }
+
+    func testPersistUser_whenUserAssignedInternally_shouldNotRetainAutomaticData() throws {
+        // -- Arrange --
+        let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")
+        fixture.fileManager.removeFile(atPath: url.path)
+        let queue = TestSentryDispatchQueueWrapper()
+        let store = try XCTUnwrap(SentryScopePersistentStore(fileManager: fixture.fileManager, dispatchQueueWrapper: queue))
+        let scope = Scope()
+        scope.userObject = User(userId: "automatically-inferred-user")
+
+        // -- Act --
+        store.startPersistingUser(in: scope)
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+    }
+
     // MARK: - Context Tests
 
     func testMoveAllCurrentStateToPreviousState_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {
