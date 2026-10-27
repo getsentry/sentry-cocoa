@@ -95,7 +95,7 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
 
         // -- Assert --
 #if SDK_V10
-        XCTAssertEqual(try XCTUnwrap(sut).mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang])
+        XCTAssertEqual(try XCTUnwrap(sut).mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang, .appLaunch])
 #else
         XCTAssertNil(sut)
 #endif

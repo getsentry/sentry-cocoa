@@ -18,6 +18,11 @@ extension SentryMetricKit {
 
         /// A disk write exception, reported by `MXDiskWriteExceptionDiagnostic`.
         case diskWriteException
+
+        /// A slow app launch, reported by `MXAppLaunchDiagnostic`.
+        ///
+        /// - Note: MetricKit only reports app launch diagnostics on iOS 16 and later and on visionOS.
+        case appLaunch
     }
 }
 
@@ -32,6 +37,8 @@ extension SentryMetricKit.DiagnosticReport {
             return "MXCPUException"
         case .hang:
             return "MXHangDiagnostic"
+        case .appLaunch:
+            return "MXAppLaunchDiagnostic"
         }
     }
 
@@ -45,6 +52,8 @@ extension SentryMetricKit.DiagnosticReport {
             return "mx_cpu_exception"
         case .hang:
             return "mx_hang_diagnostic"
+        case .appLaunch:
+            return "mx_app_launch_diagnostic"
         }
     }
 
