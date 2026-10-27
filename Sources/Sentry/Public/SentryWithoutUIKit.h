@@ -27,7 +27,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryNSError.h>
 #    import <SentryWithoutUIKit/SentryRequest.h>
 #    import <SentryWithoutUIKit/SentrySampleDecision.h>
-#    import <SentryWithoutUIKit/SentrySamplingContext.h>
 #    import <SentryWithoutUIKit/SentryScope.h>
 #    import <SentryWithoutUIKit/SentrySerializable.h>
 #    import <SentryWithoutUIKit/SentrySpanContext.h>
