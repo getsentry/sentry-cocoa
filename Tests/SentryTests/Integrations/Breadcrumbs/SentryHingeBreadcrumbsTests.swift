@@ -9,38 +9,13 @@ import XCTest
 #if os(iOS)
 class SentryHingeBreadcrumbsTests: XCTestCase {
 
-    private final class TestHingeObserver: SentryHingeObserving {
-        private var handler: ((SentryHingeState) -> Void)?
-        var currentState: SentryHingeState?
-        var startInvocations = 0
-        var stopInvocations = 0
-
-        var isRunning: Bool { handler != nil }
-
-        func start(handler: @escaping (SentryHingeState) -> Void) {
-            self.handler = handler
-            startInvocations += 1
-        }
-
-        func stop() {
-            handler = nil
-            stopInvocations += 1
-        }
-
-        func simulateUpdate(status: SentryHingeStatus, degrees: Double) {
-            let state = SentryHingeState(status: status, angle: degrees * .pi / 180)
-            currentState = state
-            handler?(state)
-        }
-    }
-
-    private var hingeObserver: TestHingeObserver!
+    private var hingeObserver: TestSentryHingeObserver!
     private var delegate: SentryBreadcrumbTestDelegate!
     private var sut: SentryHingeBreadcrumbs!
 
     override func setUp() {
         super.setUp()
-        hingeObserver = TestHingeObserver()
+        hingeObserver = TestSentryHingeObserver()
         delegate = SentryBreadcrumbTestDelegate()
         sut = SentryHingeBreadcrumbs(hingeObserver: hingeObserver)
         sut.start(with: delegate)
@@ -51,19 +26,41 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
         super.tearDown()
     }
 
-    func testStart_shouldStartHingeObserver() {
+    func testStart_shouldAddHingeObserver() {
         // -- Assert --
-        XCTAssertEqual(hingeObserver.startInvocations, 1)
-        XCTAssertTrue(hingeObserver.isRunning)
+        XCTAssertEqual(hingeObserver.addObserverInvocations, 1)
+        XCTAssertEqual(hingeObserver.handlers.count, 1)
     }
 
-    func testStop_shouldStopHingeObserver() {
+    func testStart_whenCalledTwice_shouldAddHingeObserverOnce() {
+        // -- Act --
+        sut.start(with: delegate)
+
+        // -- Assert --
+        XCTAssertEqual(hingeObserver.addObserverInvocations, 1)
+        XCTAssertEqual(hingeObserver.handlers.count, 1)
+    }
+
+    func testStop_shouldRemoveHingeObserver() {
         // -- Act --
         sut.stop()
 
         // -- Assert --
-        XCTAssertEqual(hingeObserver.stopInvocations, 1)
-        XCTAssertFalse(hingeObserver.isRunning)
+        XCTAssertEqual(hingeObserver.removeObserverInvocations, 1)
+        XCTAssertTrue(hingeObserver.handlers.isEmpty)
+    }
+
+    func testStop_whenStartedAgain_shouldSeedFromFirstUpdate() {
+        // -- Arrange --
+        hingeObserver.simulateUpdate(status: .closed, degrees: 0)
+        sut.stop()
+        sut.start(with: delegate)
+
+        // -- Act --
+        hingeObserver.simulateUpdate(status: .fullyOpen, degrees: 180)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
     }
 
     func testHingeUpdate_whenOpeningPastThreshold_shouldAddOpeningBreadcrumb() throws {

@@ -9,66 +9,64 @@ import XCTest
 #if os(iOS)
 class SentryHingeObserverTests: XCTestCase {
 
+    private final class TestInteraction: NSObject, UIInteraction {
+        weak var view: UIView?
+        let updateHandler: (SentryHingeState?) -> Void
+
+        init(updateHandler: @escaping (SentryHingeState?) -> Void) {
+            self.updateHandler = updateHandler
+        }
+
+        func willMove(to view: UIView?) {}
+
+        func didMove(to view: UIView?) {
+            self.view = view
+        }
+    }
+
+    private final class TestInteractionShim: SentryHingeInteractionShim {
+        var isAvailable = true
+        var returnsInteraction = true
+        /// Weak, so only the observer and the windows keep the interactions alive.
+        private let createdInteractions = NSHashTable<TestInteraction>.weakObjects()
+        var interactions: [TestInteraction] { createdInteractions.allObjects }
+
+        func makeInteraction(updateHandler: @escaping (SentryHingeState?) -> Void) -> UIInteraction? {
+            guard returnsInteraction else {
+                return nil
+            }
+            let interaction = TestInteraction(updateHandler: updateHandler)
+            createdInteractions.add(interaction)
+            return interaction
+        }
+
+        func simulateUpdate(_ hingeState: SentryHingeState?) {
+            for interaction in interactions {
+                interaction.updateHandler(hingeState)
+            }
+        }
+    }
+
     private var notificationCenterWrapper: TestNSNotificationCenterWrapper!
     private var dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
     private var application: TestSentryUIApplication!
+    private var interactionShim: TestInteractionShim!
 
     override func setUp() {
         super.setUp()
         notificationCenterWrapper = TestNSNotificationCenterWrapper()
         dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         application = TestSentryUIApplication()
+        interactionShim = TestInteractionShim()
     }
 
     private func getSut() -> SentryHingeObserver {
         SentryHingeObserver(
             applicationProvider: { [application] in application },
             notificationCenterWrapper: notificationCenterWrapper,
-            dispatchQueueWrapper: dispatchQueueWrapper
+            dispatchQueueWrapper: dispatchQueueWrapper,
+            interactionShim: interactionShim
         )
-    }
-
-    func testCurrentState_whenNoUpdateWasObserved_shouldBeNil() {
-        // -- Arrange --
-        let sut = getSut()
-
-        // -- Act --
-        sut.start { _ in }
-
-        // -- Assert --
-        XCTAssertNil(sut.currentState)
-    }
-
-    func testStop_whenNotStarted_shouldNotRemoveObservers() {
-        // -- Arrange --
-        let sut = getSut()
-        notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
-
-        // -- Act --
-        sut.stop()
-
-        // -- Assert --
-        XCTAssertEqual(notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 0)
-        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 0)
-    }
-
-    func testHingeStatus_rawValues_shouldMatchUIHingeStatus() {
-        XCTAssertEqual(SentryHingeStatus.unknown.rawValue, 0)
-        XCTAssertEqual(SentryHingeStatus.closed.rawValue, 1)
-        XCTAssertEqual(SentryHingeStatus.partiallyOpen.rawValue, 2)
-        XCTAssertEqual(SentryHingeStatus.fullyOpen.rawValue, 3)
-    }
-
-    // Same gate as SentryHingeObserver: the iOS 27.1 SDK is the first one shipping UIHingeInteraction.
-    #if canImport(SwiftUI, _version: 8.0.85)
-
-    // Hinge updates are only delivered by foldable hardware, so these tests cover the window
-    // attachment and the status mapping, which run on every iOS 27.1 device.
-
-    private func skipUnlessHingeIsAvailable() throws {
-        guard #available(iOS 27.1, *) else {
-            throw XCTSkip("UIHingeInteraction requires iOS 27.1")
-        }
     }
 
     /// UIKit posts `didBecomeKeyNotification` with the window as object to observers that
@@ -79,129 +77,262 @@ class SentryHingeObserverTests: XCTestCase {
         _ = sut.perform(invocation.selector, with: Notification(name: UIWindow.didBecomeKeyNotification, object: window))
     }
 
-    private func hingeInteractions(of window: UIWindow) -> [UIInteraction] {
-        guard #available(iOS 27.1, *) else {
-            return []
-        }
-        return window.interactions.filter { $0 is UIHingeInteraction }
+    private func testInteractions(of window: UIWindow) -> [UIInteraction] {
+        window.interactions.filter { $0 is TestInteraction }
     }
 
-    func testStart_whenHingeIsAvailable_shouldAttachInteractionToWindows() throws {
-        try skipUnlessHingeIsAvailable()
+    // MARK: - Availability
 
+    func testAddObserver_whenShimUnavailable_shouldNotObserveWindows() {
+        // -- Arrange --
+        interactionShim.isAvailable = false
+        let window = UIWindow(frame: .zero)
+        application.windows = [window]
+        let sut = getSut()
+
+        // -- Act --
+        _ = sut.addObserver { _ in XCTFail("Handler must not be called") }
+
+        // -- Assert --
+        XCTAssertEqual(notificationCenterWrapper.addObserverWithObjectInvocations.count, 0)
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 0)
+        XCTAssertTrue(testInteractions(of: window).isEmpty)
+    }
+
+    func testRemoveObserver_whenShimUnavailable_shouldNotRemoveObservers() {
+        // -- Arrange --
+        interactionShim.isAvailable = false
+        let sut = getSut()
+        let token = sut.addObserver { _ in }
+        notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
+
+        // -- Act --
+        sut.removeObserver(token: token)
+
+        // -- Assert --
+        XCTAssertEqual(notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 0)
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 0)
+    }
+
+    func testAddObserver_whenShimReturnsNoInteraction_shouldNotAttachInteraction() {
+        // -- Arrange --
+        interactionShim.returnsInteraction = false
+        let window = UIWindow(frame: .zero)
+        application.windows = [window]
+        let sut = getSut()
+
+        // -- Act --
+        _ = sut.addObserver { _ in }
+
+        // -- Assert --
+        XCTAssertTrue(testInteractions(of: window).isEmpty)
+    }
+
+    // MARK: - Window Tracking
+
+    func testAddObserver_shouldAttachInteractionToWindows() {
         // -- Arrange --
         let window = UIWindow(frame: .zero)
         application.windows = [window]
         let sut = getSut()
 
         // -- Act --
-        sut.start { _ in }
+        _ = sut.addObserver { _ in }
 
         // -- Assert --
         XCTAssertEqual(notificationCenterWrapper.addObserverWithObjectInvocations.count, 1)
         XCTAssertEqual(notificationCenterWrapper.addObserverWithObjectInvocations.first?.name, UIWindow.didBecomeKeyNotification)
-        XCTAssertEqual(hingeInteractions(of: window).count, 1)
+        XCTAssertEqual(testInteractions(of: window).count, 1)
     }
 
-    func testStart_whenCalledTwice_shouldAttachOneInteractionPerWindow() throws {
-        try skipUnlessHingeIsAvailable()
-
+    func testAddObserver_whenCalledTwice_shouldAttachOneInteractionPerWindow() {
         // -- Arrange --
         let window = UIWindow(frame: .zero)
         application.windows = [window]
         let sut = getSut()
 
         // -- Act --
-        sut.start { _ in }
-        sut.start { _ in }
+        _ = sut.addObserver { _ in }
+        _ = sut.addObserver { _ in }
 
         // -- Assert --
         XCTAssertEqual(notificationCenterWrapper.addObserverWithObjectInvocations.count, 1)
-        XCTAssertEqual(hingeInteractions(of: window).count, 1)
+        XCTAssertEqual(testInteractions(of: window).count, 1)
     }
 
-    func testWindowDidBecomeKey_whenStarted_shouldAttachInteractionToNewWindow() throws {
-        try skipUnlessHingeIsAvailable()
-
+    func testWindowDidBecomeKey_whenObserved_shouldAttachInteractionToNewWindow() throws {
         // -- Arrange --
         application.windows = []
         let sut = getSut()
-        sut.start { _ in }
+        _ = sut.addObserver { _ in }
+        let window = UIWindow(frame: .zero)
+
+        // -- Act --
+        try postDidBecomeKey(for: window, to: sut)
+        try postDidBecomeKey(for: window, to: sut)
+
+        // -- Assert --
+        XCTAssertEqual(testInteractions(of: window).count, 1)
+    }
+
+    func testWindowDidBecomeKey_afterLastObserverRemoved_shouldNotAttachInteraction() throws {
+        // -- Arrange --
+        application.windows = []
+        let sut = getSut()
+        let token = sut.addObserver { _ in }
+        sut.removeObserver(token: token)
         let window = UIWindow(frame: .zero)
 
         // -- Act --
         try postDidBecomeKey(for: window, to: sut)
 
         // -- Assert --
-        XCTAssertEqual(hingeInteractions(of: window).count, 1)
+        XCTAssertTrue(testInteractions(of: window).isEmpty)
     }
 
-    func testWindowDidBecomeKey_whenStopped_shouldNotAttachInteraction() throws {
-        try skipUnlessHingeIsAvailable()
-
-        // -- Arrange --
-        application.windows = []
-        let sut = getSut()
-        sut.start { _ in }
-        sut.stop()
-        let window = UIWindow(frame: .zero)
-
-        // -- Act --
-        try postDidBecomeKey(for: window, to: sut)
-
-        // -- Assert --
-        XCTAssertEqual(hingeInteractions(of: window).count, 0)
-    }
-
-    func testStop_whenStarted_shouldRemoveInteractionsAndObserver() throws {
-        try skipUnlessHingeIsAvailable()
-
+    func testWindowDidBecomeKey_whenInteractionWasRemovedFromItsWindow_shouldReleaseAndReattach() throws {
         // -- Arrange --
         let window = UIWindow(frame: .zero)
         application.windows = [window]
         let sut = getSut()
-        sut.start { _ in }
+        _ = sut.addObserver { _ in }
+        weak var weakInteraction: TestInteraction?
+        autoreleasepool {
+            let interaction = interactionShim.interactions.first
+            weakInteraction = interaction
+            // A removed interaction has no view anymore, the same as one whose window deallocated.
+            if let interaction {
+                window.removeInteraction(interaction)
+            }
+        }
+        XCTAssertNotNil(weakInteraction)
+
+        // -- Act --
+        try postDidBecomeKey(for: window, to: sut)
+
+        // -- Assert --
+        XCTAssertNil(weakInteraction)
+        XCTAssertEqual(testInteractions(of: window).count, 1)
+    }
+
+    func testRemoveObserver_whenOtherObserversRemain_shouldKeepInteractions() {
+        // -- Arrange --
+        let window = UIWindow(frame: .zero)
+        application.windows = [window]
+        let sut = getSut()
+        let token = sut.addObserver { _ in }
+        _ = sut.addObserver { _ in }
         notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
 
         // -- Act --
-        sut.stop()
+        sut.removeObserver(token: token)
 
         // -- Assert --
-        XCTAssertEqual(hingeInteractions(of: window).count, 0)
+        XCTAssertEqual(testInteractions(of: window).count, 1)
+        XCTAssertEqual(notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 0)
+    }
+
+    func testRemoveObserver_whenLastObserver_shouldRemoveInteractionsAndObserver() {
+        // -- Arrange --
+        let window = UIWindow(frame: .zero)
+        application.windows = [window]
+        let sut = getSut()
+        let token = sut.addObserver { _ in }
+        notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
+
+        // -- Act --
+        sut.removeObserver(token: token)
+
+        // -- Assert --
+        XCTAssertTrue(testInteractions(of: window).isEmpty)
         XCTAssertEqual(notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 1)
         XCTAssertEqual(notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.first?.name, UIWindow.didBecomeKeyNotification)
     }
 
-    func testHingeStatus_whenInitializedFromUIHingeStatus_shouldMapEveryCase() throws {
-        guard #available(iOS 27.1, *) else {
-            throw XCTSkip("UIHinge.Status requires iOS 27.1")
-        }
-
-        XCTAssertEqual(SentryHingeStatus(UIHinge.Status.unknown), .unknown)
-        XCTAssertEqual(SentryHingeStatus(UIHinge.Status.closed), .closed)
-        XCTAssertEqual(SentryHingeStatus(UIHinge.Status.partiallyOpen), .partiallyOpen)
-        XCTAssertEqual(SentryHingeStatus(UIHinge.Status.fullyOpen), .fullyOpen)
-    }
-
-    #else
-
-    func testStart_whenCompiledWithoutHingeSDK_shouldNotObserveWindows() {
+    func testRemoveObserver_whenTokenUnknown_shouldNotStopObserving() {
         // -- Arrange --
         let window = UIWindow(frame: .zero)
         application.windows = [window]
         let sut = getSut()
+        _ = sut.addObserver { _ in }
+        notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
 
         // -- Act --
-        sut.start { _ in XCTFail("Handler must not be called") }
+        sut.removeObserver(token: SentryHingeObserverToken())
 
         // -- Assert --
-        XCTAssertFalse(SentryHingeObserver.isSupported)
-        XCTAssertEqual(notificationCenterWrapper.addObserverWithObjectInvocations.count, 0)
-        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 0)
-        // UIKit attaches its own interactions to a window, so only check for the hinge one.
-        XCTAssertFalse(window.interactions.contains { NSStringFromClass(type(of: $0)) == "UIHingeInteraction" })
+        XCTAssertEqual(testInteractions(of: window).count, 1)
+        XCTAssertEqual(notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 0)
     }
 
-    #endif // canImport(SwiftUI, _version: 8.0.85)
+    // MARK: - Updates
+
+    func testCurrentState_whenNoUpdateWasObserved_shouldBeNil() {
+        // -- Arrange --
+        application.windows = [UIWindow(frame: .zero)]
+        let sut = getSut()
+
+        // -- Act --
+        _ = sut.addObserver { _ in }
+
+        // -- Assert --
+        XCTAssertNil(sut.currentState)
+    }
+
+    func testUpdate_shouldNotifyEveryObserverAndStoreCurrentState() {
+        // -- Arrange --
+        application.windows = [UIWindow(frame: .zero)]
+        let sut = getSut()
+        var firstStates: [SentryHingeState] = []
+        var secondStates: [SentryHingeState] = []
+        _ = sut.addObserver { firstStates.append($0) }
+        _ = sut.addObserver { secondStates.append($0) }
+        let hingeState = SentryHingeState(status: .partiallyOpen, angle: 1.25)
+
+        // -- Act --
+        interactionShim.simulateUpdate(hingeState)
+
+        // -- Assert --
+        XCTAssertEqual(firstStates, [hingeState])
+        XCTAssertEqual(secondStates, [hingeState])
+        XCTAssertEqual(sut.currentState, hingeState)
+    }
+
+    func testUpdate_whenHingeIsNil_shouldNotNotifyObservers() {
+        // -- Arrange --
+        application.windows = [UIWindow(frame: .zero)]
+        let sut = getSut()
+        _ = sut.addObserver { _ in XCTFail("Handler must not be called") }
+
+        // -- Act --
+        interactionShim.simulateUpdate(nil)
+
+        // -- Assert --
+        XCTAssertNil(sut.currentState)
+    }
+
+    func testUpdate_afterLastObserverRemoved_shouldResetCurrentStateAndNotNotify() {
+        // -- Arrange --
+        application.windows = [UIWindow(frame: .zero)]
+        let sut = getSut()
+        var states: [SentryHingeState] = []
+        let token = sut.addObserver { states.append($0) }
+        interactionShim.simulateUpdate(SentryHingeState(status: .closed, angle: 0))
+        sut.removeObserver(token: token)
+
+        // -- Act --
+        interactionShim.simulateUpdate(SentryHingeState(status: .fullyOpen, angle: .pi))
+
+        // -- Assert --
+        XCTAssertEqual(states.count, 1)
+        XCTAssertNil(sut.currentState)
+    }
+
+    func testHingeStatus_rawValues_shouldMatchUIHingeStatus() {
+        XCTAssertEqual(SentryHingeStatus.unknown.rawValue, 0)
+        XCTAssertEqual(SentryHingeStatus.closed.rawValue, 1)
+        XCTAssertEqual(SentryHingeStatus.partiallyOpen.rawValue, 2)
+        XCTAssertEqual(SentryHingeStatus.fullyOpen.rawValue, 3)
+    }
 }
 #endif // os(iOS)

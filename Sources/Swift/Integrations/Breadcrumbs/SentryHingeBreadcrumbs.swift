@@ -11,6 +11,7 @@ final class SentryHingeBreadcrumbs {
 
     private weak var delegate: SentryBreadcrumbDelegate?
     private let hingeObserver: SentryHingeObserving
+    private var observerToken: SentryHingeObserverToken?
 
     /// The hinge state at the last breadcrumb, or the first observed state before any breadcrumb.
     /// Only accessed on the main thread, where hinge updates are delivered.
@@ -22,14 +23,21 @@ final class SentryHingeBreadcrumbs {
 
     func start(with delegate: SentryBreadcrumbDelegate) {
         self.delegate = delegate
-        hingeObserver.start { [weak self] hingeState in
+        guard observerToken == nil else {
+            return
+        }
+        observerToken = hingeObserver.addObserver { [weak self] hingeState in
             self?.hingeStateChanged(hingeState)
         }
     }
 
     func stop() {
-        hingeObserver.stop()
+        if let observerToken {
+            hingeObserver.removeObserver(token: observerToken)
+        }
+        observerToken = nil
         delegate = nil
+        lastReportedState = nil
     }
 
     /**
@@ -40,6 +48,9 @@ final class SentryHingeBreadcrumbs {
      * posture rather than a movement.
      */
     private func hingeStateChanged(_ hingeState: SentryHingeState) {
+        guard let delegate else {
+            return
+        }
         guard hingeState.status != .unknown else {
             SentrySDKLog.debug("Hinge status is unknown. Won't create hinge breadcrumb.")
             return
@@ -83,7 +94,7 @@ final class SentryHingeBreadcrumbs {
         crumb.setData(value: direction, key: "direction")
         crumb.setData(value: hingeState.status.breadcrumbValue, key: "status")
         crumb.setData(value: lastReportedState.status.breadcrumbValue, key: "previous_status")
-        delegate?.add(crumb)
+        delegate.add(crumb)
     }
 }
 
