@@ -1,4 +1,8 @@
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 import UIKit
 
 class ViewController: UICollectionViewController {

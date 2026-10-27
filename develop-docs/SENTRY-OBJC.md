@@ -75,7 +75,7 @@ graph TD
 1. **`SentryObjC`** contains only hand-written ObjC headers. Each header declares an `@interface SentryObjCFoo : NSObject` with the properties and methods that ObjC consumers see. A dummy `.m` file exists solely because SPM requires at least one source file for ObjC targets. There is no behavior in this target.
 
 2. **`SentryObjCCompat`** contains one Swift file per wrapped type. Each file defines a `@objc(SentryObjCFoo) public final class SentryObjCFoo: NSObject` that:
-   - Uses `internal import Sentry` (or `SentrySwift` under SPM) so no SDK types leak into the module's public interface.
+   - Uses `internal import Sentry` (or `SentrySwift` under `SWIFT_PACKAGE && !SDK_V10` for V9 source packages) so no SDK types leak into the module's public interface. `SDK_V10=1` selects the V10 source package and its `Sentry` module, matching framework builds. A standalone `V10` trait is rejected.
    - Holds a `wrapped` property referencing the real SDK type.
    - Exposes ObjC-compatible properties and methods that delegate to `wrapped`.
 

@@ -1,6 +1,10 @@
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 import UIKit
 
 let fontSize: CGFloat = 12

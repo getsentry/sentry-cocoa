@@ -57,15 +57,28 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
 
-### SwiftPM V10 selection
+### Source-built SwiftPM module names
 
-`SDK_V10=1` is the authoritative SwiftPM V10 selector: it controls compiler definitions, KSCrash dependencies, and products. Do not select V10 with compiler flags alone. Default V9 remains unchanged, including with no default traits or only `NoUIFramework` enabled.
+With `SDK_V10=1`, the source-built `Sentry` product exposes the Swift module `Sentry`, matching framework consumers' `import Sentry`. The product still includes `SentryObjCInternal` to link the Objective-C implementations; the Swift target alone is not the complete SDK.
 
-The `V10` trait originally selected compilation independently. On Swift 6.2+, it is now only a temporary compatibility marker, declared when the environment selects V10; trait-only selection is rejected. Older SDK manifests use the environment alone. Unrelated traits keep their existing behavior. The Swift module remains `SentrySwift` in both versions; environment-selected V10 uses the `Sentry` product, while V9 uses `SentrySPM`.
+`SDK_V10=1` is the authoritative SwiftPM V10 selector: it controls compiler definitions, KSCrash dependencies, products, and target names. Do not select V10 with compiler flags alone. Default V9 retains the `SentrySPM` source product and `SentrySwift` module, including with no default traits or only `NoUIFramework` enabled.
 
-`SentrySampleShared/Package.swift` uses the same environment for product and compiler settings. `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export `SDK_V10=1` for generation and building. The generator rewrites `SentrySPM` references to `Sentry`, retains the compatibility trait, and sets the separate app-target compiler definitions. Direct generator or Xcode invocations must also receive `SDK_V10=1`.
+| Selection                                 | SDK      | Source product / Swift module |
+| ----------------------------------------- | -------- | ----------------------------- |
+| Neither environment nor V10 trait         | V9       | `SentrySPM` / `SentrySwift`   |
+| `SDK_V10=1`                               | V10      | `Sentry` / `Sentry`           |
+| `SDK_V10=1` plus `V10` trait (Swift 6.2+) | Same V10 | `Sentry` / `Sentry`           |
+| `V10` trait without the environment       | Rejected | Trait is not declared         |
 
-At the V9 branch split, remove the temporary environment selector and compatibility trait. Released V10 must not require consumers to enable either.
+The `V10` trait originally selected compilation independently. It is now only a temporary compatibility marker, declared when the environment selects V10; it does not enable settings or dependencies. Older SDK manifests use the environment alone. Unrelated traits keep their existing behavior.
+
+Shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. Both conditions matter: ordinary framework builds also import `Sentry`. Preserve SPI, testable, and import-access modifiers in both branches. Never use `canImport` to select a version, because cached modules survive incremental builds.
+
+`SentrySampleShared/Package.swift` uses the same environment for product and compiler settings. `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export `SDK_V10=1` for generation and building. The generator rewrites `SentrySPM` references to `Sentry`, retains the compatibility trait, and sets the separate app-target compiler definitions. Direct generator or Xcode invocations must also receive `SDK_V10=1`. Consumers using plain `import Sentry` do not need any compiler flags.
+
+`SentrySwift.h` derives its package import from the existing `SWIFT_PACKAGE` and `SDK_V10` definitions: `Sentry` for V10, `SentrySwift` for V9. Package builds bypass generated-header probes, because dependency scanning can precede header generation and cached headers can survive a mode switch. Framework builds retain their existing header imports. No additional module-selection define is needed.
+
+`test-spm-crash-backend-selection.swift` compiles and links external consumers using plain public imports, re-exported public headers, and a separate SPI import. It covers environment-only and environment-plus-trait builds, rejection of trait-only selection, older manifests, clean package-wide V10 builds, and native V9 → V10 → V9 wrapper/consumer builds reusing one scratch directory. Environment-selected V10 excludes both V9 recorder targets so package-wide builds cannot schedule the legacy adapter. At the V9 branch split, make the source module unconditionally `Sentry` and remove the temporary environment selector, compatibility trait, and import branches. Released V10 must not require consumers to enable any of them.
 
 ### 1. Test the verification scripts
 

@@ -484,7 +484,7 @@ test_audit_coverage
 test_file_search_failures
 test_section_inventory
 
-replace_completion "Build of target: 'SentrySwift' complete!"
+replace_completion "Build of target: 'Sentry' complete!"
 check completed-target-build pass
 
 compile_fixture

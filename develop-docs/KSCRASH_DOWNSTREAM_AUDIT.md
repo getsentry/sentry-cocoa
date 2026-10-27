@@ -104,7 +104,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 - FFI profiling looks up `PrivateSentrySDKOnly` and `Sentry.SentryId` at runtime. The failure is swallowed in production, so profiling silently stops. `SentrySDK.internal` is a Swift struct and unreachable from FFI; the FFI path must target `SentryObjCSDK.internal.profiling` or the method channel
 - The generated `SentryCrashWrapper` binding is unused ffigen output
 - No hybrid API exposes installed integration names, which Flutter reads today
-- With V10 SPM, the `Sentry` product maps to the Swift module `SentrySwift`, so `import Sentry` does not resolve
+- The V10 SPM module-name gap found in this audit is resolved for `SDK_V10=1`: the `Sentry` product now exposes `import Sentry`. `SDK_V10=1` now selects every V10 source build; trait-only selection is rejected.
 
 ### React Native
 
@@ -138,7 +138,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 3. No released or CI-built V10 `SentryObjC` artifact. `scripts/build-xcframework-sentryobjc.sh --v10` builds one locally, see [SentryObjC build](SENTRY-OBJC-BUILD.md#v10-builds). `scripts/verify-v10-sentrycrash-framework.sh` audits only `Sentry.framework`. Affects .NET, Unity, Godot, and Unreal
 4. Shipped headers keep `#if SDK_V10` gates. `SentryObjC` has them in 13 public headers, which the local `--v10` build resolves with `unifdef`. `Sentry.xcframework` from `scripts/build-xcframework-v10.sh` ships them unresolved in [`SentryDefines.h`](../Sources/Sentry/Public/SentryDefines.h) and [`SentryRequest.h`](../Sources/Sentry/Public/SentryRequest.h). Whether a consumer that does not define `SDK_V10` still compiles against the generated Swift header is unverified
 5. Whether a V10 static `Sentry.xcframework` embeds the KSCrash objects and keeps the slice names React Native hardcodes is unverified
-6. The V10 SPM product `Sentry` maps to the Swift module `SentrySwift` ([`Package.swift`](../Package.swift)), so `import Sentry` does not resolve for source consumers such as Flutter and Capacitor
+6. **Resolved for environment-selected V10:** the source product and Swift module are both `Sentry` ([`Package.swift`](../Package.swift)), so source consumers such as Flutter and Capacitor can use `import Sentry`. Trait-only selection is rejected; V9 alone retains `SentrySwift` until the branch split.
 
 ### Missing SPI
 
@@ -160,7 +160,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 - Prioritize `SCV10-015` before any hybrid SDK ships on V10, and add a hybrid scope-sync case to its acceptance test (gap 2)
 - Add a CI job for the V10 `SentryObjC` xcframework, extend `verify-v10-sentrycrash-framework.sh` to `SentryObjC.framework`, and resolve `SDK_V10` header gates in both framework packaging paths (gaps 3 and 4)
 - Build and verify a static V10 `Sentry.xcframework` with the slice layout React Native expects (gap 5)
-- Decide the V10 SPM module name (gap 6)
+- At the V9 branch split, make the source Swift module unconditionally `Sentry` and remove the temporary environment selector, compatibility trait, and V9 import branches (gap 6)
 - Add the Kotlin Multiplatform SPI and a ledger row for the flow (gap 7)
 - Add an `internal` API for installed integration names (gap 8)
 - Decide the React Native SPI contract and document the `SentrySDK` Objective-C change (gaps 9 and 10)

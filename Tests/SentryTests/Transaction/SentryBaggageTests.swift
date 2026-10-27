@@ -1,7 +1,11 @@
 import _SentryPrivate
 import Foundation
 #if SWIFT_PACKAGE
+#if !SDK_V10
 @_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 #else
 import Sentry
 #endif

@@ -1,5 +1,9 @@
 import Foundation
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 
 /**
  * Stores the DSN to a file in the cache directory.

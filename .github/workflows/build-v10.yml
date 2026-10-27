@@ -188,7 +188,7 @@ jobs:
           ./scripts/test-v10-sentryobjc-slice-inventory.sh --work-dir "$RUNNER_TEMP/v10-slice-audit"
       - name: Build Swift with environment
         if: matrix.mode == 'environment'
-        run: swift build -v --target SentrySwift --scratch-path .build/v10-environment 2>&1 | tee v10-environment.log
+        run: swift build -v --target Sentry --scratch-path .build/v10-environment 2>&1 | tee v10-environment.log
       - name: Build source SDK with environment
         if: matrix.mode == 'environment'
         run: |
@@ -198,7 +198,7 @@ jobs:
             --build-log v10-environment.log
       - name: Build Swift with environment and trait
         if: matrix.mode == 'environment-and-trait'
-        run: swift build -v --target SentrySwift --traits V10 --scratch-path .build/v10-trait 2>&1 | tee v10-trait.log
+        run: swift build -v --target Sentry --traits V10 --scratch-path .build/v10-trait 2>&1 | tee v10-trait.log
       - name: Verify SentryCrash sources with environment and trait
         if: matrix.mode == 'environment-and-trait'
         run: |
@@ -210,7 +210,7 @@ jobs:
         if: matrix.mode == 'base-manifest'
         run: |
           rm Package@swift-6.1.swift Package@swift-6.2.swift
-          swift build -v --target SentrySwift --scratch-path .build/v10-base-manifest 2>&1 | tee v10-base-manifest.log
+          swift build -v --target Sentry --scratch-path .build/v10-base-manifest 2>&1 | tee v10-base-manifest.log
       - name: Build source SDK with base manifest
         if: matrix.mode == 'base-manifest'
         run: |

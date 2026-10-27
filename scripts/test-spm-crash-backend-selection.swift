@@ -24,6 +24,8 @@ private struct BuildCase {
     var swift61Manifest = false
     var nativeBuild = false
     var sharedTestApp = false
+    var packageWide = false
+    var reuseBuild = false
     var expectInvalidTrait = false
 }
 
@@ -50,7 +52,13 @@ private let cases = [
     BuildCase(name: "shared-testapp-default-v9", traits: nil, sharedTestApp: true),
     BuildCase(name: "shared-testapp-environment-and-trait-v10", traits: ["V10"], environmentV10: true, sharedTestApp: true),
     BuildCase(name: "shared-testapp-environment-v10", traits: [], environmentV10: true, sharedTestApp: true),
-    BuildCase(name: "shared-testapp-environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true, sharedTestApp: true)
+    BuildCase(name: "shared-testapp-environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true, sharedTestApp: true),
+    BuildCase(name: "native-v10-package-wide", traits: nil, environmentV10: true, nativeBuild: true, packageWide: true),
+    BuildCase(name: "native-v10-package-wide-swift61", traits: nil, environmentV10: true, swift61Manifest: true, nativeBuild: true, packageWide: true),
+    BuildCase(name: "native-v10-package-wide-base", traits: nil, environmentV10: true, baseManifest: true, nativeBuild: true, packageWide: true),
+    BuildCase(name: "native-module-switch", traits: nil, nativeBuild: true, reuseBuild: true),
+    BuildCase(name: "native-module-switch-swift61", traits: nil, swift61Manifest: true, nativeBuild: true, reuseBuild: true),
+    BuildCase(name: "native-module-switch-base", traits: nil, baseManifest: true, nativeBuild: true, reuseBuild: true)
 ]
 
 private func require(_ condition: Bool, _ message: String) throws {
@@ -150,16 +158,29 @@ private func prepareConsumer(_ scenario: BuildCase, sdk: URL, root: URL) throws 
     // Referencing SDK startup also exercises the backend registration linkage. Do not run
     // startup here; these are compile/link contract checks, not SDK runtime tests.
     let v10 = scenario.environmentV10
+    // Environment selection controls both the implementation and the module name.
     // The optional V10 trait is only a compatibility marker, never another SDK mode.
-    let publicHeaderCheck = v10 ? "import SentryHeaders\nlet _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
+    let module = scenario.environmentV10 ? "Sentry" : "SentrySwift"
+    let publicHeaderCheck = v10 ? "let _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
     let sharedImport = scenario.sharedTestApp ? "import SentrySampleShared\nlet _ = SentrySDKWrapper.shared\n" : ""
-    try write("import SentrySwift\n\(sharedImport)\(publicHeaderCheck)SentrySDK.start { _ in }\n",
+    try write("import \(module)\n\(sharedImport)\(publicHeaderCheck)let _: SentryLevel = .error\nSentrySDK.start { _ in }\n",
               to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
+    // Keep SPI in a separate file so the main consumer also proves plain public imports work.
+    try write("@_spi(Private) import \(module)\nfunc checkPrivateAPI() { _ = SentrySDKLog.self }\n",
+              to: consumer.appendingPathComponent("Sources/BackendConsumer/PrivateAPI.swift"))
     return consumer
 }
 
 private func test(_ scenario: BuildCase, root: URL) throws {
     let sdk = try prepareSDK(root: root, scenario: scenario)
+    if scenario.packageWide {
+        try testPackageWideBuild(scenario, sdk: sdk, root: root)
+        return
+    }
+    if scenario.reuseBuild {
+        try testModuleSwitch(scenario, sdk: sdk, root: root)
+        return
+    }
     let consumer = try prepareConsumer(scenario, sdk: sdk, root: root)
     var command = ["swift", "build", "--package-path", consumer.path, "--scratch-path",
                    consumer.appendingPathComponent("build").path]
@@ -193,6 +214,69 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     }
 
     print("PASS \(scenario.name)")
+}
+
+private func testPackageWideBuild(_ scenario: BuildCase, sdk: URL, root: URL) throws {
+    // No --target or --product: even otherwise-unreachable regular targets must build.
+    let log = root.appendingPathComponent(scenario.name + ".log")
+    let status = try run(["swift", "build", "--package-path", sdk.path, "--build-system", "native",
+                          "--scratch-path", root.appendingPathComponent(scenario.name).path, "-v"],
+                         in: sdk, log: log, v10: true)
+    try require(status == 0, "\(scenario.name): package-wide V10 build failed; see \(log.path)")
+    print("PASS \(scenario.name)")
+}
+
+private func testModuleSwitch(_ scenario: BuildCase, sdk: URL, root: URL) throws {
+    let consumer = root.appendingPathComponent(scenario.name)
+    try write("""
+    // swift-tools-version: 6.1
+    import Foundation
+    import PackageDescription
+    let v10 = ProcessInfo.processInfo.environment["SDK_V10"] == "1"
+    let package = Package(
+        name: "ModuleConsumer",
+        platforms: [.macOS(.v12)],
+        dependencies: [.package(path: \(String(reflecting: sdk.path)))],
+        targets: [.executableTarget(name: "ModuleConsumer", dependencies: [
+            .product(name: v10 ? "Sentry" : "SentrySPM", package: "\(sdk.lastPathComponent)"),
+            .product(name: "SentryObjC", package: "\(sdk.lastPathComponent)")
+        ], swiftSettings: v10 ? [.define("SDK_V10")] : [])]
+    )
+    """, to: consumer.appendingPathComponent("Package.swift"))
+    try write("""
+    #if SDK_V10
+    import Sentry
+    #else
+    import SentrySwift
+    #endif
+    import SentryObjC
+    SentrySDK.start { _ in }
+    let _ = SentryObjCSDK.isEnabled
+    """, to: consumer.appendingPathComponent("Sources/ModuleConsumer/main.swift"))
+
+    let command = ["swift", "build", "--package-path", consumer.path, "--build-system", "native",
+                   "--scratch-path", consumer.appendingPathComponent("build").path]
+    let pathLog = root.appendingPathComponent(scenario.name + "-bin-path.log")
+    let pathStatus = try run(command + ["--show-bin-path"], in: consumer, log: pathLog)
+    let binPath = try String(contentsOf: pathLog, encoding: .utf8)
+        .split(separator: "\n").last.map(String.init) ?? ""
+    try require(pathStatus == 0 && binPath.hasPrefix("/"), "Could not determine consumer binary path; see \(pathLog.path)")
+    let binDirectory = URL(fileURLWithPath: binPath)
+
+    // Do not clean or rewrite the manifest between phases. Native SwiftPM leaves the old
+    // module discoverable, so canImport alone must never select the SDK configuration.
+    for (phase, v10) in [false, true, false].enumerated() {
+        if phase > 0 {
+            let previousModule = v10 ? "SentrySwift" : "Sentry"
+            try require(files.fileExists(atPath: binDirectory.appendingPathComponent("Modules/\(previousModule).swiftmodule").path),
+                        "\(scenario.name): missing cached \(previousModule) module before switching")
+        }
+        let log = root.appendingPathComponent("\(scenario.name)-\(phase).log")
+        let status = try run(command + ["-v"], in: consumer, log: log, v10: v10)
+        try require(status == 0 && files.fileExists(atPath: binDirectory.appendingPathComponent("ModuleConsumer").path),
+                    "\(scenario.name): wrapper/consumer build failed in phase \(phase); see \(log.path)")
+        print("PASS \(scenario.name) phase \(phase) V\(v10 ? 10 : 9)")
+    }
 }
 
 private func testHeaderContexts(root: URL) throws {

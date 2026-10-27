@@ -1,5 +1,9 @@
 import Foundation
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 
 if CommandLine.arguments.contains("--validate-in-app-frames") {
     guard let executablePath = Bundle.main.executablePath else {
