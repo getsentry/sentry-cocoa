@@ -83,6 +83,15 @@ extension SentryMXManager {
                 exceptionValue: self.appLaunchExceptionValue(launchDuration: appLaunch.launchDuration)
             )
         #endif // !os(visionOS)
+        #if os(iOS) && !targetEnvironment(macCatalyst)
+        case .memoryException(let memoryException):
+            return makeDiagnostic(
+                .memoryException,
+                callStackTree: memoryException.callStackTree,
+                of: report,
+                exceptionValue: "The app or extension exceeded its memory limit"
+            )
+        #endif // os(iOS) && !targetEnvironment(macCatalyst)
         @unknown default:
             return nil
         }

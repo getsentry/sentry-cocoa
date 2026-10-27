@@ -47,7 +47,7 @@ final class SentryMXManager: NSObject {
         diagnosticReportSource: Any? = nil,
         inAppLogic: SentryInAppLogic,
         attachDiagnosticAsAttachment: Bool,
-        enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
+        enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash, .memoryException]),
         releaseName: String? = nil,
         bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
         hangReportingMode: SentryMetricKitHangReportingMode = .legacy,
