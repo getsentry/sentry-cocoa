@@ -1304,6 +1304,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureError:attachAllThreads:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureError:withHint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1388,6 +1395,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureEvent:attachAllThreads:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureEvent:withHint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1466,6 +1480,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:attachAllThreads:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:attachAllThreads:scopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1571,6 +1592,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureMessage:attachAllThreads:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:attachAllThreads:scopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -2278,13 +2306,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableMemoryIntrospection",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "enableMetricKit",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -6379,13 +6400,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableMetricKit:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableMetricKitRawPayload:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9787,12 +9801,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableMemoryIntrospection",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableMetricKit",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },

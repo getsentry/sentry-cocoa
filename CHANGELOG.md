@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
+- Add `attachAllThreads` and scope block overloads for `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)`, also available through `SentryObjC` (#9424)
+
+### Fixes
+
+- Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
+
 ## 9.31.0
 
 ### Features

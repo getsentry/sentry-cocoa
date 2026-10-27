@@ -235,10 +235,17 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
 
 #if !os(tvOS) && !os(watchOS)
-        options.enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
+        let enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
+#if SDK_V10
+        if !enableMetricKit {
+            options.experimental.metrickit.enabledDiagnosticReports = []
+        }
+#else
+        options.enableMetricKit = enableMetricKit
+#endif // SDK_V10
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         options.enableMetricKitRawPayload =
-            options.enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
+            enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
 #endif // !os(tvOS) && !os(watchOS)
 
         configurePerformanceTracing(options)

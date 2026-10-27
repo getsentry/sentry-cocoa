@@ -13,9 +13,9 @@ struct MainApp: App {
             options.enableUserInteractionTracing = true
             options.enableTimeToFullDisplayTracing = true
             options.attachScreenshot = true
-            options.enableMetricKit = true
             options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
             #if !SDK_V10
+            options.enableMetricKit = true
             options.enableLogs = true
             #endif // !SDK_V10
 
