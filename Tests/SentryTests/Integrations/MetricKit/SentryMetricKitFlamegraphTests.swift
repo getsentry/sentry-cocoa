@@ -65,6 +65,109 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    func testDidReceive_whenWatchdogHasEmptyThreads_shouldAttachFatalFlamegraph() throws {
+        // -- Arrange --
+        givenSdkWithHub(scope: Scope())
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            hangReportingMode: .flamegraphAttachment,
+            processStartDate: .distantPast
+        )
+        let diagnostic = TestMXCrashDiagnostic()
+        diagnostic.overrides.terminationReason = "Namespace FRONTBOARD, Code 0x8badf00d"
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data("""
+        {"callStackPerThread":true,"callStacks":[
+          {"threadAttributed":true,"callStackRootFrames":[
+            {"address":4097,"offsetIntoBinaryTextSegment":1,"sampleCount":1,"subFrames":[
+              {"address":4098,"offsetIntoBinaryTextSegment":2,"sampleCount":1}
+            ]}
+          ]},
+          {"threadAttributed":false,"callStackRootFrames":[]}
+        ]}
+        """.utf8)
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [diagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.level, .fatal)
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.handled, false)
+            XCTAssertNil(event?.exceptions?.first?.stacktrace)
+            let attachment = try XCTUnwrap(capturedHintAttachments().first { $0.filename == "flamegraph.json" })
+            let json = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(attachment.data)) as? [String: Any])
+            let trees = try XCTUnwrap(json["trees"] as? [[String: Any]])
+            XCTAssertEqual(trees.count, 1)
+            XCTAssertEqual(trees.first?["thread_attributed"] as? Bool, true)
+            let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+            XCTAssertEqual(nodes.compactMap { $0["sample_count"] as? Int }, [1, 1])
+        }
+    }
+
+    #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+    func testProcess_whenSwiftWatchdogHasEmptyThreads_shouldAttachFatalFlamegraph() throws {
+        guard #available(iOS 27.0, *) else { throw XCTSkip("Requires MetricKit's Swift diagnostic API") }
+        // -- Arrange --
+        givenSdkWithHub(scope: Scope())
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            hangReportingMode: .flamegraphAttachment,
+            processStartDate: .distantPast
+        )
+        // This uses the Codable shape of a device-delivered DiagnosticReport, reduced to one
+        // watchdog stack and one empty thread. No temporal sample history is invented.
+        let data = Data("""
+        {
+          "version":"2.0.0",
+          "timeRange":{"begin":0,"end":0},
+          "environment":{
+            "osVersion":{"number":"27.0","platform":"iPhone OS","buildNumber":"24A437"},
+            "applicationVersion":"1.0","applicationBuildVersion":"1","bundleIdentifier":"io.sentry.test",
+            "deviceType":"iPhone13,2","platformArchitecture":"arm64e","pid":0,"regionFormat":"AT",
+            "isTestFlightApp":false,"lowPowerModeEnabled":false,"states":[],"signpostData":[]
+          },
+          "crashDiagnostic":{
+            "terminationCategory":"watchdog","terminationReason":"Code 0x8BADF00D",
+            "exceptionType":10,"exceptionCode":0,"signal":9,
+            "callStackTree":{"binaryInfo":[],"callStackPerThread":true,"callStackThreads":[
+              {"threadAttributed":true,"rootFrames":[
+                {"address":4097,"offsetIntoBinaryTextSegment":1,"sampleCount":1,"subFrames":[
+                  {"address":4098,"offsetIntoBinaryTextSegment":2,"sampleCount":1,"subFrames":[]}
+                ]}
+              ]},
+              {"threadAttributed":false,"rootFrames":[]}
+            ]}
+          }
+        }
+        """.utf8)
+        let report = try JSONDecoder().decode(DiagnosticReport.self, from: data)
+
+        // -- Act --
+        sut.process(modernReport: report)
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.level, .fatal)
+            XCTAssertEqual(event?.tags?["metrickit.api"], "swift")
+            XCTAssertEqual(event?.exceptions?.first?.value, "App terminated while the main thread was unresponsive.")
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.data?["termination_category"] as? String, "watchdog")
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.data?["termination_reason"] as? String, "Code 0x8BADF00D")
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.handled, false)
+            XCTAssertNil(event?.exceptions?.first?.stacktrace)
+            let attachment = try XCTUnwrap(capturedHintAttachments().first { $0.filename == "flamegraph.json" })
+            let json = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(attachment.data)) as? [String: Any])
+            XCTAssertEqual((json["trees"] as? [[String: Any]])?.count, 1)
+            XCTAssertEqual((json["nodes"] as? [[String: Any]])?.compactMap { $0["sample_count"] as? Int }, [1, 1])
+        }
+    }
+    #endif
+
     func testDidReceive_whenFlamegraphIsRejected_shouldPreserveFlattenedHangTree() throws {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
@@ -121,6 +224,19 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(frames.map(\.parentIndex), [-1, 0, 1, 1])
             XCTAssertEqual(frames.map(\.sampleCount), [100, 100, 50, 50])
         }
+    }
+
+    func testFlamegraphAttachment_whenAllThreadsAreEmpty_shouldOmitAttachment() {
+        // -- Arrange --
+        let tree = SentryMXCallStackTree(callStacks: [
+            SentryMXCallStack(threadAttributed: true, callStackRootFrames: [])
+        ], callStackPerThread: true)
+
+        // -- Act --
+        let attachment = tree.flamegraphAttachment(inAppLogic: SentryInAppLogic(inAppIncludes: []))
+
+        // -- Assert --
+        XCTAssertNil(attachment)
     }
 
     func testFlamegraphAttachment_whenFramesRepeat_shouldDeduplicateAcrossSeparateTrees() throws {

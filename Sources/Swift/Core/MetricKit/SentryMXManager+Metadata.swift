@@ -129,7 +129,7 @@ extension SentryMXManager {
         "ios_app_on_visionos"
     ]
 
-    private func applyRelease(appVersion: String, appBuild: String, to event: Event) {
+    func applyRelease(appVersion: String, appBuild: String, to event: Event) {
         guard !appVersion.isEmpty, !appBuild.isEmpty else {
             return
         }

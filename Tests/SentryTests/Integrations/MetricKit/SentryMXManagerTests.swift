@@ -18,6 +18,40 @@ final class SentryMXManagerTests: XCTestCase {
         clearTestState()
     }
     
+    func testReceiveReports_whenSwiftAPIUnavailable_shouldSubscribeToMXManager() throws {
+        #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+        if #available(iOS 27.0, *) { throw XCTSkip("Uses MetricKit's Swift API instead") }
+        #endif
+        // -- Arrange --
+        let manager = RecordingMetricManager()
+        let sut = SentryMXManager(metricManager: manager, inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, processStartDate: .distantPast)
+
+        // -- Act --
+        sut.receiveReports()
+        sut.pauseReports()
+
+        // -- Assert --
+        XCTAssertEqual(manager.subscriptions, 1)
+        XCTAssertEqual(manager.removals, 1)
+    }
+
+    #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+    func testReceiveReports_whenSwiftAPIAvailable_shouldNotSubscribeToMXManager() throws {
+        guard #available(iOS 27.0, *) else { throw XCTSkip("Requires MetricKit's Swift API") }
+        // -- Arrange --
+        let manager = RecordingMetricManager()
+        let sut = SentryMXManager(metricManager: manager, inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, processStartDate: .distantPast)
+
+        // -- Act --
+        sut.receiveReports()
+        sut.pauseReports()
+
+        // -- Assert --
+        XCTAssertEqual(manager.subscriptions, 0)
+        XCTAssertEqual(manager.removals, 0)
+    }
+    #endif
+
     private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
@@ -57,6 +91,19 @@ final class SentryMXManagerTests: XCTestCase {
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         
         return payload
+    }
+}
+
+private final class RecordingMetricManager: SentryMetricManager {
+    var subscriptions = 0
+    var removals = 0
+
+    func add(_ subscriber: MXMetricManagerSubscriber) {
+        subscriptions += 1
+    }
+
+    func remove(_ subscriber: MXMetricManagerSubscriber) {
+        removals += 1
     }
 }
 

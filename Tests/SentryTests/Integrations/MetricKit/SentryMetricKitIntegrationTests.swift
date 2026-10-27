@@ -68,6 +68,117 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:nil Code:nil Signal:nil", exceptionMechanism: "MXCrashDiagnostic", handled: false)
     }
 
+    func testDidReceive_whenWatchdogCrashReceived_shouldCaptureFatalHangWithoutEnablingCrashes() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            processStartDate: .distantPast
+        )
+        let diagnostic = TestMXCrashDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        diagnostic.overrides.terminationReason = "Namespace FRONTBOARD, Code 0x8badf00d"
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [diagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let event = try XCTUnwrap(event)
+            XCTAssertEqual(event.level, .fatal)
+            XCTAssertEqual(event.tags?["metrickit.api"], "mx")
+            XCTAssertEqual(event.timestamp, timeStampBegin)
+            let exception = try XCTUnwrap(event.exceptions?.first)
+            XCTAssertEqual(exception.type, "FatalAppHang")
+            XCTAssertEqual(exception.value, "App terminated while the main thread was unresponsive.")
+            XCTAssertEqual(exception.mechanism?.data?["termination_reason"] as? String, "Namespace FRONTBOARD, Code 0x8badf00d")
+            XCTAssertEqual(exception.mechanism?.type, "mx_hang_diagnostic")
+            XCTAssertEqual(exception.mechanism?.handled, false)
+            XCTAssertEqual(exception.mechanism?.synthetic, true)
+            XCTAssertNotNil(exception.stacktrace)
+            XCTAssertEqual(event.threads?.first?.crashed, true)
+        }
+    }
+
+    func testDidReceive_whenWatchdogCrashAndCrashesEnabled_shouldCaptureOnlyOneFatalHang() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang, .crash],
+            processStartDate: .distantPast
+        )
+        let diagnostic = TestMXCrashDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        diagnostic.overrides.terminationReason = "Namespace SPRINGBOARD, Code 0x8BADF00D"
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [diagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.level, .fatal)
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.type, "mx_hang_diagnostic")
+        }
+    }
+
+    func testDidReceive_whenWatchdogCrashAndOnlyCrashesEnabled_shouldPreserveCrashReporting() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.crash],
+            processStartDate: .distantPast
+        )
+        let diagnostic = TestMXCrashDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        diagnostic.overrides.terminationReason = "Namespace FRONTBOARD, Code 0x8badf00d"
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [diagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.level, .error)
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.type, "MXCrashDiagnostic")
+            XCTAssertEqual(event?.exceptions?.first?.mechanism?.handled, false)
+        }
+    }
+
+    func testDidReceive_whenNonWatchdogCrashAndOnlyHangsEnabled_shouldNotCaptureEvent() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            processStartDate: .distantPast
+        )
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [nil, "Namespace SIGNAL, Code 11", "Namespace FRONTBOARD, Code 0x8badf00d0"].map { reason in
+            let diagnostic = TestMXCrashDiagnostic()
+            diagnostic.overrides.terminationReason = reason
+            return diagnostic
+        }
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        assertNothingCaptured()
+    }
+
     func testDidReceive_whenHangDiagnosticsDisabled_shouldNotCaptureEvent() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
@@ -547,7 +658,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         criticalHang.overrides.callStackTree = callStackTree
         criticalHang.overrides.hangDuration = Measurement(value: 1_001, unit: .milliseconds)
 
-        payload.overrides.hangDiagnostic = [majorHang, severeThresholdHang, severeHang, criticalHang]
+        let longHang = TestMXHangDiagnostic()
+        longHang.overrides.callStackTree = callStackTree
+        longHang.overrides.hangDuration = Measurement(value: 60, unit: .seconds)
+
+        payload.overrides.hangDiagnostic = [majorHang, severeThresholdHang, severeHang, criticalHang, longHang]
 
         // -- Act --
         sut.mxManager.didReceive([payload])
@@ -555,8 +670,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         let invocations = client.captureEventWithScopeInvocations.invocations
-        XCTAssertEqual(4, invocations.count)
-        XCTAssertEqual([.warning, .warning, .error, .error], invocations.map(\.event.level))
+        XCTAssertEqual(5, invocations.count)
+        XCTAssertEqual([.warning, .warning, .error, .error, .error], invocations.map(\.event.level))
+        for invocation in invocations {
+            XCTAssertEqual(invocation.event.tags?["metrickit.api"], "mx")
+            XCTAssertEqual(invocation.event.exceptions?.first?.mechanism?.handled, true)
+        }
     }
 
     private func capturedHintAttachments() throws -> [Attachment] {
@@ -646,12 +765,17 @@ class TestMXCallStackTree: MXCallStackTree {
 class TestMXCrashDiagnostic: MXCrashDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
+        var terminationReason: String?
     }
 
     public var overrides = Override()
 
     override var callStackTree: MXCallStackTree {
         return overrides.callStackTree
+    }
+
+    override var terminationReason: String? {
+        return overrides.terminationReason
     }
 }
 

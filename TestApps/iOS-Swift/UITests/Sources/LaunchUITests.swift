@@ -11,6 +11,23 @@ class LaunchUITests: BaseUITest {
         return app
     }
 
+    func testMetricKitFatalHang_whenCancelled_shouldKeepAppResponsive() {
+        // -- Arrange --
+        app.buttons["More"].tap()
+        app.tables.staticTexts["MetricKit"].tap()
+
+        // -- Act --
+        app.buttons["Fatal Hang Diagnostic"].afterWaitingForExistence("Fatal hang trigger not found.").tap()
+        let alert = app.alerts["Trigger Fatal Hang?"]
+        alert.waitForExistence("Fatal hang warning not shown.")
+        alert.buttons["Cancel"].tap()
+
+        // -- Assert --
+        alert.waitForNonExistence("Fatal hang warning did not dismiss.")
+        XCTAssertTrue(app.buttons["Non-Fatal Hang Diagnostic"].isHittable)
+        XCTAssertTrue(app.buttons["Fatal Hang Diagnostic"].isHittable)
+    }
+
     func testBreadcrumbData() {
         app.buttons["Extra"].tap()
 

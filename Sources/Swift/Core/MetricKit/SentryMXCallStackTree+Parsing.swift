@@ -4,8 +4,11 @@ internal import _SentryPrivate
 
 extension SentryMXCallStackTree {
     func flamegraphAttachment(inAppLogic: SentryInAppLogic) -> Attachment? {
+        // Watchdog reports can include threads without a stack. They contribute no samples and
+        // must not prevent the recorded threads from being attached.
+        let callStacks = self.callStacks.filter { !$0.callStackRootFrames.isEmpty }
         guard !callStacks.isEmpty,
-              callStacks.allSatisfy({ !$0.callStackRootFrames.isEmpty && $0.callStackRootFrames.allSatisfy { $0.hasValidHangSampleCounts } }) else {
+              callStacks.allSatisfy({ $0.callStackRootFrames.allSatisfy { $0.hasValidHangSampleCounts } }) else {
             SentrySDKLog.warning("MetricKit flame graph requires non-empty trees with valid sample counts")
             return nil
         }

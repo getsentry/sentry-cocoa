@@ -56,6 +56,9 @@ final class SentryMXManager: NSObject {
     // MARK: - Properties
 
     private let metricManager: SentryMetricManager
+    #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+    let modernReportTask = SentryMutex<Task<Void, Never>?>(nil)
+    #endif
     private let measurementFormatter: MeasurementFormatter = {
         let formatter = MeasurementFormatter()
         formatter.locale = Locale(identifier: "en_US")
@@ -97,11 +100,32 @@ final class SentryMXManager: NSObject {
 
     func receiveReports() {
         SentrySDKLog.info("Started receiving reports from MetricKit")
+        #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+        if #available(iOS 27.0, *) {
+            receiveModernReports()
+            return
+        }
+        #endif
         metricManager.add(self)
+    }
+
+    deinit {
+        #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+        modernReportTask.withLock { $0?.cancel() }
+        #endif
     }
 
     func pauseReports() {
         SentrySDKLog.info("Paused receiving reports from MetricKit")
+        #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+        if #available(iOS 27.0, *) {
+            modernReportTask.withLock { task in
+                task?.cancel()
+                task = nil
+            }
+            return
+        }
+        #endif
         metricManager.remove(self)
     }
 }
@@ -138,6 +162,25 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     }
 
     private func process(crashDiagnostic diagnostic: MXCrashDiagnostic, timestamp: Date) {
+        // MetricKit reports watchdog terminations as crashes, not MXHangDiagnostic instances.
+        // Match the complete watchdog code, rather than inferring fatality from hang duration.
+        if enabledDiagnostics.contains(.hang),
+           let reason = diagnostic.terminationReason,
+           reason.range(of: #"\b0x8badf00d\b"#, options: [.regularExpression, .caseInsensitive]) != nil {
+            captureEvent(
+                handled: false,
+                diagnosticReport: .hang,
+                exceptionValue: "App terminated while the main thread was unresponsive.",
+                timeStampBegin: timestamp,
+                diagnostic: diagnostic,
+                useFullCallStackTree: true,
+                level: .fatal,
+                exceptionType: "FatalAppHang",
+                mechanismData: ["termination_reason": reason]
+            )
+            return
+        }
+
         guard enabledDiagnostics.contains(.crash) else {
             SentrySDKLog.debug("Crash diagnostic are not enabled, skipping payload")
             return
@@ -223,10 +266,13 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         timeStampBegin: Date,
         diagnostic: MXDiagnostic & SentryMetricKit.CallStackTreeProviding,
         useFullCallStackTree: Bool = false,
-        level: SentryLevel? = nil
+        level: SentryLevel? = nil,
+        exceptionType: String? = nil,
+        mechanismData: [String: Any]? = nil
     ) {
         var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
+        event.tags = ["metrickit.api": "mx"]
 
         if isFromPreviousProcess(diagnostic: diagnostic, payloadTimeStampBegin: timeStampBegin) {
             // The client doesn't apply the current scope to events from a previous process, so the
@@ -238,8 +284,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         let mechanism = Mechanism(type: diagnosticReport.mechanism)
         mechanism.handled = NSNumber(value: handled)
         mechanism.synthetic = true
+        mechanism.data = mechanismData
 
-        let exception = Exception(value: exceptionValue, type: diagnosticReport.exceptionType)
+        let exception = Exception(value: exceptionValue, type: exceptionType ?? diagnosticReport.exceptionType)
         exception.mechanism = mechanism
         event.exceptions = [exception]
 
@@ -290,15 +337,17 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     }
 
     private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws -> Attachment? {
+        let encodedCallStackTree = callStackTree.jsonRepresentation()
+        let decodedCallStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: encodedCallStackTree)
+        return apply(callStackTree: decodedCallStackTree, toEvent: &event, useFullCallStackTree: useFullCallStackTree, isHandled: isHandled)
+    }
+
+    func apply(callStackTree decodedCallStackTree: SentryMXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) -> Attachment? {
         SentrySDKLog.debug("Applying MetricKit call stack tree to event with id: \(event.eventId)")
         guard let exception = event.exceptions?.first else {
             SentrySDKLog.warning("MetricKit event does not have an exception set, skipping call stack tree decoding")
             return nil
         }
-
-        let encodedCallStackTree = callStackTree.jsonRepresentation()
-        let decoder = JSONDecoder()
-        let decodedCallStackTree = try decoder.decode(SentryMXCallStackTree.self, from: encodedCallStackTree)
 
         if useFullCallStackTree && hangReportingMode == .flamegraphAttachment,
            let attachment = decodedCallStackTree.flamegraphAttachment(inAppLogic: inAppLogic) {
