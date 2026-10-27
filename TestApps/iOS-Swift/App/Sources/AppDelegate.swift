@@ -39,7 +39,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         enableInitSwizzling.boolValue = true
 
         SentrySDKWrapper.shared.startSentry()
-        
+
+        MetricKitAppLaunchStressor.runIfEnabled()
+
         return true
     }
 

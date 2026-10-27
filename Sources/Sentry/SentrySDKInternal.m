@@ -6,7 +6,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"

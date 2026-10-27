@@ -16,42 +16,7 @@ typealias SentryMetricManager = MXMetricManager
 final class SentryMXManager: NSObject {
     // MARK: - Types
 
-    enum Diagnostic: CaseIterable {
-        case crash
-        case diskWriteException
-        case cpuException
-        case hang
-
-        var exceptionType: String {
-            switch self {
-            case .crash:
-                return "MXCrashDiagnostic"
-            case .diskWriteException:
-                return "MXDiskWriteException"
-            case .cpuException:
-                return "MXCPUException"
-            case .hang:
-                return "MXHangDiagnostic"
-            }
-        }
-
-        var mechanism: String {
-            switch self {
-            case .crash:
-                return "MXCrashDiagnostic"
-            case .diskWriteException:
-                return "mx_disk_write_exception"
-            case .cpuException:
-                return "mx_cpu_exception"
-            case .hang:
-                return "mx_hang_diagnostic"
-            }
-        }
-
-        static var all: Set<Diagnostic> {
-            .init(allCases)
-        }
-    }
+    typealias Diagnostic = SentryMetricKit.DiagnosticReport
 
     // MARK: - Properties
 
@@ -134,6 +99,14 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                     process(hangDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
                 }
             }
+            #if os(iOS) || os(visionOS)
+            if #available(iOS 16.0, *), let diagnostics = payload.appLaunchDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit app launch diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(appLaunchDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
+            }
+            #endif // os(iOS) || os(visionOS)
         }
     }
 
@@ -144,9 +117,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
         SentrySDKLog.debug("Processing crash diagnostic at timestamp: \(timestamp)")
 
-        let exceptionType = String(describing: diagnostic.exceptionType)
-        let code = String(describing: diagnostic.exceptionCode)
-        let signal = String(describing: diagnostic.signal)
+        let exceptionType = diagnostic.exceptionType?.stringValue ?? "nil"
+        let code = diagnostic.exceptionCode?.stringValue ?? "nil"
+        let signal = diagnostic.signal?.stringValue ?? "nil"
 
         captureEvent(
             handled: false,
@@ -215,6 +188,27 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             level: level
         )
     }
+
+    #if os(iOS) || os(visionOS)
+    @available(iOS 16.0, *)
+    private func process(appLaunchDiagnostic diagnostic: MXAppLaunchDiagnostic, timestamp: Date) {
+        guard enabledDiagnostics.contains(.appLaunch) else {
+            SentrySDKLog.debug("App launch diagnostics are not enabled, skipping payload")
+            return
+        }
+        SentrySDKLog.debug("Processing app launch diagnostic at timestamp: \(timestamp)")
+
+        let launchDuration = measurementFormatter.string(from: diagnostic.launchDuration)
+
+        captureEvent(
+            handled: true,
+            diagnosticReport: .appLaunch,
+            exceptionValue: "MXAppLaunchDiagnostic launchDuration:\(launchDuration)",
+            timeStampBegin: timestamp,
+            diagnostic: diagnostic
+        )
+    }
+    #endif // os(iOS) || os(visionOS)
 
     private func captureEvent(
         handled: Bool,

@@ -53,6 +53,8 @@
 - Remove the public `SentrySerializable` protocol, its model conformances, and model `serialize()` methods. Hybrid SDKs use `SentrySDK.internal.serializer` or `SentryObjCSDK.internal.serializer` for scopes, debug images, and events. Applications should use model properties and Sentry's capture APIs instead (#9403).
 - Move session replay and screenshot masking and subtree traversal settings to `options.privacy`. Rendering settings remain on `sessionReplay` and `screenshot` (#9399).
 - Remove the deprecated key-based metrics methods `count(key:value:attributes:)`, `distribution(key:value:unit:attributes:)` and `gauge(key:value:unit:attributes:)`, and their `SentryObjC` counterparts. Use `count(_:value:options:)`, `distribution(_:value:options:)` and `gauge(_:value:options:)` instead (#9453)
+- Remove `enableMetricKit`; the MetricKit integration is enabled by default and `options.experimental.metrickit.enabledDiagnosticReports` set to an empty set disables it (#9267)
+- Capture MetricKit app launch diagnostics by default (#9441)
 
 ### Fixes
 
