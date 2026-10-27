@@ -114,6 +114,26 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertEqual(store.decodeUser(from: data)?.userId, "explicit-user")
     }
 
+    func testPersistUser_whenEncodingFails_shouldPreservePersistedUser() throws {
+        // -- Arrange --
+        let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")
+        let previousData = Data(#"{"id":"previous-user"}"#.utf8)
+        try previousData.write(to: url)
+        defer { fixture.fileManager.removeFile(atPath: url.path) }
+        let queue = TestSentryDispatchQueueWrapper()
+        let store = try XCTUnwrap(SentryScopePersistentStore(fileManager: fixture.fileManager, dispatchQueueWrapper: queue))
+        let scope = Scope()
+        store.startPersistingUser(in: scope)
+        let user = User(userId: "invalid-user")
+        user.data = ["value": Double.infinity]
+
+        // -- Act --
+        scope.setUser(user)
+
+        // -- Assert --
+        XCTAssertEqual(try Data(contentsOf: url), previousData)
+    }
+
     func testPersistUser_whenUserAssignedInternally_shouldNotRetainAutomaticData() throws {
         // -- Arrange --
         let url = fixture.fileManager.getSentryPathAsURL().appendingPathComponent("persisted-user.state")

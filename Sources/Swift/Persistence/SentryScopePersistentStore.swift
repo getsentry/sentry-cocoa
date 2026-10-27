@@ -68,7 +68,13 @@ enum SentryScopeField: UInt, CaseIterable {
     }
 
     private func persistUser(_ user: User?) {
-        let data = user.flatMap { encode(user: $0) }
+        let data: Data?
+        if let user {
+            guard let encodedUser = encode(user: user) else { return }
+            data = encodedUser
+        } else {
+            data = nil
+        }
         dispatchQueueWrapper.dispatchAsync { [self] in
             if let data {
                 fileManager.write(data, toPath: persistedUserPath)
