@@ -18,6 +18,13 @@ import Foundation
         self.wrapped = wrapped
     }
 
+    #if canImport(MetricKit) && !os(tvOS)
+    @objc public var enabledDiagnosticReports: SentryObjCMetricKitDiagnosticReport {
+        get { SentryObjCMetricKitDiagnosticReportMapping.bits(for: wrapped.enabledDiagnosticReports) }
+        set { wrapped.enabledDiagnosticReports = SentryObjCMetricKitDiagnosticReportMapping.reports(for: newValue) }
+    }
+    #endif // canImport(MetricKit) && !os(tvOS)
+
     @objc public var hangReportingMode: SentryObjCMetricKitHangReportingMode {
         get {
             switch wrapped.hangReportingMode {

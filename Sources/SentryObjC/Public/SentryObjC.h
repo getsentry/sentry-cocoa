@@ -155,6 +155,15 @@
 #    import <SentryObjC/SentryObjCDataCollectionOptions.h>
 #endif
 
+// --- MetricKit types ---
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCMetricKitDiagnosticReport.h"
+#    import "SentryObjCMetricKitOptions.h"
+#else
+#    import <SentryObjC/SentryObjCMetricKitDiagnosticReport.h>
+#    import <SentryObjC/SentryObjCMetricKitOptions.h>
+#endif
+
 // --- Configuration ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCExperimentalOptions.h"

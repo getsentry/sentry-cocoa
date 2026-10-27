@@ -136,6 +136,36 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportAppLaunch",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportCPUException",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportCrash",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportDiskWriteException",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportHang",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportNone",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitHangReportingModeFlamegraphAttachment",
     "parent": "SentryObjCMetricKitHangReportingMode"
   },
@@ -371,6 +401,10 @@
   {
     "kind": "EnumDecl",
     "name": "SentryObjCLogLevel"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCMetricKitDiagnosticReport"
   },
   {
     "kind": "EnumDecl",
@@ -2447,6 +2481,13 @@
     "name": "enabled",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enabledDiagnosticReports",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "SentryObjCMetricKitDiagnosticReport",
     "instance": true
   },
   {
@@ -6546,6 +6587,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnabledDiagnosticReports:",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnvironment:",
     "parent": "SentryObjCEvent",
     "returnType": "void",
@@ -9975,6 +10023,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enabledDiagnosticReports",
+    "parent": "SentryObjCMetricKitOptions",
+    "type": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "envelope",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalEnvelopeApi * _Nonnull"
@@ -12077,6 +12131,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCLogLevel",
     "type": "enum SentryObjCLogLevel"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCMetricKitDiagnosticReport",
+    "type": "enum SentryObjCMetricKitDiagnosticReport"
   },
   {
     "kind": "TypedefDecl",

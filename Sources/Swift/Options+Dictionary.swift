@@ -328,9 +328,7 @@ extension Options {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
 
-        if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(dictionary["metricKitHangReportingMode"] as? String) {
-            self.experimental.metrickit.hangReportingMode = hangReportingMode
-        }
+        self.experimental.metrickit.apply(optionsDictionary: dictionary)
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {
