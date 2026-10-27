@@ -1,4 +1,4 @@
-#if os(iOS) || os(macOS) || os(visionOS)
+#if os(iOS) || os(visionOS)
 import Foundation
 import MetricKit
 
@@ -223,4 +223,4 @@ extension SentryMXManager {
     }
 }
 
-#endif
+#endif // os(iOS) || os(visionOS)

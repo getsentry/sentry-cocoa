@@ -50,6 +50,8 @@ public final class SentryMetricKitOptions {
     /// MetricKit delivers metric payloads about once a day, and each enabled report adds up to one
     /// metric per payload, which counts towards your metrics quota.
     ///
+    /// MetricKit only delivers metric payloads on iOS and visionOS, so this has no effect on macOS.
+    ///
     /// - Note: Defaults to an empty set.
     public var enabledMetricReports: Set<SentryMetricKit.MetricReport> = []
     #endif // canImport(MetricKit) && !os(tvOS)
