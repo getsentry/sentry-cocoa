@@ -599,6 +599,61 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual([.warning, .warning, .error, .error], invocations.map(\.event.level))
     }
 
+#if os(iOS) || os(visionOS)
+    func testDidReceive_whenAppLaunchDiagnosticEnabled_shouldCaptureEvent() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("MXAppLaunchDiagnostic requires iOS 16")
+        }
+
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.appLaunch]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let appLaunchDiagnostic = TestMXAppLaunchDiagnostic()
+        appLaunchDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.appLaunchDiagnostics = [appLaunchDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertPerThread(exceptionType: "MXAppLaunchDiagnostic", exceptionValue: "MXAppLaunchDiagnostic launchDuration:3.3 sec", exceptionMechanism: "mx_app_launch_diagnostic")
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.first?.event.level, .warning)
+    }
+
+    func testDidReceive_whenAppLaunchDiagnosticNotEnabled_shouldNotCaptureEvent() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("MXAppLaunchDiagnostic requires iOS 16")
+        }
+
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let appLaunchDiagnostic = TestMXAppLaunchDiagnostic()
+        appLaunchDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.appLaunchDiagnostics = [appLaunchDiagnostic]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        assertNothingCaptured()
+    }
+#endif // os(iOS) || os(visionOS)
+
     private func capturedHintAttachments() throws -> [Attachment] {
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         XCTAssertEqual(client.captureEventWithScopeAndHintInvocations.count, 1, "Expected exactly one event captured with a hint.")
@@ -785,6 +840,26 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
         return overrides.applicationVersion ?? super.applicationVersion
     }
 }
+
+#if os(iOS) || os(visionOS)
+@available(iOS 16.0, *)
+class TestMXAppLaunchDiagnostic: MXAppLaunchDiagnostic {
+    struct Override {
+        var callStackTree = TestMXCallStackTree()
+        var launchDuration = Measurement(value: 3.3, unit: UnitDuration.seconds)
+    }
+
+    public var overrides = Override()
+
+    override var callStackTree: MXCallStackTree {
+        return overrides.callStackTree
+    }
+
+    override var launchDuration: Measurement<UnitDuration> {
+        return overrides.launchDuration
+    }
+}
+#endif // os(iOS) || os(visionOS)
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
