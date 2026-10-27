@@ -119,41 +119,6 @@ final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
     }
     #endif // os(iOS)
 
-    // MARK: - Memory exceptions
-
-    #if os(iOS) && !targetEnvironment(macCatalyst)
-    func testProcess_whenMemoryExceptionReport_shouldCaptureUnhandledError() throws {
-        guard #available(iOS 27.0, *) else { return }
-        // -- Arrange --
-        givenSdkWithHub()
-        let sut = givenSut(enabledDiagnostics: [.memoryException])
-        let report = try givenReport(result: "memoryExceptionDiagnostic", diagnostic: [
-            "callStackTree": try callStackTree(fromLegacyResource: "MetricKitCallstacks/per-thread")
-        ])
-
-        // -- Act --
-        sut.process(diagnosticReport: report)
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            let event = try XCTUnwrap(event)
-            XCTAssertEqual(event.level, .error)
-            XCTAssertEqual(event.timestamp, Self.timestamp)
-            let exception = try XCTUnwrap(event.exceptions?.first)
-            XCTAssertEqual(exception.type, "MXMemoryException")
-            XCTAssertEqual(exception.value, "The app or extension exceeded its memory limit")
-            XCTAssertEqual(exception.mechanism?.type, "mx_memory_exception")
-            XCTAssertEqual(exception.mechanism?.handled, false)
-            XCTAssertEqual(exception.mechanism?.synthetic, true)
-            // The stack trace is the one of the thread MetricKit attributes the termination to.
-            let crashedThread = try XCTUnwrap(event.threads?.first { $0.crashed?.boolValue == true })
-            XCTAssertEqual(exception.threadId, crashedThread.threadId)
-            XCTAssertEqual(exception.stacktrace?.frames.count, crashedThread.stacktrace?.frames.count)
-            XCTAssertTrue(event.isMetricKitEvent())
-        }
-    }
-    #endif // os(iOS) && !targetEnvironment(macCatalyst)
-
     func testProcess_whenReportIsNotEnabled_shouldNotCaptureEvent() throws {
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
         // -- Arrange --

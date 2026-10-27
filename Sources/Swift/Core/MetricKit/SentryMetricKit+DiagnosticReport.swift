@@ -24,15 +24,6 @@ extension SentryMetricKit {
         /// - Note: MetricKit reports app launch diagnostics on iOS 16 and later, on visionOS 26
         ///   and earlier, and on macOS 27 and later.
         case appLaunch
-
-        /// A termination of the app or an extension for exceeding its memory limit, reported by
-        /// `MemoryExceptionDiagnostic`.
-        ///
-        /// - Note: MetricKit only reports memory exception diagnostics on iOS 27 and later.
-        /// - Warning: The SDK's watchdog termination tracking already reports out-of-memory
-        ///   terminations. Enabling this report sends the terminations MetricKit reports in
-        ///   addition, so the same termination can show up twice.
-        case memoryException
     }
 }
 
@@ -49,8 +40,6 @@ extension SentryMetricKit.DiagnosticReport {
             return "MXHangDiagnostic"
         case .appLaunch:
             return "MXAppLaunchDiagnostic"
-        case .memoryException:
-            return "MXMemoryException"
         }
     }
 
@@ -66,15 +55,13 @@ extension SentryMetricKit.DiagnosticReport {
             return "mx_hang_diagnostic"
         case .appLaunch:
             return "mx_app_launch_diagnostic"
-        case .memoryException:
-            return "mx_memory_exception"
         }
     }
 
-    /// Crashes and memory exceptions terminate the app, the other reports don't.
+    /// Crashes terminate the app, the other reports don't.
     var isHandled: Bool {
         switch self {
-        case .crash, .memoryException:
+        case .crash:
             return false
         case .hang, .cpuException, .diskWriteException, .appLaunch:
             return true
@@ -98,8 +85,6 @@ extension SentryMetricKit.DiagnosticReport {
             self = .diskWriteException
         case "appLaunch":
             self = .appLaunch
-        case "memoryException":
-            self = .memoryException
         default:
             return nil
         }

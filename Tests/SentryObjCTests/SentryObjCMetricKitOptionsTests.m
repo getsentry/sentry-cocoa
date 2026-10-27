@@ -33,8 +33,7 @@
     SentryObjCMetricKitDiagnosticReport all = SentryObjCMetricKitDiagnosticReportCrash
         | SentryObjCMetricKitDiagnosticReportHang | SentryObjCMetricKitDiagnosticReportCPUException
         | SentryObjCMetricKitDiagnosticReportDiskWriteException
-        | SentryObjCMetricKitDiagnosticReportAppLaunch
-        | SentryObjCMetricKitDiagnosticReportMemoryException;
+        | SentryObjCMetricKitDiagnosticReportAppLaunch;
 
     // -- Act --
     options.experimental.metrickit.enabledDiagnosticReports = all;

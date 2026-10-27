@@ -237,18 +237,13 @@ public struct SentrySDKWrapper {
 #if !os(tvOS) && !os(watchOS)
         let enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
 #if SDK_V10
-        if enableMetricKit {
-            // Memory exceptions aren't captured by default, because watchdog termination tracking
-            // reports them too. Capture both to compare them.
-            options.experimental.metrickit.enabledDiagnosticReports.insert(.memoryException)
-        } else {
+        if !enableMetricKit {
             options.experimental.metrickit.enabledDiagnosticReports = []
         }
 #else
         if enableMetricKit {
-            // Unlike enableMetricKit, the report set also captures app launch and memory exception
-            // diagnostics.
-            options.experimental.metrickit.enabledDiagnosticReports = [.cpuException, .diskWriteException, .hang, .appLaunch, .memoryException]
+            // Unlike enableMetricKit, the report set also captures app launch diagnostics.
+            options.experimental.metrickit.enabledDiagnosticReports = [.cpuException, .diskWriteException, .hang, .appLaunch]
         }
 #endif // SDK_V10
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment

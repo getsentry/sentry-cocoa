@@ -16,8 +16,7 @@ final class SentryObjCCompatMetricKitOptionsTests: XCTestCase {
             (.hang, 1 << 1),
             (.cpuException, 1 << 2),
             (.diskWriteException, 1 << 3),
-            (.appLaunch, 1 << 4),
-            (.memoryException, 1 << 5)
+            (.appLaunch, 1 << 4)
         ]
 
         for (report, expectedBit) in cases {

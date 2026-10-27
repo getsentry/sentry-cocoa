@@ -18,15 +18,13 @@ enum SentryObjCMetricKitDiagnosticReportMapping {
     static let cpuException: SentryObjCMetricKitDiagnosticReport = 1 << 2
     static let diskWriteException: SentryObjCMetricKitDiagnosticReport = 1 << 3
     static let appLaunch: SentryObjCMetricKitDiagnosticReport = 1 << 4
-    static let memoryException: SentryObjCMetricKitDiagnosticReport = 1 << 5
 
     private static let bitsByReport: [(bit: SentryObjCMetricKitDiagnosticReport, report: SentryMetricKit.DiagnosticReport)] = [
         (crash, .crash),
         (hang, .hang),
         (cpuException, .cpuException),
         (diskWriteException, .diskWriteException),
-        (appLaunch, .appLaunch),
-        (memoryException, .memoryException)
+        (appLaunch, .appLaunch)
     ]
 
     static func bits(for reports: Set<SentryMetricKit.DiagnosticReport>) -> SentryObjCMetricKitDiagnosticReport {
