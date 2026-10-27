@@ -11,6 +11,7 @@
 ### Fixes
 
 - Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
+- Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9462)
 
 ## 9.31.0
 
