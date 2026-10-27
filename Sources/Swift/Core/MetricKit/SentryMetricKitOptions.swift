@@ -48,10 +48,18 @@ public final class SentryMetricKitOptions {
     public var hangReportingMode: SentryMetricKitHangReportingMode = .legacy
 
     #if canImport(MetricKit) && !os(tvOS)
-    /// Applies MetricKit options from a dictionary, primarily for hybrid SDK configuration.
+    /// Applies MetricKit options from the options dictionary, primarily for hybrid SDK configuration.
     ///
-    /// Report names in `enabledDiagnosticReports` that the SDK doesn't know are ignored.
-    func apply(dictionary: [String: Any]) {
+    /// Reads `metricKitHangReportingMode` and the nested `metrickit` dictionary. Report names in
+    /// `enabledDiagnosticReports` that the SDK doesn't know are ignored.
+    func apply(optionsDictionary: [String: Any]) {
+        if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(optionsDictionary["metricKitHangReportingMode"] as? String) {
+            self.hangReportingMode = hangReportingMode
+        }
+
+        guard let dictionary = optionsDictionary["metrickit"] as? [String: Any] else {
+            return
+        }
         if let reports = SentryDictionaryDecoder.strings(dictionary, "enabledDiagnosticReports") {
             enabledDiagnosticReports = Set(reports.compactMap(SentryMetricKit.DiagnosticReport.init(dictionaryValue:)))
         }

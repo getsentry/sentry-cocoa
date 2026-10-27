@@ -72,6 +72,8 @@ extension SentryMetricKit.DiagnosticReport {
             self = .cpuException
         case "diskWriteException":
             self = .diskWriteException
+        case "appLaunch":
+            self = .appLaunch
         default:
             return nil
         }

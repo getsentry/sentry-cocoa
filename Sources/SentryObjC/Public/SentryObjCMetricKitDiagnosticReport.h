@@ -16,6 +16,9 @@ typedef NS_OPTIONS(NSUInteger, SentryObjCMetricKitDiagnosticReport) {
     SentryObjCMetricKitDiagnosticReportCPUException = 1 << 2,
     /// A disk write exception, reported by @c MXDiskWriteExceptionDiagnostic.
     SentryObjCMetricKitDiagnosticReportDiskWriteException = 1 << 3,
+    /// A slow app launch, reported by @c MXAppLaunchDiagnostic.
+    /// @note MetricKit only reports app launch diagnostics on iOS 16 and later and on visionOS.
+    SentryObjCMetricKitDiagnosticReportAppLaunch = 1 << 4,
 };
 
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV

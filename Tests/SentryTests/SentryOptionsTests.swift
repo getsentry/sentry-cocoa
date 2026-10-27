@@ -72,7 +72,7 @@ final class SentryOptionsTests: XCTestCase {
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
             "metrickit": [
-                "enabledDiagnosticReports": ["crash", "hang", "cpuException", "diskWriteException"]
+                "enabledDiagnosticReports": ["crash", "hang", "cpuException", "diskWriteException", "appLaunch"]
             ]
         ]
 
@@ -80,7 +80,7 @@ final class SentryOptionsTests: XCTestCase {
         let options = try Options(dictionary: dictionary)
 
         // -- Assert --
-        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.crash, .hang, .cpuException, .diskWriteException])
+        XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.crash, .hang, .cpuException, .diskWriteException, .appLaunch])
     }
 
     func testInitWithDictionary_whenDiagnosticReportsEmpty_shouldDisableAllDiagnosticReports() throws {

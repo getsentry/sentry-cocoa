@@ -28,8 +28,9 @@ typedef NS_ENUM(NSInteger, SentryObjCMetricKitHangReportingMode) {
  *
  * @c SentryObjCMetricKitDiagnosticReportNone disables the MetricKit integration.
  * @note Defaults to @c SentryObjCMetricKitDiagnosticReportCPUException,
- * @c SentryObjCMetricKitDiagnosticReportDiskWriteException and
- * @c SentryObjCMetricKitDiagnosticReportHang.
+ * @c SentryObjCMetricKitDiagnosticReportDiskWriteException,
+ * @c SentryObjCMetricKitDiagnosticReportHang and
+ * @c SentryObjCMetricKitDiagnosticReportAppLaunch.
  */
 #    else
 /**

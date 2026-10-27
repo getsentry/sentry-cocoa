@@ -27,6 +27,11 @@
     },
     {
       "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportAppLaunch",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitDiagnosticReportCPUException",
       "parent": "SentryObjCMetricKitDiagnosticReport"
     },

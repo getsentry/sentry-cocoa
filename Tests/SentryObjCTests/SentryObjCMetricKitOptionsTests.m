@@ -18,7 +18,8 @@
     XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports,
         SentryObjCMetricKitDiagnosticReportCPUException
             | SentryObjCMetricKitDiagnosticReportDiskWriteException
-            | SentryObjCMetricKitDiagnosticReportHang);
+            | SentryObjCMetricKitDiagnosticReportHang
+            | SentryObjCMetricKitDiagnosticReportAppLaunch);
 #    else
     XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports,
         SentryObjCMetricKitDiagnosticReportNone);
@@ -31,7 +32,8 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
     SentryObjCMetricKitDiagnosticReport all = SentryObjCMetricKitDiagnosticReportCrash
         | SentryObjCMetricKitDiagnosticReportHang | SentryObjCMetricKitDiagnosticReportCPUException
-        | SentryObjCMetricKitDiagnosticReportDiskWriteException;
+        | SentryObjCMetricKitDiagnosticReportDiskWriteException
+        | SentryObjCMetricKitDiagnosticReportAppLaunch;
 
     // -- Act --
     options.experimental.metrickit.enabledDiagnosticReports = all;
