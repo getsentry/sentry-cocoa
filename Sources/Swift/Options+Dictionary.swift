@@ -318,17 +318,17 @@ extension Options {
         }
 
         #if canImport(MetricKit) && !os(tvOS)
+        #if !SDK_V10
         if let enableMetricKit = boolValue(dictionary["enableMetricKit"]) {
             self.enableMetricKit = enableMetricKit
         }
+        #endif // !SDK_V10
 
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
 
-        if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(dictionary["metricKitHangReportingMode"] as? String) {
-            self.experimental.metrickit.hangReportingMode = hangReportingMode
-        }
+        self.experimental.metrickit.apply(optionsDictionary: dictionary)
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {

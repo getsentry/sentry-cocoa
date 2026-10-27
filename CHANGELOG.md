@@ -4,12 +4,17 @@
 
 ### Features
 
+- Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
 - Add `attachAllThreads` and scope block overloads for `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)`, also available through `SentryObjC` (#9424)
+- Align the metrics API with the other Sentry SDKs: `SentrySDK.metrics.count(_:value:options:)`, `gauge(_:value:options:)` and `distribution(_:value:options:)` take the metric name, the value and `SentryMetricOptions` with `unit`, `attributes`, `scope` and `timestamp`. `SentryObjC` exposes the same API through `count:value:options:`, `gauge:value:options:`, `distribution:value:options:` and `SentryObjCMetricOptions`. The key-based methods such as `count(key:value:attributes:)` and `countWithKey:value:attributes:` keep working but are deprecated and will be removed in v10; use the options-based methods instead (#9453)
+- Capture MetricKit app launch diagnostics on iOS 16 and later and on visionOS when `options.experimental.metrickit.enabledDiagnosticReports` contains `.appLaunch` (#9441)
+- Expose `options.experimental.metrickit.enabledDiagnosticReports` through the SentryObjC SDK as `options.experimental.metrickit` and through the `metrickit` key of the options dictionary (#9296)
 
 ### Fixes
 
 - Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
 - Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
+- Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
 
 ## 9.31.0
 
