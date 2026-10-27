@@ -5,6 +5,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
@@ -152,11 +153,11 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
         self.systemWrapper = _systemWrapperOverride
             ? _systemWrapperOverride
             : [[SentrySystemWrapper alloc]
-                  initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+                  initWithProcessorCount:SentryProfilerSDKAdapter.shared.processInfoWrapper
                                              .processorCount];
 #    else
         self.systemWrapper = [[SentrySystemWrapper alloc]
-            initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+            initWithProcessorCount:SentryProfilerSDKAdapter.shared.processInfoWrapper
                                        .processorCount];
 #    endif
         _mode = mode;
@@ -263,7 +264,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     __weak typeof(self) weakSelf = self;
     NSInteger intervalNs = (NSInteger)1e9 / frequencyHz;
     NSInteger leewayNs = intervalNs / 2;
-    _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
+    _dispatchSource = [SentryProfilerSDKAdapter.shared.dispatchFactory
         sourceWithInterval:intervalNs
                     leeway:leewayNs
                  queueName:"io.sentry.metric-profiler"
@@ -335,8 +336,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 {
     SentryMetricReading *reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    id<SentryCurrentDateProvider> dateProvider
-        = SentryDependencyContainer.sharedInstance.dateProvider;
+    id<SentryCurrentDateProvider> dateProvider = SentryProfilerSDKAdapter.shared.dateProvider;
     reading.absoluteSystemTimestamp = dateProvider.systemTime;
     reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSince1970;
     return reading;
