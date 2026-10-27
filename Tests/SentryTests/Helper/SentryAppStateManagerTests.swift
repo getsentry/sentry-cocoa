@@ -152,6 +152,21 @@ final class SentryAppStateManagerTests: XCTestCase {
         XCTAssertEqual(sut.startCount, 0)
     }
 
+    func testStopWithForce_shouldMarkSDKAsNotRunningSynchronously() throws {
+        // -- Arrange --
+        // SentrySDK.start() can store a fresh app state right after close(). A pending async
+        // write would then mark the new session as not running.
+        fixture.dispatchQueue.dispatchAsyncExecutesBlock = false
+        sut.start()
+
+        // -- Act --
+        sut.stop(withForce: true)
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+        XCTAssertEqual(fixture.dispatchQueue.dispatchAsyncCalled, 0)
+    }
+
     func testDidBecomeActiveUpdatesAppState() {
         // -- Arrange --
         sut.start()

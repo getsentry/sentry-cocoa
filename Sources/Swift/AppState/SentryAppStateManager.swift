@@ -132,10 +132,11 @@ import UIKit
         // SentrySDK.close() uninstalls the integrations before forcing the stop, which can already
         // bring startCount to 0. Mark the SDK as not running anyway, so the next launch doesn't
         // report a false watchdog termination, see GH-9446.
+        // Write synchronously so the state is final before close() returns. An async write could
+        // land after a subsequent SentrySDK.start() stored a fresh app state and mark that new
+        // session as not running, hiding a real watchdog termination.
         if forceStop {
-            dispatchQueue.dispatchAsync { [self] in
-                _updateAppState { $0.isSDKRunning = false }
-            }
+            _updateAppState { $0.isSDKRunning = false }
         }
 
         guard startCount > 0 else {
