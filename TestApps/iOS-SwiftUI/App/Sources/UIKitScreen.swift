@@ -1,5 +1,9 @@
 import Foundation
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 import SwiftUI
 import UIKit
 

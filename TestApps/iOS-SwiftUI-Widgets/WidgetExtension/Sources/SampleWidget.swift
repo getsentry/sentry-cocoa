@@ -1,6 +1,10 @@
 import _SentryPrivate
 import SentrySampleShared
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 import SwiftUI
 import WidgetKit
 

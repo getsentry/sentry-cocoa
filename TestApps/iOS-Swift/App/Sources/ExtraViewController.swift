@@ -1,5 +1,9 @@
 // swiftlint:disable file_length type_body_length force_try force_unwrapping unused_optional_binding private_outlet
+#if !SDK_V10
 @_spi(Private) import SentrySwift
+#else
+@_spi(Private) import Sentry
+#endif
 import AuthenticationServices
 import Foundation
 import PhotosUI
