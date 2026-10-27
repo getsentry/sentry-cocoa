@@ -48,7 +48,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.crashDiagnostics = [crashDiagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
@@ -126,7 +126,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
             try assertEventWithScopeCaptured { _, _, _ in
                 let diagnosticAttachment = try capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" }
@@ -180,7 +180,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
@@ -221,7 +221,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         assertNothingCaptured()
@@ -259,7 +259,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -301,7 +301,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
             try assertEventWithScopeCaptured { _, _, _ in
                 let diagnosticAttachment = try capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" }
@@ -327,7 +327,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
             try assertEventWithScopeCaptured { event, _, _ in
                 let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
@@ -356,7 +356,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -416,7 +416,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         cpuException.overrides.callStackTree = callStackTree
         payload.overrides.cpuDiagnostic = [cpuException]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
             guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
                 XCTFail("Hub Client is not a `TestClient`")
@@ -457,7 +457,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -516,7 +516,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -590,7 +590,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [majorHang, severeThresholdHang, severeHang, criticalHang]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -620,7 +620,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         try assertPerThread(exceptionType: "MXAppLaunchDiagnostic", exceptionValue: "MXAppLaunchDiagnostic launchDuration:3.3 sec", exceptionMechanism: "mx_app_launch_diagnostic")
@@ -647,7 +647,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.appLaunchDiagnostics = [appLaunchDiagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        sut.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         assertNothingCaptured()

@@ -1,6 +1,5 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import Foundation
-import MetricKit
 
 /// Describes a MetricKit event with the app, OS and device metadata the diagnostic was recorded
 /// with.
@@ -9,18 +8,14 @@ extension SentryMXManager {
     /// process.
     ///
     /// A diagnostic only counts as the current run's when that is certain. MetricKit reports the
-    /// recording process on iOS 17 and macOS 14 and later. Without that, a payload window that
-    /// opened after the process started can only hold diagnostics of this run. Everything else is
+    /// recording process on iOS 17 and macOS 14 and later. Without that, a diagnostic reported
+    /// after the process started can only belong to this run. Everything else is
     /// treated as a previous process, so the running process's data is never attached by mistake.
-    func isFromPreviousProcess(diagnostic: MXDiagnostic, payloadTimeStampBegin: Date) -> Bool {
-        if #available(iOS 17.0, macOS 14.0, *) {
-            // MetricKit declares the metadata as nonnull, but a missing one bridges to a pid of 0.
-            let pid = diagnostic.metaData.pid
-            if pid != 0 {
-                return pid != processIdentifier
-            }
+    func isFromPreviousProcess(diagnostic: SentryMXDiagnostic) -> Bool {
+        if let pid = diagnostic.metadata.pid {
+            return pid != processIdentifier
         }
-        return payloadTimeStampBegin < processStartDate
+        return diagnostic.timestamp < processStartDate
     }
 
     /// Sets the release and the contexts of an event from a previous process.
@@ -29,19 +24,15 @@ extension SentryMXManager {
     /// itself, reduced to the attributes known for the time the diagnostic was recorded. MetricKit
     /// can deliver a diagnostic after the app or the OS was updated, so the versions come from the
     /// diagnostic and not from the running app.
-    func applyMetadata(of diagnostic: MXDiagnostic, to event: Event, runningScope: Scope) {
-        applyRelease(
-            appVersion: diagnostic.applicationVersion,
-            appBuild: diagnostic.metaData.applicationBuildVersion,
-            to: event
-        )
+    func applyMetadata(of metadata: SentryMXDiagnostic.Metadata, to event: Event, runningScope: Scope) {
+        applyRelease(appVersion: metadata.appVersion, appBuild: metadata.appBuild, to: event)
 
         var context = event.context ?? [:]
-        let appContext = Self.diagnosticAppContext(for: diagnostic, runningApp: runningScope.getContextForKey("app"))
+        let appContext = Self.diagnosticAppContext(for: metadata, runningApp: runningScope.getContextForKey("app"))
         if !appContext.isEmpty {
             context["app"] = appContext
         }
-        let osContext = Self.diagnosticOSContext(for: diagnostic, runningOS: runningScope.getContextForKey("os"))
+        let osContext = Self.diagnosticOSContext(for: metadata, runningOS: runningScope.getContextForKey("os"))
         if !osContext.isEmpty {
             context["os"] = osContext
         }
@@ -61,38 +52,35 @@ extension SentryMXManager {
     /// Builds the app context from the attributes known for the time the diagnostic was recorded.
     /// Everything that depends on the running build or process, such as the build type or the app
     /// start time, is left out.
-    static func diagnosticAppContext(for diagnostic: MXDiagnostic, runningApp: [String: Any]?) -> [String: Any] {
+    static func diagnosticAppContext(for metadata: SentryMXDiagnostic.Metadata, runningApp: [String: Any]?) -> [String: Any] {
         var appContext: [String: Any] = [:]
         // The bundle identifier doesn't change between builds, so the running one still applies.
         if let appIdentifier = runningApp?["app_identifier"] {
             appContext["app_identifier"] = appIdentifier
         }
-        // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
-        let appVersion = diagnostic.applicationVersion
-        if !appVersion.isEmpty {
-            appContext["app_version"] = appVersion
+        if !metadata.appVersion.isEmpty {
+            appContext["app_version"] = metadata.appVersion
         }
-        let appBuild = diagnostic.metaData.applicationBuildVersion
-        if !appBuild.isEmpty {
-            appContext["app_build"] = appBuild
+        if !metadata.appBuild.isEmpty {
+            appContext["app_build"] = metadata.appBuild
         }
         return appContext
     }
 
     /// Builds the OS context from the attributes known for the time the diagnostic was recorded.
     /// The running kernel version and jailbreak state describe today's device, so they are left
-    /// out. When MetricKit's OS string can't be parsed, the version and build are left out as
-    /// well instead of pairing the diagnostic with the running OS.
-    static func diagnosticOSContext(for diagnostic: MXDiagnostic, runningOS: [String: Any]?) -> [String: Any] {
+    /// out. When MetricKit doesn't report a parsable OS version, the version and build are left
+    /// out as well instead of pairing the diagnostic with the running OS.
+    static func diagnosticOSContext(for metadata: SentryMXDiagnostic.Metadata, runningOS: [String: Any]?) -> [String: Any] {
         var osContext: [String: Any] = [:]
         // The OS name doesn't change on a device, so the running one still applies.
         if let name = runningOS?["name"] {
             osContext["name"] = name
         }
-        if let osVersion = Self.parseOSVersion(diagnostic.metaData.osVersion) {
-            osContext["version"] = osVersion.version
-            if let build = osVersion.build {
-                osContext["build"] = build
+        if let osVersion = metadata.osVersion {
+            osContext["version"] = osVersion
+            if let osBuild = metadata.osBuild {
+                osContext["build"] = osBuild
             }
         }
         return osContext
@@ -153,24 +141,6 @@ extension SentryMXManager {
 
         event.releaseName = SentryReleaseName.format(appIdentifier: appIdentifier, appVersion: appVersion, appBuild: appBuild)
         event.dist = appBuild
-    }
-
-    /// Extracts version and build from the MetricKit format, for example
-    /// `iPhone OS 18.6.2 (22G100)`.
-    private static func parseOSVersion(_ osVersion: String) -> (version: String, build: String?)? {
-        let version = osVersion.split(separator: " ").first { component in
-            component.first?.isNumber == true && component.allSatisfy { $0.isNumber || $0 == "." }
-        }
-        guard let version else {
-            return nil
-        }
-
-        var build: String?
-        if let open = osVersion.lastIndex(of: "("), let close = osVersion.lastIndex(of: ")"), open < close {
-            let value = osVersion[osVersion.index(after: open)..<close]
-            build = value.isEmpty ? nil : String(value)
-        }
-        return (String(version), build)
     }
 }
 

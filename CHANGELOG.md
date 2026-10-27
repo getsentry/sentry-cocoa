@@ -13,6 +13,7 @@
 ### Fixes
 
 - Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
+- Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later, and capture memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException`. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
 
 ## 9.31.0
 
