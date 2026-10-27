@@ -137,6 +137,19 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryObjCId *)captureEvent:(SentryObjCEvent *)event attachAllThreads:(BOOL)attachAllThreads;
 
 /**
+ * Captures a manually created event and sends it to Sentry, with a per-call override for
+ * attaching all threads with stack traces. Maintains the global scope but mutates scope data for
+ * only this call.
+ * @param event The event to send to Sentry.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureEvent:(SentryObjCEvent *)event
+              attachAllThreads:(BOOL)attachAllThreads
+                    scopeBlock:(void (^)(SentryObjCScope *))block;
+
+/**
  * Captures a manually created event and sends it to Sentry with a user-provided hint.
  * @param event The event to send to Sentry.
  * @param hint The hint providing additional context for callbacks.
@@ -260,6 +273,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryObjCId *)captureError:(NSError *)error attachAllThreads:(BOOL)attachAllThreads;
 
 /**
+ * Captures an error event and sends it to Sentry, with a per-call override for attaching all
+ * threads with stack traces. Maintains the global scope but mutates scope data for only this call.
+ * @param error The error to send to Sentry.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureError:(NSError *)error
+              attachAllThreads:(BOOL)attachAllThreads
+                    scopeBlock:(void (^)(SentryObjCScope *))block;
+
+/**
  * Captures an error event and sends it to Sentry with a user-provided hint.
  * @param error The error to send to Sentry.
  * @param hint The hint providing additional context for callbacks.
@@ -327,6 +352,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryObjCId *)captureException:(NSException *)exception attachAllThreads:(BOOL)attachAllThreads;
 
 /**
+ * Captures an exception event and sends it to Sentry, with a per-call override for attaching all
+ * threads with stack traces. Maintains the global scope but mutates scope data for only this call.
+ * @param exception The exception to send to Sentry.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureException:(NSException *)exception
+                  attachAllThreads:(BOOL)attachAllThreads
+                        scopeBlock:(void (^)(SentryObjCScope *))block;
+
+/**
  * Captures an exception event and sends it to Sentry with a user-provided hint.
  * @param exception The exception to send to Sentry.
  * @param hint The hint providing additional context for callbacks.
@@ -392,6 +429,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
  */
 + (SentryObjCId *)captureMessage:(NSString *)message attachAllThreads:(BOOL)attachAllThreads;
+
+/**
+ * Captures a message event and sends it to Sentry, with a per-call override for attaching all
+ * threads with stack traces. Maintains the global scope but mutates scope data for only this call.
+ * @param message The message to send to Sentry.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureMessage:(NSString *)message
+                attachAllThreads:(BOOL)attachAllThreads
+                      scopeBlock:(void (^)(SentryObjCScope *))block;
 
 /**
  * Captures a message event and sends it to Sentry with a user-provided hint.
