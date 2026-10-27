@@ -15,38 +15,169 @@ final class SentryObjCMetricsApiTests: XCTestCase {
 
     // MARK: - count
 
+    func testCountWithOptions_shouldForwardAllOptions() throws {
+        // -- Arrange --
+        let scope = SentryObjCScope()
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let options = SentryObjCMetricOptions()
+        options.unit = .millisecond
+        options.attributes = ["source": .string("test")]
+        options.scope = scope
+        options.timestamp = timestamp
+
+        // -- Act --
+        sut.count("events", value: 5, options: options)
+
+        // -- Assert --
+        XCTAssertEqual(mock.countInvocations.count, 1)
+        let inv = try XCTUnwrap(mock.countInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "events")
+        XCTAssertEqual(inv["value"] as? UInt, 5)
+        XCTAssertEqual(inv["unit"] as? String, "millisecond")
+        XCTAssertEqual((inv["attributes"] as? [String: Any])?["source"] as? String, "test")
+        XCTAssertNotNil(inv["scope"])
+        XCTAssertEqual(inv["timestamp"] as? Date, timestamp)
+    }
+
+    func testCountWithValue_shouldForwardEmptyOptions() throws {
+        // -- Act --
+        sut.count("events", value: 3)
+
+        // -- Assert --
+        let inv = try XCTUnwrap(mock.countInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "events")
+        XCTAssertEqual(inv["value"] as? UInt, 3)
+        XCTAssertEqual((inv["attributes"] as? [String: Any])?.count, 0)
+        XCTAssertNil(inv["unit"])
+        XCTAssertNil(inv["scope"])
+        XCTAssertNil(inv["timestamp"])
+    }
+
+    func testCountWithName_shouldForwardValueOne() throws {
+        // -- Act --
+        sut.count("events")
+
+        // -- Assert --
+        let inv = try XCTUnwrap(mock.countInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "events")
+        XCTAssertEqual(inv["value"] as? UInt, 1)
+    }
+
+    // MARK: - distribution
+
+    func testDistributionWithOptions_shouldForwardAllOptions() throws {
+        // -- Arrange --
+        let scope = SentryObjCScope()
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let options = SentryObjCMetricOptions()
+        options.unit = .millisecond
+        options.attributes = ["endpoint": .string("/api")]
+        options.scope = scope
+        options.timestamp = timestamp
+
+        // -- Act --
+        sut.distribution("latency", value: 42.5, options: options)
+
+        // -- Assert --
+        let inv = try XCTUnwrap(mock.distributionInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "latency")
+        XCTAssertEqual(inv["value"] as? Double, 42.5)
+        XCTAssertEqual(inv["unit"] as? String, "millisecond")
+        XCTAssertEqual((inv["attributes"] as? [String: Any])?["endpoint"] as? String, "/api")
+        XCTAssertNotNil(inv["scope"])
+        XCTAssertEqual(inv["timestamp"] as? Date, timestamp)
+    }
+
+    func testDistributionWithValue_shouldForwardEmptyOptions() throws {
+        // -- Act --
+        sut.distribution("latency", value: 5.0)
+
+        // -- Assert --
+        let inv = try XCTUnwrap(mock.distributionInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "latency")
+        XCTAssertEqual(inv["value"] as? Double, 5.0)
+        XCTAssertNil(inv["unit"])
+        XCTAssertNil(inv["scope"])
+        XCTAssertNil(inv["timestamp"])
+    }
+
+    // MARK: - gauge
+
+    func testGaugeWithOptions_shouldForwardAllOptions() throws {
+        // -- Arrange --
+        let scope = SentryObjCScope()
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let options = SentryObjCMetricOptions()
+        options.unit = .byte
+        options.attributes = ["process": .string("main")]
+        options.scope = scope
+        options.timestamp = timestamp
+
+        // -- Act --
+        sut.gauge("memory", value: 1_024.0, options: options)
+
+        // -- Assert --
+        let inv = try XCTUnwrap(mock.gaugeInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "memory")
+        XCTAssertEqual(inv["value"] as? Double, 1_024.0)
+        XCTAssertEqual(inv["unit"] as? String, "byte")
+        XCTAssertEqual((inv["attributes"] as? [String: Any])?["process"] as? String, "main")
+        XCTAssertNotNil(inv["scope"])
+        XCTAssertEqual(inv["timestamp"] as? Date, timestamp)
+    }
+
+    func testGaugeWithValue_shouldForwardEmptyOptions() throws {
+        // -- Act --
+        sut.gauge("memory", value: 256.0)
+
+        // -- Assert --
+        let inv = try XCTUnwrap(mock.gaugeInvocations.first)
+        XCTAssertEqual(inv["name"] as? String, "memory")
+        XCTAssertEqual(inv["value"] as? Double, 256.0)
+        XCTAssertNil(inv["unit"])
+        XCTAssertNil(inv["scope"])
+        XCTAssertNil(inv["timestamp"])
+    }
+
+    #if !SDK_V10
+    // MARK: - Deprecated count
+
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testCountWithKeyValueAttributes_shouldForwardAllParameters() {
         // -- Act --
         sut.count(withKey: "events", value: 5, attributes: ["source": .string("test")])
 
         // -- Assert --
         XCTAssertEqual(mock.countInvocations.count, 1)
-        XCTAssertEqual(mock.countInvocations.first?["key"] as? String, "events")
+        XCTAssertEqual(mock.countInvocations.first?["name"] as? String, "events")
         XCTAssertEqual(mock.countInvocations.first?["value"] as? UInt, 5)
     }
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testCountWithKeyValue_shouldForwardWithEmptyAttributes() {
         // -- Act --
         sut.count(withKey: "events", value: 3)
 
         // -- Assert --
         XCTAssertEqual(mock.countInvocations.count, 1)
-        XCTAssertEqual(mock.countInvocations.first?["key"] as? String, "events")
+        XCTAssertEqual(mock.countInvocations.first?["name"] as? String, "events")
         XCTAssertEqual(mock.countInvocations.first?["value"] as? UInt, 3)
     }
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testCountWithKey_shouldForwardWithValueOneAndEmptyAttributes() {
         // -- Act --
         sut.count(withKey: "events")
 
         // -- Assert --
         XCTAssertEqual(mock.countInvocations.count, 1)
-        XCTAssertEqual(mock.countInvocations.first?["key"] as? String, "events")
+        XCTAssertEqual(mock.countInvocations.first?["name"] as? String, "events")
         XCTAssertEqual(mock.countInvocations.first?["value"] as? UInt, 1)
     }
 
-    // MARK: - distribution
+    // MARK: - Deprecated distribution
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testDistributionWithKeyValueUnitAttributes_shouldForwardAllParameters() {
         // -- Act --
         sut.distribution(
@@ -58,35 +189,38 @@ final class SentryObjCMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.distributionInvocations.count, 1)
-        XCTAssertEqual(mock.distributionInvocations.first?["key"] as? String, "latency")
+        XCTAssertEqual(mock.distributionInvocations.first?["name"] as? String, "latency")
         XCTAssertEqual(mock.distributionInvocations.first?["value"] as? Double, 42.5)
         XCTAssertEqual(mock.distributionInvocations.first?["unit"] as? String, "millisecond")
     }
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testDistributionWithKeyValueUnit_shouldForwardWithEmptyAttributes() {
         // -- Act --
         sut.distribution(withKey: "latency", value: 10.0, unit: .second)
 
         // -- Assert --
         XCTAssertEqual(mock.distributionInvocations.count, 1)
-        XCTAssertEqual(mock.distributionInvocations.first?["key"] as? String, "latency")
+        XCTAssertEqual(mock.distributionInvocations.first?["name"] as? String, "latency")
         XCTAssertEqual(mock.distributionInvocations.first?["value"] as? Double, 10.0)
         XCTAssertEqual(mock.distributionInvocations.first?["unit"] as? String, "second")
     }
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testDistributionWithKeyValue_shouldForwardWithNilUnitAndEmptyAttributes() {
         // -- Act --
         sut.distribution(withKey: "latency", value: 5.0)
 
         // -- Assert --
         XCTAssertEqual(mock.distributionInvocations.count, 1)
-        XCTAssertEqual(mock.distributionInvocations.first?["key"] as? String, "latency")
+        XCTAssertEqual(mock.distributionInvocations.first?["name"] as? String, "latency")
         XCTAssertEqual(mock.distributionInvocations.first?["value"] as? Double, 5.0)
         XCTAssertNil(mock.distributionInvocations.first?["unit"])
     }
 
-    // MARK: - gauge
+    // MARK: - Deprecated gauge
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testGaugeWithKeyValueUnitAttributes_shouldForwardAllParameters() {
         // -- Act --
         sut.gauge(
@@ -98,30 +232,33 @@ final class SentryObjCMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.gaugeInvocations.count, 1)
-        XCTAssertEqual(mock.gaugeInvocations.first?["key"] as? String, "memory")
+        XCTAssertEqual(mock.gaugeInvocations.first?["name"] as? String, "memory")
         XCTAssertEqual(mock.gaugeInvocations.first?["value"] as? Double, 1_024.0)
         XCTAssertEqual(mock.gaugeInvocations.first?["unit"] as? String, "byte")
     }
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testGaugeWithKeyValueUnit_shouldForwardWithEmptyAttributes() {
         // -- Act --
         sut.gauge(withKey: "memory", value: 512.0, unit: .megabyte)
 
         // -- Assert --
         XCTAssertEqual(mock.gaugeInvocations.count, 1)
-        XCTAssertEqual(mock.gaugeInvocations.first?["key"] as? String, "memory")
+        XCTAssertEqual(mock.gaugeInvocations.first?["name"] as? String, "memory")
         XCTAssertEqual(mock.gaugeInvocations.first?["value"] as? Double, 512.0)
         XCTAssertEqual(mock.gaugeInvocations.first?["unit"] as? String, "megabyte")
     }
 
+    @available(*, deprecated, message: "Testing the deprecated key-based API")
     func testGaugeWithKeyValue_shouldForwardWithNilUnitAndEmptyAttributes() {
         // -- Act --
         sut.gauge(withKey: "memory", value: 256.0)
 
         // -- Assert --
         XCTAssertEqual(mock.gaugeInvocations.count, 1)
-        XCTAssertEqual(mock.gaugeInvocations.first?["key"] as? String, "memory")
+        XCTAssertEqual(mock.gaugeInvocations.first?["name"] as? String, "memory")
         XCTAssertEqual(mock.gaugeInvocations.first?["value"] as? Double, 256.0)
         XCTAssertNil(mock.gaugeInvocations.first?["unit"])
     }
+    #endif // !SDK_V10
 }

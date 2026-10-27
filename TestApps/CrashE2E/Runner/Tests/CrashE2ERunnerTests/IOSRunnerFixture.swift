@@ -41,8 +41,14 @@ struct IOSRunnerFixture {
                 return call.result(status: launchctlStatus, stdout: launchctlStatus == 0 ? output : "")
             }
 
+            if call.isCommand("sudo", ["-n", "/usr/sbin/spindump"]) {
+                let output = try XCTUnwrap(call.arguments.drop(while: { $0 != "-o" }).dropFirst().first)
+                try "symbolicated stackshot\n".write(toFile: output, atomically: true, encoding: .utf8)
+                return call.result()
+            }
+
             if call.isCommand("xcrun", ["simctl", "install"]) || call.isCommand("xcrun", ["simctl", "uninstall"])
-                || call.isCommand("ps") || call.isCommand("sample")
+                || call.isCommand("ps")
                 || call.isCommand("uptime") || call.isCommand("vm_stat") {
                 return call.result()
             }

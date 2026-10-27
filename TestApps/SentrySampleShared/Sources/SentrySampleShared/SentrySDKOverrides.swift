@@ -238,6 +238,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
     public enum MetricKit: String, SentrySDKOverride {
         case disable = "--io.sentry.metric-kit.disable"
         case disableRawPayloads = "--io.sentry.metric-kit.disable-raw-payloads"
+        case slowLaunch = "--io.sentry.metric-kit.slow-launch"
     }
     case metricKit = "MetricKit"
 
@@ -571,7 +572,7 @@ extension SentrySDKOverrides.Crash {
 extension SentrySDKOverrides.MetricKit {
     public var overrideType: OverrideType {
         switch self {
-        case .disable, .disableRawPayloads: return .boolean
+        case .disable, .disableRawPayloads, .slowLaunch: return .boolean
         }
     }
 }
@@ -795,7 +796,15 @@ extension SentrySDKOverrides.Crash {
 }
 
 extension SentrySDKOverrides.MetricKit {
-    public var ignoresDisableEverything: Bool { return false }
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .disable, .disableRawPayloads:
+            return false
+        case .slowLaunch:
+            // Disabling everything must not slow down every launch.
+            return true
+        }
+    }
 }
 
 extension SentrySDKOverrides.Metrics {

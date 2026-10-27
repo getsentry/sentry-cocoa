@@ -700,7 +700,8 @@ final class SentryClientTests: XCTestCase {
     func testCaptureEvent_whenHangDecodingFails_shouldSendRawDiagnosticWithoutCurrentStacktrace() throws {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
-            options.enableMetricKit = true
+            // A configured report set enables the integration in every SDK version.
+            options.experimental.metrickit.enabledDiagnosticReports = [.hang]
             options.enableMetricKitRawPayload = true
             options.attachStacktrace = true
         })
@@ -875,7 +876,7 @@ final class SentryClientTests: XCTestCase {
             options.attachAllThreads = true
         })
 
-        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic"] {
+        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic", "mx_app_launch_diagnostic"] {
             let event = Event(level: .warning)
             let exception = Exception(value: "Diagnostic without a decoded call stack", type: "MetricKit")
             exception.mechanism = Mechanism(type: mechanism)

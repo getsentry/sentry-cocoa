@@ -873,11 +873,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 #endif // SDK_V10
 
 #if SENTRY_HAS_METRIC_KIT
-#    if SDK_V10
-    XCTAssertEqual(YES, options.enableMetricKit);
-#    else
+#    if !SDK_V10
     XCTAssertEqual(NO, options.enableMetricKit);
-#    endif // SDK_V10
+#    endif // !SDK_V10
     XCTAssertEqual(NO, options.enableMetricKitRawPayload);
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -1058,14 +1056,12 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 #if SENTRY_HAS_METRIC_KIT
 
+#    if !SDK_V10
 - (void)testEnableMetricKit
 {
-#    if SDK_V10
-    [self testBooleanField:@"enableMetricKit" defaultValue:YES];
-#    else
     [self testBooleanField:@"enableMetricKit" defaultValue:NO];
-#    endif // SDK_V10
 }
+#    endif // !SDK_V10
 
 - (void)testenableMetricKitRawPayload
 {
@@ -1208,7 +1204,10 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : sampler }];
 
-    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+    SentryTransactionContext *transactionContext =
+        [[SentryTransactionContext alloc] initWithName:@"name" operation:@"operation"];
+    SentrySamplingContext *context =
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
     XCTAssertEqual(options.tracesSampler(context), @1.0);
 }
 
