@@ -79,3 +79,4 @@
 - Seed extras, tags, user, context, breadcrumbs, and other nested scope fields into KSCrash crash reports at install time, instead of relying on KSCrash user info scalars
 - Propagate the selected V10 API configuration to SwiftPM consumer headers without requiring client compiler defines (#9182)
 - Prevent V10 SentryObjC static XCFrameworks from advertising incomplete architectures supplied only by dependencies (#9182)
+- Restore `import Sentry` for V10 SwiftPM source consumers while preserving default V9 imports (#9459)
