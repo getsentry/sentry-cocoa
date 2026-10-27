@@ -40,9 +40,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
     private let isManuallyPaused = SentryMutex(false)
-    /// The replay the global crash-sync info was last started for. Segments arrive on the processing
-    /// queue, so this is guarded instead of reading `sessionReplay`.
-    private let crashSyncReplayId = SentryMutex<SentryId?>(nil)
+    /// The id of the replay that is current, i.e. the one the global crash-sync info was last started
+    /// for. Segments arrive on the processing queue, so this is guarded instead of reading `sessionReplay`.
+    private let currentReplayId = SentryMutex<SentryId?>(nil)
 
     /// Getter to get the current application at runtime
     ///
@@ -363,7 +363,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         
         if let replayId = newSessionReplay.sessionReplayId {
             // Under the lock, so a segment check in `sessionReplayNewSegment` can't interleave with the reset.
-            crashSyncReplayId.withLock {
+            currentReplayId.withLock {
                 replayFileManager.saveCurrentSessionInfo(
                     replayId,
                     path: sessionDocs.path,
@@ -556,19 +556,21 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
+            // A late segment of a stopped replay (e.g. flush then stop then start) must not stop the
+            // replay that replaced it, which may be buffering and would outlive the rate limit.
+            guard currentReplayId.withLock({ $0 == replayEvent.eventId }) else { return }
             replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
                 self?.cancelPendingStartAndStopCurrentReplay()
             }
             return
         }
-        guard let timestamp = replayEvent.timestamp else { 
+        guard let timestamp = replayEvent.timestamp else {
             SentrySDKLog.warning("[Session Replay] Could not capture replay event, reason: timestamp is nil")
-            return 
+            return
         }
         SentrySDKInternal.currentHub().captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
-        // A late segment of a stopped replay (e.g. flush then stop then start) must not overwrite the
-        // crash info of the replay that replaced it.
-        crashSyncReplayId.withLock {
+        // Likewise, a late segment must not overwrite the crash info of the replay that replaced it.
+        currentReplayId.withLock {
             guard $0 == replayEvent.eventId else { return }
             sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
         }
