@@ -117,6 +117,14 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                     process(hangDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
                 }
             }
+            #if os(iOS) || os(visionOS)
+            if #available(iOS 16.0, *), let diagnostics = payload.appLaunchDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit app launch diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(appLaunchDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
+            }
+            #endif // os(iOS) || os(visionOS)
         }
     }
 
@@ -198,6 +206,27 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             level: level
         )
     }
+
+    #if os(iOS) || os(visionOS)
+    @available(iOS 16.0, *)
+    private func process(appLaunchDiagnostic diagnostic: MXAppLaunchDiagnostic, timestamp: Date) {
+        guard enabledDiagnostics.contains(.appLaunch) else {
+            SentrySDKLog.debug("App launch diagnostics are not enabled, skipping payload")
+            return
+        }
+        SentrySDKLog.debug("Processing app launch diagnostic at timestamp: \(timestamp)")
+
+        let launchDuration = measurementFormatter.string(from: diagnostic.launchDuration)
+
+        captureEvent(
+            handled: true,
+            diagnosticReport: .appLaunch,
+            exceptionValue: "MXAppLaunchDiagnostic launchDuration:\(launchDuration)",
+            timeStampBegin: timestamp,
+            diagnostic: diagnostic
+        )
+    }
+    #endif // os(iOS) || os(visionOS)
 
     private func captureEvent(
         handled: Bool,

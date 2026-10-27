@@ -327,6 +327,8 @@ extension Options {
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
+
+        self.experimental.metrickit.apply(optionsDictionary: dictionary)
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {

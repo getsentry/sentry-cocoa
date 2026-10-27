@@ -20,17 +20,32 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .counter(value), unit: nil, timestamp: nil, attributes: attributes, overridingAttributes: [:])
+    func count(_ name: String, value: UInt, options: SentryMetricOptions) {
+        // Count metrics have no unit, see SentryMetricOptions.unit.
+        captureMetric(name: name, value: .counter(value), unit: nil, options: options, overridingAttributes: [:])
     }
 
-    func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .distribution(value), unit: unit, timestamp: nil, attributes: attributes, overridingAttributes: [:])
+    func distribution(_ name: String, value: Double, options: SentryMetricOptions) {
+        captureMetric(name: name, value: .distribution(value), unit: options.unit, options: options, overridingAttributes: [:])
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .gauge(value), unit: unit, timestamp: nil, attributes: attributes, overridingAttributes: [:])
+    func gauge(_ name: String, value: Double, options: SentryMetricOptions) {
+        captureMetric(name: name, value: .gauge(value), unit: options.unit, options: options, overridingAttributes: [:])
     }
+
+    #if !SDK_V10
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
+        count(key, value: value, options: SentryMetricOptions(attributes: attributes))
+    }
+
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        distribution(key, value: value, options: SentryMetricOptions(unit: unit, attributes: attributes))
+    }
+
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        gauge(key, value: value, options: SentryMetricOptions(unit: unit, attributes: attributes))
+    }
+    #endif // !SDK_V10
 
     // MARK: - Capture
 
@@ -40,8 +55,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
-        timestamp: Date?,
-        attributes: [String: SentryAttributeValue],
+        options: SentryMetricOptions,
         overridingAttributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
@@ -70,16 +84,18 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         let traceId = dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
 
         let metric = SentryMetric(
-            timestamp: timestamp ?? dependencies.dateProvider.date(),
+            timestamp: options.timestamp ?? dependencies.dateProvider.date(),
             traceId: traceId,
             name: name,
             value: value,
             unit: unit,
-            attributes: attributes.mapValues { attributable in
+            attributes: options.attributes.mapValues { attributable in
                 attributable.asSentryAttributeContent
             }
         )
-        let currentScope = dependencies.currentScopeStorage.scope()
+        // A scope passed in the options takes the place of the thread's current scope, so it
+        // layers over the global scope the same way.
+        let currentScope = options.scope ?? dependencies.currentScopeStorage.scope()
         integration.addMetric(
             metric,
             scope: dependencies.scope,

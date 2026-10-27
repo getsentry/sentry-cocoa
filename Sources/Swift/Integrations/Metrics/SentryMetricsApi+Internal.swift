@@ -4,7 +4,8 @@ import Foundation
 /// a MetricKit payload delivered up to a day after its reporting interval.
 ///
 /// It is internal on purpose: `SentrySDK.metrics` is typed as the public
-/// `SentryMetricsApiProtocol`, which doesn't expose it.
+/// `SentryMetricsApiProtocol`, which only exposes the timestamp through ``SentryMetricOptions``
+/// and doesn't expose `overridingAttributes`.
 ///
 /// The SDK doesn't limit how old the timestamp may be. Relay rejects trace metrics older than
 /// the organization's trace metric retention and corrects timestamps for clock drift, so
@@ -48,7 +49,7 @@ extension SentryMetricsApi: SentryInternalMetricsApi {
         attributes: [String: SentryAttributeValue] = [:],
         overridingAttributes: [String: SentryAttributeValue] = [:]
     ) {
-        captureMetric(name: key, value: .counter(value), unit: nil, timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+        captureMetric(name: key, value: .counter(value), unit: nil, options: SentryMetricOptions(attributes: attributes, timestamp: timestamp), overridingAttributes: overridingAttributes)
     }
 
     func distribution(
@@ -59,7 +60,7 @@ extension SentryMetricsApi: SentryInternalMetricsApi {
         attributes: [String: SentryAttributeValue] = [:],
         overridingAttributes: [String: SentryAttributeValue] = [:]
     ) {
-        captureMetric(name: key, value: .distribution(value), unit: unit, timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+        captureMetric(name: key, value: .distribution(value), unit: unit, options: SentryMetricOptions(unit: unit, attributes: attributes, timestamp: timestamp), overridingAttributes: overridingAttributes)
     }
 
     func gauge(
@@ -70,6 +71,6 @@ extension SentryMetricsApi: SentryInternalMetricsApi {
         attributes: [String: SentryAttributeValue] = [:],
         overridingAttributes: [String: SentryAttributeValue] = [:]
     ) {
-        captureMetric(name: key, value: .gauge(value), unit: unit, timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+        captureMetric(name: key, value: .gauge(value), unit: unit, options: SentryMetricOptions(unit: unit, attributes: attributes, timestamp: timestamp), overridingAttributes: overridingAttributes)
     }
 }
