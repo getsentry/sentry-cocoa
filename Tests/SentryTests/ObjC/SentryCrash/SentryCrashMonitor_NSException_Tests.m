@@ -174,7 +174,9 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
     }
     g_probeThread = pthread_mach_thread_np(probe);
     sentrycrashcm_setEventCallback(captureExceptionContext);
-    sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNSException);
+    // The monitor manager masks NSException under a debugger. Enable it directly so these
+    // tests also exercise the handler when run from Xcode with the debugger attached.
+    sentrycrashcm_nsexception_getAPI()->setEnabled(true);
     NSUncaughtExceptionHandler *handler = NSGetUncaughtExceptionHandler();
 
     handler(exception);
