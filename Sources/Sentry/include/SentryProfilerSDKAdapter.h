@@ -1,5 +1,9 @@
 #import "SentryDefines.h"
+#import "SentryProfilingCancellation.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingFrameMeasurements.h"
+#import "SentryProfilingSystemMetrics.h"
+#import "SentryProfilingTimestamp.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -20,6 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nullable) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, readonly, nullable) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, readonly, nullable) id<SentryProcessInfoSource> processInfoWrapper;
+
+- (SentryProfilingTimestamp)timestamp;
+- (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages;
+- (SentryProfilingSystemMetrics *_Nullable)systemMetrics;
+- (id<SentryProfilingCancellation> _Nullable)
+    scheduleMetricSamplingWithInterval:(uint64_t)intervalNanoseconds
+                                leeway:(uint64_t)leewayNanoseconds
+                                 block:(dispatch_block_t)block;
+- (id<SentryProfilingCancellation> _Nullable)scheduleTimerWithInterval:(NSTimeInterval)interval
+                                                               repeats:(BOOL)repeats
+                                                                 block:(dispatch_block_t)block;
 
 - (NSDate *_Nullable)date;
 - (uint64_t)systemTime;
@@ -51,6 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stopFramesTracker;
 - (void)resetProfilingTimestamps;
 - (SentryScreenFrames *_Nullable)copyCurrentFrames;
+- (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements;
 #    endif
 
 @end

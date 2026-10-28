@@ -58,6 +58,39 @@
     return [self.target processInfoWrapper];
 }
 
+- (SentryProfilingTimestamp)timestamp
+{
+    id<SentryProfilerSDKBackend> target = self.target;
+    return target == nil ? (SentryProfilingTimestamp) { 0, 0 } : [target timestamp];
+}
+
+- (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages
+{
+    return [self.target serializedDebugImages];
+}
+
+- (SentryProfilingSystemMetrics *_Nullable)systemMetrics
+{
+    return [self.target systemMetrics];
+}
+
+- (id<SentryProfilingCancellation> _Nullable)
+    scheduleMetricSamplingWithInterval:(uint64_t)intervalNanoseconds
+                                leeway:(uint64_t)leewayNanoseconds
+                                 block:(dispatch_block_t)block
+{
+    return [self.target scheduleMetricSamplingWithInterval:intervalNanoseconds
+                                                    leeway:leewayNanoseconds
+                                                     block:block];
+}
+
+- (id<SentryProfilingCancellation> _Nullable)scheduleTimerWithInterval:(NSTimeInterval)interval
+                                                               repeats:(BOOL)repeats
+                                                                 block:(dispatch_block_t)block
+{
+    return [self.target scheduleTimerWithInterval:interval repeats:repeats block:block];
+}
+
 - (void)dispatchAsync:(dispatch_block_t)block
 {
     [self.target dispatchAsync:block];
@@ -161,6 +194,11 @@
 - (void)resetProfilingTimestamps
 {
     [self.target resetProfilingTimestamps];
+}
+
+- (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements
+{
+    return [self.target copyFrameMeasurements];
 }
 
 - (SentryScreenFrames *_Nullable)copyCurrentFrames
