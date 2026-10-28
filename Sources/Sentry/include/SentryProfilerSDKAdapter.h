@@ -1,6 +1,7 @@
 #import "SentryDefines.h"
 #import "SentryProfilingCancellation.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingConfiguration.h"
 #import "SentryProfilingFrameMeasurements.h"
 #import "SentryProfilingSystemMetrics.h"
 #import "SentryProfilingTimestamp.h"
@@ -12,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryProfilerSDKBackend <NSObject>
 
+- (SentryProfilingConfiguration)configuration;
 - (SentryProfilingTimestamp)timestamp;
 - (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages;
 - (SentryProfilingSystemMetrics *_Nullable)systemMetrics;
@@ -40,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 #    if SENTRY_HAS_UIKIT
 - (void)startFramesTracker;
 - (void)stopFramesTracker;
+- (void)stopFramesTrackerIfUnused;
 - (void)resetProfilingTimestamps;
 - (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements;
 #    endif
