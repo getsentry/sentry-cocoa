@@ -40,10 +40,10 @@ jobs:
           path: "Sentry.xcframework.zip"
           retention-days: 1
 
-  # Builds the sentry-dart Flutter example for iOS. sentry_flutter depends on the "Sentry"
-  # SPM product, so we swap its sentry-cocoa dependency for this checkout.
+  # Builds the sentry-dart Flutter example for iOS and runs its native tests. sentry_flutter
+  # depends on the "Sentry" SPM product, so we swap its sentry-cocoa dependency for this checkout.
   test-sentry-dart:
-    name: Build sentry-dart
+    name: Test sentry-dart
     needs: build-xcframework
     runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 45
@@ -108,6 +108,29 @@ jobs:
           flutter config --enable-swift-package-manager
           flutter pub get
           flutter build ios --simulator --debug
+      # RunnerTests covers how sentry_flutter configures the Cocoa SDK. It needs the
+      # Flutter build above to have generated the app's build configuration.
+      - name: Run native iOS tests
+        working-directory: sentry-dart/packages/flutter/example/ios
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available iPhone -j | jq -r '
+            .devices
+            | to_entries
+            | map(select(.key | startswith("com.apple.CoreSimulator.SimRuntime.iOS-")))
+            | sort_by(.key)
+            | reverse
+            | .[0].value[]
+            | select(.isAvailable == true)
+            | .udid
+          ' | head -1)
+          if [ -z "$DEVICE_ID" ]; then
+            echo "No iPhone simulators available." && exit 1
+          fi
+          echo "Using simulator: $DEVICE_ID"
+          set -o pipefail
+          env NSUnbufferedIO=YES \
+            xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug \
+            -destination "id=$DEVICE_ID" CODE_SIGNING_ALLOWED=NO 2>&1 | xcbeautify --preserve-unbeautified
       - name: Run CI Diagnostics
         uses: ./sentry-cocoa/.github/actions/ci-diagnostics
         if: failure()
