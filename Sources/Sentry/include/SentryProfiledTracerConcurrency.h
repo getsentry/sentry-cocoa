@@ -2,7 +2,7 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryProfilingDispatch.h"
-#import "SentrySampleDecision.h"
+#import "SentryProfilingTraceDecision.h"
 #import <Foundation/Foundation.h>
 
 @class SentryProfiler;
@@ -11,8 +11,6 @@
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryTransaction;
-@class SentryTracerConfiguration;
-@class SentryProfileOptions;
 @class SentryId;
 #if SENTRY_HAS_UIKIT
 @class SentryAppStartMeasurement;
@@ -30,16 +28,16 @@ SENTRY_EXTERN_C_BEGIN
  * different from the profiler's internal ID.
  */
 SentryId *_Nullable sentry_startProfilerForTrace(
-    SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext);
+    SentryProfilingTraceDecision decision, SentryTransactionContext *transactionContext);
 
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
  * option configured.
  */
-SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
-    SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction, BOOL isProfiling,
-    BOOL isLaunchTrace, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
+    SentryHubInternal *hub, SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction,
+    BOOL isProfiling, BOOL isLaunchTrace, BOOL continuousTraceProfiling,
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement

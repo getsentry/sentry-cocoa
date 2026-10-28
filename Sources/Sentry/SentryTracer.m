@@ -25,6 +25,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiledTracerConcurrency.h"
+#    import "SentryProfilerConfigurationBridge.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
@@ -147,7 +148,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, transactionContext);
+    SentryProfilingTraceDecision profilingDecision
+        = sentry_profilerTraceDecision(configuration, hub, transactionContext);
+    _profilerReferenceID = sentry_startProfilerForTrace(profilingDecision, transactionContext);
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -562,8 +565,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     SentryProfilingDispatch dispatchAsync
         = ^(dispatch_block_t block) { [dispatchQueue dispatchAsyncWithBlock:block]; };
     BOOL isLaunchTrace = self == (SentryTracer *)SentryLaunchProfiling.launchTracer;
+    BOOL continuousTraceProfiling
+        = _isProfiling && sentry_profilerUsesTraceLifecycle([_hub getClient]);
     sentry_stopProfilerDueToFinishedTransaction(_hub, dispatchAsync, transaction, _isProfiling,
-        isLaunchTrace, self.startTimestamp, _startSystemTime
+        isLaunchTrace, continuousTraceProfiling, self.startTimestamp, _startSystemTime
 #    if SENTRY_HAS_UIKIT
         ,
         appStartMeasurement

@@ -11,14 +11,12 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySamplerDecisionHelper.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTransaction+Private.h"
@@ -107,30 +105,6 @@ sentry_stopTrackingRootSpanForContinuousProfilerV2()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
     _unsafe_cleanUpContinuousProfilerV2();
-}
-
-SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
-    SentryProfileOptions *profileOptions, SentryTransactionContext *transactionContext)
-{
-    if (!sentry_isTraceLifecycle(profileOptions)) {
-        return nil;
-    }
-    if (sentry_isNotSampled(transactionContext)) {
-        return nil;
-    }
-
-    SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
-    if (!sentry_samplerDecisionEquals(
-            profileConfiguration.profilerSessionSampleDecision, kSentrySampleDecisionYes)) {
-        return nil;
-    }
-
-    SentryId *profilerReferenceId = sentry_getSentryId();
-    SENTRY_LOG_DEBUG(
-        @"Starting continuous profiler for root span tracer with profilerReferenceId %@",
-        sentry_stringFromSentryID(profilerReferenceId));
-    sentry_trackRootSpanForContinuousProfilerV2();
-    return profilerReferenceId;
 }
 
 } // namespace
@@ -234,20 +208,17 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 }
 
 void
-sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
-    SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction, BOOL isProfiling,
-    BOOL isLaunchTrace, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+sentry_stopProfilerDueToFinishedTransaction(
+    SentryHubInternal *hub, SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction,
+    BOOL isProfiling, BOOL isLaunchTrace, BOOL continuousTraceProfiling,
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
-    if (profileConfiguration != nil && profileConfiguration.isProfilingThisLaunch
-        && profileConfiguration.profileOptions != nil
-        && sentry_isTraceLifecycle(
-            SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, profileConfiguration.profileOptions))) {
+    if ([SentryProfilerSDKAdapter.shared configuration].traceLaunchConfigured) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
         // The launch tracer is intentionally discarded by
@@ -260,11 +231,7 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
         return;
     }
 
-    SentryClientInternal *_Nullable client = hub.getClient;
-    if (isProfiling && client != nil
-        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))
-        && sentry_isProfilingCorrelatedToTraces(
-            SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
+    if (isProfiling && continuousTraceProfiling) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             sentry_stringFromSentryID(transaction.trace.profilerReferenceID));
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
@@ -339,39 +306,17 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
 }
 
 SentryId *_Nullable sentry_startProfilerForTrace(
-    SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext)
+    SentryProfilingTraceDecision decision, SentryTransactionContext *transactionContext)
 {
-    SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
-    if (profileConfiguration.profileOptions != nil) {
-        // launch profile; there's no hub to get options from, so they're read from the launch
-        // profile config file
-        return _sentry_startContinuousProfilerV2ForTrace(
-            profileConfiguration.profileOptions, transactionContext);
+    if (decision == SentryProfilingTraceDecisionContinuous) {
+        SentryId *profilerReferenceId = sentry_getSentryId();
+        SENTRY_LOG_DEBUG(
+            @"Starting continuous profiler for root span tracer with profilerReferenceId %@",
+            sentry_stringFromSentryID(profilerReferenceId));
+        sentry_trackRootSpanForContinuousProfilerV2();
+        return profilerReferenceId;
     }
-    SentryClientInternal *_Nullable client = hub.getClient;
-    if (client != nil
-        && sentry_isContinuousProfilingEnabled(
-            SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
-        // non launch profile
-        if (sentry_getParentSpanID(transactionContext) != nil) {
-            SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
-            return nil;
-        }
-        SentryProfileOptions *_Nullable profilingOptions
-            = sentry_getProfiling(SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client));
-        if (profilingOptions == nil) {
-            SENTRY_LOG_DEBUG(@"No profiling options found, will not start profiler.");
-            return nil;
-        }
-        return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, transactionContext);
-    }
-    SentrySamplerDecision *profilesSamplerDecision =
-        [(NSObject *)configuration valueForKey:@"profilesSamplerDecision"];
-    BOOL profileShouldBeSampled
-        = sentry_samplerDecisionEquals(profilesSamplerDecision, kSentrySampleDecisionYes);
-
-    if (SentryProfilerSDKAdapter.shared.isTracingAppLaunch || profileShouldBeSampled) {
+    if (decision == SentryProfilingTraceDecisionTransaction) {
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",

@@ -1,20 +1,15 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDefaultProfilerSDKBackend.h"
 #    import "SentryFileManagerHelper.h"
-#    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryProfileConfiguration.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
@@ -25,66 +20,18 @@
 
 using namespace sentry::profiling;
 
-/**
- * The current configuration the profiler operates under for this session. Set when a launch profile
- * runs, and then is updated on SDK start.
- */
-static SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
-
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
-
-NSObject *
-sentry_profileConfigurationLock()
-{
-    // Function-local static lazily initializes this once and returns the same lock on every call.
-    static NSObject *lock = [[NSObject alloc] init];
-    return lock;
-}
 
 } // namespace
 
 #    pragma mark - Public
 
-SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void)
-{
-    @synchronized(sentry_profileConfigurationLock()) {
-        return sentry_profileConfiguration;
-    }
-}
-
-void
-sentry_setProfileConfiguration(SentryProfileConfiguration *_Nullable configuration)
-{
-    @synchronized(sentry_profileConfigurationLock()) {
-        sentry_profileConfiguration = configuration;
-    }
-}
-
-void
-sentry_reevaluateSessionSampleRate()
-{
-    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
-    [configuration reevaluateSessionSampleRate];
-}
-
 BOOL
 sentry_isLaunchProfileCorrelatedToTraces(void)
 {
-    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
-    if (nil == configuration) {
-        return NO;
-    }
-
-    SentryProfileOptions *_Nullable nullableOptions = configuration.profileOptions;
-    if (nil == nullableOptions) {
-        return YES;
-    }
-    SentryProfileOptions *_Nonnull options
-        = SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, nullableOptions);
-
-    return sentry_profileAppStarts(options) && sentry_isTraceLifecycle(options);
+    return [SentryProfilerSDKAdapter.shared configuration].launchProfileCorrelatedToTraces;
 }
 
 @implementation SentryProfiler {
@@ -170,22 +117,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     self.truncationReason = reason;
 
 #    if SENTRY_HAS_UIKIT
-    // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the
-    // frames tracker, is YES, then we need to stop the frames tracker from running outside of
-    // profiles because it isn't needed for anything else
-
-    BOOL autoPerformanceTracingDisabled = sentry_autoPerformanceTracingDisabled();
-#        if SDK_V10
-    if (autoPerformanceTracingDisabled) {
-        [SentryProfilerSDKAdapter.shared stopFramesTracker];
-    }
-#        else
-    BOOL appHangsDisabled = sentry_appHangsDisabled();
-
-    if (autoPerformanceTracingDisabled && appHangsDisabled) {
-        [SentryProfilerSDKAdapter.shared stopFramesTracker];
-    }
-#        endif // SDK_V10
+    [SentryProfilerSDKAdapter.shared stopFramesTrackerIfUnused];
 #    endif // SENTRY_HAS_UIKIT
 
     _samplingProfiler->stopSampling();

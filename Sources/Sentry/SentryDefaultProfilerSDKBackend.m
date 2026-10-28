@@ -217,6 +217,7 @@ sentry_bootstrapProfilerSDKAdapter(void)
 
 - (void)stopFramesTrackerIfUnused
 {
+    // Automatic performance tracing and app hang tracking may still need the frames tracker.
     SentryOptions *performanceOptions = [[[SentrySDKInternal currentHub] getClient] options];
     BOOL shouldStop = performanceOptions == nil || !performanceOptions.enableAutoPerformanceTracing;
 #        if !SDK_V10
@@ -225,13 +226,8 @@ sentry_bootstrapProfilerSDKAdapter(void)
     shouldStop = shouldStop && appHangsDisabled;
 #        endif
     if (shouldStop) {
-        [self stopFramesTracker];
+        [SentryDependencyContainer.sharedInstance.framesTracker stop];
     }
-}
-
-- (void)stopFramesTracker
-{
-    [SentryDependencyContainer.sharedInstance.framesTracker stop];
 }
 
 - (void)resetProfilingTimestamps
