@@ -5,11 +5,6 @@ name: Test Hybrid SDKs
 on:
   workflow_call:
 
-  # TODO: Remove before merging. Runs the hybrid SDK jobs on this branch to validate them.
-  push:
-    branches:
-      - ci/test-sentry-dart
-
 jobs:
   # Hybrid SDKs consume the prebuilt "Sentry" product, so build its Static variant once
   # and share it across the jobs below.
