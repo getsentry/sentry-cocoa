@@ -45,6 +45,8 @@ static char g_capturedName[1024];
 static char g_capturedReason[1024];
 static char g_capturedUserInfo[1024];
 static bool g_reasonWasNull;
+static uintptr_t g_capturedBacktrace[3];
+static size_t g_capturedFrameCount;
 
 static bool
 probeThreadIsSuspended(void)
@@ -77,6 +79,13 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
     g_reasonWasNull = context->crashReason == NULL;
     snprintf(g_capturedReason, sizeof(g_capturedReason), "%s", context->crashReason ?: "");
     snprintf(g_capturedUserInfo, sizeof(g_capturedUserInfo), "%s", context->NSException.userInfo);
+    SentryCrashStackCursor *cursor = context->stackCursor;
+    while (cursor->advanceCursor(cursor)) {
+        if (g_capturedFrameCount < sizeof(g_capturedBacktrace) / sizeof(g_capturedBacktrace[0])) {
+            g_capturedBacktrace[g_capturedFrameCount] = cursor->stackEntry.address;
+        }
+        g_capturedFrameCount++;
+    }
 }
 
 @interface SuspensionCheckingUserInfoValue : NSObject
@@ -93,6 +102,7 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
 @end
 
 @interface SuspensionCheckingException : NSException
+@property (nonatomic, copy) NSArray<NSNumber *> *testCallStackReturnAddresses;
 @end
 
 @implementation SuspensionCheckingException
@@ -113,6 +123,12 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
 {
     g_metadataReadWhileSuspended |= probeThreadIsSuspended();
     return [super userInfo];
+}
+
+- (NSArray<NSNumber *> *)callStackReturnAddresses
+{
+    g_metadataReadWhileSuspended |= probeThreadIsSuspended();
+    return self.testCallStackReturnAddresses ?: [super callStackReturnAddresses];
 }
 
 @end
@@ -138,6 +154,8 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
     g_threadInfoFailed = false;
     g_probeSuspendedDuringReport = false;
     g_reasonWasNull = false;
+    g_capturedFrameCount = 0;
+    memset(g_capturedBacktrace, 0, sizeof(g_capturedBacktrace));
     memset(g_capturedName, 0, sizeof(g_capturedName));
     memset(g_capturedReason, 0, sizeof(g_capturedReason));
     memset(g_capturedUserInfo, 0, sizeof(g_capturedUserInfo));
@@ -187,10 +205,11 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
 - (void)testHandleException_whenOtherThreadsAreSuspended_shouldPrepareMetadataBeforeSuspension
 {
     // -- Arrange --
-    NSException *exception = [[SuspensionCheckingException alloc]
+    SuspensionCheckingException *exception = [[SuspensionCheckingException alloc]
         initWithName:@"TestException"
               reason:@"Something went wrong é"
             userInfo:@{ @"detail" : [[SuspensionCheckingUserInfoValue alloc] init] }];
+    exception.testCallStackReturnAddresses = @[ @0x1000, @0x2000, @0x3000 ];
 
     // -- Act --
     [self captureException:exception];
@@ -204,6 +223,10 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
     XCTAssertEqual(strcmp(g_capturedReason, "Something went wrong é"), 0);
     XCTAssertEqual(strcmp(g_capturedUserInfo, "{\n    detail = value;\n}"), 0);
     XCTAssertFalse(g_reasonWasNull);
+    XCTAssertEqual(g_capturedFrameCount, 3);
+    XCTAssertEqual(g_capturedBacktrace[0], 0x1000);
+    XCTAssertEqual(g_capturedBacktrace[1], 0x2000);
+    XCTAssertEqual(g_capturedBacktrace[2], 0x3000);
 }
 
 - (void)testHandleException_whenMetadataIsNil_shouldPreserveNullRepresentation
