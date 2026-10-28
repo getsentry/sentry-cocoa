@@ -624,7 +624,6 @@
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
         "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",
-        "SentryProfilerSwiftTests\/testConcurrentSpansWithTimeout()",
         "SentryReachabilityTest\/testMultipleReachabilityObservers",
         "SentrySDKIntegrationTestsBase",
         "SentrySDKInternalTests\/testResumeAndPauseAppHangTracking()",
