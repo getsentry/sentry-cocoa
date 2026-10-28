@@ -4,11 +4,11 @@ import MetricKit
 
 /// Sends the values of MetricKit metric payloads as Sentry metrics.
 extension SentryMXManager {
-    /// The timestamp and attributes every metric of a payload shares.
+    /// The timestamp, trace ID and attributes every metric of a payload shares.
     private struct MetricPayloadContext {
         let timestamp: Date
+        let traceId: SentryId
         let attributes: [String: SentryAttributeValue]
-        let overridingAttributes: [String: SentryAttributeValue]
     }
 
     func process(metricPayload payload: MXMetricPayload) {
@@ -120,7 +120,6 @@ extension SentryMXManager {
         let timestamp = payload.timeStampBegin.addingTimeInterval(interval / 2)
 
         var attributes: [String: SentryAttributeValue] = [:]
-        var overridingAttributes: [String: SentryAttributeValue] = [:]
 
         // When the interval spans an app update, MetricKit only reports the latest version, which
         // doesn't describe all values. The metrics keep the running release then.
@@ -136,19 +135,21 @@ extension SentryMXManager {
             if !appBuild.isEmpty {
                 attributes["app.build"] = appBuild
             }
-            // Scope enrichment sets the running release, so a previous one has to override it.
+            // Nil when the running release already describes the values or is a custom name.
             if let releaseName = releaseName(appVersion: appVersion, appBuild: appBuild) {
-                overridingAttributes["sentry.release"] = releaseName
+                attributes["sentry.release"] = releaseName
             }
         }
 
-        // Scope enrichment sets the running OS version, which can be newer than the one the
-        // values were recorded on.
+        // The running OS version can be newer than the one the values were recorded on, so scope
+        // enrichment leaves it out.
         if let metaData = payload.metaData, let osVersion = Self.parseOSVersion(metaData.osVersion) {
-            overridingAttributes["os.version"] = osVersion.version
+            attributes["os.version"] = osVersion.version
         }
 
-        return MetricPayloadContext(timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+        // The payload's values don't belong to the running trace. A trace of their own keeps the
+        // metrics of one payload together.
+        return MetricPayloadContext(timestamp: timestamp, traceId: SentryId(), attributes: attributes)
     }
 
     // MARK: - Recording
@@ -162,8 +163,8 @@ extension SentryMXManager {
             value: value,
             unit: unit,
             timestamp: context.timestamp,
-            attributes: context.attributes,
-            overridingAttributes: context.overridingAttributes
+            traceId: context.traceId,
+            attributes: context.attributes
         )
     }
 
@@ -176,8 +177,8 @@ extension SentryMXManager {
             value: value,
             unit: unit,
             timestamp: context.timestamp,
-            attributes: context.attributes,
-            overridingAttributes: context.overridingAttributes
+            traceId: context.traceId,
+            attributes: context.attributes
         )
     }
 
@@ -190,8 +191,8 @@ extension SentryMXManager {
             key: report.name,
             value: UInt(value),
             timestamp: context.timestamp,
-            attributes: context.attributes,
-            overridingAttributes: context.overridingAttributes
+            traceId: context.traceId,
+            attributes: context.attributes
         )
     }
 

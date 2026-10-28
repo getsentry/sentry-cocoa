@@ -610,7 +610,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
 
         // -- Act --
-        sut.count(key: "network.request.count", value: 3, timestamp: timestamp, attributes: ["endpoint": "/api/users"])
+        sut.count(key: "network.request.count", value: 3, timestamp: timestamp, traceId: SentryId(), attributes: ["endpoint": "/api/users"])
 
         // -- Assert --
         let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
@@ -635,7 +635,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
 
         // -- Act --
-        sut.distribution(key: "app.launch.time", value: 1.25, unit: .second, timestamp: timestamp)
+        sut.distribution(key: "app.launch.time", value: 1.25, unit: .second, timestamp: timestamp, traceId: SentryId())
 
         // -- Assert --
         let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
@@ -659,7 +659,7 @@ final class SentryMetricsApiTests: XCTestCase {
         let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
 
         // -- Act --
-        sut.gauge(key: "memory.peak", value: 512, unit: .megabyte, timestamp: timestamp)
+        sut.gauge(key: "memory.peak", value: 512, unit: .megabyte, timestamp: timestamp, traceId: SentryId())
 
         // -- Assert --
         let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
@@ -679,15 +679,15 @@ final class SentryMetricsApiTests: XCTestCase {
         let sut = SentryMetricsApi(dependencies: dependencies)
 
         // -- Act --
-        sut.count(key: "network.request.count", value: 1, timestamp: Date(timeIntervalSince1970: 1_799_913_600))
+        sut.count(key: "network.request.count", value: 1, timestamp: Date(timeIntervalSince1970: 1_799_913_600), traceId: SentryId())
 
         // -- Assert --
         XCTAssertEqual(dependencies.metricsIntegration?.addMetricInvocations.count, 0)
     }
 
-    // MARK: - Overriding Attributes
+    // MARK: - Previous Process
 
-    func testCount_withoutOverridingAttributes_shouldPassEmptyOverridingAttributes() throws {
+    func testCount_withOptions_shouldNotBeFromPreviousProcess() throws {
         // -- Arrange --
         let dependencies = MockMetricsApiDependencies(
             isSDKEnabled: true,
@@ -701,10 +701,11 @@ final class SentryMetricsApiTests: XCTestCase {
 
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
-        XCTAssertTrue(invocation.overridingAttributes.isEmpty)
+        XCTAssertFalse(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, scope.propagationContextTraceId)
     }
 
-    func testCount_withOverridingAttributes_shouldPassThemSeparately() throws {
+    func testCount_withTraceId_shouldBeFromPreviousProcessWithTraceId() throws {
         // -- Arrange --
         let dependencies = MockMetricsApiDependencies(
             isSDKEnabled: true,
@@ -712,24 +713,26 @@ final class SentryMetricsApiTests: XCTestCase {
             metricsIntegration: MockMetricsIntegration()
         )
         let sut = SentryMetricsApi(dependencies: dependencies)
+        let traceId = SentryId()
 
         // -- Act --
         sut.count(
             key: "network.request.count",
             value: 1,
             timestamp: Date(timeIntervalSince1970: 1_799_913_600),
-            attributes: ["endpoint": "/api/users"],
-            overridingAttributes: ["sentry.release": "io.sentry.app@1.0.0+1"]
+            traceId: traceId,
+            attributes: ["sentry.release": "io.sentry.app@1.0.0+1"]
         )
 
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
-        XCTAssertEqual(invocation.overridingAttributes, ["sentry.release": .string("io.sentry.app@1.0.0+1")])
-        XCTAssertNil(invocation.metric.attributes["sentry.release"])
-        XCTAssertEqual(invocation.metric.attributes["endpoint"], .string("/api/users"))
+        XCTAssertTrue(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, traceId)
+        XCTAssertNil(invocation.currentScope)
+        XCTAssertEqual(invocation.metric.attributes["sentry.release"], .string("io.sentry.app@1.0.0+1"))
     }
 
-    func testDistribution_withOverridingAttributes_shouldPassThemSeparately() throws {
+    func testDistribution_withTraceId_shouldBeFromPreviousProcessWithTraceId() throws {
         // -- Arrange --
         let dependencies = MockMetricsApiDependencies(
             isSDKEnabled: true,
@@ -737,22 +740,18 @@ final class SentryMetricsApiTests: XCTestCase {
             metricsIntegration: MockMetricsIntegration()
         )
         let sut = SentryMetricsApi(dependencies: dependencies)
+        let traceId = SentryId()
 
         // -- Act --
-        sut.distribution(
-            key: "app.launch.time",
-            value: 1.25,
-            unit: .second,
-            timestamp: Date(timeIntervalSince1970: 1_799_913_600),
-            overridingAttributes: ["os.version": "18.6.2"]
-        )
+        sut.distribution(key: "app.launch.time", value: 1.25, unit: .second, timestamp: Date(timeIntervalSince1970: 1_799_913_600), traceId: traceId)
 
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
-        XCTAssertEqual(invocation.overridingAttributes, ["os.version": .string("18.6.2")])
+        XCTAssertTrue(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, traceId)
     }
 
-    func testGauge_withOverridingAttributes_shouldPassThemSeparately() throws {
+    func testGauge_withTraceId_shouldBeFromPreviousProcessWithTraceId() throws {
         // -- Arrange --
         let dependencies = MockMetricsApiDependencies(
             isSDKEnabled: true,
@@ -760,19 +759,15 @@ final class SentryMetricsApiTests: XCTestCase {
             metricsIntegration: MockMetricsIntegration()
         )
         let sut = SentryMetricsApi(dependencies: dependencies)
+        let traceId = SentryId()
 
         // -- Act --
-        sut.gauge(
-            key: "memory.peak",
-            value: 512,
-            unit: .megabyte,
-            timestamp: Date(timeIntervalSince1970: 1_799_913_600),
-            overridingAttributes: ["os.version": "18.6.2"]
-        )
+        sut.gauge(key: "memory.peak", value: 512, unit: .megabyte, timestamp: Date(timeIntervalSince1970: 1_799_913_600), traceId: traceId)
 
         // -- Assert --
         let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
-        XCTAssertEqual(invocation.overridingAttributes, ["os.version": .string("18.6.2")])
+        XCTAssertTrue(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, traceId)
     }
 
     #if !SDK_V10
@@ -825,9 +820,9 @@ final class SentryMetricsApiTests: XCTestCase {
 // MARK: - Mock Dependencies
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
-    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?, overridingAttributes: [String: SentryAttributeContent])>()
-    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil, overridingAttributes: [String: SentryAttributeContent] = [:]) {
-        addMetricInvocations.record((metric, scope, currentScope, overridingAttributes))
+    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?, isFromPreviousProcess: Bool)>()
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil, isFromPreviousProcess: Bool = false) {
+        addMetricInvocations.record((metric, scope, currentScope, isFromPreviousProcess))
     }
 }
 

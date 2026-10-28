@@ -300,7 +300,7 @@ final class SentryMXManagerMetricsTests: XCTestCase {
 
     // MARK: - Attributes
 
-    func testDidReceive_whenPayloadIsFromPreviousAppVersion_shouldOverrideReleaseAndOSVersion() throws {
+    func testDidReceive_whenPayloadIsFromPreviousAppVersion_shouldDescribeRecordedReleaseAndOSVersion() throws {
         // -- Arrange --
         let metricsApi = TestInternalMetricsApi()
         let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: metricsApi)
@@ -312,15 +312,13 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
         XCTAssertEqual(metric.attributes, [
             "app.version": .string("1.0.0"),
-            "app.build": .string("10")
-        ])
-        XCTAssertEqual(metric.overridingAttributes, [
+            "app.build": .string("10"),
             "sentry.release": .string("io.sentry.app@1.0.0+10"),
             "os.version": .string("18.6.2")
         ])
     }
 
-    func testDidReceive_whenPayloadIsFromRunningAppVersion_shouldNotOverrideRelease() throws {
+    func testDidReceive_whenPayloadIsFromRunningAppVersion_shouldNotSetRelease() throws {
         // -- Arrange --
         let metricsApi = TestInternalMetricsApi()
         let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: metricsApi)
@@ -335,12 +333,12 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
         XCTAssertEqual(metric.attributes, [
             "app.version": .string("2.0.0"),
-            "app.build": .string("20")
+            "app.build": .string("20"),
+            "os.version": .string("18.6.2")
         ])
-        XCTAssertEqual(metric.overridingAttributes, ["os.version": .string("18.6.2")])
     }
 
-    func testDidReceive_whenReleaseNameIsCustom_shouldNotOverrideRelease() throws {
+    func testDidReceive_whenReleaseNameIsCustom_shouldNotSetRelease() throws {
         // -- Arrange --
         let metricsApi = TestInternalMetricsApi()
         let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: metricsApi, releaseName: "custom-release")
@@ -351,7 +349,7 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         // -- Assert --
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
         XCTAssertEqual(metric.attributes["app.version"], .string("1.0.0"))
-        XCTAssertNil(metric.overridingAttributes["sentry.release"])
+        XCTAssertNil(metric.attributes["sentry.release"])
     }
 
     func testDidReceive_whenPayloadSpansMultipleAppVersions_shouldNotDescribeAppVersion() throws {
@@ -366,8 +364,7 @@ final class SentryMXManagerMetricsTests: XCTestCase {
 
         // -- Assert --
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
-        XCTAssertTrue(metric.attributes.isEmpty)
-        XCTAssertEqual(metric.overridingAttributes, ["os.version": .string("18.6.2")])
+        XCTAssertEqual(metric.attributes, ["os.version": .string("18.6.2")])
     }
 
     func testDidReceive_whenMetaDataIsMissing_shouldOnlyDescribeAppVersion() throws {
@@ -384,10 +381,9 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
         // Without a build, the previous release can't be reconstructed.
         XCTAssertEqual(metric.attributes, ["app.version": .string("1.0.0")])
-        XCTAssertTrue(metric.overridingAttributes.isEmpty)
     }
 
-    func testDidReceive_whenOSVersionCantBeParsed_shouldNotOverrideOSVersion() throws {
+    func testDidReceive_whenOSVersionCantBeParsed_shouldNotSetOSVersion() throws {
         // -- Arrange --
         let metricsApi = TestInternalMetricsApi()
         let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: metricsApi)
@@ -399,7 +395,23 @@ final class SentryMXManagerMetricsTests: XCTestCase {
 
         // -- Assert --
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
-        XCTAssertNil(metric.overridingAttributes["os.version"])
+        XCTAssertNil(metric.attributes["os.version"])
+    }
+
+    func testDidReceive_shouldUseOneNewTraceIdPerPayload() throws {
+        // -- Arrange --
+        let metricsApi = TestInternalMetricsApi()
+        let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime, .gpuCumulativeTime], metricsApi: metricsApi)
+
+        // -- Act --
+        sut.didReceive([givenPayload(), givenPayload()])
+
+        // -- Assert --
+        let traceIds = metricsApi.recordedMetrics.map(\.traceId)
+        XCTAssertEqual(traceIds.count, 4)
+        XCTAssertEqual(traceIds[0], traceIds[1], "Metrics of one payload should share a trace")
+        XCTAssertEqual(traceIds[2], traceIds[3], "Metrics of one payload should share a trace")
+        XCTAssertNotEqual(traceIds[0], traceIds[2], "Each payload should get its own trace")
     }
 
     // MARK: - Helpers
@@ -517,8 +529,8 @@ private final class TestInternalMetricsApi: SentryInternalMetricsApi {
         let value: Double
         let unit: SentryUnit?
         let timestamp: Date
+        let traceId: SentryId
         let attributes: [String: SentryAttributeContent]
-        let overridingAttributes: [String: SentryAttributeContent]
     }
 
     private let invocations = Invocations<RecordedMetric>()
@@ -527,16 +539,16 @@ private final class TestInternalMetricsApi: SentryInternalMetricsApi {
         invocations.invocations
     }
 
-    func count(key: String, value: UInt, timestamp: Date, attributes: [String: SentryAttributeValue], overridingAttributes: [String: SentryAttributeValue]) {
-        record(.count, key: key, value: Double(value), unit: nil, timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+    func count(key: String, value: UInt, timestamp: Date, traceId: SentryId, attributes: [String: SentryAttributeValue]) {
+        record(.count, key: key, value: Double(value), unit: nil, timestamp: timestamp, traceId: traceId, attributes: attributes)
     }
 
-    func distribution(key: String, value: Double, unit: SentryUnit?, timestamp: Date, attributes: [String: SentryAttributeValue], overridingAttributes: [String: SentryAttributeValue]) {
-        record(.distribution, key: key, value: value, unit: unit, timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+    func distribution(key: String, value: Double, unit: SentryUnit?, timestamp: Date, traceId: SentryId, attributes: [String: SentryAttributeValue]) {
+        record(.distribution, key: key, value: value, unit: unit, timestamp: timestamp, traceId: traceId, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit?, timestamp: Date, attributes: [String: SentryAttributeValue], overridingAttributes: [String: SentryAttributeValue]) {
-        record(.gauge, key: key, value: value, unit: unit, timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+    func gauge(key: String, value: Double, unit: SentryUnit?, timestamp: Date, traceId: SentryId, attributes: [String: SentryAttributeValue]) {
+        record(.gauge, key: key, value: value, unit: unit, timestamp: timestamp, traceId: traceId, attributes: attributes)
     }
 
     private func record(
@@ -545,8 +557,8 @@ private final class TestInternalMetricsApi: SentryInternalMetricsApi {
         value: Double,
         unit: SentryUnit?,
         timestamp: Date,
-        attributes: [String: SentryAttributeValue],
-        overridingAttributes: [String: SentryAttributeValue]
+        traceId: SentryId,
+        attributes: [String: SentryAttributeValue]
     ) {
         invocations.record(RecordedMetric(
             kind: kind,
@@ -554,8 +566,8 @@ private final class TestInternalMetricsApi: SentryInternalMetricsApi {
             value: value,
             unit: unit,
             timestamp: timestamp,
-            attributes: attributes.mapValues(\.asSentryAttributeContent),
-            overridingAttributes: overridingAttributes.mapValues(\.asSentryAttributeContent)
+            traceId: traceId,
+            attributes: attributes.mapValues(\.asSentryAttributeContent)
         ))
     }
 }
