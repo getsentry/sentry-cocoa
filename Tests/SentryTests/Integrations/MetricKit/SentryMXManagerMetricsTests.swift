@@ -443,14 +443,16 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         releaseName: String = "io.sentry.app@2.0.0+20"
     ) -> SentryMXManager {
         SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [],
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [],
+                processStartDate: .distantPast
+            ),
             enabledMetricReports: enabledMetricReports,
             metricsApi: metricsApi,
             releaseName: releaseName,
-            bundleInfo: bundleInfo,
-            processStartDate: .distantPast
+            bundleInfo: bundleInfo
         )
     }
 

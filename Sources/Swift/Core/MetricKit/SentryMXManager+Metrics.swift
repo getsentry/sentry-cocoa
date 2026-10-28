@@ -136,7 +136,7 @@ extension SentryMXManager {
                 attributes["app.build"] = appBuild
             }
             // Nil when the running release already describes the values or is a custom name.
-            if let releaseName = releaseName(appVersion: appVersion, appBuild: appBuild) {
+            if let releaseName = releaseResolver.releaseName(appVersion: appVersion, appBuild: appBuild) {
                 attributes["sentry.release"] = releaseName
             }
         }

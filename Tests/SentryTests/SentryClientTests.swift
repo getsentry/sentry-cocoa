@@ -842,17 +842,19 @@ final class SentryClientTests: XCTestCase {
 
     private func givenMetricKitManager(releaseName: String?) -> SentryMXManager {
         SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            releaseName: releaseName,
-            bundleInfo: [
-                "CFBundleIdentifier": "io.sentry.app",
-                "CFBundleShortVersionString": "2.0.0",
-                "CFBundleVersion": "20"
-            ],
-            processIdentifier: Self.metricKitProcessIdentifier,
-            processStartDate: Self.metricKitProcessStartDate
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.hang],
+                releaseName: releaseName,
+                bundleInfo: [
+                    "CFBundleIdentifier": "io.sentry.app",
+                    "CFBundleShortVersionString": "2.0.0",
+                    "CFBundleVersion": "20"
+                ],
+                processIdentifier: Self.metricKitProcessIdentifier,
+                processStartDate: Self.metricKitProcessStartDate
+            )
         )
     }
 

@@ -20,12 +20,14 @@ final class SentryMXManagerTests: XCTestCase {
     
     private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: SentryMXManager.Diagnostic.all
-                .subtracting(disableCrashDiagnostics ? [.crash] : []),
-            // Every payload counts as recorded by this process.
-            processStartDate: .distantPast
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: SentryMXManager.Diagnostic.all
+                    .subtracting(disableCrashDiagnostics ? [.crash] : []),
+                // Every payload counts as recorded by this process.
+                processStartDate: .distantPast
+            )
         )
 
         return sut
