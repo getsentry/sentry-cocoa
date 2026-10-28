@@ -7,7 +7,8 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     
     init?(with options: Options, dependencies: Dependencies) {
         let enabledDiagnostics = Self.enabledDiagnostics(for: options)
-        guard !enabledDiagnostics.isEmpty else {
+        let enabledMetricReports = options.experimental.metrickit.enabledMetricReports
+        guard !enabledDiagnostics.isEmpty || !enabledMetricReports.isEmpty else {
             return nil
         }
 
@@ -15,6 +16,7 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
             enabledDiagnostics: enabledDiagnostics,
+            enabledMetricReports: enabledMetricReports,
             releaseName: options.releaseName,
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp

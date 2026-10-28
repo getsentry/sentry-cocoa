@@ -47,13 +47,19 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     }
     #endif // !SDK_V10
 
-    // MARK: - Private
+    // MARK: - Capture
 
-    private func captureMetric(
+    // Internal rather than private so the overloads in SentryMetricsApi+Internal.swift can reach
+    // it.
+    //
+    // - Parameter previousProcessTraceId: Set for a metric a previous process recorded. The
+    //   metric then gets this trace ID and only the scope attributes that still describe it.
+    func captureMetric(
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
-        options: SentryMetricOptions
+        options: SentryMetricOptions,
+        previousProcessTraceId: SentryId? = nil
     ) {
         guard dependencies.isSDKEnabled else {
             SentrySDKLog.warning("Metric '\(name)' was not captured because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
@@ -78,7 +84,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         //
         // When a span is active, use its traceId to ensure consistency with span_id.
         // Otherwise, fall back to propagationContext traceId.
-        let traceId = dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
+        let traceId = previousProcessTraceId ?? dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
 
         let metric = SentryMetric(
             timestamp: options.timestamp ?? dependencies.dateProvider.date(),
@@ -91,9 +97,16 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             }
         )
         // A scope passed in the options takes the place of the thread's current scope, so it
-        // layers over the global scope the same way.
-        let currentScope = options.scope ?? dependencies.currentScopeStorage.scope()
-        integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
+        // layers over the global scope the same way. A metric from a previous process gets
+        // neither, because both describe the running process.
+        let isFromPreviousProcess = previousProcessTraceId != nil
+        let currentScope = isFromPreviousProcess ? nil : options.scope ?? dependencies.currentScopeStorage.scope()
+        integration.addMetric(
+            metric,
+            scope: dependencies.scope,
+            currentScope: currentScope,
+            isFromPreviousProcess: isFromPreviousProcess
+        )
     }
 }
 

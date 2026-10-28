@@ -17,6 +17,7 @@ final class SentryMXManager: NSObject {
     // MARK: - Types
 
     typealias Diagnostic = SentryMetricKit.DiagnosticReport
+    typealias MetricReport = SentryMetricKit.MetricReport
 
     // MARK: - Properties
 
@@ -31,6 +32,8 @@ final class SentryMXManager: NSObject {
     let inAppLogic: SentryInAppLogic
     let attachDiagnosticAsAttachment: Bool
     let enabledDiagnostics: Set<Diagnostic>
+    let enabledMetricReports: Set<MetricReport>
+    let metricsApi: SentryInternalMetricsApi
     let releaseName: String?
     let bundleInfo: [String: Any]
     let hangReportingMode: SentryMetricKitHangReportingMode
@@ -42,6 +45,8 @@ final class SentryMXManager: NSObject {
         inAppLogic: SentryInAppLogic,
         attachDiagnosticAsAttachment: Bool,
         enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
+        enabledMetricReports: Set<MetricReport> = [],
+        metricsApi: SentryInternalMetricsApi = SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance()),
         releaseName: String? = nil,
         bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
         hangReportingMode: SentryMetricKitHangReportingMode = .legacy,
@@ -52,6 +57,8 @@ final class SentryMXManager: NSObject {
         self.inAppLogic = inAppLogic
         self.attachDiagnosticAsAttachment = attachDiagnosticAsAttachment
         self.enabledDiagnostics = enabledDiagnostics
+        self.enabledMetricReports = enabledMetricReports
+        self.metricsApi = metricsApi
         self.releaseName = releaseName
         self.bundleInfo = bundleInfo
         self.hangReportingMode = hangReportingMode
@@ -72,6 +79,21 @@ final class SentryMXManager: NSObject {
 }
 
 extension SentryMXManager: MXMetricManagerSubscriber {
+    // The macOS SDK before Xcode 26 marks MXMetricPayload unavailable, and MetricKit only
+    // delivers metric payloads from macOS 26.
+    #if os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
+    func didReceive(_ payloads: [MXMetricPayload]) {
+        guard !enabledMetricReports.isEmpty else {
+            SentrySDKLog.debug("MetricKit metric reports are not enabled, skipping \(payloads.count) metric payloads")
+            return
+        }
+        SentrySDKLog.info("Received \(payloads.count) MetricKit metric payloads")
+        payloads.forEach { payload in
+            process(metricPayload: payload)
+        }
+    }
+    #endif // os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
+
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
         SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
         payloads.forEach { payload in

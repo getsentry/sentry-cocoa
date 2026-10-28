@@ -86,6 +86,34 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
 #endif
     }
 
+    func testInit_whenOnlyMetricReportsConfigured_shouldEnableIntegrationWithoutDiagnostics() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime, .exitForegroundWatchdog]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+
+        // -- Assert --
+        XCTAssertEqual(sut.mxManager.enabledMetricReports, [.cpuCumulativeTime, .exitForegroundWatchdog])
+        XCTAssertTrue(sut.mxManager.enabledDiagnostics.isEmpty)
+    }
+
+    func testInit_whenMetricReportsNotConfigured_shouldNotEnableMetricReports() throws {
+        // -- Arrange --
+        let options = Options()
+        #if !SDK_V10
+        options.enableMetricKit = true
+        #endif // !SDK_V10
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+
+        // -- Assert --
+        XCTAssertTrue(sut.mxManager.enabledMetricReports.isEmpty)
+    }
+
     func testInit_whenDefaultOptions_shouldDependOnSDKVersion() throws {
         // -- Arrange --
         let options = Options()
