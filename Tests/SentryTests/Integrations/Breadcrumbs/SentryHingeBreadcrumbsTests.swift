@@ -6,7 +6,7 @@
 #endif
 import XCTest
 
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 class SentryHingeBreadcrumbsTests: XCTestCase {
 
     private var hingeObserver: TestSentryHingeObserver!
@@ -294,4 +294,4 @@ class SentryHingeBreadcrumbsTests: XCTestCase {
         XCTAssertEqual(delegate.addCrumbInvocations.count, 0)
     }
 }
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

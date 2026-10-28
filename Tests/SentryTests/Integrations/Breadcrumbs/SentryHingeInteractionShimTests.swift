@@ -6,7 +6,7 @@
 #endif
 import XCTest
 
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 
 /// Stands in for `UIHingeInteraction` in the runtime shim tests, with the same initializer selector.
 @objc(SentryTestRuntimeHingeInteraction)
@@ -194,4 +194,4 @@ class SentryHingeInteractionShimTests: XCTestCase {
 
     #endif // canImport(SwiftUI, _version: 8.0.85)
 }
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

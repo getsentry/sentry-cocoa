@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 /// The status of a device hinge. The raw values mirror `UIHingeStatus` from the iOS 27.1 SDK.
@@ -221,4 +221,4 @@ final class SentryHingeObserver: NSObject, SentryHingeObserving {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#endif // os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK

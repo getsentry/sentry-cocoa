@@ -6,7 +6,7 @@
 #endif
 import XCTest
 
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 class SentryHingeObserverTests: XCTestCase {
 
     private final class TestInteraction: NSObject, UIInteraction {
@@ -335,4 +335,4 @@ class SentryHingeObserverTests: XCTestCase {
         XCTAssertEqual(SentryHingeStatus.fullyOpen.rawValue, 3)
     }
 }
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

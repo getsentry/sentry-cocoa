@@ -4,7 +4,7 @@
 @_spi(Private) @testable import Sentry
 #endif
 
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 /// A hinge observer double with a settable current state and no UIKit dependency.
 final class TestSentryHingeObserver: SentryHingeObserving {
     var currentState: SentryHingeState?
@@ -35,4 +35,4 @@ final class TestSentryHingeObserver: SentryHingeObserving {
         }
     }
 }
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 /// Creates `UIHingeInteraction` instances for `SentryHingeObserver`.
@@ -134,4 +134,4 @@ struct SentryRuntimeHingeInteractionShim: SentryHingeInteractionShim {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#endif // os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK

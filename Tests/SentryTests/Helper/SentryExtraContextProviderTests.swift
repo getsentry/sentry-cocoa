@@ -15,18 +15,26 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let memoryMetricsProvider = TestSentryMemoryMetricsProvider()
 #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
-        let hingeObserver = TestSentryHingeObserver()
 #endif // os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        let hingeObserver = TestSentryHingeObserver()
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
         let processWrapper = MockSentryProcessInfo()
         var reachability = SentryReachability()
 
         func getSut() -> SentryExtraContextProvider {
-            #if os(iOS)
+            #if os(iOS) && !targetEnvironment(macCatalyst)
             return SentryExtraContextProvider(
                     memoryMetricsProvider: memoryMetricsProvider,
                     processInfoWrapper: processWrapper,
                     deviceWrapper: deviceWrapper,
                     hingeObserver: hingeObserver,
+                    reachability: reachability)
+            #elseif os(iOS)
+            return SentryExtraContextProvider(
+                    memoryMetricsProvider: memoryMetricsProvider,
+                    processInfoWrapper: processWrapper,
+                    deviceWrapper: deviceWrapper,
                     reachability: reachability)
             #else
             return SentryExtraContextProvider(
@@ -81,7 +89,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
     }
     
     func testExtraDeviceInfo_whenHingeStateIsKnown_shouldSetHingeStatus() throws {
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
         // -- Arrange --
         let sut = fixture.getSut()
         fixture.hingeObserver.currentState = SentryHingeState(status: .partiallyOpen, angle: 1.0)
@@ -91,11 +99,11 @@ final class SentryExtraContextProviderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(device?["hinge_status"] as? String, "partially_open")
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     }
 
     func testExtraDeviceInfo_whenHingeStateIsUnknown_shouldNotSetHingeStatus() throws {
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
         // -- Arrange --
         let sut = fixture.getSut()
         fixture.hingeObserver.currentState = SentryHingeState(status: .unknown, angle: 0)
@@ -105,11 +113,11 @@ final class SentryExtraContextProviderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(device?["hinge_status"])
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     }
 
     func testExtraDeviceInfo_whenNoHingeState_shouldNotSetHingeStatus() throws {
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
         // -- Arrange --
         let sut = fixture.getSut()
 
@@ -118,7 +126,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(device?["hinge_status"])
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     }
 
     func testExtraProcessInfo() throws {

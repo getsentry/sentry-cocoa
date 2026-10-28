@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
 import Foundation
 
 /// Adds breadcrumbs when the hinge of a foldable device, such as iPhone Duo, opens or closes.
@@ -98,4 +98,4 @@ final class SentryHingeBreadcrumbs {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#endif // os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK

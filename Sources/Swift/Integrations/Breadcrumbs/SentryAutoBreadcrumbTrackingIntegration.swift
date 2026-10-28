@@ -4,8 +4,10 @@ internal import _SentryPrivate
 import UIKit
 #endif
 
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
 typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider & HingeObserverProvider
+#elseif os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider
 #else
 typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider
 #endif
@@ -15,7 +17,9 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
 
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     private var systemEventBreadcrumbs: SentrySystemEventBreadcrumbs?
+    #if !targetEnvironment(macCatalyst)
     private var hingeBreadcrumbs: SentryHingeBreadcrumbs?
+    #endif // !targetEnvironment(macCatalyst)
     #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
     init?(with options: Options, dependencies: Dependencies) {
@@ -56,11 +60,13 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         self.systemEventBreadcrumbs = systemEventBreadcrumbs
         systemEventBreadcrumbs.start(with: self)
 
+        #if !targetEnvironment(macCatalyst)
         // Apple doesn't provide any easy way to detect if the device has a hinge,
         // but it will never report a hinge state change if the device doesn't have a hinge.
         let hingeBreadcrumbs = SentryHingeBreadcrumbs(hingeObserver: dependencies.hingeObserver)
         self.hingeBreadcrumbs = hingeBreadcrumbs
         hingeBreadcrumbs.start(with: self)
+        #endif // !targetEnvironment(macCatalyst)
         #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     }
 
@@ -71,8 +77,10 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         systemEventBreadcrumbs?.stop()
         systemEventBreadcrumbs = nil
+        #if !targetEnvironment(macCatalyst)
         hingeBreadcrumbs?.stop()
         hingeBreadcrumbs = nil
+        #endif // !targetEnvironment(macCatalyst)
         #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     }
 
