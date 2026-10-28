@@ -180,8 +180,15 @@ jobs:
           grep -q "$GITHUB_WORKSPACE/sentry-cocoa" Package.swift || { echo "Failed to replace the sentry-cocoa dependency." && exit 1; }
           cat Package.swift
       # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods.
+      # The runner image ships an asdf `pod` shim that can be broken for the active Ruby,
+      # so fall back to Homebrew's CocoaPods and put it first on the PATH.
       - name: Install CocoaPods
-        run: command -v pod || brew install cocoapods
+        run: |
+          if ! pod --version > /dev/null 2>&1; then
+            brew install cocoapods
+            echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+            "$(brew --prefix)/bin/pod" --version
+          fi
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
         with:
           channel: stable
