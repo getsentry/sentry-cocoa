@@ -135,6 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
                       [device removeObjectForKey:@"charging"];
                       [device removeObjectForKey:@"battery_level"];
                       [device removeObjectForKey:@"thermal_state"];
+                      [device removeObjectForKey:@"hinge_status"];
                   }];
 
     [self modifyContext:event
