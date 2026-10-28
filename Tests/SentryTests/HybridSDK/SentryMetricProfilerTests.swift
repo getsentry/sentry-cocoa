@@ -28,7 +28,9 @@ final class SentryMetricProfilerTests: XCTestCase {
             system.overrides.cpuUsage = 10
             system.overrides.memoryFootprintBytes = 100
             system.overrides.cpuEnergyUsage = 100
-            SentryMetricProfiler.setSystemWrapperOverride(system)
+            let backend = SentryProfilerSDKAdapter.shared.target as? SentryDefaultProfilerSDKBackend
+            XCTAssertNotNil(backend)
+            backend?.systemWrapper = system
             let options = Options()
             options.dsn = TestConstants.dsnForTestCase(type: SentryMetricProfilerTests.self)
             client = try XCTUnwrap(TestClient(options: options))
@@ -48,7 +50,6 @@ final class SentryMetricProfilerTests: XCTestCase {
         // These tests replace process-wide SDK and profiling dependencies.
         // swiftlint:disable:next avoid_clear_test_state
         clearTestState()
-        SentryMetricProfiler.setSystemWrapperOverride(nil)
         super.tearDown()
     }
 
