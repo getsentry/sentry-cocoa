@@ -6,7 +6,7 @@
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(visionOS)
+#if os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
 
 import MetricKit
 
@@ -756,4 +756,4 @@ class TestMXDiskSpaceUsageMetric: MXDiskSpaceUsageMetric {
 }
 #endif // compiler(>=6.2)
 
-#endif // os(iOS) || os(visionOS)
+#endif // os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))

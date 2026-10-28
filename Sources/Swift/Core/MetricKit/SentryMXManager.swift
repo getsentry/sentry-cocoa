@@ -79,8 +79,9 @@ final class SentryMXManager: NSObject {
 }
 
 extension SentryMXManager: MXMetricManagerSubscriber {
-    // MetricKit only delivers metric payloads on iOS and visionOS.
-    #if os(iOS) || os(visionOS)
+    // The macOS SDK before Xcode 26 marks MXMetricPayload unavailable, and MetricKit only
+    // delivers metric payloads from macOS 26.
+    #if os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
     func didReceive(_ payloads: [MXMetricPayload]) {
         guard !enabledMetricReports.isEmpty else {
             SentrySDKLog.debug("MetricKit metric reports are not enabled, skipping \(payloads.count) metric payloads")
@@ -91,7 +92,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             process(metricPayload: payload)
         }
     }
-    #endif // os(iOS) || os(visionOS)
+    #endif // os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
 
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
         SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
