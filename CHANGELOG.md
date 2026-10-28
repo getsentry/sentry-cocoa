@@ -9,12 +9,17 @@
 - Align the metrics API with the other Sentry SDKs: `SentrySDK.metrics.count(_:value:options:)`, `gauge(_:value:options:)` and `distribution(_:value:options:)` take the metric name, the value and `SentryMetricOptions` with `unit`, `attributes`, `scope` and `timestamp`. `SentryObjC` exposes the same API through `count:value:options:`, `gauge:value:options:`, `distribution:value:options:` and `SentryObjCMetricOptions`. The key-based methods such as `count(key:value:attributes:)` and `countWithKey:value:attributes:` keep working but are deprecated and will be removed in v10; use the options-based methods instead (#9453)
 - Capture MetricKit app launch diagnostics on iOS 16 and later and on visionOS when `options.experimental.metrickit.enabledDiagnosticReports` contains `.appLaunch` (#9441)
 - Expose `options.experimental.metrickit.enabledDiagnosticReports` through the SentryObjC SDK as `options.experimental.metrickit` and through the `metrickit` key of the options dictionary (#9296)
+- Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, and report the current hinge status as `hinge_status` in the device context, which requires iOS 27.1 or later and is not available on Mac Catalyst (#9464)
+- Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
 - Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
 - Capture MetricKit memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException` (#9465)
 
 ### Fixes
 
 - Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
+- Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
+- Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
+- Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9463)
 
 ## 9.31.0
 

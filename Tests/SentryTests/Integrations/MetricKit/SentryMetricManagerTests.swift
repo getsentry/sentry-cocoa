@@ -10,7 +10,7 @@ import XCTest
 #if (os(iOS) || os(macOS) || os(visionOS)) && compiler(>=6.4)
 import MetricKit
 
-final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
+final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
 
     private static let timestamp = Date(timeIntervalSinceReferenceDate: 800_000_000)
     private static let currentPid: pid_t = 4_242
@@ -263,9 +263,8 @@ final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub()
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
-        let legacyManager = TestMetricManager()
         let source = TestDiagnosticReportSource()
-        let sut = givenSut(enabledDiagnostics: [.hang], metricManager: legacyManager, diagnosticReportSource: source)
+        let sut = givenSut(enabledDiagnostics: [.hang], source: source)
         let captured = expectation(for: NSPredicate { _, _ in client.captureEventWithScopeInvocations.count == 1 }, evaluatedWith: nil)
 
         // -- Act --
@@ -274,53 +273,16 @@ final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         wait(for: [captured], timeout: 5)
-        XCTAssertTrue(sut.receivesDiagnosticsFromMetricManager)
-        // The subscriber stays registered for metric payloads.
-        XCTAssertEqual(legacyManager.addInvocations.count, 1)
-    }
-
-    func testReceiveReports_shouldIgnoreLegacyDiagnosticPayloads() throws {
-        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
-        // -- Arrange --
-        givenSdkWithHub()
-        let sut = givenSut(enabledDiagnostics: [.hang], diagnosticReportSource: TestDiagnosticReportSource())
-        let legacyDiagnostic = TestMXHangDiagnostic()
-        legacyDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
-        let legacyPayload = TestMXDiagnosticPayload()
-        legacyPayload.overrides.hangDiagnostic = [legacyDiagnostic]
-        sut.receiveReports()
-
-        // -- Act --
-        sut.didReceive([legacyPayload])
-
-        // -- Assert --
-        assertNothingCaptured()
-    }
-
-    func testReceiveReports_whenNoDiagnosticsEnabled_shouldNotUseMetricManager() throws {
-        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
-        // -- Arrange --
-        givenSdkWithHub()
-        let legacyManager = TestMetricManager()
-        let sut = givenSut(enabledDiagnostics: [], metricManager: legacyManager, diagnosticReportSource: TestDiagnosticReportSource())
-
-        // -- Act --
-        sut.receiveReports()
-
-        // -- Assert --
-        XCTAssertFalse(sut.receivesDiagnosticsFromMetricManager)
-        XCTAssertEqual(legacyManager.addInvocations.count, 1)
     }
 
     func testPauseReports_shouldStopIteratingMetricManagerReports() throws {
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
         // -- Arrange --
         givenSdkWithHub()
-        let legacyManager = TestMetricManager()
         let source = TestDiagnosticReportSource()
         let terminated = expectation(description: "The report sequence is terminated")
         source.continuation.onTermination = { _ in terminated.fulfill() }
-        let sut = givenSut(enabledDiagnostics: [.hang], metricManager: legacyManager, diagnosticReportSource: source)
+        let sut = givenSut(enabledDiagnostics: [.hang], source: source)
         sut.receiveReports()
 
         // -- Act --
@@ -328,22 +290,16 @@ final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         wait(for: [terminated], timeout: 5)
-        XCTAssertFalse(sut.receivesDiagnosticsFromMetricManager)
-        XCTAssertEqual(legacyManager.removeInvocations.count, 1)
     }
 
     // MARK: - Helpers
 
-    private func givenSut(
+    private func givenDiagnosticCapturer(
         enabledDiagnostics: Set<SentryMXManager.Diagnostic>,
         attachDiagnosticAsAttachment: Bool = false,
-        releaseName: String? = nil,
-        metricManager: SentryMetricManager = TestMetricManager(),
-        diagnosticReportSource: Any? = nil
-    ) -> SentryMXManager {
-        SentryMXManager(
-            metricManager: metricManager,
-            diagnosticReportSource: diagnosticReportSource,
+        releaseName: String? = nil
+    ) -> SentryMXDiagnosticCapturer {
+        SentryMXDiagnosticCapturer(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: attachDiagnosticAsAttachment,
             enabledDiagnostics: enabledDiagnostics,
@@ -358,16 +314,35 @@ final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
         )
     }
 
-    /// Captures the legacy payload and the report with the same manager and asserts that both
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    private func givenSut(
+        enabledDiagnostics: Set<SentryMXManager.Diagnostic>,
+        attachDiagnosticAsAttachment: Bool = false,
+        releaseName: String? = nil,
+        source: SentryDiagnosticReportSource = TestDiagnosticReportSource()
+    ) -> SentryMetricManager {
+        SentryMetricManager(
+            source: source,
+            diagnosticCapturer: givenDiagnosticCapturer(
+                enabledDiagnostics: enabledDiagnostics,
+                attachDiagnosticAsAttachment: attachDiagnosticAsAttachment,
+                releaseName: releaseName
+            )
+        )
+    }
+
+    /// Captures the legacy payload and the report with the same capturer and asserts that both
     /// produce the same event.
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
     private func assertSameEvent(legacyPayload: TestMXDiagnosticPayload, report: MetricKit.DiagnosticReport, exceptionType: String) throws {
         givenSdkWithHub()
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
-        let sut = givenSut(enabledDiagnostics: SentryMXManager.Diagnostic.all)
+        let diagnosticCapturer = givenDiagnosticCapturer(enabledDiagnostics: SentryMXManager.Diagnostic.all)
+        let legacyManager = SentryMXManager(metricManager: TestMXMetricManager(), diagnosticCapturer: diagnosticCapturer)
+        let sut = SentryMetricManager(source: TestDiagnosticReportSource(), diagnosticCapturer: diagnosticCapturer)
         legacyPayload.overrides.timeStampBegin = Self.timestamp
 
-        sut.didReceive([legacyPayload])
+        legacyManager.didReceive([legacyPayload])
         sut.process(diagnosticReport: report)
 
         let events = client.captureEventWithScopeInvocations.invocations.map(\.event)
@@ -506,17 +481,10 @@ final class SentryMXManagerMetricManagerTests: SentrySDKIntegrationTestsBase {
     }
 }
 
-private final class TestMetricManager: SentryMetricManager {
-    let addInvocations = Invocations<Void>()
-    let removeInvocations = Invocations<Void>()
+private final class TestMXMetricManager: SentryMXMetricManager {
+    func add(_ subscriber: MXMetricManagerSubscriber) {}
 
-    func add(_ subscriber: MXMetricManagerSubscriber) {
-        addInvocations.record(())
-    }
-
-    func remove(_ subscriber: MXMetricManagerSubscriber) {
-        removeInvocations.record(())
-    }
+    func remove(_ subscriber: MXMetricManagerSubscriber) {}
 }
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)

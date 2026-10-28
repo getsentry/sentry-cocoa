@@ -130,6 +130,34 @@ final class SentryOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, SentryMetricKitOptions().enabledDiagnosticReports)
     }
+
+    func testMetricKitEnabledMetricReports_whenDefault_shouldBeEmpty() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertTrue(options.experimental.metrickit.enabledMetricReports.isEmpty)
+    }
+
+    func testMetricKitEnabledMetricReports_whenSetToAll_shouldContainEveryReport() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        options.experimental.metrickit.enabledMetricReports = .all
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledMetricReports, Set(SentryMetricKit.MetricReport.allCases))
+    }
+
+    func testMetricKitMetricReportNames_shouldBeUniqueAndNamespaced() {
+        // -- Arrange --
+        let names = SentryMetricKit.MetricReport.allCases.map(\.name)
+
+        // -- Assert --
+        XCTAssertEqual(Set(names).count, names.count)
+        XCTAssertTrue(names.allSatisfy { $0.hasPrefix("metrickit.") }, "Unexpected names: \(names)")
+    }
 #endif // canImport(MetricKit) && !os(tvOS)
 
     // MARK: - Data Collection

@@ -17,9 +17,22 @@ extension MetricManager: SentryDiagnosticReportSource {
     }
 }
 
+/// Receives the diagnostic reports of `MetricManager`, which replaces `MXMetricManager` for
+/// diagnostics on xOS 27 and later.
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
-extension SentryMXManager {
-    func receiveDiagnosticReports(from source: SentryDiagnosticReportSource) {
+final class SentryMetricManager: SentryMetricKitReportReceiver {
+    private let source: SentryDiagnosticReportSource
+    private let diagnosticCapturer: SentryMXDiagnosticCapturer
+    private let diagnosticReportsTask = SentryMutex<Task<Void, Never>?>(nil)
+
+    init(source: SentryDiagnosticReportSource = MetricManager(), diagnosticCapturer: SentryMXDiagnosticCapturer) {
+        self.source = source
+        self.diagnosticCapturer = diagnosticCapturer
+    }
+
+    func receiveReports() {
+        SentrySDKLog.info("Started receiving diagnostic reports from MetricManager")
+        let source = self.source
         let task = Task { [weak self] in
             for await report in source.makeDiagnosticReports() {
                 guard let self, !Task.isCancelled else {
@@ -31,85 +44,70 @@ extension SentryMXManager {
         replaceDiagnosticReportsTask(with: task)
     }
 
-    func pauseDiagnosticReports() {
+    func pauseReports() {
+        SentrySDKLog.info("Paused receiving diagnostic reports from MetricManager")
         replaceDiagnosticReportsTask(with: nil)
     }
 
     func process(diagnosticReport report: MetricKit.DiagnosticReport) {
         SentrySDKLog.info("Received MetricKit diagnostic report")
-        guard let diagnostic = diagnostic(of: report) else {
+        guard let diagnostic = Self.diagnostic(of: report) else {
             SentrySDKLog.debug("Unsupported MetricKit diagnostic report, skipping it")
             return
         }
-        capture(diagnostic)
+        diagnosticCapturer.capture(diagnostic)
     }
 
-    private func diagnostic(of report: MetricKit.DiagnosticReport) -> SentryMXDiagnostic? {
+    /// Stores the task that iterates the diagnostic reports and cancels the previous one.
+    private func replaceDiagnosticReportsTask(with task: Task<Void, Never>?) {
+        let previousTask = diagnosticReportsTask.withLock { current in
+            let previousTask = current
+            current = task
+            return previousTask
+        }
+        previousTask?.cancel()
+    }
+
+    private static func diagnostic(of report: MetricKit.DiagnosticReport) -> SentryMXDiagnostic? {
         switch report.result {
         case .crash(let crash):
-            return makeDiagnostic(.crash, callStackTree: crash.callStackTree, of: report, exceptionValue: Self.crashExceptionValue(
-                exceptionType: crash.exceptionType.map { String($0) } ?? "nil",
-                code: crash.exceptionCode.map { String($0) } ?? "nil",
-                signal: crash.signal.map { String($0) } ?? "nil"
-            ))
+            return SentryMXCrashDiagnosticProcessor.diagnostic(of: crash, in: report)
         case .hang(let hang):
-            return makeDiagnostic(
-                .hang,
-                level: Self.hangLevel(hangDuration: hang.hangDuration),
-                callStackTree: hang.callStackTree,
-                of: report,
-                exceptionValue: self.hangExceptionValue(hangDuration: hang.hangDuration)
-            )
+            return SentryMXHangDiagnosticProcessor.diagnostic(of: hang, in: report)
         case .cpuException(let cpuException):
-            return makeDiagnostic(
-                .cpuException,
-                callStackTree: cpuException.callStackTree,
-                of: report,
-                exceptionValue: self.cpuExceptionValue(totalCPUTime: cpuException.totalCPUTime, totalSampledTime: cpuException.totalSampledTime)
-            )
+            return SentryMXCPUExceptionDiagnosticProcessor.diagnostic(of: cpuException, in: report)
         case .diskWriteException(let diskWriteException):
-            return makeDiagnostic(
-                .diskWriteException,
-                callStackTree: diskWriteException.callStackTree,
-                of: report,
-                exceptionValue: self.diskWriteExceptionValue(totalWritesCaused: diskWriteException.totalBytesWritten)
-            )
+            return SentryMXDiskWriteExceptionDiagnosticProcessor.diagnostic(of: diskWriteException, in: report)
         #if !os(visionOS)
         case .appLaunch(let appLaunch):
-            return makeDiagnostic(
-                .appLaunch,
-                callStackTree: appLaunch.callStackTree,
-                of: report,
-                exceptionValue: self.appLaunchExceptionValue(launchDuration: appLaunch.launchDuration)
-            )
+            return SentryMXAppLaunchDiagnosticProcessor.diagnostic(of: appLaunch, in: report)
         #endif // !os(visionOS)
         #if os(iOS) && !targetEnvironment(macCatalyst)
         case .memoryException(let memoryException):
-            return makeDiagnostic(
-                .memoryException,
-                callStackTree: memoryException.callStackTree,
-                of: report,
-                exceptionValue: "The app or extension exceeded its memory limit"
-            )
+            return SentryMXMemoryExceptionDiagnosticProcessor.diagnostic(of: memoryException, in: report)
         #endif // os(iOS) && !targetEnvironment(macCatalyst)
         @unknown default:
             return nil
         }
     }
+}
 
-    private func makeDiagnostic(
-        _ diagnosticReport: Diagnostic,
+@available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+extension SentryMXDiagnostic {
+    /// Converts a diagnostic of a `MetricManager` report.
+    init(
+        _ diagnosticReport: SentryMetricKit.DiagnosticReport,
+        exceptionValue: @autoclosure @escaping () -> String,
         level: SentryLevel? = nil,
         callStackTree: MetricKit.CallStackTree,
-        of report: MetricKit.DiagnosticReport,
-        exceptionValue: @autoclosure @escaping () -> String
-    ) -> SentryMXDiagnostic {
-        SentryMXDiagnostic(
+        in report: MetricKit.DiagnosticReport
+    ) {
+        self.init(
             report: diagnosticReport,
             exceptionValue: exceptionValue,
             level: level,
             timestamp: report.timeRange.start,
-            metadata: SentryMXDiagnostic.Metadata(report.environment),
+            metadata: Metadata(report.environment),
             callStackTree: {
                 try SentryMXCallStackTree(callStackTree)
             },

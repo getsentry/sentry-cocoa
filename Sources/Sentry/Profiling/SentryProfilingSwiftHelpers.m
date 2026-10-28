@@ -184,6 +184,11 @@ SentryTracer *_Nullable sentry_getLaunchTracer(void)
     return (SentryTracer *)SentryLaunchProfiling.launchTracer;
 }
 
+SentryTracer *_Nullable sentry_tracerForTransaction(id transaction)
+{
+    return (SentryTracer *)[(SentryTransaction *)transaction trace];
+}
+
 #    if SENTRY_HAS_UIKIT
 #        if !SDK_V10
 BOOL

@@ -55,6 +55,17 @@ struct SentryMXDiagnostic {
 }
 
 extension SentryMXDiagnostic {
+    /// Formats the measurements of exception values with US English units, so values don't
+    /// depend on the locale of the device.
+    static let measurementFormatter: MeasurementFormatter = {
+        let formatter = MeasurementFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.unitOptions = .providedUnit
+        return formatter
+    }()
+}
+
+extension SentryMXDiagnostic {
     /// Converts a diagnostic of a legacy `MXDiagnosticPayload`.
     init(
         report: SentryMetricKit.DiagnosticReport,
