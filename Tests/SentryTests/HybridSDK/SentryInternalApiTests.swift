@@ -216,55 +216,73 @@ class SentryInternalApiTests: XCTestCase {
         XCTAssertNil(SentrySDK.internal.appStart.measurement)
     }
 
-    func testGetAppStartMeasurementWithSpansCold() throws {
+    func testMeasurementWithSpans_whenNotPreWarmed_shouldIncludePreMainSpans() throws {
+        // -- Arrange --
         SentrySDKInternal.setAppStartMeasurement(
-            TestData.getAppStartMeasurement(type: .cold, runtimeInitSystemTimestamp: 1)
+            TestData.getAppStartMeasurement(
+                type: .cold,
+                appStartTimestamp: Date(timeIntervalSince1970: 1),
+                runtimeInitSystemTimestamp: 1,
+                preWarmed: false,
+                moduleInitializationTimestamp: Date(timeIntervalSince1970: 3),
+                runtimeInitTimestamp: Date(timeIntervalSince1970: 2),
+                sdkStartTimestamp: Date(timeIntervalSince1970: 4))
         )
 
+        // -- Act --
         let actualAppStartMeasurement = try XCTUnwrap(SentrySDK.internal.appStart.measurementWithSpans)
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["type"] as? String), "cold")
         XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 0)
-        let spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? NSArray)
-        XCTAssertEqual(spans.count, 1)
-        let firstSpan = try XCTUnwrap(spans.firstObject as? NSDictionary)
-        XCTAssertEqual(try XCTUnwrap(firstSpan["description"] as? String), "UIKit init")
-        XCTAssertTrue(firstSpan["start_timestamp_ms"] is NSNumber)
-        XCTAssertTrue(firstSpan["end_timestamp_ms"] is NSNumber)
+
+        let spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? [NSDictionary])
+        XCTAssertEqual(spans.count, 3)
+
+        let span0 = try XCTUnwrap(spans.element(at: 0))
+        XCTAssertEqual(span0["description"] as? String, "Pre Runtime Init")
+        XCTAssertEqual(span0["start_timestamp_ms"] as? NSNumber, 1_000)
+        XCTAssertEqual(span0["end_timestamp_ms"] as? NSNumber, 2_000)
+
+        let span1 = try XCTUnwrap(spans.element(at: 1))
+        XCTAssertEqual(span1["description"] as? String, "Runtime init to Pre Main initializers")
+        XCTAssertEqual(span1["start_timestamp_ms"] as? NSNumber, 2_000)
+        XCTAssertEqual(span1["end_timestamp_ms"] as? NSNumber, 3_000)
+
+        let span2 = try XCTUnwrap(spans.element(at: 2))
+        XCTAssertEqual(span2["description"] as? String, "UIKit init")
+        XCTAssertEqual(span2["start_timestamp_ms"] as? NSNumber, 3_000)
+        XCTAssertEqual(span2["end_timestamp_ms"] as? NSNumber, 4_000)
     }
 
-    func testGetAppStartMeasurementWithSpansPreWarmed() throws {
+    func testMeasurementWithSpans_whenPreWarmed_shouldOnlyIncludeUIKitInitSpan() throws {
+        // -- Arrange --
+        // Prewarmed app starts begin at module initialization, after runtime init.
         SentrySDKInternal.setAppStartMeasurement(
             TestData.getAppStartMeasurement(
                 type: .warm,
+                appStartTimestamp: Date(timeIntervalSince1970: 3),
                 runtimeInitSystemTimestamp: 1,
-                preWarmed: true)
+                preWarmed: true,
+                moduleInitializationTimestamp: Date(timeIntervalSince1970: 3),
+                runtimeInitTimestamp: Date(timeIntervalSince1970: 2),
+                sdkStartTimestamp: Date(timeIntervalSince1970: 4))
         )
 
+        // -- Act --
         let actualAppStartMeasurement = try XCTUnwrap(SentrySDK.internal.appStart.measurementWithSpans)
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["type"] as? String), "warm")
-        XCTAssertEqual( try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 1)
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 1)
 
-        var spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? [NSDictionary])
-        XCTAssertEqual(spans.count, 3)
+        let spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? [NSDictionary])
+        XCTAssertEqual(spans.count, 1)
 
-        let span0 = try XCTUnwrap(spans.first)
-        XCTAssertEqual(span0["description"] as? String, "Pre Runtime Init")
-        XCTAssertTrue(span0["start_timestamp_ms"] is NSNumber)
-        XCTAssertTrue(span0["end_timestamp_ms"] is NSNumber)
-        
-        spans = [NSDictionary](spans.dropFirst())
-
-        let span1 = try XCTUnwrap(spans.first)
-        XCTAssertEqual(span1["description"] as? String, "Runtime init to Pre Main initializers")
-        XCTAssertTrue(span1["start_timestamp_ms"] is NSNumber)
-        XCTAssertTrue(span1["end_timestamp_ms"] is NSNumber)
-
-        spans = [NSDictionary](spans.dropFirst())
-        
-        let span2 = try XCTUnwrap(spans.first)
-        XCTAssertEqual(span2["description"] as? String, "UIKit init")
-        XCTAssertTrue(span2["start_timestamp_ms"] is NSNumber)
-        XCTAssertTrue(span2["end_timestamp_ms"] is NSNumber)
+        let span = try XCTUnwrap(spans.first)
+        XCTAssertEqual(span["description"] as? String, "UIKit init")
+        XCTAssertEqual(span["start_timestamp_ms"] as? NSNumber, 3_000)
+        XCTAssertEqual(span["end_timestamp_ms"] as? NSNumber, 4_000)
     }
 
     func testGetAppStartMeasurementWithSpansReturnsTimestampsInMs() throws {
