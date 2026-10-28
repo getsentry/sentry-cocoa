@@ -77233,6 +77233,287 @@
       {
         "children": [
           {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "WKUserContentController",
+                "printedName": "WebKit.WKUserContentController",
+                "usr": "c:objc(cs)WKUserContentController"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo23WKUserContentControllerC_AA0abcD7OptionsVtFZ",
+            "moduleName": "Sentry",
+            "name": "addTracePropagation",
+            "printedName": "addTracePropagation(to:options:)",
+            "static": true,
+            "usr": "s:6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo23WKUserContentControllerC_AA0abcD7OptionsVtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "WKWebView",
+                "printedName": "WebKit.WKWebView",
+                "usr": "c:objc(cs)WKWebView"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC0C_AA0abcD7OptionsVtFZ",
+            "moduleName": "Sentry",
+            "name": "addTracePropagation",
+            "printedName": "addTracePropagation(to:options:)",
+            "static": true,
+            "usr": "s:6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC0C_AA0abcD7OptionsVtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "WKWebViewConfiguration",
+                "printedName": "WebKit.WKWebViewConfiguration",
+                "usr": "c:objc(cs)WKWebViewConfiguration"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC13ConfigurationC_AA0abcD7OptionsVtFZ",
+            "moduleName": "Sentry",
+            "name": "addTracePropagation",
+            "printedName": "addTracePropagation(to:options:)",
+            "static": true,
+            "usr": "s:6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC13ConfigurationC_AA0abcD7OptionsVtFZ"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Enum",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A14WebViewTracingO",
+        "moduleName": "Sentry",
+        "name": "SentryWebViewTracing",
+        "printedName": "SentryWebViewTracing",
+        "usr": "s:6Sentry0A14WebViewTracingO"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              }
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsACSaySSG_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(allowedHosts:)",
+            "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsACSaySSG_tcfc"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "usr": "s:Sa"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvp",
+            "moduleName": "Sentry",
+            "name": "allowedHosts",
+            "printedName": "allowedHosts",
+            "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A21WebViewTracingOptionsV",
+        "moduleName": "Sentry",
+        "name": "SentryWebViewTracingOptions",
+        "printedName": "SentryWebViewTracingOptions",
+        "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+      },
+      {
+        "children": [
+          {
             "accessors": [
               {
                 "accessorKind": "get",
