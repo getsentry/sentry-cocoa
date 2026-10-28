@@ -61,6 +61,14 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         var expectedReports = Set<SentryMetricKit.MetricReport>.all
         // The fixture reports no normal exits, and a count of zero is left out.
         expectedReports.subtract([.exitForegroundNormal, .exitBackgroundNormal])
+        // Only MetricManager reports these, see SentryMXManagerMetricReportsTests.
+        expectedReports.subtract([
+            .animationTotalHitchTime,
+            .animationTotalAnimationTime,
+            .metalFramesPerSecond,
+            .metalFrameCount,
+            .metalActiveDrawingDuration
+        ])
         if !Self.supportsIOS26Metrics {
             expectedReports.subtract(Self.iOS26Reports)
         }
@@ -504,7 +512,7 @@ private struct ExpectedMetric {
     let unit: SentryUnit?
 }
 
-private final class TestInternalMetricsApi: SentryInternalMetricsApi {
+final class TestInternalMetricsApi: SentryInternalMetricsApi {
     enum Kind {
         case count
         case distribution

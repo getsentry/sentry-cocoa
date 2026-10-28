@@ -19,6 +19,32 @@ extension MetricManager: SentryDiagnosticReportSource {
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 extension SentryMXManager {
+    /// Reads the enabled reports from `MetricManager`, which replaces `MXMetricManager` on xOS 27.
+    /// The subscriber stays registered for what `MetricManager` doesn't deliver, such as metric
+    /// payloads on visionOS, but ignores the payloads `MetricManager` delivers, so the same
+    /// diagnostic or metric can't be sent twice.
+    func receiveMetricManagerReports() {
+        // Both report sequences come from the same manager.
+        var sharedManager: MetricManager?
+        func manager() -> MetricManager {
+            let manager = sharedManager ?? MetricManager()
+            sharedManager = manager
+            return manager
+        }
+
+        if !enabledDiagnostics.isEmpty {
+            SentrySDKLog.info("Started receiving diagnostic reports from MetricManager")
+            receiveDiagnosticReports(from: diagnosticReportSource as? SentryDiagnosticReportSource ?? manager())
+        }
+        // MetricManager doesn't report metrics on visionOS.
+        #if os(iOS) || os(macOS)
+        if !enabledMetricReports.isEmpty {
+            SentrySDKLog.info("Started receiving metric reports from MetricManager")
+            receiveMetricReports(from: metricReportSource as? SentryMetricReportSource ?? manager())
+        }
+        #endif // os(iOS) || os(macOS)
+    }
+
     func receiveDiagnosticReports(from source: SentryDiagnosticReportSource) {
         let task = Task { [weak self] in
             for await report in source.makeDiagnosticReports() {

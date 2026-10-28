@@ -4,11 +4,21 @@ import MetricKit
 
 /// Sends the values of MetricKit metric payloads as Sentry metrics.
 extension SentryMXManager {
-    /// The timestamp and attributes every metric of a payload shares.
-    private struct MetricPayloadContext {
+    /// The timestamp and attributes every metric of a payload or report shares.
+    struct MetricContext {
         let timestamp: Date
         let attributes: [String: SentryAttributeValue]
         let overridingAttributes: [String: SentryAttributeValue]
+
+        /// The context with attributes that only describe some of the metrics, such as the Metal
+        /// layer a frame rate was measured for.
+        func adding(attributes additionalAttributes: [String: SentryAttributeValue]) -> MetricContext {
+            MetricContext(
+                timestamp: timestamp,
+                attributes: attributes.merging(additionalAttributes) { _, additional in additional },
+                overridingAttributes: overridingAttributes
+            )
+        }
     }
 
     func process(metricPayload payload: MXMetricPayload) {
@@ -22,7 +32,7 @@ extension SentryMXManager {
     // MARK: - Metric Groups
 
     /// Records how long the app used the CPU, the GPU, the foreground and background, and location.
-    private func recordUsageMetrics(of payload: MXMetricPayload, _ context: MetricPayloadContext) {
+    private func recordUsageMetrics(of payload: MXMetricPayload, _ context: MetricContext) {
         if let cpu = payload.cpuMetrics {
             recordDistribution(.cpuCumulativeTime, cpu.cumulativeCPUTime.converted(to: .seconds).value, unit: .second, context)
             recordDistribution(.cpuCumulativeInstructions, Self.instructionCount(cpu.cumulativeCPUInstructions), unit: nil, context)
@@ -47,7 +57,7 @@ extension SentryMXManager {
     }
 
     /// Records the network, disk, memory and display resources the app used.
-    private func recordResourceMetrics(of payload: MXMetricPayload, _ context: MetricPayloadContext) {
+    private func recordResourceMetrics(of payload: MXMetricPayload, _ context: MetricContext) {
         if let network = payload.networkTransferMetrics {
             recordDistribution(.networkWifiUpload, network.cumulativeWifiUpload.converted(to: .bytes).value, unit: .byte, context)
             recordDistribution(.networkWifiDownload, network.cumulativeWifiDownload.converted(to: .bytes).value, unit: .byte, context)
@@ -88,7 +98,7 @@ extension SentryMXManager {
     }
 
     /// Records how often the app exited in the foreground and background, by reason.
-    private func recordExitMetrics(of payload: MXMetricPayload, _ context: MetricPayloadContext) {
+    private func recordExitMetrics(of payload: MXMetricPayload, _ context: MetricContext) {
         if let exits = payload.applicationExitMetrics {
             let foreground = exits.foregroundExitData
             recordCount(.exitForegroundNormal, foreground.cumulativeNormalAppExitCount, context)
@@ -112,24 +122,45 @@ extension SentryMXManager {
         }
     }
 
-    private func metricPayloadContext(for payload: MXMetricPayload) -> MetricPayloadContext {
-        // A payload aggregates its values over the reporting interval without saying when they
+    private func metricPayloadContext(for payload: MXMetricPayload) -> MetricContext {
+        // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
+        metricContext(
+            begin: payload.timeStampBegin,
+            end: payload.timeStampEnd,
+            appVersion: payload.latestApplicationVersion,
+            appBuild: payload.metaData?.applicationBuildVersion ?? "",
+            includesMultipleApplicationVersions: payload.includesMultipleApplicationVersions,
+            osVersion: payload.metaData.flatMap { SentryMXDiagnostic.Metadata.parseOSVersion($0.osVersion)?.version }
+        )
+    }
+
+    /// Builds the context of the values MetricKit aggregated from `begin` to `end`.
+    ///
+    /// - Parameters:
+    ///   - appVersion: The latest app version of the interval, or an empty string when unknown.
+    ///   - appBuild: The app build of the interval, or an empty string when unknown.
+    ///   - osVersion: The OS version the values were recorded on, or `nil` when unknown.
+    func metricContext(
+        begin: Date,
+        end: Date,
+        appVersion: String,
+        appBuild: String,
+        includesMultipleApplicationVersions: Bool,
+        osVersion: String?
+    ) -> MetricContext {
+        // MetricKit aggregates its values over the reporting interval without saying when they
         // happened, so each value is placed in the middle of the interval. This is what spreading
         // a single sample across the interval yields for histograms as well.
-        let interval = payload.timeStampEnd.timeIntervalSince(payload.timeStampBegin)
-        let timestamp = payload.timeStampBegin.addingTimeInterval(interval / 2)
+        let timestamp = begin.addingTimeInterval(end.timeIntervalSince(begin) / 2)
 
         var attributes: [String: SentryAttributeValue] = [:]
         var overridingAttributes: [String: SentryAttributeValue] = [:]
 
         // When the interval spans an app update, MetricKit only reports the latest version, which
         // doesn't describe all values. The metrics keep the running release then.
-        if payload.includesMultipleApplicationVersions {
-            SentrySDKLog.debug("MetricKit metric payload spans multiple app versions, keeping the current release")
+        if includesMultipleApplicationVersions {
+            SentrySDKLog.debug("MetricKit metrics span multiple app versions, keeping the current release")
         } else {
-            // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
-            let appVersion = payload.latestApplicationVersion
-            let appBuild = payload.metaData?.applicationBuildVersion ?? ""
             if !appVersion.isEmpty {
                 attributes["app.version"] = appVersion
             }
@@ -144,16 +175,16 @@ extension SentryMXManager {
 
         // Scope enrichment sets the running OS version, which can be newer than the one the
         // values were recorded on.
-        if let metaData = payload.metaData, let osVersion = SentryMXDiagnostic.Metadata.parseOSVersion(metaData.osVersion) {
-            overridingAttributes["os.version"] = osVersion.version
+        if let osVersion {
+            overridingAttributes["os.version"] = osVersion
         }
 
-        return MetricPayloadContext(timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
+        return MetricContext(timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
     }
 
     // MARK: - Recording
 
-    private func recordDistribution(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricPayloadContext) {
+    func recordDistribution(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricContext) {
         guard enabledMetricReports.contains(report), let value = value() else {
             return
         }
@@ -167,7 +198,7 @@ extension SentryMXManager {
         )
     }
 
-    private func recordGauge(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricPayloadContext) {
+    func recordGauge(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricContext) {
         guard enabledMetricReports.contains(report), let value = value() else {
             return
         }
@@ -181,7 +212,7 @@ extension SentryMXManager {
         )
     }
 
-    private func recordCount(_ report: MetricReport, _ value: Int, _ context: MetricPayloadContext) {
+    func recordCount(_ report: MetricReport, _ value: Int, _ context: MetricContext) {
         // A count of zero doesn't change the sum, so it is left out to save volume.
         guard enabledMetricReports.contains(report), value > 0 else {
             return

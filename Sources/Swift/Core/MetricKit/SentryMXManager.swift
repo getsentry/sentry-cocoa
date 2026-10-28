@@ -25,8 +25,12 @@ final class SentryMXManager: NSObject {
     /// The `SentryDiagnosticReportSource` that delivers diagnostics on xOS 27 and later, or `nil`
     /// to use `MetricManager`. Stored properties can't be limited to an OS version, so the source
     /// is stored untyped.
-    private let diagnosticReportSource: Any?
+    let diagnosticReportSource: Any?
     private let diagnosticReportsTask = SentryMutex<Task<Void, Never>?>(nil)
+    /// The `SentryMetricReportSource` that delivers metrics on iOS and macOS 27 and later, or `nil`
+    /// to use `MetricManager`.
+    let metricReportSource: Any?
+    private let metricReportsTask = SentryMutex<Task<Void, Never>?>(nil)
     let measurementFormatter: MeasurementFormatter = {
         let formatter = MeasurementFormatter()
         formatter.locale = Locale(identifier: "en_US")
@@ -48,6 +52,7 @@ final class SentryMXManager: NSObject {
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
         diagnosticReportSource: Any? = nil,
+        metricReportSource: Any? = nil,
         inAppLogic: SentryInAppLogic,
         attachDiagnosticAsAttachment: Bool,
         enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
@@ -61,6 +66,7 @@ final class SentryMXManager: NSObject {
     ) {
         self.metricManager = metricManager
         self.diagnosticReportSource = diagnosticReportSource
+        self.metricReportSource = metricReportSource
         self.inAppLogic = inAppLogic
         self.attachDiagnosticAsAttachment = attachDiagnosticAsAttachment
         self.enabledDiagnostics = enabledDiagnostics
@@ -76,13 +82,8 @@ final class SentryMXManager: NSObject {
 
     func receiveReports() {
         #if compiler(>=6.4)
-        // MetricManager replaces MXMetricManager for diagnostics on xOS 27. The subscriber stays
-        // registered for metric payloads but ignores its diagnostic payloads while MetricManager
-        // delivers them, so the same diagnostic can't be captured twice.
-        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *), !enabledDiagnostics.isEmpty {
-            SentrySDKLog.info("Started receiving diagnostic reports from MetricManager")
-            let source = diagnosticReportSource as? SentryDiagnosticReportSource ?? MetricManager()
-            receiveDiagnosticReports(from: source)
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+            receiveMetricManagerReports()
         }
         #endif // compiler(>=6.4)
         SentrySDKLog.info("Started receiving reports from MetricKit")
@@ -93,6 +94,9 @@ final class SentryMXManager: NSObject {
         #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
             pauseDiagnosticReports()
+            #if os(iOS) || os(macOS)
+            pauseMetricReports()
+            #endif // os(iOS) || os(macOS)
         }
         #endif // compiler(>=6.4)
         SentrySDKLog.info("Paused receiving reports from MetricKit")
@@ -104,10 +108,25 @@ final class SentryMXManager: NSObject {
         diagnosticReportsTask.withLock { $0 != nil }
     }
 
+    /// Whether `MetricManager` delivers the metrics instead of the `MXMetricManager` subscriber.
+    var receivesMetricsFromMetricManager: Bool {
+        metricReportsTask.withLock { $0 != nil }
+    }
+
     /// Stores the task that iterates the diagnostic reports of `MetricManager` and cancels the
     /// previous one.
     func replaceDiagnosticReportsTask(with task: Task<Void, Never>?) {
-        let previousTask = diagnosticReportsTask.withLock { current in
+        Self.replace(diagnosticReportsTask, with: task)
+    }
+
+    /// Stores the task that iterates the metric reports of `MetricManager` and cancels the
+    /// previous one.
+    func replaceMetricReportsTask(with task: Task<Void, Never>?) {
+        Self.replace(metricReportsTask, with: task)
+    }
+
+    private static func replace(_ storedTask: SentryMutex<Task<Void, Never>?>, with task: Task<Void, Never>?) {
+        let previousTask = storedTask.withLock { current in
             let previousTask = current
             current = task
             return previousTask
@@ -123,6 +142,10 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXMetricPayload]) {
         guard !enabledMetricReports.isEmpty else {
             SentrySDKLog.debug("MetricKit metric reports are not enabled, skipping \(payloads.count) metric payloads")
+            return
+        }
+        guard !receivesMetricsFromMetricManager else {
+            SentrySDKLog.debug("Metrics are received from MetricManager, ignoring \(payloads.count) MetricKit metric payloads")
             return
         }
         SentrySDKLog.info("Received \(payloads.count) MetricKit metric payloads")
