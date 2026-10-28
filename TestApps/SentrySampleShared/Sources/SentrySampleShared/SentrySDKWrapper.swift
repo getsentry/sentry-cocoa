@@ -246,6 +246,7 @@ public struct SentrySDKWrapper {
             options.experimental.metrickit.enabledDiagnosticReports = [.cpuException, .diskWriteException, .hang, .appLaunch]
         }
 #endif // SDK_V10
+        options.experimental.metrickit.enabledMetricReports = enableMetricKit ? .all : []
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         options.enableMetricKitRawPayload =
             enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
