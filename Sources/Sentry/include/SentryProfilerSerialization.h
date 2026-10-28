@@ -8,7 +8,7 @@
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryId;
-@class SentryScreenFrames;
+@class SentryProfilingFrameMeasurements;
 @class SentryTransaction;
 @class SentryProfiler;
 
@@ -26,7 +26,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *_Nullable gpuData
+    SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 );
 

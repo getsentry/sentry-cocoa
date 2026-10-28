@@ -31,7 +31,7 @@ std::mutex _threadUnsafe_gContinuousProfilerLock;
 /** @warning: Must be used from a synchronized context. */
 SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 
-NSTimer *_Nullable _chunkTimer;
+id<SentryProfilingCancellation> _Nullable _chunkTimer;
 
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
 SentryId *_profileSessionID;
@@ -49,7 +49,7 @@ NSObject *_observerToken;
 void
 disableTimer()
 {
-    [_chunkTimer invalidate];
+    [_chunkTimer cancel];
     _chunkTimer = nil;
 }
 
@@ -71,7 +71,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
-    SentryScreenFrames *screenFrameData = [SentryProfilerSDKAdapter.shared copyCurrentFrames];
+    SentryProfilingFrameMeasurements *screenFrameData =
+        [SentryProfilerSDKAdapter.shared copyFrameMeasurements];
     [SentryProfilerSDKAdapter.shared resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
@@ -207,11 +208,9 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         _chunkTimer = [SentryProfilerSDKAdapter.shared
-            scheduledTimerWithInterval:kSentryProfilerChunkExpirationInterval
-                                target:self
-                              selector:@selector(timerExpired)
-                              userInfo:nil
-                               repeats:YES];
+            scheduleTimerWithInterval:kSentryProfilerChunkExpirationInterval
+                              repeats:YES
+                                block:^{ [self timerExpired]; }];
     }];
 }
 

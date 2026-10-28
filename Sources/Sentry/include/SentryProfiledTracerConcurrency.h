@@ -1,6 +1,7 @@
 #import "SentryCompiler.h"
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingDispatch.h"
 #import "SentrySampleDecision.h"
 #import <Foundation/Foundation.h>
 
@@ -10,7 +11,6 @@
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryTransaction;
-@class SentryDispatchQueueWrapper;
 @class SentryTracerConfiguration;
 @class SentryProfileOptions;
 @class SentryId;
@@ -38,8 +38,8 @@ SentryId *_Nullable sentry_startProfilerForTrace(
  * option configured.
  */
 SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
-    SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
-    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+    SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction, BOOL isProfiling,
+    BOOL isLaunchTrace, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
@@ -60,8 +60,8 @@ void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHu
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the
- * associated profiler, stop that profiler. Copy any recorded @c SentryScreenFrames data into the
- * profiler instance, and if this is the last profiler being tracked, reset the
+ * associated profiler, stop that profiler. Copy any recorded @c SentryProfilingFrameMeasurements
+ * data into the profiler instance, and if this is the last profiler being tracked, reset the
  * @c SentryFramesTracker data.
  */
 SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);

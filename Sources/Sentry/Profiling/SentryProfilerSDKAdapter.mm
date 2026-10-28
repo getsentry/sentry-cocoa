@@ -38,26 +38,6 @@
     }
 }
 
-- (id<SentryCurrentDateProvider> _Nullable)dateProvider
-{
-    return [self.target dateProvider];
-}
-
-- (SentryDebugImageProvider *_Nullable)debugImageProvider
-{
-    return [self.target debugImageProvider];
-}
-
-- (SentryDispatchFactory *_Nullable)dispatchFactory
-{
-    return [self.target dispatchFactory];
-}
-
-- (id<SentryProcessInfoSource> _Nullable)processInfoWrapper
-{
-    return [self.target processInfoWrapper];
-}
-
 - (SentryProfilingTimestamp)timestamp
 {
     id<SentryProfilerSDKBackend> target = self.target;
@@ -106,11 +86,6 @@
     return [self.target systemTime];
 }
 
-- (void)dispatchAsyncOnQueue:(SentryDispatchQueueWrapper *)wrapper block:(dispatch_block_t)block
-{
-    [self.target dispatchAsyncOnQueue:wrapper block:block];
-}
-
 - (void)dispatchAsyncOnMainIfNotMainThread:(dispatch_block_t)block
 {
     [self.target dispatchAsyncOnMainIfNotMainThread:block];
@@ -139,26 +114,6 @@
     return [self.target addObserverForName:name block:block];
 }
 
-- (NSTimer *_Nullable)scheduledTimerWithInterval:(NSTimeInterval)interval
-                                         repeats:(BOOL)repeats
-                                           block:(dispatch_block_t)block
-{
-    return [self.target scheduledTimerWithInterval:interval repeats:repeats block:block];
-}
-
-- (NSTimer *_Nullable)scheduledTimerWithInterval:(NSTimeInterval)interval
-                                          target:(id)target
-                                        selector:(SEL)selector
-                                        userInfo:(id _Nullable)userInfo
-                                         repeats:(BOOL)repeats
-{
-    return [self.target scheduledTimerWithInterval:interval
-                                            target:target
-                                          selector:selector
-                                          userInfo:userInfo
-                                           repeats:repeats];
-}
-
 - (void)startLaunchProfile
 {
     [self.target startLaunchProfile];
@@ -172,11 +127,6 @@
 - (void)setIsTracingAppLaunch:(BOOL)isTracingAppLaunch
 {
     [self.target setIsTracingAppLaunch:isTracingAppLaunch];
-}
-
-- (SentryTracer *_Nullable)launchTracer
-{
-    return [self.target launchTracer];
 }
 
 #    if SENTRY_HAS_UIKIT
@@ -199,11 +149,6 @@
 - (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements
 {
     return [self.target copyFrameMeasurements];
-}
-
-- (SentryScreenFrames *_Nullable)copyCurrentFrames
-{
-    return [self.target copyCurrentFrames];
 }
 
 #    endif // SENTRY_HAS_UIKIT
