@@ -18,6 +18,7 @@
 - Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
 - Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 - Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
+- Fix app start transactions from hybrid SDKs such as React Native being dropped for prewarmed app starts. `SentrySDK.internal.appStart.measurementWithSpans` added the Pre Runtime Init and Runtime init to Pre Main initializers spans only for prewarmed app starts, where Pre Runtime Init ended before it started, and left them out of all other app starts (#9473)
 
 ## 9.32.0
 
