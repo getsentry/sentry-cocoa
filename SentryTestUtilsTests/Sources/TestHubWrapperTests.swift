@@ -30,6 +30,19 @@ final class TestHubWrapperTests: XCTestCase {
         XCTAssertTrue(invocation.additionalEnvelopeItems.isEmpty)
     }
 
+    func testCaptureTransaction_whenBridgeReceivesWrongType_shouldReportFailure() {
+        // -- Arrange --
+        let hub = TestHub(testClient: nil, scope: Scope())
+
+        // -- Act --
+        XCTExpectFailure("Invalid transactions must fail the test") {
+            hub.wrapper_capture(transaction: NSObject(), with: Scope())
+        }
+
+        // -- Assert --
+        XCTAssertEqual(hub.capturedTransactionsWithScope.count, 0)
+    }
+
     func testCaptureEvent_whenBridgeReceivesWrongItemType_shouldReportFailure() {
         // -- Arrange --
         let hub = TestHub(testClient: nil, scope: Scope())
