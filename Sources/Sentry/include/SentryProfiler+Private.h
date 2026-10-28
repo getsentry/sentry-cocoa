@@ -9,9 +9,6 @@
 @class SentryHubInternal;
 @class SentryId;
 @class SentryMetricProfiler;
-@class SentryOptions;
-@class SentryProfileConfiguration;
-@class SentryProfileOptions;
 @class SentryProfilerState;
 @class SentryTransaction;
 
@@ -22,23 +19,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
- * launch's profiling, stop tracer profiling if no automatic performance transaction is running,
- * start the continuous profiler if enabled and not profiling from launch.
- */
-SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub);
-
-SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void);
-
-SENTRY_EXTERN void sentry_setProfileConfiguration(
-    SentryProfileConfiguration *_Nullable configuration);
-
 SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
-
-SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(void);
-
-SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.

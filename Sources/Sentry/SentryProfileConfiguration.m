@@ -4,6 +4,43 @@
 
 #    import "SentrySwift.h"
 
+/**
+ * The current configuration the profiler operates under for this session. Set when a launch profile
+ * runs, and then is updated on SDK start.
+ */
+static SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
+
+static NSObject *
+sentry_profileConfigurationLock(void)
+{
+    static NSObject *lock;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ lock = [[NSObject alloc] init]; });
+    return lock;
+}
+
+SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void)
+{
+    @synchronized(sentry_profileConfigurationLock()) {
+        return sentry_profileConfiguration;
+    }
+}
+
+void
+sentry_setProfileConfiguration(SentryProfileConfiguration *_Nullable configuration)
+{
+    @synchronized(sentry_profileConfigurationLock()) {
+        sentry_profileConfiguration = configuration;
+    }
+}
+
+void
+sentry_reevaluateSessionSampleRate(void)
+{
+    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
+    [configuration reevaluateSessionSampleRate];
+}
+
 @interface SentryProfileConfiguration ()
 @property (strong, nonatomic, nullable, readwrite)
     SentrySamplerDecision *profilerSessionSampleDecision;
