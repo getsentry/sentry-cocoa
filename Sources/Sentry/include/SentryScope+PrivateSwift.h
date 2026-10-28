@@ -31,6 +31,12 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
+/** Tracks explicit user changes on the shared scope. Copies do not inherit the callback. */
+- (void)configureUserPersistence:(void (^_Nullable)(SentryUser *_Nullable))callback;
+
+/** Restores only while persistence is active and no explicit user decision has been made. */
+- (void)restorePersistedUser:(SentryUser *)user;
+
 @property (nonatomic, nullable, copy) NSString *currentScreen;
 @property (atomic, strong, readonly) SENTRY_SWIFT_MIGRATION_ID(SentryFeatureFlagBufferWrapper)
     featureFlagBuffer;

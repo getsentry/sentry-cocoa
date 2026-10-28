@@ -55,6 +55,7 @@
 - Remove the deprecated key-based metrics methods `count(key:value:attributes:)`, `distribution(key:value:unit:attributes:)` and `gauge(key:value:unit:attributes:)`, and their `SentryObjC` counterparts. Use `count(_:value:options:)`, `distribution(_:value:options:)` and `gauge(_:value:options:)` instead (#9453)
 - Remove `enableMetricKit`; the MetricKit integration is enabled by default and `options.experimental.metrickit.enabledDiagnosticReports` set to an empty set disables it (#9267)
 - Capture MetricKit app launch diagnostics by default (#9441)
+- Enable `options.enableScopePersistence` by default to retain explicitly supplied user information across app launches. Clear the user on logout with `SentrySDK.setUser(nil)`, or set `options.enableScopePersistence = false` to disable retention. Restoration is asynchronous, so events captured before it completes may lack the retained identity (#9470)
 
 ### Fixes
 

@@ -50,6 +50,8 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     NSObject *_observersLock;
     NSObject *_propagationContextLock;
     SentryFeatureFlagBufferWrapper *_featureFlagBuffer;
+    BOOL _userWasSet;
+    void (^_userPersistenceCallback)(SentryUser *_Nullable);
 }
 
 @synthesize span = _span;
@@ -120,7 +122,10 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
-        self.userObject = scope.userObject.copy;
+        @synchronized(scope) {
+            self.userObject = scope.userObject.copy;
+            _userWasSet = scope->_userWasSet;
+        }
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
@@ -259,7 +264,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_attributesDictionary removeAllObjects];
     }
 
-    self.userObject = nil;
+    @synchronized(self) {
+        self.userObject = nil;
+        _userWasSet = YES;
+        if (_userPersistenceCallback != nil) {
+            _userPersistenceCallback(nil);
+        }
+    }
     self.distString = nil;
     self.environmentString = nil;
     self.levelEnum = kSentryLevelNone;
@@ -427,9 +438,32 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(self) {
         self.userObject = user;
+        _userWasSet = YES;
+        if (_userPersistenceCallback != nil) {
+            _userPersistenceCallback(user.copy);
+        }
 
         for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setUser:user];
+        }
+    }
+}
+
+- (void)configureUserPersistence:(void (^_Nullable)(SentryUser *_Nullable))callback
+{
+    @synchronized(self) {
+        _userPersistenceCallback = [callback copy];
+        if (callback != nil && _userWasSet) {
+            callback(self.userObject.copy);
+        }
+    }
+}
+
+- (void)restorePersistedUser:(SentryUser *)user
+{
+    @synchronized(self) {
+        if (_userPersistenceCallback != nil && !_userWasSet) {
+            [self setUser:user];
         }
     }
 }
