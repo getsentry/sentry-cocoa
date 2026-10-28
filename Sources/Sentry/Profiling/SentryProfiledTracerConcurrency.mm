@@ -92,11 +92,7 @@ sentry_trackRootSpanForContinuousProfilerV2()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    if (![SentryContinuousProfiler isCurrentlyProfiling] && _gInFlightRootSpans != 0) {
-        SENTRY_LOG_ERROR(@"Unbalanced tracking of root spans and profiler detected.");
-        return;
-    }
-
+    // Backgrounding stops the sampler without ending its in-flight root spans.
     [SentryContinuousProfiler start];
     _gInFlightRootSpans += 1;
 }
@@ -112,6 +108,10 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
     SentryProfileOptions *profileOptions, SentryTransactionContext *transactionContext)
 {
     if (!sentry_isTraceLifecycle(profileOptions)) {
+        return nil;
+    }
+    if (sentry_getParentSpanID(transactionContext) != nil) {
+        SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
         return nil;
     }
     if (sentry_isNotSampled(transactionContext)) {
@@ -167,7 +167,8 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
+    // Root ownership survives background cleanup even when the sampler is stopped.
+    if (_gInFlightRootSpans > 0) {
         SENTRY_LOG_DEBUG(@"Stopping tracking discarded tracer with profileReferenceId %@",
             sentry_stringFromSentryID(internalTraceId));
         _unsafe_cleanUpContinuousProfilerV2();
@@ -358,10 +359,6 @@ SentryId *_Nullable sentry_startProfilerForTrace(
         && sentry_isContinuousProfilingEnabled(
             SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
         // non launch profile
-        if (sentry_getParentSpanID(transactionContext) != nil) {
-            SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
-            return nil;
-        }
         SentryProfileOptions *_Nullable profilingOptions
             = sentry_getProfiling(SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client));
         if (profilingOptions == nil) {

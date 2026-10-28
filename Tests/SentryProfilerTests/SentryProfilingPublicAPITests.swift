@@ -40,6 +40,8 @@ class SentryProfilingPublicAPITests: XCTestCase {
         }
 
         let currentDate = TestCurrentDateProvider()
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDate)
         lazy var client = TestClient(options: options)!
         lazy var hub = SentryHubInternal(client: client, andScope: scope)
@@ -547,7 +549,311 @@ extension SentryProfilingPublicAPITests {
 #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 }
 
+// MARK: Trace lifecycle ownership
+extension SentryProfilingPublicAPITests {
+    func testFinish_whenOlderRootFinishesFirst_shouldKeepProfilingUntilLastRootFinishes() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let olderRoot = SentrySDK.startTransaction(name: "older", operation: "test")
+        let newerRoot = SentrySDK.startTransaction(name: "newer", operation: "test")
+        defer {
+            olderRoot.finish()
+            newerRoot.finish()
+        }
+        let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+
+        // -- Act --
+        olderRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(profiler === SentryContinuousProfiler.profiler())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+
+        // -- Act --
+        newerRoot.finish()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 2)
+    }
+
+    func testFinish_whenNewerRootFinishesFirst_shouldKeepProfilingUntilLastRootFinishes() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let olderRoot = SentrySDK.startTransaction(name: "older", operation: "test")
+        let newerRoot = SentrySDK.startTransaction(name: "newer", operation: "test")
+        defer {
+            olderRoot.finish()
+            newerRoot.finish()
+        }
+        let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+
+        // -- Act --
+        newerRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(profiler === SentryContinuousProfiler.profiler())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+
+        // -- Act --
+        olderRoot.finish()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 2)
+    }
+
+    func testStartTransaction_whenLastRootStopIsPending_shouldKeepSameProfilerRunning() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let firstRoot = SentrySDK.startTransaction(name: "first", operation: "test")
+        defer { firstRoot.finish() }
+        let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        firstRoot.finish()
+
+        // -- Act --
+        let nextRoot = SentrySDK.startTransaction(name: "next", operation: "test")
+        defer { nextRoot.finish() }
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(profiler === SentryContinuousProfiler.profiler())
+
+        // -- Act --
+        nextRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 2)
+    }
+
+    func testFinish_whenChildFinishesBeforeRoot_shouldNotReleaseRootOwnership() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let root = SentrySDK.startTransaction(name: "root", operation: "test")
+        let child = root.startChild(operation: "child")
+        defer {
+            child.finish()
+            root.finish()
+        }
+
+        // -- Act --
+        child.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0)
+
+        // -- Act --
+        root.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+    }
+
+    func testStartTransaction_whenContextHasParent_shouldNotOwnProfiler() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let context = TransactionContext(
+            name: "remote-child", nameSource: .custom, operation: "test", origin: "manual",
+            trace: SentryId(), spanId: SpanId(), parentSpanId: SpanId(),
+            parentSampled: .yes, parentSampleRate: 1, parentSampleRand: 0.5
+        )
+        let remoteChild = SentrySDK.startTransaction(transactionContext: context)
+        defer { remoteChild.finish() }
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        let root = SentrySDK.startTransaction(name: "root", operation: "test")
+        defer { root.finish() }
+        root.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(remoteChild.isFinished)
+    }
+
+    func testDealloc_whenAnotherRootIsActive_shouldReleaseOnlyAbandonedRoot() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let remainingRoot = SentrySDK.startTransaction(name: "remaining", operation: "test")
+        defer { remainingRoot.finish() }
+        weak var abandonedRoot: SentryTracer?
+
+        // -- Act --
+        autoreleasepool {
+            let root = SentrySDK.startTransaction(name: "abandoned", operation: "test")
+            abandonedRoot = root as? SentryTracer
+            XCTAssertNotNil(abandonedRoot)
+        }
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertNil(abandonedRoot)
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0)
+
+        // -- Act --
+        remainingRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+    }
+
+    func testFinish_whenRootIsFinishedRepeatedlyThenDeallocated_shouldReleaseOwnershipOnce() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let remainingRoot = SentrySDK.startTransaction(name: "remaining", operation: "test")
+        defer { remainingRoot.finish() }
+        weak var finishedRoot: SentryTracer?
+
+        // -- Act --
+        autoreleasepool {
+            let root = SentrySDK.startTransaction(name: "finished", operation: "test")
+            finishedRoot = root as? SentryTracer
+            root.finish()
+            root.finish()
+            XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+            // Captured transactions and recorded capture blocks retain their tracer.
+            fixture.client.captureEventWithScopeInvocations.removeAll()
+            fixture.dispatchQueueWrapper.dispatchAsyncInvocations.removeAll()
+        }
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertNil(finishedRoot)
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 0)
+
+        // -- Act --
+        remainingRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+    }
+
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    func testStartTransaction_whenForegroundedWithAnActiveRoot_shouldRestartProfiling() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let originalRoot = SentrySDK.startTransaction(name: "original", operation: "test")
+        defer { originalRoot.finish() }
+        let originalProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let originalTimer = try XCTUnwrap(fixture.timerFactory.overrides?.timer)
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(originalTimer.isValid)
+        fixture.notificationCenter.post(Notification(name: UIApplication.didBecomeActiveNotification))
+
+        // -- Act --
+        let newRoot = SentrySDK.startTransaction(name: "new", operation: "test")
+        defer { newRoot.finish() }
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(originalProfiler === SentryContinuousProfiler.profiler())
+
+        // -- Act --
+        originalRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        newRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 2)
+    }
+
+    func testDealloc_whenRootIsAbandonedInBackground_shouldAllowNextRootToFinishProfiling() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        weak var abandonedRoot: SentryTracer?
+
+        // -- Act --
+        autoreleasepool {
+            let root = SentrySDK.startTransaction(name: "abandoned", operation: "test")
+            abandonedRoot = root as? SentryTracer
+            fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification))
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        }
+        XCTAssertNil(abandonedRoot)
+        fixture.notificationCenter.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        let newRoot = SentrySDK.startTransaction(name: "new", operation: "test")
+        defer { newRoot.finish() }
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        newRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 1)
+    }
+
+    func testFinish_whenRootFinishesInBackground_shouldAllowNextRootToFinishProfiling() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let originalRoot = SentrySDK.startTransaction(name: "original", operation: "test")
+        defer { originalRoot.finish() }
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        originalRoot.finish()
+        fixture.notificationCenter.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        let newRoot = SentrySDK.startTransaction(name: "new", operation: "test")
+        defer { newRoot.finish() }
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        newRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 2)
+    }
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+}
+
 private extension SentryProfilingPublicAPITests {
+    func givenTraceLifecycleSDK() {
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+        }
+        fixture.options.tracesSampleRate = 1
+        let container = SentryDependencyContainer.sharedInstance()
+        container.notificationCenterWrapper = fixture.notificationCenter
+        container.dispatchQueueWrapper = fixture.dispatchQueueWrapper
+        givenSdkWithHub()
+    }
+
+    func completeProfileChunk() throws {
+        fixture.currentDate.advance(by: 60)
+        try fixture.timerFactory.check()
+    }
+
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.options)
