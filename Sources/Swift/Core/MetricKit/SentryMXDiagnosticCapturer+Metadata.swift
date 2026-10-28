@@ -3,7 +3,7 @@ import Foundation
 
 /// Describes a MetricKit event with the app, OS and device metadata the diagnostic was recorded
 /// with.
-extension SentryMXManager {
+extension SentryMXDiagnosticCapturer {
     /// Whether the diagnostic was recorded by a previous process of the app instead of the running
     /// process.
     ///
@@ -118,38 +118,11 @@ extension SentryMXManager {
     ]
 
     private func applyRelease(appVersion: String, appBuild: String, to event: Event) {
-        guard let recordedReleaseName = releaseName(appVersion: appVersion, appBuild: appBuild) else {
+        guard let recordedReleaseName = releaseResolver.releaseName(appVersion: appVersion, appBuild: appBuild) else {
             return
         }
         event.releaseName = recordedReleaseName
         event.dist = appBuild
-    }
-
-    /// The release name of the app version and build MetricKit recorded a report with, or `nil`
-    /// when the running release already describes it or the release can't be reconstructed.
-    func releaseName(appVersion: String, appBuild: String) -> String? {
-        guard !appVersion.isEmpty, !appBuild.isEmpty else {
-            return nil
-        }
-
-        let currentAppVersion = bundleInfo["CFBundleShortVersionString"] as? String
-        let currentAppBuild = bundleInfo["CFBundleVersion"] as? String
-        guard appVersion != currentAppVersion || appBuild != currentAppBuild else {
-            // The release and dist the SDK applies already match the report.
-            return nil
-        }
-
-        // MetricKit only knows the app version and build, so a custom release name of a
-        // previous app version can't be reconstructed. Release and dist stay untouched then,
-        // because a dist only has a meaning within its release.
-        guard let appIdentifier = bundleInfo["CFBundleIdentifier"] as? String,
-              let releaseName,
-              releaseName == SentryReleaseName.defaultName(bundleInfo: bundleInfo) else {
-            SentrySDKLog.debug("MetricKit report is from app version \(appVersion) (\(appBuild)), but the release name is custom, keeping the current release")
-            return nil
-        }
-
-        return SentryReleaseName.format(appIdentifier: appIdentifier, appVersion: appVersion, appBuild: appBuild)
     }
 }
 

@@ -9,7 +9,7 @@ import XCTest
 #if (os(iOS) || os(macOS)) && compiler(>=6.4)
 import MetricKit
 
-final class SentryMXManagerMetricReportsTests: XCTestCase {
+final class SentryMetricManagerMetricReportsTests: XCTestCase {
 
     private let timeStampBegin = Date(timeIntervalSince1970: 1_800_000_000)
     private let timeStampEnd = Date(timeIntervalSince1970: 1_800_086_400)
@@ -34,12 +34,12 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
         let legacyMetricsApi = TestInternalMetricsApi()
         let metricsApi = TestInternalMetricsApi()
         let reports = Self.reportsOfBothAPIs
-        let legacySut = givenSut(enabledMetricReports: reports, metricsApi: legacyMetricsApi)
+        let legacySut = SentryMXManager(metricManager: TestMXMetricManager(), metricRecorder: givenMetricRecorder(enabledMetricReports: reports, metricsApi: legacyMetricsApi))
         let sut = givenSut(enabledMetricReports: reports, metricsApi: metricsApi)
         let report = try givenReport(values: legacyPayloadValues())
 
         // -- Act --
-        legacySut.process(metricPayload: givenLegacyPayload())
+        legacySut.didReceive([givenLegacyPayload()])
         sut.process(metricReport: report)
 
         // -- Assert --
@@ -54,7 +54,6 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
             XCTAssertEqual(metric.unit, legacyMetric.unit, "Unexpected unit for \(metric.key)")
             XCTAssertEqual(metric.timestamp, legacyMetric.timestamp, "Unexpected timestamp for \(metric.key)")
             XCTAssertEqual(metric.attributes, legacyMetric.attributes, "Unexpected attributes for \(metric.key)")
-            XCTAssertEqual(metric.overridingAttributes, legacyMetric.overridingAttributes, "Unexpected overriding attributes for \(metric.key)")
         }
     }
 
@@ -177,7 +176,6 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
         XCTAssertEqual(metric.timestamp, Date(timeIntervalSince1970: 1_800_043_200))
         XCTAssertEqual(metric.attributes, [:])
-        XCTAssertEqual(metric.overridingAttributes, [:])
     }
 
     func testProcess_whenReportSpansMultipleAppVersions_shouldNotDescribeAppVersion() throws {
@@ -194,8 +192,7 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
 
         // -- Assert --
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
-        XCTAssertEqual(metric.attributes, [:])
-        XCTAssertEqual(metric.overridingAttributes, ["os.version": .string("18.6.2")])
+        XCTAssertEqual(metric.attributes, ["os.version": .string("18.6.2")])
     }
 
     func testProcess_whenOSVersionIsEmpty_shouldNotOverrideOSVersion() throws {
@@ -212,7 +209,8 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
 
         // -- Assert --
         let metric = try XCTUnwrap(metricsApi.recordedMetrics.first)
-        XCTAssertEqual(metric.overridingAttributes, ["sentry.release": .string("io.sentry.app@1.0.0+10")])
+        XCTAssertNil(metric.attributes["os.version"])
+        XCTAssertEqual(metric.attributes["sentry.release"], .string("io.sentry.app@1.0.0+10"))
     }
 
     // MARK: - Receiving reports
@@ -221,9 +219,8 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
         guard #available(iOS 27.0, macOS 27.0, *) else { return }
         // -- Arrange --
         let metricsApi = TestInternalMetricsApi()
-        let legacyManager = TestMetricManager()
         let source = TestMetricReportSource()
-        let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: metricsApi, metricManager: legacyManager, metricReportSource: source)
+        let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: metricsApi, source: source)
         let recorded = expectation(for: NSPredicate { _, _ in metricsApi.recordedMetrics.count == 1 }, evaluatedWith: nil)
 
         // -- Act --
@@ -232,47 +229,15 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
 
         // -- Assert --
         wait(for: [recorded], timeout: 5)
-        XCTAssertTrue(sut.receivesMetricsFromMetricManager)
-        // The subscriber stays registered for what MetricManager doesn't deliver.
-        XCTAssertEqual(legacyManager.addInvocations.count, 1)
-    }
-
-    func testReceiveReports_shouldIgnoreLegacyMetricPayloads() throws {
-        guard #available(iOS 27.0, macOS 27.0, *) else { return }
-        // -- Arrange --
-        let metricsApi = TestInternalMetricsApi()
-        let sut = givenSut(enabledMetricReports: .all, metricsApi: metricsApi, metricReportSource: TestMetricReportSource())
-        sut.receiveReports()
-
-        // -- Act --
-        sut.didReceive([givenLegacyPayload()])
-
-        // -- Assert --
-        XCTAssertTrue(metricsApi.recordedMetrics.isEmpty)
-    }
-
-    func testReceiveReports_whenNoMetricReportsEnabled_shouldNotUseMetricManager() throws {
-        guard #available(iOS 27.0, macOS 27.0, *) else { return }
-        // -- Arrange --
-        let legacyManager = TestMetricManager()
-        let sut = givenSut(enabledMetricReports: [], metricsApi: TestInternalMetricsApi(), metricManager: legacyManager, metricReportSource: TestMetricReportSource())
-
-        // -- Act --
-        sut.receiveReports()
-
-        // -- Assert --
-        XCTAssertFalse(sut.receivesMetricsFromMetricManager)
-        XCTAssertEqual(legacyManager.addInvocations.count, 1)
     }
 
     func testPauseReports_shouldStopIteratingMetricManagerReports() throws {
         guard #available(iOS 27.0, macOS 27.0, *) else { return }
         // -- Arrange --
-        let legacyManager = TestMetricManager()
         let source = TestMetricReportSource()
         let terminated = expectation(description: "The report sequence is terminated")
         source.continuation.onTermination = { _ in terminated.fulfill() }
-        let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: TestInternalMetricsApi(), metricManager: legacyManager, metricReportSource: source)
+        let sut = givenSut(enabledMetricReports: [.cpuCumulativeTime], metricsApi: TestInternalMetricsApi(), source: source)
         sut.receiveReports()
 
         // -- Act --
@@ -280,8 +245,6 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
 
         // -- Assert --
         wait(for: [terminated], timeout: 5)
-        XCTAssertFalse(sut.receivesMetricsFromMetricManager)
-        XCTAssertEqual(legacyManager.removeInvocations.count, 1)
     }
 
     // MARK: - Helpers
@@ -314,23 +277,25 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
         #endif // os(macOS) || targetEnvironment(macCatalyst)
     }
 
-    private func givenSut(
-        enabledMetricReports: Set<SentryMetricKit.MetricReport>,
-        metricsApi: TestInternalMetricsApi,
-        metricManager: SentryMetricManager = TestMetricManager(),
-        metricReportSource: Any? = nil
-    ) -> SentryMXManager {
-        SentryMXManager(
-            metricManager: metricManager,
-            metricReportSource: metricReportSource,
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [],
+    private func givenMetricRecorder(enabledMetricReports: Set<SentryMetricKit.MetricReport>, metricsApi: TestInternalMetricsApi) -> SentryMXMetricRecorder {
+        SentryMXMetricRecorder(
             enabledMetricReports: enabledMetricReports,
             metricsApi: metricsApi,
             releaseName: "io.sentry.app@2.0.0+20",
-            bundleInfo: bundleInfo,
-            processStartDate: .distantPast
+            bundleInfo: bundleInfo
+        )
+    }
+
+    @available(iOS 27.0, macOS 27.0, *)
+    private func givenSut(
+        enabledMetricReports: Set<SentryMetricKit.MetricReport>,
+        metricsApi: TestInternalMetricsApi,
+        source: SentryMetricManagerSource = TestMetricReportSource()
+    ) -> SentryMetricManager {
+        SentryMetricManager(
+            source: source,
+            diagnosticCapturer: nil,
+            metricRecorder: givenMetricRecorder(enabledMetricReports: enabledMetricReports, metricsApi: metricsApi)
         )
     }
 
@@ -505,26 +470,23 @@ final class SentryMXManagerMetricReportsTests: XCTestCase {
     }
 }
 
-private final class TestMetricManager: SentryMetricManager {
-    let addInvocations = Invocations<Void>()
-    let removeInvocations = Invocations<Void>()
+private final class TestMXMetricManager: SentryMXMetricManager {
+    func add(_ subscriber: MXMetricManagerSubscriber) {}
 
-    func add(_ subscriber: MXMetricManagerSubscriber) {
-        addInvocations.record(())
-    }
-
-    func remove(_ subscriber: MXMetricManagerSubscriber) {
-        removeInvocations.record(())
-    }
+    func remove(_ subscriber: MXMetricManagerSubscriber) {}
 }
 
 @available(iOS 27.0, macOS 27.0, *)
-private final class TestMetricReportSource: SentryMetricReportSource {
+private final class TestMetricReportSource: SentryMetricManagerSource {
     let reports: AsyncStream<MetricKit.MetricReport>
     let continuation: AsyncStream<MetricKit.MetricReport>.Continuation
 
     init() {
         (reports, continuation) = AsyncStream.makeStream()
+    }
+
+    func makeDiagnosticReports() -> any AsyncSequence<MetricKit.DiagnosticReport, Never> {
+        AsyncStream { $0.finish() }
     }
 
     func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never> {

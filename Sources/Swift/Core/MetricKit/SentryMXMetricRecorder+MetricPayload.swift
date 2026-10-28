@@ -2,26 +2,9 @@
 import Foundation
 import MetricKit
 
-/// Sends the values of MetricKit metric payloads as Sentry metrics.
-extension SentryMXManager {
-    /// The timestamp and attributes every metric of a payload or report shares.
-    struct MetricContext {
-        let timestamp: Date
-        let attributes: [String: SentryAttributeValue]
-        let overridingAttributes: [String: SentryAttributeValue]
-
-        /// The context with attributes that only describe some of the metrics, such as the Metal
-        /// layer a frame rate was measured for.
-        func adding(attributes additionalAttributes: [String: SentryAttributeValue]) -> MetricContext {
-            MetricContext(
-                timestamp: timestamp,
-                attributes: attributes.merging(additionalAttributes) { _, additional in additional },
-                overridingAttributes: overridingAttributes
-            )
-        }
-    }
-
-    func process(metricPayload payload: MXMetricPayload) {
+/// Sends the values of legacy MetricKit metric payloads as Sentry metrics.
+extension SentryMXMetricRecorder {
+    func record(metricPayload payload: MXMetricPayload) {
         SentrySDKLog.debug("Processing MetricKit metric payload from \(payload.timeStampBegin) to \(payload.timeStampEnd)")
         let context = metricPayloadContext(for: payload)
         recordUsageMetrics(of: payload, context)
@@ -32,7 +15,7 @@ extension SentryMXManager {
     // MARK: - Metric Groups
 
     /// Records how long the app used the CPU, the GPU, the foreground and background, and location.
-    private func recordUsageMetrics(of payload: MXMetricPayload, _ context: MetricContext) {
+    private func recordUsageMetrics(of payload: MXMetricPayload, _ context: Context) {
         if let cpu = payload.cpuMetrics {
             recordDistribution(.cpuCumulativeTime, cpu.cumulativeCPUTime.converted(to: .seconds).value, unit: .second, context)
             recordDistribution(.cpuCumulativeInstructions, Self.instructionCount(cpu.cumulativeCPUInstructions), unit: nil, context)
@@ -57,7 +40,7 @@ extension SentryMXManager {
     }
 
     /// Records the network, disk, memory and display resources the app used.
-    private func recordResourceMetrics(of payload: MXMetricPayload, _ context: MetricContext) {
+    private func recordResourceMetrics(of payload: MXMetricPayload, _ context: Context) {
         if let network = payload.networkTransferMetrics {
             recordDistribution(.networkWifiUpload, network.cumulativeWifiUpload.converted(to: .bytes).value, unit: .byte, context)
             recordDistribution(.networkWifiDownload, network.cumulativeWifiDownload.converted(to: .bytes).value, unit: .byte, context)
@@ -98,7 +81,7 @@ extension SentryMXManager {
     }
 
     /// Records how often the app exited in the foreground and background, by reason.
-    private func recordExitMetrics(of payload: MXMetricPayload, _ context: MetricContext) {
+    private func recordExitMetrics(of payload: MXMetricPayload, _ context: Context) {
         if let exits = payload.applicationExitMetrics {
             let foreground = exits.foregroundExitData
             recordCount(.exitForegroundNormal, foreground.cumulativeNormalAppExitCount, context)
@@ -122,9 +105,9 @@ extension SentryMXManager {
         }
     }
 
-    private func metricPayloadContext(for payload: MXMetricPayload) -> MetricContext {
+    private func metricPayloadContext(for payload: MXMetricPayload) -> Context {
         // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
-        metricContext(
+        context(
             begin: payload.timeStampBegin,
             end: payload.timeStampEnd,
             appVersion: payload.latestApplicationVersion,
@@ -132,125 +115,6 @@ extension SentryMXManager {
             includesMultipleApplicationVersions: payload.includesMultipleApplicationVersions,
             osVersion: payload.metaData.flatMap { SentryMXDiagnostic.Metadata.parseOSVersion($0.osVersion)?.version }
         )
-    }
-
-    /// Builds the context of the values MetricKit aggregated from `begin` to `end`.
-    ///
-    /// - Parameters:
-    ///   - appVersion: The latest app version of the interval, or an empty string when unknown.
-    ///   - appBuild: The app build of the interval, or an empty string when unknown.
-    ///   - osVersion: The OS version the values were recorded on, or `nil` when unknown.
-    func metricContext(
-        begin: Date,
-        end: Date,
-        appVersion: String,
-        appBuild: String,
-        includesMultipleApplicationVersions: Bool,
-        osVersion: String?
-    ) -> MetricContext {
-        // MetricKit aggregates its values over the reporting interval without saying when they
-        // happened, so each value is placed in the middle of the interval. This is what spreading
-        // a single sample across the interval yields for histograms as well.
-        let timestamp = begin.addingTimeInterval(end.timeIntervalSince(begin) / 2)
-
-        var attributes: [String: SentryAttributeValue] = [:]
-        var overridingAttributes: [String: SentryAttributeValue] = [:]
-
-        // When the interval spans an app update, MetricKit only reports the latest version, which
-        // doesn't describe all values. The metrics keep the running release then.
-        if includesMultipleApplicationVersions {
-            SentrySDKLog.debug("MetricKit metrics span multiple app versions, keeping the current release")
-        } else {
-            if !appVersion.isEmpty {
-                attributes["app.version"] = appVersion
-            }
-            if !appBuild.isEmpty {
-                attributes["app.build"] = appBuild
-            }
-            // Scope enrichment sets the running release, so a previous one has to override it.
-            if let releaseName = releaseName(appVersion: appVersion, appBuild: appBuild) {
-                overridingAttributes["sentry.release"] = releaseName
-            }
-        }
-
-        // Scope enrichment sets the running OS version, which can be newer than the one the
-        // values were recorded on.
-        if let osVersion {
-            overridingAttributes["os.version"] = osVersion
-        }
-
-        return MetricContext(timestamp: timestamp, attributes: attributes, overridingAttributes: overridingAttributes)
-    }
-
-    // MARK: - Recording
-
-    func recordDistribution(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricContext) {
-        guard enabledMetricReports.contains(report), let value = value() else {
-            return
-        }
-        metricsApi.distribution(
-            key: report.name,
-            value: value,
-            unit: unit,
-            timestamp: context.timestamp,
-            attributes: context.attributes,
-            overridingAttributes: context.overridingAttributes
-        )
-    }
-
-    func recordGauge(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricContext) {
-        guard enabledMetricReports.contains(report), let value = value() else {
-            return
-        }
-        metricsApi.gauge(
-            key: report.name,
-            value: value,
-            unit: unit,
-            timestamp: context.timestamp,
-            attributes: context.attributes,
-            overridingAttributes: context.overridingAttributes
-        )
-    }
-
-    func recordCount(_ report: MetricReport, _ value: Int, _ context: MetricContext) {
-        // A count of zero doesn't change the sum, so it is left out to save volume.
-        guard enabledMetricReports.contains(report), value > 0 else {
-            return
-        }
-        metricsApi.count(
-            key: report.name,
-            value: UInt(value),
-            timestamp: context.timestamp,
-            attributes: context.attributes,
-            overridingAttributes: context.overridingAttributes
-        )
-    }
-
-    // MARK: - Units
-
-    /// Converts MetricKit's dimensionless instruction measurement to a number of instructions.
-    static func instructionCount(_ measurement: Measurement<Unit>) -> Double? {
-        switch measurement.unit.symbol {
-        case "instructions":
-            return measurement.value
-        case "kiloinstructions":
-            return measurement.value * 1_000
-        default:
-            SentrySDKLog.warning("Unexpected MetricKit CPU instructions unit '\(measurement.unit.symbol)', skipping metric")
-            return nil
-        }
-    }
-
-    /// Converts MetricKit's hitch time ratio, reported in milliseconds of hitches per second, to a
-    /// plain ratio.
-    static func ratio(fromHitchTimeRatio measurement: Measurement<Unit>) -> Double? {
-        switch measurement.unit.symbol {
-        case "ms per s":
-            return measurement.value / 1_000
-        default:
-            SentrySDKLog.warning("Unexpected MetricKit hitch time ratio unit '\(measurement.unit.symbol)', skipping metric")
-            return nil
-        }
     }
 }
 

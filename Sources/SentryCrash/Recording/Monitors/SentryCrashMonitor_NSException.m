@@ -69,6 +69,16 @@ static void
 handleException(NSException *exception)
 {
     if (g_isEnabled) {
+        // Objective-C messaging and UTF-8 conversion can allocate or acquire locks. Prepare
+        // metadata before suspending threads and keep its backing strings alive until resumption.
+        NS_VALID_UNTIL_END_OF_SCOPE NSString *nameString = exception.name;
+        NS_VALID_UNTIL_END_OF_SCOPE NSString *reasonString = exception.reason;
+        NS_VALID_UNTIL_END_OF_SCOPE NSString *userInfoString =
+            [NSString stringWithFormat:@"%@", exception.userInfo];
+        const char *name = nameString.UTF8String;
+        const char *reason = reasonString.UTF8String;
+        const char *userInfo = userInfoString.UTF8String;
+
         // The exception already contains its throw-site backtrace. Copy it before suspending
         // other threads, since extraction uses Objective-C messaging and heap allocation.
         SentryCrashStackCursor cursor;
@@ -93,13 +103,10 @@ handleException(NSException *exception)
         crashContext->eventID = eventID;
         crashContext->offendingMachineContext = machineContext;
         crashContext->registersAreValid = false;
-        // Other threads are suspended here. Objective-C messaging, string conversion and formatting
-        // userInfo can allocate or acquire locks.
-        crashContext->NSException.name = [[exception name] UTF8String];
-        crashContext->NSException.userInfo =
-            [[NSString stringWithFormat:@"%@", exception.userInfo] UTF8String];
-        crashContext->exceptionName = crashContext->NSException.name;
-        crashContext->crashReason = [[exception reason] UTF8String];
+        crashContext->NSException.name = name;
+        crashContext->NSException.userInfo = userInfo;
+        crashContext->exceptionName = name;
+        crashContext->crashReason = reason;
         crashContext->stackCursor = &cursor;
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped exception %s: %s",

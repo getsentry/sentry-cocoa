@@ -1,44 +1,14 @@
 // MetricManager only exists in the SDKs of Xcode 27 and later, and doesn't report metrics on
 // visionOS.
 #if (os(iOS) || os(macOS)) && compiler(>=6.4)
-internal import _SentryPrivate
 import Foundation
 import MetricKit
-
-/// Delivers the metric reports of `MetricManager`, so tests can provide their own reports.
-@available(iOS 27.0, macOS 27.0, *)
-protocol SentryMetricReportSource: Sendable {
-    func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never>
-}
-
-@available(iOS 27.0, macOS 27.0, *)
-extension MetricManager: SentryMetricReportSource {
-    func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never> {
-        metricReports
-    }
-}
 
 /// Sends the values of `MetricManager` metric reports as Sentry metrics, with the same names, types
 /// and units as the values of legacy metric payloads.
 @available(iOS 27.0, macOS 27.0, *)
-extension SentryMXManager {
-    func receiveMetricReports(from source: SentryMetricReportSource) {
-        let task = Task { [weak self] in
-            for await report in source.makeMetricReports() {
-                guard let self, !Task.isCancelled else {
-                    return
-                }
-                self.process(metricReport: report)
-            }
-        }
-        replaceMetricReportsTask(with: task)
-    }
-
-    func pauseMetricReports() {
-        replaceMetricReportsTask(with: nil)
-    }
-
-    func process(metricReport report: MetricKit.MetricReport) {
+extension SentryMXMetricRecorder {
+    func record(metricReport report: MetricKit.MetricReport) {
         SentrySDKLog.debug("Processing MetricKit metric report from \(report.timeRange.start) to \(report.timeRange.end)")
         // The full day entry has the values of the whole report. The other entries split them by
         // the states of the enabled state reporting domains, which the SDK doesn't enable.
@@ -47,16 +17,16 @@ extension SentryMXManager {
             SentrySDKLog.debug("MetricKit metric report has no interval entries, skipping it")
             return
         }
-        let context = metricContext(of: report)
+        let context = self.context(of: report)
         for result in report.intervalEntries.fullDayEntry.values {
             record(result, context)
         }
     }
 
-    private func metricContext(of report: MetricKit.MetricReport) -> MetricContext {
+    private func context(of report: MetricKit.MetricReport) -> Context {
         let environment = report.environment
         let osVersion = environment?.osVersion.number
-        return metricContext(
+        return context(
             begin: report.timeRange.start,
             end: report.timeRange.end,
             appVersion: environment?.latestApplicationVersion ?? "",
@@ -69,7 +39,7 @@ extension SentryMXManager {
     // MARK: - Recording
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    private func record(_ result: MetricResult, _ context: MetricContext) {
+    private func record(_ result: MetricResult, _ context: Context) {
         switch result {
         case .cpuTime(let cpuTime):
             recordDistribution(.cpuCumulativeTime, cpuTime.value.converted(to: .seconds).value, unit: .second, context)
@@ -144,7 +114,7 @@ extension SentryMXManager {
     }
 
     #if !os(macOS) && !targetEnvironment(macCatalyst)
-    private func recordLocationActivity(_ location: LocationActivityTimeMetric, _ context: MetricContext) {
+    private func recordLocationActivity(_ location: LocationActivityTimeMetric, _ context: Context) {
         recordDistribution(.locationBestAccuracyTime, location.bestAccuracy.converted(to: .seconds).value, unit: .second, context)
         recordDistribution(.locationBestAccuracyForNavigationTime, location.bestAccuracyForNavigation.converted(to: .seconds).value, unit: .second, context)
         recordDistribution(.locationNearestTenMetersTime, location.tenMeters.converted(to: .seconds).value, unit: .second, context)
@@ -154,7 +124,7 @@ extension SentryMXManager {
     }
     #endif // !os(macOS) && !targetEnvironment(macCatalyst)
 
-    private func recordForegroundTerminations(_ terminations: ForegroundTerminationMetric, _ context: MetricContext) {
+    private func recordForegroundTerminations(_ terminations: ForegroundTerminationMetric, _ context: Context) {
         recordCount(.exitForegroundNormal, terminations.normalTerminationCount, context)
         recordCount(.exitForegroundMemoryResourceLimit, terminations.memoryLimitTerminationCount, context)
         recordCount(.exitForegroundBadAccess, terminations.badAccessTerminationCount, context)
@@ -163,7 +133,7 @@ extension SentryMXManager {
         recordCount(.exitForegroundWatchdog, terminations.watchdogTerminationCount, context)
     }
 
-    private func recordBackgroundTerminations(_ terminations: BackgroundTerminationMetric, _ context: MetricContext) {
+    private func recordBackgroundTerminations(_ terminations: BackgroundTerminationMetric, _ context: Context) {
         recordCount(.exitBackgroundNormal, terminations.normalTerminationCount, context)
         recordCount(.exitBackgroundMemoryResourceLimit, terminations.memoryLimitTerminationCount, context)
         recordCount(.exitBackgroundCPUResourceLimit, terminations.highCPUTerminationCount, context)

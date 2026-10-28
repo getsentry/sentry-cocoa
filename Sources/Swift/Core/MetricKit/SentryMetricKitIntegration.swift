@@ -3,8 +3,17 @@ import MetricKit
 
 final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, SwiftIntegration {
     
-    let mxManager: SentryMXManager
-    
+    /// Captures the enabled diagnostics, or `nil` when none is enabled.
+    let diagnosticCapturer: SentryMXDiagnosticCapturer?
+    /// Records the enabled metrics, or `nil` when none is enabled.
+    let metricRecorder: SentryMXMetricRecorder?
+    /// The `SentryMetricManager` that receives the reports `MetricManager` delivers on xOS 27 and
+    /// later, or `nil` when it doesn't deliver any enabled report.
+    let metricManager: SentryMetricKitReportReceiver?
+    /// The `MXMetricManager` subscriber that receives the reports `MetricManager` doesn't
+    /// deliver, or `nil` when `MetricManager` delivers every enabled report.
+    let mxManager: SentryMXManager?
+
     init?(with options: Options, dependencies: Dependencies) {
         let enabledDiagnostics = Self.enabledDiagnostics(for: options)
         let enabledMetricReports = options.experimental.metrickit.enabledMetricReports
@@ -12,18 +21,39 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
             return nil
         }
 
-        mxManager = SentryMXManager(
+        let diagnosticCapturer = enabledDiagnostics.isEmpty ? nil : SentryMXDiagnosticCapturer(
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
             enabledDiagnostics: enabledDiagnostics,
-            enabledMetricReports: enabledMetricReports,
             releaseName: options.releaseName,
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp
         )
+        let metricRecorder = enabledMetricReports.isEmpty ? nil : SentryMXMetricRecorder(
+            enabledMetricReports: enabledMetricReports,
+            releaseName: options.releaseName
+        )
+        self.diagnosticCapturer = diagnosticCapturer
+        self.metricRecorder = metricRecorder
+
+        // Each report comes from exactly one API, so the same diagnostic or metric can't be sent
+        // twice. MetricManager replaces MXMetricManager on xOS 27, except for metrics on
+        // visionOS, which only the subscriber reports.
+        let metricManagerDiagnosticCapturer = Self.metricManagerDeliversDiagnostics ? diagnosticCapturer : nil
+        let metricManagerMetricRecorder = Self.metricManagerDeliversMetrics ? metricRecorder : nil
+        metricManager = Self.makeMetricManager(diagnosticCapturer: metricManagerDiagnosticCapturer, metricRecorder: metricManagerMetricRecorder)
+
+        let subscriberDiagnosticCapturer = metricManagerDiagnosticCapturer == nil ? diagnosticCapturer : nil
+        let subscriberMetricRecorder = metricManagerMetricRecorder == nil ? metricRecorder : nil
+        if subscriberDiagnosticCapturer != nil || subscriberMetricRecorder != nil {
+            mxManager = SentryMXManager(diagnosticCapturer: subscriberDiagnosticCapturer, metricRecorder: subscriberMetricRecorder)
+        } else {
+            mxManager = nil
+        }
         super.init()
 
-        mxManager.receiveReports()
+        metricManager?.receiveReports()
+        mxManager?.receiveReports()
     }
     
     static var name: String {
@@ -31,7 +61,43 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     }
     
     func uninstall() {
-        mxManager.pauseReports()
+        metricManager?.pauseReports()
+        mxManager?.pauseReports()
+    }
+
+    /// Whether `MetricManager` delivers diagnostics, which it does on xOS 27 and later.
+    private static var metricManagerDeliversDiagnostics: Bool {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+            return true
+        }
+        #endif // compiler(>=6.4)
+        return false
+    }
+
+    /// Whether `MetricManager` delivers metrics, which it does on iOS and macOS 27 and later but
+    /// not on visionOS.
+    private static var metricManagerDeliversMetrics: Bool {
+        #if (os(iOS) || os(macOS)) && compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, *) {
+            return true
+        }
+        #endif // (os(iOS) || os(macOS)) && compiler(>=6.4)
+        return false
+    }
+
+    /// Creates the `SentryMetricManager` that receives the given reports from `MetricManager`, or
+    /// returns `nil` when it receives none.
+    private static func makeMetricManager(
+        diagnosticCapturer: SentryMXDiagnosticCapturer?,
+        metricRecorder: SentryMXMetricRecorder?
+    ) -> SentryMetricKitReportReceiver? {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *), diagnosticCapturer != nil || metricRecorder != nil {
+            return SentryMetricManager(diagnosticCapturer: diagnosticCapturer, metricRecorder: metricRecorder)
+        }
+        #endif // compiler(>=6.4)
+        return nil
     }
 
     private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
