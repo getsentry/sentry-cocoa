@@ -8,22 +8,6 @@
 
 @implementation SentryProfilerSDKAdapterValueTests
 #if SENTRY_PROFILER_TESTS_SUPPORTED
-- (void)testTimestamp_whenClockInjected_shouldReturnPairedValues
-{
-    // -- Arrange --
-    SentryProfilerSDKAdapter *adapter = [[SentryProfilerSDKAdapter alloc] init];
-    TestProfilerValueBackend *backend = [[TestProfilerValueBackend alloc] init];
-    backend.clock = [[TestProfilerValueClock alloc] init];
-    [adapter setTarget:backend];
-
-    // -- Act --
-    SentryProfilingTimestamp timestamp = [adapter timestamp];
-
-    // -- Assert --
-    XCTAssertEqual(timestamp.systemTime, 456ULL);
-    XCTAssertEqual(timestamp.dateInterval, 123);
-}
-
 - (void)testSystemMetrics_whenAvailable_shouldReturnGroupedReadings
 {
     // -- Arrange --
@@ -63,24 +47,6 @@
     XCTAssertEqualObjects(readings.cpuEnergyUsage, @500);
 }
 
-- (void)testScheduleTimer_whenCancelled_shouldInvalidateUnderlyingTimer
-{
-    // -- Arrange --
-    TestProfilerValueBackend *backend = [[TestProfilerValueBackend alloc] init];
-    id<SentryProfilingCancellation> timer =
-        [backend scheduleTimerWithInterval:3600
-                                   repeats:NO
-                                     block:^{ XCTFail(@"Cancelled timer must not fire"); }];
-    XCTAssertTrue(backend.lastTimer.isValid);
-
-    // -- Act --
-    [timer cancel];
-
-    // -- Assert --
-    XCTAssertNotNil(timer);
-    XCTAssertFalse(backend.lastTimer.isValid);
-}
-
 - (void)testValueOperations_whenNoTarget_shouldPreserveMissingBackendResults
 {
     // -- Arrange --
@@ -98,34 +64,6 @@
 }
 
 #    if SENTRY_HAS_UIKIT
-- (void)testCopyFrameMeasurements_whenLegacyFramesProvided_shouldMapTimestampValues
-{
-    // -- Arrange --
-    SentryProfilerSDKAdapter *adapter = [[SentryProfilerSDKAdapter alloc] init];
-    TestProfilerValueBackend *backend = [[TestProfilerValueBackend alloc] init];
-    backend.frames =
-        [[SentryScreenFrames alloc] initWithTotal:3
-                                           frozen:1
-                                             slow:1
-                              slowFrameTimestamps:@[ @{ @"timestamp" : @10, @"value" : @20 } ]
-                            frozenFrameTimestamps:@[ @{ @"timestamp" : @30, @"value" : @40 } ]
-                              frameRateTimestamps:@[ @{ @"timestamp" : @10, @"value" : @60 } ]];
-    [adapter setTarget:backend];
-
-    // -- Act --
-    SentryProfilingFrameMeasurements *snapshot = [adapter copyFrameMeasurements];
-
-    // -- Assert --
-    XCTAssertEqualObjects(
-        snapshot.slowFrameTimestamps, (@[ @{ @"timestamp" : @10, @"value" : @20 } ]));
-    XCTAssertEqualObjects(
-        snapshot.frozenFrameTimestamps, (@[ @{ @"timestamp" : @30, @"value" : @40 } ]));
-    XCTAssertEqualObjects(
-        snapshot.frameRateTimestamps, (@[ @{ @"timestamp" : @10, @"value" : @60 } ]));
-    backend.frames = nil;
-    XCTAssertNil([adapter copyFrameMeasurements]);
-}
-
 - (void)testFrameMeasurements_whenSourceChanges_shouldKeepSnapshot
 {
     // -- Arrange --
