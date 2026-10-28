@@ -22,15 +22,15 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
 
     func count(_ name: String, value: UInt, options: SentryMetricOptions) {
         // Count metrics have no unit, see SentryMetricOptions.unit.
-        captureMetric(name: name, value: .counter(value), unit: nil, options: options)
+        captureMetric(name: name, value: .counter(value), unit: nil, options: options, overridingAttributes: [:])
     }
 
     func distribution(_ name: String, value: Double, options: SentryMetricOptions) {
-        captureMetric(name: name, value: .distribution(value), unit: options.unit, options: options)
+        captureMetric(name: name, value: .distribution(value), unit: options.unit, options: options, overridingAttributes: [:])
     }
 
     func gauge(_ name: String, value: Double, options: SentryMetricOptions) {
-        captureMetric(name: name, value: .gauge(value), unit: options.unit, options: options)
+        captureMetric(name: name, value: .gauge(value), unit: options.unit, options: options, overridingAttributes: [:])
     }
 
     #if !SDK_V10
@@ -47,13 +47,16 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     }
     #endif // !SDK_V10
 
-    // MARK: - Private
+    // MARK: - Capture
 
-    private func captureMetric(
+    // Internal rather than private so the overloads in SentryMetricsApi+Internal.swift can reach
+    // it.
+    func captureMetric(
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
-        options: SentryMetricOptions
+        options: SentryMetricOptions,
+        overridingAttributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
             SentrySDKLog.warning("Metric '\(name)' was not captured because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
@@ -93,7 +96,14 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         // A scope passed in the options takes the place of the thread's current scope, so it
         // layers over the global scope the same way.
         let currentScope = options.scope ?? dependencies.currentScopeStorage.scope()
-        integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
+        integration.addMetric(
+            metric,
+            scope: dependencies.scope,
+            currentScope: currentScope,
+            overridingAttributes: overridingAttributes.mapValues { attributable in
+                attributable.asSentryAttributeContent
+            }
+        )
     }
 }
 

@@ -1,7 +1,7 @@
 internal import _SentryPrivate
 
 protocol SentryMetricsIntegrationProtocol {
-    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope?)
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope?, overridingAttributes: [String: SentryAttributeContent])
 }
 
 /// Empty on purpose. Required by the SwiftIntegration protocol constraint.
@@ -39,7 +39,15 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
 
     // MARK: - Public API for Metrics
 
-    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
+    /// - Parameter overridingAttributes: Attributes that replace the ones scope enrichment sets,
+    ///   such as `sentry.release` for a metric recorded by a previous app version. They are applied
+    ///   before `beforeSendMetric`, so the callback still sees and can change them.
+    func addMetric(
+        _ metric: SentryMetric,
+        scope: Scope,
+        currentScope: Scope? = nil,
+        overridingAttributes: [String: SentryAttributeContent] = [:]
+    ) {
         // We go directly to the client instead of through the hub because metrics only have a
         // static API today and the hub doesn't implement any metrics methods. Ideally, metrics should also go
         // through the hub to align with other telemetry types.
@@ -60,6 +68,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         // Custom attribute precedence: caller > current scope > global scope. User and the
         // other reserved attributes come from the global scope only.
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData, currentScope: currentScope)
+        mutableMetric.attributes.merge(overridingAttributes) { _, overriding in overriding }
 
         if let beforeSendMetric = beforeSendMetric {
             // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 

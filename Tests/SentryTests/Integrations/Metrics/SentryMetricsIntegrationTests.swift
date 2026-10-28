@@ -581,6 +581,77 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertTrue(logs.contains("SDK disabled or no DSN set."), "Expected a debug log when dropping a metric, but got '\(logs)'")
     }
 
+    // MARK: - Overriding Attributes
+
+    func testAddMetric_withOverridingAttributes_shouldReplaceScopeAttributes() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub { options in
+            options.releaseName = "io.sentry.app@2.0.0+2"
+        }
+        let integration = try getSut()
+        let scope = Scope()
+        scope.setContext(value: ["name": "iOS", "version": "26.0"], key: "os")
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(
+            metric,
+            scope: scope,
+            overridingAttributes: [
+                "sentry.release": .string("io.sentry.app@1.0.0+1"),
+                "os.version": .string("18.6.2")
+            ]
+        )
+
+        // -- Assert --
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["sentry.release"], .string("io.sentry.app@1.0.0+1"))
+        XCTAssertEqual(capturedMetric.attributes["os.version"], .string("18.6.2"))
+        XCTAssertEqual(capturedMetric.attributes["os.name"], .string("iOS"))
+    }
+
+    func testAddMetric_withOverridingAttributes_shouldApplyThemBeforeBeforeSendMetric() throws {
+        // -- Arrange --
+        var releaseSeenByCallback: SentryAttributeContent?
+        let client = try givenSdkWithHub { options in
+            options.releaseName = "io.sentry.app@2.0.0+2"
+            options.beforeSendMetric = { metric in
+                releaseSeenByCallback = metric.attributes["sentry.release"]
+                var modifiedMetric = metric
+                modifiedMetric.attributes["sentry.release"] = .string("changed-by-callback")
+                return modifiedMetric
+            }
+        }
+        let integration = try getSut()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(
+            metric,
+            scope: Scope(),
+            overridingAttributes: ["sentry.release": .string("io.sentry.app@1.0.0+1")]
+        )
+
+        // -- Assert --
+        XCTAssertEqual(releaseSeenByCallback, .string("io.sentry.app@1.0.0+1"))
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["sentry.release"], .string("changed-by-callback"))
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")

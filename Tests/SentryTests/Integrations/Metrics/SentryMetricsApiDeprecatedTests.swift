@@ -511,7 +511,7 @@ final class SentryMetricsApiDeprecatedTests: XCTestCase {
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
     var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?)>()
-    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil, overridingAttributes: [String: SentryAttributeContent] = [:]) {
         addMetricInvocations.record((metric, scope, currentScope))
     }
 }

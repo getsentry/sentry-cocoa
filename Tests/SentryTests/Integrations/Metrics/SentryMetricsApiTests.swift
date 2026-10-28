@@ -594,6 +594,187 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertNil(invocation.metric.unit, "Count metrics have no unit")
     }
 
+    // MARK: - Internal API timestamp
+
+    func testCount_withTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 1_800_000_000))
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
+
+        // -- Act --
+        sut.count(key: "network.request.count", value: 3, timestamp: timestamp, attributes: ["endpoint": "/api/users"])
+
+        // -- Assert --
+        let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "network.request.count")
+        XCTAssertEqual(metric.value, .counter(3))
+        XCTAssertNil(metric.unit)
+        XCTAssertEqual(metric.attributes["endpoint"]?.anyValue as? String, "/api/users")
+    }
+
+    func testDistribution_withTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 1_800_000_000))
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
+
+        // -- Act --
+        sut.distribution(key: "app.launch.time", value: 1.25, unit: .second, timestamp: timestamp)
+
+        // -- Assert --
+        let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "app.launch.time")
+        XCTAssertEqual(metric.value, .distribution(1.25))
+        XCTAssertEqual(metric.unit, .second)
+    }
+
+    func testGauge_withTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 1_800_000_000))
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
+
+        // -- Act --
+        sut.gauge(key: "memory.peak", value: 512, unit: .megabyte, timestamp: timestamp)
+
+        // -- Assert --
+        let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "memory.peak")
+        XCTAssertEqual(metric.value, .gauge(512))
+        XCTAssertEqual(metric.unit, .megabyte)
+    }
+
+    func testCount_withTimestampAndSDKDisabled_shouldNotCreateMetric() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: false,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count(key: "network.request.count", value: 1, timestamp: Date(timeIntervalSince1970: 1_799_913_600))
+
+        // -- Assert --
+        XCTAssertEqual(dependencies.metricsIntegration?.addMetricInvocations.count, 0)
+    }
+
+    // MARK: - Overriding Attributes
+
+    func testCount_withoutOverridingAttributes_shouldPassEmptyOverridingAttributes() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count("network.request.count", value: 1, options: SentryMetricOptions(attributes: ["endpoint": "/api/users"]))
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertTrue(invocation.overridingAttributes.isEmpty)
+    }
+
+    func testCount_withOverridingAttributes_shouldPassThemSeparately() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count(
+            key: "network.request.count",
+            value: 1,
+            timestamp: Date(timeIntervalSince1970: 1_799_913_600),
+            attributes: ["endpoint": "/api/users"],
+            overridingAttributes: ["sentry.release": "io.sentry.app@1.0.0+1"]
+        )
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertEqual(invocation.overridingAttributes, ["sentry.release": .string("io.sentry.app@1.0.0+1")])
+        XCTAssertNil(invocation.metric.attributes["sentry.release"])
+        XCTAssertEqual(invocation.metric.attributes["endpoint"], .string("/api/users"))
+    }
+
+    func testDistribution_withOverridingAttributes_shouldPassThemSeparately() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.distribution(
+            key: "app.launch.time",
+            value: 1.25,
+            unit: .second,
+            timestamp: Date(timeIntervalSince1970: 1_799_913_600),
+            overridingAttributes: ["os.version": "18.6.2"]
+        )
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertEqual(invocation.overridingAttributes, ["os.version": .string("18.6.2")])
+    }
+
+    func testGauge_withOverridingAttributes_shouldPassThemSeparately() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.gauge(
+            key: "memory.peak",
+            value: 512,
+            unit: .megabyte,
+            timestamp: Date(timeIntervalSince1970: 1_799_913_600),
+            overridingAttributes: ["os.version": "18.6.2"]
+        )
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertEqual(invocation.overridingAttributes, ["os.version": .string("18.6.2")])
+    }
+
     #if !SDK_V10
     // MARK: - Deprecated key-based API
 
@@ -644,9 +825,9 @@ final class SentryMetricsApiTests: XCTestCase {
 // MARK: - Mock Dependencies
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
-    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?)>()
-    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
-        addMetricInvocations.record((metric, scope, currentScope))
+    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?, overridingAttributes: [String: SentryAttributeContent])>()
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil, overridingAttributes: [String: SentryAttributeContent] = [:]) {
+        addMetricInvocations.record((metric, scope, currentScope, overridingAttributes))
     }
 }
 

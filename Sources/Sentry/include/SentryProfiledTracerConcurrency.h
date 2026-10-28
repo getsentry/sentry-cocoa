@@ -37,8 +37,9 @@ SentryId *_Nullable sentry_startProfilerForTrace(
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
  * option configured.
  */
-SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
-    SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
+SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
+    SentryHubInternal *hub, SentryDispatchQueueWrapper *dispatchQueue,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) transaction, BOOL isProfiling,
     NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
