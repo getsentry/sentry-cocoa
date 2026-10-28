@@ -3,7 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainerSwiftHelper.h"
+#    import "SentryDefaultProfilerSDKBackend.h"
 #    import "SentryFileManagerHelper.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"

@@ -558,8 +558,12 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     SentryTransaction *transaction = [self toTransaction];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_stopProfilerDueToFinishedTransaction(
-        _hub, _dispatchQueue, transaction, _isProfiling, self.startTimestamp, _startSystemTime
+    SentryDispatchQueueWrapper *dispatchQueue = _dispatchQueue;
+    SentryProfilingDispatch dispatchAsync
+        = ^(dispatch_block_t block) { [dispatchQueue dispatchAsyncWithBlock:block]; };
+    BOOL isLaunchTrace = self == (SentryTracer *)SentryLaunchProfiling.launchTracer;
+    sentry_stopProfilerDueToFinishedTransaction(_hub, dispatchAsync, transaction, _isProfiling,
+        isLaunchTrace, self.startTimestamp, _startSystemTime
 #    if SENTRY_HAS_UIKIT
         ,
         appStartMeasurement

@@ -1,13 +1,15 @@
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryProfilingCancellation.h"
 
 #    import "SentryDefines.h"
 #    import "SentryTraceProfiler.h"
 
 @class SentryProfiler;
 
-SENTRY_EXTERN NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+SENTRY_EXTERN
+id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 
 @interface SentryTraceProfiler ()
 

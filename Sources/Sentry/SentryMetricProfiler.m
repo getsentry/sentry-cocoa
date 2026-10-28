@@ -2,13 +2,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentrySwift.h"
 #    import "SentryTime.h"
-#    import "SentryTransaction.h"
 
 /**
  * A storage class for metric readings, with one property for the reading value itself, whether it
@@ -122,18 +119,8 @@ serializeContinuousProfileMetrics(NSDictionary *state)
     return dict;
 }
 
-@interface SentryMetricProfiler ()
-
-@property SentrySystemWrapper *systemWrapper;
-
-@end
-
-#    if SENTRY_TEST || SENTRY_TEST_CI
-static SentrySystemWrapper *_systemWrapperOverride = nil;
-#    endif
-
 @implementation SentryMetricProfiler {
-    SentryDispatchSourceWrapper *_dispatchSource;
+    id<SentryProfilingCancellation> _sampling;
 
     NSMutableArray<SentryMetricReading *> *_cpuUsage;
     NSMutableArray<SentryMetricReading *> *_memoryFootprint;
@@ -149,28 +136,10 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     if (self = [super init]) {
         // It doesn't make sense to acquire a lock in the init.
         [self clearNotThreadSafe];
-#    if SENTRY_TEST || SENTRY_TEST_CI
-        self.systemWrapper = _systemWrapperOverride
-            ? _systemWrapperOverride
-            : [[SentrySystemWrapper alloc]
-                  initWithProcessorCount:SentryProfilerSDKAdapter.shared.processInfoWrapper
-                                             .processorCount];
-#    else
-        self.systemWrapper = [[SentrySystemWrapper alloc]
-            initWithProcessorCount:SentryProfilerSDKAdapter.shared.processInfoWrapper
-                                       .processorCount];
-#    endif
         _mode = mode;
     }
     return self;
 }
-
-#    if SENTRY_TEST || SENTRY_TEST_CI
-+ (void)setSystemWrapperOverride:(SentrySystemWrapper *)value
-{
-    _systemWrapperOverride = value;
-}
-#    endif
 
 - (void)dealloc
 {
@@ -186,16 +155,17 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 
 - (void)recordMetrics
 {
-    [self recordCPUsage];
-    [self recordMemoryFootprint];
+    SentryProfilingSystemMetrics *metrics = [SentryProfilerSDKAdapter.shared systemMetrics];
+    [self recordCPUsage:metrics.cpuUsage];
+    [self recordMemoryFootprint:metrics.memoryFootprintBytes];
 #    if defined(__arm__) || defined(__arm64__)
-    [self recordEnergyUsageEstimate];
+    [self recordEnergyUsageEstimate:metrics.cpuEnergyUsage];
 #    endif
 }
 
 - (void)stop
 {
-    [_dispatchSource cancel];
+    [_sampling cancel];
 }
 
 - (NSMutableDictionary<NSString *, id> *)
@@ -264,22 +234,15 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     __weak typeof(self) weakSelf = self;
     NSInteger intervalNs = (NSInteger)1e9 / frequencyHz;
     NSInteger leewayNs = intervalNs / 2;
-    _dispatchSource = [SentryProfilerSDKAdapter.shared.dispatchFactory
-        sourceWithInterval:intervalNs
-                    leeway:leewayNs
-                 queueName:"io.sentry.metric-profiler"
-                attributes:dispatch_queue_attr_make_with_qos_class(
-                               DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
-              eventHandler:^{ [weakSelf recordMetrics]; }];
+    _sampling = [SentryProfilerSDKAdapter.shared
+        scheduleMetricSamplingWithInterval:intervalNs
+                                    leeway:leewayNs
+                                     block:^{ [weakSelf recordMetrics]; }];
 }
 
-- (void)recordMemoryFootprint
+- (void)recordMemoryFootprint:(NSNumber *_Nullable)footprintBytes
 {
-    NSError *error;
-    NSNumber *footprintBytes = [self.systemWrapper memoryFootprintBytesAndReturnError:&error];
-
-    if (error) {
-        SENTRY_LOG_ERROR(@"Failed to read memory footprint: %@", error);
+    if (footprintBytes == nil) {
         return;
     }
 
@@ -288,16 +251,8 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     }
 }
 
-- (void)recordCPUsage
+- (void)recordCPUsage:(NSNumber *_Nullable)result
 {
-    NSError *error;
-    NSNumber *result = [self.systemWrapper cpuUsageAndReturnError:&error];
-
-    if (error) {
-        SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", error);
-        return;
-    }
-
     if (result == nil) {
         return;
     }
@@ -309,12 +264,9 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 
 // Only some architectures support reading energy.
 #    if defined(__arm__) || defined(__arm64__)
-- (void)recordEnergyUsageEstimate
+- (void)recordEnergyUsageEstimate:(NSNumber *_Nullable)reading
 {
-    NSError *error;
-    NSNumber *reading = [self.systemWrapper cpuEnergyUsageAndReturnError:&error];
-    if (error) {
-        SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
+    if (reading == nil) {
         return;
     }
 
@@ -336,9 +288,9 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 {
     SentryMetricReading *reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    id<SentryCurrentDateProvider> dateProvider = SentryProfilerSDKAdapter.shared.dateProvider;
-    reading.absoluteSystemTimestamp = dateProvider.systemTime;
-    reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSince1970;
+    SentryProfilingTimestamp timestamp = [SentryProfilerSDKAdapter.shared timestamp];
+    reading.absoluteSystemTimestamp = timestamp.systemTime;
+    reading.absoluteNSDateInterval = timestamp.dateInterval;
     return reading;
 }
 

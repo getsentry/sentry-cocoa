@@ -68,10 +68,6 @@ SENTRY_NO_INIT
  */
 - (NSDictionary *)copyMetricProfilerData;
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
-+ (void)setSystemWrapperOverride:(SENTRY_SWIFT_MIGRATION_ID(SentrySystemWrapper))value;
-#    endif
-
 @end
 
 NS_ASSUME_NONNULL_END

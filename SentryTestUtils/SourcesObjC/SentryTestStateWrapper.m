@@ -13,6 +13,7 @@
 #    import "SentryFileManagerHelper.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilingCancellation.h"
 #    import "SentryTraceProfiler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -60,7 +61,7 @@ void
 wrapper_resetProfilingState(void)
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    extern NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+    extern id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 
     _sentry_threadUnsafe_traceProfileTimeoutTimer = nil;
 
