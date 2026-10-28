@@ -48,7 +48,6 @@ jobs:
   # Build xcframeworks from source code once for all integration tests.
   # This ensures tests use the current source code instead of the latest GitHub release.
   # We only build the Static variant since 3rd-party integrations only use the "Sentry" product.
-  # The iOS simulator slice is only needed by the sentry-dart job.
   # Intentionally skipped on release branches.
   build-xcframeworks:
     name: Build XCFrameworks
@@ -69,7 +68,7 @@ jobs:
           resolve-simulators: "false"
       - name: Build XCFramework (Static)
         run: |
-          ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "macosx,iphonesimulator"
+          ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "macOSOnly"
           ./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
           ./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
       - name: Upload XCFrameworks
@@ -133,75 +132,6 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
-  # Builds the sentry-dart Flutter example for iOS against the locally built xcframework.
-  # sentry_flutter depends on the "Sentry" SPM product, so we swap its sentry-cocoa
-  # dependency for this checkout to catch breaking changes before they ship.
-  test-sentry-dart:
-    name: Build sentry-dart
-    needs: [files-changed, build-xcframeworks]
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on: ["bitrise_pool_name:sequoia"]
-    timeout-minutes: 30
-    steps:
-      # Check out into a directory named sentry-cocoa, because SPM derives the package
-      # identity of a local package from its directory name.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: sentry-cocoa
-      - name: Setup Git access
-        uses: ./sentry-cocoa/.github/actions/setup-git-access
-      - name: Clone sentry-dart
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: getsentry/sentry-dart
-          path: sentry-dart
-          ref: main
-      - name: Setup Xcode
-        uses: ./sentry-cocoa/.github/actions/setup-xcode
-        with:
-          version: "16"
-          resolve-simulators: "false"
-      - name: Download XCFrameworks
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: xcframeworks-for-3rd-party-integration-tests
-          path: sentry-cocoa
-      - name: Remove versioned Package files
-        working-directory: sentry-cocoa
-        run: rm -f Package@swift-*.swift
-      - name: Modify Package.swift to use local xcframeworks
-        working-directory: sentry-cocoa
-        run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
-      # Flutter links plugin packages through symlinks, so use an absolute path.
-      - name: Use local sentry-cocoa
-        working-directory: sentry-dart/packages/flutter/darwin/sentry_flutter
-        run: |
-          sed -i '' -E 's|\.package\(url: "https://github\.com/getsentry/sentry-cocoa"[^)]*\)|.package(name: "sentry-cocoa", path: "'"$GITHUB_WORKSPACE"'/sentry-cocoa")|' Package.swift
-          grep -q "$GITHUB_WORKSPACE/sentry-cocoa" Package.swift || { echo "Failed to replace the sentry-cocoa dependency." && exit 1; }
-          cat Package.swift
-      # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods.
-      # The runner image ships an asdf `pod` shim that can be broken for the active Ruby,
-      # so fall back to Homebrew's CocoaPods and put it first on the PATH.
-      - name: Install CocoaPods
-        run: |
-          if ! pod --version > /dev/null 2>&1; then
-            brew install cocoapods
-            echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
-            "$(brew --prefix)/bin/pod" --version
-          fi
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
-        with:
-          channel: stable
-      - name: Build Flutter example for iOS
-        working-directory: sentry-dart/packages/flutter/example
-        run: |
-          flutter config --enable-swift-package-manager
-          flutter pub get
-          flutter build ios --simulator --debug
-      - name: Run CI Diagnostics
-        uses: ./sentry-cocoa/.github/actions/ci-diagnostics
-        if: failure()
-
   unit-tests-required-check:
     needs:
       [
@@ -209,7 +139,6 @@ jobs:
         files-changed,
         build-xcframeworks,
         test-integrations-spm,
-        test-sentry-dart,
       ]
     name: 3rd Party Integration Tests - Required Check
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

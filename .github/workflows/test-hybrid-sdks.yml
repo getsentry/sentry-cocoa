@@ -1,0 +1,216 @@
+name: Test Hybrid SDKs
+
+# Builds and tests hybrid SDKs against the xcframework built from the current source code,
+# so breaking changes for them surface before a release. Called by the nightly test workflow.
+on:
+  workflow_call:
+
+  # TODO: Remove before merging. Runs the hybrid SDK jobs on this branch to validate them.
+  push:
+    branches:
+      - ci/test-sentry-dart
+
+jobs:
+  # Hybrid SDKs consume the prebuilt "Sentry" product, so build its Static variant once
+  # and share it across the jobs below.
+  build-xcframework:
+    name: Build XCFramework
+    runs-on: ["bitrise_pool_name:sequoia"]
+    timeout-minutes: 30
+    steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+          resolve-simulators: "false"
+      - name: Build XCFramework (Static)
+        run: |
+          ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "iphonesimulator"
+          ./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
+          ./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
+      - name: Upload XCFramework
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: xcframework-for-hybrid-sdk-tests
+          path: "Sentry.xcframework.zip"
+          retention-days: 1
+
+  # Builds the sentry-dart Flutter example for iOS. sentry_flutter depends on the "Sentry"
+  # SPM product, so we swap its sentry-cocoa dependency for this checkout.
+  test-sentry-dart:
+    name: Build sentry-dart
+    needs: build-xcframework
+    runs-on: ["bitrise_pool_name:sequoia"]
+    timeout-minutes: 45
+    steps:
+      # Check out into a directory named sentry-cocoa, because SPM derives the package
+      # identity of a local package from its directory name.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: sentry-cocoa
+      - name: Setup Git access
+        uses: ./sentry-cocoa/.github/actions/setup-git-access
+      - name: Clone sentry-dart
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: getsentry/sentry-dart
+          path: sentry-dart
+          ref: main
+      - name: Setup Xcode
+        uses: ./sentry-cocoa/.github/actions/setup-xcode
+        with:
+          version: "16"
+          resolve-simulators: "false"
+      - name: Download XCFramework
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: xcframework-for-hybrid-sdk-tests
+          path: sentry-cocoa
+      - name: Remove versioned Package files
+        working-directory: sentry-cocoa
+        run: rm -f Package@swift-*.swift
+      - name: Modify Package.swift to use local xcframework
+        working-directory: sentry-cocoa
+        run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
+      # Flutter links plugin packages through symlinks, so use an absolute path.
+      - name: Use local sentry-cocoa
+        working-directory: sentry-dart/packages/flutter/darwin/sentry_flutter
+        run: |
+          sed -i '' -E 's|\.package\(url: "https://github\.com/getsentry/sentry-cocoa"[^)]*\)|.package(name: "sentry-cocoa", path: "'"$GITHUB_WORKSPACE"'/sentry-cocoa")|' Package.swift
+          grep -q "$GITHUB_WORKSPACE/sentry-cocoa" Package.swift || { echo "Failed to replace the sentry-cocoa dependency." && exit 1; }
+          cat Package.swift
+      # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods.
+      # The runner's asdf Ruby shims would select the Ruby pinned by .ruby-version, which
+      # isn't installed, so pin an installed Ruby the same way sentry-react-native's CI does.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        name: Cache Ruby
+        with:
+          path: ~/.asdf/installs/ruby
+          key: asdf-ruby-${{ runner.os }}-${{ runner.arch }}-3.3.0
+      - name: Install CocoaPods
+        working-directory: sentry-dart
+        run: |
+          asdf install ruby 3.3.0
+          echo "ruby 3.3.0" > .tool-versions
+          gem install cocoapods
+          pod --version
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
+        with:
+          channel: stable
+      - name: Build Flutter example for iOS
+        working-directory: sentry-dart/packages/flutter/example
+        run: |
+          flutter config --enable-swift-package-manager
+          flutter pub get
+          flutter build ios --simulator --debug
+      - name: Run CI Diagnostics
+        uses: ./sentry-cocoa/.github/actions/ci-diagnostics
+        if: failure()
+
+  # Runs the RNSentryCocoaTester tests of sentry-react-native. RNSentry.podspec reads the
+  # xcframework from a cache directory before downloading a release, so we seed that cache
+  # with our xcframework under the version it pins.
+  test-sentry-react-native:
+    name: Test sentry-react-native
+    needs: build-xcframework
+    runs-on: ["bitrise_pool_name:tahoe"]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: sentry-cocoa
+      - name: Setup Git access
+        uses: ./sentry-cocoa/.github/actions/setup-git-access
+      - name: Clone sentry-react-native
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: getsentry/sentry-react-native
+          path: sentry-react-native
+          ref: main
+      - name: Setup Xcode
+        uses: ./sentry-cocoa/.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+      - name: Download XCFramework
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: xcframework-for-hybrid-sdk-tests
+      - name: Seed xcframework cache
+        run: |
+          VERSION=$(sed -n "s/^[[:space:]]*sentry_cocoa_version = '\(.*\)'.*/\1/p" sentry-react-native/packages/core/RNSentry.podspec)
+          if [ -z "$VERSION" ]; then
+            echo "Failed to read sentry_cocoa_version from RNSentry.podspec." && exit 1
+          fi
+          CACHE_DIR="$RUNNER_TEMP/sentry-xcframeworks"
+          mkdir -p "$CACHE_DIR/$VERSION"
+          unzip -q Sentry.xcframework.zip -d "$CACHE_DIR/$VERSION"
+          test -f "$CACHE_DIR/$VERSION/Sentry.xcframework/Info.plist"
+          echo "SENTRY_XCFRAMEWORK_CACHE_DIR=$CACHE_DIR" >> "$GITHUB_ENV"
+      - name: Enable Corepack
+        run: corepack enable
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
+        with:
+          package-manager-cache: false
+          node-version: 22
+          cache: "yarn"
+          cache-dependency-path: sentry-react-native/yarn.lock
+      - name: Setup asdf Node.js
+        run: |
+          asdf global nodejs system
+          corepack enable
+      - name: Install SDK JS Dependencies
+        working-directory: sentry-react-native
+        run: yarn install
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        name: Cache Ruby
+        with:
+          path: ~/.asdf/installs/ruby
+          key: asdf-ruby-${{ runner.os }}-${{ runner.arch }}-3.3.0
+      - name: Install CocoaPods
+        working-directory: sentry-react-native
+        run: |
+          asdf install ruby 3.3.0
+          echo "ruby 3.3.0" > .tool-versions
+          gem install cocoapods
+          pod --version
+      - name: Install App Pods
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
+        run: pod install
+      - name: Run iOS Tests
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
+        env:
+          SCHEME: RNSentryCocoaTester
+          CONFIGURATION: Release
+          # Use the default Xcode toolchain to avoid missing Swift compatibility libraries
+          # with Xcode 26. See: https://github.com/actions/runner-images/issues/13135
+          TOOLCHAINS: com.apple.dt.toolchain.XcodeDefault
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available iPhone -j | jq -r '
+            .devices
+            | to_entries
+            | map(select(.key | startswith("com.apple.CoreSimulator.SimRuntime.iOS-")))
+            | sort_by(.key)
+            | reverse
+            | .[0].value[]
+            | select(.isAvailable == true)
+            | .udid
+          ' | head -1)
+          if [ -z "$DEVICE_ID" ]; then
+            echo "No iPhone simulators available." && exit 1
+          fi
+          echo "Using simulator: $DEVICE_ID"
+          set -o pipefail
+          env NSUnbufferedIO=YES \
+            xcodebuild -workspace RNSentryCocoaTester.xcworkspace \
+            -scheme "$SCHEME" -configuration "$CONFIGURATION" \
+            -destination "id=$DEVICE_ID" \
+            test 2>&1 | xcbeautify --preserve-unbeautified
+      - name: Run CI Diagnostics
+        uses: ./sentry-cocoa/.github/actions/ci-diagnostics
+        if: failure()
