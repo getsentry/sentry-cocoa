@@ -1,6 +1,7 @@
 #import "SentryDefines.h"
 #import "SentryProfilingCancellation.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingConfiguration.h"
 #import "SentryProfilingFrameMeasurements.h"
 #import "SentryProfilingSystemMetrics.h"
 #import "SentryProfilingTimestamp.h"
@@ -15,6 +16,7 @@ typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
 
 @protocol SentryProfilerSDKBackend <NSObject>
 
+- (SentryProfilingConfiguration)configuration;
 - (SentryProfilingTimestamp)timestamp;
 - (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages;
 // Bind to the current provider without reading or serializing images until invoked.
@@ -44,6 +46,7 @@ typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
 #    if SENTRY_HAS_UIKIT
 - (void)startFramesTracker;
 - (void)stopFramesTracker;
+- (void)stopFramesTrackerIfUnused;
 - (void)resetProfilingTimestamps;
 - (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements;
 #    endif
