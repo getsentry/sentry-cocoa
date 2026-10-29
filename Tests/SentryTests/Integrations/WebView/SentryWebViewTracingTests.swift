@@ -349,11 +349,7 @@ final class SentryWebViewTracingTests: XCTestCase {
             navigationError = error
             loaded.fulfill()
         }
-        // Reads the tag from a page script to prove the tags exist before page scripts run.
-        webView.loadHTMLString(
-            "<html><head><script>window.seenTrace = (document.querySelector('meta[name=\"sentry-trace\"]') || {}).content;</script></head></html>",
-            baseURL: URL(string: "https://app.example.com/")
-        )
+        webView.loadHTMLString(seenTraceHTML, baseURL: URL(string: "https://app.example.com/"))
         wait(for: [loaded], timeout: 30)
         XCTAssertNil(navigationError)
 
@@ -368,7 +364,36 @@ final class SentryWebViewTracingTests: XCTestCase {
         XCTAssertEqual(seenTrace?.hasPrefix(expectedTraceId), true)
     }
 
+#if compiler(>=6.2)
+    func testInstall_whenWebPageCreatedWithConfiguration_shouldInjectTagsBeforePageScripts() async throws {
+        guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) else {
+            throw XCTSkip("WebPage requires iOS 26, macOS 26 or visionOS 26.")
+        }
+        // -- Arrange --
+        let configuration = WebPage.Configuration()
+        let scope = Scope()
+        let hub = WebViewTestHub(options: options, scope: scope)
+        let expectedTraceId = scope.propagationContextTraceId.sentryIdString
+        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: configuration.userContentController, hub: hub)
+        let page = WebPage(configuration: configuration)
+
+        // -- Act --
+        let baseURL = try XCTUnwrap(URL(string: "https://app.example.com/"))
+        for try await event in page.load(html: seenTraceHTML, baseURL: baseURL) where event == .finished {
+            break
+        }
+        let seenTrace = try await page.callJavaScript("return window.seenTrace") as? String
+
+        // -- Assert --
+        XCTAssertEqual(seenTrace?.hasPrefix(expectedTraceId), true)
+    }
+#endif
+
     // MARK: - Helpers
+
+    /// A page whose first script stores the `sentry-trace` tag it sees, proving the tags exist before
+    /// page scripts run.
+    private let seenTraceHTML = "<html><head><script>window.seenTrace = (document.querySelector('meta[name=\"sentry-trace\"]') || {}).content;</script></head></html>"
 
     private func makeSource(allowedHosts: [String]) throws -> String {
         let hub = WebViewTestHub(options: options, scope: Scope())

@@ -724,7 +724,7 @@ extension SentrySDKWrapper {
     }
 
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-    var dsn: String? {
+    public var dsn: String? {
         do {
             if let dsn = env[SentrySDKOverrides.Special.dsn.rawValue] {
                 try DSNStorage.shared.saveDSN(dsn: dsn)
