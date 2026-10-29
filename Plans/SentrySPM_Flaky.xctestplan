@@ -58,17 +58,6 @@
     {
       "parallelizable": false,
       "selectedTests": [
-        "SentryContinuousProfilerTests/testStoppingProfilerTransmitsLastFullChunk()"
-      ],
-      "target": {
-        "containerPath": "container:",
-        "identifier": "SentryProfilerTests",
-        "name": "SentryProfilerTests"
-      }
-    },
-    {
-      "parallelizable": false,
-      "selectedTests": [
         "SentryObjCInternalProfilingApiIntegrationTests/testCollect_shouldContainTransactionInfo"
       ],
       "target": {

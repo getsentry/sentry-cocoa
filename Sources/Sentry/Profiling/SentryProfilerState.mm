@@ -182,7 +182,20 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 - (NSDictionary<NSString *, id> *)copyProfilingData
 {
     std::lock_guard<std::mutex> l(_lock);
+    return [self copyProfilingDataNotThreadSafe];
+}
 
+- (NSDictionary<NSString *, id> *)copyAndClearProfilingData
+{
+    std::lock_guard<std::mutex> l(_lock);
+    const auto snapshot = [self copyProfilingDataNotThreadSafe];
+    // !!!: Profile this reset to check whether it exceeds one sample interval (~9 ms).
+    _mutableState = [[SentryProfilerMutableState alloc] init];
+    return snapshot;
+}
+
+- (NSDictionary<NSString *, id> *)copyProfilingDataNotThreadSafe
+{
     NSMutableArray<SentrySample *> *const samples = [_mutableState.samples copy];
     NSMutableArray<NSArray<NSNumber *> *> *const stacks = [_mutableState.stacks copy];
     NSMutableArray<NSDictionary<NSString *, id> *> *const frames = [_mutableState.frames copy];

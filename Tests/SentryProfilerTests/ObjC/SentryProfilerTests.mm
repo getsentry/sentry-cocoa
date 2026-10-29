@@ -234,6 +234,63 @@ using namespace sentry::profiling;
         @"data structure.");
 }
 
+- (void)testCopyAndClearProfilingData_whenChunkContainsOneMinuteOfSamples_shouldMeasureWallClockTime
+{
+    // -- Arrange --
+    const auto threadCount = 8;
+    const auto samplesPerThread = 60 * 101;
+    const auto stackVariants = 16;
+    const auto stackDepth = 32;
+    std::vector<Backtrace> backtraces;
+    for (auto thread = 0; thread < threadCount; thread++) {
+        for (auto variant = 0; variant < stackVariants; variant++) {
+            std::vector<std::uintptr_t> addresses;
+            for (auto frame = 0; frame < stackDepth; frame++) {
+                addresses.push_back(0x1000 + thread * 0x10000 + variant * 0x100 + frame);
+            }
+            backtraces.push_back(mockBacktrace(thread + 1, 2, "benchmark", addresses));
+        }
+    }
+    XCTMeasureOptions *options = [XCTMeasureOptions defaultOptions];
+    options.invocationOptions
+        = XCTMeasurementInvocationManuallyStart | XCTMeasurementInvocationManuallyStop;
+
+    [self measureWithMetrics:@[ [[XCTClockMetric alloc] init] ]
+                     options:options
+                       block:^{
+                           @autoreleasepool {
+                               // Rebuild each iteration because the measured operation drains
+                               // state.
+                               SentryProfilerState *state = [[SentryProfilerState alloc] init];
+                               // Release setup temporaries before timing state retirement.
+                               @autoreleasepool {
+                                   for (auto sample = 0; sample < samplesPerThread; sample++) {
+                                       for (auto thread = 0; thread < threadCount; thread++) {
+                                           auto backtrace = backtraces[thread * stackVariants
+                                               + sample % stackVariants];
+                                           backtrace.absoluteTimestamp = sample;
+                                           [state appendBacktrace:backtrace];
+                                       }
+                                   }
+                               }
+
+                               // -- Act --
+                               [self startMeasuring];
+                               NSDictionary *snapshot = [state copyAndClearProfilingData];
+                               [self stopMeasuring];
+
+                               // -- Assert --
+                               NSArray<SentrySample *> *samples = snapshot[@"profile"][@"samples"];
+                               XCTAssertEqual(samples.count, 48480UL);
+                               XCTAssertEqual([snapshot[@"profile"][@"frames"] count], 4096UL);
+                               XCTAssertEqual([snapshot[@"profile"][@"stacks"] count], 128UL);
+                               NSArray<SentrySample *> *remainingSamples =
+                                   [state copyProfilingData][@"profile"][@"samples"];
+                               XCTAssertEqual(remainingSamples.count, 0UL);
+                           }
+                       }];
+}
+
 - (void)testProfilerPayload
 {
     SentryProfilerState *state = [[SentryProfilerState alloc] init];

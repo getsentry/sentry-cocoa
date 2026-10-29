@@ -64,9 +64,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     }
     SentryProfiler *_Nonnull profiler
         = SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gContinuousCurrentProfiler);
-    const auto profilerState = [profiler.state copyProfilingData];
-    [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
-                            // length: ~9ms
+    const auto profilerState = [profiler.state copyAndClearProfilingData];
 
     NSDictionary *_Nonnull metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
     [profiler.metricProfiler clear];
