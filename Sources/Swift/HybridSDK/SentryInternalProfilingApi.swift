@@ -30,7 +30,7 @@ public struct SentryInternalProfilingApi {
 
     /// Discards the profiler session for the given trace ID without collecting data.
     public func discard(for traceId: SentryId) {
-        sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDKInternal.currentHub())
+        sentry_discardProfilerCorrelatedToTrace(traceId)
     }
 }
 

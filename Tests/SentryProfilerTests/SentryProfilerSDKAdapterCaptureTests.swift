@@ -29,6 +29,9 @@ final class SentryProfilerSDKAdapterCaptureTests: XCTestCase {
         // -- Arrange --
         let adapter = SentryProfilerSDKAdapter.shared
         let previousBackend = try XCTUnwrap(adapter.target)
+        let debugImageProvider = TestDebugImageProvider()
+        debugImageProvider.debugImages = []
+        SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
         let backend = sentry_test_createProfilerBackendWithoutEnrichment()
         adapter.setTarget(backend)
         defer {
