@@ -7,7 +7,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryProfilerSerialization+Test.h"
+#    import "SentryProfilerSerialization+Private.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentryTraceProfiler+Test.h"
@@ -15,7 +15,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryFileManager+Test.h"
-#    import "SentryProfilerSerialization.h"
+#    import "SentryProfilerDeliveryBridge.h"
 #    import "SentrySDKInternal+Tests.h"
 
 NS_ASSUME_NONNULL_BEGIN
