@@ -13,6 +13,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryProfilerSDKBackend <NSObject>
 
+/** Serializes and captures a detached chunk on the calling serialization queue. */
+- (void)captureProfileChunkWithID:(NSString *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(NSDictionary<NSString *, id> *)serializedMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+    ;
+
 - (SentryProfilingConfiguration)configuration;
 - (SentryProfilingTimestamp)timestamp;
 - (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages;

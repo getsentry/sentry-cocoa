@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC2100000000000000000064 /* SentryProfilerDeliveryBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */; };
+		FC2100000000000000000065 /* SentryProfilerDeliveryBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */; };
+		FC2100000000000000000066 /* SentryProfilerDeliveryBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */; };
+		FC2100000000000000000067 /* SentryProfilerDeliveryBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */; };
+		FC2000000000000000000064 /* SentryProfilerDeliveryBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC2000000000000000000001 /* SentryProfilerDeliveryBridgeTests.m */; };
+		FC2000000000000000000066 /* SentryProfilerDeliveryTestHub.m in Sources */ = {isa = PBXBuildFile; fileRef = FC2000000000000000000003 /* SentryProfilerDeliveryTestHub.m */; };
 		FC1100000000000000000064 /* SentryProfilingConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1100000000000000000001 /* SentryProfilingConfiguration.h */; };
 		FC1100000000000000000065 /* SentryProfilingConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1100000000000000000001 /* SentryProfilingConfiguration.h */; };
 		FC1100000000000000000066 /* SentryProfilingTraceDecision.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1100000000000000000002 /* SentryProfilingTraceDecision.h */; };
@@ -1164,6 +1170,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilerDeliveryBridge.h; path = include/SentryProfilerDeliveryBridge.h; sourceTree = "<group>"; };
+		FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProfilerDeliveryBridge.m; sourceTree = "<group>"; };
+		FC2000000000000000000001 /* SentryProfilerDeliveryBridgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProfilerDeliveryBridgeTests.m; sourceTree = "<group>"; };
+		FC2000000000000000000002 /* SentryProfilerDeliveryTestHub.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProfilerDeliveryTestHub.h; sourceTree = "<group>"; };
+		FC2000000000000000000003 /* SentryProfilerDeliveryTestHub.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProfilerDeliveryTestHub.m; sourceTree = "<group>"; };
 		FC1100000000000000000001 /* SentryProfilingConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilingConfiguration.h; path = ../include/SentryProfilingConfiguration.h; sourceTree = "<group>"; };
 		FC1100000000000000000002 /* SentryProfilingTraceDecision.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilingTraceDecision.h; path = ../include/SentryProfilingTraceDecision.h; sourceTree = "<group>"; };
 		FC1100000000000000000003 /* SentryProfilerConfigurationBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilerConfigurationBridge.h; path = include/SentryProfilerConfigurationBridge.h; sourceTree = "<group>"; };
@@ -2445,6 +2456,8 @@
 				FA24E0292EBBF6F500EFD92E /* SentryOptionsObjC.h */,
 				FA3734832E0F07A20091EF24 /* SentryDependencyContainerSwiftHelper.h */,
 				FA3734852E0F092F0091EF24 /* SentryDependencyContainerSwiftHelper.m */,
+				FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */,
+				FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */,
 				FAE2DAB92E1F318900262307 /* SentryProfilingSwiftHelpers.h */,
 				FAE2DAB72E1F317900262307 /* SentryProfilingSwiftHelpers.m */,
 				84A898522E163072009A551E /* SentryProfileConfiguration.h */,
@@ -2960,6 +2973,9 @@
 				F1A4C0002F5E000100000001 /* SentryProfileConfigurationTests.m */,
 				FAC735222E25AA7A006C5A64 /* SentryProfilingSwiftHelpersTests.m */,
 				E12A00000000000000000007 /* SentryProfilerSDKAdapterTests.m */,
+				FC2000000000000000000001 /* SentryProfilerDeliveryBridgeTests.m */,
+				FC2000000000000000000002 /* SentryProfilerDeliveryTestHub.h */,
+				FC2000000000000000000003 /* SentryProfilerDeliveryTestHub.m */,
 				FC1000000000000000000001 /* SentryProfilerConfigurationBridgeTests.m */,
 				FBA100000000000000000001 /* SentryProfilerSDKAdapterValueTests.m */,
 				FBA100000000000000000004 /* TestProfilerValueReadings.h */,
@@ -3405,6 +3421,7 @@
 				03F84D2327DD414C008FE43F /* SentryThreadHandle.hpp in Headers */,
 				84A305572BC9EF8C00D84283 /* SentryTraceProfiler.h in Headers */,
 				E12A00000000000000000003 /* SentryProfilerSDKAdapter.h in Headers */,
+				FC2100000000000000000064 /* SentryProfilerDeliveryBridge.h in Headers */,
 				FC1100000000000000000064 /* SentryProfilingConfiguration.h in Headers */,
 				FC1100000000000000000066 /* SentryProfilingTraceDecision.h in Headers */,
 				FC1100000000000000000068 /* SentryProfilerConfigurationBridge.h in Headers */,
@@ -3661,6 +3678,7 @@
 				8987E911C2EC39A7BB6A7EA8 /* SentryThreadHandle.hpp in Headers */,
 				B46A2CB892B3F7767E1B812D /* SentryTraceProfiler.h in Headers */,
 				E12A00000000000000000004 /* SentryProfilerSDKAdapter.h in Headers */,
+				FC2100000000000000000065 /* SentryProfilerDeliveryBridge.h in Headers */,
 				FC1100000000000000000065 /* SentryProfilingConfiguration.h in Headers */,
 				FC1100000000000000000067 /* SentryProfilingTraceDecision.h in Headers */,
 				FC1100000000000000000069 /* SentryProfilerConfigurationBridge.h in Headers */,
@@ -4588,6 +4606,7 @@
 				63FE70E120DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp in Sources */,
 				84A305582BC9EF8C00D84283 /* SentryTraceProfiler.mm in Sources */,
 				E12A00000000000000000006 /* SentryProfilerSDKAdapter.mm in Sources */,
+				FC2100000000000000000066 /* SentryProfilerDeliveryBridge.m in Sources */,
 				FC110000000000000000006A /* SentryProfilerConfigurationBridge.m in Sources */,
 				FBE100000000000000000066 /* SentryDefaultProfilerSDKBackend.m in Sources */,
 				FBD100000000000000000066 /* SentryProfilingSystemMetrics.m in Sources */,
@@ -4724,6 +4743,8 @@
 				F1A4C0012F5E000100000001 /* SentryProfileConfigurationTests.m in Sources */,
 				FAC735232E25AA81006C5A64 /* SentryProfilingSwiftHelpersTests.m in Sources */,
 				E12A00000000000000000008 /* SentryProfilerSDKAdapterTests.m in Sources */,
+				FC2000000000000000000064 /* SentryProfilerDeliveryBridgeTests.m in Sources */,
+				FC2000000000000000000066 /* SentryProfilerDeliveryTestHub.m in Sources */,
 				FC1000000000000000000002 /* SentryProfilerConfigurationBridgeTests.m in Sources */,
 				FBA100000000000000000064 /* SentryProfilerSDKAdapterValueTests.m in Sources */,
 				FBA100000000000000000066 /* TestProfilerValueReadings.m in Sources */,
@@ -4816,6 +4837,7 @@
 				1C136A9834A8ED79A27D65CD /* SentryNoOpSpan.m in Sources */,
 				08E23DD492773BEB50BBBD76 /* SentryTraceProfiler.mm in Sources */,
 				E12A00000000000000000005 /* SentryProfilerSDKAdapter.mm in Sources */,
+				FC2100000000000000000067 /* SentryProfilerDeliveryBridge.m in Sources */,
 				FC110000000000000000006B /* SentryProfilerConfigurationBridge.m in Sources */,
 				FBE100000000000000000067 /* SentryDefaultProfilerSDKBackend.m in Sources */,
 				FBD100000000000000000067 /* SentryProfilingSystemMetrics.m in Sources */,

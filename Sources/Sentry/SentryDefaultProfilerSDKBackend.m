@@ -1,10 +1,12 @@
 #import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryProfilerCancellation.h"
 #import "SentryProfilerConfigurationBridge.h"
+#import "SentryProfilerSerialization.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -27,6 +29,28 @@ sentry_bootstrapProfilerSDKAdapter(void)
 - (void)dealloc
 {
     [SentryProfilerSDKAdapter.shared removeTarget:self];
+}
+
+- (void)captureProfileChunkWithID:(NSString *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(NSDictionary<NSString *, id> *)serializedMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+{
+    SentryId *identifier = [[SentryId alloc] initWithUUIDString:profileID];
+    SentryEnvelope *_Nullable envelope
+        = sentry_continuousProfileChunkEnvelope(identifier, profileData, serializedMetrics
+#    if SENTRY_HAS_UIKIT
+            ,
+            frames
+#    endif
+        );
+    if (envelope == nil) {
+        SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
+        return;
+    }
+    [SentrySDKInternal captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
 }
 
 - (SentryProfilingConfiguration)configuration

@@ -50,6 +50,8 @@ SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
  */
 void sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *internalTraceId);
 
+SENTRY_EXTERN void sentry_finishContinuousProfileForTrace(void);
+
 /**
  * For transactions that will be discarded, clean up the bookkeeping state associated with them to
  * reclaim the memory they're using.
