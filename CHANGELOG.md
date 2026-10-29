@@ -32,6 +32,9 @@
 - Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
 - Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
 - Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9463)
+- Fix trace-lifecycle profiling getting stuck after backgrounding when a root transaction remains active or is abandoned. Parented transactions no longer start or keep the profiler running (#9481)
+- Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
+- Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 
 ## 9.31.0
 
