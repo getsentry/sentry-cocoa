@@ -5,6 +5,11 @@ extension SentryMetricKit {
     /// Used by ``SentryMetricKitOptions/enabledMetricReports`` to choose which values to send. Each
     /// case maps to one metric named `metrickit.<group>.<name>`, recorded at the middle of the
     /// payload's reporting interval.
+    ///
+    /// MetricKit reports launch times, hang times and the cellular condition as histograms, which
+    /// only count samples per range of values. Each sample is sent as one distribution value at the
+    /// middle of its range, spread evenly across the reporting interval, up to 100 values per
+    /// histogram.
     public enum MetricReport: Hashable, CaseIterable, Sendable {
         // MARK: CPU
 
@@ -202,6 +207,44 @@ extension SentryMetricKit {
         /// - Note: Requires iOS 26 or macOS 26.
         case diskSpaceTotalCapacity
 
+        // MARK: App Launch
+
+        /// The time from launching the app to drawing its first frame, sent as the
+        /// `metrickit.launch.time_to_first_draw` distribution in seconds with one value per launch.
+        case launchTimeToFirstDraw
+
+        /// The time to resume the app from the background, sent as the
+        /// `metrickit.launch.resume_time` distribution in seconds with one value per resume.
+        case launchResumeTime
+
+        /// The time from launching the app to drawing its first frame when the system prewarmed
+        /// it, sent as the `metrickit.launch.optimized_time_to_first_draw` distribution in seconds
+        /// with one value per launch.
+        ///
+        /// - Note: Requires iOS 15.2 or macOS 12.2.
+        case launchOptimizedTimeToFirstDraw
+
+        /// The time from launching the app to the end of its extended launch tasks, sent as the
+        /// `metrickit.launch.extended_launch` distribution in seconds with one value per launch.
+        ///
+        /// - Note: Requires iOS 16 or macOS 13.
+        case launchExtended
+
+        // MARK: Responsiveness
+
+        /// The duration of the app's hangs, sent as the `metrickit.responsiveness.hang_time`
+        /// distribution in seconds with one value per hang.
+        case responsivenessHangTime
+
+        // MARK: Cellular Condition
+
+        /// The cellular signal strength while the app used the network, sent as the
+        /// `metrickit.cellular.condition_time` distribution in signal bars with one value per
+        /// sample.
+        ///
+        /// - Note: Not sent on macOS.
+        case cellularConditionTime
+
         // MARK: Foreground Exits
 
         /// Normal exits of the app in the foreground, sent as the `metrickit.exit.fg.normal` count.
@@ -313,6 +356,12 @@ extension SentryMetricKit.MetricReport {
         case .diskSpaceCloneSize: return "metrickit.disk_space.clone_size"
         case .diskSpaceTotalUsed: return "metrickit.disk_space.total_used"
         case .diskSpaceTotalCapacity: return "metrickit.disk_space.total_capacity"
+        case .launchTimeToFirstDraw: return "metrickit.launch.time_to_first_draw"
+        case .launchResumeTime: return "metrickit.launch.resume_time"
+        case .launchOptimizedTimeToFirstDraw: return "metrickit.launch.optimized_time_to_first_draw"
+        case .launchExtended: return "metrickit.launch.extended_launch"
+        case .responsivenessHangTime: return "metrickit.responsiveness.hang_time"
+        case .cellularConditionTime: return "metrickit.cellular.condition_time"
         case .exitForegroundNormal: return "metrickit.exit.fg.normal"
         case .exitForegroundMemoryResourceLimit: return "metrickit.exit.fg.memory_resource_limit"
         case .exitForegroundBadAccess: return "metrickit.exit.fg.bad_access"
