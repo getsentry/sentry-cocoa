@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDependencyContainerSwiftHelper.h"
+#    import "SentryHub+SwiftPrivate.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
@@ -12,6 +13,7 @@
 #    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -77,24 +79,31 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
+    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
+    SentryDebugImageProvider *const debugImageProvider
+        = SentryDependencyContainer.sharedInstance.debugImageProvider;
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
     sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
+        // Closing the originating SDK must not redirect a pending chunk to a later client.
+        if (hub.getClient == nil) {
+            return;
+        }
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
-        SentryEnvelope *_Nullable envelope
-            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
+        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(profilerID,
+            profilerState, serializedMetrics, [debugImageProvider getDebugImagesFromCache], hub
 #    if SENTRY_HAS_UIKIT
-                ,
-                screenFrameData
+            ,
+            screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-            );
+        );
         if (envelope == nil) {
             SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
             return;
         }
-        [SentrySDKInternal captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
+        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
     });
 }
 
@@ -102,6 +111,12 @@ void
 _sentry_unsafe_stopTimerAndCleanup()
 {
     disableTimer();
+#    if SENTRY_HAS_UIKIT
+    if (_observerToken != nil) {
+        sentry_removeObserver(_observerToken);
+        _observerToken = nil;
+    }
+#    endif // SENTRY_HAS_UIKIT
 
     [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
     _threadUnsafe_gContinuousCurrentProfiler = nil;
@@ -114,6 +129,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 
 + (void)start
 {
+    SentryProfiler *profiler;
     {
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
@@ -133,19 +149,21 @@ _sentry_unsafe_stopTimerAndCleanup()
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
+        profiler = _threadUnsafe_gContinuousCurrentProfiler;
+#    if SENTRY_HAS_UIKIT
+        _observerToken = sentry_addObserverForName(UIApplicationWillResignActiveNotification, ^{
+            std::lock_guard<std::mutex> observerLock(_threadUnsafe_gContinuousProfilerLock);
+            if (_threadUnsafe_gContinuousCurrentProfiler == profiler) {
+                _sentry_unsafe_stopTimerAndCleanup();
+            }
+        });
+#    endif // SENTRY_HAS_UIKIT
     }
     sentry_postNotification(
         [[NSNotification alloc] initWithName:kSentryNotificationContinuousProfileStarted
                                       object:nil
                                     userInfo:nil]);
-    [self scheduleTimer];
-
-#    if SENTRY_HAS_UIKIT
-    _observerToken = sentry_addObserverForName(UIApplicationWillResignActiveNotification, ^{
-        sentry_removeObserver(_observerToken);
-        [self stopTimerAndCleanup];
-    });
-#    endif // SENTRY_HAS_UIKIT
+    [self scheduleTimerForProfiler:profiler];
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -193,11 +211,14 @@ _sentry_unsafe_stopTimerAndCleanup()
  * Schedule a timeout timer on the main thread.
  * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
  */
-+ (void)scheduleTimer
++ (void)scheduleTimerForProfiler:(SentryProfiler *)profiler
 {
     sentry_dispatchAsyncOnMainIfNotMainThread(
         SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
             std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+            if (_threadUnsafe_gContinuousCurrentProfiler != profiler || !profiler.isRunning) {
+                return;
+            }
             if (_chunkTimer != nil) {
                 SENTRY_LOG_WARN(
                     @"There was already a timer in flight, but this codepath shouldn't be "
@@ -205,15 +226,18 @@ _sentry_unsafe_stopTimerAndCleanup()
                 return;
             }
 
-            _chunkTimer = sentry_scheduledTimerWithTarget(
-                kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
+            _chunkTimer = sentry_scheduledTimer(kSentryProfilerChunkExpirationInterval, YES,
+                ^{ [self timerExpiredForProfiler:profiler]; });
         });
 }
 
-+ (void)timerExpired
++ (void)timerExpiredForProfiler:(SentryProfiler *)profiler
 {
     {
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+        if (_threadUnsafe_gContinuousCurrentProfiler != profiler) {
+            return;
+        }
         if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
             SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
                             @"and disabling the timer from running again.");
@@ -230,13 +254,10 @@ _sentry_unsafe_stopTimerAndCleanup()
     SENTRY_LOG_DEBUG(
         @"Last continuous profile chunk transmitted after stop called, shutting down profiler.");
 
-#    if SENTRY_HAS_UIKIT
-    if (_observerToken != nil) {
-        sentry_removeObserver(_observerToken);
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    if (_threadUnsafe_gContinuousCurrentProfiler == profiler && _stopCalled) {
+        _sentry_unsafe_stopTimerAndCleanup();
     }
-#    endif // SENTRY_HAS_UIKIT
-
-    [self stopTimerAndCleanup];
 }
 
 + (void)stopTimerAndCleanup
