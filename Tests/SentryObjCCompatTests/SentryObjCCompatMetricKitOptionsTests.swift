@@ -62,24 +62,86 @@ final class SentryObjCCompatMetricKitOptionsTests: XCTestCase {
         XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.crash])
     }
 
-    func testMetricReportBits_whenReport_shouldMapToItsHeaderBit() {
-        // -- Arrange --
-        // Spot checks against SentryObjCMetricKitMetricReport.h.
-        let cases: [(SentryMetricKit.MetricReport, UInt64)] = [
-            (.cpuCumulativeTime, 1 << 0),
-            (.diskIOLogicalWrites, 1 << 11),
-            (.animationHitchTimeRatio, 1 << 22),
-            (.diskSpaceTotalCapacity, 1 << 30),
-            (.exitForegroundNormal, 1 << 31),
-            (.exitBackgroundTaskTimeout, 1 << 46)
-        ]
+    /// The bit index of every report, matching SentryObjCMetricKitMetricReport.h. The bits are
+    /// public API, so a report must never move to another bit.
+    private let metricReportBitIndexes: [(SentryMetricKit.MetricReport, UInt64)] = [
+        (.cpuCumulativeTime, 0),
+        (.cpuCumulativeInstructions, 1),
+        (.gpuCumulativeTime, 2),
+        (.appTimeForeground, 3),
+        (.appTimeBackground, 4),
+        (.appTimeBackgroundAudio, 5),
+        (.appTimeBackgroundLocation, 6),
+        (.networkWifiUpload, 7),
+        (.networkWifiDownload, 8),
+        (.networkCellularUpload, 9),
+        (.networkCellularDownload, 10),
+        (.diskIOLogicalWrites, 11),
+        (.locationBestAccuracyTime, 12),
+        (.locationBestAccuracyForNavigationTime, 13),
+        (.locationNearestTenMetersTime, 14),
+        (.locationHundredMetersTime, 15),
+        (.locationKilometerTime, 16),
+        (.locationThreeKilometersTime, 17),
+        (.memoryPeakUsage, 18),
+        (.memoryAverageSuspended, 19),
+        (.displayAveragePixelLuminance, 20),
+        (.animationScrollHitchTimeRatio, 21),
+        (.animationHitchTimeRatio, 22),
+        (.diskSpaceBinaryFileSize, 23),
+        (.diskSpaceBinaryFileCount, 24),
+        (.diskSpaceDataFileSize, 25),
+        (.diskSpaceDataFileCount, 26),
+        (.diskSpaceCacheFolderSize, 27),
+        (.diskSpaceCloneSize, 28),
+        (.diskSpaceTotalUsed, 29),
+        (.diskSpaceTotalCapacity, 30),
+        (.exitForegroundNormal, 31),
+        (.exitForegroundMemoryResourceLimit, 32),
+        (.exitForegroundBadAccess, 33),
+        (.exitForegroundAbnormal, 34),
+        (.exitForegroundIllegalInstruction, 35),
+        (.exitForegroundWatchdog, 36),
+        (.exitBackgroundNormal, 37),
+        (.exitBackgroundMemoryResourceLimit, 38),
+        (.exitBackgroundCPUResourceLimit, 39),
+        (.exitBackgroundMemoryPressure, 40),
+        (.exitBackgroundBadAccess, 41),
+        (.exitBackgroundAbnormal, 42),
+        (.exitBackgroundIllegalInstruction, 43),
+        (.exitBackgroundWatchdog, 44),
+        (.exitBackgroundSuspendedWithLockedFile, 45),
+        (.exitBackgroundTaskTimeout, 46)
+    ]
 
-        for (report, expectedBit) in cases {
+    func testMetricReportBitIndexes_shouldCoverEveryReportOnce() {
+        // -- Arrange --
+        let reports = metricReportBitIndexes.map(\.0)
+        let indexes = metricReportBitIndexes.map(\.1)
+
+        // -- Assert --
+        XCTAssertEqual(reports.count, SentryMetricKit.MetricReport.allCases.count)
+        XCTAssertEqual(Set(reports), Set(SentryMetricKit.MetricReport.allCases))
+        XCTAssertEqual(indexes, Array(0..<UInt64(reports.count)))
+    }
+
+    func testMetricReportBits_whenEachReport_shouldMapToItsHeaderBit() {
+        for (report, index) in metricReportBitIndexes {
             // -- Act --
             let bits = SentryObjCMetricKitMetricReportMapping.bits(for: [report])
 
             // -- Assert --
-            XCTAssertEqual(bits, expectedBit, "Expected bit \(expectedBit) for \(report)")
+            XCTAssertEqual(bits, 1 << index, "Expected bit \(index) for \(report)")
+        }
+    }
+
+    func testMetricReportReports_whenEachHeaderBit_shouldMapToItsReport() {
+        for (report, index) in metricReportBitIndexes {
+            // -- Act --
+            let reports = SentryObjCMetricKitMetricReportMapping.reports(for: 1 << index)
+
+            // -- Assert --
+            XCTAssertEqual(reports, [report], "Expected \(report) for bit \(index)")
         }
     }
 
