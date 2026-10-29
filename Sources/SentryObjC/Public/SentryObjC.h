@@ -197,13 +197,11 @@
 #    import "SentryObjCFeedbackForm.h"
 #    import "SentryObjCMetricsApi.h"
 #    import "SentryObjCReplayApi.h"
-#    import "SentryObjCWebViewTracing.h"
 #else
 #    import <SentryObjC/SentryObjCFeedbackApi.h>
 #    import <SentryObjC/SentryObjCFeedbackForm.h>
 #    import <SentryObjC/SentryObjCMetricsApi.h>
 #    import <SentryObjC/SentryObjCReplayApi.h>
-#    import <SentryObjC/SentryObjCWebViewTracing.h>
 #endif
 
 // --- Internal API (hybrid SDK structured API) ---

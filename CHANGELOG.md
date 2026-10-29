@@ -4,7 +4,7 @@
 
 ### Features
 
-- Connect traces of web content in a `WKWebView` with the app's trace. Call `SentryWebViewTracing.addTracePropagation(to:options:)` with a `WKWebView`, `WKWebViewConfiguration`, `WKUserContentController`, or SwiftUI `WebPage.Configuration` to inject the current trace as `sentry-trace` and `baggage` meta tags before page scripts run, so `@sentry/browser` in the page continues the trace on pageload. Only pages on the hosts in `SentryWebViewTracingOptions.allowedHosts` receive the trace. `SentryObjC` exposes the same API through `SentryObjCWebViewTracing` (#9474)
+- Connect traces of web content in a `WKWebView` with the app's trace. Call `SentryWebViewTracing.addTracePropagation(to:options:)` with a `WKWebView`, `WKWebViewConfiguration`, `WKUserContentController`, or SwiftUI `WebPage.Configuration` to inject the current trace as `sentry-trace` and `baggage` meta tags before page scripts run, so `@sentry/browser` in the page continues the trace on pageload. Only pages on the hosts in `SentryWebViewTracingOptions.allowedHosts` receive the trace (#9474)
 
 ## 9.32.0
 
