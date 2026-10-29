@@ -42,6 +42,7 @@
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 - [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
 - [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
+- [41. MetricKit crash fallback and watchdog termination enrichment](#41-metrickit-crash-fallback-and-watchdog-termination-enrichment)
 
 ---
 
@@ -931,3 +932,86 @@ Related links:
 - [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
 - [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
 - [V10 build checks](BUILD.md#temporary-v10-development-verification)
+
+## 41. MetricKit crash fallback and watchdog termination enrichment
+
+Date: October 29, 2026
+Contributors: @itaybre
+
+The watchdog termination integration reports every foreground termination it can't explain as a `WatchdogTermination` without a stack trace. Some of these are crashes the crash handler couldn't record, and MetricKit usually reports the real cause on the next launch: a crash diagnostic with the exception and termination reason, such as `0x8badf00d` for the watchdog, or, on iOS 27 and later, a memory exception diagnostic. Today the two sides don't know about each other, and enabling MetricKit crash diagnostics sends every crash MetricKit reports in addition to the crash handler's report. See [#2627](https://github.com/getsentry/sentry-cocoa/issues/2627) and [#7799](https://github.com/getsentry/sentry-cocoa/issues/7799).
+
+We decided to keep the crash handler as the primary source and use MetricKit only to explain a run that ended without a crash report. MetricKit can't record the app's state, so it doesn't replace the crash handler.
+
+### Matching a diagnostic to a run
+
+MetricKit doesn't give diagnostics an identifier, so the SDK gives each run one: a random UUID created at launch and stored in `SentryAppState`. How a diagnostic is matched to a run depends on what MetricKit reports with it:
+
+| OS                                        | Matching                                         |
+| ----------------------------------------- | ------------------------------------------------ |
+| iOS and macOS 27 and later                | The run ID from the diagnostic's reported states |
+| iOS 17 to 26, macOS 14 to 26 and visionOS | The process ID and the run's lifetime            |
+| iOS 15 and 16, macOS 12 and 13            | None, diagnostics keep today's behavior          |
+
+**Run ID.** On iOS and macOS 27 and later, the SDK reports a state in its own `StateReporting` domain at launch, with the run ID as stable metadata, and creates its `MetricManager` with that domain in `enabledStateReportingDomains`. MetricKit lists the reported states in each diagnostic's `DiagnosticReport.Environment.states`, so a diagnostic that carries a recorded run ID belongs to that run. State reporting is unavailable on visionOS.
+
+**Process ID and lifetime.** Otherwise, a diagnostic belongs to a run when its process ID matches the one the SDK recorded for that run and its time range overlaps the run's lifetime. MetricKit doesn't report when a process launched, only the time range of the payload or report, so the SDK records the lifetime itself: a run starts at its process start time and ends, at the latest, when the next run starts. The OS reuses process IDs, so the process ID alone isn't enough, and a start time alone isn't either, because every later run with a reused process ID also started before the diagnostic. MetricKit reports the process ID on iOS 17 and macOS 14 and later, on every visionOS version and in the xOS 27 `MetricManager` API.
+
+For both, when a diagnostic matches more than one recorded run, it is treated as unmatched instead of guessing. The signal and exception type aren't used for matching, because a watchdog or memory termination has no signal the SDK could have recorded.
+
+- The SDK adds the run ID, process ID and process start time to `SentryAppState`, which already describes the previous run.
+- MetricKit can deliver a diagnostic after more than one launch. The SDK keeps a small record of the last few runs that ended fatally, with their run ID, process ID, start time, the start time of the run after them and how the SDK reported them, and removes entries after seven days. A diagnostic that matches no entry is handled as today.
+
+### Deduplication against the crash handler
+
+When the crash handler reported the matching run, a MetricKit crash diagnostic of that run is dropped, even with `.crash` in `enabledDiagnosticReports`. Hang, CPU, disk write, app launch and memory exception diagnostics are never dropped, because the crash handler doesn't report them.
+
+### Timing of the watchdog termination event
+
+The watchdog termination integration decides at launch, and MetricKit delivers its diagnostics afterwards. When the MetricKit integration is running on a version that can match diagnostics, the SDK holds the watchdog termination event instead of sending it right away:
+
+- The event is built at launch as today, with the previous run's breadcrumbs, scope data and timestamp, and stored to disk with the previous run's process ID and a deadline.
+- When a matching crash or memory exception diagnostic arrives, the SDK enriches the stored event and sends it. MetricKit diagnostics that don't match stay unaffected.
+- When the deadline passes or the app moves to the background, the SDK sends the stored event unchanged. A stored event that's still on disk at the next launch is sent then, so a quick relaunch never loses it.
+- Without a running MetricKit integration, or on older versions, the event is sent right away as today.
+
+The deadline starts at 30 seconds and is internal. Dogfooding measures how long MetricKit takes to deliver diagnostics after a launch, and the value is adjusted to that. Users who don't share analytics with app developers never receive MetricKit diagnostics, so the deadline caps the delay for them.
+
+### Enriching the event
+
+The enriched event keeps everything the watchdog termination event had: the previous run's breadcrumbs, user, tags, extras, contexts, fingerprint, timestamp and session. The diagnostic adds its threads, debug images and the termination reason. Whether the event stays a watchdog termination depends on the diagnostic:
+
+- A crash diagnostic with the watchdog termination reason, or a memory exception diagnostic, confirms the watchdog termination. The event keeps its `WatchdogTermination` type and mechanism and gets the diagnostic's stack trace and termination reason.
+- Any other crash diagnostic means the crash handler missed a crash. The event is sent as an `MXCrashDiagnostic` crash, like an enabled MetricKit crash diagnostic, but with the previous run's scope data.
+
+Watchdog terminations that get a stack trace group by that stack trace instead of falling into one group. We accept this, because one group for all watchdog terminations isn't actionable.
+
+A MetricKit crash diagnostic for a background run, which the watchdog termination integration doesn't report, is captured as today when `.crash` is enabled. It gets the previous run's scope data only when it matches the run directly before the current one, because the SDK keeps scope data for that run only.
+
+### Sessions
+
+The release health status doesn't change. The previous run's session already ends as crashed when the SDK detects a watchdog termination, and it stays on disk until the stored event is sent, because `captureFatalEvent` attaches the crashed session to the first fatal event. When the matching diagnostic shows a missed crash instead of a watchdog termination, the session stays crashed. MetricKit events that don't match a stored watchdog termination are still captured as regular events, so they don't change the current session.
+
+### V9 and V10
+
+The design only uses the SDK's app state, the active crash reporter's `crashedLastLaunch` and the watchdog termination integration, which are shared between SentryCrash in V9 and KSCrash in V10. Neither crash handler's report format is read, so both versions behave the same.
+
+### Rejected alternatives
+
+- **Sending the watchdog termination event right away and a second event for the diagnostic.** Sentry can't merge or update events, so the same termination would show up as two issues.
+- **Waiting for MetricKit without a deadline.** MetricKit doesn't report anything for users who don't share analytics, so their watchdog terminations would never be sent.
+- **Matching by timestamp only.** MetricKit timestamps describe the payload's window, which can hold several runs.
+- **Matching by the process ID on iOS and macOS 27.** The run ID is exact, while a reused process ID can make a match ambiguous. The process ID stays the fallback where state reporting is unavailable.
+
+### To verify during dogfooding
+
+- Whether crash and memory exception diagnostics carry the reported states, and whether one diagnostic can carry the states of several runs.
+- How `enabledStateReportingDomains` behaves when the app creates its own `MetricManager` with other domains.
+- That the Sentry domain doesn't change the metrics read from the full-day entry of metric reports.
+- How narrow the time ranges of crash diagnostics are, which decides how often the process ID match is ambiguous.
+- How long MetricKit takes to deliver diagnostics after a launch, which decides the deadline.
+
+Related links:
+
+- [MetricKit crash fallback (#2627)](https://github.com/getsentry/sentry-cocoa/issues/2627)
+- [Watchdog termination stack traces (#7799)](https://github.com/getsentry/sentry-cocoa/issues/7799)
+- [Design issue (#9277)](https://github.com/getsentry/sentry-cocoa/issues/9277)
