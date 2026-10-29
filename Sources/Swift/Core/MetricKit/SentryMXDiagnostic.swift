@@ -13,6 +13,9 @@ struct SentryMXDiagnostic {
     struct Metadata {
         /// The process that recorded the diagnostic, or `nil` when MetricKit doesn't report it.
         let pid: pid_t?
+        /// The SDK's run IDs MetricKit reported as state with the diagnostic. Only reported by
+        /// `MetricManager` on iOS and macOS 27 and later.
+        var runIds: [UUID] = []
         let appVersion: String
         let appBuild: String
         let osVersion: String?

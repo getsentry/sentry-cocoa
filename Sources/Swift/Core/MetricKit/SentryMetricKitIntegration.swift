@@ -59,7 +59,7 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     private static func makeMetricManager(enabledDiagnostics: Set<SentryMXManager.Diagnostic>, diagnosticCapturer: SentryMXDiagnosticCapturer) -> SentryMetricKitReportReceiver? {
         #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *), !enabledDiagnostics.isEmpty {
-            return SentryMetricManager(diagnosticCapturer: diagnosticCapturer)
+            return SentryMetricManager.make(diagnosticCapturer: diagnosticCapturer, runId: SentryMXRunStore.processRunId)
         }
         #endif // compiler(>=6.4)
         return nil
