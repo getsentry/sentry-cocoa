@@ -86,6 +86,71 @@
         SentryObjCMetricKitDiagnosticReportCrash);
 }
 
+- (void)testEnabledMetricReports_whenDefault_shouldBeNone
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(
+        options.experimental.metrickit.enabledMetricReports, SentryObjCMetricKitMetricReportNone);
+}
+
+- (void)testEnabledMetricReports_whenSetToAll_shouldReturnAll
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.metrickit.enabledMetricReports = SentryObjCMetricKitMetricReportAll;
+
+    // -- Assert --
+    XCTAssertEqual(
+        options.experimental.metrickit.enabledMetricReports, SentryObjCMetricKitMetricReportAll);
+}
+
+- (void)testEnabledMetricReports_whenSetToSomeReports_shouldReturnThem
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    SentryObjCMetricKitMetricReport reports = SentryObjCMetricKitMetricReportCPUCumulativeTime
+        | SentryObjCMetricKitMetricReportExitBackgroundTaskTimeout;
+
+    // -- Act --
+    options.experimental.metrickit.enabledMetricReports = reports;
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metrickit.enabledMetricReports, reports);
+}
+
+- (void)testEnabledMetricReports_whenSetToNone_shouldReturnNone
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    options.experimental.metrickit.enabledMetricReports = SentryObjCMetricKitMetricReportAll;
+
+    // -- Act --
+    options.experimental.metrickit.enabledMetricReports = SentryObjCMetricKitMetricReportNone;
+
+    // -- Assert --
+    XCTAssertEqual(
+        options.experimental.metrickit.enabledMetricReports, SentryObjCMetricKitMetricReportNone);
+}
+
+- (void)testEnabledMetricReports_whenUnknownBitsSet_shouldIgnoreThem
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.metrickit.enabledMetricReports
+        = SentryObjCMetricKitMetricReportMemoryPeakUsage | (1ULL << 63);
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metrickit.enabledMetricReports,
+        SentryObjCMetricKitMetricReportMemoryPeakUsage);
+}
+
 @end
 
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
