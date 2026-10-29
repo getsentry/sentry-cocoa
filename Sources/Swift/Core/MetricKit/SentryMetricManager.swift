@@ -24,10 +24,34 @@ final class SentryMetricManager: SentryMetricKitReportReceiver {
     private let source: SentryDiagnosticReportSource
     private let diagnosticCapturer: SentryMXDiagnosticCapturer
     private let diagnosticReportsTask = SentryMutex<Task<Void, Never>?>(nil)
+    /// Keeps reporting the run ID state, so diagnostics of this run carry it.
+    private let runStateReporter: AnyObject?
 
-    init(source: SentryDiagnosticReportSource = MetricManager(), diagnosticCapturer: SentryMXDiagnosticCapturer) {
+    init(
+        source: SentryDiagnosticReportSource = MetricManager(),
+        diagnosticCapturer: SentryMXDiagnosticCapturer,
+        runStateReporter: AnyObject? = nil
+    ) {
         self.source = source
         self.diagnosticCapturer = diagnosticCapturer
+        self.runStateReporter = runStateReporter
+    }
+
+    /// Creates the manager that reads the diagnostics of `MetricManager`.
+    ///
+    /// On iOS and macOS, it reports the SDK's run ID as state and enables the state's domain, so
+    /// diagnostics delivered on a later launch can be matched to the run that recorded them. State
+    /// reporting is unavailable on visionOS.
+    static func make(diagnosticCapturer: SentryMXDiagnosticCapturer, runId: UUID) -> SentryMetricManager {
+        #if os(iOS) || os(macOS)
+        return SentryMetricManager(
+            source: MetricManager(enabledStateReportingDomains: [SentryMXRunState.domain]),
+            diagnosticCapturer: diagnosticCapturer,
+            runStateReporter: SentryMXRunState.report(runId: runId)
+        )
+        #else
+        return SentryMetricManager(diagnosticCapturer: diagnosticCapturer)
+        #endif // os(iOS) || os(macOS)
     }
 
     func receiveReports() {
@@ -128,8 +152,15 @@ extension SentryMXDiagnostic {
 extension SentryMXDiagnostic.Metadata {
     init(_ environment: MetricKit.DiagnosticReport.Environment) {
         let osVersion = environment.osVersion
+        #if os(iOS) || os(macOS)
+        let runIds = SentryMXRunState.runIds(in: environment.states)
+        #else
+        // State reporting is unavailable on visionOS.
+        let runIds: [UUID] = []
+        #endif // os(iOS) || os(macOS)
         self.init(
             pid: environment.pid.flatMap { $0 == 0 ? nil : $0 },
+            runIds: runIds,
             appVersion: environment.applicationVersion,
             appBuild: environment.applicationBuildVersion,
             osVersion: osVersion.number.isEmpty ? nil : osVersion.number,

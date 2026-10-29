@@ -490,17 +490,41 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             activeDurationSinceLastCrash: activeDurationSinceLastCrash,
             watchdogTerminationLogic: watchdogLogic,
             fileManager: fileManager,
-            dateProvider: dateProvider
+            dateProvider: dateProvider,
+            previousRunRecorder: previousRunRecorder
         )
 #else
         return PreviousRunSessionFinalizer(
             crashedLastLaunch: crashedLastLaunch,
             activeDurationSinceLastCrash: activeDurationSinceLastCrash,
             fileManager: fileManager,
-            dateProvider: dateProvider
+            dateProvider: dateProvider,
+            previousRunRecorder: previousRunRecorder
         )
 #endif
     }
+
+    private var previousRunRecorder: SentryPreviousRunRecorder? {
+#if os(iOS) || os(macOS) || os(visionOS)
+        metricKitRunStore
+#else
+        nil
+#endif
+    }
+
+#if os(iOS) || os(macOS) || os(visionOS)
+    private var _metricKitRunStore: SentryMXRunStore?
+    /// The identity of the running process and the fatal runs before it, which MetricKit
+    /// diagnostics are matched to.
+    var metricKitRunStore: SentryMXRunStore? {
+        getOptionalLazyVar(\._metricKitRunStore) {
+            guard let fileManager else {
+                return nil
+            }
+            return SentryMXRunStore(directory: fileManager.sentryPath, sysctl: sysctlWrapper, dateProvider: dateProvider)
+        }
+    }
+#endif // os(iOS) || os(macOS) || os(visionOS)
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?

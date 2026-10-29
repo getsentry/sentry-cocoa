@@ -13,12 +13,16 @@ import UIKit
 /// left untouched here: `SessionTracker.endCachedSession` hands it to
 /// `SentryHub.closeCachedSession(withTimestamp:)`,
 /// which ends it normally or abnormally, deletes it, and captures it.
+///
+/// It also tells the `SentryPreviousRunRecorder` how the previous run ended, because both crash
+/// backends finalize the previous run here.
 final class PreviousRunSessionFinalizer {
 
     private let crashedLastLaunch: Bool
     private let activeDurationSinceLastCrash: TimeInterval
     private let fileManager: SentryFileManager
     private let dateProvider: SentryCurrentDateProvider
+    private let previousRunRecorder: SentryPreviousRunRecorder?
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let watchdogTerminationLogic: SentryWatchdogTerminationLogic?
@@ -30,41 +34,49 @@ final class PreviousRunSessionFinalizer {
         activeDurationSinceLastCrash: TimeInterval,
         watchdogTerminationLogic: SentryWatchdogTerminationLogic?,
         fileManager: SentryFileManager,
-        dateProvider: SentryCurrentDateProvider
+        dateProvider: SentryCurrentDateProvider,
+        previousRunRecorder: SentryPreviousRunRecorder? = nil
     ) {
         self.crashedLastLaunch = crashedLastLaunch
         self.activeDurationSinceLastCrash = activeDurationSinceLastCrash
         self.watchdogTerminationLogic = watchdogTerminationLogic
         self.fileManager = fileManager
         self.dateProvider = dateProvider
+        self.previousRunRecorder = previousRunRecorder
     }
     #else
     init(
         crashedLastLaunch: Bool,
         activeDurationSinceLastCrash: TimeInterval,
         fileManager: SentryFileManager,
-        dateProvider: SentryCurrentDateProvider
+        dateProvider: SentryCurrentDateProvider,
+        previousRunRecorder: SentryPreviousRunRecorder? = nil
     ) {
         self.crashedLastLaunch = crashedLastLaunch
         self.activeDurationSinceLastCrash = activeDurationSinceLastCrash
         self.fileManager = fileManager
         self.dateProvider = dateProvider
+        self.previousRunRecorder = previousRunRecorder
     }
     #endif
 
     func finalizeIfNeeded() {
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let isWatchdogTermination = watchdogTerminationLogic?.isWatchdogTermination() == true
+        #else
+        let isWatchdogTermination = false
+        #endif
+
+        // Record how the previous run ended even without a session, because MetricKit
+        // diagnostics of the run don't depend on session tracking.
+        previousRunRecorder?.recordPreviousRun(crashed: crashedLastLaunch, watchdogTerminated: isWatchdogTermination)
+
         guard let session = fileManager.readCurrentSession() else {
             SentrySDKLog.debug("No current session found to end.")
             return
         }
 
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        let shouldEndAsCrashed = crashedLastLaunch || watchdogTerminationLogic?.isWatchdogTermination() == true
-        #else
-        let shouldEndAsCrashed = crashedLastLaunch
-        #endif
-
-        if shouldEndAsCrashed {
+        if crashedLastLaunch || isWatchdogTermination {
             let crashTimestamp = dateProvider.date()
                 .addingTimeInterval(-activeDurationSinceLastCrash)
 

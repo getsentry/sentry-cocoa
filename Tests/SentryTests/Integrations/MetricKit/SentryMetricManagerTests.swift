@@ -9,6 +9,9 @@ import XCTest
 
 #if (os(iOS) || os(macOS) || os(visionOS)) && compiler(>=6.4)
 import MetricKit
+#if os(iOS) || os(macOS)
+import StateReporting
+#endif
 
 final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
 
@@ -256,6 +259,33 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    #if os(iOS) || os(macOS)
+    func testMetadata_whenReportCarriesRunIdState_shouldReadRunIdsOfSentryDomain() throws {
+        guard #available(iOS 27.0, macOS 27.0, *) else { return }
+        // -- Arrange --
+        let runId = UUID()
+        let report = try givenHangReport(states: [
+            try reportedState(domain: "com.example.app", metadata: ["run_id": ReportableMetadataValue(UUID().uuidString)]),
+            try reportedState(domain: "io.sentry.run", metadata: SentryMXRunState.Metadata(runId: runId).metadataDictionary)
+        ])
+
+        // -- Act --
+        let metadata = SentryMXDiagnostic.Metadata(report.environment)
+
+        // -- Assert --
+        XCTAssertEqual(metadata.runIds, [runId])
+    }
+    #endif // os(iOS) || os(macOS)
+
+    func testMetadata_whenReportCarriesNoState_shouldHaveNoRunIds() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        let report = try givenHangReport()
+
+        // -- Act & Assert --
+        XCTAssertEqual(SentryMXDiagnostic.Metadata(report.environment).runIds, [])
+    }
+
     // MARK: - Receiving reports
 
     func testReceiveReports_shouldCaptureReportsFromMetricManager() throws {
@@ -366,7 +396,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         pid: pid_t? = nil,
         appVersion: String = "",
         appBuild: String = "",
-        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""]
+        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""],
+        states: [[String: Any]] = []
     ) throws -> MetricKit.DiagnosticReport {
         try givenReport(
             result: "hangDiagnostic",
@@ -377,7 +408,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             pid: pid,
             appVersion: appVersion,
             appBuild: appBuild,
-            osVersion: osVersion
+            osVersion: osVersion,
+            states: states
         )
     }
 
@@ -390,7 +422,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         pid: pid_t? = nil,
         appVersion: String = "",
         appBuild: String = "",
-        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""]
+        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""],
+        states: [[String: Any]] = []
     ) throws -> MetricKit.DiagnosticReport {
         var environment: [String: Any] = [
             "regionFormat": "US",
@@ -403,7 +436,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             "applicationBuildVersion": appBuild,
             "bundleIdentifier": "io.sentry.app",
             "signpostData": [],
-            "states": []
+            "states": states
         ]
         if let pid {
             environment["pid"] = pid
@@ -420,6 +453,20 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         let data = try JSONSerialization.data(withJSONObject: report)
         return try JSONDecoder().decode(MetricKit.DiagnosticReport.self, from: data)
     }
+
+    #if os(iOS) || os(macOS)
+    /// Builds the JSON format of a `MetricManager.ReportedState`, which has no public initializer.
+    @available(iOS 27.0, macOS 27.0, *)
+    private func reportedState(domain: String, metadata: [String: ReportableMetadataValue]) throws -> [String: Any] {
+        let encodedMetadata = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(metadata)) as? [String: Any])
+        return [
+            "domain": domain,
+            "label": "running",
+            "duration": encoded(Measurement(value: 60, unit: UnitDuration.seconds)),
+            "stableMetadata": encodedMetadata
+        ]
+    }
+    #endif // os(iOS) || os(macOS)
 
     /// MetricKit encodes a measurement's unit by its symbol.
     private func encoded<UnitType: Dimension>(_ measurement: Measurement<UnitType>) -> [String: Any] {
