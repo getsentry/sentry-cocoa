@@ -47,8 +47,10 @@ public final class SentryMetricKitOptions {
     /// A non-empty set enables the MetricKit integration, even when no diagnostic reports are
     /// enabled. Use `.all` to send every metric report.
     ///
-    /// MetricKit delivers metric payloads about once a day, and each enabled report adds up to one
-    /// metric per payload, which counts towards your metrics quota.
+    /// MetricKit delivers metric payloads about once a day. Each enabled report adds up to one
+    /// metric per payload, except for histogram reports such as
+    /// ``SentryMetricKit/MetricReport/launchTimeToFirstDraw``, which add up to 100. Metrics count
+    /// towards your metrics quota.
     ///
     /// On macOS, MetricKit delivers metric payloads from macOS 26, and only to apps built with
     /// Xcode 26 or later.

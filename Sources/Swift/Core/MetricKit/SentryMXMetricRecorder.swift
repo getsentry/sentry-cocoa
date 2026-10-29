@@ -10,8 +10,11 @@ import Foundation
 final class SentryMXMetricRecorder {
     typealias MetricReport = SentryMetricKit.MetricReport
 
-    /// The timestamp, trace ID and attributes every metric of a payload or report shares.
+    /// The reporting interval, timestamp, trace ID and attributes every metric of a payload or
+    /// report shares.
     struct Context {
+        let begin: Date
+        let end: Date
         let timestamp: Date
         let traceId: SentryId
         let attributes: [String: SentryAttributeValue]
@@ -20,12 +23,26 @@ final class SentryMXMetricRecorder {
         /// layer a frame rate was measured for.
         func adding(attributes additionalAttributes: [String: SentryAttributeValue]) -> Context {
             Context(
+                begin: begin,
+                end: end,
                 timestamp: timestamp,
                 traceId: traceId,
                 attributes: attributes.merging(additionalAttributes) { _, additional in additional }
             )
         }
     }
+
+    /// A range of values of a MetricKit histogram and the number of samples in it, in the unit of
+    /// the metric.
+    struct HistogramBucket: Equatable {
+        let lowerBound: Double
+        let upperBound: Double
+        let count: Int
+    }
+
+    /// The most values a histogram is sent as, so a busy reporting interval doesn't send thousands
+    /// of values for one metric.
+    static let maxHistogramValues = 100
 
     let enabledMetricReports: Set<MetricReport>
     let metricsApi: SentryInternalMetricsApi
@@ -90,7 +107,7 @@ final class SentryMXMetricRecorder {
 
         // The values don't belong to the running trace. A trace of their own keeps the metrics of
         // one payload or report together.
-        return Context(timestamp: timestamp, traceId: SentryId(), attributes: attributes)
+        return Context(begin: begin, end: end, timestamp: timestamp, traceId: SentryId(), attributes: attributes)
     }
 
     // MARK: - Recording
@@ -135,6 +152,46 @@ final class SentryMXMetricRecorder {
             traceId: context.traceId,
             attributes: context.attributes
         )
+    }
+
+    /// Sends each sample of a histogram as a distribution value.
+    ///
+    /// MetricKit doesn't say what a sample's exact value was or when it happened. Each sample
+    /// gets the middle of its bucket as value, and the samples of a bucket are spread evenly across
+    /// the reporting interval. Spreading each bucket on its own keeps the bucket order from showing
+    /// up as a trend from low to high values.
+    func recordHistogram(_ report: MetricReport, _ buckets: @autoclosure () -> [HistogramBucket], unit: SentryUnit?, _ context: Context) {
+        guard enabledMetricReports.contains(report) else {
+            return
+        }
+        let buckets = buckets().filter { $0.count > 0 }
+        let sampleCount = buckets.reduce(0) { $0 + $1.count }
+        guard sampleCount > 0 else {
+            return
+        }
+
+        // Above the limit, every bucket keeps its share of the values, so the distribution keeps
+        // its shape. Rounding keeps rare long values, so the total can exceed the limit slightly.
+        let scale = min(1, Double(Self.maxHistogramValues) / Double(sampleCount))
+        if scale < 1 {
+            SentrySDKLog.debug("MetricKit histogram \(report.name) has \(sampleCount) samples, sending about \(Self.maxHistogramValues) values")
+        }
+
+        let duration = context.end.timeIntervalSince(context.begin)
+        for bucket in buckets {
+            let valueCount = Int((Double(bucket.count) * scale).rounded())
+            let value = (bucket.lowerBound + bucket.upperBound) / 2
+            for index in 0..<valueCount {
+                metricsApi.distribution(
+                    key: report.name,
+                    value: value,
+                    unit: unit,
+                    timestamp: context.begin.addingTimeInterval(duration * (Double(index) + 0.5) / Double(valueCount)),
+                    traceId: context.traceId,
+                    attributes: context.attributes
+                )
+            }
+        }
     }
 
     // MARK: - Units
