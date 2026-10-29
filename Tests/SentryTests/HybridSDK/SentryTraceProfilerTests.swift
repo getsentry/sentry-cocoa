@@ -365,6 +365,46 @@ final class SentryTraceProfilerTests: XCTestCase {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
     }
 
+    func testFinish_whenTimedOutTracerEnds_shouldNotRecordMetricsOnEitherStoppedOrReplacementProfiler() throws {
+        // -- Arrange --
+        let system = TestSentrySystemWrapper()
+        system.overrides.cpuUsage = 10
+        system.overrides.memoryFootprintBytes = 100
+        system.overrides.cpuEnergyUsage = 100
+        SentryMetricProfiler.setSystemWrapperOverride(system)
+        defer { SentryMetricProfiler.setSystemWrapperOverride(nil) }
+        let oldTracer = profiledTracer(named: "old")
+        let oldProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        fixture.dateProvider.advance(by: 30)
+        try fixture.timerFactory.check()
+        let nextTracer = profiledTracer(named: "next")
+        let nextProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        let oldMetrics = oldProfiler.metricProfiler.serializeTraceProfileMetricsBetween(0, and: UInt64.max)
+        let nextMetrics = nextProfiler.metricProfiler.serializeTraceProfileMetricsBetween(0, and: UInt64.max)
+        fixture.dateProvider.advance(by: 1)
+        system.overrides.cpuUsage = 20
+        system.overrides.memoryFootprintBytes = 200
+        system.overrides.cpuEnergyUsage = 110
+
+        // -- Act --
+        oldTracer.finish()
+
+        // -- Assert --
+        XCTAssertEqual(oldProfiler.metricProfiler.serializeTraceProfileMetricsBetween(0, and: UInt64.max), oldMetrics)
+        XCTAssertEqual(nextProfiler.metricProfiler.serializeTraceProfileMetricsBetween(0, and: UInt64.max), nextMetrics)
+        XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        nextTracer.finish()
+
+        // -- Assert --
+        let metrics = nextProfiler.metricProfiler.serializeTraceProfileMetricsBetween(0, and: UInt64.max)
+        let cpu = try XCTUnwrap(metrics["cpu_usage"] as? [String: Any])
+        let values = try XCTUnwrap(cpu["values"] as? [[String: Any]])
+        XCTAssertEqual(values.compactMap { $0["value"] as? Int }, [10, 20])
+        XCTAssertEqual(values.compactMap { $0["elapsed_since_start_ns"] as? String }, ["30000000000", "31000000000"])
+    }
+
     private func profiledTracer(named name: String) -> SentryTracer {
         let configuration = SentryTracerConfiguration()
         configuration.profilesSamplerDecision = SentrySamplerDecision(decision: .yes, forSampleRate: 1, withSampleRand: 0.5)
