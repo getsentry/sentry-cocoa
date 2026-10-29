@@ -7,10 +7,8 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySDK+Private.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -84,18 +82,14 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [SentryProfilerSDKAdapter.shared dispatchAsync:^{
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
-        SentryEnvelope *_Nullable envelope
-            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
+        [SentryProfilerSDKAdapter.shared
+            captureProfileChunkWithID:sentry_stringFromSentryID(profilerID)
+                                 data:profilerState
+                              metrics:serializedMetrics
 #    if SENTRY_HAS_UIKIT
-                ,
-                screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-            );
-        if (envelope == nil) {
-            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
-            return;
-        }
-        [SentrySDKInternal captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
+                               frames:screenFrameData
+#    endif
+        ];
     }];
 }
 

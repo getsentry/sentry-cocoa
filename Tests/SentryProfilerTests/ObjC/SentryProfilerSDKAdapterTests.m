@@ -1,7 +1,7 @@
 @import XCTest;
 #import "SentryDefaultProfilerSDKBackend.h"
+#import "SentryProfilerDeliveryBridge.h"
 #import "SentryProfilerSDKAdapter.h"
-#import "SentryProfilerSerialization.h"
 #import "SentryProfilerState.h"
 #import "SentryProfilerTestConditionals.h"
 #if SWIFT_PACKAGE

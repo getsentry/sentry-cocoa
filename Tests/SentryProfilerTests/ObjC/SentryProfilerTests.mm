@@ -9,7 +9,7 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization+Test.h"
+#    import "SentryProfilerSerialization+Private.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"
