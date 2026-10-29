@@ -110,6 +110,12 @@ sentry_stopTrackingRootSpanForContinuousProfilerV2()
 } // namespace
 
 void
+sentry_finishContinuousProfileForTrace(void)
+{
+    sentry_stopTrackingRootSpanForContinuousProfilerV2();
+}
+
+void
 sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
