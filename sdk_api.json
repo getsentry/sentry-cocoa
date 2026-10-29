@@ -50558,6 +50558,2006 @@
             "name": "DiagnosticReport",
             "printedName": "DiagnosticReport",
             "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MetricReport",
+                    "printedName": "Sentry.SentryMetricKit.MetricReport",
+                    "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MetricReport",
+                    "printedName": "Sentry.SentryMetricKit.MetricReport",
+                    "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO2eeoiySbAE_AEtFZ"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Hasher",
+                    "paramValueOwnership": "InOut",
+                    "printedName": "Swift.Hasher",
+                    "usr": "s:s6HasherV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO4hash4intoys6HasherVz_tF",
+                "moduleName": "Sentry",
+                "name": "hash",
+                "printedName": "hash(into:)",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO4hash4intoys6HasherVz_tF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.SentryMetricKit.MetricReport]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "kind": "TypeAlias",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO8AllCasesa",
+                "moduleName": "Sentry",
+                "name": "AllCases",
+                "printedName": "AllCases",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO8AllCasesa"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Array",
+                        "printedName": "[Sentry.SentryMetricKit.MetricReport]",
+                        "usr": "s:Sa"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO8allCasesSayAEGvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A9MetricKitO0B6ReportO8allCasesSayAEGvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.SentryMetricKit.MetricReport]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "Nonisolated"
+                ],
+                "declKind": "Var",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO8allCasesSayAEGvpZ",
+                "moduleName": "Sentry",
+                "name": "allCases",
+                "printedName": "allCases",
+                "static": true,
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO8allCasesSayAEGvpZ"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO23animationHitchTimeRatioyA2EmF",
+                "moduleName": "Sentry",
+                "name": "animationHitchTimeRatio",
+                "printedName": "animationHitchTimeRatio",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO23animationHitchTimeRatioyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO29animationScrollHitchTimeRatioyA2EmF",
+                "moduleName": "Sentry",
+                "name": "animationScrollHitchTimeRatio",
+                "printedName": "animationScrollHitchTimeRatio",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO29animationScrollHitchTimeRatioyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO17appTimeBackgroundyA2EmF",
+                "moduleName": "Sentry",
+                "name": "appTimeBackground",
+                "printedName": "appTimeBackground",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO17appTimeBackgroundyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22appTimeBackgroundAudioyA2EmF",
+                "moduleName": "Sentry",
+                "name": "appTimeBackgroundAudio",
+                "printedName": "appTimeBackgroundAudio",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22appTimeBackgroundAudioyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO25appTimeBackgroundLocationyA2EmF",
+                "moduleName": "Sentry",
+                "name": "appTimeBackgroundLocation",
+                "printedName": "appTimeBackgroundLocation",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO25appTimeBackgroundLocationyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO17appTimeForegroundyA2EmF",
+                "moduleName": "Sentry",
+                "name": "appTimeForeground",
+                "printedName": "appTimeForeground",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO17appTimeForegroundyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO25cpuCumulativeInstructionsyA2EmF",
+                "moduleName": "Sentry",
+                "name": "cpuCumulativeInstructions",
+                "printedName": "cpuCumulativeInstructions",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO25cpuCumulativeInstructionsyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO17cpuCumulativeTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "cpuCumulativeTime",
+                "printedName": "cpuCumulativeTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO17cpuCumulativeTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO19diskIOLogicalWritesyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskIOLogicalWrites",
+                "printedName": "diskIOLogicalWrites",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO19diskIOLogicalWritesyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO24diskSpaceBinaryFileCountyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceBinaryFileCount",
+                "printedName": "diskSpaceBinaryFileCount",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO24diskSpaceBinaryFileCountyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO23diskSpaceBinaryFileSizeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceBinaryFileSize",
+                "printedName": "diskSpaceBinaryFileSize",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO23diskSpaceBinaryFileSizeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO24diskSpaceCacheFolderSizeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceCacheFolderSize",
+                "printedName": "diskSpaceCacheFolderSize",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO24diskSpaceCacheFolderSizeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO18diskSpaceCloneSizeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceCloneSize",
+                "printedName": "diskSpaceCloneSize",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO18diskSpaceCloneSizeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22diskSpaceDataFileCountyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceDataFileCount",
+                "printedName": "diskSpaceDataFileCount",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22diskSpaceDataFileCountyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO21diskSpaceDataFileSizeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceDataFileSize",
+                "printedName": "diskSpaceDataFileSize",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO21diskSpaceDataFileSizeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22diskSpaceTotalCapacityyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceTotalCapacity",
+                "printedName": "diskSpaceTotalCapacity",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22diskSpaceTotalCapacityyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO18diskSpaceTotalUsedyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskSpaceTotalUsed",
+                "printedName": "diskSpaceTotalUsed",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO18diskSpaceTotalUsedyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO28displayAveragePixelLuminanceyA2EmF",
+                "moduleName": "Sentry",
+                "name": "displayAveragePixelLuminance",
+                "printedName": "displayAveragePixelLuminance",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO28displayAveragePixelLuminanceyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22exitBackgroundAbnormalyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundAbnormal",
+                "printedName": "exitBackgroundAbnormal",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22exitBackgroundAbnormalyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO23exitBackgroundBadAccessyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundBadAccess",
+                "printedName": "exitBackgroundBadAccess",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO23exitBackgroundBadAccessyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO30exitBackgroundCPUResourceLimityA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundCPUResourceLimit",
+                "printedName": "exitBackgroundCPUResourceLimit",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO30exitBackgroundCPUResourceLimityA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO32exitBackgroundIllegalInstructionyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundIllegalInstruction",
+                "printedName": "exitBackgroundIllegalInstruction",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO32exitBackgroundIllegalInstructionyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO28exitBackgroundMemoryPressureyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundMemoryPressure",
+                "printedName": "exitBackgroundMemoryPressure",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO28exitBackgroundMemoryPressureyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO33exitBackgroundMemoryResourceLimityA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundMemoryResourceLimit",
+                "printedName": "exitBackgroundMemoryResourceLimit",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO33exitBackgroundMemoryResourceLimityA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO20exitBackgroundNormalyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundNormal",
+                "printedName": "exitBackgroundNormal",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO20exitBackgroundNormalyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO37exitBackgroundSuspendedWithLockedFileyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundSuspendedWithLockedFile",
+                "printedName": "exitBackgroundSuspendedWithLockedFile",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO37exitBackgroundSuspendedWithLockedFileyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO25exitBackgroundTaskTimeoutyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundTaskTimeout",
+                "printedName": "exitBackgroundTaskTimeout",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO25exitBackgroundTaskTimeoutyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22exitBackgroundWatchdogyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitBackgroundWatchdog",
+                "printedName": "exitBackgroundWatchdog",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22exitBackgroundWatchdogyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22exitForegroundAbnormalyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitForegroundAbnormal",
+                "printedName": "exitForegroundAbnormal",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22exitForegroundAbnormalyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO23exitForegroundBadAccessyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitForegroundBadAccess",
+                "printedName": "exitForegroundBadAccess",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO23exitForegroundBadAccessyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO32exitForegroundIllegalInstructionyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitForegroundIllegalInstruction",
+                "printedName": "exitForegroundIllegalInstruction",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO32exitForegroundIllegalInstructionyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO33exitForegroundMemoryResourceLimityA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitForegroundMemoryResourceLimit",
+                "printedName": "exitForegroundMemoryResourceLimit",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO33exitForegroundMemoryResourceLimityA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO20exitForegroundNormalyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitForegroundNormal",
+                "printedName": "exitForegroundNormal",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO20exitForegroundNormalyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22exitForegroundWatchdogyA2EmF",
+                "moduleName": "Sentry",
+                "name": "exitForegroundWatchdog",
+                "printedName": "exitForegroundWatchdog",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22exitForegroundWatchdogyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO17gpuCumulativeTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "gpuCumulativeTime",
+                "printedName": "gpuCumulativeTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO17gpuCumulativeTimeyA2EmF"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO9hashValueSivg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A9MetricKitO0B6ReportO9hashValueSivg"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Var",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO9hashValueSivp",
+                "moduleName": "Sentry",
+                "name": "hashValue",
+                "printedName": "hashValue",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO9hashValueSivp"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO37locationBestAccuracyForNavigationTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "locationBestAccuracyForNavigationTime",
+                "printedName": "locationBestAccuracyForNavigationTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO37locationBestAccuracyForNavigationTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO24locationBestAccuracyTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "locationBestAccuracyTime",
+                "printedName": "locationBestAccuracyTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO24locationBestAccuracyTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO25locationHundredMetersTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "locationHundredMetersTime",
+                "printedName": "locationHundredMetersTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO25locationHundredMetersTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO21locationKilometerTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "locationKilometerTime",
+                "printedName": "locationKilometerTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO21locationKilometerTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO28locationNearestTenMetersTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "locationNearestTenMetersTime",
+                "printedName": "locationNearestTenMetersTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO28locationNearestTenMetersTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO27locationThreeKilometersTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "locationThreeKilometersTime",
+                "printedName": "locationThreeKilometersTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO27locationThreeKilometersTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22memoryAverageSuspendedyA2EmF",
+                "moduleName": "Sentry",
+                "name": "memoryAverageSuspended",
+                "printedName": "memoryAverageSuspended",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22memoryAverageSuspendedyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO15memoryPeakUsageyA2EmF",
+                "moduleName": "Sentry",
+                "name": "memoryPeakUsage",
+                "printedName": "memoryPeakUsage",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO15memoryPeakUsageyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO23networkCellularDownloadyA2EmF",
+                "moduleName": "Sentry",
+                "name": "networkCellularDownload",
+                "printedName": "networkCellularDownload",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO23networkCellularDownloadyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO21networkCellularUploadyA2EmF",
+                "moduleName": "Sentry",
+                "name": "networkCellularUpload",
+                "printedName": "networkCellularUpload",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO21networkCellularUploadyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO19networkWifiDownloadyA2EmF",
+                "moduleName": "Sentry",
+                "name": "networkWifiDownload",
+                "printedName": "networkWifiDownload",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO19networkWifiDownloadyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO17networkWifiUploadyA2EmF",
+                "moduleName": "Sentry",
+                "name": "networkWifiUpload",
+                "printedName": "networkWifiUpload",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO17networkWifiUploadyA2EmF"
+              }
+            ],
+            "conformances": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "MetricReport",
+                                "printedName": "Sentry.SentryMetricKit.MetricReport",
+                                "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Array",
+                            "printedName": "[Sentry.SentryMetricKit.MetricReport]",
+                            "usr": "s:Sa"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AllCases",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.AllCases"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "AllCases",
+                    "printedName": "AllCases"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$ss12CaseIterableP",
+                "name": "CaseIterable",
+                "printedName": "CaseIterable",
+                "usr": "s:s12CaseIterableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSH",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8SendableP",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP"
+              }
+            ],
+            "declKind": "Enum",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO",
+            "moduleName": "Sentry",
+            "name": "MetricReport",
+            "printedName": "MetricReport",
+            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
           }
         ],
         "conformances": [
@@ -50889,6 +52889,103 @@
             "name": "enabledDiagnosticReports",
             "printedName": "enabledDiagnosticReports",
             "usr": "s:6Sentry0A16MetricKitOptionsC24enabledDiagnosticReportsShyAA0abC0O0F6ReportOGvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Sentry.SentryMetricKit.MetricReport>",
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16MetricKitOptionsC07enabledB7ReportsShyAA0abC0O0B6ReportOGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A16MetricKitOptionsC07enabledB7ReportsShyAA0abC0O0B6ReportOGvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Sentry.SentryMetricKit.MetricReport>",
+                    "usr": "s:Sh"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16MetricKitOptionsC07enabledB7ReportsShyAA0abC0O0B6ReportOGvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A16MetricKitOptionsC07enabledB7ReportsShyAA0abC0O0B6ReportOGvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MetricReport",
+                    "printedName": "Sentry.SentryMetricKit.MetricReport",
+                    "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Sentry.SentryMetricKit.MetricReport>",
+                "usr": "s:Sh"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A16MetricKitOptionsC07enabledB7ReportsShyAA0abC0O0B6ReportOGvp",
+            "moduleName": "Sentry",
+            "name": "enabledMetricReports",
+            "printedName": "enabledMetricReports",
+            "usr": "s:6Sentry0A16MetricKitOptionsC07enabledB7ReportsShyAA0abC0O0B6ReportOGvp"
           },
           {
             "accessors": [
@@ -77513,6 +79610,64 @@
       },
       {
         "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Sentry.SentryMetricKit.MetricReport>",
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Element where Element == Sentry.SentryMetricKit.MetricReport>",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSh6SentryAA0A9MetricKitO0B6ReportORszrlE3allShyAEGvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:Sh6SentryAA0A9MetricKitO0B6ReportORszrlE3allShyAEGvgZ"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MetricReport",
+                    "printedName": "Sentry.SentryMetricKit.MetricReport",
+                    "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Sentry.SentryMetricKit.MetricReport>",
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$sSh6SentryAA0A9MetricKitO0B6ReportORszrlE3allShyAEGvpZ",
+            "moduleName": "Sentry",
+            "name": "all",
+            "printedName": "all",
+            "static": true,
+            "usr": "s:Sh6SentryAA0A9MetricKitO0B6ReportORszrlE3allShyAEGvpZ"
+          },
           {
             "accessors": [
               {
