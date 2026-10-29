@@ -965,6 +965,13 @@ For both, when a diagnostic matches more than one recorded run, it is treated as
 
 When the crash handler reported the matching run, a MetricKit crash diagnostic of that run is dropped, even with `.crash` in `enabledDiagnosticReports`. Hang, CPU, disk write, app launch and memory exception diagnostics are never dropped, because the crash handler doesn't report them.
 
+**Regular crashes.** A crash handler report and a MetricKit crash diagnostic describe the same crash when they belong to the same run:
+
+- At launch, when the active crash backend's `crashedLastLaunch` is true, the SDK adds the previous run to the record as reported by the crash handler. SentryCrash and KSCrash both provide `crashedLastLaunch`, so this doesn't read either report format.
+- A run has at most one crash handler report and one MetricKit crash diagnostic, so matching the run is enough. The signal, exception type and stack trace aren't compared, because a watchdog or memory termination has no signal to compare with.
+- The crash handler's event is sent at launch, before MetricKit delivers the diagnostic, and isn't enriched with it. The crash handler's report holds the app's state, so it stays the event that is sent.
+- A crash the crash handler missed while the app was in the background has no crash report and no watchdog termination event, so its run isn't in the record. The MetricKit crash diagnostic stays unmatched and is captured as today when `.crash` is enabled, which keeps a crash that would otherwise be lost.
+
 ### Timing of the watchdog termination event
 
 The watchdog termination integration decides at launch, and MetricKit delivers its diagnostics afterwards. When the MetricKit integration is running on a version that can match diagnostics, the SDK holds the watchdog termination event instead of sending it right away:
