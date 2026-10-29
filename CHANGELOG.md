@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Expose `options.experimental.metrickit.enabledMetricReports` through the SentryObjC SDK as the `SentryObjCMetricKitMetricReport` bitmask and through the `enabledMetricReports` key of the `metrickit` options dictionary, which also accepts `"all"` (#9490)
+
 ## 9.32.0
 
 ### Features
@@ -10,8 +16,7 @@
 - Capture MetricKit app launch diagnostics on iOS 16 and later and on visionOS when `options.experimental.metrickit.enabledDiagnosticReports` contains `.appLaunch` (#9441)
 - Expose `options.experimental.metrickit.enabledDiagnosticReports` through the SentryObjC SDK as `options.experimental.metrickit` and through the `metrickit` key of the options dictionary (#9296)
 - Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, and report the current hinge status as `hinge_status` in the device context, which requires iOS 27.1 or later and is not available on Mac Catalyst (#9464)
-- Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set (#9452)
-- Expose `options.experimental.metrickit.enabledMetricReports` through the SentryObjC SDK as the `SentryObjCMetricKitMetricReport` bitmask and through the `enabledMetricReports` key of the `metrickit` options dictionary, which also accepts `"all"` (#9490)
+- Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
 
 ### Fixes
 
