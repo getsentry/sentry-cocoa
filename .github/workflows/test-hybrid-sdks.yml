@@ -89,6 +89,10 @@ jobs:
           if grep -nE 'github\.com/getsentry/sentry-cocoa|sentry-apple-binaries|"Sentry-Static"' Package.swift; then
             echo "Package.swift still references a remote Sentry package or product." && exit 1
           fi
+          # The example pins the remote Sentry package, which is no longer in the dependency
+          # graph after the swap. That stale pin crashes Xcode's package resolution.
+          rm -f ../../example/ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved \
+                ../../example/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
       # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods.
       # The runner's asdf Ruby shims would select the Ruby pinned by .ruby-version, which
       # isn't installed, so pin an installed Ruby the same way sentry-react-native's CI does.
