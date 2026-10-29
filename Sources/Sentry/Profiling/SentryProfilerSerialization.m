@@ -1,9 +1,8 @@
-#import "SentryProfilerSerialization.h"
+#import "SentryProfilerSerialization+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryClient+Private.h"
-#    import "SentryDateUtils.h"
 #    import "SentryDevice.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
@@ -15,19 +14,14 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization+Test.h"
-#    import "SentryProfilerSerialization.h"
+#    import "SentryProfilerSerialization+Private.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
-#    import "SentryTracer+Private.h"
-#    import "SentryTransaction+Private.h"
-#    import "SentryTransactionContext+Private.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
 NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";
@@ -105,8 +99,7 @@ sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
-NSMutableDictionary<NSString *, id> *
-sentry_serializedTraceProfileData(
+NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
@@ -299,136 +292,6 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     }
 
     return payload;
-}
-
-#    pragma mark - Public
-
-SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
-    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
-#    if SENTRY_HAS_UIKIT
-    ,
-    SentryProfilingFrameMeasurements *_Nullable gpuData
-#    endif // SENTRY_HAS_UIKIT
-)
-{
-    SentryId *chunkID = [[SentryId alloc] init];
-    NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
-        profileID, chunkID, profileState, metricProfilerState,
-        [SentryProfilerSDKAdapter.shared serializedDebugImages], SentrySDKInternal.currentHub
-#    if SENTRY_HAS_UIKIT
-        ,
-        gpuData
-#    endif // SENTRY_HAS_UIKIT
-    );
-
-    if (payload == nil) {
-        SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
-        return nil;
-    }
-
-    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
-    if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
-        return nil;
-    }
-
-    SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
-
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-    // only write profile payloads to disk for UI tests
-    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
-        SENTRY_LOG_DEBUG(
-            @"Writing profile to test file (profile ID %@, chunk ID %@", profileID, chunkID);
-        sentry_writeProfileFile(JSONData, true /*continuous*/);
-    }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-
-    SentryEnvelopeItem *envelopeItem =
-        [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
-                                            data:JSONData
-                                     addPlatform:YES];
-
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
-#    pragma clang diagnostic pop
-}
-
-SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal *hub,
-    SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
-    SentryTransaction *transaction, NSDate *startTimestamp)
-{
-    NSArray<NSDictionary<NSString *, id> *> *images =
-        [SentryProfilerSDKAdapter.shared serializedDebugImages];
-    NSMutableDictionary<NSString *, id> *payload = sentry_serializedTraceProfileData(
-        profilingData, transaction.startSystemTime, transaction.endSystemTime,
-        sentry_profilerTruncationReasonName(profiler.truncationReason),
-        [profiler.metricProfiler serializeTraceProfileMetricsBetween:transaction.startSystemTime
-                                                                 and:transaction.endSystemTime],
-        images, hub
-#    if SENTRY_HAS_UIKIT
-        ,
-        profiler.screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-    );
-
-    if (payload == nil) {
-        SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
-        return nil;
-    }
-
-    payload[@"platform"] = SentryPlatformName;
-    NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
-        @"id" : transaction.eventId.sentryIdString,
-        @"trace_id" : transaction.trace.traceId.sentryIdString,
-    }];
-    NSNumber *_Nullable activeThreadId =
-        [transaction.trace.transactionContext sentry_threadInfo].threadId;
-    if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
-        transactionDict[@"active_thread_id"] = activeThreadId;
-    }
-    if (transaction.transaction) {
-        transactionDict[@"name"] = transaction.transaction;
-    }
-    payload[@"transaction"] = transactionDict;
-    payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
-
-    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
-    if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
-        return nil;
-    }
-
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-    // only write profile payloads to disk for UI tests
-    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
-        sentry_writeProfileFile(JSONData, false /*continuous*/);
-    }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-
-    return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
-                                               data:JSONData
-                                        addPlatform:NO];
-}
-
-NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub)
-{
-    SentryProfiler *profiler = sentry_profilerForFinishedTracer(traceId);
-    if (!profiler) {
-        return nil;
-    }
-
-    return sentry_serializedTraceProfileData([profiler.state copyProfilingData], startSystemTime,
-        endSystemTime, sentry_profilerTruncationReasonName(profiler.truncationReason),
-        [profiler.metricProfiler serializeTraceProfileMetricsBetween:startSystemTime
-                                                                 and:endSystemTime],
-        [SentryProfilerSDKAdapter.shared serializedDebugImages], hub
-#    if SENTRY_HAS_UIKIT
-        ,
-        profiler.screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-    );
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
