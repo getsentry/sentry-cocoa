@@ -92,14 +92,24 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
-    // test that after starting the continuous profiler and waiting for more
-    // than 30 seconds, the profiler is still running; (tests that the trace
-    // profiler's timeout timer does not affect the continuous profiler
-    func testContinuousProfilerNotStoppedAfter30Seconds() throws {
+    /**
+     Given a running continuous profiler,
+     when time advances past the trace profiler's 30-second timeout but not the chunk boundary,
+     then sampling continues and no chunk is transmitted.
+     Continuous profiling must not inherit the trace profiler's timeout behavior.
+     */
+    func testTimer_whenTraceTimeoutHasElapsed_shouldKeepProfilingWithoutTransmittingChunk() throws {
+        // -- Arrange --
         SentryContinuousProfiler.start()
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
         fixture.currentDateProvider.advanceBy(interval: 31)
+        try fixture.timeoutTimerFactory.check()
+
+        // -- Assert --
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(try XCTUnwrap(fixture.client).captureEnvelopeInvocations.isEmpty)
     }
     
     func testClosingSDKStopsProfile() throws {
@@ -145,50 +155,63 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertEqual(2, self.fixture.client?.captureEnvelopeInvocations.count)
     }
     
-    func testChunkSerializationExecutesOnBackgroundThread() throws {
+    /**
+     Given a running profiler whose serialization queue is paused,
+     when a chunk boundary is reached,
+     then serialization is queued and no envelope is captured until that work executes.
+     Executing the queued work captures one profile chunk without stopping sampling.
+     This checks deferred dispatch, not which thread executes the work in production.
+     */
+    func testTransmitChunk_whenSerializationIsDeferred_shouldQueueSerialization() throws {
+        // -- Arrange --
+        let client = try XCTUnwrap(fixture.client)
         SentryContinuousProfiler.start()
-        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
-        
-        // Prevent background serialization from executing automatically
+        let originalAsyncExecution = fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock
+        defer {
+            fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = originalAsyncExecution
+            SentryContinuousProfiler.stop()
+            do {
+                try assertContinuousProfileStoppage()
+            } catch {
+                XCTFail("Failed to stop continuous profiler: \(error)")
+            }
+        }
         fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
-
-        // Memoize how many dispatch asyncs were called during system setup; we'll expect one more for the serialization after simulating the timer elapse below where the serialization should take place
         let currentAsyncDispatches = fixture.dispatchQueueWrapper.dispatchAsyncCalled
 
-        // Trigger chunk creation by advancing time and firing timer
+        // -- Act --
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
-        
-        // Validate that no envelope was captured yet (serialization hasn't completed)
-        XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
-        
-        // Validate that background work was queued (serialization will be performed on background thread)
+
+        // -- Assert --
+        XCTAssertTrue(client.captureEnvelopeInvocations.isEmpty)
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncCalled, currentAsyncDispatches + 1)
 
-        // Execute the background serialization work
+        // -- Act --
         fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true
         fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
-        
-        // Validate that background work completed:
-        // - Envelope was captured with profile chunk
-        let envelope = try XCTUnwrap(fixture.client?.captureEnvelopeInvocations.last)
+
+        // -- Assert --
+        XCTAssertEqual(client.captureEnvelopeInvocations.count, 1)
+        let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
-        
-        // Profiler should still be running after chunk serialization
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
-        
-        // Clean up
-        SentryContinuousProfiler.stop()
-        try assertContinuousProfileStoppage()
     }
 
-    func testStoppingAndStartingAgainBeforeFinalChunkCompletesResultsInOneProfile() throws {
-        // arrange
+    /**
+     Given a stop request waiting for the current chunk to finish,
+     when profiling starts again before that boundary,
+     then the pending stop is canceled and the same profiler, timer, and correlation ID remain.
+     A later stop request still transmits the final chunk and shuts down profiling.
+     */
+    func testStart_whenStopIsPending_shouldKeepSameProfilerRunning() throws {
+        // -- Arrange --
         SentryContinuousProfiler.start()
-        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        let initialProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let initialTimer = try XCTUnwrap(fixture.timeoutTimerFactory.overrides?.timer)
 
-        // act
+        // -- Act --
         fixture.currentDateProvider.advanceBy(interval: 1)
         SentryContinuousProfiler.stop()
 
@@ -205,10 +228,17 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture.currentDateProvider.advanceBy(interval: 1)
         SentryContinuousProfiler.stop()
 
-        // assert
+        // -- Assert --
+        XCTAssertTrue(initialProfiler === SentryContinuousProfiler.profiler())
+        XCTAssertTrue(initialTimer === fixture.timeoutTimerFactory.overrides?.timer)
+        let firstEnvelope = try XCTUnwrap(fixture.client?.captureEnvelopeInvocations.first)
+        let firstItem = try XCTUnwrap(firstEnvelope.items.first)
+        let firstChunk = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(firstItem.data)) as? [String: Any])
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, initialProfiler.profilerId.sentryIdString)
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 2)
     }
     
     func testTransmitChunkEnvelopeWithNilProfiler() throws {
@@ -228,25 +258,57 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
     }
     
-    func testEnvelopeCreationFailure() throws {
-        // Arrange
-        // Start continuous profiler and add mock samples
+    /**
+     Given collected samples and debug-image metadata that cannot be serialized to JSON,
+     when chunk serialization fails,
+     then no envelope is captured and profiling continues.
+     When valid metadata and new samples are available for the next chunk,
+     then that chunk is captured, proving one serialization failure does not disable delivery.
+     */
+    func testTransmitChunk_whenSerializationFails_shouldKeepProfilingAndCaptureNextChunk() throws {
+        // -- Arrange --
+        class UnserializableDebugMeta: DebugMeta {
+            override func serialize() -> [String: Any] {
+                // Inject a failing collaborator output without replacing the JSON serializer.
+                return ["image_addr": NSObject()]
+            }
+        }
+        let debugImageProvider = TestDebugImageProvider()
+        debugImageProvider.debugImages = [UnserializableDebugMeta()]
+        let container = SentryDependencyContainer.sharedInstance()
+        let originalDebugImageProvider = container.debugImageProvider
+        container.debugImageProvider = debugImageProvider
+        defer { container.debugImageProvider = originalDebugImageProvider }
+        let client = try XCTUnwrap(fixture.client)
         SentryContinuousProfiler.start()
-        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        defer {
+            SentryContinuousProfiler.stop()
+            do {
+                try assertContinuousProfileStoppage()
+            } catch {
+                XCTFail("Failed to stop continuous profiler: \(error)")
+            }
+        }
         try addMockSamples(mockAddresses: [0x1, 0x2])
-        
-        // Act
-        // Advance time to trigger chunk creation and test envelope creation null handling
-        fixture.currentDateProvider.advanceBy(interval: 60)
-        
-        // Assert
-        // This tests that the profiler continues running even if envelope creation fails
-        // The code includes: if (envelope == nil) { SENTRY_LOG_ERROR(...); return; }
+
+        // -- Act --
+        try fixture.timeoutTimerFactory.check()
+
+        // -- Assert --
+        XCTAssertEqual(debugImageProvider.getDebugImagesFromCacheInvocations.count, 1)
+        XCTAssertTrue(client.captureEnvelopeInvocations.isEmpty)
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
-        
-        // Clean up
-        SentryContinuousProfiler.stop()
-        try assertContinuousProfileStoppage()
+
+        // -- Act --
+        debugImageProvider.debugImages = []
+        try addMockSamples(mockAddresses: [0x3, 0x4])
+        try fixture.timeoutTimerFactory.check()
+
+        // -- Assert --
+        XCTAssertEqual(client.captureEnvelopeInvocations.count, 1)
+        let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
+        XCTAssertEqual(envelope.items.first?.header.type, "profile_chunk")
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 }
 

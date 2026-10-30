@@ -100,7 +100,6 @@
         "SentryNetworkDetailSwizzlingTests",
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()",
-        "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()",
         "SentryReachabilityTest/testMultipleReachabilityObservers",
         "SentrySDKIntegrationTestsBase",
         "SentrySDKInternalTests/testResumeAndPauseAppHangTracking()",

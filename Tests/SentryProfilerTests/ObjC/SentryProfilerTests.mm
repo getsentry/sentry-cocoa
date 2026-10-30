@@ -83,92 +83,69 @@ using namespace sentry::profiling;
     XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeContinuous]);
 }
 
-- (void)testProfilerCanBeInitializedOffMainThread
+/**
+ * Given initialization on a background queue,
+ * when a continuous profiler is created,
+ * then sampling starts without requiring initialization on the main thread.
+ */
+- (void)testInitWithContinuousMode_whenCalledOffMainThread_shouldStartProfiler
 {
+    // -- Arrange --
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
+
+    // -- Act --
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
+        SentryProfiler *profiler =
+            [[SentryProfiler alloc] initWithMode:SentryProfilerModeContinuous];
+
+        // -- Assert --
+        XCTAssertTrue(profiler.isRunning);
+        [profiler stopForReason:SentryProfilerTruncationReasonNormal];
         [expectation fulfill];
     });
-    [self waitForExpectationsWithTimeout:1.0
-                                 handler:^(NSError *_Nullable error) { NSLog(@"%@", error); }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testProfilerMutationDuringSlicing
+/**
+ * Given a snapshot of collected samples,
+ * when live state receives another sample and is cleared,
+ * then slicing the snapshot still returns the original samples in the requested time range.
+ * This protects data used for profile processing after the live buffer changes. It tests snapshot
+ * isolation, not concurrent lock exclusion.
+ */
+- (void)testSliceProfileSamples_whenStateChangesAfterSnapshot_shouldPreserveOriginalSamples
 {
+    // -- Arrange --
     SentryProfilerState *state = [[SentryProfilerState alloc] init];
-    // generate a large timeseries of simulated data
-
-    const auto threads = 5;
-    const auto samplesPerThread = 10000;
-    auto sampleIdx = 0;
-    for (auto thread = 0; thread < threads; thread++) {
-        // avoid overlapping any simulated data values
-        const auto threadID = thread + threads;
-        const auto threadPriority = thread + threads * 2;
-        uint64_t address = thread + threads * 4;
-
-        const auto threadName = [[NSString stringWithFormat:@"testThread-%d", thread]
-            cStringUsingEncoding:NSUTF8StringEncoding];
-        const auto addresses
-            = std::vector<std::uintptr_t>({ address + 1, address + 2, address + 3 });
-
-        auto backtrace = mockBacktrace(threadID, threadPriority, threadName, addresses);
-
-        for (auto sample = 0; sample < samplesPerThread; sample++) {
-            backtrace.absoluteTimestamp = sampleIdx; // simulate 1 sample per nanosecond
-            [state appendBacktrace:backtrace];
-            ++sampleIdx;
-        }
+    auto backtrace = mockBacktrace(1, 2, "main", std::vector<std::uintptr_t>({ 0x1, 0x2, 0x3 }));
+    for (uint64_t timestamp : { 10, 20, 30, 40, 50 }) {
+        backtrace.absoluteTimestamp = timestamp;
+        [state appendBacktrace:backtrace];
     }
+    const auto snapshot = [state copyProfilingData];
+    NSArray<SentrySample *> *snapshotSamples = snapshot[@"profile"][@"samples"];
 
-    // start submitting two types of concurrent operations:
-    //     1. slice the timeseries bounded by a transaction
-    //     2. add more samples
+    // -- Act --
+    backtrace.absoluteTimestamp = 60;
+    [state appendBacktrace:backtrace];
+    [state clear];
+    const auto slice = sentry_slicedProfileSamples(snapshotSamples, 20, 60);
 
-    const auto operations = 50;
-
-    const auto startSystemTime = arc4random() % sampleIdx;
-    const auto remainingTime = sampleIdx - startSystemTime;
-    const auto minDuration = 10;
-    const auto endSystemTime
-        = startSystemTime + (arc4random() % (remainingTime - minDuration) + minDuration + 1);
-
-    const auto sliceExpectation =
-        [self expectationWithDescription:@"all slice operations complete"];
-    sliceExpectation.expectedFulfillmentCount = operations;
-
-    void (^sliceBlock)(void) = ^(void) {
-        [state mutate:^(SentryProfilerMutableState *mutableState) {
-            __unused const auto slice
-                = sentry_slicedProfileSamples(mutableState.samples, startSystemTime, endSystemTime);
-            [sliceExpectation fulfill];
-        }];
-    };
-
-    const auto backtrace = mockBacktrace(
-        12345568910, 666, "testThread", std::vector<std::uintptr_t>({ 777, 888, 789 }));
-
-    const auto mutateExpectation =
-        [self expectationWithDescription:@"all mutating operations complete"];
-    mutateExpectation.expectedFulfillmentCount = operations;
-
-    void (^mutateBlock)(void) = ^(void) {
-        [state mutate:^(
-            __unused SentryProfilerMutableState *mutableState) { [mutateExpectation fulfill]; }];
-    };
-
-    const auto sliceOperations = [[NSOperationQueue alloc] init]; // concurrent queue
-
-    const auto mutateOperations = [[NSOperationQueue alloc] init];
-    mutateOperations.maxConcurrentOperationCount = 1; // serial queue
-
-    for (auto operation = 0; operation < operations; operation++) {
-        [sliceOperations addOperationWithBlock:sliceBlock];
-        [mutateOperations addOperationWithBlock:mutateBlock];
+    // -- Assert --
+    NSArray<SentrySample *> *currentSamples = [state copyProfilingData][@"profile"][@"samples"];
+    XCTAssertEqual(currentSamples.count, 0UL);
+    XCTAssertEqual(snapshotSamples.count, 5UL);
+    XCTAssertEqual(slice.count, 4UL);
+    NSArray<NSNumber *> *expectedTimestamps = @[ @20, @30, @40, @50 ];
+    if (slice.count != expectedTimestamps.count) {
+        return;
     }
-
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [slice enumerateObjectsUsingBlock:^(SentrySample *sample, NSUInteger idx, __unused BOOL *stop) {
+        XCTAssertEqual(sample.absoluteTimestamp, expectedTimestamps[idx].unsignedLongLongValue);
+        XCTAssertEqual(sample.threadID, 1ULL);
+        XCTAssertEqualObjects(sample.stackIndex, @0);
+    }];
+    XCTAssertEqualObjects(snapshot[@"profile"][@"stacks"], (@[ @[ @0, @1, @2 ] ]));
 }
 
 /**
