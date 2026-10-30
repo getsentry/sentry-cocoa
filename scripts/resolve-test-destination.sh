@@ -48,24 +48,23 @@ major_minor() {
     echo "$1" | awk -F. '{print $1"."$2}'
 }
 
-# Prints the available device lines of the given platform's runtime with the
-# given major.minor version. `simctl list devices` groups devices by
-# major.minor runtime sections.
-list_runtime_devices() {
+# Prints the names of the available devices in the given platform's runtime
+# with the given major.minor version, one per line. Runtime keys in
+# `simctl list devices -j` look like
+# com.apple.CoreSimulator.SimRuntime.tvOS-27-2.
+list_runtime_device_names() {
     local platform="$1"
-    local os_mm="$2"
-    xcrun simctl list devices available 2>/dev/null \
-        | awk -v platform="$platform" -v version="$os_mm" '
-            $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-            in_section { if (/^-- /) exit; print }'
+    local runtime_key
+    runtime_key="com.apple.CoreSimulator.SimRuntime.$platform-$(echo "$2" | tr '.' '-')"
+    xcrun simctl list devices available -j 2>/dev/null \
+        | jq -r --arg key "$runtime_key" '.devices[$key] // [] | .[].name' || true
 }
 
 # Prints the newest "iPhone N Pro" (excluding Max/Plus) in the iOS runtime
 # with the given major.minor version, or nothing if there is none.
 find_newest_iphone_pro() {
-    list_runtime_devices "iOS" "$1" \
-        | grep -E "iPhone [0-9]+ Pro \(" \
-        | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
+    list_runtime_device_names "iOS" "$1" \
+        | grep -E "^iPhone [0-9]+ Pro$" \
         | sort -V \
         | tail -n1 || true
 }
@@ -76,13 +75,12 @@ find_newest_iphone_pro() {
 # Apple TV models for every runtime, e.g. tvOS 27.2 only has 4th generation.
 find_apple_tv() {
     local devices
-    devices=$(list_runtime_devices "tvOS" "$1")
-    if grep -qE "^[[:space:]]*Apple TV \(" <<<"$devices"; then
+    devices=$(list_runtime_device_names "tvOS" "$1")
+    if grep -qx "Apple TV" <<<"$devices"; then
         echo "Apple TV"
         return
     fi
-    grep -E "Apple TV 4K \([0-9]+(st|nd|rd|th) generation\) \(" <<<"$devices" \
-        | sed -E 's/^[[:space:]]*(Apple TV 4K \([^)]*\))[[:space:]]+\(.*$/\1/' \
+    grep -E "^Apple TV 4K \([0-9]+(st|nd|rd|th) generation\)$" <<<"$devices" \
         | sort -V \
         | tail -n1 || true
 }
