@@ -83,6 +83,11 @@ using namespace sentry::profiling;
     XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeContinuous]);
 }
 
+/**
+ * Given initialization on a background queue,
+ * when a continuous profiler is created,
+ * then sampling starts without requiring initialization on the main thread.
+ */
 - (void)testInitWithContinuousMode_whenCalledOffMainThread_shouldStartProfiler
 {
     // -- Arrange --
@@ -101,6 +106,13 @@ using namespace sentry::profiling;
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+/**
+ * Given a snapshot of collected samples,
+ * when live state receives another sample and is cleared,
+ * then slicing the snapshot still returns the original samples in the requested time range.
+ * This protects data used for profile processing after the live buffer changes. It tests snapshot
+ * isolation, not concurrent lock exclusion.
+ */
 - (void)testSliceProfileSamples_whenStateChangesAfterSnapshot_shouldPreserveOriginalSamples
 {
     // -- Arrange --

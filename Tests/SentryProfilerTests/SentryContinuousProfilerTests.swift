@@ -92,6 +92,12 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
+    /**
+     Given a running continuous profiler,
+     when time advances past the trace profiler's 30-second timeout but not the chunk boundary,
+     then sampling continues and no chunk is transmitted.
+     Continuous profiling must not inherit the trace profiler's timeout behavior.
+     */
     func testTimer_whenTraceTimeoutHasElapsed_shouldKeepProfilingWithoutTransmittingChunk() throws {
         // -- Arrange --
         SentryContinuousProfiler.start()
@@ -149,6 +155,13 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertEqual(2, self.fixture.client?.captureEnvelopeInvocations.count)
     }
     
+    /**
+     Given a running profiler whose serialization queue is paused,
+     when a chunk boundary is reached,
+     then serialization is queued and no envelope is captured until that work executes.
+     Executing the queued work captures one profile chunk without stopping sampling.
+     This checks deferred dispatch, not which thread executes the work in production.
+     */
     func testTransmitChunk_whenSerializationIsDeferred_shouldQueueSerialization() throws {
         // -- Arrange --
         let client = try XCTUnwrap(fixture.client)
@@ -186,6 +199,12 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+    /**
+     Given a stop request waiting for the current chunk to finish,
+     when profiling starts again before that boundary,
+     then the pending stop is canceled and the same profiler, timer, and correlation ID remain.
+     A later stop request still transmits the final chunk and shuts down profiling.
+     */
     func testStart_whenStopIsPending_shouldKeepSameProfilerRunning() throws {
         // -- Arrange --
         SentryContinuousProfiler.start()
@@ -239,6 +258,13 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
     }
     
+    /**
+     Given collected samples and debug-image metadata that cannot be serialized to JSON,
+     when chunk serialization fails,
+     then no envelope is captured and profiling continues.
+     When valid metadata and new samples are available for the next chunk,
+     then that chunk is captured, proving one serialization failure does not disable delivery.
+     */
     func testTransmitChunk_whenSerializationFails_shouldKeepProfilingAndCaptureNextChunk() throws {
         // -- Arrange --
         class UnserializableDebugMeta: DebugMeta {
