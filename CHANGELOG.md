@@ -13,7 +13,7 @@
 - Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
 - Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
 - Capture MetricKit memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException` (#9465)
-- Stop sending MetricKit crash diagnostics of crashes the crash handler already reported when `options.experimental.metrickit.enabledDiagnosticReports` contains `.crash`, on iOS 17, macOS 14 and visionOS and later. A MetricKit crash of the run directly before the current one that the crash handler didn't report, such as a crash in the background, gets the breadcrumbs and scope data the SDK persisted for that run (#9504)
+- Stop sending MetricKit crash diagnostics of crashes the crash handler already reported when `options.experimental.metrickit.enabledDiagnosticReports` contains `.crash`, on iOS 17, macOS 14 and visionOS and later. A MetricKit crash of the run directly before the current one that the crash handler didn't report, such as a crash in the background, gets the breadcrumbs and scope data the SDK persisted for that run (#9505)
 
 ### Fixes
 
