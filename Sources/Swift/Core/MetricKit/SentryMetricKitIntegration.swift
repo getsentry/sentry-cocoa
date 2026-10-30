@@ -66,6 +66,10 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     }
 
     /// Whether `MetricManager` delivers diagnostics, which it does on xOS 27 and later.
+    ///
+    /// The availability check covers the OS the app runs on, and the compiler check the SDK it was
+    /// built with: `SentryMetricManager` only exists when built with Xcode 27 or later, so an app
+    /// built with Xcode 26 must keep the `MXMetricManager` subscriber even on xOS 27.
     private static var metricManagerDeliversDiagnostics: Bool {
         #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
