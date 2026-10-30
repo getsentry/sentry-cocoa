@@ -1209,7 +1209,7 @@ class SentryFileManagerTests: XCTestCase {
 
         // -- Assert -
         XCTAssertFalse(result)
-        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.domain, SentryError.domain)
         XCTAssertEqual(error?.code, 108)
 
         let expectedLogMessage = "Failed to create directory, path is too long: \(path)"
@@ -1230,7 +1230,7 @@ class SentryFileManagerTests: XCTestCase {
         let result = createDirectoryIfNotExists(path, &error)
         // -- Assert -
         XCTAssertFalse(result)
-        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.domain, SentryError.domain)
         XCTAssertEqual(error?.code, 108)
         let unexpectedLogMessage = "Failed to create directory, path is too long: \(path)"
         XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains(unexpectedLogMessage) })

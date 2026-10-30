@@ -31,9 +31,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -77,9 +79,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -130,9 +134,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -176,9 +182,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -202,9 +210,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -531,6 +541,16 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentryDefines",
         "printedName": "Sentry.SentryDefines"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryDeprecated",
+        "printedName": "Sentry.SentryDeprecated"
       },
       {
         "declAttributes": [
@@ -3768,6 +3788,57 @@
             "objc_name": "environment",
             "printedName": "environment",
             "usr": "c:objc(cs)SentryBaggage(py)environment"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo13SentryBaggageC0A0E15httpHeaderFieldSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So13SentryBaggageC0A0E15httpHeaderFieldSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isFromExtension": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$sSo13SentryBaggageC0A0E15httpHeaderFieldSSvpZ",
+            "moduleName": "Sentry",
+            "name": "httpHeaderField",
+            "printedName": "httpHeaderField",
+            "static": true,
+            "usr": "s:So13SentryBaggageC0A0E15httpHeaderFieldSSvpZ"
           },
           {
             "accessors": [
@@ -37975,6 +38046,124 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011descriptionSo7NSErrorCSS_tF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011descriptionSo7NSErrorCSS_tF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011description9exceptionSo7NSErrorCSS_So11NSExceptionCtF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:exception:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011description9exceptionSo7NSErrorCSS_So11NSExceptionCtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011description06kernelB4CodeSo7NSErrorCSS_s5Int32VtF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:kernelErrorCode:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011description06kernelB4CodeSo7NSErrorCSS_s5Int32VtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011description010underlyingB0So7NSErrorCSS_AHtF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:underlyingError:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011description010underlyingB0So7NSErrorCSS_AHtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "Int",
                 "printedName": "Swift.Int",
                 "usr": "s:Si"
@@ -38066,6 +38255,47 @@
             "name": "couldNotFindDirectory",
             "printedName": "couldNotFindDirectory",
             "usr": "c:@E@SentryError@kSentryErrorCouldNotFindDirectory"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo11SentryErrorV0A0E6domainSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So11SentryErrorV0A0E6domainSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$sSo11SentryErrorV0A0E6domainSSvpZ",
+            "moduleName": "Sentry",
+            "name": "domain",
+            "printedName": "domain",
+            "static": true,
+            "usr": "s:So11SentryErrorV0A0E6domainSSvpZ"
           },
           {
             "children": [
@@ -64997,6 +65227,45 @@
             "usr": "c:@E@SentrySpanStatus@kSentrySpanStatusInvalidArgument"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo16SentrySpanStatusV0A0E4nameSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So16SentrySpanStatusV0A0E4nameSSvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$sSo16SentrySpanStatusV0A0E4nameSSvp",
+            "moduleName": "Sentry",
+            "name": "name",
+            "printedName": "name",
+            "usr": "s:So16SentrySpanStatusV0A0E4nameSSvp"
+          },
+          {
             "children": [
               {
                 "children": [
@@ -79367,6 +79636,57 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo17SentryTraceHeaderC0A0E04httpC5FieldSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So17SentryTraceHeaderC0A0E04httpC5FieldSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isFromExtension": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$sSo17SentryTraceHeaderC0A0E04httpC5FieldSSvpZ",
+            "moduleName": "Sentry",
+            "name": "httpHeaderField",
+            "printedName": "httpHeaderField",
+            "static": true,
+            "usr": "s:So17SentryTraceHeaderC0A0E04httpC5FieldSSvpZ"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentrySampleDecision",
                     "printedName": "Sentry.SentrySampleDecision",
                     "usr": "c:@E@SentrySampleDecision"
@@ -82682,7 +83002,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -82952,7 +83276,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -82970,7 +83298,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83072,7 +83404,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83124,7 +83460,11 @@
             "usr": "s:Si"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83142,7 +83482,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83160,7 +83504,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83178,7 +83526,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83196,7 +83548,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83214,7 +83570,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83232,7 +83592,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83250,7 +83614,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83268,7 +83636,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83286,7 +83658,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83304,7 +83680,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83322,7 +83702,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83340,7 +83724,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83358,7 +83746,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83376,7 +83768,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83394,7 +83790,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83412,7 +83812,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83430,7 +83834,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83448,7 +83856,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83466,7 +83878,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83484,7 +83900,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",

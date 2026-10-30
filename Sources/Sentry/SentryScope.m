@@ -3,6 +3,7 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
@@ -21,6 +22,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
+static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
 
 @interface SentryScope ()
 
@@ -91,7 +93,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (instancetype)init
 {
-    return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
+    return [self initWithMaxBreadcrumbs:kSentryScopeDefaultMaxBreadcrumbs];
 }
 
 - (SentryFeatureFlagBufferWrapper *)featureFlagBuffer
@@ -972,7 +974,8 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         // to any state other than undefined. Spans first have a default status of OK, but we don't
         // want to change this for the trace context status.
         NSMutableDictionary *mutableDict = [dict mutableCopy];
-        mutableDict[kSentryScopeSpanStatusSerializationKey] = kSentrySpanStatusNameOk;
+        mutableDict[kSentryScopeSpanStatusSerializationKey]
+            = sentry_spanStatusName(kSentrySpanStatusOk);
         return mutableDict;
 
     } else {

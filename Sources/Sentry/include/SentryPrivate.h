@@ -12,6 +12,7 @@
 #    import "SentryCrashDynamicLinker.h"
 #    import "SentryCrashUUIDConversion.h"
 #endif
+#import "SentryDeprecated+Private.h"
 #import "SentryError.h"
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
