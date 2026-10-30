@@ -151,8 +151,28 @@ typedef NS_OPTIONS(uint64_t, SentryObjCMetricKitMetricReport) {
     /// Background exits for a background task that ran out of time, sent as the
     /// @c metrickit.exit.bg.background_task_timeout count.
     SentryObjCMetricKitMetricReportExitBackgroundTaskTimeout = 1ULL << 46,
+    /// The time the app spent hitching during animations, sent as the
+    /// @c metrickit.animation.total_hitch_time distribution in seconds.
+    /// @note Requires iOS 27 or macOS 27.
+    SentryObjCMetricKitMetricReportAnimationTotalHitchTime = 1ULL << 47,
+    /// The time the app spent animating, sent as the
+    /// @c metrickit.animation.total_animation_time distribution in seconds.
+    /// @note Requires iOS 27 or macOS 27.
+    SentryObjCMetricKitMetricReportAnimationTotalAnimationTime = 1ULL << 48,
+    /// The frame rate of a Metal layer, sent as the @c metrickit.metal.frames_per_second gauge in
+    /// frames per second with the layer's name as the @c metal.layer_name attribute.
+    /// @note Requires iOS 27 or macOS 27.
+    SentryObjCMetricKitMetricReportMetalFramesPerSecond = 1ULL << 49,
+    /// The frames a Metal layer drew, sent as the @c metrickit.metal.frame_count count with the
+    /// layer's name as the @c metal.layer_name attribute.
+    /// @note Requires iOS 27 or macOS 27.
+    SentryObjCMetricKitMetricReportMetalFrameCount = 1ULL << 50,
+    /// The time a Metal layer was drawing, sent as the @c metrickit.metal.active_drawing_duration
+    /// distribution in seconds with the layer's name as the @c metal.layer_name attribute.
+    /// @note Requires iOS 27 or macOS 27.
+    SentryObjCMetricKitMetricReportMetalActiveDrawingDuration = 1ULL << 51,
     /// Every metric report above.
-    SentryObjCMetricKitMetricReportAll = (1ULL << 47) - 1,
+    SentryObjCMetricKitMetricReportAll = (1ULL << 52) - 1,
 };
 
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV

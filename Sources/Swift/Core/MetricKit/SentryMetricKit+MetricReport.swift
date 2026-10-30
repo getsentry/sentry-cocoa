@@ -359,6 +359,11 @@ extension SentryMetricKit.MetricReport {
         case "displayAveragePixelLuminance": self = .displayAveragePixelLuminance
         case "animationScrollHitchTimeRatio": self = .animationScrollHitchTimeRatio
         case "animationHitchTimeRatio": self = .animationHitchTimeRatio
+        case "animationTotalHitchTime": self = .animationTotalHitchTime
+        case "animationTotalAnimationTime": self = .animationTotalAnimationTime
+        case "metalFramesPerSecond": self = .metalFramesPerSecond
+        case "metalFrameCount": self = .metalFrameCount
+        case "metalActiveDrawingDuration": self = .metalActiveDrawingDuration
         case "diskSpaceBinaryFileSize": self = .diskSpaceBinaryFileSize
         case "diskSpaceBinaryFileCount": self = .diskSpaceBinaryFileCount
         case "diskSpaceDataFileSize": self = .diskSpaceDataFileSize
