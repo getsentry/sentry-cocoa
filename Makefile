@@ -800,9 +800,8 @@ build-testapp-v10-% test-testapp-v10-% switch-v10: export SDK_V10 = 1
 
 ## Build all SPM-based test apps with SDK_V10=1
 #
-# Builds every test app that uses the local Sentry Swift package after adding
-# the compatibility V10 trait and selecting the Sentry source product.
-# Use 'make build-testapp-v10-<name>' for a single test app.
+# Builds every test app that uses the local Sentry Swift package with the
+# Sentry source product. Use 'make build-testapp-v10-<name>' for a single test app.
 .PHONY: build-testapps-v10
 build-testapps-v10: \
 	build-testapp-v10-DistributionSample \
@@ -2108,8 +2107,8 @@ xcode: xcode-ci
 
 ## Switch testapp Xcode projects to SDK V10 mode
 #
-# Copies each testapp XcodeGen YAML, sets the V10 package trait and app-target
-# SDK_V10 compiler flags, rewrites SentrySPM product refs to Sentry, and
+# Copies each testapp XcodeGen YAML, sets app-target SDK_V10 compiler flags,
+# rewrites SentrySPM product refs to Sentry, and
 # regenerates the Xcode project from that copy. Committed YAML is left
 # unchanged. Skips binary and NoUIFramework testapps. Opens the workspace with
 # SDK_V10=1 so SwiftPM exports the source-built product as Sentry.
@@ -2125,7 +2124,7 @@ switch-v10:
 ## Switch testapp Xcode projects back to default (non-V10) mode
 #
 # Regenerates testapp Xcode projects from the committed XcodeGen YAML,
-# discarding any V10 trait that switch-v10 applied to the projects.
+# discarding the V10 settings that switch-v10 applied to the projects.
 # Opens the workspace without SDK_V10 so SwiftPM exports SentrySPM.
 .PHONY: switch-v9
 switch-v9:

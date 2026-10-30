@@ -171,7 +171,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [environment, environment-and-trait, base-manifest]
+        mode: [environment, base-manifest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
@@ -196,16 +196,6 @@ jobs:
           swift build -v --target SentryTestUtils --scratch-path .build/v10-environment 2>&1 | tee -a v10-environment.log
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment \
             --build-log v10-environment.log
-      - name: Build Swift with environment and trait
-        if: matrix.mode == 'environment-and-trait'
-        run: swift build -v --target SentrySwift --traits V10 --scratch-path .build/v10-trait 2>&1 | tee v10-trait.log
-      - name: Verify SentryCrash sources with environment and trait
-        if: matrix.mode == 'environment-and-trait'
-        run: |
-          swift build -v --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait 2>&1 | tee -a v10-trait.log
-          swift build -v --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait 2>&1 | tee -a v10-trait.log
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-trait \
-            --build-log v10-trait.log
       - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         run: |

@@ -489,23 +489,16 @@ let packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kstenerud/KSCrash.git", exact: "2.6.1-beta.2")
 ]
 
-// Keep existing V10 trait declarations working only in environment-selected builds.
-// Without SDK_V10=1, SwiftPM rejects the undeclared trait before compiling anything.
-var packageTraits: Set<Trait> = [
-    .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
-    .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
-    .init(name: "_SentryTest", description: "Internal SDK unit-test support for local development. Changes SDK behavior; not for consumers or production builds."),
-    .init(name: "_SentryTestCI", description: "Internal SDK unit-test support for CI. Changes SDK behavior; not for consumers or production builds.")
-]
-if envSelectsV10 {
-    packageTraits.insert(.init(name: "V10", description: "Development-only compatibility marker. Requires SDK_V10=1; removed before V10 release."))
-}
-
 let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: products,
-    traits: packageTraits,
+    traits: [
+        .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
+        .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
+        .init(name: "_SentryTest", description: "Internal SDK unit-test support for local development. Changes SDK behavior; not for consumers or production builds."),
+        .init(name: "_SentryTestCI", description: "Internal SDK unit-test support for CI. Changes SDK behavior; not for consumers or production builds.")
+    ],
     dependencies: packageDependencies,
     targets: targets,
     swiftLanguageModes: [.v5],

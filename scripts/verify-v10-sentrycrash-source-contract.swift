@@ -303,7 +303,7 @@ private func run() throws {
     }
 
     for requiredAudit in ["test-v10-empty-objects.sh", "--build-log v10-environment.log",
-                          "--build-log v10-trait.log", "--build-log v10-base-manifest.log"] where !workflow.contains(requiredAudit) {
+                          "--build-log v10-base-manifest.log"] where !workflow.contains(requiredAudit) {
         report("SwiftPM V10 builds must run the object checker with their build logs; missing workflow command: \(requiredAudit)")
     }
 }

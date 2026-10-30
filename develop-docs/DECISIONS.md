@@ -766,7 +766,7 @@ Cons:
 
 ### Option B: Dual integrations on `main` (chosen)
 
-The integrations initially used a separate migration switch. At the V10 cutover, `SDK_V10` became the single switch: V10 builds compile and activate `SentryKSCrashIntegration`, while V9 builds continue to use `SentryCrashIntegration`. The Xcode `SentryV10` scheme builds the internal KSCrash-backed SDK and SwiftUI targets; V10 ObjC-wrapper builds use the source package instead of the V9-only Xcode dependency graph. For SwiftPM, setting the `SDK_V10` environment variable selects the source-built product and enables the V10 compiler settings and KSCrash target dependency. Originally, the `V10` trait independently enabled the same compiler settings and target dependency. SwiftPM development now requires `SDK_V10=1` so compiler settings, dependencies, and product selection cannot diverge; the trait remains only an environment-gated compatibility marker on Swift 6.2+.
+The integrations initially used a separate migration switch. At the V10 cutover, `SDK_V10` became the single switch: V10 builds compile and activate `SentryKSCrashIntegration`, while V9 builds continue to use `SentryCrashIntegration`. The Xcode `SentryV10` scheme builds the internal KSCrash-backed SDK and SwiftUI targets; V10 ObjC-wrapper builds use the source package instead of the V9-only Xcode dependency graph. For SwiftPM, setting the `SDK_V10` environment variable selects the source-built product and enables the V10 compiler settings and KSCrash target dependency. In trait-capable manifests, the `V10` trait enables the same compiler settings and target dependency.
 
 Pros:
 
@@ -785,8 +785,8 @@ Pros:
   - Reduced test assertions use the same issue and acceptance ID.
   - Remove the marker after every temporary route is replaced or explicitly rejected.
 - SwiftPM selection:
-  - `SDK_V10=1` selects V10 in all manifests and keeps the legacy recorder out of SDK product dependencies.
-  - The `V10` trait originally compiled guarded legacy files as empty translation units. Trait-only selection is now rejected; the environment selects the same graph with or without the compatibility trait.
+  - `SDK_V10=1` and the base-manifest route exclude legacy files.
+  - The `V10` trait compiles guarded legacy files as empty translation units because traits cannot change source exclusions.
   - All routes build the full `SentryObjCInternal` target and enforce the same object contract.
 - Compatibility allowlist:
   - `__sentry_cxa_throw` and `__sentry_cxa_rethrow` preserve the Unity/native ABI handoff.
@@ -910,7 +910,7 @@ We continue to develop V10 on `main` alongside V9, then create a V9 maintenance 
 
 Until the branches split, V9 stays the default. Existing SwiftPM dependencies must keep working, whether they use defaults, only `NoUIFramework`, or disable default traits. Customers must not need a V9 trait or a different product/package to keep using V9.
 
-This development work must support the current and previous Xcode majors (27 and 26). Existing V9 builds on older Xcode versions, including Xcode 16, must keep working too. Developers select V10 using `SDK_V10=1` in all manifests. The Swift 6.2+ manifest originally also supported independent selection with the `V10` trait; it now accepts that trait only as a compatibility marker when the environment already selects V10. This keeps compiler settings, dependencies, and products aligned. We won't add workarounds just to support that trait on older Xcode versions, where it exposed V10 configuration headers to V9 builds.
+This development work must support the current and previous Xcode majors (27 and 26). Existing V9 builds on older Xcode versions, including Xcode 16, must keep working too. With the Swift 6.1 manifest, developers select V10 using `SDK_V10=1`. The Swift 6.2+ manifest also supports the `V10` trait. We won't add workarounds just to support that trait on older Xcode versions, where it exposed V10 configuration headers to V9 builds.
 
 Compiling a disabled SentryCrash file is acceptable; including its crash-recording code in a V10 binary or starting SentryCrash is not. Keep recorder code separate from shared SDK code. A `SentryCrash` name alone is not a reason to delete shared code or an API. Check the object files, final binaries, packaged headers and runtime behavior.
 
@@ -931,3 +931,15 @@ Related links:
 - [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
 - [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
 - [V10 build checks](BUILD.md#temporary-v10-development-verification)
+
+## 41. Select SwiftPM V10 through the environment only
+
+Date: October 30, 2026
+Contributors: @denrase
+
+Superseding the SwiftPM selection in decisions [35](#35-kscrash-migration-strategy-dual-integrations-on-main) and [40](#40-develop-v10-on-main-then-branch-off-v9), use `SDK_V10=1` as the only V10 selector. Remove the development-only `V10` trait rather than keep a no-op compatibility marker, so compiler settings, dependencies, and products cannot diverge. V9 defaults and unrelated traits remain unchanged. Remove the environment selector at the V9 branch split.
+
+Related links:
+
+- [V10 selection PR](https://github.com/getsentry/sentry-cocoa/pull/9458)
+- [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection)

@@ -59,13 +59,9 @@ These checks help ensure that V10 builds contain no legacy recorder implementati
 
 ### SwiftPM V10 selection
 
-`SDK_V10=1` is the authoritative SwiftPM V10 selector: it controls compiler definitions, KSCrash dependencies, and products. Do not select V10 with compiler flags alone. Default V9 remains unchanged, including with no default traits or only `NoUIFramework` enabled.
+Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry` source product. The `V10` trait has been removed; V9 defaults and unrelated traits remain unchanged. Both versions still use the `SentrySwift` module. See [decision 41](DECISIONS.md#41-select-swiftpm-v10-through-the-environment-only).
 
-The `V10` trait originally selected compilation independently. On Swift 6.2+, it is now only a temporary compatibility marker, declared when the environment selects V10; trait-only selection is rejected. Older SDK manifests use the environment alone. Unrelated traits keep their existing behavior. The Swift module remains `SentrySwift` in both versions; environment-selected V10 uses the `Sentry` product, while V9 uses `SentrySPM`.
-
-`SentrySampleShared/Package.swift` uses the same environment for product and compiler settings. `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export `SDK_V10=1` for generation and building. The generator rewrites `SentrySPM` references to `Sentry`, retains the compatibility trait, and sets the separate app-target compiler definitions. Direct generator or Xcode invocations must also receive `SDK_V10=1`.
-
-At the V9 branch split, remove the temporary environment selector and compatibility trait. Released V10 must not require consumers to enable either.
+`make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
 
 ### 1. Test the verification scripts
 

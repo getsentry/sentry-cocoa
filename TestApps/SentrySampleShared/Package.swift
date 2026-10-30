@@ -13,13 +13,6 @@ let enableV10 = envFlag("SDK_V10")
 // as "Sentry" rather than "SentrySPM". Mirror that selection here.
 let sentryProductName = enableV10 ? "Sentry" : "SentrySPM"
 
-// The trait is only a compatibility marker for V10 project declarations.
-// Version selection comes from the same environment as the SDK manifest.
-var packageTraits: Set<Trait> = [.default(enabledTraits: [])]
-if enableV10 {
-    packageTraits.insert(.init(name: "V10", description: "Development-only compatibility marker. Requires SDK_V10=1."))
-}
-
 let package = Package(
     name: "SentrySampleShared",
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
@@ -33,7 +26,7 @@ let package = Package(
             targets: ["SentrySampleUITestShared"]
         )
     ],
-    traits: packageTraits,
+    traits: [.default(enabledTraits: [])],
     dependencies: [
         .package(
             name: "Sentry",

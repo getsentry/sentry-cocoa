@@ -88,14 +88,14 @@ for target in "${targets[@]}"; do
             exit 1
         }
     done
-    yq -e '.packages.Sentry.traits | contains(["V10"])' "$record/generated.yml" >/dev/null
+    yq -e '.packages.Sentry.traits // [] | contains(["V10"]) | not' "$record/generated.yml" >/dev/null
     yq -e '.targets.Probe.dependencies[0].products | join(",") == "Sentry"' "$record/generated.yml" >/dev/null
     yq -e '.targets.Probe.settings.base.SWIFT_ACTIVE_COMPILATION_CONDITIONS == "$(inherited) SDK_V10"' "$record/generated.yml" >/dev/null
     yq -e '.targets.Probe.settings.base.GCC_PREPROCESSOR_DEFINITIONS == "$(inherited) SDK_V10=1"' "$record/generated.yml" >/dev/null
     log_info "PASS $target environment, source product and compiler settings"
 done
 
-# Calling the generator directly must not silently create a trait-only project.
+# Calling the generator directly must not silently create a V9 package graph.
 if env -u SDK_V10 PATH="$tools:$PATH" "$REPO_ROOT/scripts/generate-testapp-v10.sh" \
     --spec "$fixture/TestApps/SPM/SPM.yml" > "$WORK_DIR/missing-env.log" 2>&1; then
     log_error "Project generation without SDK_V10=1 must fail"

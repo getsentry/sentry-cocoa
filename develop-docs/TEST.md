@@ -54,11 +54,9 @@ swift test --traits _SentryTest
 swift test --traits _SentryTestCI
 # V10: the environment selects the SDK; the test trait enables test helpers.
 SDK_V10=1 swift test --traits _SentryTest
-# Optional compatibility marker on Swift 6.2+: same V10 configuration.
-SDK_V10=1 swift test --traits V10,_SentryTest
 ```
 
-The `V10` trait alone is rejected. It does not select compiler settings or a crash backend; use `SDK_V10=1` for all V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
+The `V10` trait has been removed; use `SDK_V10=1` for all V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
 
 The test traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
 
