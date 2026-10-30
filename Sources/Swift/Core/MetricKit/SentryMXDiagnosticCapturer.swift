@@ -16,6 +16,10 @@ final class SentryMXDiagnosticCapturer {
     let hangReportingMode: SentryMetricKitHangReportingMode
     let processIdentifier: pid_t
     let processStartDate: Date
+    /// The runs MetricKit diagnostics are matched to, see decision 41 in
+    /// `develop-docs/DECISIONS.md`.
+    let runStore: SentryMXRunStore?
+    let previousRunScope: SentryMXPreviousRunScopeApplying?
 
     init(
         inAppLogic: SentryInAppLogic,
@@ -25,7 +29,9 @@ final class SentryMXDiagnosticCapturer {
         bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
         hangReportingMode: SentryMetricKitHangReportingMode = .legacy,
         processIdentifier: pid_t = ProcessInfo.processInfo.processIdentifier,
-        processStartDate: Date
+        processStartDate: Date,
+        runStore: SentryMXRunStore? = nil,
+        previousRunScope: SentryMXPreviousRunScopeApplying? = nil
     ) {
         self.inAppLogic = inAppLogic
         self.attachDiagnosticAsAttachment = attachDiagnosticAsAttachment
@@ -34,6 +40,8 @@ final class SentryMXDiagnosticCapturer {
         self.hangReportingMode = hangReportingMode
         self.processIdentifier = processIdentifier
         self.processStartDate = processStartDate
+        self.runStore = runStore
+        self.previousRunScope = previousRunScope
     }
 
     func capture(_ diagnostic: SentryMXDiagnostic) {
@@ -44,6 +52,11 @@ final class SentryMXDiagnosticCapturer {
         }
         SentrySDKLog.debug("Processing MetricKit \(diagnosticReport) diagnostic at timestamp: \(diagnostic.timestamp)")
 
+        let previousRun = matchPreviousRun(of: diagnostic)
+        if previousRun == .reportedByCrashHandler {
+            return
+        }
+
         let handled = diagnosticReport.isHandled
         var event = Event(level: diagnostic.level ?? (handled ? .warning : .error))
         event.timestamp = diagnostic.timestamp
@@ -53,6 +66,9 @@ final class SentryMXDiagnosticCapturer {
             // event itself has to carry the release and the contexts known for the diagnostic.
             event.isFromPreviousProcess = true
             applyMetadata(of: diagnostic.metadata, to: event, runningScope: SentrySDKInternal.currentHub().scope)
+            if previousRun == .directlyBefore {
+                previousRunScope?.apply(to: event)
+            }
         }
 
         let mechanism = Mechanism(type: diagnosticReport.mechanism)
@@ -87,8 +103,14 @@ final class SentryMXDiagnosticCapturer {
         // Therefore we don't call captureFatalEvent.
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
 
-        // Diagnostic attachments travel in the hint rather than on the scope, because the client
-        // doesn't send the scope's attachments with events from a previous process.
+        let hint = hint(for: diagnostic, flamegraphAttachment: flamegraphAttachment)
+        SentrySDKInternal.capture(event: event, scope: SentrySDKInternal.currentHub().scope, hint: hint)
+        SentrySDKLog.debug("Captured MetricKit payload as event")
+    }
+
+    /// Diagnostic attachments travel in the hint rather than on the scope, because the client
+    /// doesn't send the scope's attachments with events from a previous process.
+    private func hint(for diagnostic: SentryMXDiagnostic, flamegraphAttachment: Attachment?) -> Hint {
         let hint = Hint()
         if let flamegraphAttachment {
             hint.attachments = [flamegraphAttachment]
@@ -96,9 +118,47 @@ final class SentryMXDiagnosticCapturer {
         if attachDiagnosticAsAttachment, let rawJSON = diagnostic.rawJSON() {
             hint.attachments.append(Attachment(data: rawJSON, filename: diagnostic.rawFilename))
         }
+        return hint
+    }
 
-        SentrySDKInternal.capture(event: event, scope: SentrySDKInternal.currentHub().scope, hint: hint)
-        SentrySDKLog.debug("Captured MetricKit payload as event")
+    // MARK: - Previous runs
+
+    private enum PreviousRun {
+        /// The crash handler already reported the run's crash.
+        case reportedByCrashHandler
+        /// The run directly before the running process, whose scope data the SDK still has.
+        case directlyBefore
+        case other
+    }
+
+    /// Matches a crash diagnostic to the run that recorded it.
+    ///
+    /// Only crashes are matched, because the crash handler doesn't report the other diagnostics.
+    private func matchPreviousRun(of diagnostic: SentryMXDiagnostic) -> PreviousRun {
+        guard diagnostic.report == .crash, let runStore else {
+            return .other
+        }
+
+        switch SentryMXRunMatcher.match(diagnostic.run, in: runStore.fatalRuns) {
+        case .run(let run) where run.report == .crashHandler:
+            SentrySDKLog.debug("MetricKit crash of run \(run.runId) was already reported by the crash handler, dropping it")
+            // A second delivery of the diagnostic must not match the run again.
+            runStore.remove(run)
+            return .reportedByCrashHandler
+        case .run:
+            return .other
+        case .ambiguous:
+            SentrySDKLog.debug("MetricKit crash matches several recorded runs, capturing it unmatched")
+            return .other
+        case .unmatched:
+            // The crash handler didn't report the run, for example because the app crashed in the
+            // background in a way the crash handler couldn't record.
+            guard let previousRun = runStore.previousRun,
+                  SentryMXRunMatcher.matches(diagnostic.run, run: previousRun, end: runStore.currentRun.start) else {
+                return .other
+            }
+            return .directlyBefore
+        }
     }
 
     private func apply(callStackTree decodedCallStackTree: SentryMXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) -> Attachment? {

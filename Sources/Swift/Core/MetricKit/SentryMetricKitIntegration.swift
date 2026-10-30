@@ -1,7 +1,7 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, SwiftIntegration {
+final class SentryMetricKitIntegration<Dependencies: SysctlProvider & MetricKitRunProvider>: NSObject, SwiftIntegration {
     
     let mxManager: SentryMXManager
     /// The `SentryMetricManager` that receives diagnostics on xOS 27 and later, or `nil` when the
@@ -21,7 +21,9 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
             enabledDiagnostics: enabledDiagnostics,
             releaseName: options.releaseName,
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
-            processStartDate: dependencies.sysctlWrapper.processStartTimestamp
+            processStartDate: dependencies.sysctlWrapper.processStartTimestamp,
+            runStore: dependencies.metricKitRunStore,
+            previousRunScope: dependencies.metricKitPreviousRunScope(options: options)
         )
         let metricManager = Self.makeMetricManager(enabledDiagnostics: enabledDiagnostics, diagnosticCapturer: diagnosticCapturer)
         self.metricManager = metricManager

@@ -87,14 +87,13 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     func process(diagnosticPayloads payloads: [MXDiagnosticPayload]) {
         SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
         payloads.forEach { payload in
-            let timestamp = payload.timeStampBegin
-            process(payload.crashDiagnostics, with: SentryMXCrashDiagnosticProcessor.self, timestamp: timestamp)
-            process(payload.diskWriteExceptionDiagnostics, with: SentryMXDiskWriteExceptionDiagnosticProcessor.self, timestamp: timestamp)
-            process(payload.cpuExceptionDiagnostics, with: SentryMXCPUExceptionDiagnosticProcessor.self, timestamp: timestamp)
-            process(payload.hangDiagnostics, with: SentryMXHangDiagnosticProcessor.self, timestamp: timestamp)
+            process(payload.crashDiagnostics, with: SentryMXCrashDiagnosticProcessor.self, in: payload)
+            process(payload.diskWriteExceptionDiagnostics, with: SentryMXDiskWriteExceptionDiagnosticProcessor.self, in: payload)
+            process(payload.cpuExceptionDiagnostics, with: SentryMXCPUExceptionDiagnosticProcessor.self, in: payload)
+            process(payload.hangDiagnostics, with: SentryMXHangDiagnosticProcessor.self, in: payload)
             #if os(iOS) || os(visionOS)
             if #available(iOS 16.0, *) {
-                process(payload.appLaunchDiagnostics, with: SentryMXAppLaunchDiagnosticProcessor.self, timestamp: timestamp)
+                process(payload.appLaunchDiagnostics, with: SentryMXAppLaunchDiagnosticProcessor.self, in: payload)
             }
             #endif // os(iOS) || os(visionOS)
         }
@@ -103,14 +102,15 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     private func process<Processor: SentryMXDiagnosticProcessor>(
         _ diagnostics: [Processor.LegacyDiagnostic]?,
         with processor: Processor.Type,
-        timestamp: Date
+        in payload: MXDiagnosticPayload
     ) {
         guard let diagnostics else {
             return
         }
         SentrySDKLog.info("Received \(diagnostics.count) MetricKit \(Processor.report) diagnostics")
         diagnostics.forEach { diagnostic in
-            diagnosticCapturer.capture(Processor.diagnostic(of: diagnostic, timestamp: timestamp))
+            let converted = Processor.diagnostic(of: diagnostic, timestamp: payload.timeStampBegin)
+            diagnosticCapturer.capture(converted.with(payloadTimeStampBegin: payload.timeStampBegin, end: payload.timeStampEnd))
         }
     }
 }

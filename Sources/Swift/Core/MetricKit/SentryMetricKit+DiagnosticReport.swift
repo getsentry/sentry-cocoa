@@ -6,8 +6,12 @@ extension SentryMetricKit {
     public enum DiagnosticReport: Hashable, CaseIterable, Sendable {
         /// A crash of the app, reported by `MXCrashDiagnostic`.
         ///
-        /// - Warning: The SDK's crash handler already reports crashes. Enabling this report sends
-        ///   the crashes MetricKit reports in addition, so the same crash can show up twice.
+        /// The SDK drops MetricKit crashes of runs its crash handler already reported, so this
+        /// report adds the crashes the crash handler couldn't record.
+        ///
+        /// - Warning: MetricKit only reports which process crashed on iOS 17, macOS 14 and
+        ///   visionOS and later. On earlier versions the SDK can't tell whether the crash handler
+        ///   already reported a crash, so the same crash can show up twice.
         case crash
 
         /// A hang of the main thread, reported by `MXHangDiagnostic`.
