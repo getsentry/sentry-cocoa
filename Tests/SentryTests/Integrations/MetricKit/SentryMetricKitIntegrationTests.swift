@@ -820,6 +820,7 @@ class TestMXCrashDiagnostic: MXCrashDiagnostic {
         var exceptionCode: NSNumber?
         var signal: NSNumber?
         var metaData: MXMetaData?
+        var terminationReason: String?
     }
 
     public var overrides = Override()
@@ -830,6 +831,10 @@ class TestMXCrashDiagnostic: MXCrashDiagnostic {
 
     override var metaData: MXMetaData {
         return overrides.metaData ?? super.metaData
+    }
+
+    override var terminationReason: String? {
+        return overrides.terminationReason
     }
 
     override var exceptionType: NSNumber? {

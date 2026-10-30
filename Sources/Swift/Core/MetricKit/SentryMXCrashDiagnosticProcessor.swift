@@ -11,12 +11,15 @@ enum SentryMXCrashDiagnosticProcessor: SentryMXDiagnosticProcessor {
         let code = diagnostic.exceptionCode?.stringValue ?? "nil"
         let signal = diagnostic.signal?.stringValue ?? "nil"
 
-        return SentryMXDiagnostic(
+        var converted = SentryMXDiagnostic(
             report: report,
             exceptionValue: exceptionValue(exceptionType: exceptionType, code: code, signal: signal),
             payloadTimeStampBegin: timestamp,
             diagnostic: diagnostic
         )
+        converted.terminationReason = diagnostic.terminationReason
+        converted.isWatchdogTermination = SentryMXDiagnostic.isWatchdogTerminationReason(diagnostic.terminationReason)
+        return converted
     }
 
     static func exceptionValue(exceptionType: String, code: String, signal: String) -> String {
@@ -28,7 +31,7 @@ enum SentryMXCrashDiagnosticProcessor: SentryMXDiagnosticProcessor {
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 extension SentryMXCrashDiagnosticProcessor {
     static func diagnostic(of crash: MetricKit.CrashDiagnostic, in report: MetricKit.DiagnosticReport) -> SentryMXDiagnostic {
-        SentryMXDiagnostic(
+        var converted = SentryMXDiagnostic(
             self.report,
             exceptionValue: exceptionValue(
                 exceptionType: crash.exceptionType.map { String($0) } ?? "nil",
@@ -38,6 +41,10 @@ extension SentryMXCrashDiagnosticProcessor {
             callStackTree: crash.callStackTree,
             in: report
         )
+        converted.terminationReason = crash.terminationReason?.rawValue
+        converted.isWatchdogTermination = crash.terminationCategory == .watchdog
+            || SentryMXDiagnostic.isWatchdogTerminationReason(crash.terminationReason?.rawValue)
+        return converted
     }
 }
 #endif // compiler(>=6.4)

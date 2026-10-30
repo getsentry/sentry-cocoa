@@ -49,6 +49,18 @@ typedef NS_ENUM(NSInteger, SentryObjCMetricKitHangReportingMode) {
 /// Configure before starting the SDK. Other diagnostic types are unaffected.
 @property (nonatomic) SentryObjCMetricKitHangReportingMode hangReportingMode;
 
+/**
+ * Whether watchdog termination events wait for MetricKit to explain the termination.
+ *
+ * When enabled, the SDK holds a watchdog termination event for up to 30 seconds after launch, or
+ * until the app moves to the background. When MetricKit delivers a crash or memory exception
+ * diagnostic of the terminated run in that time, the event gets its stack trace. A crash that
+ * wasn't a watchdog termination is sent as a crash instead. Otherwise the event is sent unchanged.
+ * Only applies on iOS 17 and later and on visionOS while MetricKit diagnostic reports are enabled.
+ * @note Defaults to @c NO.
+ */
+@property (nonatomic) BOOL enrichWatchdogTerminations;
+
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

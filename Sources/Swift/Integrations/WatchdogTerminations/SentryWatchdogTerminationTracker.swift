@@ -9,6 +9,14 @@ import Foundation
  * termination is detected, the SDK sends it as crash event. Only works for iOS, tvOS and
  * macCatalyst.
  */
+/// Holds a watchdog termination event instead of sending it right away.
+protocol SentryWatchdogTerminationEventHold: AnyObject {
+    /// - Returns: `false` when the event isn't held, so it must be sent right away.
+    func hold(_ event: Event) -> Bool
+    /// Sends an event held during an earlier launch.
+    func sendPendingEvent()
+}
+
 @_spi(Private) @objc public
 final class SentryWatchdogTerminationTracker: NSObject {
     
@@ -22,19 +30,41 @@ final class SentryWatchdogTerminationTracker: NSObject {
     private let dispatchQueue: SentryDispatchQueueWrapper
     private let fileManager: SentryFileManager
     private let scopePersistentStore: SentryScopePersistentStore
+    /// Holds the event until MetricKit explains the termination, see
+    /// `SentryMetricKitOptions/enrichWatchdogTerminations`.
+    private let metricKitHold: SentryWatchdogTerminationEventHold?
 
-    @objc public init(options: Options,
-                      watchdogTerminationLogic: SentryWatchdogTerminationLogic,
-                      appStateManager: SentryAppStateManager,
-                      dispatchQueueWrapper: SentryDispatchQueueWrapper,
-                      fileManager: SentryFileManager,
-                      scopePersistentStore: SentryScopePersistentStore) {
+    @objc public convenience init(options: Options,
+                                  watchdogTerminationLogic: SentryWatchdogTerminationLogic,
+                                  appStateManager: SentryAppStateManager,
+                                  dispatchQueueWrapper: SentryDispatchQueueWrapper,
+                                  fileManager: SentryFileManager,
+                                  scopePersistentStore: SentryScopePersistentStore) {
+        self.init(
+            options: options,
+            watchdogTerminationLogic: watchdogTerminationLogic,
+            appStateManager: appStateManager,
+            dispatchQueueWrapper: dispatchQueueWrapper,
+            fileManager: fileManager,
+            scopePersistentStore: scopePersistentStore,
+            metricKitHold: nil
+        )
+    }
+
+    init(options: Options,
+         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
+         appStateManager: SentryAppStateManager,
+         dispatchQueueWrapper: SentryDispatchQueueWrapper,
+         fileManager: SentryFileManager,
+         scopePersistentStore: SentryScopePersistentStore,
+         metricKitHold: SentryWatchdogTerminationEventHold?) {
         self.options = options
         self.watchdogTerminationLogic = watchdogTerminationLogic
         self.appStateManager = appStateManager
         self.dispatchQueue = dispatchQueueWrapper
         self.fileManager = fileManager
         self.scopePersistentStore = scopePersistentStore
+        self.metricKitHold = metricKitHold
     }
 
     @objc public func start() {
@@ -49,6 +79,9 @@ final class SentryWatchdogTerminationTracker: NSObject {
         }
 
         dispatchQueue.dispatchAsync {
+            // A watchdog termination held during an earlier launch is sent before the new one, so
+            // it isn't lost when the app was closed before MetricKit explained it.
+            self.metricKitHold?.sendPendingEvent()
             if isWatchdogTermination {
                 self.captureWatchdogTerminationEvent()
             }
@@ -80,6 +113,9 @@ final class SentryWatchdogTerminationTracker: NSObject {
         // We don't need to update the releaseName of the event to the previous app state as we
         // assume it's not a watchdog termination when the releaseName changed between app
         // starts.
+        if metricKitHold?.hold(event) == true {
+            return
+        }
         SentrySDKInternal.captureFatalEvent(event)
     }
 

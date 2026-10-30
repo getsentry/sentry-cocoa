@@ -61,10 +61,25 @@ public final class SentryMetricKitOptions {
     /// Configure this option before starting the SDK. Other diagnostic types are unaffected.
     public var hangReportingMode: SentryMetricKitHangReportingMode = .legacy
 
+    /// Whether watchdog termination events wait for MetricKit to explain the termination.
+    ///
+    /// When enabled, the SDK holds a watchdog termination event for up to 30 seconds after launch,
+    /// or until the app moves to the background. When MetricKit delivers a crash or memory
+    /// exception diagnostic of the terminated run in that time, the event gets its stack trace. A
+    /// crash that wasn't a watchdog termination is sent as a crash instead. Otherwise the event is
+    /// sent unchanged.
+    ///
+    /// Only applies on iOS 17 and later and on visionOS while MetricKit diagnostic reports are
+    /// enabled, because MetricKit doesn't report which process recorded a diagnostic before.
+    ///
+    /// - Note: Defaults to `false`.
+    public var enrichWatchdogTerminations = false
+
     #if canImport(MetricKit) && !os(tvOS)
     /// Applies MetricKit options from the options dictionary, primarily for hybrid SDK configuration.
     ///
-    /// Reads `metricKitHangReportingMode` and the nested `metrickit` dictionary. Report names in
+    /// Reads `metricKitHangReportingMode` and the nested `metrickit` dictionary with
+    /// `enabledDiagnosticReports` and `enrichWatchdogTerminations`. Report names in
     /// `enabledDiagnosticReports` that the SDK doesn't know are ignored.
     func apply(optionsDictionary: [String: Any]) {
         if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(optionsDictionary["metricKitHangReportingMode"] as? String) {
@@ -76,6 +91,9 @@ public final class SentryMetricKitOptions {
         }
         if let reports = SentryDictionaryDecoder.strings(dictionary, "enabledDiagnosticReports") {
             enabledDiagnosticReports = Set(reports.compactMap(SentryMetricKit.DiagnosticReport.init(dictionaryValue:)))
+        }
+        if let enrichWatchdogTerminations = dictionary["enrichWatchdogTerminations"] as? Bool {
+            self.enrichWatchdogTerminations = enrichWatchdogTerminations
         }
     }
     #endif // canImport(MetricKit) && !os(tvOS)

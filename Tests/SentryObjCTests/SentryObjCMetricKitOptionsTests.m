@@ -87,6 +87,27 @@
         SentryObjCMetricKitDiagnosticReportCrash);
 }
 
+- (void)testEnrichWatchdogTerminations_whenDefault_shouldBeDisabled
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.metrickit.enrichWatchdogTerminations);
+}
+
+- (void)testEnrichWatchdogTerminations_whenEnabled_shouldReturnEnabled
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.metrickit.enrichWatchdogTerminations = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.experimental.metrickit.enrichWatchdogTerminations);
+}
+
 @end
 
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV

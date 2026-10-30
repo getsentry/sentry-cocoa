@@ -397,9 +397,39 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueueWrapper,
                 fileManager: fileManager,
-                scopePersistentStore: scopeStore)
+                scopePersistentStore: scopeStore,
+                metricKitHold: watchdogTerminationEventHold(options: options))
         }
     }
+
+    private func watchdogTerminationEventHold(options: Options) -> SentryWatchdogTerminationEventHold? {
+        #if os(iOS) || os(visionOS)
+        return metricKitWatchdogTerminationHold(options: options)
+        #else
+        // MetricKit doesn't exist on tvOS.
+        return nil
+        #endif // os(iOS) || os(visionOS)
+    }
+
+    #if os(iOS) || os(visionOS)
+    private var _metricKitWatchdogTerminationHold: SentryMXWatchdogTerminationHold?
+    /// Holds watchdog termination events until MetricKit explains them. It also exists while the
+    /// hold is disabled, so an event held during an earlier launch is still sent.
+    func metricKitWatchdogTerminationHold(options: Options) -> SentryMXWatchdogTerminationHold? {
+        getOptionalLazyVar(\._metricKitWatchdogTerminationHold) {
+            guard let fileManager, let runStore = metricKitRunStore else {
+                return nil
+            }
+            return SentryMXWatchdogTerminationHold(
+                path: (fileManager.sentryPath as NSString).appendingPathComponent("metrickit-held-watchdog-termination.json"),
+                runStore: runStore,
+                isEnabled: SentryMXWatchdogTerminationHold.isEnabled(for: options),
+                dispatchQueue: dispatchFactory.createUtilityQueue("io.sentry.metrickit-watchdog-termination-hold", relativePriority: 0),
+                notificationCenter: notificationCenterWrapper
+            )
+        }
+    }
+    #endif // os(iOS) || os(visionOS)
 
     func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling {
 
@@ -960,8 +990,17 @@ extension SentryDependencyContainer: SysctlProvider {}
 protocol MetricKitRunProvider {
     var metricKitRunStore: SentryMXRunStore? { get }
     func metricKitPreviousRunScope(options: Options) -> SentryMXPreviousRunScopeApplying?
+    func metricKitWatchdogTerminationHolding(options: Options) -> SentryMXWatchdogTerminationHolding?
 }
 extension SentryDependencyContainer: MetricKitRunProvider {
+    func metricKitWatchdogTerminationHolding(options: Options) -> SentryMXWatchdogTerminationHolding? {
+        #if (os(iOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        return metricKitWatchdogTerminationHold(options: options)
+        #else
+        return nil
+        #endif // (os(iOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    }
+
     func metricKitPreviousRunScope(options: Options) -> SentryMXPreviousRunScopeApplying? {
         guard let fileManager, let scopePersistentStore else {
             return nil

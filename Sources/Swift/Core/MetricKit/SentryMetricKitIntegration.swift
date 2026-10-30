@@ -9,7 +9,7 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & MetricKitR
     let metricManager: SentryMetricKitReportReceiver?
 
     init?(with options: Options, dependencies: Dependencies) {
-        let enabledDiagnostics = Self.enabledDiagnostics(for: options)
+        let enabledDiagnostics = SentryMetricKit.enabledDiagnostics(for: options)
         let enabledMetricReports = options.experimental.metrickit.enabledMetricReports
         guard !enabledDiagnostics.isEmpty || !enabledMetricReports.isEmpty else {
             return nil
@@ -23,7 +23,8 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & MetricKitR
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp,
             runStore: dependencies.metricKitRunStore,
-            previousRunScope: dependencies.metricKitPreviousRunScope(options: options)
+            previousRunScope: dependencies.metricKitPreviousRunScope(options: options),
+            watchdogTerminationHold: dependencies.metricKitWatchdogTerminationHolding(options: options)
         )
         let metricManager = Self.makeMetricManager(enabledDiagnostics: enabledDiagnostics, diagnosticCapturer: diagnosticCapturer)
         self.metricManager = metricManager
@@ -66,8 +67,11 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & MetricKitR
         #endif // compiler(>=6.4)
         return nil
     }
+}
 
-    private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
+extension SentryMetricKit {
+    /// The MetricKit diagnostic reports the integration captures with these options.
+    static func enabledDiagnostics(for options: Options) -> Set<DiagnosticReport> {
         let enabledDiagnosticReports = options.experimental.metrickit.enabledDiagnosticReports
         #if SDK_V10
         return enabledDiagnosticReports

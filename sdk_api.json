@@ -53031,6 +53031,79 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16MetricKitOptionsC26enrichWatchdogTerminationsSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A16MetricKitOptionsC26enrichWatchdogTerminationsSbvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16MetricKitOptionsC26enrichWatchdogTerminationsSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A16MetricKitOptionsC26enrichWatchdogTerminationsSbvs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A16MetricKitOptionsC26enrichWatchdogTerminationsSbvp",
+            "moduleName": "Sentry",
+            "name": "enrichWatchdogTerminations",
+            "printedName": "enrichWatchdogTerminations",
+            "usr": "s:6Sentry0A16MetricKitOptionsC26enrichWatchdogTerminationsSbvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryMetricKitHangReportingMode",
                     "printedName": "Sentry.SentryMetricKitHangReportingMode",
                     "usr": "s:6Sentry0A26MetricKitHangReportingModeO"

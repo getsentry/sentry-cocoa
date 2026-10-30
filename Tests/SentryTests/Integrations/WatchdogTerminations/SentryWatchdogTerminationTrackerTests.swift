@@ -58,7 +58,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             return try getSut(fileManager: fileManager )
         }
         
-        func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
+        func getSut(fileManager: SentryFileManager, metricKitHold: SentryWatchdogTerminationEventHold? = nil) throws -> SentryWatchdogTerminationTracker {
             let dependencies = SentryDependencyContainer.sharedInstance()
             dependencies.fileManager = fileManager
             dependencies.sysctlWrapper = sysctl
@@ -79,7 +79,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopePersistentStore: scopePersistentStore
+                scopePersistentStore: scopePersistentStore,
+                metricKitHold: metricKitHold
             )
         }
     }
@@ -278,6 +279,51 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         try assertOOMEventSent()
     }
 
+    func testAppWasInForeground_whenMetricKitHoldsEvent_shouldNotSendIt() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationEventHold(holds: true)
+        sut = try fixture.getSut(fileManager: fixture.fileManager, metricKitHold: hold)
+        sut.start()
+        goToForeground()
+        fixture.fileManager.moveAppStateToPreviousAppState()
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        assertNoOOMSent()
+        let heldEvent = try XCTUnwrap(hold.heldEvents.first)
+        XCTAssertEqual(heldEvent.exceptions?.first?.type, SentryWatchdogTerminationConstants.ExceptionType)
+        XCTAssertEqual(hold.heldEvents.count, 1)
+    }
+
+    func testAppWasInForeground_whenMetricKitDoesNotHoldEvent_shouldSendIt() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationEventHold(holds: false)
+        sut = try fixture.getSut(fileManager: fixture.fileManager, metricKitHold: hold)
+        sut.start()
+        goToForeground()
+        fixture.fileManager.moveAppStateToPreviousAppState()
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        try assertOOMEventSent()
+    }
+
+    func testStart_shouldSendEventHeldDuringEarlierLaunch() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationEventHold(holds: false)
+        sut = try fixture.getSut(fileManager: fixture.fileManager, metricKitHold: hold)
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertEqual(hold.sendPendingEventInvocations, 1)
+    }
+
     func testANR_NoOOM() {
         sut.start()
         goToForeground()
@@ -470,6 +516,25 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
     private func assertNoOOMSent() {
         XCTAssertEqual(0, fixture.client.captureFatalEventInvocations.count)
+    }
+}
+
+private final class TestWatchdogTerminationEventHold: SentryWatchdogTerminationEventHold {
+    private let holds: Bool
+    private(set) var heldEvents: [Event] = []
+    private(set) var sendPendingEventInvocations = 0
+
+    init(holds: Bool) {
+        self.holds = holds
+    }
+
+    func hold(_ event: Event) -> Bool {
+        heldEvents.append(event)
+        return holds
+    }
+
+    func sendPendingEvent() {
+        sendPendingEventInvocations += 1
     }
 }
 
