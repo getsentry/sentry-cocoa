@@ -126,6 +126,10 @@ final class SentryMetricManager: SentryMetricKitReportReceiver {
         case .appLaunch(let appLaunch):
             return SentryMXAppLaunchDiagnosticProcessor.diagnostic(of: appLaunch, in: report)
         #endif // !os(visionOS)
+        #if os(iOS) && !targetEnvironment(macCatalyst)
+        case .memoryException(let memoryException):
+            return SentryMXMemoryExceptionDiagnosticProcessor.diagnostic(of: memoryException, in: report)
+        #endif // os(iOS) && !targetEnvironment(macCatalyst)
         @unknown default:
             return nil
         }
