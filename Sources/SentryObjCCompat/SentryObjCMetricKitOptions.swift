@@ -40,5 +40,10 @@ import Foundation
             }
         }
     }
+
+    @objc public var enrichWatchdogTerminations: Bool {
+        get { wrapped.enrichWatchdogTerminations }
+        set { wrapped.enrichWatchdogTerminations = newValue }
+    }
 }
 // swiftlint:enable missing_docs

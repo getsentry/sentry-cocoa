@@ -2,6 +2,15 @@
 internal import _SentryPrivate
 import Foundation
 
+/// Gives MetricKit diagnostics access to a held watchdog termination event. Watchdog terminations
+/// are only reported on iOS and visionOS.
+protocol SentryMXWatchdogTerminationHolding: AnyObject {
+    /// Removes and returns the held event when the diagnostic belongs to its run.
+    func takeEvent(matching diagnostic: SentryMXDiagnosticRun) -> Event?
+    /// Sends an event taken from the hold as the fatal event of the terminated run.
+    func send(_ event: Event)
+}
+
 /// Captures MetricKit diagnostics as events.
 ///
 /// Both MetricKit APIs convert their diagnostics into `SentryMXDiagnostic` and hand them to the
@@ -20,6 +29,8 @@ final class SentryMXDiagnosticCapturer {
     /// `develop-docs/DECISIONS.md`.
     let runStore: SentryMXRunStore?
     let previousRunScope: SentryMXPreviousRunScopeApplying?
+    /// The watchdog termination event of the previous run, while it waits for MetricKit.
+    let watchdogTerminationHold: SentryMXWatchdogTerminationHolding?
 
     init(
         inAppLogic: SentryInAppLogic,
@@ -31,7 +42,8 @@ final class SentryMXDiagnosticCapturer {
         processIdentifier: pid_t = ProcessInfo.processInfo.processIdentifier,
         processStartDate: Date,
         runStore: SentryMXRunStore? = nil,
-        previousRunScope: SentryMXPreviousRunScopeApplying? = nil
+        previousRunScope: SentryMXPreviousRunScopeApplying? = nil,
+        watchdogTerminationHold: SentryMXWatchdogTerminationHolding? = nil
     ) {
         self.inAppLogic = inAppLogic
         self.attachDiagnosticAsAttachment = attachDiagnosticAsAttachment
@@ -42,9 +54,16 @@ final class SentryMXDiagnosticCapturer {
         self.processStartDate = processStartDate
         self.runStore = runStore
         self.previousRunScope = previousRunScope
+        self.watchdogTerminationHold = watchdogTerminationHold
     }
 
     func capture(_ diagnostic: SentryMXDiagnostic) {
+        // A crash or memory exception explains a held watchdog termination even when its own
+        // report isn't enabled, and replaces the event it would produce.
+        if enrichHeldWatchdogTermination(with: diagnostic) {
+            return
+        }
+
         let diagnosticReport = diagnostic.report
         guard enabledDiagnostics.contains(diagnosticReport) else {
             SentrySDKLog.debug("MetricKit \(diagnosticReport) diagnostics are not enabled, skipping diagnostic")
@@ -119,6 +138,49 @@ final class SentryMXDiagnosticCapturer {
             hint.attachments.append(Attachment(data: rawJSON, filename: diagnostic.rawFilename))
         }
         return hint
+    }
+
+    // MARK: - Watchdog terminations
+
+    /// Enriches and sends the held watchdog termination event when the diagnostic explains it.
+    ///
+    /// A crash with the watchdog's termination reason or a memory exception confirms the watchdog
+    /// termination, so the event keeps its type and gets the diagnostic's stack trace. Any other
+    /// crash means the crash handler missed a crash, so the event is sent as that crash.
+    private func enrichHeldWatchdogTermination(with diagnostic: SentryMXDiagnostic) -> Bool {
+        guard diagnostic.report == .crash || diagnostic.report == .memoryException,
+              let watchdogTerminationHold,
+              var event = watchdogTerminationHold.takeEvent(matching: diagnostic.run),
+              let exception = event.exceptions?.first else {
+            return false
+        }
+
+        if diagnostic.confirmsWatchdogTermination {
+            SentrySDKLog.debug("MetricKit \(diagnostic.report) diagnostic explains the held watchdog termination")
+        } else {
+            SentrySDKLog.debug("MetricKit reports a crash for the held watchdog termination, sending it as a crash")
+            exception.type = diagnostic.report.exceptionType
+            exception.value = diagnostic.exceptionValue()
+            let mechanism = Mechanism(type: diagnostic.report.mechanism)
+            mechanism.handled = false
+            mechanism.synthetic = true
+            exception.mechanism = mechanism
+        }
+        if let terminationReason = diagnostic.terminationReason {
+            var data = exception.mechanism?.data ?? [:]
+            data["termination_reason"] = terminationReason
+            exception.mechanism?.data = data
+        }
+
+        do {
+            _ = apply(callStackTree: try diagnostic.callStackTree(), toEvent: &event, useFullCallStackTree: false, isHandled: false)
+        } catch {
+            // The event still describes the termination without a stack trace.
+            SentrySDKLog.error("Failed to decode call stack tree of the MetricKit diagnostic: \(error)")
+        }
+
+        watchdogTerminationHold.send(event)
+        return true
     }
 
     // MARK: - Previous runs

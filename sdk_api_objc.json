@@ -2510,6 +2510,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enrichWatchdogTerminations",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "envelope",
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalEnvelopeApi * _Nonnull",
@@ -6584,6 +6591,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnrichWatchdogTerminations:",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnvironment:",
     "parent": "SentryObjCEvent",
     "returnType": "void",
@@ -10009,6 +10023,12 @@
     "name": "enabledDiagnosticReports",
     "parent": "SentryObjCMetricKitOptions",
     "type": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enrichWatchdogTerminations",
+    "parent": "SentryObjCMetricKitOptions",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",

@@ -83,6 +83,38 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.crash, .hang, .cpuException, .diskWriteException, .appLaunch, .memoryException])
     }
 
+    func testInitWithDictionary_whenEnrichWatchdogTerminationsConfigured_shouldSetIt() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enrichWatchdogTerminations": true
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertTrue(options.experimental.metrickit.enrichWatchdogTerminations)
+    }
+
+    func testInitWithDictionary_whenEnrichWatchdogTerminationsIsNotBool_shouldKeepDefault() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enrichWatchdogTerminations": "yes"
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertFalse(options.experimental.metrickit.enrichWatchdogTerminations)
+    }
+
     func testInitWithDictionary_whenDiagnosticReportsEmpty_shouldDisableAllDiagnosticReports() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [

@@ -14,6 +14,7 @@
 - Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
 - Capture MetricKit memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException` (#9465)
 - Stop sending MetricKit crash diagnostics of crashes the crash handler already reported when `options.experimental.metrickit.enabledDiagnosticReports` contains `.crash`, on iOS 17, macOS 14 and visionOS and later. A MetricKit crash of the run directly before the current one that the crash handler didn't report, such as a crash in the background, gets the breadcrumbs and scope data the SDK persisted for that run (#9505)
+- Add `options.experimental.metrickit.enrichWatchdogTerminations` to hold watchdog termination events for up to 30 seconds after launch until MetricKit explains the termination. A matching crash or memory exception diagnostic adds its stack trace and termination reason, and a crash that wasn't a watchdog termination is sent as a crash instead. Requires iOS 17 or later or visionOS and enabled MetricKit diagnostic reports, and is also available through `SentryObjC` and the `metrickit` key of the options dictionary (#9507)
 
 ### Fixes
 

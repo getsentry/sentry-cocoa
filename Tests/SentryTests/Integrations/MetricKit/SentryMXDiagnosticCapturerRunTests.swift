@@ -214,7 +214,153 @@ final class SentryMXDiagnosticCapturerRunTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    // MARK: - Watchdog terminations
+
+    func testCapture_whenCrashConfirmsHeldWatchdogTermination_shouldEnrichEvent() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationHold(event: givenWatchdogTerminationEvent())
+        let sut = givenSut(runStore: givenRunStore(previousRunWatchdogTerminated: true), watchdogTerminationHold: hold)
+        var diagnostic = try givenDiagnostic(.crash, pid: Self.previousPid, from: 1_500, to: 1_600)
+        diagnostic.terminationReason = "Namespace FRONTBOARD, Code 0x8badf00d"
+        diagnostic.isWatchdogTermination = true
+
+        // -- Act --
+        sut.capture(diagnostic)
+
+        // -- Assert --
+        let event = try XCTUnwrap(hold.sentEvents.first)
+        let exception = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(exception.type, "WatchdogTermination")
+        XCTAssertEqual(exception.mechanism?.type, "watchdog_termination")
+        XCTAssertEqual(exception.mechanism?.data?["termination_reason"] as? String, "Namespace FRONTBOARD, Code 0x8badf00d")
+        XCTAssertNotNil(exception.stacktrace)
+        XCTAssertFalse(try XCTUnwrap(event.threads).isEmpty)
+        XCTAssertNotNil(event.debugMeta)
+        XCTAssertEqual(event.tags, ["screen": "checkout"], "The event keeps the terminated run's scope")
+        assertNoEventCaptured()
+    }
+
+    func testCapture_whenMemoryExceptionConfirmsHeldWatchdogTermination_shouldKeepWatchdogTermination() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationHold(event: givenWatchdogTerminationEvent())
+        let sut = givenSut(runStore: givenRunStore(previousRunWatchdogTerminated: true), watchdogTerminationHold: hold)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(.memoryException, pid: Self.previousPid, from: 1_500, to: 1_600))
+
+        // -- Assert --
+        let exception = try XCTUnwrap(hold.sentEvents.first?.exceptions?.first)
+        XCTAssertEqual(exception.type, "WatchdogTermination")
+        XCTAssertNotNil(exception.stacktrace)
+        assertNoEventCaptured()
+    }
+
+    func testCapture_whenOtherCrashExplainsHeldWatchdogTermination_shouldSendCrash() throws {
+        // -- Arrange --
+        // The crash handler couldn't record this crash, so the SDK detected a watchdog termination.
+        let hold = TestWatchdogTerminationHold(event: givenWatchdogTerminationEvent())
+        let sut = givenSut(runStore: givenRunStore(previousRunWatchdogTerminated: true), watchdogTerminationHold: hold)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(.crash, pid: Self.previousPid, from: 1_500, to: 1_600))
+
+        // -- Assert --
+        let event = try XCTUnwrap(hold.sentEvents.first)
+        let exception = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(exception.type, "MXCrashDiagnostic")
+        XCTAssertEqual(exception.value, "value")
+        XCTAssertEqual(exception.mechanism?.type, "MXCrashDiagnostic")
+        XCTAssertEqual(exception.mechanism?.handled, false)
+        XCTAssertEqual(event.tags, ["screen": "checkout"])
+        assertNoEventCaptured()
+    }
+
+    func testCapture_whenCrashReportIsDisabled_shouldStillEnrichHeldWatchdogTermination() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationHold(event: givenWatchdogTerminationEvent())
+        let sut = givenSut(
+            runStore: givenRunStore(previousRunWatchdogTerminated: true),
+            enabledDiagnostics: [.hang],
+            watchdogTerminationHold: hold
+        )
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(.crash, pid: Self.previousPid, from: 1_500, to: 1_600))
+
+        // -- Assert --
+        XCTAssertEqual(hold.sentEvents.count, 1)
+    }
+
+    func testCapture_whenHangOfHeldRun_shouldNotTakeWatchdogTermination() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationHold(event: givenWatchdogTerminationEvent())
+        let sut = givenSut(runStore: givenRunStore(previousRunWatchdogTerminated: true), watchdogTerminationHold: hold)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(.hang, pid: Self.previousPid, from: 1_500, to: 1_600))
+
+        // -- Assert --
+        XCTAssertEqual(hold.takeInvocations, 0)
+        XCTAssertEqual(hold.sentEvents.count, 0)
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.exceptions?.first?.type, "MXHangDiagnostic")
+        }
+    }
+
+    func testCapture_whenNoWatchdogTerminationIsHeld_shouldCaptureCrash() throws {
+        // -- Arrange --
+        let hold = TestWatchdogTerminationHold(event: nil)
+        let sut = givenSut(runStore: givenRunStore(previousRunWatchdogTerminated: true), watchdogTerminationHold: hold)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(.crash, pid: Self.previousPid, from: 1_500, to: 1_600))
+
+        // -- Assert --
+        XCTAssertEqual(hold.sentEvents.count, 0)
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.exceptions?.first?.type, "MXCrashDiagnostic")
+        }
+    }
+
+    func testCrashDiagnostic_whenTerminationReasonIsWatchdogCode_shouldBeWatchdogTermination() {
+        // -- Arrange --
+        let crash = TestMXCrashDiagnostic()
+        crash.overrides.terminationReason = "Namespace FRONTBOARD, Code 0x8BADF00D"
+
+        // -- Act --
+        let diagnostic = SentryMXCrashDiagnosticProcessor.diagnostic(of: crash, timestamp: Date())
+
+        // -- Assert --
+        XCTAssertTrue(diagnostic.isWatchdogTermination)
+        XCTAssertTrue(diagnostic.confirmsWatchdogTermination)
+        XCTAssertEqual(diagnostic.terminationReason, "Namespace FRONTBOARD, Code 0x8BADF00D")
+    }
+
+    func testCrashDiagnostic_whenTerminationReasonIsOther_shouldNotBeWatchdogTermination() {
+        // -- Arrange --
+        let crash = TestMXCrashDiagnostic()
+        crash.overrides.terminationReason = "Namespace SIGNAL, Code 0xb"
+
+        // -- Act --
+        let diagnostic = SentryMXCrashDiagnosticProcessor.diagnostic(of: crash, timestamp: Date())
+
+        // -- Assert --
+        XCTAssertFalse(diagnostic.isWatchdogTermination)
+        XCTAssertFalse(diagnostic.confirmsWatchdogTermination)
+    }
+
     // MARK: - Helpers
+
+    private func givenWatchdogTerminationEvent() -> Event {
+        let event = Event(level: .fatal)
+        let exception = Exception(value: "The OS watchdog terminated your app, possibly because it overused RAM.", type: "WatchdogTermination")
+        let mechanism = Mechanism(type: "watchdog_termination")
+        mechanism.handled = false
+        exception.mechanism = mechanism
+        event.exceptions = [exception]
+        event.tags = ["screen": "checkout"]
+        return event
+    }
 
     /// A run with `previousPid` from 1,000 to 2,000, followed by the running process.
     private func givenRunStore(previousRunCrashed: Bool = false, previousRunWatchdogTerminated: Bool = false) -> SentryMXRunStore {
@@ -234,15 +380,20 @@ final class SentryMXDiagnosticCapturerRunTests: SentrySDKIntegrationTestsBase {
         return current
     }
 
-    private func givenSut(runStore: SentryMXRunStore?) -> SentryMXDiagnosticCapturer {
+    private func givenSut(
+        runStore: SentryMXRunStore?,
+        enabledDiagnostics: Set<SentryMetricKit.DiagnosticReport> = SentryMetricKit.DiagnosticReport.all,
+        watchdogTerminationHold: SentryMXWatchdogTerminationHolding? = nil
+    ) -> SentryMXDiagnosticCapturer {
         SentryMXDiagnosticCapturer(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: SentryMetricKit.DiagnosticReport.all,
+            enabledDiagnostics: enabledDiagnostics,
             processIdentifier: Self.currentPid,
             processStartDate: Date(timeIntervalSince1970: 2_000),
             runStore: runStore,
-            previousRunScope: previousRunScope
+            previousRunScope: previousRunScope,
+            watchdogTerminationHold: watchdogTerminationHold
         )
     }
 
@@ -271,6 +422,26 @@ private final class NoopMXMetricManager: SentryMXMetricManager {
     func add(_ subscriber: MXMetricManagerSubscriber) {}
 
     func remove(_ subscriber: MXMetricManagerSubscriber) {}
+}
+
+private final class TestWatchdogTerminationHold: SentryMXWatchdogTerminationHolding {
+    private var event: Event?
+    private(set) var takeInvocations = 0
+    private(set) var sentEvents: [Event] = []
+
+    init(event: Event?) {
+        self.event = event
+    }
+
+    func takeEvent(matching diagnostic: SentryMXDiagnosticRun) -> Event? {
+        takeInvocations += 1
+        defer { event = nil }
+        return event
+    }
+
+    func send(_ event: Event) {
+        sentEvents.append(event)
+    }
 }
 
 private final class TestPreviousRunScope: SentryMXPreviousRunScopeApplying {

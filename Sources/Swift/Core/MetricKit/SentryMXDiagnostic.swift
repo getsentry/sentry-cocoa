@@ -31,6 +31,11 @@ struct SentryMXDiagnostic {
     /// The time range MetricKit reports the diagnostic in, which is used to match the diagnostic
     /// to the run that recorded it.
     var timeRange: DateInterval
+    /// Why the OS terminated the app, such as `Namespace FRONTBOARD, Code 0x8badf00d`. Only
+    /// reported for crashes.
+    var terminationReason: String?
+    /// Whether the OS watchdog terminated the app, which MetricKit reports as a crash.
+    var isWatchdogTermination = false
     let metadata: Metadata
     /// Converts MetricKit's call stack tree, throwing when it has an unexpected format.
     let callStackTree: () throws -> SentryMXCallStackTree
@@ -65,6 +70,17 @@ extension SentryMXDiagnostic {
     /// What the diagnostic reports about the run that recorded it.
     var run: SentryMXDiagnosticRun {
         SentryMXDiagnosticRun(runIds: metadata.runIds, pid: metadata.pid, timeRange: timeRange)
+    }
+
+    /// Whether the diagnostic explains a termination the SDK reports as a watchdog termination: the
+    /// OS watchdog or the memory limit terminated the app.
+    var confirmsWatchdogTermination: Bool {
+        report == .memoryException || isWatchdogTermination
+    }
+
+    /// Whether a termination reason is the watchdog's `0x8badf00d` exception code.
+    static func isWatchdogTerminationReason(_ reason: String?) -> Bool {
+        reason?.lowercased().contains("0x8badf00d") == true
     }
 
     /// Sets the time range of a legacy payload, whose diagnostics only carry its start.

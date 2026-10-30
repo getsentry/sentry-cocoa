@@ -28,6 +28,19 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
         XCTAssertEqual(options.wrapped.experimental.metrickit.hangReportingMode, .legacy)
     }
 
+    func testMetricKitEnrichWatchdogTerminations_whenSet_shouldUpdateBaseOptions() {
+        // -- Arrange --
+        let options = SentryObjCOptions()
+        XCTAssertFalse(options.experimental.metrickit.enrichWatchdogTerminations)
+
+        // -- Act --
+        options.experimental.metrickit.enrichWatchdogTerminations = true
+
+        // -- Assert --
+        XCTAssertTrue(options.wrapped.experimental.metrickit.enrichWatchdogTerminations)
+        XCTAssertTrue(options.experimental.metrickit.enrichWatchdogTerminations)
+    }
+
     #if SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func testPrivacy_whenWrapperIsModified_shouldUpdateBaseOptions() {
         // -- Arrange --

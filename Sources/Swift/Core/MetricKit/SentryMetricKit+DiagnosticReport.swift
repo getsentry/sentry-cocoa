@@ -35,7 +35,9 @@ extension SentryMetricKit {
         /// - Note: MetricKit only reports memory exception diagnostics on iOS 27 and later.
         /// - Warning: The SDK's watchdog termination tracking already reports out-of-memory
         ///   terminations. Enabling this report sends the terminations MetricKit reports in
-        ///   addition, so the same termination can show up twice.
+        ///   addition, so the same termination can show up twice, unless
+        ///   ``SentryMetricKitOptions/enrichWatchdogTerminations`` adds the diagnostic to the
+        ///   watchdog termination event instead.
         case memoryException
     }
 }
