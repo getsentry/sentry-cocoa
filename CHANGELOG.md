@@ -22,6 +22,7 @@
 - Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
 - Prevent SentryCrash from deadlocking while handling uncaught C++ exceptions, and keep concurrent throws from overwriting another thread's captured stack trace (#9531)
 - Count every batched log and metric in client reports when an envelope is rate limited, dropped from the cache, or fails to send, instead of counting one per envelope item (#9530)
+- Preserve profiling metrics across chunk rollover, avoid recording a finished trace's metrics on its replacement profiler, and prevent energy spikes when cumulative counters decrease (#9500)
 
 ## 9.32.0
 
@@ -43,11 +44,6 @@
 - Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
 - Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
 - Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9463)
-- Fix trace-lifecycle profiling getting stuck after backgrounding when a root transaction remains active or is abandoned. Parented transactions no longer start or keep the profiler running (#9481)
-- Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
-- Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
-- Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
-- Preserve profiling metrics across chunk rollover, avoid recording a finished trace's metrics on its replacement profiler, and prevent energy spikes when cumulative counters decrease (#9500)
 
 ## 9.31.0
 
