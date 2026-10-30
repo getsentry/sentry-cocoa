@@ -36,7 +36,7 @@ jobs:
           retention-days: 1
 
   # Builds the sentry-dart Flutter example for iOS and runs its native tests. sentry_flutter
-  # depends on the "Sentry" SPM product, so we swap its sentry-cocoa dependency for this checkout.
+  # depends on the static Sentry SPM product, so we swap that dependency for this checkout.
   test-sentry-dart:
     name: Test sentry-dart
     needs: build-xcframework
@@ -72,13 +72,31 @@ jobs:
       - name: Modify Package.swift to use local xcframework
         working-directory: sentry-cocoa
         run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
+      # sentry_flutter declares its Sentry dependency and product between BEGIN/END:SENTRY-COCOA
+      # markers in Package.swift, so replace that block instead of parsing the manifest.
       # Flutter links plugin packages through symlinks, so use an absolute path.
       - name: Use local sentry-cocoa
         working-directory: sentry-dart/packages/flutter/darwin/sentry_flutter
+        env:
+          SENTRY_COCOA_BLOCK: |
+            let sentryDependency: Package.Dependency = .package(name: "sentry-cocoa", path: "${{ github.workspace }}/sentry-cocoa")
+            let sentryProduct: Target.Dependency = .product(name: "Sentry", package: "sentry-cocoa")
         run: |
-          sed -i '' -E 's|\.package\(url: "https://github\.com/getsentry/sentry-cocoa"[^)]*\)|.package(name: "sentry-cocoa", path: "'"$GITHUB_WORKSPACE"'/sentry-cocoa")|' Package.swift
-          grep -q "$GITHUB_WORKSPACE/sentry-cocoa" Package.swift || { echo "Failed to replace the sentry-cocoa dependency." && exit 1; }
+          if ! grep -q '^// BEGIN:SENTRY-COCOA$' Package.swift || ! grep -q '^// END:SENTRY-COCOA$' Package.swift; then
+            echo "Package.swift is missing the BEGIN:SENTRY-COCOA and END:SENTRY-COCOA markers." && exit 1
+          fi
+          awk '/^\/\/ BEGIN:SENTRY-COCOA$/ { print; printf "%s", ENVIRON["SENTRY_COCOA_BLOCK"]; skip = 1; next }
+               /^\/\/ END:SENTRY-COCOA$/ { skip = 0 }
+               !skip' Package.swift > Package.swift.tmp
+          mv Package.swift.tmp Package.swift
           cat Package.swift
+          if grep -nE 'github\.com/getsentry/sentry-cocoa|sentry-apple-binaries' Package.swift; then
+            echo "Package.swift references a remote Sentry package outside the SENTRY-COCOA markers." && exit 1
+          fi
+          # The example pins the remote Sentry package, which is no longer in the dependency
+          # graph after the swap. That stale pin crashes Xcode's package resolution.
+          rm -f ../../example/ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved \
+                ../../example/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
       # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods.
       # The runner's asdf Ruby shims would select the Ruby pinned by .ruby-version, which
       # isn't installed, so pin an installed Ruby the same way sentry-react-native's CI does.
