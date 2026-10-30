@@ -3,8 +3,10 @@
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 #    if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #        import "SentryObjCMetricKitDiagnosticReport.h"
+#        import "SentryObjCMetricKitMetricReport.h"
 #    else
 #        import <SentryObjC/SentryObjCMetricKitDiagnosticReport.h>
+#        import <SentryObjC/SentryObjCMetricKitMetricReport.h>
 #    endif
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
@@ -43,6 +45,22 @@ typedef NS_ENUM(NSInteger, SentryObjCMetricKitHangReportingMode) {
  */
 #    endif // SDK_V10
 @property (nonatomic) SentryObjCMetricKitDiagnosticReport enabledDiagnosticReports;
+
+/**
+ * The MetricKit metric reports the SDK sends as Sentry metrics.
+ *
+ * Any report other than @c SentryObjCMetricKitMetricReportNone enables the MetricKit integration,
+ * even when no diagnostic reports are enabled. Use @c SentryObjCMetricKitMetricReportAll to send
+ * every metric report.
+ *
+ * MetricKit delivers metric payloads about once a day, and each enabled report adds up to one
+ * metric per payload, which counts towards your metrics quota.
+ *
+ * On macOS, MetricKit delivers metric payloads from macOS 26, and only to apps built with Xcode 26
+ * or later.
+ * @note Defaults to @c SentryObjCMetricKitMetricReportNone.
+ */
+@property (nonatomic) SentryObjCMetricKitMetricReport enabledMetricReports;
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
 /// How hang diagnostics are reported. Defaults to SentryObjCMetricKitHangReportingModeLegacy.

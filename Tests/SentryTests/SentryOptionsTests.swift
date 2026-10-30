@@ -158,6 +158,113 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertEqual(Set(names).count, names.count)
         XCTAssertTrue(names.allSatisfy { $0.hasPrefix("metrickit.") }, "Unexpected names: \(names)")
     }
+
+    func testInitWithDictionary_whenMetricKitIsAbsent_shouldNotEnableMetricReports() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1"
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertTrue(options.experimental.metrickit.enabledMetricReports.isEmpty)
+    }
+
+    func testInitWithDictionary_whenMetricReportsConfigured_shouldSetEnabledMetricReports() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledMetricReports": ["cpuCumulativeTime", "memoryPeakUsage", "exitForegroundWatchdog"]
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledMetricReports, [.cpuCumulativeTime, .memoryPeakUsage, .exitForegroundWatchdog])
+    }
+
+    func testInitWithDictionary_whenEveryMetricReportNameConfigured_shouldEnableEveryReport() throws {
+        // -- Arrange --
+        // The dictionary names match the case names.
+        let names = SentryMetricKit.MetricReport.allCases.map { String(describing: $0) }
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledMetricReports": names
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledMetricReports, .all)
+    }
+
+    func testInitWithDictionary_whenMetricReportsContainAll_shouldEnableEveryReport() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledMetricReports": ["gpuCumulativeTime", "all"]
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledMetricReports, .all)
+    }
+
+    func testInitWithDictionary_whenMetricReportsEmpty_shouldDisableAllMetricReports() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledMetricReports = .all
+
+        // -- Act --
+        options.experimental.metrickit.apply(optionsDictionary: ["metrickit": ["enabledMetricReports": []]])
+
+        // -- Assert --
+        XCTAssertTrue(options.experimental.metrickit.enabledMetricReports.isEmpty)
+    }
+
+    func testInitWithDictionary_whenMetricReportsContainUnknownValues_shouldIgnoreThem() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledMetricReports": ["gpuCumulativeTime", "unknown", "metrickit.cpu.cumulative_time", 1, NSNull()]
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.enabledMetricReports, [.gpuCumulativeTime])
+    }
+
+    func testInitWithDictionary_whenMetricReportsIsNotAnArray_shouldUseDefault() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metrickit": [
+                "enabledMetricReports": "gpuCumulativeTime"
+            ]
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertTrue(options.experimental.metrickit.enabledMetricReports.isEmpty)
+    }
 #endif // canImport(MetricKit) && !os(tvOS)
 
     // MARK: - Data Collection

@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` cases to the experimental `SentryMetricKit.MetricReport` enum, so exhaustive `switch` statements over it need to handle them. On iOS and macOS 27 and later, `animationScrollHitchTimeRatio` is no longer sent because MetricKit only reports the hitch time of all animations (#9476)
+
+### Features
+
+- Expose `options.experimental.metrickit.enabledMetricReports` through the SentryObjC SDK as the `SentryObjCMetricKitMetricReport` bitmask and through the `enabledMetricReports` key of the `metrickit` options dictionary, which also accepts `"all"` (#9490)
+- Receive MetricKit metrics through `MetricManager` on iOS and macOS 27 and later with the same names, types and units as on earlier OS versions, and add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` metric reports that only `MetricManager` provides, also available through the `SentryObjCMetricKitMetricReport` bitmask (#9476)
+
+### Fixes
+
+- Report the tvOS OS name as `tvOS` in profiles instead of occasionally reporting `Apple TVOS` (#9497)
+
+## 9.32.0
+
 ### Features
 
 - Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
@@ -12,7 +27,6 @@
 - Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, and report the current hinge status as `hinge_status` in the device context, which requires iOS 27.1 or later and is not available on Mac Catalyst (#9464)
 - Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
 - Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
-- Receive MetricKit metrics through `MetricManager` on iOS and macOS 27 and later with the same names, types and units as on earlier OS versions, and add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` metric reports that only `MetricManager` provides (#9476)
 - Capture MetricKit memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException` (#9465)
 
 ### Fixes
