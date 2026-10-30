@@ -136,14 +136,14 @@ extension SentryMXManager {
                 attributes["app.build"] = appBuild
             }
             // Nil when the running release already describes the values or is a custom name.
-            if let releaseName = releaseName(appVersion: appVersion, appBuild: appBuild) {
+            if let releaseName = releaseResolver.releaseName(appVersion: appVersion, appBuild: appBuild) {
                 attributes["sentry.release"] = releaseName
             }
         }
 
         // The running OS version can be newer than the one the values were recorded on, so scope
         // enrichment leaves it out.
-        if let metaData = payload.metaData, let osVersion = Self.parseOSVersion(metaData.osVersion) {
+        if let metaData = payload.metaData, let osVersion = SentryMXDiagnostic.Metadata.parseOSVersion(metaData.osVersion) {
             attributes["os.version"] = osVersion.version
         }
 

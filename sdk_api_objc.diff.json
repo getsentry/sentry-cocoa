@@ -27,6 +27,11 @@
     },
     {
       "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportMemoryException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitDiagnosticReportNone",
       "parent": "SentryObjCMetricKitDiagnosticReport"
     },

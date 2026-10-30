@@ -17,8 +17,16 @@ typedef NS_OPTIONS(NSUInteger, SentryObjCMetricKitDiagnosticReport) {
     /// A disk write exception, reported by @c MXDiskWriteExceptionDiagnostic.
     SentryObjCMetricKitDiagnosticReportDiskWriteException = 1 << 3,
     /// A slow app launch, reported by @c MXAppLaunchDiagnostic.
-    /// @note MetricKit only reports app launch diagnostics on iOS 16 and later and on visionOS.
+    /// @note MetricKit reports app launch diagnostics on iOS 16 and later, on visionOS 26 and
+    /// earlier, and on macOS 27 and later.
     SentryObjCMetricKitDiagnosticReportAppLaunch = 1 << 4,
+    /// A termination of the app or an extension for exceeding its memory limit, reported by
+    /// @c MemoryExceptionDiagnostic.
+    /// @note MetricKit only reports memory exception diagnostics on iOS 27 and later.
+    /// @warning The SDK's watchdog termination tracking already reports out-of-memory
+    /// terminations. Enabling this report sends the terminations MetricKit reports in addition, so
+    /// the same termination can show up twice.
+    SentryObjCMetricKitDiagnosticReportMemoryException = 1 << 5,
 };
 
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV

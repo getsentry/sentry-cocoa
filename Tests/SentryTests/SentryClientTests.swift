@@ -719,7 +719,7 @@ final class SentryClientTests: XCTestCase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        integration.mxManager.didReceive([payload])
+        integration.mxManager.process(diagnosticPayloads: [payload])
 
         // -- Assert --
         XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
@@ -842,17 +842,19 @@ final class SentryClientTests: XCTestCase {
 
     private func givenMetricKitManager(releaseName: String?) -> SentryMXManager {
         SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            releaseName: releaseName,
-            bundleInfo: [
-                "CFBundleIdentifier": "io.sentry.app",
-                "CFBundleShortVersionString": "2.0.0",
-                "CFBundleVersion": "20"
-            ],
-            processIdentifier: Self.metricKitProcessIdentifier,
-            processStartDate: Self.metricKitProcessStartDate
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.hang],
+                releaseName: releaseName,
+                bundleInfo: [
+                    "CFBundleIdentifier": "io.sentry.app",
+                    "CFBundleShortVersionString": "2.0.0",
+                    "CFBundleVersion": "20"
+                ],
+                processIdentifier: Self.metricKitProcessIdentifier,
+                processStartDate: Self.metricKitProcessStartDate
+            )
         )
     }
 
@@ -878,7 +880,7 @@ final class SentryClientTests: XCTestCase {
             options.attachAllThreads = true
         })
 
-        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic", "mx_app_launch_diagnostic"] {
+        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic", "mx_app_launch_diagnostic", "mx_memory_exception"] {
             let event = Event(level: .warning)
             let exception = Exception(value: "Diagnostic without a decoded call stack", type: "MetricKit")
             exception.mechanism = Mechanism(type: mechanism)
