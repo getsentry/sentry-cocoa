@@ -40,7 +40,8 @@ static NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
 static NSMutableDictionary</* SentryTracer.internalTraceId */ NSString *, SentryProfiler *>
     *_gTracersToProfilers;
 
-static unsigned int _gInFlightRootSpans = 0;
+/** Continuous roots tracked independently from legacy/hybrid trace-profiler references. */
+static NSMutableSet<NSString *> *_gInFlightRootSpanIds;
 
 namespace {
 
@@ -67,19 +68,19 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
 }
 
 /**
- * Decrement number of root spans in flight and stop continuous profiler if there are none left.
+ * Release the owning root's reference and stop continuous profiler if there are none left.
  * @warning Must be called from a synchronized context.
  */
 void
-_unsafe_cleanUpContinuousProfilerV2()
+_unsafe_cleanUpContinuousProfilerV2(SentryId *profilerReferenceId)
 {
-    if (_gInFlightRootSpans == 0) {
-        SENTRY_LOG_ERROR(@"Attemtpted to stop continuous profiler with no root spans in flight.");
-    } else {
-        _gInFlightRootSpans -= 1;
+    const auto tracerKey = sentry_stringFromSentryID(profilerReferenceId);
+    if (![_gInFlightRootSpanIds containsObject:tracerKey]) {
+        return;
     }
+    [_gInFlightRootSpanIds removeObject:tracerKey];
 
-    if (_gInFlightRootSpans == 0) {
+    if (_gInFlightRootSpanIds.count == 0) {
         SENTRY_LOG_DEBUG(@"Last root span ended, stopping profiler.");
         [SentryContinuousProfiler stop];
     } else {
@@ -88,20 +89,23 @@ _unsafe_cleanUpContinuousProfilerV2()
 }
 
 void
-sentry_trackRootSpanForContinuousProfilerV2()
+sentry_trackRootSpanForContinuousProfilerV2(SentryId *profilerReferenceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     // Backgrounding stops the sampler without ending its in-flight root spans.
     [SentryContinuousProfiler start];
-    _gInFlightRootSpans += 1;
+    if (_gInFlightRootSpanIds == nil) {
+        _gInFlightRootSpanIds = [NSMutableSet<NSString *> set];
+    }
+    [_gInFlightRootSpanIds addObject:sentry_stringFromSentryID(profilerReferenceId)];
 }
 
 void
-sentry_stopTrackingRootSpanForContinuousProfilerV2()
+sentry_stopTrackingRootSpanForContinuousProfilerV2(SentryId *profilerReferenceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
-    _unsafe_cleanUpContinuousProfilerV2();
+    _unsafe_cleanUpContinuousProfilerV2(profilerReferenceId);
 }
 
 SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
@@ -128,7 +132,7 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
     SENTRY_LOG_DEBUG(
         @"Starting continuous profiler for root span tracer with profilerReferenceId %@",
         sentry_stringFromSentryID(profilerReferenceId));
-    sentry_trackRootSpanForContinuousProfilerV2();
+    sentry_trackRootSpanForContinuousProfilerV2(profilerReferenceId);
     return profilerReferenceId;
 }
 
@@ -168,10 +172,11 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
     std::lock_guard<std::mutex> l(_gStateLock);
 
     // Root ownership survives background cleanup even when the sampler is stopped.
-    if (_gInFlightRootSpans > 0) {
+    if (internalTraceId != nil &&
+        [_gInFlightRootSpanIds containsObject:sentry_stringFromSentryID(internalTraceId)]) {
         SENTRY_LOG_DEBUG(@"Stopping tracking discarded tracer with profileReferenceId %@",
             sentry_stringFromSentryID(internalTraceId));
-        _unsafe_cleanUpContinuousProfilerV2();
+        _unsafe_cleanUpContinuousProfilerV2(internalTraceId);
     } else if (internalTraceId != nil) {
 
         if (_gTracersToProfilers == nil) {
@@ -253,7 +258,7 @@ sentry_stopProfilerDueToFinishedTransaction(
             SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, profileConfiguration.profileOptions))) {
         if (isProfiling) {
             SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
-            sentry_stopTrackingRootSpanForContinuousProfilerV2();
+            sentry_stopTrackingRootSpanForContinuousProfilerV2(trace.profilerReferenceID);
         }
 
         // The launch tracer is intentionally discarded by
@@ -273,7 +278,7 @@ sentry_stopProfilerDueToFinishedTransaction(
             SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             sentry_stringFromSentryID(trace.profilerReferenceID));
-        sentry_stopTrackingRootSpanForContinuousProfilerV2();
+        sentry_stopTrackingRootSpanForContinuousProfilerV2(trace.profilerReferenceID);
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
     }
@@ -393,7 +398,7 @@ sentry_resetConcurrencyTracking()
     std::lock_guard<std::mutex> l(_gStateLock);
     [_gTracersToProfilers removeAllObjects];
     [_gProfilersToTracers removeAllObjects];
-    _gInFlightRootSpans = 0;
+    [_gInFlightRootSpanIds removeAllObjects];
 }
 
 NSUInteger

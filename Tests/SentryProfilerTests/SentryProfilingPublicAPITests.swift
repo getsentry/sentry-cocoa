@@ -687,6 +687,34 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(remoteChild.isFinished)
     }
 
+    /**
+     Given an active native root and a hybrid discard with no associated profiler,
+     when the hybrid API receives the discard repeatedly,
+     then the native root retains ownership until it finishes.
+     */
+    func testDiscard_whenHybridTraceHasNoProfiler_shouldPreserveNativeRootOwnership() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let root = SentrySDK.startTransaction(name: "native", operation: "test")
+        defer { root.finish() }
+        let unknownTraceID = SentryId()
+
+        // -- Act --
+        SentrySDK.internal.profiling.discard(for: unknownTraceID)
+        SentrySDK.internal.profiling.discard(for: unknownTraceID)
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        root.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
     func testDealloc_whenAnotherRootIsActive_shouldReleaseOnlyAbandonedRoot() throws {
         // -- Arrange --
         givenTraceLifecycleSDK()
@@ -751,6 +779,50 @@ extension SentryProfilingPublicAPITests {
     }
 
 #if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    /**
+     Given native and hybrid profiling sessions interrupted by backgrounding,
+     when the hybrid session is discarded and a new native root starts,
+     then hybrid tracking is released without consuming either native root's ownership.
+     Finishing the older native root must leave profiling active for the newer root.
+     */
+    func testDiscard_whenHybridTraceIsBackgrounded_shouldReleaseOnlyHybridOwnership() throws {
+        // -- Arrange --
+        givenTraceLifecycleSDK()
+        let originalRoot = SentrySDK.startTransaction(name: "original", operation: "test")
+        defer { originalRoot.finish() }
+        let hybridTraceID = SentryId()
+        _ = SentrySDK.internal.profiling.start(for: hybridTraceID)
+        defer { SentrySDK.internal.profiling.discard(for: hybridTraceID) }
+        XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 1)
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        SentrySDK.internal.profiling.discard(for: hybridTraceID)
+
+        // -- Assert --
+        XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 0)
+
+        // -- Act --
+        fixture.notificationCenter.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        let newRoot = SentrySDK.startTransaction(name: "new", operation: "test")
+        defer { newRoot.finish() }
+        originalRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        newRoot.finish()
+        try completeProfileChunk()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(fixture.client.captureEventWithScopeInvocations.count, 2)
+    }
+
     func testStartTransaction_whenForegroundedWithAnActiveRoot_shouldRestartProfiling() throws {
         // -- Arrange --
         givenTraceLifecycleSDK()
