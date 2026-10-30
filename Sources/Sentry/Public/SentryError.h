@@ -22,14 +22,26 @@ typedef NS_ENUM(NSInteger, SentryError) {
     kSentryErrorKernel = 109,
 };
 
-SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryError(SentryError error, NSString *description);
+SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryError(SentryError error, NSString *description)
+    DEPRECATED_MSG_ATTRIBUTE("Use SentryError.nsError(description:). This function will be "
+                             "removed in a future major version.");
 SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryErrorWithUnderlyingError(
-    SentryError error, NSString *description, NSError *underlyingError);
+    SentryError error, NSString *description, NSError *underlyingError)
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Use SentryError.nsError(description:underlyingError:). This function will be removed "
+        "in a future major version.");
 SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryErrorWithException(
-    SentryError error, NSString *description, NSException *exception);
+    SentryError error, NSString *description, NSException *exception)
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Use SentryError.nsError(description:exception:). This function will be removed in a "
+        "future major version.");
 SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryErrorWithKernelError(
-    SentryError error, NSString *description, kern_return_t kernelErrorCode);
+    SentryError error, NSString *description, kern_return_t kernelErrorCode)
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Use SentryError.nsError(description:kernelErrorCode:). This function will be removed "
+        "in a future major version.");
 
-SENTRY_EXTERN NSString *const SentryErrorDomain;
+SENTRY_EXTERN NSString *const SentryErrorDomain DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentryError.domain. This constant will be removed in a future major version.");
 
 NS_ASSUME_NONNULL_END

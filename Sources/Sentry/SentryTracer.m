@@ -1,4 +1,5 @@
 #import "SentryClient.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
@@ -464,7 +465,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     SENTRY_LOG_DEBUG(@"Finished trace with tracer profilerReferenceId: %@ and status: %@",
-        self.profilerReferenceID.sentryIdString, nameForSentrySpanStatus(status));
+        self.profilerReferenceID.sentryIdString, sentry_spanStatusName(status));
     @synchronized(self) {
         self.wasFinishCalled = YES;
     }

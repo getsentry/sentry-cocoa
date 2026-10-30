@@ -6,13 +6,12 @@
 #    import <SentryDefines.h>
 #endif
 #import SENTRY_HEADER(SentrySampleDecision)
+#import SENTRY_HEADER(SentryDeprecated)
 
 @class SentryId;
 @class SentrySpanId;
 
 NS_ASSUME_NONNULL_BEGIN
-
-static NSString *const SENTRY_TRACE_HEADER = @"sentry-trace";
 
 NS_SWIFT_NAME(TraceHeader)
 @interface SentryTraceHeader : NSObject

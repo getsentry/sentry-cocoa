@@ -117,7 +117,7 @@ public class SentryTimeToDisplayTracker: NSObject, SentryFramesTrackerListener, 
                 return
             }
 
-            SentrySDKLog.warning("You didn't call SentrySDK.reportFullyDisplayed() for UIViewController: \(name). Finishing full display span with status: \(nameForSentrySpanStatus(.deadlineExceeded)).")
+            SentrySDKLog.warning("You didn't call SentrySDK.reportFullyDisplayed() for UIViewController: \(name). Finishing full display span with status: \(SentrySpanStatus.deadlineExceeded.name).")
             fullDisplaySpan?.finish(status: .deadlineExceeded)
         }
     }

@@ -116,8 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     NSString *sampled = nil;
     if (tracer.sampled != kSentrySampleDecisionUndecided) {
-        sampled
-            = tracer.sampled == kSentrySampleDecisionYes ? kSentryTrueString : kSentryFalseString;
+        sampled = tracer.sampled == kSentrySampleDecisionYes ? @"true" : @"false";
     }
 
     return [self initWithTraceId:tracer.traceId

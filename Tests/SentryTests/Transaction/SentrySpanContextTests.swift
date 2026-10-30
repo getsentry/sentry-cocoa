@@ -67,7 +67,7 @@ class SentrySpanContextTests: XCTestCase {
         
         XCTAssertEqual(data["span_id"] as? String, spanId.sentrySpanIdString)
         XCTAssertEqual(data["trace_id"] as? String, id.sentryIdString)
-        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["type"] as? String, "trace")
         XCTAssertEqual(data["op"] as? String, someOperation)
         XCTAssertEqual(data["description"] as? String, spanContext.spanDescription)
         XCTAssertEqual(data["sampled"] as? NSNumber, true)
@@ -207,7 +207,7 @@ class SentrySpanContextTests: XCTestCase {
         let data = spanContext.serialize()
 
         // Assert
-        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["type"] as? String, "trace")
         XCTAssertEqual(data["trace_id"] as? String, traceID.sentryIdString)
         XCTAssertEqual(data["span_id"] as? String, spanID.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
@@ -224,7 +224,7 @@ class SentrySpanContextTests: XCTestCase {
         let data = spanContext.serialize()
 
         // Assert
-        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["type"] as? String, "trace")
         XCTAssertEqual(data["trace_id"] as? String, spanContext.traceId.sentryIdString)
         XCTAssertEqual(data["span_id"] as? String, spanContext.spanId.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)

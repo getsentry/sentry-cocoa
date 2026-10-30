@@ -1,5 +1,8 @@
 #import "SentrySpanStatus.h"
+#import "SentryDeprecated+Private.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 NSString *const kSentrySpanStatusNameUndefined = @"undefined";
 NSString *const kSentrySpanStatusNameOk = @"ok";
 NSString *const kSentrySpanStatusNameDeadlineExceeded = @"deadline_exceeded";
@@ -18,46 +21,56 @@ NSString *const kSentrySpanStatusNameFailedPrecondition = @"failed_precondition"
 NSString *const kSentrySpanStatusNameAborted = @"aborted";
 NSString *const kSentrySpanStatusNameOutOfRange = @"out_of_range";
 NSString *const kSentrySpanStatusNameDataLoss = @"data_loss";
+#pragma clang diagnostic pop
 
 NSString *
-nameForSentrySpanStatus(SentrySpanStatus status)
+sentry_spanStatusName(SentrySpanStatus status)
 {
     switch (status) {
     case kSentrySpanStatusUndefined:
-        return kSentrySpanStatusNameUndefined;
+        return @"undefined";
     case kSentrySpanStatusOk:
-        return kSentrySpanStatusNameOk;
+        return @"ok";
     case kSentrySpanStatusDeadlineExceeded:
-        return kSentrySpanStatusNameDeadlineExceeded;
+        return @"deadline_exceeded";
     case kSentrySpanStatusUnauthenticated:
-        return kSentrySpanStatusNameUnauthenticated;
+        return @"unauthenticated";
     case kSentrySpanStatusPermissionDenied:
-        return kSentrySpanStatusNamePermissionDenied;
+        return @"permission_denied";
     case kSentrySpanStatusNotFound:
-        return kSentrySpanStatusNameNotFound;
+        return @"not_found";
     case kSentrySpanStatusResourceExhausted:
-        return kSentrySpanStatusNameResourceExhausted;
+        return @"resource_exhausted";
     case kSentrySpanStatusInvalidArgument:
-        return kSentrySpanStatusNameInvalidArgument;
+        return @"invalid_argument";
     case kSentrySpanStatusUnimplemented:
-        return kSentrySpanStatusNameUnimplemented;
+        return @"unimplemented";
     case kSentrySpanStatusUnavailable:
-        return kSentrySpanStatusNameUnavailable;
+        return @"unavailable";
     case kSentrySpanStatusInternalError:
-        return kSentrySpanStatusNameInternalError;
+        return @"internal_error";
     case kSentrySpanStatusUnknownError:
-        return kSentrySpanStatusNameUnknownError;
+        return @"unknown_error";
     case kSentrySpanStatusCancelled:
-        return kSentrySpanStatusNameCancelled;
+        return @"cancelled";
     case kSentrySpanStatusAlreadyExists:
-        return kSentrySpanStatusNameAlreadyExists;
+        return @"already_exists";
     case kSentrySpanStatusFailedPrecondition:
-        return kSentrySpanStatusNameFailedPrecondition;
+        return @"failed_precondition";
     case kSentrySpanStatusAborted:
-        return kSentrySpanStatusNameAborted;
+        return @"aborted";
     case kSentrySpanStatusOutOfRange:
-        return kSentrySpanStatusNameOutOfRange;
+        return @"out_of_range";
     case kSentrySpanStatusDataLoss:
-        return kSentrySpanStatusNameDataLoss;
+        return @"data_loss";
     }
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+NSString *
+nameForSentrySpanStatus(SentrySpanStatus status)
+{
+    return sentry_spanStatusName(status);
+}
+#pragma clang diagnostic pop

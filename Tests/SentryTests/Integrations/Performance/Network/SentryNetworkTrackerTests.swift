@@ -1763,7 +1763,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             var duplicateRequest = request
             duplicateRequest.setValue(
                 networkSpan.toTraceHeader().value(),
-                forHTTPHeaderField: SENTRY_TRACE_HEADER
+                forHTTPHeaderField: TraceHeader.httpHeaderField
             )
             return duplicateRequest
         }
@@ -1814,7 +1814,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             var duplicateRequest = request
             duplicateRequest.setValue(
                 originalSpan.toTraceHeader().value(),
-                forHTTPHeaderField: SENTRY_TRACE_HEADER
+                forHTTPHeaderField: TraceHeader.httpHeaderField
             )
             return duplicateRequest
         }
@@ -2580,7 +2580,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: Span) throws {
         XCTAssertNotNil(span)
         XCTAssertFalse(span.isFinished)
-        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: SENTRY_TRACE_HEADER), span.toTraceHeader().value())
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: TraceHeader.httpHeaderField), span.toTraceHeader().value())
         try setTaskState(task, state: .completed)
         XCTAssertTrue(span.isFinished)
 

@@ -1,5 +1,6 @@
 #import "SentryFileManagerHelper.h"
 #import "SentryDateUtils.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
@@ -52,7 +53,7 @@ createDirectoryIfNotExists(NSString *path, NSError **error)
     if (isErrorPathTooLong(*error)) {
         SENTRY_LOG_FATAL(@"Failed to create directory, path is too long: %@", path);
     }
-    *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
+    *error = sentry_errorWithUnderlyingError(kSentryErrorFileIO,
         [NSString stringWithFormat:@"Failed to create the directory at path %@.", path], *error);
     return NO;
 }
