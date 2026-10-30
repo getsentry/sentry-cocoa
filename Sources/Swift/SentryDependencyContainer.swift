@@ -956,6 +956,21 @@ protocol SysctlProvider {
 }
 extension SentryDependencyContainer: SysctlProvider {}
 
+#if os(iOS) || os(macOS) || os(visionOS)
+protocol MetricKitRunProvider {
+    var metricKitRunStore: SentryMXRunStore? { get }
+    func metricKitPreviousRunScope(options: Options) -> SentryMXPreviousRunScopeApplying?
+}
+extension SentryDependencyContainer: MetricKitRunProvider {
+    func metricKitPreviousRunScope(options: Options) -> SentryMXPreviousRunScopeApplying? {
+        guard let fileManager, let scopePersistentStore else {
+            return nil
+        }
+        return SentryMXPreviousRunScope(fileManager: fileManager, scopePersistentStore: scopePersistentStore, maxBreadcrumbs: options.maxBreadcrumbs)
+    }
+}
+#endif // os(iOS) || os(macOS) || os(visionOS)
+
 protocol CrashReporterStateProvider {
     var activeCrashReporterState: SentryCrashReporterState { get }
 }

@@ -72,6 +72,7 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         var appLaunchDiagnostics: [MXDiagnostic]?
         
         var timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        var timeStampEnd: Date?
     }
     
     var overrides = Override()
@@ -101,6 +102,10 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
     
     override var timeStampBegin: Date {
         return overrides.timeStampBegin
+    }
+
+    override var timeStampEnd: Date {
+        return overrides.timeStampEnd ?? overrides.timeStampBegin
     }
 }
 

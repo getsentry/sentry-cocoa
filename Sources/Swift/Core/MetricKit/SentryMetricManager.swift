@@ -145,6 +145,7 @@ extension SentryMXDiagnostic {
             },
             rawFilename: "DiagnosticReport.json"
         )
+        timeRange = report.timeRange
     }
 }
 

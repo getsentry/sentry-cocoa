@@ -819,12 +819,17 @@ class TestMXCrashDiagnostic: MXCrashDiagnostic {
         var exceptionType: NSNumber?
         var exceptionCode: NSNumber?
         var signal: NSNumber?
+        var metaData: MXMetaData?
     }
 
     public var overrides = Override()
 
     override var callStackTree: MXCallStackTree {
         return overrides.callStackTree
+    }
+
+    override var metaData: MXMetaData {
+        return overrides.metaData ?? super.metaData
     }
 
     override var exceptionType: NSNumber? {

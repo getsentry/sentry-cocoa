@@ -28,6 +28,9 @@ struct SentryMXDiagnostic {
     let level: SentryLevel?
     /// The start of the time range MetricKit reports the diagnostic in.
     let timestamp: Date
+    /// The time range MetricKit reports the diagnostic in, which is used to match the diagnostic
+    /// to the run that recorded it.
+    var timeRange: DateInterval
     let metadata: Metadata
     /// Converts MetricKit's call stack tree, throwing when it has an unexpected format.
     let callStackTree: () throws -> SentryMXCallStackTree
@@ -50,10 +53,25 @@ struct SentryMXDiagnostic {
         self.exceptionValue = exceptionValue
         self.level = level
         self.timestamp = timestamp
+        self.timeRange = DateInterval(start: timestamp, duration: 0)
         self.metadata = metadata
         self.callStackTree = callStackTree
         self.rawJSON = rawJSON
         self.rawFilename = rawFilename
+    }
+}
+
+extension SentryMXDiagnostic {
+    /// What the diagnostic reports about the run that recorded it.
+    var run: SentryMXDiagnosticRun {
+        SentryMXDiagnosticRun(runIds: metadata.runIds, pid: metadata.pid, timeRange: timeRange)
+    }
+
+    /// Sets the time range of a legacy payload, whose diagnostics only carry its start.
+    func with(payloadTimeStampBegin begin: Date, end: Date) -> SentryMXDiagnostic {
+        var diagnostic = self
+        diagnostic.timeRange = DateInterval(start: begin, end: max(begin, end))
+        return diagnostic
     }
 }
 

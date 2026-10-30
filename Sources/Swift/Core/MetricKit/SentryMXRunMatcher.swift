@@ -55,29 +55,36 @@ enum SentryMXRunMatcher {
     }
 
     static func match(_ diagnostic: SentryMXDiagnosticRun, in runs: [SentryMXFatalRun]) -> Match {
-        if !diagnostic.runIds.isEmpty {
-            return matchByRunId(diagnostic.runIds, in: runs)
+        // A diagnostic that carries the states of several runs can't tell which one recorded it.
+        guard Set(diagnostic.runIds).count <= 1 else {
+            return .ambiguous
         }
-        if let pid = diagnostic.pid {
-            return matchByPid(pid, timeRange: diagnostic.timeRange, in: runs)
+        return single(runs.filter { isCandidate(diagnostic, runId: $0.runId, pid: $0.pid, lifetime: $0.lifetime) })
+    }
+
+    /// Whether the diagnostic belongs to a run that isn't recorded as fatal, such as the run
+    /// directly before the running process.
+    ///
+    /// - Parameter end: The latest the run can have ended, which is when the next run started.
+    static func matches(_ diagnostic: SentryMXDiagnosticRun, run: SentryMXRunStore.Run, end: Date) -> Bool {
+        guard Set(diagnostic.runIds).count <= 1 else {
+            return false
         }
-        return .unmatched
+        let lifetime = DateInterval(start: run.start, end: max(run.start, end))
+        return isCandidate(diagnostic, runId: run.runId, pid: run.pid, lifetime: lifetime)
     }
 
     /// The run ID is exact, so a diagnostic that carries one isn't matched by its process ID, even
-    /// when no recorded run has that ID.
-    private static func matchByRunId(_ runIds: [UUID], in runs: [SentryMXFatalRun]) -> Match {
-        // A diagnostic that carries the states of several runs can't tell which one recorded it.
-        guard Set(runIds).count == 1, let runId = runIds.first else {
-            return .ambiguous
+    /// when no run has that ID. Otherwise the OS reuses process IDs, so the diagnostic's time
+    /// range must also overlap the lifetime of the run.
+    private static func isCandidate(_ diagnostic: SentryMXDiagnosticRun, runId: UUID, pid: pid_t, lifetime: DateInterval) -> Bool {
+        if let diagnosticRunId = diagnostic.runIds.first {
+            return diagnosticRunId == runId
         }
-        return single(runs.filter { $0.runId == runId })
-    }
-
-    /// The OS reuses process IDs, so the diagnostic's time range must also overlap the lifetime of
-    /// the run.
-    private static func matchByPid(_ pid: pid_t, timeRange: DateInterval, in runs: [SentryMXFatalRun]) -> Match {
-        single(runs.filter { $0.pid == pid && $0.lifetime.intersects(timeRange) })
+        guard let diagnosticPid = diagnostic.pid else {
+            return false
+        }
+        return diagnosticPid == pid && lifetime.intersects(diagnostic.timeRange)
     }
 
     private static func single(_ candidates: [SentryMXFatalRun]) -> Match {
