@@ -3,7 +3,7 @@ import Foundation
 /// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
-    /// Experimental MetricKit diagnostic reporting options.
+    /// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
     @nonobjc public let metrickit = SentryMetricKitOptions()
 
     #if !SDK_V10

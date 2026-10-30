@@ -20,25 +20,46 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes)
+    func count(_ name: String, value: UInt, options: SentryMetricOptions) {
+        // Count metrics have no unit, see SentryMetricOptions.unit.
+        captureMetric(name: name, value: .counter(value), unit: nil, options: options)
     }
 
-    func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
+    func distribution(_ name: String, value: Double, options: SentryMetricOptions) {
+        captureMetric(name: name, value: .distribution(value), unit: options.unit, options: options)
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
+    func gauge(_ name: String, value: Double, options: SentryMetricOptions) {
+        captureMetric(name: name, value: .gauge(value), unit: options.unit, options: options)
     }
 
-    // MARK: - Private
+    #if !SDK_V10
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
+        count(key, value: value, options: SentryMetricOptions(attributes: attributes))
+    }
 
-    private func captureMetric(
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        distribution(key, value: value, options: SentryMetricOptions(unit: unit, attributes: attributes))
+    }
+
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        gauge(key, value: value, options: SentryMetricOptions(unit: unit, attributes: attributes))
+    }
+    #endif // !SDK_V10
+
+    // MARK: - Capture
+
+    // Internal rather than private so the overloads in SentryMetricsApi+Internal.swift can reach
+    // it.
+    //
+    // - Parameter previousProcessTraceId: Set for a metric a previous process recorded. The
+    //   metric then gets this trace ID and only the scope attributes that still describe it.
+    func captureMetric(
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
-        attributes: [String: SentryAttributeValue]
+        options: SentryMetricOptions,
+        previousProcessTraceId: SentryId? = nil
     ) {
         guard dependencies.isSDKEnabled else {
             SentrySDKLog.warning("Metric '\(name)' was not captured because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
@@ -63,20 +84,29 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         //
         // When a span is active, use its traceId to ensure consistency with span_id.
         // Otherwise, fall back to propagationContext traceId.
-        let traceId = dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
+        let traceId = previousProcessTraceId ?? dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
 
         let metric = SentryMetric(
-            timestamp: dependencies.dateProvider.date(),
+            timestamp: options.timestamp ?? dependencies.dateProvider.date(),
             traceId: traceId,
             name: name,
             value: value,
             unit: unit,
-            attributes: attributes.mapValues { attributable in
+            attributes: options.attributes.mapValues { attributable in
                 attributable.asSentryAttributeContent
             }
         )
-        let currentScope = dependencies.currentScopeStorage.scope()
-        integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
+        // A scope passed in the options takes the place of the thread's current scope, so it
+        // layers over the global scope the same way. A metric from a previous process gets
+        // neither, because both describe the running process.
+        let isFromPreviousProcess = previousProcessTraceId != nil
+        let currentScope = isFromPreviousProcess ? nil : options.scope ?? dependencies.currentScopeStorage.scope()
+        integration.addMetric(
+            metric,
+            scope: dependencies.scope,
+            currentScope: currentScope,
+            isFromPreviousProcess: isFromPreviousProcess
+        )
     }
 }
 
