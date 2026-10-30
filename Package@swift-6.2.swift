@@ -18,24 +18,20 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let envSelectsV10 = envFlag("SDK_V10")
-let v10SwiftSettings: [SwiftSetting] = envSelectsV10
-    ? [.define("SDK_V10")]
-    : [.define("SDK_V10", .when(traits: ["V10"]))]
-let v10CSettings: [CSetting] = envSelectsV10
-    ? [.define("SDK_V10", to: "1")]
-    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
-// PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
-let v10CxxSettings: [CXXSetting] = envSelectsV10
-    ? [.define("SDK_V10", to: "1")]
-    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
+let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []
+let v10CSettings: [CSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
+let v10CxxSettings: [CXXSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
 // SwiftPM's defaults do not reach Swift's Clang importer.
 let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSettings
 let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings
 let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CxxSettings
 
-let kscrashDependencyCondition: TargetDependencyCondition? = envSelectsV10
-    ? nil
-    : .when(traits: ["V10"])
+let kscrashDependencies: [Target.Dependency] = envSelectsV10
+    ? [.product(name: "Recording", package: "KSCrash")]
+    : []
+let kscrashSwiftDependencies: [Target.Dependency] = kscrashDependencies + (envSelectsV10
+    ? [.product(name: "RecordingCore", package: "KSCrash")]
+    : [])
 
 // Match the wrapper targets' compiler settings in Sentry.xcodeproj.
 let objcCompatSwiftSettings: [SwiftSetting] = [
@@ -138,20 +134,7 @@ if envSelectsV10 {
 
 let sentrySwiftTarget: Target = .target(
     name: "SentrySwift",
-    dependencies: [
-        "_SentryPrivate",
-        "SentryHeaders",
-        .product(
-            name: "Recording",
-            package: "KSCrash",
-            condition: kscrashDependencyCondition
-        ),
-        .product(
-            name: "RecordingCore",
-            package: "KSCrash",
-            condition: kscrashDependencyCondition
-        )
-    ],
+    dependencies: ["_SentryPrivate", "SentryHeaders"] + kscrashSwiftDependencies,
     path: "Sources/Swift",
     cSettings: cSettings,
     swiftSettings: [
@@ -192,14 +175,7 @@ let sentryObjCInternalCSettings: [CSetting] = [
     .define("SENTRY_UI_TEST_SUPPORT", to: "1", .when(traits: ["_SentryInternalUITestSupport"]))
 ] + cSettings
 
-var sentryPrivateDependencies: [Target.Dependency] = [
-    "SentryHeaders",
-    .product(
-        name: "Recording",
-        package: "KSCrash",
-        condition: kscrashDependencyCondition
-    )
-]
+var sentryPrivateDependencies: [Target.Dependency] = ["SentryHeaders"] + kscrashDependencies
 if !envSelectsV10 {
     sentryPrivateDependencies.append(
         .target(name: "_SentryCrashV9Headers")
@@ -210,7 +186,7 @@ targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
         name: "SentryHeaders",
-        dependencies: [.target(name: "_SentryV10Configuration", condition: kscrashDependencyCondition)],
+        dependencies: envSelectsV10 ? [.target(name: "_SentryV10Configuration")] : [],
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
@@ -247,14 +223,7 @@ targets += [
     )
 ]
 
-var sentryObjCInternalDependencies: [Target.Dependency] = [
-    "SentrySwift",
-    .product(
-        name: "Recording",
-        package: "KSCrash",
-        condition: kscrashDependencyCondition
-    )
-]
+var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"] + kscrashDependencies
 if !envSelectsV10 {
     sentryObjCInternalDependencies += [
         .target(name: "SentryCrashV9"),
@@ -281,8 +250,7 @@ targets += [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + v10CSettings
     ),
-    // The recorder stays separate from reporter-neutral SDK code. The development V10 trait
-    // compiles its guarded sources without recorder implementation; the environment route excludes it.
+    // The recorder stays separate from reporter-neutral SDK code; V10 SDK products exclude it.
     .target(
         name: "SentryObjCInternal",
         dependencies: sentryObjCInternalDependencies,
@@ -460,7 +428,6 @@ targets += [
 ]
 
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
-// Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
 if !envSelectsV10 {
     targets += [
         .testTarget(
@@ -528,7 +495,6 @@ let package = Package(
     products: products,
     traits: [
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
-        .init(name: "V10", description: "Development-only V10 API and KSCrash selection; removed when V9 branches off before V10 release."),
         .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
         .init(name: "_SentryTest", description: "Internal SDK unit-test support for local development. Changes SDK behavior; not for consumers or production builds."),
         .init(name: "_SentryTestCI", description: "Internal SDK unit-test support for CI. Changes SDK behavior; not for consumers or production builds.")
