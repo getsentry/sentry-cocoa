@@ -1,8 +1,6 @@
 #import "SentrySpanStatus.h"
 #import "SentryDeprecated+Private.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 NSString *const kSentrySpanStatusNameUndefined = @"undefined";
 NSString *const kSentrySpanStatusNameOk = @"ok";
 NSString *const kSentrySpanStatusNameDeadlineExceeded = @"deadline_exceeded";
@@ -21,7 +19,6 @@ NSString *const kSentrySpanStatusNameFailedPrecondition = @"failed_precondition"
 NSString *const kSentrySpanStatusNameAborted = @"aborted";
 NSString *const kSentrySpanStatusNameOutOfRange = @"out_of_range";
 NSString *const kSentrySpanStatusNameDataLoss = @"data_loss";
-#pragma clang diagnostic pop
 
 NSString *
 sentry_spanStatusName(SentrySpanStatus status)
@@ -66,11 +63,8 @@ sentry_spanStatusName(SentrySpanStatus status)
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 NSString *
 nameForSentrySpanStatus(SentrySpanStatus status)
 {
     return sentry_spanStatusName(status);
 }
-#pragma clang diagnostic pop

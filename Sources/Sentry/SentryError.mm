@@ -4,10 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 NSString *const SentryErrorDomain = @"SentryErrorDomain";
-#pragma clang diagnostic pop
 
 static NSError *
 sentry_errorWithUserInfo(SentryError error, NSDictionary *userInfo)
@@ -55,8 +52,6 @@ sentry_errorWithKernelError(SentryError error, NSString *description, kern_retur
         error, [NSString stringWithFormat:@"%@ (%@)", description, kernelDescription]);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 NSError *_Nullable NSErrorFromSentryError(SentryError error, NSString *description)
 {
     return sentry_errorWithDescription(error, description);
@@ -79,6 +74,5 @@ NSError *_Nullable NSErrorFromSentryErrorWithKernelError(
 {
     return sentry_errorWithKernelError(error, description, kernelErrorCode);
 }
-#pragma clang diagnostic pop
 
 NS_ASSUME_NONNULL_END
