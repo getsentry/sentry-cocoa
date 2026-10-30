@@ -251,8 +251,10 @@ sentry_stopProfilerDueToFinishedTransaction(
         && profileConfiguration.profileOptions != nil
         && sentry_isTraceLifecycle(
             SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, profileConfiguration.profileOptions))) {
-        SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
-        sentry_stopTrackingRootSpanForContinuousProfilerV2();
+        if (isProfiling) {
+            SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
+            sentry_stopTrackingRootSpanForContinuousProfilerV2();
+        }
 
         // The launch tracer is intentionally discarded by
         // SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer. Other transactions finishing
