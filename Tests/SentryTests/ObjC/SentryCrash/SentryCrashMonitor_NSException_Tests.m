@@ -216,7 +216,12 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
 
     // -- Assert --
     XCTAssertFalse(g_threadInfoFailed);
+#    if TARGET_OS_WATCH
+    // watchOS has no thread suspension API, so the monitor never suspends the probe thread.
+    XCTAssertFalse(g_probeSuspendedDuringReport);
+#    else
     XCTAssertTrue(g_probeSuspendedDuringReport);
+#    endif
     XCTAssertFalse(g_metadataReadWhileSuspended,
         @"Exception metadata must be extracted before suspending other threads");
     XCTAssertEqual(strcmp(g_capturedName, "TestException"), 0);
@@ -241,7 +246,12 @@ captureExceptionContext(struct SentryCrash_MonitorContext *context)
 
     // -- Assert --
     XCTAssertFalse(g_threadInfoFailed);
+#    if TARGET_OS_WATCH
+    // watchOS has no thread suspension API, so the monitor never suspends the probe thread.
+    XCTAssertFalse(g_probeSuspendedDuringReport);
+#    else
     XCTAssertTrue(g_probeSuspendedDuringReport);
+#    endif
     XCTAssertFalse(g_metadataReadWhileSuspended);
     XCTAssertEqual(strcmp(g_capturedName, "TestException"), 0);
     XCTAssertTrue(g_reasonWasNull);
