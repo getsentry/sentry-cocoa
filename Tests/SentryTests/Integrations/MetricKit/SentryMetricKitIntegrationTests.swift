@@ -48,7 +48,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.crashDiagnostics = [crashDiagnostic]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
@@ -113,18 +113,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNothingCaptured()
     }
 
-    func testDidReceive_whenDiagnosticPayloadsAreNotReceived_shouldNotCaptureEvent() throws {
+    func testDidReceive_whenManagerHasNoDiagnosticCapturer_shouldNotCaptureEvent() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
-        let sut = SentryMXManager(
-            diagnosticCapturer: SentryMXDiagnosticCapturer(
-                inAppLogic: SentryInAppLogic(inAppIncludes: []),
-                attachDiagnosticAsAttachment: false,
-                enabledDiagnostics: [.hang],
-                processStartDate: .distantPast
-            ),
-            receivesDiagnosticPayloads: false
-        )
+        let sut = SentryMXManager(metricRecorder: SentryMXMetricRecorder(enabledMetricReports: [.cpuCumulativeTime]))
         let hangDiagnostic = TestMXHangDiagnostic()
         hangDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
         let payload = TestMXDiagnosticPayload()
@@ -137,7 +129,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNothingCaptured()
     }
 
-    func testInit_whenDiagnosticsEnabled_shouldReceiveDiagnosticsFromMetricManagerOnlyOnXOS27() throws {
+    func testInit_whenDiagnosticsEnabled_shouldReceiveThemFromOneAPI() throws {
         // -- Arrange --
         let options = Options()
         options.experimental.metrickit.enabledDiagnosticReports = [.hang]
@@ -147,21 +139,20 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         defer { sut.uninstall() }
 
         // -- Assert --
-        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *), Self.isBuiltWithMetricManager {
+        if Self.metricManagerDeliversDiagnostics {
             XCTAssertNotNil(sut.metricManager)
-            XCTAssertFalse(sut.mxManager.receivesDiagnosticPayloads)
+            XCTAssertNil(sut.mxManager)
         } else {
             XCTAssertNil(sut.metricManager)
-            XCTAssertTrue(sut.mxManager.receivesDiagnosticPayloads)
+            XCTAssertNotNil(sut.mxManager?.diagnosticCapturer)
         }
     }
 
-    func testInit_whenOnlyMetricReportsEnabled_shouldReceiveDiagnosticPayloadsWithoutMetricManager() throws {
+    func testInit_whenMetricsEnabled_shouldReceiveThemFromOneAPI() throws {
         // -- Arrange --
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = false
-        #endif // !SDK_V10
+        // V10 enables diagnostic reports by default.
+        options.experimental.metrickit.enabledDiagnosticReports = []
         options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime]
 
         // -- Act --
@@ -169,8 +160,31 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         defer { sut.uninstall() }
 
         // -- Assert --
-        XCTAssertNil(sut.metricManager)
-        XCTAssertTrue(sut.mxManager.receivesDiagnosticPayloads)
+        if Self.metricManagerDeliversMetrics {
+            XCTAssertNotNil(sut.metricManager)
+            XCTAssertNil(sut.mxManager)
+        } else {
+            XCTAssertNil(sut.metricManager)
+            XCTAssertNotNil(sut.mxManager?.metricRecorder)
+            XCTAssertNil(sut.mxManager?.diagnosticCapturer)
+        }
+    }
+
+    func testInit_whenDiagnosticsAndMetricsEnabled_shouldReceiveEachFromOneAPI() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
+        options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        defer { sut.uninstall() }
+
+        // -- Assert --
+        // On visionOS 27, MetricManager delivers the diagnostics and the subscriber the metrics.
+        XCTAssertEqual(sut.metricManager != nil, Self.metricManagerDeliversDiagnostics)
+        XCTAssertEqual(sut.mxManager?.diagnosticCapturer != nil, !Self.metricManagerDeliversDiagnostics)
+        XCTAssertEqual(sut.mxManager?.metricRecorder != nil, !Self.metricManagerDeliversMetrics)
     }
 
     func testAttachDiagnosticAsAttachment() throws {
@@ -190,7 +204,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
             try assertEventWithScopeCaptured { _, _, _ in
                 let diagnosticAttachment = try capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" }
@@ -246,7 +260,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
@@ -287,7 +301,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         assertNothingCaptured()
@@ -325,7 +339,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -367,7 +381,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
             try assertEventWithScopeCaptured { _, _, _ in
                 let diagnosticAttachment = try capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" }
@@ -393,7 +407,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
             try assertEventWithScopeCaptured { event, _, _ in
                 let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
@@ -422,7 +436,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -482,7 +496,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         cpuException.overrides.callStackTree = callStackTree
         payload.overrides.cpuDiagnostic = [cpuException]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
             guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
                 XCTFail("Hub Client is not a `TestClient`")
@@ -523,7 +537,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -582,7 +596,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -656,7 +670,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [majorHang, severeThresholdHang, severeHang, criticalHang]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -686,7 +700,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertPerThread(exceptionType: "MXAppLaunchDiagnostic", exceptionValue: "MXAppLaunchDiagnostic launchDuration:3.3 sec", exceptionMechanism: "mx_app_launch_diagnostic")
@@ -713,20 +727,31 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.appLaunchDiagnostics = [appLaunchDiagnostic]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         assertNothingCaptured()
     }
 #endif // os(iOS) || os(visionOS)
 
-    /// Whether the SDK was built with an SDK that has `MetricManager`, which Xcode 27 added.
-    private static var isBuiltWithMetricManager: Bool {
+    /// Whether `MetricManager` delivers diagnostics, which it does on xOS 27 when the SDK is built
+    /// with Xcode 27.
+    private static var metricManagerDeliversDiagnostics: Bool {
         #if compiler(>=6.4)
-        return true
-        #else
-        return false
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+            return true
+        }
         #endif // compiler(>=6.4)
+        return false
+    }
+
+    /// Whether `MetricManager` delivers metrics, which it doesn't on visionOS.
+    private static var metricManagerDeliversMetrics: Bool {
+        #if os(visionOS)
+        return false
+        #else
+        return metricManagerDeliversDiagnostics
+        #endif // os(visionOS)
     }
 
     private func capturedHintAttachments() throws -> [Attachment] {
@@ -795,6 +820,16 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual("iOS-Swift", try XCTUnwrap(debugMeta.element(at: 1)).codeFile)
     }
 
+}
+
+extension SentryMetricKitIntegration {
+    /// Captures legacy diagnostic payloads with the integration's diagnostic capturer. The
+    /// integration doesn't receive them through the subscriber on xOS 27 and later, where
+    /// `MetricManager` delivers the diagnostics.
+    func receiveLegacyDiagnosticPayloads(_ payloads: [MXDiagnosticPayload]) throws {
+        let diagnosticCapturer = try XCTUnwrap(diagnosticCapturer)
+        SentryMXManager(diagnosticCapturer: diagnosticCapturer).didReceive(payloads)
+    }
 }
 
 @available(tvOS, unavailable)

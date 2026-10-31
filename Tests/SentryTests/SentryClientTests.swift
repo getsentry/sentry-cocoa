@@ -719,7 +719,7 @@ final class SentryClientTests: XCTestCase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        integration.mxManager.process(diagnosticPayloads: [payload])
+        try integration.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)

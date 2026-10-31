@@ -112,7 +112,12 @@ final class SentryObjCCompatMetricKitOptionsTests: XCTestCase {
         (.exitBackgroundIllegalInstruction, 43),
         (.exitBackgroundWatchdog, 44),
         (.exitBackgroundSuspendedWithLockedFile, 45),
-        (.exitBackgroundTaskTimeout, 46)
+        (.exitBackgroundTaskTimeout, 46),
+        (.animationTotalHitchTime, 47),
+        (.animationTotalAnimationTime, 48),
+        (.metalFramesPerSecond, 49),
+        (.metalFrameCount, 50),
+        (.metalActiveDrawingDuration, 51)
     ]
 
     func testMetricReportBitIndexes_shouldCoverEveryReportOnce() {

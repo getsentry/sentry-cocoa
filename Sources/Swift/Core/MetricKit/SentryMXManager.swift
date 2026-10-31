@@ -23,29 +23,21 @@ final class SentryMXManager: NSObject, SentryMetricKitReportReceiver {
     // MARK: - Properties
 
     private let metricManager: SentryMXMetricManager
-    let diagnosticCapturer: SentryMXDiagnosticCapturer
-    /// Whether diagnostic payloads are captured. `SentryMetricManager` replaces the subscriber for
-    /// diagnostics on xOS 27 and later, so the same diagnostic can't be captured twice.
-    let receivesDiagnosticPayloads: Bool
-    let enabledMetricReports: Set<MetricReport>
-    let metricsApi: SentryInternalMetricsApi
-    let releaseResolver: SentryMXReleaseResolver
+    /// Captures the diagnostic payloads, or `nil` when the subscriber doesn't deliver diagnostics,
+    /// such as on xOS 27 and later, where `SentryMetricManager` delivers them.
+    let diagnosticCapturer: SentryMXDiagnosticCapturer?
+    /// Records the metric payloads, or `nil` when the subscriber doesn't deliver metrics, such as
+    /// on iOS and macOS 27 and later, where `SentryMetricManager` delivers them.
+    let metricRecorder: SentryMXMetricRecorder?
 
     init(
         metricManager: SentryMXMetricManager = MXMetricManager.shared,
-        diagnosticCapturer: SentryMXDiagnosticCapturer,
-        receivesDiagnosticPayloads: Bool = true,
-        enabledMetricReports: Set<MetricReport> = [],
-        metricsApi: SentryInternalMetricsApi = SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance()),
-        releaseName: String? = nil,
-        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:]
+        diagnosticCapturer: SentryMXDiagnosticCapturer? = nil,
+        metricRecorder: SentryMXMetricRecorder? = nil
     ) {
         self.metricManager = metricManager
         self.diagnosticCapturer = diagnosticCapturer
-        self.receivesDiagnosticPayloads = receivesDiagnosticPayloads
-        self.enabledMetricReports = enabledMetricReports
-        self.metricsApi = metricsApi
-        self.releaseResolver = SentryMXReleaseResolver(releaseName: releaseName, bundleInfo: bundleInfo)
+        self.metricRecorder = metricRecorder
         super.init()
     }
 
@@ -65,36 +57,32 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     // delivers metric payloads from macOS 26.
     #if os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
     func didReceive(_ payloads: [MXMetricPayload]) {
-        guard !enabledMetricReports.isEmpty else {
-            SentrySDKLog.debug("MetricKit metric reports are not enabled, skipping \(payloads.count) metric payloads")
+        guard let metricRecorder else {
+            SentrySDKLog.debug("MetricKit metric payloads are not received, skipping \(payloads.count) metric payloads")
             return
         }
         SentrySDKLog.info("Received \(payloads.count) MetricKit metric payloads")
         payloads.forEach { payload in
-            process(metricPayload: payload)
+            metricRecorder.record(metricPayload: payload)
         }
     }
     #endif // os(iOS) || os(visionOS) || (os(macOS) && compiler(>=6.2))
 
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
-        guard receivesDiagnosticPayloads else {
-            SentrySDKLog.debug("Diagnostics are received from MetricManager, ignoring \(payloads.count) MetricKit diagnostic payloads")
+        guard let diagnosticCapturer else {
+            SentrySDKLog.debug("MetricKit diagnostic payloads are not received, skipping \(payloads.count) diagnostic payloads")
             return
         }
-        process(diagnosticPayloads: payloads)
-    }
-
-    func process(diagnosticPayloads payloads: [MXDiagnosticPayload]) {
         SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
         payloads.forEach { payload in
             let timestamp = payload.timeStampBegin
-            process(payload.crashDiagnostics, with: SentryMXCrashDiagnosticProcessor.self, timestamp: timestamp)
-            process(payload.diskWriteExceptionDiagnostics, with: SentryMXDiskWriteExceptionDiagnosticProcessor.self, timestamp: timestamp)
-            process(payload.cpuExceptionDiagnostics, with: SentryMXCPUExceptionDiagnosticProcessor.self, timestamp: timestamp)
-            process(payload.hangDiagnostics, with: SentryMXHangDiagnosticProcessor.self, timestamp: timestamp)
+            process(payload.crashDiagnostics, with: SentryMXCrashDiagnosticProcessor.self, timestamp: timestamp, capturer: diagnosticCapturer)
+            process(payload.diskWriteExceptionDiagnostics, with: SentryMXDiskWriteExceptionDiagnosticProcessor.self, timestamp: timestamp, capturer: diagnosticCapturer)
+            process(payload.cpuExceptionDiagnostics, with: SentryMXCPUExceptionDiagnosticProcessor.self, timestamp: timestamp, capturer: diagnosticCapturer)
+            process(payload.hangDiagnostics, with: SentryMXHangDiagnosticProcessor.self, timestamp: timestamp, capturer: diagnosticCapturer)
             #if os(iOS) || os(visionOS)
             if #available(iOS 16.0, *) {
-                process(payload.appLaunchDiagnostics, with: SentryMXAppLaunchDiagnosticProcessor.self, timestamp: timestamp)
+                process(payload.appLaunchDiagnostics, with: SentryMXAppLaunchDiagnosticProcessor.self, timestamp: timestamp, capturer: diagnosticCapturer)
             }
             #endif // os(iOS) || os(visionOS)
         }
@@ -103,7 +91,8 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     private func process<Processor: SentryMXDiagnosticProcessor>(
         _ diagnostics: [Processor.LegacyDiagnostic]?,
         with processor: Processor.Type,
-        timestamp: Date
+        timestamp: Date,
+        capturer diagnosticCapturer: SentryMXDiagnosticCapturer
     ) {
         guard let diagnostics else {
             return

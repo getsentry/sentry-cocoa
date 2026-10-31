@@ -52,6 +52,16 @@
     },
     {
       "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationTotalAnimationTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationTotalHitchTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitMetricReportAppTimeBackground",
       "parent": "SentryObjCMetricKitMetricReport"
     },
@@ -253,6 +263,21 @@
     {
       "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitMetricReportMemoryPeakUsage",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalActiveDrawingDuration",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalFrameCount",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalFramesPerSecond",
       "parent": "SentryObjCMetricKitMetricReport"
     },
     {

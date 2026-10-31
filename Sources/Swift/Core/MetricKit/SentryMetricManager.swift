@@ -4,52 +4,90 @@ internal import _SentryPrivate
 import Foundation
 import MetricKit
 
-/// Delivers the diagnostic reports of `MetricManager`, so tests can provide their own reports.
+/// Delivers the reports of `MetricManager`, so tests can provide their own reports.
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
-protocol SentryDiagnosticReportSource: Sendable {
+protocol SentryMetricManagerSource: Sendable {
     func makeDiagnosticReports() -> any AsyncSequence<MetricKit.DiagnosticReport, Never>
+    // MetricManager doesn't report metrics on visionOS.
+    #if os(iOS) || os(macOS)
+    func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never>
+    #endif // os(iOS) || os(macOS)
 }
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
-extension MetricManager: SentryDiagnosticReportSource {
+extension MetricManager: SentryMetricManagerSource {
     func makeDiagnosticReports() -> any AsyncSequence<MetricKit.DiagnosticReport, Never> {
         diagnosticReports
     }
+
+    #if os(iOS) || os(macOS)
+    func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never> {
+        metricReports
+    }
+    #endif // os(iOS) || os(macOS)
 }
 
-/// Receives the diagnostic reports of `MetricManager`, which replaces `MXMetricManager` for
-/// diagnostics on xOS 27 and later.
+/// Receives the reports of `MetricManager`, which replaces `MXMetricManager` on xOS 27 and later.
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 final class SentryMetricManager: SentryMetricKitReportReceiver {
-    private let source: SentryDiagnosticReportSource
-    private let diagnosticCapturer: SentryMXDiagnosticCapturer
-    private let diagnosticReportsTask = SentryMutex<Task<Void, Never>?>(nil)
+    private let source: SentryMetricManagerSource
+    /// Captures the diagnostic reports, or `nil` when `MetricManager` doesn't deliver diagnostics.
+    private let diagnosticCapturer: SentryMXDiagnosticCapturer?
+    /// Records the metric reports, or `nil` when `MetricManager` doesn't deliver metrics.
+    private let metricRecorder: SentryMXMetricRecorder?
+    private let reportTasks = SentryMutex<[Task<Void, Never>]>([])
 
-    init(source: SentryDiagnosticReportSource = MetricManager(), diagnosticCapturer: SentryMXDiagnosticCapturer) {
+    /// - Parameter metricRecorder: Ignored on visionOS, where `MetricManager` doesn't report
+    ///   metrics.
+    init(
+        source: SentryMetricManagerSource = MetricManager(),
+        diagnosticCapturer: SentryMXDiagnosticCapturer?,
+        metricRecorder: SentryMXMetricRecorder?
+    ) {
         self.source = source
         self.diagnosticCapturer = diagnosticCapturer
+        self.metricRecorder = metricRecorder
     }
 
     func receiveReports() {
-        SentrySDKLog.info("Started receiving diagnostic reports from MetricManager")
         let source = self.source
-        let task = Task { [weak self] in
-            for await report in source.makeDiagnosticReports() {
-                guard let self, !Task.isCancelled else {
-                    return
+        var tasks: [Task<Void, Never>] = []
+        if diagnosticCapturer != nil {
+            SentrySDKLog.info("Started receiving diagnostic reports from MetricManager")
+            tasks.append(Task { [weak self] in
+                for await report in source.makeDiagnosticReports() {
+                    guard let self, !Task.isCancelled else {
+                        return
+                    }
+                    self.process(diagnosticReport: report)
                 }
-                self.process(diagnosticReport: report)
-            }
+            })
         }
-        replaceDiagnosticReportsTask(with: task)
+        #if os(iOS) || os(macOS)
+        if metricRecorder != nil {
+            SentrySDKLog.info("Started receiving metric reports from MetricManager")
+            tasks.append(Task { [weak self] in
+                for await report in source.makeMetricReports() {
+                    guard let self, !Task.isCancelled else {
+                        return
+                    }
+                    self.process(metricReport: report)
+                }
+            })
+        }
+        #endif // os(iOS) || os(macOS)
+        replaceReportTasks(with: tasks)
     }
 
     func pauseReports() {
-        SentrySDKLog.info("Paused receiving diagnostic reports from MetricManager")
-        replaceDiagnosticReportsTask(with: nil)
+        SentrySDKLog.info("Paused receiving reports from MetricManager")
+        replaceReportTasks(with: [])
     }
 
     func process(diagnosticReport report: MetricKit.DiagnosticReport) {
+        guard let diagnosticCapturer else {
+            return
+        }
         SentrySDKLog.info("Received MetricKit diagnostic report")
         guard let diagnostic = Self.diagnostic(of: report) else {
             SentrySDKLog.debug("Unsupported MetricKit diagnostic report, skipping it")
@@ -58,14 +96,20 @@ final class SentryMetricManager: SentryMetricKitReportReceiver {
         diagnosticCapturer.capture(diagnostic)
     }
 
-    /// Stores the task that iterates the diagnostic reports and cancels the previous one.
-    private func replaceDiagnosticReportsTask(with task: Task<Void, Never>?) {
-        let previousTask = diagnosticReportsTask.withLock { current in
-            let previousTask = current
-            current = task
-            return previousTask
+    #if os(iOS) || os(macOS)
+    func process(metricReport report: MetricKit.MetricReport) {
+        metricRecorder?.record(metricReport: report)
+    }
+    #endif // os(iOS) || os(macOS)
+
+    /// Stores the tasks that iterate the reports and cancels the previous ones.
+    private func replaceReportTasks(with tasks: [Task<Void, Never>]) {
+        let previousTasks = reportTasks.withLock { current in
+            let previousTasks = current
+            current = tasks
+            return previousTasks
         }
-        previousTask?.cancel()
+        previousTasks.forEach { $0.cancel() }
     }
 
     private static func diagnostic(of report: MetricKit.DiagnosticReport) -> SentryMXDiagnostic? {

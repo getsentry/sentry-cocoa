@@ -61,7 +61,12 @@ enum SentryObjCMetricKitMetricReportMapping {
         .exitBackgroundIllegalInstruction,
         .exitBackgroundWatchdog,
         .exitBackgroundSuspendedWithLockedFile,
-        .exitBackgroundTaskTimeout
+        .exitBackgroundTaskTimeout,
+        .animationTotalHitchTime,
+        .animationTotalAnimationTime,
+        .metalFramesPerSecond,
+        .metalFrameCount,
+        .metalActiveDrawingDuration
     ]
 
     static func bit(for report: SentryMetricKit.MetricReport) -> SentryObjCMetricKitMetricReport? {

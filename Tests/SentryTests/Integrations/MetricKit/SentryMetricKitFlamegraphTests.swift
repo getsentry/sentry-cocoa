@@ -28,7 +28,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in
@@ -85,7 +85,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in
@@ -117,7 +117,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.process(diagnosticPayloads: [payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in

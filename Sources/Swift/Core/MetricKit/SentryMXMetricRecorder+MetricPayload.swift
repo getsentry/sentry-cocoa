@@ -2,16 +2,9 @@
 import Foundation
 import MetricKit
 
-/// Sends the values of MetricKit metric payloads as Sentry metrics.
-extension SentryMXManager {
-    /// The timestamp, trace ID and attributes every metric of a payload shares.
-    private struct MetricPayloadContext {
-        let timestamp: Date
-        let traceId: SentryId
-        let attributes: [String: SentryAttributeValue]
-    }
-
-    func process(metricPayload payload: MXMetricPayload) {
+/// Sends the values of legacy MetricKit metric payloads as Sentry metrics.
+extension SentryMXMetricRecorder {
+    func record(metricPayload payload: MXMetricPayload) {
         SentrySDKLog.debug("Processing MetricKit metric payload from \(payload.timeStampBegin) to \(payload.timeStampEnd)")
         let context = metricPayloadContext(for: payload)
         recordUsageMetrics(of: payload, context)
@@ -22,7 +15,7 @@ extension SentryMXManager {
     // MARK: - Metric Groups
 
     /// Records how long the app used the CPU, the GPU, the foreground and background, and location.
-    private func recordUsageMetrics(of payload: MXMetricPayload, _ context: MetricPayloadContext) {
+    private func recordUsageMetrics(of payload: MXMetricPayload, _ context: Context) {
         if let cpu = payload.cpuMetrics {
             recordDistribution(.cpuCumulativeTime, cpu.cumulativeCPUTime.converted(to: .seconds).value, unit: .second, context)
             recordDistribution(.cpuCumulativeInstructions, Self.instructionCount(cpu.cumulativeCPUInstructions), unit: nil, context)
@@ -47,7 +40,7 @@ extension SentryMXManager {
     }
 
     /// Records the network, disk, memory and display resources the app used.
-    private func recordResourceMetrics(of payload: MXMetricPayload, _ context: MetricPayloadContext) {
+    private func recordResourceMetrics(of payload: MXMetricPayload, _ context: Context) {
         if let network = payload.networkTransferMetrics {
             recordDistribution(.networkWifiUpload, network.cumulativeWifiUpload.converted(to: .bytes).value, unit: .byte, context)
             recordDistribution(.networkWifiDownload, network.cumulativeWifiDownload.converted(to: .bytes).value, unit: .byte, context)
@@ -88,7 +81,7 @@ extension SentryMXManager {
     }
 
     /// Records how often the app exited in the foreground and background, by reason.
-    private func recordExitMetrics(of payload: MXMetricPayload, _ context: MetricPayloadContext) {
+    private func recordExitMetrics(of payload: MXMetricPayload, _ context: Context) {
         if let exits = payload.applicationExitMetrics {
             let foreground = exits.foregroundExitData
             recordCount(.exitForegroundNormal, foreground.cumulativeNormalAppExitCount, context)
@@ -112,115 +105,16 @@ extension SentryMXManager {
         }
     }
 
-    private func metricPayloadContext(for payload: MXMetricPayload) -> MetricPayloadContext {
-        // A payload aggregates its values over the reporting interval without saying when they
-        // happened, so each value is placed in the middle of the interval. This is what spreading
-        // a single sample across the interval yields for histograms as well.
-        let interval = payload.timeStampEnd.timeIntervalSince(payload.timeStampBegin)
-        let timestamp = payload.timeStampBegin.addingTimeInterval(interval / 2)
-
-        var attributes: [String: SentryAttributeValue] = [:]
-
-        // When the interval spans an app update, MetricKit only reports the latest version, which
-        // doesn't describe all values. The metrics keep the running release then.
-        if payload.includesMultipleApplicationVersions {
-            SentrySDKLog.debug("MetricKit metric payload spans multiple app versions, keeping the current release")
-        } else {
-            // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
-            let appVersion = payload.latestApplicationVersion
-            let appBuild = payload.metaData?.applicationBuildVersion ?? ""
-            if !appVersion.isEmpty {
-                attributes["app.version"] = appVersion
-            }
-            if !appBuild.isEmpty {
-                attributes["app.build"] = appBuild
-            }
-            // Nil when the running release already describes the values or is a custom name.
-            if let releaseName = releaseResolver.releaseName(appVersion: appVersion, appBuild: appBuild) {
-                attributes["sentry.release"] = releaseName
-            }
-        }
-
-        // The running OS version can be newer than the one the values were recorded on, so scope
-        // enrichment leaves it out.
-        if let metaData = payload.metaData, let osVersion = SentryMXDiagnostic.Metadata.parseOSVersion(metaData.osVersion) {
-            attributes["os.version"] = osVersion.version
-        }
-
-        // The payload's values don't belong to the running trace. A trace of their own keeps the
-        // metrics of one payload together.
-        return MetricPayloadContext(timestamp: timestamp, traceId: SentryId(), attributes: attributes)
-    }
-
-    // MARK: - Recording
-
-    private func recordDistribution(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricPayloadContext) {
-        guard enabledMetricReports.contains(report), let value = value() else {
-            return
-        }
-        metricsApi.distribution(
-            key: report.name,
-            value: value,
-            unit: unit,
-            timestamp: context.timestamp,
-            traceId: context.traceId,
-            attributes: context.attributes
+    private func metricPayloadContext(for payload: MXMetricPayload) -> Context {
+        // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
+        context(
+            begin: payload.timeStampBegin,
+            end: payload.timeStampEnd,
+            appVersion: payload.latestApplicationVersion,
+            appBuild: payload.metaData?.applicationBuildVersion ?? "",
+            includesMultipleApplicationVersions: payload.includesMultipleApplicationVersions,
+            osVersion: payload.metaData.flatMap { SentryMXDiagnostic.Metadata.parseOSVersion($0.osVersion)?.version }
         )
-    }
-
-    private func recordGauge(_ report: MetricReport, _ value: @autoclosure () -> Double?, unit: SentryUnit?, _ context: MetricPayloadContext) {
-        guard enabledMetricReports.contains(report), let value = value() else {
-            return
-        }
-        metricsApi.gauge(
-            key: report.name,
-            value: value,
-            unit: unit,
-            timestamp: context.timestamp,
-            traceId: context.traceId,
-            attributes: context.attributes
-        )
-    }
-
-    private func recordCount(_ report: MetricReport, _ value: Int, _ context: MetricPayloadContext) {
-        // A count of zero doesn't change the sum, so it is left out to save volume.
-        guard enabledMetricReports.contains(report), value > 0 else {
-            return
-        }
-        metricsApi.count(
-            key: report.name,
-            value: UInt(value),
-            timestamp: context.timestamp,
-            traceId: context.traceId,
-            attributes: context.attributes
-        )
-    }
-
-    // MARK: - Units
-
-    /// Converts MetricKit's dimensionless instruction measurement to a number of instructions.
-    static func instructionCount(_ measurement: Measurement<Unit>) -> Double? {
-        switch measurement.unit.symbol {
-        case "instructions":
-            return measurement.value
-        case "kiloinstructions":
-            return measurement.value * 1_000
-        default:
-            SentrySDKLog.warning("Unexpected MetricKit CPU instructions unit '\(measurement.unit.symbol)', skipping metric")
-            return nil
-        }
-    }
-
-    /// Converts MetricKit's hitch time ratio, reported in milliseconds of hitches per second, to a
-    /// plain ratio.
-    static func ratio(fromHitchTimeRatio measurement: Measurement<Unit>) -> Double? {
-        switch measurement.unit.symbol {
-        case "ms per s":
-            return measurement.value / 1_000
-        default:
-            SentrySDKLog.warning("Unexpected MetricKit hitch time ratio unit '\(measurement.unit.symbol)', skipping metric")
-            return nil
-        }
     }
 }
 

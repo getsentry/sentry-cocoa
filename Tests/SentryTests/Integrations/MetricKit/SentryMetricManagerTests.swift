@@ -319,7 +319,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         enabledDiagnostics: Set<SentryMXManager.Diagnostic>,
         attachDiagnosticAsAttachment: Bool = false,
         releaseName: String? = nil,
-        source: SentryDiagnosticReportSource = TestDiagnosticReportSource()
+        source: SentryMetricManagerSource = TestDiagnosticReportSource()
     ) -> SentryMetricManager {
         SentryMetricManager(
             source: source,
@@ -327,7 +327,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
                 enabledDiagnostics: enabledDiagnostics,
                 attachDiagnosticAsAttachment: attachDiagnosticAsAttachment,
                 releaseName: releaseName
-            )
+            ),
+            metricRecorder: nil
         )
     }
 
@@ -339,7 +340,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         let diagnosticCapturer = givenDiagnosticCapturer(enabledDiagnostics: SentryMXManager.Diagnostic.all)
         let legacyManager = SentryMXManager(metricManager: TestMXMetricManager(), diagnosticCapturer: diagnosticCapturer)
-        let sut = SentryMetricManager(source: TestDiagnosticReportSource(), diagnosticCapturer: diagnosticCapturer)
+        let sut = SentryMetricManager(source: TestDiagnosticReportSource(), diagnosticCapturer: diagnosticCapturer, metricRecorder: nil)
         legacyPayload.overrides.timeStampBegin = Self.timestamp
 
         legacyManager.didReceive([legacyPayload])
@@ -488,7 +489,7 @@ private final class TestMXMetricManager: SentryMXMetricManager {
 }
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
-private final class TestDiagnosticReportSource: SentryDiagnosticReportSource {
+private final class TestDiagnosticReportSource: SentryMetricManagerSource {
     let reports: AsyncStream<MetricKit.DiagnosticReport>
     let continuation: AsyncStream<MetricKit.DiagnosticReport>.Continuation
 
@@ -499,6 +500,12 @@ private final class TestDiagnosticReportSource: SentryDiagnosticReportSource {
     func makeDiagnosticReports() -> any AsyncSequence<MetricKit.DiagnosticReport, Never> {
         reports
     }
+
+    #if os(iOS) || os(macOS)
+    func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never> {
+        AsyncStream { $0.finish() }
+    }
+    #endif // os(iOS) || os(macOS)
 }
 
 #endif // (os(iOS) || os(macOS) || os(visionOS)) && compiler(>=6.4)
