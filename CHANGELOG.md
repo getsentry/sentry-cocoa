@@ -11,6 +11,7 @@
 - Report the tvOS OS name as `tvOS` in profiles instead of occasionally reporting `Apple TVOS` (#9497)
 - Fix trace-lifecycle profiling getting stuck after backgrounding when a root transaction remains active or is abandoned. Parented transactions no longer start or keep the profiler running (#9481)
 - Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
+- Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 
 ## 9.32.0
 

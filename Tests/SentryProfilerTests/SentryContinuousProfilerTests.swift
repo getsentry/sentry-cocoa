@@ -1,5 +1,5 @@
 #if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
-@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 import SentryTestUtilsObjC
@@ -513,6 +513,213 @@ extension SentryContinuousProfilerTests {
         XCTAssertEqual(try sampleAddresses(in: firstProfile), [["0x0000000000000001"]])
         XCTAssertEqual(try sampleAddresses(in: secondProfile), [["0x0000000000000002"]])
     }
+}
+
+// MARK: Deferred lifecycle callbacks
+extension SentryContinuousProfilerTests {
+    func testTransmitChunk_whenSerializationRunsAfterRestart_shouldCaptureOriginalSnapshots() throws {
+        // -- Arrange --
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let state = SentryProfilerState()
+        try XCTUnwrap(SentryContinuousProfiler.profiler()).state = state
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        defer { fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true }
+        var serializations: [() -> Void] = []
+        let stacks: [[NSNumber]] = [[0x1], [0x2]]
+        for stack in stacks {
+            appendControlledSample(to: state, threadID: 1, addresses: stack)
+            SentryContinuousProfiler.transmitChunkEnvelope()
+            serializations.append(try XCTUnwrap(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.last))
+        }
+        SentryContinuousProfiler.stopTimerAndCleanup()
+        SentryContinuousProfiler.start()
+        let nextState = SentryProfilerState()
+        try XCTUnwrap(SentryContinuousProfiler.profiler()).state = nextState
+        appendControlledSample(to: nextState, threadID: 1, addresses: [0x3])
+        SentryContinuousProfiler.transmitChunkEnvelope()
+        serializations.append(try XCTUnwrap(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.last))
+
+        // -- Act --
+        serializations.reversed().forEach { $0() }
+
+        // -- Assert --
+        let addresses = try (0..<3).map { index in
+            try sampleAddresses(in: XCTUnwrap(capturedChunk(at: index)["profile"] as? [String: Any]))
+        }
+        XCTAssertEqual(addresses, [
+            [["0x0000000000000003"]], [["0x0000000000000002"]], [["0x0000000000000001"]]
+        ])
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testTransmitChunk_whenCurrentHubChangesBeforeSerialization_shouldUseOriginalHub() throws {
+        // -- Arrange --
+        fixture.options.releaseName = "original-release"
+        fixture.options.environment = "original-environment"
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        defer { fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true }
+        SentryContinuousProfiler.transmitChunkEnvelope()
+        let serialize = try XCTUnwrap(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.last)
+        let replacement = SentryProfileTestFixture()
+        replacement.options.releaseName = "replacement-release"
+        replacement.options.environment = "replacement-environment"
+        let replacementImages = TestDebugImageProvider()
+        replacementImages.debugImages = []
+        SentryDependencyContainer.sharedInstance().debugImageProvider = replacementImages
+
+        // -- Act --
+        serialize()
+
+        // -- Assert --
+        XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 1)
+        XCTAssertEqual(replacement.client?.captureEnvelopeInvocations.count, 0)
+        let chunk = try capturedChunk(at: 0)
+        XCTAssertEqual(chunk["release"] as? String, "original-release")
+        XCTAssertEqual(chunk["environment"] as? String, "original-environment")
+        let debugMeta = try XCTUnwrap(chunk["debug_meta"] as? [String: Any])
+        XCTAssertEqual((debugMeta["images"] as? [[String: Any]])?.first?["debug_id"] as? String, "debugID")
+    }
+
+    func testTransmitChunk_whenSDKClosesBeforeSerialization_shouldNotSendToReplacementClient() throws {
+        // -- Arrange --
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        defer { fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true }
+        SentryContinuousProfiler.transmitChunkEnvelope()
+        let serialize = try XCTUnwrap(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.last)
+        SentrySDK.close()
+        let replacement = SentryProfileTestFixture()
+
+        // -- Act --
+        serialize()
+
+        // -- Assert --
+        XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 0)
+        XCTAssertEqual(replacement.client?.captureEnvelopeInvocations.count, 0)
+    }
+
+    func testScheduleTimer_whenProfilerIsReplacedBeforeMainCallback_shouldIgnoreOldCallback() throws {
+        // -- Arrange --
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { false }
+        defer { fixture.dispatchQueueWrapper.blockBeforeMainBlock = { true } }
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let oldSetup = try XCTUnwrap(fixture.dispatchQueueWrapper.blockOnMainInvocations.last)
+        SentryContinuousProfiler.stopTimerAndCleanup()
+        SentryContinuousProfiler.start()
+        let newSetup = try XCTUnwrap(fixture.dispatchQueueWrapper.blockOnMainInvocations.last)
+
+        // -- Act --
+        oldSetup()
+
+        // -- Assert --
+        XCTAssertFalse(fixture.timeoutTimerFactory.isTimerInitialized())
+
+        // -- Act --
+        newSetup()
+
+        // -- Assert --
+        XCTAssertTrue(fixture.timeoutTimerFactory.isTimerInitialized())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testTimer_whenCallbackBelongsToStoppedProfiler_shouldNotRotateReplacementChunk() throws {
+        // -- Arrange --
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let oldTimer = try XCTUnwrap(fixture.timeoutTimerFactory.overrides)
+        SentryContinuousProfiler.stopTimerAndCleanup()
+        SentryContinuousProfiler.start()
+        let state = SentryProfilerState()
+        try XCTUnwrap(SentryContinuousProfiler.profiler()).state = state
+        appendControlledSample(to: state, threadID: 1, addresses: [0x2])
+
+        // -- Act --
+        if let callback = oldTimer.block {
+            callback(oldTimer.timer)
+        } else if let invocation = oldTimer.invocationInfo {
+            try Invocation(target: invocation.target, selector: invocation.selector).invoke()
+        }
+
+        // -- Assert --
+        XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 0)
+        try fixture.timeoutTimerFactory.fire()
+        let profile = try XCTUnwrap(try capturedChunk(at: 0)["profile"] as? [String: Any])
+        XCTAssertEqual(try sampleAddresses(in: profile), [["0x0000000000000002"]])
+    }
+
+    func testTimer_whenLogHandlerRestartsProfilerBeforeCleanup_shouldKeepProfiling() throws {
+        // -- Arrange --
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let originalOutput = SentrySDKLog.getOutput()
+        defer { SentrySDKLog.setOutput(originalOutput) }
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        var restarted = false
+        SentrySDKLog.setOutput { message in
+            if message.contains("Last continuous profile chunk transmitted after stop called"), !restarted {
+                restarted = true
+                SentryContinuousProfiler.start()
+            }
+        }
+        SentryContinuousProfiler.stop()
+
+        // -- Act --
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // -- Assert --
+        XCTAssertTrue(restarted)
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    func testScheduleTimer_whenAppBackgroundsBeforeMainCallback_shouldNotCreateTimer() throws {
+        // -- Arrange --
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { false }
+        defer { fixture.dispatchQueueWrapper.blockBeforeMainBlock = { true } }
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let setup = try XCTUnwrap(fixture.dispatchQueueWrapper.blockOnMainInvocations.last)
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification))
+
+        // -- Act --
+        setup()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(fixture.timeoutTimerFactory.isTimerInitialized())
+    }
+
+    func testBackgroundObserver_whenCallbackBelongsToStoppedProfiler_shouldIgnoreIt() throws {
+        // -- Arrange --
+        let observerCount = fixture.notificationCenter.observerCount
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        SentryContinuousProfiler.start()
+        let oldObserver = try XCTUnwrap(fixture.notificationCenter.addObserverWithBlockInvocations.last)
+        SentryContinuousProfiler.stopTimerAndCleanup()
+        XCTAssertEqual(fixture.notificationCenter.observerCount, observerCount)
+        SentryContinuousProfiler.start()
+        let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let timer = try XCTUnwrap(fixture.timeoutTimerFactory.overrides?.timer)
+
+        // -- Act --
+        oldObserver.block(Notification(name: UIApplication.willResignActiveNotification))
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(profiler === SentryContinuousProfiler.profiler())
+        XCTAssertEqual(fixture.notificationCenter.observerCount, observerCount + 1)
+        SentryContinuousProfiler.stopTimerAndCleanup()
+        XCTAssertFalse(timer.isValid)
+        XCTAssertEqual(fixture.notificationCenter.observerCount, observerCount)
+    }
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 // Models a sampler callback immediately after snapshot collection releases its lock.
