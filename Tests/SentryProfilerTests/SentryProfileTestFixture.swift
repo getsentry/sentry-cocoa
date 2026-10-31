@@ -143,7 +143,7 @@ class SentryProfileTestFixture {
         self.mockMetrics = mockMetrics
         systemWrapper.overrides.cpuUsage = mockMetrics.cpuUsage
         systemWrapper.overrides.memoryFootprintBytes = mockMetrics.memoryFootprint
-        systemWrapper.overrides.cpuEnergyUsage = 0
+        // Changing the batch's energy delta must not reset the cumulative counter.
         systemWrapper.overrides.cpuUsageError = nil
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
@@ -281,7 +281,7 @@ class SentryProfileTestFixture {
     
     func gatherMockedContinuousProfileMetrics() throws {
         for _ in 0..<mockMetrics.readingsPerBatch {
-            log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
+            log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSince1970)")
             
             // because energy readings are computed as the difference between sequential cumulative readings that monotonically increase, we must increment the mock value by the expected result each iteration so that each reading is taking the difference between last and current to get the instantaneous value
             systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
@@ -313,31 +313,31 @@ class SentryProfileTestFixture {
         func renderGPUFrame(_ type: GPUFrame) {
             switch type {
             case .normal:
-                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                let timestamp = currentDateProvider.date().timeIntervalSince1970
                 log(#line, "expect normal frame to start at \(timestamp)")
                 currentDateProvider.advance(by: displayLinkWrapper.currentFrameRate.tickDuration)
             case .slow:
                 let duration = displayLinkWrapper.middlingSlowFrameDuration()
                 currentDateProvider.advance(by: duration)
-                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                let timestamp = currentDateProvider.date().timeIntervalSince1970
                 log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp)")
                 var entry = [String: NSNumber]()
-                entry["value"] = NSNumber(value: duration)
+                entry["value"] = NSNumber(value: duration.toNanoSeconds())
                 entry["timestamp"] = NSNumber(value: timestamp)
                 expectedContinuousProfileSlowFrames.append(entry)
             case .frozen:
                 let duration = displayLinkWrapper.fastestFrozenFrameDuration
                 currentDateProvider.advance(by: duration)
-                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                let timestamp = currentDateProvider.date().timeIntervalSince1970
                 log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp)")
                 var entry = [String: NSNumber]()
-                entry["value"] = NSNumber(value: duration)
+                entry["value"] = NSNumber(value: duration.toNanoSeconds())
                 entry["timestamp"] = NSNumber(value: timestamp)
                 expectedContinuousProfileFrozenFrames.append(entry)
             }
             if shouldRecordFrameRateExpectation {
                 shouldRecordFrameRateExpectation = false
-                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                let timestamp = currentDateProvider.date().timeIntervalSince1970
                 log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp)")
                 var entry = [String: NSNumber]()
                 entry["value"] = NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
