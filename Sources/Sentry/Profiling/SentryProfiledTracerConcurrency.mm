@@ -5,6 +5,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
+#    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
@@ -319,11 +320,14 @@ sentry_stopProfilerDueToFinishedTransaction(
     }
 #    endif // SENTRY_HAS_UIKIT
 
-    [SentryTraceProfiler recordMetrics];
-    [(NSObject *)transaction setValue:@(sentry_getSystemTime()) forKey:@"endSystemTime"];
-
     SentryProfiler *_Nullable nullableProfiler
         = sentry_profilerForFinishedTracer(trace.profilerReferenceID);
+    // Finishing a late tracer must not extend metrics from an aborted profiler.
+    if (nullableProfiler != nil
+        && nullableProfiler.truncationReason == SentryProfilerTruncationReasonNormal) {
+        [nullableProfiler.metricProfiler recordMetrics];
+    }
+    [(NSObject *)transaction setValue:@(sentry_getSystemTime()) forKey:@"endSystemTime"];
     if (!nullableProfiler) {
         [hub captureTransaction:transaction withScope:hub.scope];
         return;

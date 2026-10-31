@@ -232,13 +232,27 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 
 - (NSDictionary<NSString *, NSArray<SentryMetricReading *> *> *)copyMetricProfilerData
 {
-    NSMutableDictionary *copy = [NSMutableDictionary dictionary];
     @synchronized(self) {
-        copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
-        copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
-        copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
+        return [self copyMetricProfilerDataNotThreadSafe];
     }
+}
+
+- (NSDictionary<NSString *, NSArray<SentryMetricReading *> *> *)copyMetricProfilerDataNotThreadSafe
+{
+    NSMutableDictionary *copy = [NSMutableDictionary dictionary];
+    copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
+    copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
+    copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
     return copy;
+}
+
+- (NSDictionary *)copyAndClearMetricProfilerData
+{
+    @synchronized(self) {
+        NSDictionary *snapshot = [self copyMetricProfilerDataNotThreadSafe];
+        [self clearNotThreadSafe];
+        return snapshot;
+    }
 }
 
 - (void)clear
