@@ -4,3 +4,13 @@ self-hosted-runner:
     - bitrise_pool_name:sequoia
     - bitrise_pool_name:tahoe
     - bitrise_pool_name:sonoma
+
+paths:
+  .github/workflows/*.yml:
+    # actionlint 1.7.12 does not recognize GitHub's native background/control
+    # steps yet. check-jsonschema validates their structure in pre-commit.
+    # Remove these exceptions when actionlint supports the native syntax:
+    # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsbackground
+    ignore:
+      - '^unexpected key "background" for step to (run shell command|execute action)\.'
+      - '^step must run script with "run" section or run action with "uses" section$'

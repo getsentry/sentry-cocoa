@@ -349,6 +349,8 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
 
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
+  - ".github/actionlint.yaml"
+  - ".pre-commit-config.yaml"
   - ".github/file-filters.yml"
 
   # Formatting

@@ -96,10 +96,15 @@ jobs:
 
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -228,7 +233,10 @@ jobs:
 
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
@@ -237,10 +245,14 @@ jobs:
           name: test-server
 
       - name: Start Test Server
+        id: test-server
+        background: true
         run: |
           chmod +x test-server-exec
-          make -C test-server start TEST_SERVER_EXECUTABLE=../test-server-exec
+          exec ./test-server-exec serve --port 8081 > test-server/.test-server.log 2>&1
 
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -269,6 +281,19 @@ jobs:
             --test-plan SentryV10_TestServer \
             ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
 
+      # A wait control step would wait for server exit, not HTTP readiness.
+      - name: Wait for Test Server readiness
+        run: |
+          for _ in {1..200}; do
+            if [ "$(curl --fail --silent --max-time 1 http://localhost:8081/health)" = "OK" ]; then
+              exit 0
+            fi
+            sleep 0.1
+          done
+          cat test-server/.test-server.log
+          echo "::error::Test server failed to become ready"
+          exit 1
+
       - name: Run tests
         env:
           REF_NAME: ${{ github.ref_name }}
@@ -284,9 +309,9 @@ jobs:
             --test-plan SentryV10_TestServer \
             ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
 
+      # Control steps run even after a failure, so the server cannot hold up cleanup.
       - name: Stop Test Server
-        if: ${{ always() }}
-        run: make -C test-server stop
+        cancel: test-server
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -297,6 +322,8 @@ jobs:
             ~/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
+        id: upload-raw-logs
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
@@ -307,6 +334,8 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Test Results
+        id: upload-test-results
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
@@ -320,6 +349,9 @@ jobs:
           name: crash-logs-v10-test-server-${{ matrix.platform }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Wait for artifact uploads
+        wait: [upload-raw-logs, upload-test-results]
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

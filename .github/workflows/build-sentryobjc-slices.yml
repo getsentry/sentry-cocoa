@@ -28,10 +28,15 @@ jobs:
 
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -87,6 +92,8 @@ jobs:
             "${version_args[@]}"
 
       - name: Upload static slice
+        id: upload-static-slice
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sentryobjc-slice-${{ matrix.sdk }}
@@ -104,11 +111,16 @@ jobs:
             SentryObjC.framework SentryObjC.framework.dSYM
 
       - name: Upload dynamic framework slice
+        id: upload-dynamic-slice
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sentryobjc-dynamic-slice-${{ matrix.sdk }}
           if-no-files-found: error
           path: XCFrameworkBuildPath/sentryobjc-dynamic-${{ matrix.sdk }}.tar.gz
+
+      - name: Wait for slice uploads
+        wait: [upload-static-slice, upload-dynamic-slice]
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
