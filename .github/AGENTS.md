@@ -23,6 +23,20 @@ concurrency:
 - Fixed groups are reserved for singleton automation such as tool updates
 - Explain cancellation behavior, resource constraints, and branch-protection implications in comments
 
+## Background Steps and Ordering
+
+Follow [CI dependency ordering](../develop-docs/CI.md#background-steps-and-dependency-ordering).
+
+- Schedule only work the job requires and preserve existing launch conditions. Examples involving Ruby, caches, artifacts, or simulators do not require adding them to other jobs
+- Start required independent downloads and cache restores as soon as their prerequisites exist
+- Place targeted `wait` steps immediately before the first consumer, including consumers of background outputs or environment changes
+- Distinguish CoreSimulator service warmup from device boot. Join boot immediately before tests, not before independent setup or compilation
+- Keep Xcode selection stable during compiler work, runtime recovery ahead of simulator use, and Homebrew mutations sequential
+- For jobs that require CI services, use native `background` and `cancel` with a separate readiness check instead of waiting for service exit
+- Upload only completed, immutable artifacts in parallel and join before diagnostics
+- Use `# === <SECTION> ===` comments to distinguish preparation, dependency joins, execution, and artifact collection
+- After reordering, verify dependency boundaries and check for drift in job settings, conditions, commands, and artifacts. Validate performance changes with traces and full CI
+
 ## File Filters
 
 - Update `.github/file-filters.yml` when directories, workflows, plans, project files, or relevant configuration change

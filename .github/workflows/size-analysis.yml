@@ -69,17 +69,23 @@ jobs:
     needs: files-changed
     timeout-minutes: 20
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
@@ -95,6 +101,10 @@ jobs:
           echo "MACH_O_TYPE = staticlib" >> Sources/Configuration/Sentry.xcconfig
 
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
 
       # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.
       # We still want to run as much of the full workflow as possible, to verify the behaviour.

@@ -73,11 +73,40 @@ jobs:
     continue-on-error: ${{ inputs.continue_on_error }}
     if: ${{!inputs.should_skip}}
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      - name: Resolve macOS build
+        id: macos-build
+        run: echo "build=$(sw_vers -buildVersion)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        background: true
+        name: Cache Ruby
+        id: cache-ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          # The openssl3 segment invalidates caches built against Homebrew's
+          # openssl@4, which cache-hit runners don't have installed.
+          # The macOS build segment keeps runner pools apart: a Ruby built on
+          # a newer macOS crashes on older images, and the cache backend lets
+          # any pool overwrite an existing key.
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-
+
+      # === Resolve destination and start simulator boot ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -93,25 +122,32 @@ jobs:
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
 
-      - name: Resolve macOS build
-        id: macos-build
-        run: echo "build=$(sw_vers -buildVersion)" >> "$GITHUB_OUTPUT"
+      - name: Ensure required runtime is loaded
+        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          PLATFORM: ${{ inputs.platform }}
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        name: Cache Ruby
-        id: cache-ruby
-        with:
-          path: |
-            ~/.rbenv/versions
-            ~/.rbenv/cache
-          # The openssl3 segment invalidates caches built against Homebrew's
-          # openssl@4, which cache-hit runners don't have installed.
-          # The macOS build segment keeps runner pools apart: a Ruby built on
-          # a newer macOS crashes on older images, and the cache backend lets
-          # any pool overwrite an existing key.
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
-          restore-keys: |
-            ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-
+      # Boot created simulators to ensure they're ready before tests run
+      # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
+      # Boot alongside compilation, then join before any tests use the device.
+      - name: Boot simulator
+        id: boot-simulator
+        background: true
+        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'visionOS' }}
+        env:
+          XCODE_VERSION: ${{ inputs.xcode }}
+          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          PLATFORM: ${{ inputs.platform }}
+        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
+
+      # === Install dependencies while the simulator boots ===
+      - name: Wait for Ruby cache
+        wait: cache-ruby
 
       - name: Install Ruby
         env:
@@ -131,26 +167,7 @@ jobs:
           ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
           bundle install
 
-      - name: Ensure required runtime is loaded
-        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
-        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
-        timeout-minutes: 5 # 5 minutes timeout
-        env:
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
-          PLATFORM: ${{ inputs.platform }}
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
-
-      # Boot created simulators to ensure they're ready before tests run
-      # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
-      - name: Boot simulator
-        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'visionOS' }}
-        env:
-          XCODE_VERSION: ${{ inputs.xcode }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
-          PLATFORM: ${{ inputs.platform }}
-        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
-
+      # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
@@ -178,6 +195,10 @@ jobs:
           ./scripts/ci-collect-sentrytests-metadata.sh \
             --derived-data-root "$HOME/Library/Developer/Xcode/DerivedData" \
             --output-dir sentrytests-metadata
+
+      # === Run tests ===
+      - name: Wait for simulator readiness
+        wait: boot-simulator
 
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
@@ -229,6 +250,7 @@ jobs:
             --scheme "$SCHEME" \
             --result-bundle results.xcresult
 
+      # === Reports and failure artifacts ===
       - name: Publish Test Report
         id: publish_test_report
         uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
@@ -256,15 +278,9 @@ jobs:
             echo "raw-test-output.log not found."
           fi
 
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: steps.build_tests.outcome == 'failure'
-        with:
-          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
-          path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
-
       - name: Archiving Raw Logs
+        id: upload-raw-logs
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
@@ -274,15 +290,9 @@ jobs:
             raw-build-for-testing-output.log
             raw-test-output.log
 
-      - name: Archiving Crash Logs
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
-          path: |
-            ~/Library/Logs/DiagnosticReports/**
-
       - name: Archiving Test Results
+        id: upload-test-results
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
@@ -292,6 +302,8 @@ jobs:
             flaky-results.xcresult
 
       - name: Archiving SentryTests Metadata
+        id: upload-test-metadata
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
         with:
@@ -299,6 +311,29 @@ jobs:
           if-no-files-found: error
           path: |
             sentrytests-metadata/**
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
+
+      - name: Wait for artifact uploads
+        wait: [
+          upload-raw-logs,
+          upload-test-results,
+          upload-test-metadata,
+        ]
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

@@ -50,8 +50,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
@@ -65,17 +64,27 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - name: Setup Ruby
         uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
         with:
           bundler-cache: true
       - run: make init-ci-build
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Run Fastlane
         # We only need to archive, not package the IPA, so we skip codesigning.
         run: bundle exec fastlane build_ios_swift_without_codesigning
@@ -118,8 +127,7 @@ jobs:
             config: Debug
 
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
@@ -130,13 +138,23 @@ jobs:
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - run: make init-ci-build
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
@@ -148,6 +166,7 @@ jobs:
             CODE_SIGNING_ALLOWED="NO" \
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
@@ -176,18 +195,28 @@ jobs:
           - scheme: iOS-ObjectiveC-Static
             config: Debug
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - run: make init-ci-build
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace Sentry.xcworkspace \
@@ -195,6 +224,8 @@ jobs:
             -configuration '${{matrix.config}}' \
             CODE_SIGNING_ALLOWED="NO" \
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
+
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
@@ -227,13 +258,20 @@ jobs:
           - name: visionOS
             make-target: build-testapp-visionOS-SwiftUI-SPM
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
 
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -265,20 +303,29 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
 
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
 
       - run: make init-ci-build
       - run: make xcode-ci-macOS-CLI-Xcode
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
 
       - name: Test CLI subprocesses
         run: |
@@ -307,16 +354,26 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
 
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -325,6 +382,8 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
             build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
+
+      # === Artifacts and diagnostics ===
       - name: Upload SPM Build Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
@@ -340,16 +399,26 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --workspace . \
@@ -365,6 +434,7 @@ jobs:
             --destination 'generic/platform=iphoneos' \
             --command build
 
+      # === Artifacts and diagnostics ===
       - name: Upload SPM Build Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
@@ -428,11 +498,19 @@ jobs:
             framework: AppKit
             derived-data: no-appkit-check-build
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -488,8 +566,12 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
@@ -502,6 +584,9 @@ jobs:
           sed -i '' 's/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE/' Sources/Sentry/SentryAsyncSafeLog.h
         shell: bash
 
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
