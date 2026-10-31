@@ -324,22 +324,23 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 - (void)recordEnergyUsageEstimate
 {
     NSError *error;
-    NSNumber *reading = [self.systemWrapper cpuEnergyUsageAndReturnError:&error];
+    @synchronized(self) {
+        NSNumber *reading = [self.systemWrapper cpuEnergyUsageAndReturnError:&error];
+        if (error == nil) {
+            if (previousEnergyReading == nil
+                || reading.unsignedIntegerValue < previousEnergyReading.unsignedIntegerValue) {
+                previousEnergyReading = reading;
+                return;
+            }
+
+            NSUInteger value
+                = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+            previousEnergyReading = reading;
+            [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
+        }
+    }
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
-        return;
-    }
-
-    if (previousEnergyReading == nil) {
-        previousEnergyReading = reading;
-        return;
-    }
-
-    NSUInteger value = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
-    previousEnergyReading = reading;
-
-    @synchronized(self) {
-        [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
 #    endif
