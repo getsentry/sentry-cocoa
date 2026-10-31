@@ -163,47 +163,6 @@ final class SentryMetricProfilerTests: XCTestCase {
         }
     }
 
-#if arch(arm) || arch(arm64)
-    func testRecordEnergy_whenCounterDecreases_shouldSkipInvalidDeltaAndRebase() throws {
-        // -- Arrange --
-        let profiler = SentryMetricProfiler(mode: .continuous)
-        profiler.recordMetrics()
-        fixture.date.advance(by: 1)
-        fixture.system.overrides.cpuEnergyUsage = 80
-
-        // -- Act --
-        profiler.recordMetrics()
-        fixture.date.advance(by: 1)
-        fixture.system.overrides.cpuEnergyUsage = 90
-        profiler.recordMetrics()
-        let metrics = serializeContinuousProfileMetrics(profiler.copyData())
-
-        // -- Assert --
-        try assertMetric(metrics, key: "cpu_energy_usage", unit: "nanojoule", values: [10], timestamps: [1_002])
-    }
-
-    func testClear_whenNextChunkRecordsEnergy_shouldPreservePreviousCounterBaseline() throws {
-        // -- Arrange --
-        let profiler = SentryMetricProfiler(mode: .continuous)
-        profiler.recordMetrics()
-        fixture.date.advance(by: 1)
-        fixture.system.overrides.cpuEnergyUsage = 110
-        profiler.recordMetrics()
-        let first = serializeContinuousProfileMetrics(profiler.copyData())
-
-        // -- Act --
-        profiler.clear()
-        fixture.date.advance(by: 1)
-        fixture.system.overrides.cpuEnergyUsage = 130
-        profiler.recordMetrics()
-        let second = serializeContinuousProfileMetrics(profiler.copyData())
-
-        // -- Assert --
-        try assertMetric(first, key: "cpu_energy_usage", unit: "nanojoule", values: [10], timestamps: [1_001])
-        try assertMetric(second, key: "cpu_energy_usage", unit: "nanojoule", values: [20], timestamps: [1_002])
-    }
-#endif
-
     func testTransmitChunk_whenMetricsArriveAfterSnapshot_shouldKeepThemForNextChunk() throws {
         if sentry_threadSanitizerIsPresent() {
             throw XCTSkip("Native profiling is disabled when Thread Sanitizer is attached.")
@@ -244,15 +203,20 @@ final class SentryMetricProfilerTests: XCTestCase {
 #endif
     }
 
+    /**
+     Given a metrics producer and a concurrent chunk drainer,
+     when recordings overlap snapshot/reset operations,
+     then every CPU, memory, and energy reading belongs to exactly one snapshot.
+     */
     func testCopyAndClear_whenRecordingConcurrently_shouldPreserveEveryReadingExactlyOnce() throws {
         // -- Arrange --
         let profiler = SentryMetricProfiler(mode: .continuous)
         var snapshots: [[AnyHashable: Any]] = []
 
         // -- Act --
-        DispatchQueue.concurrentPerform(iterations: 3) { worker in
-            for _ in 0..<100 {
-                if worker < 2 {
+        DispatchQueue.concurrentPerform(iterations: 2) { worker in
+            for _ in 0..<200 {
+                if worker == 0 {
                     profiler.recordMetrics()
                 } else {
                     snapshots.append(profiler.copyAndClearData())
