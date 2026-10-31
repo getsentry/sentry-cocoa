@@ -13,7 +13,6 @@
 #    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -80,8 +79,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
     SentryHubInternal *const hub = SentrySDKInternal.currentHub;
-    SentryDebugImageProvider *const debugImageProvider
-        = SentryDependencyContainer.sharedInstance.debugImageProvider;
+    SentryDebugImageProvider *const debugImageProvider = sentry_getDebugImageProvider();
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
@@ -92,13 +90,14 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
-        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(profilerID,
-            profilerState, serializedMetrics, [debugImageProvider getDebugImagesFromCache], hub
+        SentryEnvelope *_Nullable envelope
+            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics,
+                sentry_getDebugImagesFromCache(debugImageProvider), hub
 #    if SENTRY_HAS_UIKIT
-            ,
-            screenFrameData
+                ,
+                screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-        );
+            );
         if (envelope == nil) {
             SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
             return;
