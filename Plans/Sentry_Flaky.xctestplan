@@ -39,16 +39,6 @@
     },
     {
       "selectedTests" : [
-        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()"
-      ],
-      "target" : {
-        "containerPath" : "container:Sentry.xcodeproj",
-        "identifier" : "8431EECF29B27B1100D8DC56",
-        "name" : "SentryProfilerTests"
-      }
-    },
-    {
-      "selectedTests" : [
         "SentryObjCInternalProfilingApiIntegrationTests\/testCollect_shouldContainTransactionInfo"
       ],
       "target" : {

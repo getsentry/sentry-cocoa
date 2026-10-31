@@ -86,6 +86,7 @@ public extension TestSentryNSTimerFactory {
     func fire() throws {
         guard var overrides = overrides else { throw TestTimerError.timerNotInitialized }
         overrides.lastFireDate = currentDateProvider.date()
+        self.overrides = overrides
         if let block = overrides.block {
             block(overrides.timer)
         } else if let invocationInfo = overrides.invocationInfo {

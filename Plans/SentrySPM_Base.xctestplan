@@ -63,9 +63,6 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : [
-        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()"
-      ],
       "target" : {
         "containerPath" : "container:",
         "identifier" : "SentryProfilerTests",
@@ -74,9 +71,6 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : [
-        "SentryProfilerTests\/testProfilerMutationDuringSlicing"
-      ],
       "target" : {
         "containerPath" : "container:",
         "identifier" : "SentryProfilerTestsObjC",
