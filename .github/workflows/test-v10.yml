@@ -95,6 +95,7 @@ jobs:
             make-target: test-visionos-v10
 
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
         id: warm-coresimulator
         background: true
@@ -103,6 +104,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
       - name: Setup Xcode
@@ -135,6 +138,7 @@ jobs:
           VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: make ${{ matrix.make-target }}
 
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
@@ -232,6 +236,7 @@ jobs:
         platform: [macOS, Catalyst]
 
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
         id: warm-coresimulator
         background: true
@@ -251,6 +256,7 @@ jobs:
           chmod +x test-server-exec
           exec ./test-server-exec serve --port 8081 > test-server/.test-server.log 2>&1
 
+      # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
       - name: Setup Xcode
@@ -313,14 +319,7 @@ jobs:
       - name: Stop Test Server
         cancel: test-server
 
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: steps.build_tests.outcome == 'failure'
-        with:
-          name: derived-data-v10-test-server-${{ matrix.platform }}
-          path: |
-            ~/Library/Developer/Xcode/DerivedData/**/Logs/**
-
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
         id: upload-raw-logs
         background: true
@@ -341,6 +340,14 @@ jobs:
         with:
           name: result-bundle-v10-test-server-${{ matrix.platform }}
           path: results.xcresult
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-v10-test-server-${{ matrix.platform }}
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

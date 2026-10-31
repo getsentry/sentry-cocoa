@@ -70,6 +70,7 @@ jobs:
             objects-configuration: DebugV10-watchsimulator
 
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
         id: warm-coresimulator
         background: true
@@ -78,6 +79,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
       - name: Setup Xcode
@@ -262,27 +265,32 @@ jobs:
             xrsimulator,
           ]
     steps:
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - name: Test packaging failure handling
         if: matrix.sdk == 'macosx'
         run: ./scripts/test-v10-archive-audit-path.sh
       - name: Test wrapper archive architectures
         if: matrix.sdk == 'watchos'
         run: ./scripts/test-sentryobjc-archive-architectures.sh --work-dir "$RUNNER_TEMP/wrapper-archive-architectures"
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Build and audit dynamic V10 XCFramework
         run: make build-xcframework-v10-dynamic SDKS=${{ matrix.sdk }}
       - name: Build and audit static V10 XCFramework
@@ -296,6 +304,8 @@ jobs:
             --build-log "XCFrameworkBuildPath/raw-build-output.log"
       - name: Build and audit V10 SentryObjC XCFrameworks
         run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}
+
+      # === Artifacts and diagnostics ===
       - name: Upload archive regression logs
         if: failure() && matrix.sdk == 'watchos'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -351,6 +361,7 @@ jobs:
             make-target: build-testapp-v10-DistributionSample
             platform: macOS
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
         id: warm-coresimulator
         background: true
@@ -361,6 +372,8 @@ jobs:
         uses: ./.github/actions/setup-git-access
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
+
+      # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
       - name: Setup Xcode
@@ -385,6 +398,7 @@ jobs:
           WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}

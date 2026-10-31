@@ -41,21 +41,26 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: make analyze
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

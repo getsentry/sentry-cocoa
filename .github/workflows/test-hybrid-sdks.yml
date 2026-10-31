@@ -13,26 +13,33 @@ jobs:
     runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 30
     steps:
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Build XCFramework (Static)
         run: |
           ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "iphonesimulator"
           ./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
           ./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
+
+      # === Artifacts and diagnostics ===
       - name: Upload XCFramework
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -48,10 +55,18 @@ jobs:
     runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 45
     steps:
+      # === Checkout and independent preparation ===
       # Check out into a directory named sentry-cocoa, because SPM derives the package
       # identity of a local package from its directory name.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          path: sentry-cocoa
+      - name: Download XCFramework
+        id: download-xcframework
+        background: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: xcframework-for-hybrid-sdk-tests
           path: sentry-cocoa
       - name: Setup Git access
         uses: ./sentry-cocoa/.github/actions/setup-git-access
@@ -61,16 +76,13 @@ jobs:
           repository: getsentry/sentry-dart
           path: sentry-dart
           ref: main
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./sentry-cocoa/.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
-      - name: Download XCFramework
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: xcframework-for-hybrid-sdk-tests
-          path: sentry-cocoa
       - name: Remove versioned Package files
         working-directory: sentry-cocoa
         run: rm -f Package@swift-*.swift
@@ -120,6 +132,9 @@ jobs:
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
+
+      - name: Wait for XCFramework download
+        wait: download-xcframework
       - name: Build Flutter example for iOS
         working-directory: sentry-dart/packages/flutter/example
         run: |
@@ -162,9 +177,16 @@ jobs:
     runs-on: ["bitrise_pool_name:tahoe"]
     timeout-minutes: 45
     steps:
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: sentry-cocoa
+      - name: Download XCFramework
+        id: download-xcframework
+        background: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: xcframework-for-hybrid-sdk-tests
       - name: Setup Git access
         uses: ./sentry-cocoa/.github/actions/setup-git-access
       - name: Clone sentry-react-native
@@ -173,15 +195,16 @@ jobs:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
           ref: main
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./sentry-cocoa/.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Download XCFramework
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: xcframework-for-hybrid-sdk-tests
+
+      - name: Wait for XCFramework download
+        wait: download-xcframework
       - name: Seed xcframework cache
         run: |
           VERSION=$(sed -n "s/^[[:space:]]*sentry_cocoa_version = '\(.*\)'.*/\1/p" sentry-react-native/packages/core/RNSentry.podspec)

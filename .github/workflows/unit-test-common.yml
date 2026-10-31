@@ -73,6 +73,7 @@ jobs:
     continue-on-error: ${{ inputs.continue_on_error }}
     if: ${{!inputs.should_skip}}
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
         id: warm-coresimulator
         background: true
@@ -81,6 +82,29 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+
+      - name: Resolve macOS build
+        id: macos-build
+        run: echo "build=$(sw_vers -buildVersion)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        background: true
+        name: Cache Ruby
+        id: cache-ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          # The openssl3 segment invalidates caches built against Homebrew's
+          # openssl@4, which cache-hit runners don't have installed.
+          # The macOS build segment keeps runner pools apart: a Ruby built on
+          # a newer macOS crashes on older images, and the cache backend lets
+          # any pool overwrite an existing key.
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-
+
+      # === Resolve destination and start simulator boot ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
       - name: Setup Xcode
@@ -97,44 +121,6 @@ jobs:
           test-destination-os: ${{ inputs.test-destination-os }}
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
-
-      - name: Resolve macOS build
-        id: macos-build
-        run: echo "build=$(sw_vers -buildVersion)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        name: Cache Ruby
-        id: cache-ruby
-        with:
-          path: |
-            ~/.rbenv/versions
-            ~/.rbenv/cache
-          # The openssl3 segment invalidates caches built against Homebrew's
-          # openssl@4, which cache-hit runners don't have installed.
-          # The macOS build segment keeps runner pools apart: a Ruby built on
-          # a newer macOS crashes on older images, and the cache backend lets
-          # any pool overwrite an existing key.
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
-          restore-keys: |
-            ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-
-
-      - name: Install Ruby
-        env:
-          CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
-        run: |
-          # Only touch Homebrew / build Ruby when the cache missed.
-          if [ "$CACHE_HIT" != "true" ]; then
-            brew upgrade ruby-build
-            # Link against the image's openssl@3. Upgrading ruby-build pulls in
-            # openssl@4, but cache-hit runners skip that upgrade, so a Ruby
-            # linked against openssl@4 fails to load openssl from the cache.
-            RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)" rbenv install -s
-          else
-            echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
-            rbenv rehash
-          fi
-          ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
-          bundle install
 
       - name: Ensure required runtime is loaded
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
@@ -159,6 +145,29 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
+      # === Install dependencies while the simulator boots ===
+      - name: Wait for Ruby cache
+        wait: cache-ruby
+
+      - name: Install Ruby
+        env:
+          CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
+        run: |
+          # Only touch Homebrew / build Ruby when the cache missed.
+          if [ "$CACHE_HIT" != "true" ]; then
+            brew upgrade ruby-build
+            # Link against the image's openssl@3. Upgrading ruby-build pulls in
+            # openssl@4, but cache-hit runners skip that upgrade, so a Ruby
+            # linked against openssl@4 fails to load openssl from the cache.
+            RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)" rbenv install -s
+          else
+            echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
+            rbenv rehash
+          fi
+          ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
+          bundle install
+
+      # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
@@ -187,6 +196,7 @@ jobs:
             --derived-data-root "$HOME/Library/Developer/Xcode/DerivedData" \
             --output-dir sentrytests-metadata
 
+      # === Run tests ===
       - name: Wait for simulator readiness
         wait: boot-simulator
 
@@ -240,6 +250,7 @@ jobs:
             --scheme "$SCHEME" \
             --result-bundle results.xcresult
 
+      # === Reports and failure artifacts ===
       - name: Publish Test Report
         id: publish_test_report
         uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
@@ -267,14 +278,6 @@ jobs:
             echo "raw-test-output.log not found."
           fi
 
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: steps.build_tests.outcome == 'failure'
-        with:
-          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
-          path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
-
       - name: Archiving Raw Logs
         id: upload-raw-logs
         background: true
@@ -286,14 +289,6 @@ jobs:
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
-
-      - name: Archiving Crash Logs
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
-          path: |
-            ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Test Results
         id: upload-test-results
@@ -316,6 +311,22 @@ jobs:
           if-no-files-found: error
           path: |
             sentrytests-metadata/**
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
 
       - name: Wait for artifact uploads
         wait: [
