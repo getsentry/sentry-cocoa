@@ -37,6 +37,7 @@ SentrySDK (public API)
 - Read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) before changing `SentryObjC`, `SentryObjCCompat`, or their build configuration
 - Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before changing or reviewing swizzling code
 - Follow [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md) when behavior is covered by an SDK specification
+- Follow [`develop-docs/CI.md`](develop-docs/CI.md#background-steps-and-dependency-ordering) when changing CI step ordering or background processes
 
 ## Tooling
 
