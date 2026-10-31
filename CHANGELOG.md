@@ -14,6 +14,7 @@
 - Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 - Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
 - Preserve profiling metrics across chunk rollover and avoid recording a finished trace's metrics on its replacement profiler (#9500)
+- Synchronize profiling energy-counter readings and prevent invalid energy spikes when cumulative counters decrease (#9517)
 
 ## 9.32.0
 
