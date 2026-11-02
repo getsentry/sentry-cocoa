@@ -1575,8 +1575,26 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(weakSut)
     }
 
+    func testStart_shouldNotRetainRootView() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        weak var weakRootView: UIView?
+
+        // -- Act --
+        autoreleasepool {
+            let rootView = UIView()
+            weakRootView = rootView
+            sut.start(rootView: rootView, fullSession: true)
+        }
+
+        // -- Assert --
+        // The replay can be released on a background thread, so it must not own a UIView.
+        XCTAssertNil(weakRootView)
+    }
+
     @available(iOS 16.0, tvOS 16, *)
-    func testDealloc_DoesNotRetainSessionReplayDuringVideoCreation() throws {
+    func testDealloc_RetainsSessionReplayOnlyUntilVideoCreationCompletes() throws {
         let fixture = Fixture()
         fixture.replayMaker.deferCreateVideoCompletion = true
 
@@ -1591,7 +1609,32 @@ class SentrySessionReplayTests: XCTestCase {
             XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
         }
 
+        XCTAssertNotNil(weakSut)
+        fixture.replayMaker.completeNextCreateVideo()
         XCTAssertNil(weakSut)
+    }
+
+    @available(iOS 16.0, tvOS 16, *)
+    func testFlush_whenReleasedBeforeVideoCreationCompletes_shouldStillSendSegment() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        fixture.replayMaker.deferCreateVideoCompletion = true
+
+        // -- Act --
+        autoreleasepool {
+            let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+            sut.start(rootView: fixture.rootView, fullSession: false)
+            sut.flush()
+            // Mirrors SentrySessionReplayIntegration.stop(), which pauses and releases the replay.
+            sut.pause()
+        }
+        XCTAssertNil(fixture.lastReplayEvent)
+        fixture.replayMaker.completeNextCreateVideo()
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        XCTAssertEqual(segment.replayType, .session)
+        XCTAssertEqual(segment.segmentId, 0)
     }
 
     // MARK: - Frame Rate Tests

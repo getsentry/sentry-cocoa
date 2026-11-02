@@ -11,7 +11,7 @@ Audit of downstream SDK use of private, SPI, and V10-removed `sentry-cocoa` APIs
 - `SentryKSCrashQuery` has no downstream consumers. Downstream SDKs read last-run state through `crashedLastRun` or `lastRunStatus`.
 - The largest breaks are not caused by KSCrash:
   - `PrivateSentrySDKOnly` and `SentryObjCPrivateSDKOnly` no longer exist in 9.29.0 ([#9030](https://github.com/getsentry/sentry-cocoa/pull/9030)).
-  - V10 removes `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableAppHangTracking`, and `pauseAppHangTracking` / `resumeAppHangTracking`.
+  - V10 removes `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableMetricKit`, `enableAppHangTracking`, and `pauseAppHangTracking` / `resumeAppHangTracking`.
   - V10 `SentrySDK` is a Swift `enum` without Objective-C visibility, see [`SentrySDK.swift`](../Sources/Swift/Helper/SentrySDK.swift).
 - .NET is the only SDK with a KSCrash-specific crash-handling regression. It is tracked by [#8797](https://github.com/getsentry/sentry-cocoa/issues/8797) (`SCV10-007`, `SCV10-033`).
 - .NET, Unity, Godot, and Unreal consume `SentryObjC`, which `scripts/build-xcframework-sentryobjc.sh --v10` now builds locally for steps 2 and 3 of #8738. A released or CI-built V10 `SentryObjC` artifact is still missing for step 5. See [Cocoa-Side Gaps](#cocoa-side-gaps).
@@ -138,7 +138,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 3. No released or CI-built V10 `SentryObjC` artifact. `scripts/build-xcframework-sentryobjc.sh --v10` builds one locally, see [SentryObjC build](SENTRY-OBJC-BUILD.md#v10-builds). `scripts/verify-v10-sentrycrash-framework.sh` audits only `Sentry.framework`. Affects .NET, Unity, Godot, and Unreal
 4. Shipped headers keep `#if SDK_V10` gates. `SentryObjC` has them in 13 public headers, which the local `--v10` build resolves with `unifdef`. `Sentry.xcframework` from `scripts/build-xcframework-v10.sh` ships them unresolved in [`SentryDefines.h`](../Sources/Sentry/Public/SentryDefines.h) and [`SentryRequest.h`](../Sources/Sentry/Public/SentryRequest.h). Whether a consumer that does not define `SDK_V10` still compiles against the generated Swift header is unverified
 5. Whether a V10 static `Sentry.xcframework` embeds the KSCrash objects and keeps the slice names React Native hardcodes is unverified
-6. **Resolved for environment-selected V10:** the source product and Swift module are both `Sentry` ([`Package.swift`](../Package.swift)), so source consumers such as Flutter and Capacitor can use `import Sentry`. Trait-only selection is rejected; V9 alone retains `SentrySwift` until the branch split.
+6. **Resolved for environment-selected V10:** the source product and Swift module are both `Sentry` ([`Package.swift`](../Package.swift)), so source consumers such as Flutter and Capacitor can use `import Sentry`. The `V10` trait has been removed; V9 alone retains `SentrySwift` until the branch split.
 
 ### Missing SPI
 
@@ -149,7 +149,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 
 9. Whether the `@_spi(Private) @objc` classes reached from Objective-C by React Native and Flutter (`SentryDependencyContainer`, `SentryFramesTracker`, `SentryBinaryImageCache`, `SentryDebugImageProvider`, `SentrySDKLog`) are a supported V10 contract, or get `SentrySDK.internal` equivalents
 10. `SentrySDK` is a Swift `enum` without Objective-C visibility in V10. This follows the `SentryObjC` design, but React Native's Objective-C bridge depends on it and the change is not called out for hybrid maintainers
-11. No consolidated list of removed options and APIs for hybrid maintainers beyond [`CHANGELOG_V10.md`](../CHANGELOG_V10.md): `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableAppHangTracking`, `pauseAppHangTracking` / `resumeAppHangTracking`, `enableSigtermReporting`, and that their dictionary keys are silently ignored
+11. No consolidated list of removed options and APIs for hybrid maintainers beyond [`CHANGELOG_V10.md`](../CHANGELOG_V10.md): `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableMetricKit`, `enableAppHangTracking`, `pauseAppHangTracking` / `resumeAppHangTracking`, `enableSigtermReporting`, and that their dictionary keys are silently ignored
 12. No cross-image test of the `__sentry_cxa_throw` handoff, which is how Unity uses it (`SCV10-029`)
 
 ## Recommended Follow-Up Issues
@@ -160,7 +160,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 - Prioritize `SCV10-015` before any hybrid SDK ships on V10, and add a hybrid scope-sync case to its acceptance test (gap 2)
 - Add a CI job for the V10 `SentryObjC` xcframework, extend `verify-v10-sentrycrash-framework.sh` to `SentryObjC.framework`, and resolve `SDK_V10` header gates in both framework packaging paths (gaps 3 and 4)
 - Build and verify a static V10 `Sentry.xcframework` with the slice layout React Native expects (gap 5)
-- At the V9 branch split, make the source Swift module unconditionally `Sentry` and remove the temporary environment selector, compatibility trait, and V9 import branches (gap 6)
+- At the V9 branch split, make the source Swift module unconditionally `Sentry` and remove the temporary environment selector and V9 import branches (gap 6)
 - Add the Kotlin Multiplatform SPI and a ledger row for the flow (gap 7)
 - Add an `internal` API for installed integration names (gap 8)
 - Decide the React Native SPI contract and document the `SentrySDK` Objective-C change (gaps 9 and 10)

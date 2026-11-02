@@ -24,6 +24,10 @@ final class SentryMetricKitEventTests: XCTestCase {
     func testMXHangDiagnostic_IsMetricKitEvent() {
         XCTAssertTrue(createMetricKitEventWith(mechanismType: "mx_hang_diagnostic").isMetricKitEvent())
     }
+
+    func testIsMetricKitEvent_whenAppLaunchDiagnostic_shouldReturnTrue() {
+        XCTAssertTrue(createMetricKitEventWith(mechanismType: "mx_app_launch_diagnostic").isMetricKitEvent())
+    }
     
 #if os(iOS) || os(tvOS) || os(visionOS)
     func testWatchDogEvent_IsNotMetricKitEvent() {

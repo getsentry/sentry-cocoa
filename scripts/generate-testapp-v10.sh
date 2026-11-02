@@ -138,7 +138,6 @@ patch_and_generate() {
     (
         trap 'rm -f "$tmp"' EXIT
         cp "$spec" "$tmp"
-        "$SCRIPT_DIR/set-xcodegen-package-traits.sh" --spec "$tmp" --trait V10
         "$SCRIPT_DIR/set-xcodegen-compiler-flags.sh" \
             --spec "$tmp" \
             --swift-condition SDK_V10 \

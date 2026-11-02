@@ -13,41 +13,75 @@ import Foundation
         self.api = api
     }
 
+    @objc(count:value:options:) public func count(_ name: String, value: UInt, options: SentryObjCMetricOptions) {
+        api.count(name, value: value, options: options.toSentryMetricOptions())
+    }
+
+    @objc(count:value:) public func count(_ name: String, value: UInt) {
+        api.count(name, value: value, options: SentryMetricOptions())
+    }
+
+    @objc(count:) public func count(_ name: String) {
+        api.count(name, value: 1, options: SentryMetricOptions())
+    }
+
+    @objc(distribution:value:options:) public func distribution(_ name: String, value: Double, options: SentryObjCMetricOptions) {
+        api.distribution(name, value: value, options: options.toSentryMetricOptions())
+    }
+
+    @objc(distribution:value:) public func distribution(_ name: String, value: Double) {
+        api.distribution(name, value: value, options: SentryMetricOptions())
+    }
+
+    @objc(gauge:value:options:) public func gauge(_ name: String, value: Double, options: SentryObjCMetricOptions) {
+        api.gauge(name, value: value, options: options.toSentryMetricOptions())
+    }
+
+    @objc(gauge:value:) public func gauge(_ name: String, value: Double) {
+        api.gauge(name, value: value, options: SentryMetricOptions())
+    }
+
+    #if !SDK_V10
+    // Deprecated in SentryObjCMetricsApi.h. They forward to the options-based Swift API so the
+    // wrapper doesn't call the deprecated Swift methods.
+
     @objc public func count(key: String, value: UInt, attributes: [String: SentryObjCAttributeContent]) {
-        api.count(key: key, value: value, attributes: mapAttributes(attributes))
+        api.count(key, value: value, options: SentryMetricOptions(attributes: mapAttributes(attributes)))
     }
 
     @objc public func count(key: String, value: UInt) {
-        api.count(key: key, value: value, attributes: [:])
+        api.count(key, value: value, options: SentryMetricOptions())
     }
 
     @objc public func count(key: String) {
-        api.count(key: key, value: 1, attributes: [:])
+        api.count(key, value: 1, options: SentryMetricOptions())
     }
 
     @objc public func distribution(key: String, value: Double, unit: SentryObjCUnit?, attributes: [String: SentryObjCAttributeContent]) {
-        api.distribution(key: key, value: value, unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes))
+        api.distribution(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes)))
     }
 
     @objc public func distribution(key: String, value: Double, unit: SentryObjCUnit?) {
-        api.distribution(key: key, value: value, unit: unit?.toSentryUnit(), attributes: [:])
+        api.distribution(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit()))
     }
 
     @objc public func distribution(key: String, value: Double) {
-        api.distribution(key: key, value: value, unit: nil, attributes: [:])
+        api.distribution(key, value: value, options: SentryMetricOptions())
     }
 
     @objc public func gauge(key: String, value: Double, unit: SentryObjCUnit?, attributes: [String: SentryObjCAttributeContent]) {
-        api.gauge(key: key, value: value, unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes))
+        api.gauge(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes)))
     }
 
     @objc public func gauge(key: String, value: Double, unit: SentryObjCUnit?) {
-        api.gauge(key: key, value: value, unit: unit?.toSentryUnit(), attributes: [:])
+        api.gauge(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit()))
     }
 
     @objc public func gauge(key: String, value: Double) {
-        api.gauge(key: key, value: value, unit: nil, attributes: [:])
+        api.gauge(key, value: value, options: SentryMetricOptions())
     }
+
+    #endif // !SDK_V10
 
     private func mapAttributes(_ attributes: [String: SentryObjCAttributeContent]) -> [String: any SentryAttributeValue] {
         attributes.mapValues { $0.toAttributeContent().asAttributeValue }
@@ -64,7 +98,7 @@ import Foundation
     }
 }
 
-private extension SentryAttributeContent {
+extension SentryAttributeContent {
     var asAttributeValue: any SentryAttributeValue {
         switch self {
         case .string(let v): return v

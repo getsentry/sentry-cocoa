@@ -99,12 +99,14 @@ NS_ASSUME_NONNULL_BEGIN
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
 
-- (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
+- (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(_:with:));
 
 - (void)captureTransaction:(SentryTransaction *)transaction
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
-- (void)saveCrashTransaction:(SentryTransaction *)transaction;
+- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+    NS_SWIFT_NAME(saveCrash(_:));
 
 - (nullable SENTRY_SWIFT_MIGRATION_ID(
     id<SentryIntegrationProtocol>))getInstalledIntegration:(Class)integrationClass;

@@ -6,14 +6,17 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     let mxManager: SentryMXManager
     
     init?(with options: Options, dependencies: Dependencies) {
-        guard options.enableMetricKit else {
+        let enabledDiagnostics = Self.enabledDiagnostics(for: options)
+        let enabledMetricReports = options.experimental.metrickit.enabledMetricReports
+        guard !enabledDiagnostics.isEmpty || !enabledMetricReports.isEmpty else {
             return nil
         }
 
         mxManager = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
-            enabledDiagnostics: [.cpuException, .diskWriteException, .hang],
+            enabledDiagnostics: enabledDiagnostics,
+            enabledMetricReports: enabledMetricReports,
             releaseName: options.releaseName,
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp
@@ -29,6 +32,20 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
     
     func uninstall() {
         mxManager.pauseReports()
+    }
+
+    private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
+        let enabledDiagnosticReports = options.experimental.metrickit.enabledDiagnosticReports
+        #if SDK_V10
+        return enabledDiagnosticReports
+        #else
+        // Before v10 the integration is opt-in, and enableMetricKit keeps capturing the
+        // diagnostics it always captured unless the app chooses its own set.
+        guard enabledDiagnosticReports.isEmpty else {
+            return enabledDiagnosticReports
+        }
+        return options.enableMetricKit ? [.cpuException, .diskWriteException, .hang] : []
+        #endif // SDK_V10
     }
 }
 

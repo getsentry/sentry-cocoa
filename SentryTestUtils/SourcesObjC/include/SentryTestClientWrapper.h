@@ -51,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)wrapper_captureEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope
     NS_SWIFT_NAME(wrapper_capture(envelope:));
 
+- (void)wrapper_saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                           withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(wrapper_saveCrashTransaction(transaction:scope:));
+
 - (void)wrapper_storeEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope
     NS_SWIFT_NAME(wrapper_store(envelope:));
 

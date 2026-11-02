@@ -6,7 +6,6 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryTransaction.h"
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFormatter.h"
 #        import "SentryTime.h"

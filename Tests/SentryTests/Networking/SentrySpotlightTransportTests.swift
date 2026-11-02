@@ -56,16 +56,19 @@ final class SentrySpotlightTransportTests: XCTestCase {
     }
 
     private func givenTransactionEnvelope() throws -> SentryEnvelope {
-        let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypes.transaction
+        let transaction = givenTransaction()
 
         return SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction)])
     }
 
     private func givenTransactionItem() -> SentryEnvelopeItem {
-        let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypes.transaction
-        return SentryEnvelopeItem(event: transaction)
+        return SentryEnvelopeItem(event: givenTransaction())
+    }
+
+    private func givenTransaction() -> Transaction {
+        let context = TransactionContext(operation: "spotlight")
+        let trace = SentryTracer(transactionContext: context, hub: nil)
+        return Transaction(trace: trace, children: [])
     }
 
     private func givenAttachmentItem() throws -> SentryEnvelopeItem {

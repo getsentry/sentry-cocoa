@@ -1215,7 +1215,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
   
         let videoUrl = URL(fileURLWithPath: "video.mp4")
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
-        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        let replayEvent = SentryReplayEvent(eventId: try XCTUnwrap(sut.sessionReplay?.sessionReplayId), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
         sut.sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
@@ -1225,6 +1225,44 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut.sessionReplay)
         mainQueue.blockOnMainInvocations.invocations.first?()
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+    }
+
+    func testSessionReplayNewSegment_whenRateLimitedSegmentOfStoppedReplay_shouldNotStopCurrentReplay() throws {
+        // -- Arrange --
+        let rateLimiter = TestRateLimits()
+        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
+        rateLimiter.rateLimits.append(.replay)
+
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let stoppedReplayId = try XCTUnwrap(sut.sessionReplay?.sessionReplayId)
+        sut.stop()
+        sut.start()
+        let currentReplayId = try XCTUnwrap(sut.sessionReplay?.sessionReplayId)
+        let mainQueue = TestSentryDispatchQueueWrapper()
+        mainQueue.blockBeforeMainBlock = { false }
+        sut.replayProcessingQueue = mainQueue
+
+        func sendSegment(replayId: SentryId) {
+            let videoUrl = URL(fileURLWithPath: "video.mp4")
+            let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
+            let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+            sut.sessionReplayNewSegment(replayEvent: replayEvent,
+                                        replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
+                                        videoUrl: videoUrl)
+        }
+
+        // -- Act & Assert --
+        // A late segment of the stopped replay must not stop the current one.
+        sendSegment(replayId: stoppedReplayId)
+        XCTAssertEqual(mainQueue.blockOnMainInvocations.invocations.count, 0)
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+
+        // A segment of the current replay still does.
+        sendSegment(replayId: currentReplayId)
+        XCTAssertEqual(mainQueue.blockOnMainInvocations.invocations.count, 1)
+        mainQueue.blockOnMainInvocations.invocations.first?()
         XCTAssertNil(sut.sessionReplay)
     }
 
@@ -1239,7 +1277,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         let videoUrl = URL(fileURLWithPath: "video.mp4")
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
-        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        let replayEvent = SentryReplayEvent(eventId: try XCTUnwrap(sut.sessionReplay?.sessionReplayId), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
 
         sut.sessionReplayNewSegment(replayEvent: replayEvent,
                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
@@ -1262,7 +1300,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
   
         let videoUrl = URL(fileURLWithPath: "video.mp4")
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
-        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        let replayEvent = SentryReplayEvent(eventId: try XCTUnwrap(sut.sessionReplay?.sessionReplayId), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
         sut.sessionReplayNewSegment(replayEvent: replayEvent,
                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
@@ -1285,7 +1323,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
   
         let videoUrl = URL(fileURLWithPath: "video.mp4")
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
-        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        let replayEvent = SentryReplayEvent(eventId: try XCTUnwrap(sut.sessionReplay?.sessionReplayId), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
         sut.sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
@@ -1370,6 +1408,50 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.start()
 
         XCTAssertNotEqual(sut.sessionReplay?.sessionReplayId, replayId)
+    }
+
+    func testSessionReplayNewSegment_whenSegmentOfStoppedReplay_shouldNotOverwriteCrashInfo() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let stoppedReplayId = try XCTUnwrap(sut.sessionReplay?.sessionReplayId)
+        sut.stop()
+        sut.start()
+        let currentReplayId = try XCTUnwrap(sut.sessionReplay?.sessionReplayId)
+
+        let replayDirectory = try XCTUnwrap(sut.replayDirectory())
+        let infoData = try Data(contentsOf: replayDirectory.appendingPathComponent("replay.current"))
+        let info = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: infoData) as? [String: Any])
+        let crashInfoPath = replayDirectory
+            .appendingPathComponent(try XCTUnwrap(info["path"] as? String))
+            .appendingPathComponent("crashInfo").path
+
+        func sendSegment(replayId: SentryId, segmentId: Int, end: Date) {
+            let videoUrl = URL(fileURLWithPath: "video.mp4")
+            let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: end, end: end, fileSize: 10, screens: [])
+            let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: end, replayType: .session, segmentId: segmentId)
+            replayEvent.timestamp = end
+            sut.sessionReplayNewSegment(replayEvent: replayEvent,
+                                        replayRecording: SentryReplayRecording(segmentId: segmentId, video: videoInfo, extraEvents: []),
+                                        videoUrl: videoUrl)
+        }
+
+        // -- Act --
+        sendSegment(replayId: stoppedReplayId, segmentId: 5, end: Date(timeIntervalSinceReferenceDate: 500))
+        sentrySessionReplaySync_writeInfo()
+        var afterStoppedSegment = SentryCrashReplay()
+        XCTAssertTrue(sentrySessionReplaySync_readInfo(&afterStoppedSegment, crashInfoPath))
+
+        sendSegment(replayId: currentReplayId, segmentId: 1, end: Date(timeIntervalSinceReferenceDate: 100))
+        sentrySessionReplaySync_writeInfo()
+        var afterCurrentSegment = SentryCrashReplay()
+        XCTAssertTrue(sentrySessionReplaySync_readInfo(&afterCurrentSegment, crashInfoPath))
+
+        // -- Assert --
+        XCTAssertEqual(afterStoppedSegment.segmentId, 0)
+        XCTAssertEqual(afterStoppedSegment.lastSegmentEnd, 0)
+        XCTAssertEqual(afterCurrentSegment.segmentId, 1)
+        XCTAssertEqual(afterCurrentSegment.lastSegmentEnd, 100)
     }
     
     func testCleanUp() throws {
