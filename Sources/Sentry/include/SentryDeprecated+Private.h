@@ -6,17 +6,18 @@ static NSString *const SentryBaggageHeaderField = @"baggage";
 static NSString *const SentryTraceHeaderField = @"sentry-trace";
 static NSString *const SentrySpanTypeTrace = @"trace";
 
-/// Description of a Mach kernel return code. Swift calls this method because visionOS Swift
-/// cannot call the C++ helper directly.
-@interface SentryKernelErrorDescription : NSObject
-
-+ (NSString *)stringForKernelReturnCode:(int32_t)code;
-
-@end
+#ifdef __cplusplus
+extern "C" {
+#endif
+NSString *sentry_kernelErrorDescription(int32_t code);
+#ifdef __cplusplus
+}
+#endif
 
 NS_ASSUME_NONNULL_END
 
-// C functions stay out of the Swift private module. visionOS Swift cannot call them.
+// These helpers stay out of the Swift module so Swift call sites use SentryError.nsError
+// and SentrySpanStatus.name. sentry_spanStatusName is implemented in Swift.
 #if !__building_module(_SentryPrivate)
 #    import "SentryError.h"
 #    import "SentrySpanStatus.h"

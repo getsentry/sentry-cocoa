@@ -32,22 +32,18 @@ sentry_errorWithException(SentryError error, NSString *description, NSException 
         error, [NSString stringWithFormat:@"%@ (%@)", description, exception.reason]);
 }
 
-@implementation SentryKernelErrorDescription
-
-+ (NSString *)stringForKernelReturnCode:(int32_t)code
+NSString *
+sentry_kernelErrorDescription(int32_t code)
 {
     NSString *description =
         [NSString stringWithUTF8String:sentry::kernelReturnCodeDescription(code)];
     return description ?: @"Unknown error.";
 }
 
-@end
-
 NSError *
 sentry_errorWithKernelError(SentryError error, NSString *description, kern_return_t kernelErrorCode)
 {
-    NSString *kernelDescription =
-        [SentryKernelErrorDescription stringForKernelReturnCode:kernelErrorCode];
+    NSString *kernelDescription = sentry_kernelErrorDescription(kernelErrorCode);
     return sentry_errorWithDescription(
         error, [NSString stringWithFormat:@"%@ (%@)", description, kernelDescription]);
 }
