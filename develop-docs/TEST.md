@@ -56,7 +56,7 @@ swift test --traits _SentryTestCI
 SDK_V10=1 swift test --traits _SentryTest
 ```
 
-The `V10` trait has been removed; use `SDK_V10=1` for all V10 package builds. See [SwiftPM module selection](BUILD.md#source-built-swiftpm-module-names).
+The `V10` trait has been removed; use `SDK_V10=1` for all V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
 
 The test traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
 

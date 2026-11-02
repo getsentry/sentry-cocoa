@@ -942,4 +942,4 @@ Superseding the SwiftPM selection in decisions [35](#35-kscrash-migration-strate
 Related links:
 
 - [V10 selection PR](https://github.com/getsentry/sentry-cocoa/pull/9458)
-- [SwiftPM module selection](BUILD.md#source-built-swiftpm-module-names)
+- [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection)
