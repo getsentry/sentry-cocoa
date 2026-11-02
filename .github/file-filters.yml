@@ -176,8 +176,10 @@ run_api_parity_for_prs:
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
+  - "scripts/generate-api-dump.sh"
   - "scripts/report-api-parity.sh"
   - "scripts/compare-public-api.py"
+  - "scripts/test-generate-api-dump.py"
   - "scripts/test-compare-public-api.py"
 
 run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs

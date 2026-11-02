@@ -36,18 +36,37 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 `assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
 
+## Public API Dump Generation
+
+[`generate-api-dump.sh`](../scripts/generate-api-dump.sh) builds and extracts the main SDK's public API through either build system independently:
+
+```bash
+# SwiftPM only: no Xcode project or workspace is required.
+./scripts/generate-api-dump.sh --build-system spm --output-dir /tmp/sentry-spm-api
+
+# Xcode project only: no package-based SDK build is performed.
+./scripts/generate-api-dump.sh --build-system xcode --output-dir /tmp/sentry-xcode-api
+```
+
+The output is a raw `swift-api-digester` dump (`spm-public.json` or `xcode-public.json`), the extracted module list, `context.json`, and build/extraction logs. Generation does not compare APIs or overwrite tracked snapshots. This command currently covers **V9 Release, arm64 iOS Simulator, main SDK only**; it does not replace `make generate-public-api` or generate the V10, SentrySwiftUI, or Objective-C wrapper snapshots.
+
+SwiftPM mode uses `xcodebuild` against a disposable source package without `Sentry.xcodeproj`, `Sentry.xcworkspace`, or binary products. All versioned manifests are retained so SwiftPM selects the appropriate one. It extracts `SentrySwift` together with its re-exported `SentryHeaders`. Xcode mode builds the `Sentry` framework. `--build-system both` generates both dumps from one working-tree snapshot without comparing them.
+
+The output directory must not exist and must be outside the checkout. Use `--source-packages /path/to/SourcePackages` to seed builds from an existing Xcode package cache, or `--keep-builds` to retain the disposable sources and build products. Seed caches must contain the dependency versions required by the current manifests; refresh them with Xcode package resolution after dependency updates. No simulator is booted and no SDK consumer is executed.
+
+For Xcode 16 interface verification, the generator exposes SwiftPM's generated `SentryHeaders` module map and original public headers through Swift search paths. This only affects the disposable build; it does not change SDK declarations or disable interface verification.
+
 ## Informational SwiftPM API Parity
 
-The [API parity workflow](../.github/workflows/api-parity.yml) compares the public source API of the Xcode-built `Sentry` framework with `SentrySwift` and its re-exported `SentryHeaders`. It builds both from the same working-tree snapshot, using the same Xcode, V9 Release configuration, and arm64 iOS Simulator target. CI uses Xcode 16.4; local runs use the selected Xcode. All versioned package manifests are retained so SwiftPM selects the appropriate manifest. Only published binary products are removed from the disposable package copy.
+The [API parity workflow](../.github/workflows/api-parity.yml) calls the generator in `both` mode, then compares the Xcode and SwiftPM dumps. Both builds use the same source snapshot, Xcode, configuration, and target. CI uses Xcode 16.4; local runs use the selected Xcode.
 
 ```bash
 ./scripts/report-api-parity.sh --output-dir /tmp/sentry-api-parity
 python3 scripts/test-compare-public-api.py -v
+python3 scripts/test-generate-api-dump.py -v
 ```
 
-The output directory must not exist and must be outside the checkout. Use `--source-packages /path/to/SourcePackages` to seed builds from an existing Xcode package cache, or `--keep-builds` to retain the disposable sources and build products. Seed caches must contain the dependency versions required by the current manifests; refresh them with Xcode package resolution after dependency updates. No simulator is booted and no SDK consumer is executed.
-
-For Xcode 16 interface verification, the runner exposes SwiftPM's generated `SentryHeaders` module map and original public headers through Swift search paths. This only affects the disposable build; it does not change SDK declarations or disable interface verification.
+The generation tests use fake Xcode tools to check independent build selection, shared snapshots, header discovery, cleanup, and failure handling without building the SDK.
 
 The report lists missing and additional declarations, changed signatures, and missing members by their qualified names. It includes transitively imported Objective-C header modules. Comparison normalizes `SentrySwift`/`SentryHeaders` to `Sentry` and omits binary symbol identities, but preserves parameter order, overloads, availability, and API attributes. Private SPI and runtime behavior are not compared.
 

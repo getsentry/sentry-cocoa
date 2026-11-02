@@ -42,8 +42,10 @@ jobs:
         with:
           version: "16.4"
           resolve-simulators: "false"
-      - name: Test API comparison
-        run: python3 scripts/test-compare-public-api.py -v
+      - name: Test API tooling
+        run: |
+          python3 scripts/test-compare-public-api.py -v
+          python3 scripts/test-generate-api-dump.py -v
       # Only API differences are informational. Build/extraction errors must remain
       # visible failures rather than masquerading as a successful parity comparison.
       - name: Build and compare
