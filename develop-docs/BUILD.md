@@ -36,6 +36,35 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 `assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
 
+## Informational SwiftPM API Parity
+
+The [API parity workflow](../.github/workflows/api-parity.yml) compares the public source API of the Xcode-built `Sentry` framework with `SentrySwift` and its re-exported `SentryHeaders`. It builds both from the same working-tree snapshot, using the same Xcode, V9 Release configuration, and arm64 iOS Simulator target. CI uses Xcode 16.4; local runs use the selected Xcode. All versioned package manifests are retained so SwiftPM selects the appropriate manifest. Only published binary products are removed from the disposable package copy.
+
+```bash
+./scripts/report-api-parity.sh --output-dir /tmp/sentry-api-parity
+python3 scripts/test-compare-public-api.py -v
+```
+
+The output directory must not exist and must be outside the checkout. Use `--source-packages /path/to/SourcePackages` to seed builds from an existing Xcode package cache, or `--keep-builds` to retain the disposable sources and build products. Seed caches must contain the dependency versions required by the current manifests; refresh them with Xcode package resolution after dependency updates. No simulator is booted and no SDK consumer is executed.
+
+For Xcode 16 interface verification, the runner exposes SwiftPM's generated `SentryHeaders` module map and original public headers through Swift search paths. This only affects the disposable build; it does not change SDK declarations or disable interface verification.
+
+The report lists missing and additional declarations, changed signatures, and missing members by their qualified names. It includes transitively imported Objective-C header modules. Comparison normalizes `SentrySwift`/`SentryHeaders` to `Sentry` and omits binary symbol identities, but preserves parameter order, overloads, availability, and API attributes. Private SPI and runtime behavior are not compared.
+
+> [!NOTE]
+> API differences produce a warning and a job summary, not a failing check. Build, extraction, and comparison errors remain visible failures. This workflow is not a required check and does not change the existing blocking API-stability workflow or its tracked snapshots. Known differences are reported rather than allowlisted.
+
+Raw API dumps, normalized copies, the complete diff, build context, and logs are uploaded as an artifact. To compare previously extracted **raw** dumps without rebuilding:
+
+```bash
+python3 scripts/compare-public-api.py \
+  --baseline /tmp/sentry-api-parity/xcode-public.json \
+  --candidate /tmp/sentry-api-parity/spm-public.json \
+  --output-dir /tmp/sentry-api-comparison
+```
+
+The comparator exits with `0` for a match, `1` for API differences, and `2` for invalid input. Use dumps from matching toolchains/platforms, including re-exported header APIs. Do not mix raw dumps with recursively sorted CI snapshots: sorting every array discards parameter order. Neither this check nor matching source APIs prove ABI compatibility.
+
 ## Platform-Specific Build Notes
 
 ### visionOS Considerations

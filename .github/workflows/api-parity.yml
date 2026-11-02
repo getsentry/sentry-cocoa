@@ -1,0 +1,73 @@
+name: Report API Parity
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# PR-only informational job: cancel superseded builds to avoid duplicate SDK builds.
+# Do not add this workflow to required checks; API Stability remains the blocking check.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      api-parity: ${{ steps.changes.outputs.run_api_parity_for_prs }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: changes
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  compare:
+    name: Compare Source APIs
+    needs: files-changed
+    if: needs.files-changed.outputs.api-parity == 'true'
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Git access
+        uses: ./.github/actions/setup-git-access
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16.4"
+          resolve-simulators: "false"
+      - name: Test API comparison
+        run: python3 scripts/test-compare-public-api.py -v
+      # Only API differences are informational. Build/extraction errors must remain
+      # visible failures rather than masquerading as a successful parity comparison.
+      - name: Build and compare
+        run: ./scripts/report-api-parity.sh --output-dir "$RUNNER_TEMP/api-parity"
+      - name: Publish parity summary
+        if: always()
+        shell: bash
+        run: |
+          report="$RUNNER_TEMP/api-parity/report/summary.md"
+          if [[ -f "$report" ]]; then
+            cat "$report" >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '## Xcode / SwiftPM API parity\n\nComparison did not complete. No parity conclusion is available; inspect the build logs.\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload parity report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: api-parity-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/api-parity/context.json
+            ${{ runner.temp }}/api-parity/*-public.json
+            ${{ runner.temp }}/api-parity/*-modules.txt
+            ${{ runner.temp }}/api-parity/report/
+            ${{ runner.temp }}/api-parity/logs/
