@@ -20,7 +20,7 @@ final class SentryMXDiagnosticCapturer {
     init(
         inAppLogic: SentryInAppLogic,
         attachDiagnosticAsAttachment: Bool,
-        enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
+        enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash, .memoryException]),
         releaseName: String? = nil,
         bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
         hangReportingMode: SentryMetricKitHangReportingMode = .legacy,

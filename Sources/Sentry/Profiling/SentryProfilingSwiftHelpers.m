@@ -52,6 +52,18 @@ sentry_getSentryId(void)
     return [[SentryId alloc] init];
 }
 
+SentryDebugImageProvider *
+sentry_getDebugImageProvider(void)
+{
+    return SentryDependencyContainer.sharedInstance.debugImageProvider;
+}
+
+NSArray<SentryDebugMeta *> *
+sentry_getDebugImagesFromCache(SentryDebugImageProvider *provider)
+{
+    return [provider getDebugImagesFromCache];
+}
+
 SentryProfileOptions *
 sentry_getSentryProfileOptions(void)
 {

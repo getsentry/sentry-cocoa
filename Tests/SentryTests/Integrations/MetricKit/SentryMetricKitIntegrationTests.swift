@@ -151,9 +151,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testInit_whenMetricsEnabled_shouldReceiveThemFromOneAPI() throws {
         // -- Arrange --
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = false
-        #endif // !SDK_V10
+        // V10 enables diagnostic reports by default.
+        options.experimental.metrickit.enabledDiagnosticReports = []
         options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime]
 
         // -- Act --

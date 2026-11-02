@@ -26,6 +26,57 @@ final class SentryAppLaunchProfilingTests: XCTestCase {
 
 // MARK: continuous profiling v2
 extension SentryAppLaunchProfilingTests {
+    /**
+     Given a trace-lifecycle launch profile owned by the launch root,
+     when a parented transaction finishes during launch without having acquired ownership,
+     then profiling continues past the chunk boundary until the launch root finishes.
+     The parented transaction is captured, while the launch transaction is discarded.
+     */
+    func testFinish_whenParentedTransactionFinishesDuringLaunch_shouldPreserveRootOwnership() throws {
+        // -- Arrange --
+        fixture.options.tracesSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.profileAppStarts = true
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
+        sentry_configureContinuousProfiling(fixture.options)
+        SentryLaunchProfiling.configureLaunchProfilingForNextLaunch(fixture.options)
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
+        let launchRoot = try XCTUnwrap(SentryLaunchProfiling.launchTracer)
+        let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let client = try XCTUnwrap(fixture.client)
+        let context = TransactionContext(
+            name: "remote-child", nameSource: .custom, operation: "test", origin: "manual",
+            trace: SentryId(), spanId: SpanId(), parentSpanId: SpanId(),
+            parentSampled: .yes, parentSampleRate: 1, parentSampleRand: 0.5
+        )
+        let parentedTransaction = try XCTUnwrap(fixture.hub.startTransaction(transactionContext: context) as? SentryTracer)
+        defer { parentedTransaction.finish() }
+        XCTAssertNil(parentedTransaction.profilerReferenceID)
+
+        // -- Act --
+        parentedTransaction.finish()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(profiler === SentryContinuousProfiler.profiler())
+        XCTAssertFalse(launchRoot.isFinished)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 1)
+
+        // -- Act --
+        SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer(hub: fixture.hub)
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // -- Assert --
+        XCTAssertTrue(launchRoot.isFinished)
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 1)
+    }
+
     func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
