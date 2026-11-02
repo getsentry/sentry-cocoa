@@ -36,7 +36,8 @@ extension SentryMXDiagnosticCapturer {
         if !osContext.isEmpty {
             context["os"] = osContext
         }
-        if let deviceContext = Self.diagnosticDeviceContext(runningDevice: runningScope.getContextForKey("device")), !deviceContext.isEmpty {
+        let deviceContext = Self.diagnosticDeviceContext(for: metadata, runningDevice: runningScope.getContextForKey("device"))
+        if !deviceContext.isEmpty {
             context["device"] = deviceContext
         }
         // The runtime context says whether an iOS app runs on a Mac or through Mac Catalyst,
@@ -50,12 +51,14 @@ extension SentryMXDiagnosticCapturer {
     }
 
     /// Builds the app context from the attributes known for the time the diagnostic was recorded.
-    /// Everything that depends on the running build or process, such as the build type or the app
-    /// start time, is left out.
+    /// Everything that depends on the running build or process, such as the app start time, is
+    /// left out. The build type is only known for TestFlight builds, which MetricKit reports.
     static func diagnosticAppContext(for metadata: SentryMXDiagnostic.Metadata, runningApp: [String: Any]?) -> [String: Any] {
         var appContext: [String: Any] = [:]
-        // The bundle identifier doesn't change between builds, so the running one still applies.
-        if let appIdentifier = runningApp?["app_identifier"] {
+        // The bundle identifier doesn't change between builds, so the running one applies when
+        // MetricKit doesn't report it.
+        let appIdentifier: Any? = metadata.bundleIdentifier ?? runningApp?["app_identifier"]
+        if let appIdentifier {
             appContext["app_identifier"] = appIdentifier
         }
         if !metadata.appVersion.isEmpty {
@@ -63,6 +66,12 @@ extension SentryMXDiagnosticCapturer {
         }
         if !metadata.appBuild.isEmpty {
             appContext["app_build"] = metadata.appBuild
+        }
+        // MetricKit only tells whether the build was a TestFlight build, so the other build types
+        // stay unknown. TestFlight builds use the same value as
+        // `SentryDefaultScopeContextEnricher.buildType`.
+        if metadata.isTestFlightApp == true {
+            appContext["build_type"] = "test"
         }
         return appContext
     }
@@ -84,6 +93,17 @@ extension SentryMXDiagnosticCapturer {
             }
         }
         return osContext
+    }
+
+    /// Builds the device context from the device attributes that can't change between app runs on
+    /// the same device, and the low power mode MetricKit reports for the time the diagnostic was
+    /// recorded.
+    static func diagnosticDeviceContext(for metadata: SentryMXDiagnostic.Metadata, runningDevice: [String: Any]?) -> [String: Any] {
+        var deviceContext = diagnosticDeviceContext(runningDevice: runningDevice) ?? [:]
+        if let lowPowerModeEnabled = metadata.lowPowerModeEnabled {
+            deviceContext["low_power_mode"] = lowPowerModeEnabled
+        }
+        return deviceContext
     }
 
     /// Keeps the device attributes that can't change between app runs on the same device.
