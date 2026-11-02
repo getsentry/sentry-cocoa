@@ -59,7 +59,14 @@ These checks help ensure that V10 builds contain no legacy recorder implementati
 
 ### SwiftPM V10 selection
 
-Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry` source product. The `V10` trait has been removed; V9 defaults and unrelated traits remain unchanged. Both versions still use the `SentrySwift` module. See [decision 41](DECISIONS.md#41-select-swiftpm-v10-through-the-environment-only).
+Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry` source product. The `V10` trait has been removed; V9 defaults and unrelated traits remain unchanged. See [decision 41](DECISIONS.md#41-select-swiftpm-v10-through-the-environment-only).
+
+| Selection      | SDK | Source product / Swift module |
+| -------------- | --- | ----------------------------- |
+| No `SDK_V10=1` | V9  | `SentrySPM` / `SentrySwift`   |
+| `SDK_V10=1`    | V10 | `Sentry` / `Sentry`           |
+
+Shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. Do not use `canImport` to select a version: cached modules can survive mode switches.
 
 `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
 
