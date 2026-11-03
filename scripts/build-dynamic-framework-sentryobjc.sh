@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Builds a single SentryObjC dynamic framework slice from a static library.
+# Builds a single dynamic framework slice (SentryObjC by default).
 #
-# Takes a pre-built libSentryObjC.a (from build-static-library-sentryobjc.sh)
+# Takes a pre-built static library (from build-static-library-sentryobjc.sh)
 # and re-links it as a dynamic library via swiftc, then packages the result
 # as a .framework bundle with headers and a modulemap.
 
@@ -19,15 +19,18 @@ STATIC_LIB=""
 HEADERS_DIR=""
 OUTPUT_DIR="XCFrameworkBuildPath"
 FRAMEWORK_NAME="SentryObjC"
+SWIFT_ARCHIVE=""
 VERSION=""
 
 usage() {
     log_info "Usage: $0"
     log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_info "  --static-lib <path>       Path to libSentryObjC.a (required)"
+    log_info "  --static-lib <path>       Path to the static library (required)"
     log_info "  --headers <path>          Path to public headers directory (required)"
     log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_info "  --version <semver>        Version string for the framework (default: 0.0.0)"
+    log_info "  --version <semver>        Version string (default: Versioning.xcconfig)"
+    log_info "  --framework-name <name>   Framework/module name (default: SentryObjC)"
+    log_info "  --swift-archive <path>    Source archive containing the main SDK's Swift artifacts (optional)"
     exit 1
 }
 
@@ -38,6 +41,8 @@ while [[ $# -gt 0 ]]; do
         --headers)     HEADERS_DIR="$2";  shift 2 ;;
         --output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
         --version)     VERSION="$2";      shift 2 ;;
+        --framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
+        --swift-archive) SWIFT_ARCHIVE="$2"; shift 2 ;;
         -h|--help)     usage ;;
         *)             log_error "Unknown argument: $1"; usage ;;
     esac
@@ -62,6 +67,19 @@ fi
 if [ ! -d "$HEADERS_DIR" ]; then
     log_error "Headers directory not found: $HEADERS_DIR"
     exit 1
+fi
+
+if [[ ! "$FRAMEWORK_NAME" =~ ^[A-Za-z_][A-Za-z_0-9]*$ ]]; then
+    log_error "Invalid framework module name: $FRAMEWORK_NAME"
+    exit 1
+fi
+if [ -n "$SWIFT_ARCHIVE" ]; then
+    swift_products="$SWIFT_ARCHIVE/Products/Swift"
+    if [ ! -d "$swift_products/$FRAMEWORK_NAME.swiftmodule" ] || \
+        [ ! -f "$swift_products/$FRAMEWORK_NAME-Swift.h" ]; then
+        log_error "Missing Swift artifacts for $FRAMEWORK_NAME in $SWIFT_ARCHIVE"
+        exit 1
+    fi
 fi
 
 if [ -z "$VERSION" ]; then
@@ -176,9 +194,62 @@ else
     resources_dir="$FW_DIR"
 fi
 
+umbrella_header="$FRAMEWORK_NAME.h"
+if [ -n "$SWIFT_ARCHIVE" ]; then
+    # Combine the package's public Clang declarations with its Swift overlay, like an
+    # Xcode-built framework. Do not rename the compiled Swift module or ship its
+    # serialized modules: those retain producer-only imports and search paths.
+    headers_dir="$FW_DIR/Headers"
+    umbrella_header="SentryHeaders.h"
+    for header in "$headers_dir"/*.h; do
+        sed -E \
+            -e 's/(#[[:space:]]*(import|include))[[:space:]]+<([A-Za-z0-9_]+\.h)>/\1 "\3"/' \
+            -e 's/(#[[:space:]]*(import|include))[[:space:]]+SENTRY_HEADER\(([A-Za-z0-9_]+)\)/\1 "\3.h"/' \
+            "$header" > "$header.tmp"
+        mv "$header.tmp" "$header"
+    done
+    # Enumerate before creating the umbrella or copying the generated Swift header.
+    public_headers=("$headers_dir"/*.h)
+    {
+        # Match the archive's generation without requiring consumer compiler flags.
+        if [ "${SDK_V10:-0}" = 1 ]; then
+            cp "$SCRIPT_DIR/../Sources/SentryV10Configuration/include/SentryV10Configuration.h" "$headers_dir/"
+            printf '#import "SentryV10Configuration.h"\n'
+        fi
+        for header in "${public_headers[@]}"; do
+            printf '#import "%s"\n' "${header##*/}"
+        done
+    } > "$headers_dir/$umbrella_header"
+    module_dir="$modules_dir/$FRAMEWORK_NAME.swiftmodule"
+    mkdir -p "$module_dir"
+    interfaces=0
+    for interface in "$swift_products/$FRAMEWORK_NAME.swiftmodule"/*.swiftinterface; do
+        [ -f "$interface" ] || continue
+        [[ "$interface" != *.package.swiftinterface ]] || continue
+        if ! grep -Eq -- "-module-name $FRAMEWORK_NAME( |$)" "$interface"; then
+            log_error "Swift module name does not match $FRAMEWORK_NAME: $interface"
+            exit 1
+        fi
+        sed -E "s/(^|[^[:alnum:]_])SentryHeaders([.]|$)/\1$FRAMEWORK_NAME\2/g" \
+            "$interface" > "$module_dir/${interface##*/}"
+        interfaces=$((interfaces + 1))
+    done
+    if [ "$interfaces" -eq 0 ]; then
+        log_error "No distributable Swift interfaces for $FRAMEWORK_NAME"
+        exit 1
+    fi
+    sed "s/@import SentryHeaders;/@import $FRAMEWORK_NAME;/" \
+        "$swift_products/$FRAMEWORK_NAME-Swift.h" > "$headers_dir/$FRAMEWORK_NAME-Swift.h"
+    cp "$SCRIPT_DIR/../Sources/Resources/PrivacyInfo.xcprivacy" "$resources_dir/"
+    for bundle in "$SWIFT_ARCHIVE/Products/Resources"/*.bundle; do
+        [ -d "$bundle" ] || continue
+        cp -R "$bundle" "$resources_dir/"
+    done
+fi
+
 cat > "$modules_dir/module.modulemap" <<EOF
 framework module $FRAMEWORK_NAME {
-  umbrella header "$FRAMEWORK_NAME.h"
+  umbrella header "$umbrella_header"
   export *
   module * { export * }
 }
@@ -268,17 +339,17 @@ done
 
 # --- Link per architecture ---
 read -r -a arch_targets <<< "$(arch_targets_for_sdk "$SDK")"
-dummy_swift="$(mktemp /tmp/SentryObjC_dummy_XXXXXX.swift)"
+link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
+trap 'rm -rf "$link_dir"' EXIT
+dummy_swift="$link_dir/empty.swift"
 echo "" > "$dummy_swift"
-# shellcheck disable=SC2064
-trap "rm -f '$dummy_swift' /tmp/SentryObjC_${SDK}_*" EXIT
 
 arch_binaries=()
 for target in "${arch_targets[@]}"; do
     arch="${target%%-*}"
     log_info "  Linking arch: $arch ($target)"
 
-    arch_output="/tmp/SentryObjC_${SDK}_${arch}"
+    arch_output="$link_dir/$arch"
     xcrun swiftc \
         "$dummy_swift" \
         -emit-library \

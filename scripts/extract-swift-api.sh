@@ -4,7 +4,7 @@ set -euo pipefail
 # Extract public Swift API declarations using swift-api-digester.
 #
 # Runs swift-api-digester on built frameworks or SwiftPM modules to produce
-# a stable JSON dump. Used by update-api.sh and generate-spm-api.sh.
+# a stable JSON dump. Used by update-api.sh for framework and SwiftPM builds.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
@@ -65,6 +65,10 @@ done
 MODULE_ARGS=()
 for module in "${MODULES[@]}"; do
     MODULE_ARGS+=(-module "$module")
+    # Source builds also contain serialized modules, which include private imports.
+    if [ ${#INCLUDE_PATHS[@]} -gt 0 ]; then
+        MODULE_ARGS+=(-use-interface-for-module "$module")
+    fi
 done
 SEARCH_ARGS=()
 for fw_path in ${FRAMEWORK_PATHS[@]+"${FRAMEWORK_PATHS[@]}"}; do

@@ -36,26 +36,37 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 `assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
 
-## SwiftPM Public API Generation
+## Public API Generation
 
-`make generate-public-api` and the existing API-stability checks remain unchanged. To generate the **main SDK's** API independently from SwiftPM sources:
+Run the existing command without additional options:
 
 ```bash
-DEVELOPER_DIR='/Applications/Xcode-16.4.app/Contents/Developer' \
-  make generate-public-api-spm API_OUTPUT_DIR=/tmp/sentry-spm-api
-
-# V10: use a separate output directory.
-DEVELOPER_DIR='/Applications/Xcode-16.4.app/Contents/Developer' \
-  make generate-public-api-spm API_GENERATION=v10 API_OUTPUT_DIR=/tmp/sentry-spm-api-v10
+make generate-public-api
 ```
 
-The output directory must be new and outside the checkout. The [generator](../scripts/generate-spm-api.sh) builds an arm64 iOS-device source package in a temporary copy, without the Xcode project/workspace or binary products. It requires Xcode 16 and reuses [`extract-swift-api.sh`](../scripts/extract-swift-api.sh), including its existing device extraction target and snapshot formatter.
+[`update-api.sh`](../scripts/update-api.sh) runs the framework build/extraction steps first, followed by SwiftPM source build/extraction steps. Both paths generate V9 and V10 snapshots in the repository root, using the same Xcode 16 selection, extractors, JSON formatter, and Objective-C compatibility-diff generation.
 
-Output is `sdk_api.json` (or `sdk_api_v10.json`) and build/extraction logs. Both `SentrySwift` and its re-exported `SentryHeaders` are extracted; their actual module identities are retained. No SDK declarations, checked-in manifests, or tracked snapshots are changed.
+The existing framework filenames are unchanged. Additional SwiftPM snapshots use an `_spm` suffix so they do not overwrite framework output:
 
-For cache seeding or debugging, invoke the script directly with `--source-packages /path/to/SourcePackages` or `--keep-builds`; see `--help`. This command does not generate separate SentrySwiftUI or Objective-C wrapper snapshots; those remain available through the existing `make generate-public-api`.
+| API surface        | Framework snapshot        | SwiftPM snapshot              |
+| ------------------ | ------------------------- | ----------------------------- |
+| Main SDK           | `sdk_api.json`            | `sdk_api_spm.json`            |
+| Objective-C        | `sdk_api_objc.json`       | `sdk_api_objc_spm.json`       |
+| Swift wrappers     | `sdk_api_objccompat.json` | `sdk_api_objccompat_spm.json` |
+| Compatibility diff | `sdk_api_objc.diff.json`  | `sdk_api_objc_spm.diff.json`  |
 
-Run the generator/extractor tests with `python3 scripts/test-generate-spm-api.py -v`.
+V10 uses `_v10` before the build suffix: for example, `sdk_api_v10.json` / `sdk_api_v10_spm.json` and `sdk_api_objc_v10.diff.json` / `sdk_api_objc_v10_spm.diff.json`.
+
+> [!NOTE]
+> SwiftPM SentrySwiftUI extraction is deferred: its package target depends on the released Sentry binary rather than the source-built SDK. The framework workflow still generates `sdk_api_sentryswiftui.json`; no separate SwiftPM snapshot is generated yet.
+
+The SwiftPM steps reuse the existing source archive → dynamic framework → XCFramework scripts, with explicit V9 (`SentrySPM`, `Release`) and V10 (`Sentry`, `ReleaseV10`) calls. The archiver's `--scheme` selects the product/output name; `--architecture-target` selects the compiled target whose architectures must be present. Both currently use `SentrySwift` as that target. Build artifacts and logs remain in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`; no checkout copies or manifest rewriting are needed.
+
+`build-dynamic-framework-sentryobjc.sh` retains its SentryObjC defaults. For the main SDK, `--framework-name` must match the compiled Swift module and `--swift-archive` supplies its interfaces, generated Objective-C header, and resource bundles. Use the same `SDK_V10` setting as the archive. The packager folds the public Clang headers into the framework's underlying module and adjusts generated interface references, without renaming compiled Swift symbols. Public and private Swift interfaces are retained; producer-specific serialized modules are not distributed. One XCFramework/binary target supports `import SentrySwift` without a companion headers artifact. V10 will use `import Sentry` after the upstream module rename lands.
+
+API extraction uses only the packaged slices in `Sentry-SPM.xcframework` and `SentryV10-SPM.xcframework`, with the existing framework extraction flags. These are disposable API-generation copies: the extractor removes their private interfaces to exclude SPI, leaving the original packaged frameworks intact. The compatibility snapshots reuse the earlier generation-matched wrapper extraction, which already builds through SwiftPM. The `_spm` snapshots remain separate from the Xcode snapshots.
+
+Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -v`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
 
 ## Platform-Specific Build Notes
 

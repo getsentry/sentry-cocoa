@@ -2041,19 +2041,11 @@ analyze:
 
 ## Generate public API documentation
 #
-# Updates the public API documentation from source code.
+# Updates V9/V10 framework and SwiftPM API snapshots.
 .PHONY: generate-public-api
 generate-public-api:
 	@echo "[MAKE] $@: Generating public API documentation"
 	./scripts/update-api.sh
-
-## Generate a standalone SwiftPM public API snapshot
-#
-# Requires API_OUTPUT_DIR outside the checkout. Set API_GENERATION=v10 for V10.
-.PHONY: generate-public-api-spm
-generate-public-api-spm: API_GENERATION ?= v9
-generate-public-api-spm:
-	./scripts/generate-spm-api.sh --generation "$(API_GENERATION)" --output-dir "$(API_OUTPUT_DIR)"
 
 ## Generate the Objective-C to Swift conversion diagram
 #

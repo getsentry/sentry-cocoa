@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Builds a single SentryObjC static library slice via SPM.
+# Builds a single static library slice via SPM (SentryObjC by default).
 #
-# Archives the SentryObjC SPM scheme for a given SDK and merges its target
+# Archives the selected SPM scheme for a given SDK and merges its target
 # objects into two libraries: a stripped static distribution and an unstripped
 # intermediate used to generate the dynamic framework dSYM.
 
@@ -16,6 +16,8 @@ SDK=""
 OUTPUT_DIR="XCFrameworkBuildPath"
 PACKAGE_PATH=""
 CONFIGURATION="Release"
+SCHEME="SentryObjC"
+ARCHITECTURE_TARGET="SentryObjCCompat"
 
 usage() {
     log_info "Usage: $0"
@@ -23,6 +25,8 @@ usage() {
     log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
     log_info "  --package-path <path>     Swift Package root (default: repo root)"
     log_info "  --configuration <name>    Xcode configuration (default: Release)"
+    log_info "  --scheme <name>           Package scheme and output library name (default: SentryObjC)"
+    log_info "  --architecture-target <name>  Archived target whose architectures are required (default: SentryObjCCompat)"
     exit 1
 }
 
@@ -32,6 +36,8 @@ while [[ $# -gt 0 ]]; do
         --output-dir)     OUTPUT_DIR="$2";     shift 2 ;;
         --package-path)   PACKAGE_PATH="$2";   shift 2 ;;
         --configuration)  CONFIGURATION="$2";  shift 2 ;;
+        --scheme)         SCHEME="$2";         shift 2 ;;
+        --architecture-target) ARCHITECTURE_TARGET="$2"; shift 2 ;;
         -h|--help)        usage ;;
         *)                log_error "Unknown argument: $1"; usage ;;
     esac
@@ -39,6 +45,11 @@ done
 
 if [ -z "$SDK" ]; then
     log_error "Error: --sdk is required"
+    usage
+fi
+
+if [ -z "$SCHEME" ] || [ -z "$ARCHITECTURE_TARGET" ]; then
+    log_error "Error: --scheme and --architecture-target must not be empty"
     usage
 fi
 
@@ -51,7 +62,6 @@ if [ ! -f "$PACKAGE_PATH/Package.swift" ]; then
     exit 1
 fi
 
-SCHEME="SentryObjC"
 ARCHIVE_DIR="$OUTPUT_DIR/archive/$SCHEME"
 DERIVED_DATA="$OUTPUT_DIR/DerivedData"
 LIB_DIR="$OUTPUT_DIR/lib/$SCHEME"
@@ -85,6 +95,15 @@ xcodebuild -list -workspace "$PACKAGE_PATH" \
     2>&1 | tee "$ARCHIVE_DIR/$SDK-resolve.log"
 end_group
 
+# Archive clears its intermediates first, so keep the verifier's module-map link outside them.
+module_maps="$OUTPUT_DIR/modulemaps/$SCHEME/$SDK"
+mkdir -p "$module_maps" "$DERIVED_DATA"
+module_maps="$(cd "$module_maps" && pwd)"
+platform_suffix="-$SDK"
+if [ "$SDK" = macosx ]; then platform_suffix=""; fi
+generated_maps="$(cd "$DERIVED_DATA" && pwd)/Build/Intermediates.noindex/ArchiveIntermediates/$SCHEME/IntermediateBuildFilesPath/GeneratedModuleMaps$platform_suffix"
+ln -sf "$generated_maps/SentryHeaders.modulemap" "$module_maps/module.modulemap"
+
 begin_group "Archive $SCHEME for $SDK"
 log_info "  SDK:            $SDK"
 log_info "  Destination:    $destination"
@@ -103,6 +122,7 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGN_IDENTITY= \
     ENABLE_CODE_COVERAGE=NO \
+    "SWIFT_INCLUDE_PATHS=\$(inherited) \"$module_maps\" \"$PACKAGE_PATH/Sources/Sentry/Public\"" \
     2>&1 | tee "$ARCHIVE_DIR/$SDK.log" | xcbeautify --preserve-unbeautified
 end_group
 
@@ -116,42 +136,42 @@ if [ ${#objects[@]} -eq 0 ]; then
     exit 1
 fi
 
-# Dependencies may archive extra legacy architectures that the Swift wrapper does not
+# Dependencies may archive extra legacy architectures that the selected target does not
 # support. Distributing their union would advertise incomplete slices (e.g. armv7k).
-# Use the wrapper's architecture set, but fail rather than silently omit a required slice.
-wrapper_objects=()
+# Use the target's architecture set, but fail rather than silently omit a required slice.
+target_objects=()
 
 for object in "${objects[@]}"; do
-    if [ "${object##*/}" = "SentryObjCCompat.o" ]; then
-        wrapper_objects+=( "$object" )
+    if [ "${object##*/}" = "$ARCHITECTURE_TARGET.o" ]; then
+        target_objects+=( "$object" )
     fi
 done
 
-if [ "${#wrapper_objects[@]}" -ne 1 ]; then
-    log_error "Expected one archived SentryObjCCompat.o, found ${#wrapper_objects[@]}"
+if [ "${#target_objects[@]}" -ne 1 ]; then
+    log_error "Expected one archived $ARCHITECTURE_TARGET.o, found ${#target_objects[@]}"
     exit 1
 fi
 
-read -r -a wrapper_archs <<< "$(xcrun lipo -archs "${wrapper_objects[0]}")"
-if [ "${#wrapper_archs[@]}" -eq 0 ]; then
-    log_error "Could not read archived wrapper architectures"
+read -r -a target_archs <<< "$(xcrun lipo -archs "${target_objects[0]}")"
+if [ "${#target_archs[@]}" -eq 0 ]; then
+    log_error "Could not read archived $ARCHITECTURE_TARGET architectures"
     exit 1
 fi
 
 for object in "${objects[@]}"; do
-    for arch in "${wrapper_archs[@]}"; do
+    for arch in "${target_archs[@]}"; do
         if ! xcrun lipo "$object" -verify_arch "$arch"; then
-            log_error "Missing required wrapper architectures ($arch) in $object"
+            log_error "Missing required $ARCHITECTURE_TARGET architecture ($arch) in $object"
             exit 1
         fi
     done
 done
 
-log_info "  Distribution architectures: ${wrapper_archs[*]}"
+log_info "  Distribution architectures: ${target_archs[*]}"
 
 archive_dir="$LIB_DIR/$SDK"
-debug_static_lib="$archive_dir/libSentryObjC-Debug.a"
-static_lib="$archive_dir/libSentryObjC.a"
+debug_static_lib="$archive_dir/lib${SCHEME}-Debug.a"
+static_lib="$archive_dir/lib${SCHEME}.a"
 stripped_objects_dir="$archive_dir/stripped-objects"
 rm -rf "$stripped_objects_dir"
 mkdir -p "$stripped_objects_dir"
@@ -164,7 +184,7 @@ create_static_library() {
     local output="$1"
     shift
     local architecture_libraries=()
-    for arch in "${wrapper_archs[@]}"; do
+    for arch in "${target_archs[@]}"; do
         local library
         library="$architecture_libraries_dir/$(basename "$output")-$arch.a"
         libtool -static -arch_only "$arch" -no_warning_for_no_symbols -o "$library" "$@"
@@ -177,7 +197,7 @@ begin_group "Create static libraries for $SDK"
 log_info "  Objects:      ${#objects[@]} files"
 log_info "  Debug output: $debug_static_lib"
 # The dynamic framework build uses this unstripped archive to generate its separate dSYM.
-# It is an intermediate and is not distributed as the static SentryObjC binary.
+# It is an intermediate and is not distributed as the static library.
 create_static_library "$debug_static_lib" "${objects[@]}"
 
 stripped_objects=()
@@ -199,6 +219,23 @@ done
 log_info "  Static output: $static_lib"
 create_static_library "$static_lib" "${stripped_objects[@]}"
 end_group
+
+# SwiftPM installs objects, but not its interfaces, generated headers or resource bundles.
+# Preserve those beside the objects so framework packaging needs only this archive.
+build_products="$DERIVED_DATA/Build/Intermediates.noindex/ArchiveIntermediates/$SCHEME/BuildProductsPath"
+mkdir -p "$archive_path/Products/Swift" "$archive_path/Products/Resources"
+for module in "$build_products"/*/*.swiftmodule; do
+    [ -d "$module" ] || continue
+    cp -RL "$module" "$archive_path/Products/Swift/"
+done
+for header in "$generated_maps"/*-Swift.h; do
+    [ -f "$header" ] || continue
+    cp "$header" "$archive_path/Products/Swift/"
+done
+for bundle in "$build_products"/*/*.bundle; do
+    [ -d "$bundle" ] || continue
+    cp -RL "$bundle" "$archive_path/Products/Resources/"
+done
 
 log_info "Static slice built: $static_lib"
 log_info "Dynamic-linking intermediate built: $debug_static_lib"
