@@ -66,13 +66,3 @@ begin_group "Compressing $XCFRAMEWORK_PATH"
 ditto -c -k -X --rsrc --keepParent "$XCFRAMEWORK_PATH" "$XCFRAMEWORK_PATH.zip"
 log_info "Created $XCFRAMEWORK_PATH.zip"
 end_group
-
-begin_group "Checksumming $XCFRAMEWORK_PATH.zip"
-# Use only the ZIP filename so the checksum remains verifiable after moving both files.
-(
-    cd "$(dirname "$XCFRAMEWORK_PATH")"
-    zip_name="$(basename "$XCFRAMEWORK_PATH").zip"
-    shasum -a 256 "$zip_name" > "$zip_name.sha256"
-)
-log_info "Created $XCFRAMEWORK_PATH.zip.sha256"
-end_group

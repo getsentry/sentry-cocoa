@@ -87,8 +87,12 @@ run_case() {
 
     local status=0
     PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library.sh" \
-        --sdk watchos --output-dir "$root" --package-path "$WORK_DIR/package" \
-        --configuration Release --scheme "$scheme" --architecture-target "$architecture_target" \
+        --sdk watchos \
+        --output-dir "$root" \
+        --package-path "$WORK_DIR/package" \
+        --configuration Release \
+        --scheme "$scheme" \
+        --architecture-target "$architecture_target" \
         > "$root/build.log" 2>&1 || status=$?
     printf '%s\n' "$status" > "$root/build.exit-status"
 

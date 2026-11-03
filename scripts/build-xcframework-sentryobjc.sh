@@ -112,7 +112,8 @@ for sdk in "${sdk_list[@]}"; do
     fi
 
     "$SCRIPT_DIR/build-static-library.sh" \
-        --scheme SentryObjC --architecture-target SentryObjCCompat \
+        --scheme SentryObjC \
+        --architecture-target SentryObjCCompat \
         --sdk "$sdk" \
         --output-dir "$OUTPUT_DIR" \
         --package-path "$PACKAGE_PATH" \
@@ -140,7 +141,8 @@ if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
     version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
     for sdk in "${sdk_list[@]}"; do
         "$SCRIPT_DIR/build-dynamic-framework.sh" \
-            --framework-name SentryObjC --version "$version" \
+            --framework-name SentryObjC \
+            --version "$version" \
             --sdk "$sdk" \
             --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC-Debug.a" \
             --headers "$HEADERS_DIR" \
