@@ -1201,6 +1201,66 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
     }
 
+    func testRequestManagerReturnsErroredResponse_WithFiveLogs_RecordsQuantityOfFive() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+        var logsBuffer = InMemoryInternalTelemetryBuffer<SentryLog>()
+        for index in 0..<5 {
+            try logsBuffer.append(SentryLog(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, level: .info, body: "log \(index)", attributes: [:]))
+        }
+        let logsData = logsBuffer.batchedData
+        let logItem = SentryEnvelopeItem(
+            type: SentryEnvelopeItemTypes.log,
+            data: logsData,
+            contentType: "application/vnd.sentry.items.log+json",
+            itemCount: 5
+        )
+
+        // -- Act --
+        sut.send(envelope: SentryEnvelope(id: nil, singleItem: logItem))
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(2, dict?.count)
+
+        let discardedLogItem = try XCTUnwrap(dict?["log_item:send_error"])
+        XCTAssertEqual(5, discardedLogItem.quantity)
+
+        let logByte = try XCTUnwrap(dict?["log_byte:send_error"])
+        XCTAssertEqual(UInt(logsData.count), logByte.quantity)
+    }
+
+    func testRequestManagerReturnsErroredResponse_WithThreeMetrics_RecordsQuantityOfThree() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+        var metricsBuffer = InMemoryInternalTelemetryBuffer<SentryMetric>()
+        for index in 0..<3 {
+            try metricsBuffer.append(SentryMetric(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, name: "metric.\(index)", value: .counter(1), unit: nil, attributes: [:]))
+        }
+        let metricsData = metricsBuffer.batchedData
+        let metricItem = SentryEnvelopeItem(
+            type: SentryEnvelopeItemTypes.traceMetric,
+            data: metricsData,
+            contentType: "application/vnd.sentry.items.trace-metric+json",
+            itemCount: 3
+        )
+
+        // -- Act --
+        sut.send(envelope: SentryEnvelope(id: nil, singleItem: metricItem))
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(2, dict?.count)
+
+        let traceMetric = try XCTUnwrap(dict?["trace_metric:send_error"])
+        XCTAssertEqual(3, traceMetric.quantity)
+
+        let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:send_error"])
+        XCTAssertEqual(UInt(metricsData.count), traceMetricByte.quantity)
+    }
+
     func testRequestManagerReturnsErroredResponse_WithLogsWithoutItemCount_RecordsQuantityOfOne() throws {
         // -- Arrange --
         try givenErrorResponse()
