@@ -10,6 +10,7 @@
 
 - Expose `options.experimental.metrickit.enabledMetricReports` through the SentryObjC SDK as the `SentryObjCMetricKitMetricReport` bitmask and through the `enabledMetricReports` key of the `metrickit` options dictionary, which also accepts `"all"` (#9490)
 - Receive MetricKit metrics through `MetricManager` on iOS and macOS 27 and later with the same names, types and units as on earlier OS versions, and add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` metric reports that only `MetricManager` provides, also available through the `SentryObjCMetricKitMetricReport` bitmask (#9476)
+- Add the `launchTimeToFirstDraw`, `launchResumeTime`, `launchOptimizedTimeToFirstDraw`, `launchExtended`, `responsivenessHangTime` and `cellularConditionTime` metric reports, which send MetricKit histograms as distributions with one value per sample, up to about 100 values per histogram (#9493)
 
 ### Fixes
 

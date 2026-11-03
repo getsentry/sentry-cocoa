@@ -236,6 +236,11 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportCellularConditionTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportDiskIOLogicalWrites",
     "parent": "SentryObjCMetricKitMetricReport"
   },
@@ -371,6 +376,26 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchExtended",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchOptimizedTimeToFirstDraw",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchResumeTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchTimeToFirstDraw",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportLocationBestAccuracyForNavigationTime",
     "parent": "SentryObjCMetricKitMetricReport"
   },
@@ -447,6 +472,11 @@
   {
     "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportNone",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportResponsivenessHangTime",
     "parent": "SentryObjCMetricKitMetricReport"
   },
   {

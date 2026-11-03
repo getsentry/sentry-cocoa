@@ -66,7 +66,13 @@ enum SentryObjCMetricKitMetricReportMapping {
         .animationTotalAnimationTime,
         .metalFramesPerSecond,
         .metalFrameCount,
-        .metalActiveDrawingDuration
+        .metalActiveDrawingDuration,
+        .launchTimeToFirstDraw,
+        .launchResumeTime,
+        .launchOptimizedTimeToFirstDraw,
+        .launchExtended,
+        .responsivenessHangTime,
+        .cellularConditionTime
     ]
 
     static func bit(for report: SentryMetricKit.MetricReport) -> SentryObjCMetricKitMetricReport? {

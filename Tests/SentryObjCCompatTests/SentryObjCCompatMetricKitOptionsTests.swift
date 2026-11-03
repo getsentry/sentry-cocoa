@@ -117,7 +117,13 @@ final class SentryObjCCompatMetricKitOptionsTests: XCTestCase {
         (.animationTotalAnimationTime, 48),
         (.metalFramesPerSecond, 49),
         (.metalFrameCount, 50),
-        (.metalActiveDrawingDuration, 51)
+        (.metalActiveDrawingDuration, 51),
+        (.launchTimeToFirstDraw, 52),
+        (.launchResumeTime, 53),
+        (.launchOptimizedTimeToFirstDraw, 54),
+        (.launchExtended, 55),
+        (.responsivenessHangTime, 56),
+        (.cellularConditionTime, 57)
     ]
 
     func testMetricReportBitIndexes_shouldCoverEveryReportOnce() {
