@@ -52,7 +52,7 @@ final class SentryWebViewTracingTests: XCTestCase {
 
     func testMakeScriptSource_whenNoValidHosts_shouldReturnNil() {
         // -- Arrange --
-        let hub = WebViewTestHub(options: options, scope: Scope())
+        let hub = makeHub(scope: Scope())
 
         // -- Act --
         let source = SentryWebViewTracePropagation.makeScriptSource(allowedHosts: ["", "  "], hub: hub)
@@ -72,7 +72,7 @@ final class SentryWebViewTracingTests: XCTestCase {
     func testMakeScriptSource_whenNoActiveSpan_shouldOmitSampledFlag() throws {
         // -- Arrange --
         let scope = Scope()
-        let hub = WebViewTestHub(options: options, scope: scope)
+        let hub = makeHub(scope: scope)
         let propagationHeader = scope.propagationContextTraceHeader
 
         // -- Act --
@@ -100,7 +100,7 @@ final class SentryWebViewTracingTests: XCTestCase {
             hub: sentryHub
         )
         scope.span = tracer
-        let hub = WebViewTestHub(options: options, scope: scope)
+        let hub = makeHub(scope: scope)
 
         // -- Act --
         let source = try XCTUnwrap(SentryWebViewTracePropagation.makeScriptSource(allowedHosts: ["example.com"], hub: hub))
@@ -178,7 +178,7 @@ final class SentryWebViewTracingTests: XCTestCase {
         let controller = WKUserContentController()
         let appScript = WKUserScript(source: "window.app = 1;", injectionTime: .atDocumentEnd, forMainFrameOnly: false)
         controller.addUserScript(appScript)
-        let hub = WebViewTestHub(options: options, scope: Scope())
+        let hub = makeHub(scope: Scope())
 
         // -- Act --
         let installed = SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: hub)
@@ -196,7 +196,7 @@ final class SentryWebViewTracingTests: XCTestCase {
     func testInstall_whenCalledTwice_shouldKeepOneSentryScript() {
         // -- Arrange --
         let controller = WKUserContentController()
-        let hub = WebViewTestHub(options: options, scope: Scope())
+        let hub = makeHub(scope: Scope())
 
         // -- Act --
         SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: hub)
@@ -210,7 +210,7 @@ final class SentryWebViewTracingTests: XCTestCase {
     func testInstall_whenSDKNotEnabled_shouldRemoveSentryScript() {
         // -- Arrange --
         let controller = WKUserContentController()
-        let hub = WebViewTestHub(options: options, scope: Scope())
+        let hub = makeHub(scope: Scope())
         SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: hub)
 
         // -- Act --
@@ -224,7 +224,7 @@ final class SentryWebViewTracingTests: XCTestCase {
     func testInstall_whenNoValidHosts_shouldRemoveSentryScriptAndKeepAppScripts() {
         // -- Arrange --
         let controller = WKUserContentController()
-        let hub = WebViewTestHub(options: options, scope: Scope())
+        let hub = makeHub(scope: Scope())
         SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: hub)
         controller.addUserScript(WKUserScript(source: "window.app = 1;", injectionTime: .atDocumentEnd, forMainFrameOnly: false))
 
@@ -240,7 +240,7 @@ final class SentryWebViewTracingTests: XCTestCase {
         // -- Arrange --
         let controller = WKUserContentController()
         let scope = Scope()
-        let hub = WebViewTestHub(options: options, scope: scope)
+        let hub = makeHub(scope: scope)
         SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: hub)
         let newTraceId = SentryId()
         scope.propagationContext = SentryPropagationContext(traceId: newTraceId, spanId: SpanId())
@@ -278,7 +278,7 @@ final class SentryWebViewTracingTests: XCTestCase {
     func testAddTracePropagation_whenSDKNotEnabled_shouldReturnFalseAndRemoveScriptFromController() {
         // -- Arrange --
         let controller = WKUserContentController()
-        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: WebViewTestHub(options: options, scope: Scope()))
+        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: makeHub(scope: Scope()))
 
         // -- Act --
         let installed = SentryWebViewTracing.addTracePropagation(to: controller, options: .init(allowedHosts: ["example.com"]))
@@ -291,7 +291,7 @@ final class SentryWebViewTracingTests: XCTestCase {
     func testAddTracePropagation_whenConfiguration_shouldUseItsUserContentController() {
         // -- Arrange --
         let configuration = WKWebViewConfiguration()
-        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: configuration.userContentController, hub: WebViewTestHub(options: options, scope: Scope()))
+        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: configuration.userContentController, hub: makeHub(scope: Scope()))
 
         // -- Act --
         SentryWebViewTracing.addTracePropagation(to: configuration, options: .init(allowedHosts: ["example.com"]))
@@ -304,7 +304,7 @@ final class SentryWebViewTracingTests: XCTestCase {
         // -- Arrange --
         let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
         let controller = webView.configuration.userContentController
-        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: WebViewTestHub(options: options, scope: Scope()))
+        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: controller, hub: makeHub(scope: Scope()))
 
         // -- Act --
         SentryWebViewTracing.addTracePropagation(to: webView, options: .init(allowedHosts: ["example.com"]))
@@ -320,7 +320,7 @@ final class SentryWebViewTracingTests: XCTestCase {
         }
         // -- Arrange --
         let configuration = WebPage.Configuration()
-        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: configuration.userContentController, hub: WebViewTestHub(options: options, scope: Scope()))
+        SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: configuration.userContentController, hub: makeHub(scope: Scope()))
 
         // -- Act --
         SentryWebViewTracing.addTracePropagation(to: configuration, options: .init(allowedHosts: ["example.com"]))
@@ -338,7 +338,7 @@ final class SentryWebViewTracingTests: XCTestCase {
         let navigationDelegate = NavigationDelegate()
         webView.navigationDelegate = navigationDelegate
         let scope = Scope()
-        let hub = WebViewTestHub(options: options, scope: scope)
+        let hub = makeHub(scope: scope)
         let expectedTraceId = scope.propagationContextTraceId.sentryIdString
 
         // -- Act --
@@ -372,7 +372,7 @@ final class SentryWebViewTracingTests: XCTestCase {
         // -- Arrange --
         let configuration = WebPage.Configuration()
         let scope = Scope()
-        let hub = WebViewTestHub(options: options, scope: scope)
+        let hub = makeHub(scope: scope)
         let expectedTraceId = scope.propagationContextTraceId.sentryIdString
         SentryWebViewTracePropagation.install(allowedHosts: ["example.com"], on: configuration.userContentController, hub: hub)
         let page = WebPage(configuration: configuration)
@@ -391,12 +391,16 @@ final class SentryWebViewTracingTests: XCTestCase {
 
     // MARK: - Helpers
 
+    private func makeHub(scope: Scope) -> SentryHubInternal {
+        SentryHubInternal(client: SentryClientInternal(options: options), andScope: scope)
+    }
+
     /// A page whose first script stores the `sentry-trace` tag it sees, proving the tags exist before
     /// page scripts run.
     private let seenTraceHTML = "<html><head><script>window.seenTrace = (document.querySelector('meta[name=\"sentry-trace\"]') || {}).content;</script></head></html>"
 
     private func makeSource(allowedHosts: [String]) throws -> String {
-        let hub = WebViewTestHub(options: options, scope: Scope())
+        let hub = makeHub(scope: Scope())
         return try XCTUnwrap(SentryWebViewTracePropagation.makeScriptSource(allowedHosts: allowedHosts, hub: hub))
     }
 
@@ -441,34 +445,5 @@ private final class NavigationDelegate: NSObject, WKNavigationDelegate {
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
         onFinish?(NSError(domain: "WebContentProcessDidTerminate", code: 0))
     }
-}
-
-private final class WebViewTestHub: Hub {
-    let currentOptions: Options?
-    let scope: Scope
-
-    init(options: Options, scope: Scope) {
-        currentOptions = options
-        self.scope = scope
-    }
-
-    var options: Options {
-        currentOptions ?? Options()
-    }
-
-    func configureScope(_ callback: @escaping (Scope) -> Void) {
-        callback(scope)
-    }
-
-    func storeEnvelope(_ envelope: SentryEnvelope) {}
-    func captureEnvelope(_ envelope: SentryEnvelope) {}
-    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
-    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
-    func captureErrorEvent(event: Event) {}
-    func captureErrorEvent(event: Event, hint: Hint) {}
-    func setTrace(_ traceId: SentryId, spanId: SpanId) {}
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    func getSessionReplayId() -> String? { nil }
-#endif
 }
 #endif

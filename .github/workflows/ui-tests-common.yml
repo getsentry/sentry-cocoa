@@ -74,6 +74,10 @@ jobs:
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
 
+      - name: Resolve macOS build
+        id: macos-build
+        run: echo "build=$(sw_vers -buildVersion)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         name: Cache Ruby
         id: cache-ruby
@@ -83,9 +87,12 @@ jobs:
             ~/.rbenv/cache
           # The openssl3 segment invalidates caches built against Homebrew's
           # openssl@4, which cache-hit runners don't have installed.
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
+          # The macOS build segment keeps runner pools apart: a Ruby built on
+          # a newer macOS crashes on older images, and the cache backend lets
+          # any pool overwrite an existing key.
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
           restore-keys: |
-            ruby-${{ runner.os }}-${{ runner.arch }}-openssl3-${{ hashFiles('.ruby-version') }}-
+            ruby-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-build.outputs.build }}-openssl3-${{ hashFiles('.ruby-version') }}-
 
       - name: Install Ruby
         env:

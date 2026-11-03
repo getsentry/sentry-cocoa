@@ -1,6 +1,5 @@
+@_spi(Private) import SentrySwift
 import Foundation
-import SentrySampleShared
-import SentrySwift
 import SwiftUI
 import WebKit
 
@@ -24,7 +23,7 @@ class WebViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        webView.loadHTMLString(Self.html(dsn: SentrySDKWrapper.shared.dsn), baseURL: URL(string: "https://\(Self.host)/"))
+        webView.loadHTMLString(Self.html(dsn: SentrySDK.startOption?.dsn), baseURL: URL(string: "https://\(Self.host)/"))
 
 #if compiler(>=6.2)
         if #available(iOS 26.0, *) {

@@ -63,12 +63,9 @@ public enum SentryWebViewTracing {
         to userContentController: WKUserContentController,
         options: SentryWebViewTracingOptions
     ) -> Bool {
-        SentryWebViewTracePropagation.recordUsage(in: SentrySDK.isEnabled ? SentrySDKInternal.currentHub() : nil)
-        return SentryWebViewTracePropagation.install(
-            allowedHosts: options.allowedHosts,
-            on: userContentController,
-            hub: SentryWebViewTracePropagation.currentHub
-        )
+        let hub = SentryWebViewTracePropagation.currentHub
+        SentryWebViewTracePropagation.recordUsage(in: hub)
+        return SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
     }
 
     /// Adds trace propagation to WebViews created with this configuration.
@@ -141,8 +138,8 @@ enum SentryWebViewTracePropagation {
     static let integrationName = "SentryWebViewTracePropagationIntegration"
 
     /// `nil` while the SDK is not running, so no trace is injected.
-    static var currentHub: Hub? {
-        SentrySDK.isEnabled ? SentryDependencyContainer.sharedInstance().hub : nil
+    static var currentHub: SentryHubInternal? {
+        SentrySDK.isEnabled ? SentrySDKInternal.currentHub() : nil
     }
 
     /// Records feature adoption once per hub. Recorded on use rather than on success, like the
@@ -159,7 +156,7 @@ enum SentryWebViewTracePropagation {
     /// before the app's own scripts.
     @MainActor
     @discardableResult
-    static func install(allowedHosts: [String], on controller: WKUserContentController, hub: Hub?) -> Bool {
+    static func install(allowedHosts: [String], on controller: WKUserContentController, hub: SentryHubInternal?) -> Bool {
         let source = makeScriptSource(allowedHosts: allowedHosts, hub: hub)
         let appScripts = controller.userScripts.filter { !$0.source.hasPrefix(scriptMarker) }
         controller.removeAllUserScripts()
@@ -180,7 +177,7 @@ enum SentryWebViewTracePropagation {
 
     /// Returns the script that writes the trace into the page, or `nil` when there is nothing to
     /// inject.
-    static func makeScriptSource(allowedHosts: [String], hub: Hub?) -> String? {
+    static func makeScriptSource(allowedHosts: [String], hub: SentryHubInternal?) -> String? {
         var normalizedHosts: [String] = []
         for host in allowedHosts.map(normalizeHost) where !host.isEmpty && !normalizedHosts.contains(host) {
             normalizedHosts.append(host)
@@ -189,7 +186,7 @@ enum SentryWebViewTracePropagation {
             SentrySDKLog.warning("No valid allowedHosts provided; skipping WebView trace propagation.")
             return nil
         }
-        guard let hub = hub, let options = hub.currentOptions else {
+        guard let hub = hub, let options = hub.getClient()?.getOptions() as? Options else {
             SentrySDKLog.debug("SDK is not enabled; skipping WebView trace propagation.")
             return nil
         }
