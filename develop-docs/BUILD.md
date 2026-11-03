@@ -36,6 +36,30 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 `assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
 
+### Source-built SDK frameworks
+
+The existing source archive → dynamic framework → XCFramework scripts also support packaging the main SDK from SwiftPM sources. `build-static-library-sentryobjc.sh` uses `--scheme` to select the product/output name and `--architecture-target` to select the compiled target whose architectures must be present. V9 uses scheme `SentrySPM`; V10 uses `Sentry`. Both currently compile target `SentrySwift`. The default scheme and architecture target remain `SentryObjC` and `SentryObjCCompat`.
+
+`build-dynamic-framework-sentryobjc.sh` retains its SentryObjC defaults. For the main SDK, `--framework-name` must match the compiled Swift module and `--swift-archive` supplies its interfaces, generated Objective-C header, and resource bundles. Use the same `SDK_V10` setting as the archive. The packager folds the public Clang headers into the framework's underlying module and adjusts generated interface references, without renaming compiled Swift symbols. Public and private Swift interfaces are retained; producer-specific serialized modules are not distributed. One XCFramework/binary target supports `import SentrySwift` without a companion headers artifact. V10 will use `import Sentry` after the upstream module rename lands.
+
+For example, to package a V9 iOS device slice:
+
+```bash
+export SDK_V10=0
+./scripts/build-static-library-sentryobjc.sh \
+  --sdk iphoneos --scheme SentrySPM --architecture-target SentrySwift
+./scripts/build-dynamic-framework-sentryobjc.sh \
+  --sdk iphoneos --framework-name SentrySwift \
+  --swift-archive XCFrameworkBuildPath/archive/SentrySPM/iphoneos.xcarchive \
+  --static-lib XCFrameworkBuildPath/lib/SentrySPM/iphoneos/libSentrySPM-Debug.a \
+  --headers Sources/Sentry/Public
+./scripts/assemble-xcframework.sh --sdks iphoneos \
+  --framework-template "$(pwd)/XCFrameworkBuildPath/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
+  --output "$(pwd)/SentrySwift.xcframework"
+```
+
+Run architecture regression tests with `./scripts/test-sentryobjc-archive-architectures.sh`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
+
 ## Platform-Specific Build Notes
 
 ### visionOS Considerations
