@@ -649,6 +649,50 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(NSNumber(value: true), client.captureMessageWithScopeAttachAllThreadsInvocations.first?.attachAllThreads)
     }
 
+    func testCaptureEvent_withAttachAllThreadsAndScopeBlock_forwardsOverrideAndScope() throws {
+        givenSdkWithHub()
+
+        SentrySDK.capture(event: fixture.event, attachAllThreads: true, block: fixture.scopeBlock)
+
+        let invocation = try XCTUnwrap(fixture.client.captureEventWithScopeInvocations.first)
+        XCTAssertEqual(1, fixture.client.captureEventWithScopeInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), invocation.event.attachAllThreadsOverride)
+        assertScopeBlockAppliedToCallScopeOnly(invocation.scope)
+    }
+
+    func testCaptureError_withAttachAllThreadsAndScopeBlock_forwardsOverrideAndScope() throws {
+        givenSdkWithHub()
+
+        SentrySDK.capture(error: fixture.error, attachAllThreads: true, block: fixture.scopeBlock)
+
+        let invocation = try XCTUnwrap(fixture.client.captureErrorWithScopeAttachAllThreadsInvocations.first)
+        XCTAssertEqual(1, fixture.client.captureErrorWithScopeAttachAllThreadsInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), invocation.attachAllThreads)
+        assertScopeBlockAppliedToCallScopeOnly(invocation.scope)
+    }
+
+    func testCaptureException_withAttachAllThreadsAndScopeBlock_forwardsOverrideAndScope() throws {
+        givenSdkWithHub()
+
+        SentrySDK.capture(exception: fixture.exception, attachAllThreads: true, block: fixture.scopeBlock)
+
+        let invocation = try XCTUnwrap(fixture.client.captureExceptionWithScopeAttachAllThreadsInvocations.first)
+        XCTAssertEqual(1, fixture.client.captureExceptionWithScopeAttachAllThreadsInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), invocation.attachAllThreads)
+        assertScopeBlockAppliedToCallScopeOnly(invocation.scope)
+    }
+
+    func testCaptureMessage_withAttachAllThreadsAndScopeBlock_forwardsOverrideAndScope() throws {
+        givenSdkWithHub()
+
+        SentrySDK.capture(message: fixture.message, attachAllThreads: true, block: fixture.scopeBlock)
+
+        let invocation = try XCTUnwrap(fixture.client.captureMessageWithScopeAttachAllThreadsInvocations.first)
+        XCTAssertEqual(1, fixture.client.captureMessageWithScopeAttachAllThreadsInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), invocation.attachAllThreads)
+        assertScopeBlockAppliedToCallScopeOnly(invocation.scope)
+    }
+
     func testAddFeatureFlag_mutatesCurrentHubScope() throws {
         givenSdkWithHub()
 
@@ -769,6 +813,14 @@ extension SentrySDKTests {
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDKInternal.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
+    }
+
+    private func assertScopeBlockAppliedToCallScopeOnly(_ callScope: Scope) {
+        let hubScope = SentrySDKInternal.currentHub().scope
+        XCTAssertFalse(callScope === hubScope)
+        XCTAssertEqual("value", callScope.tags["key"])
+        XCTAssertEqual("tag", callScope.tags["tag"])
+        XCTAssertNil(hubScope.tags["tag"])
     }
 
     private func featureFlagValues(from scope: Scope) throws -> [[String: Any]] {

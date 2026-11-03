@@ -872,6 +872,59 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.id"])
     }
 
+    // MARK: - Previous Process Attributes Tests
+
+    func testApplyPreviousProcessAttributes_shouldAddStableAttributesAndKeepItemValues() {
+        // -- Arrange --
+        var scope = TestScope(propagationContextTraceId: SentryId())
+        scope.setContext(value: ["name": "iOS", "version": "26.0"], key: "os")
+        scope.setContext(value: ["model": "iPhone17,1", "family": "iOS"], key: "device")
+        let metadata = createTestMetadata(releaseName: "io.sentry.app@2.0.0+2")
+        var item = createTestItem()
+        item.attributesDict = ["sentry.release": .string("io.sentry.app@1.0.0+1"), "os.version": .string("18.6.2")]
+
+        // -- Act --
+        scope.addPreviousProcessAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict, [
+            "sentry.sdk.name": .string(SentryMeta.sdkName),
+            "sentry.sdk.version": .string(SentryMeta.versionString),
+            "sentry.environment": .string("test-environment"),
+            "sentry.release": .string("io.sentry.app@1.0.0+1"),
+            "os.name": .string("iOS"),
+            "os.version": .string("18.6.2"),
+            "device.brand": .string("Apple"),
+            "device.model": .string("iPhone17,1"),
+            "device.family": .string("iOS")
+        ])
+    }
+
+    func testApplyPreviousProcessAttributes_shouldNotAddRunningProcessAttributes() {
+        // -- Arrange --
+        var scope = TestScope(
+            replayId: "replay-id",
+            propagationContextTraceId: SentryId(),
+            span: TestSpan(spanId: SentryId()),
+            userObject: User(userId: "user-id"),
+            attributes: ["scope-key": "scope-value"]
+        )
+        scope.setContext(value: ["name": "iOS", "version": "26.0"], key: "os")
+        var item = createTestItem()
+        let traceId = item.traceId
+
+        // -- Act --
+        scope.addPreviousProcessAttributesToItem(&item, metadata: createTestMetadata(installationId: "installation-id"))
+
+        // -- Assert --
+        XCTAssertNil(item.attributesDict["os.version"])
+        XCTAssertNil(item.attributesDict["user.id"])
+        XCTAssertNil(item.attributesDict["sentry.replay_id"])
+        XCTAssertNil(item.attributesDict["scope-key"])
+        XCTAssertEqual(item.traceId, traceId)
+        XCTAssertNil(item.spanId)
+    }
+
     // MARK: - Helpers
 
     private func createTestItem() -> TestItem {

@@ -24,7 +24,11 @@ public extension View {
     ///   - opacity: The opacity of the preview overlay. Defaults to 1 (fully opaque).
     /// - Returns: A view with a session replay mask preview overlay.
     func sentryReplayPreviewMask(redactOptions: SentryRedactOptions? = nil, opacity: Float = 1) -> some View {
+        #if SDK_V10
+        let options = redactOptions ?? SentryDependencyContainer.sharedInstance().startOptions?.privacy ?? PreviewRedactOptions()
+        #else
         let options = redactOptions ?? SentryDependencyContainer.sharedInstance().startOptions?.sessionReplay ?? PreviewRedactOptions()
+        #endif // SDK_V10
         return modifier(SentryReplayMaskPreview(redactOptions: options, opacity: opacity))
     }
 }

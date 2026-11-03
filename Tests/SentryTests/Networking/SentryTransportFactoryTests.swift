@@ -119,7 +119,7 @@ class SentryTransportFactoryTests: XCTestCase {
             $0.isKind(of: SentrySpotlightTransport.self)
         })
         XCTAssertTrue(transports.contains {
-            $0.isKind(of: SentryHttpTransport.self)
+            $0.isKind(of: SentryHttpTransportWrapper.httpTransportClass())
         })
     }
 

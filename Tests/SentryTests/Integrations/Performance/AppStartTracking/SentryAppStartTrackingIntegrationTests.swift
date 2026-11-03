@@ -122,8 +122,6 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     }
 
     func assertTrackerSetupAndRunning(_ tracker: SentryAppStartTracker) throws {
-        XCTAssertNotNil(tracker.dispatchQueue, "Tracker does not have a dispatch queue.")
-
         XCTAssertIdentical(tracker.appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
 
         XCTAssertTrue(tracker.isRunning, "AppStartTracking should be running")

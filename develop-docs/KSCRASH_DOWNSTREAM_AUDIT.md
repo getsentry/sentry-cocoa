@@ -11,7 +11,7 @@ Audit of downstream SDK use of private, SPI, and V10-removed `sentry-cocoa` APIs
 - `SentryKSCrashQuery` has no downstream consumers. Downstream SDKs read last-run state through `crashedLastRun` or `lastRunStatus`.
 - The largest breaks are not caused by KSCrash:
   - `PrivateSentrySDKOnly` and `SentryObjCPrivateSDKOnly` no longer exist in 9.29.0 ([#9030](https://github.com/getsentry/sentry-cocoa/pull/9030)).
-  - V10 removes `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableAppHangTracking`, and `pauseAppHangTracking` / `resumeAppHangTracking`.
+  - V10 removes `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableMetricKit`, `enableAppHangTracking`, and `pauseAppHangTracking` / `resumeAppHangTracking`.
   - V10 `SentrySDK` is a Swift `enum` without Objective-C visibility, see [`SentrySDK.swift`](../Sources/Swift/Helper/SentrySDK.swift).
 - .NET is the only SDK with a KSCrash-specific crash-handling regression. It is tracked by [#8797](https://github.com/getsentry/sentry-cocoa/issues/8797) (`SCV10-007`, `SCV10-033`).
 - .NET, Unity, Godot, and Unreal consume `SentryObjC`, which `scripts/build-xcframework-sentryobjc.sh --v10` now builds locally for steps 2 and 3 of #8738. A released or CI-built V10 `SentryObjC` artifact is still missing for step 5. See [Cocoa-Side Gaps](#cocoa-side-gaps).
@@ -149,7 +149,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 
 9. Whether the `@_spi(Private) @objc` classes reached from Objective-C by React Native and Flutter (`SentryDependencyContainer`, `SentryFramesTracker`, `SentryBinaryImageCache`, `SentryDebugImageProvider`, `SentrySDKLog`) are a supported V10 contract, or get `SentrySDK.internal` equivalents
 10. `SentrySDK` is a Swift `enum` without Objective-C visibility in V10. This follows the `SentryObjC` design, but React Native's Objective-C bridge depends on it and the change is not called out for hybrid maintainers
-11. No consolidated list of removed options and APIs for hybrid maintainers beyond [`CHANGELOG_V10.md`](../CHANGELOG_V10.md): `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableAppHangTracking`, `pauseAppHangTracking` / `resumeAppHangTracking`, `enableSigtermReporting`, and that their dictionary keys are silently ignored
+11. No consolidated list of removed options and APIs for hybrid maintainers beyond [`CHANGELOG_V10.md`](../CHANGELOG_V10.md): `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableMetricKit`, `enableAppHangTracking`, `pauseAppHangTracking` / `resumeAppHangTracking`, `enableSigtermReporting`, and that their dictionary keys are silently ignored
 12. No cross-image test of the `__sentry_cxa_throw` handoff, which is how Unity uses it (`SCV10-029`)
 
 ## Recommended Follow-Up Issues

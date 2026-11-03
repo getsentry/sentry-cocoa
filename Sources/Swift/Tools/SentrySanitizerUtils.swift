@@ -3,6 +3,12 @@ import Foundation
 
 private let maxSanitizeDepth: UInt = 200
 
+enum SentrySanitizerUtils {
+    static func sanitizedDictionary(_ dictionary: NSDictionary?) -> [String: Any] {
+        sentry_sanitize_dictionary(dictionary) as? [String: Any] ?? [:]
+    }
+}
+
 /// Recursively sanitizes an NSDictionary, converting non-serializable values to strings.
 @_cdecl("sentry_sanitize_dictionary")
 public func sentry_sanitize_dictionary(_ dictionary: NSDictionary?) -> NSDictionary? {

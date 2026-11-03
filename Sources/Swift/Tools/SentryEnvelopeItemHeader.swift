@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-@_spi(Private) @objc public class SentryEnvelopeItemHeader: NSObject, SentrySerializable {
+@_spi(Private) @objc public class SentryEnvelopeItemHeader: NSObject {
 
     /**
      * The type of the envelope item.
@@ -67,4 +67,7 @@ import Foundation
         return target
     }
 }
+#if !SDK_V10
+extension SentryEnvelopeItemHeader: SentrySerializable { }
+#endif
 // swiftlint:enable missing_docs

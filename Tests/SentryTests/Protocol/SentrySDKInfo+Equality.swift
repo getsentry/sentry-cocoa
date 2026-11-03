@@ -15,7 +15,7 @@ extension SentrySdkInfo {
     }
 }
 
-#if compiler(>=6.0)
+#if compiler(>=6.0) && !SWIFT_PACKAGE
 extension SentrySdkInfo: @retroactive Equatable { }
 #else
 extension SentrySdkInfo: Equatable { }

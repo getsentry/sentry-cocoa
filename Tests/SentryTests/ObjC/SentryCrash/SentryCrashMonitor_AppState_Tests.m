@@ -26,6 +26,8 @@
 //
 
 #if !SDK_V10
+@import SentryTestUtilsObjC;
+@import _SentryPrivate;
 #    import "FileBasedTestCase.h"
 #    import "XCTestCase+SentryCrash.h"
 
@@ -151,7 +153,7 @@
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
     NSString *jsonPath =
-        [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_wrong"
+        [SentryTestResourceBundle(self.class) pathForResource:@"Resources/CrashState_wrong"
                                                        ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
@@ -175,7 +177,7 @@
 - (void)testInitWithUnsupportedFields
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
-    NSString *jsonPath = [[NSBundle bundleForClass:self.class]
+    NSString *jsonPath = [SentryTestResourceBundle(self.class)
         pathForResource:@"Resources/CrashState_unsupported_fields"
                  ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
@@ -190,7 +192,7 @@
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
     NSString *jsonPath =
-        [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_legacy_1"
+        [SentryTestResourceBundle(self.class) pathForResource:@"Resources/CrashState_legacy_1"
                                                        ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];

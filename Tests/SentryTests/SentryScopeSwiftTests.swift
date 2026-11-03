@@ -420,7 +420,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "old")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "new")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.old"])
         XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.new"] as? Bool), true)
     }
@@ -440,7 +440,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.checkout"])
     }
 
@@ -462,11 +462,11 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "root")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "child")
 
-        let transactionData = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let transactionData = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(transactionData["flag.evaluation.root"] as? Bool), true)
         XCTAssertNil(transactionData["flag.evaluation.child"])
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap((try XCTUnwrap(child as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.root"])
         XCTAssertEqual(try XCTUnwrap(childData["flag.evaluation.child"] as? Bool), true)
     }
@@ -912,6 +912,28 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 
     // swiftlint:disable no_breadcrumb_data_setter
+#if SDK_V10
+    func testAddBreadcrumb_storesDefensiveCopy() {
+        let scope = Scope(maxBreadcrumbs: 5)
+        let crumb = Breadcrumb(level: .info, category: "ui")
+        crumb.message = "before"
+        (["key": "before"] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+
+        scope.addBreadcrumb(crumb)
+
+        crumb.message = "after"
+        (["key": "after"] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+
+        let stored = scope.breadcrumbs().first
+        XCTAssertNotNil(stored)
+        XCTAssertFalse(stored === crumb,
+            "Scope should store a copy, not the original object")
+        XCTAssertEqual(stored?.message, "before",
+            "Stored breadcrumb should not reflect mutations to the original")
+        XCTAssertEqual(stored?.data?["key"] as? String, "before",
+            "Stored breadcrumb data should not reflect mutations to the original")
+    }
+#else
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_storesDefensiveCopy() {
         let scope = Scope(maxBreadcrumbs: 5)
@@ -933,9 +955,57 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(stored?.data?["key"] as? String, "before",
             "Stored breadcrumb data should not reflect mutations to the original")
     }
+#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
+#if SDK_V10
+    func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
+        // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
+        // The ring buffer evicts old breadcrumbs when full. Without a defensive copy,
+        // the evicted breadcrumb's dealloc can race with a concurrent reader calling
+        // serialize on the same object, causing EXC_BAD_ACCESS.
+        let maxCrumbs = 5
+        let scope = Scope(maxBreadcrumbs: maxCrumbs)
+
+        let queue = DispatchQueue(label: "test.breadcrumb.race", attributes: .concurrent)
+        let expectation = expectation(description: "concurrent breadcrumb race")
+        expectation.expectedFulfillmentCount = 3
+
+        // Writer: continuously add breadcrumbs, forcing evictions
+        queue.async {
+            for i in 0..<2_000 {
+                let crumb = Breadcrumb(level: .info, category: "cat-\(i)")
+                crumb.message = "message-\(i)"
+                (["iteration": i, "padding": String(repeating: "x", count: 100)] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+                scope.addBreadcrumb(crumb)
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 1: continuously read and serialize breadcrumbs
+        queue.async {
+            for _ in 0..<2_000 {
+                let crumbs = scope.breadcrumbs()
+                for crumb in crumbs {
+                    _ = crumb.serialize()
+                }
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 2: continuously apply scope to events
+        queue.async {
+            for _ in 0..<1_000 {
+                let event = Event()
+                scope.applyTo(event: event, maxBreadcrumbs: UInt(maxCrumbs))
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 30)
+    }
+#else
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
         // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
@@ -982,6 +1052,7 @@ class SentryScopeSwiftTests: XCTestCase {
 
         wait(for: [expectation], timeout: 30)
     }
+#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     func testScopeObserver_passesDistinctCopyToObservers() {
@@ -1245,7 +1316,7 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.span = transaction
 
         let traceContext = try XCTUnwrap(observer.traceContext)
-        let serializedTransaction = transaction.serialize()
+        let serializedTransaction = (try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()
 
         var expectedKeys = Set(serializedTransaction.keys)
         // The transaction doesn't serialize the status when it's undefined, but the trace context sets it to OK.
@@ -1489,6 +1560,54 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(actualSpan.spanId, span.spanId)
     }
 #endif // os(macOS)
+
+    #if SDK_V10
+    func testSerialize_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+
+        // -- Act --
+        let serialized = scope.serialize()
+
+        // -- Assert --
+        let trace = try XCTUnwrap(serialized["traceContext"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testApplyToEvent_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+        let event = Event()
+
+        // -- Act --
+        scope.applyTo(event: event, maxBreadcrumbs: 0)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(event.context?["trace"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testSerializeTransaction_whenChildIsCustom_shouldKeepOnlySDKSpans() throws {
+        // -- Arrange --
+        let tracer = try XCTUnwrap(fixture.transaction as? SentryTracer)
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"), framesTracker: nil)
+        #else
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"))
+        #endif
+        let transaction = Transaction(trace: tracer, children: [NotOfTypeSpan(), sdkSpan])
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 1)
+        XCTAssertEqual(spans.first?["span_id"] as? String, sdkSpan.spanId.sentrySpanIdString)
+    }
+    #endif
 
     func testGetCasedInternalSpan_SpanIsOfDifferentType() {
         // -- Arrange --
@@ -1969,8 +2088,10 @@ private final class NotOfTypeSpan: NSObject, Span {
     func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
     func baggageHttpHeader() -> String? { return nil }
 
+    #if !SDK_V10
     // MARK: - SentrySerializable (no-op payload)
     func serialize() -> [String: Any] { return [:] }
+    #endif
 }
 
 private final class SubClassOfSentrySpanInternal: SentrySpanInternal {}

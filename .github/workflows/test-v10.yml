@@ -55,14 +55,14 @@ jobs:
           make release-arm64 2>&1 | tee test-server-build.log
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
@@ -95,9 +95,19 @@ jobs:
             make-target: test-visionos-v10
 
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -128,8 +138,9 @@ jobs:
           VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: make ${{ matrix.make-target }}
 
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-v10-${{ matrix.platform }}
@@ -139,7 +150,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-v10-${{ matrix.platform }}
@@ -157,6 +168,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -201,7 +214,7 @@ jobs:
             2>&1 | tee thread-inspection-harness-tsan.log
 
       - name: Archive harness logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: thread-inspection-harness-logs
@@ -223,18 +236,29 @@ jobs:
         platform: [macOS, Catalyst]
 
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: test-server
 
       - name: Start Test Server
+        id: test-server
+        background: true
         run: |
           chmod +x test-server-exec
-          make -C test-server start TEST_SERVER_EXECUTABLE=../test-server-exec
+          exec ./test-server-exec serve --port 8081 > test-server/.test-server.log 2>&1
 
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -263,6 +287,19 @@ jobs:
             --test-plan SentryV10_TestServer \
             ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
 
+      # A wait control step would wait for server exit, not HTTP readiness.
+      - name: Wait for Test Server readiness
+        run: |
+          for _ in {1..200}; do
+            if [ "$(curl --fail --silent --max-time 1 http://localhost:8081/health)" = "OK" ]; then
+              exit 0
+            fi
+            sleep 0.1
+          done
+          cat test-server/.test-server.log
+          echo "::error::Test server failed to become ready"
+          exit 1
+
       - name: Run tests
         env:
           REF_NAME: ${{ github.ref_name }}
@@ -278,20 +315,15 @@ jobs:
             --test-plan SentryV10_TestServer \
             ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
 
+      # Control steps run even after a failure, so the server cannot hold up cleanup.
       - name: Stop Test Server
-        if: ${{ always() }}
-        run: make -C test-server stop
+        cancel: test-server
 
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: steps.build_tests.outcome == 'failure'
-        with:
-          name: derived-data-v10-test-server-${{ matrix.platform }}
-          path: |
-            ~/Library/Developer/Xcode/DerivedData/**/Logs/**
-
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        id: upload-raw-logs
+        background: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-v10-test-server-${{ matrix.platform }}
@@ -301,19 +333,32 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        id: upload-test-results
+        background: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-v10-test-server-${{ matrix.platform }}
           path: results.xcresult
 
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-v10-test-server-${{ matrix.platform }}
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/**/Logs/**
+
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-v10-test-server-${{ matrix.platform }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Wait for artifact uploads
+        wait: [upload-raw-logs, upload-test-results]
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

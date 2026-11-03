@@ -13,17 +13,13 @@ import MetricKit
 final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
     var callStackTreePerThread: SentryMXCallStackTree!
-    var callStackTreeNotPerThread: SentryMXCallStackTree!
     var timeStampBegin: Date!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
 
         let contentsPerThread = try contentsOfResource("MetricKitCallstacks/per-thread")
-        callStackTreePerThread = try SentryMXCallStackTree.from(data: contentsPerThread)
-
-        let contentsNotPerThread = try contentsOfResource("MetricKitCallstacks/not-per-thread")
-        callStackTreeNotPerThread = try SentryMXCallStackTree.from(data: contentsNotPerThread)
+        callStackTreePerThread = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contentsPerThread)
 
         timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(21.23)
     }
@@ -34,29 +30,50 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         clearTestState()
     }
 
-    func testOptionEnabled_MetricKitManagerInitialized() {
-          let options = Options()
-          options.enableMetricKit = true
-          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
-          XCTAssertNotNil(sut)
-    }
+    func testDidReceive_whenCrashDiagnosticHasExceptionInfo_shouldFormatExceptionValue() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        #if !SDK_V10
+        options.enableMetricKit = true
+        #endif // !SDK_V10
+        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let crashDiagnostic = TestMXCrashDiagnostic()
+        crashDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        crashDiagnostic.overrides.exceptionType = 1
+        crashDiagnostic.overrides.exceptionCode = 0
+        crashDiagnostic.overrides.signal = 11
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [crashDiagnostic]
 
-    func testOptionDisabled_MetricKitManagerNotInitialized() {
-          let options = Options()
-          options.enableMetricKit = false
-          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
-          XCTAssertNil(sut)
+        // -- Act --
+        try sut.receiveLegacyDiagnosticPayloads([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let exception = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(exception.value, "MachException Type:1 Code:0 Signal:11")
+            XCTAssertEqual(exception.type, "MXCrashDiagnostic")
+            XCTAssertEqual(exception.mechanism?.type, "MXCrashDiagnostic")
+            XCTAssertEqual(exception.mechanism?.handled, false)
+        }
     }
 
     func testMXCrashPayloadReceived() throws {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.crash]
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.crash],
+                processStartDate: .distantPast
+            )
         )
 
         let payload = TestMXDiagnosticPayload()
@@ -75,9 +92,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.crash]
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.crash],
+                processStartDate: .distantPast
+            )
         )
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -93,13 +113,89 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNothingCaptured()
     }
 
+    func testDidReceive_whenManagerHasNoDiagnosticCapturer_shouldNotCaptureEvent() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(metricRecorder: SentryMXMetricRecorder(enabledMetricReports: [.cpuCumulativeTime]))
+        let hangDiagnostic = TestMXHangDiagnostic()
+        hangDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [hangDiagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        assertNothingCaptured()
+    }
+
+    func testInit_whenDiagnosticsEnabled_shouldReceiveThemFromOneAPI() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        defer { sut.uninstall() }
+
+        // -- Assert --
+        if Self.metricManagerDeliversDiagnostics {
+            XCTAssertNotNil(sut.metricManager)
+            XCTAssertNil(sut.mxManager)
+        } else {
+            XCTAssertNil(sut.metricManager)
+            XCTAssertNotNil(sut.mxManager?.diagnosticCapturer)
+        }
+    }
+
+    func testInit_whenMetricsEnabled_shouldReceiveThemFromOneAPI() throws {
+        // -- Arrange --
+        let options = Options()
+        // V10 enables diagnostic reports by default.
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        defer { sut.uninstall() }
+
+        // -- Assert --
+        if Self.metricManagerDeliversMetrics {
+            XCTAssertNotNil(sut.metricManager)
+            XCTAssertNil(sut.mxManager)
+        } else {
+            XCTAssertNil(sut.metricManager)
+            XCTAssertNotNil(sut.mxManager?.metricRecorder)
+            XCTAssertNil(sut.mxManager?.diagnosticCapturer)
+        }
+    }
+
+    func testInit_whenDiagnosticsAndMetricsEnabled_shouldReceiveEachFromOneAPI() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
+        options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        defer { sut.uninstall() }
+
+        // -- Assert --
+        // On visionOS 27, MetricManager delivers the diagnostics and the subscriber the metrics.
+        XCTAssertEqual(sut.metricManager != nil, Self.metricManagerDeliversDiagnostics)
+        XCTAssertEqual(sut.mxManager?.diagnosticCapturer != nil, !Self.metricManagerDeliversDiagnostics)
+        XCTAssertEqual(sut.mxManager?.metricRecorder != nil, !Self.metricManagerDeliversMetrics)
+    }
+
     func testAttachDiagnosticAsAttachment() throws {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -108,10 +204,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
-            try assertEventWithScopeCaptured { _, scope, _ in
-                let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
+            try assertEventWithScopeCaptured { _, _, _ in
+                let diagnosticAttachment = try capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" }
 
                 let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(diagnosticAttachment?.data)) as? NSDictionary
                 let diagnosticJSON = try JSONSerialization.jsonObject(with: hangDiagnostic.jsonRepresentation()) as? NSDictionary
@@ -123,9 +219,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: true,
-            enabledDiagnostics: [.hang]
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: true,
+                enabledDiagnostics: [.hang],
+                processStartDate: .distantPast
+            )
         )
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
@@ -137,8 +236,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { _, scope, _ in
-            let attachment = try XCTUnwrap(scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" })
+        try assertEventWithScopeCaptured { _, _, _ in
+            let attachment = try XCTUnwrap(capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" })
             XCTAssertEqual(attachment.data, Data(#"{"hangDuration":"6.6 sec"}"#.utf8))
         }
     }
@@ -147,9 +246,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
         let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
@@ -159,10 +260,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { event, scope, _ in
+        try assertEventWithScopeCaptured { event, _, _ in
             let event = try XCTUnwrap(event)
             XCTAssertEqual(event.timestamp, timeStampBegin)
             XCTAssertEqual(event.level, .error)
@@ -176,7 +277,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertNil(exception.threadId)
             XCTAssertNil(event.threads)
             XCTAssertNil(event.debugMeta)
-            let attachments = try XCTUnwrap(scope?.attachments.filter { $0.filename == "MXDiagnosticPayload.json" })
+            let attachments = try capturedHintAttachments().filter { $0.filename == "MXDiagnosticPayload.json" }
             XCTAssertEqual(attachments.count, 1)
             let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(attachments.first?.data)) as? NSDictionary
             let diagnosticJSON = try JSONSerialization.jsonObject(with: rawDiagnostic) as? NSDictionary
@@ -189,16 +290,18 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = false
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
         let payload = TestMXDiagnosticPayload()
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         assertNothingCaptured()
@@ -211,9 +314,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         scope.addAttachment(TestData.dataAttachment)
         givenSdkWithHub(scope: scope)
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let malformedDiagnostic = TestMXHangDiagnostic()
         malformedDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
@@ -234,11 +339,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
-        let captures = client.captureEventWithScopeInvocations.invocations
+        let captures = client.captureEventWithScopeAndHintInvocations.invocations
         XCTAssertEqual(captures.count, 2)
         let malformedCapture = try XCTUnwrap(captures.first)
         let validCapture = try XCTUnwrap(captures.element(at: 1))
@@ -249,7 +354,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
         for (capture, expectedJSON) in [(malformedCapture, malformedJSON), (validCapture, validJSON)] {
             XCTAssertEqual(capture.event.timestamp, timeStampBegin)
-            let attachments = capture.scope.attachments.filter { $0.filename == "MXDiagnosticPayload.json" }
+            let attachments = capture.hint?.attachments.filter { $0.filename == "MXDiagnosticPayload.json" } ?? []
             XCTAssertEqual(attachments.count, 1)
             let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(attachments.first?.data)) as? NSDictionary
             let diagnosticJSON = try JSONSerialization.jsonObject(with: expectedJSON) as? NSDictionary
@@ -264,8 +369,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        #endif // !SDK_V10
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -274,10 +381,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
-            try assertEventWithScopeCaptured { _, scope, _ in
-                let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
+            try assertEventWithScopeCaptured { _, _, _ in
+                let diagnosticAttachment = try capturedHintAttachments().first { $0.filename == "MXDiagnosticPayload.json" }
 
                 XCTAssertNil(diagnosticAttachment)
             }
@@ -287,9 +394,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.add(inAppInclude: "iOS-Swift")
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -298,7 +407,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
             try assertEventWithScopeCaptured { event, _, _ in
                 let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
@@ -309,12 +418,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             }
     }
 
-    func testCPUExceptionDiagnostic_NotPerThread() throws {
-            givenSDKWithHubWithScope()
-
-            let options = Options()
-            options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+    func testDidReceive_whenCPUExceptionDiagnostic_shouldCaptureMostSampledStack() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        #if !SDK_V10
+        options.enableMetricKit = true
+        #endif // !SDK_V10
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -323,17 +434,60 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         cpuException.overrides.callStackTree = callStackTree
         payload.overrides.cpuDiagnostic = [cpuException]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
 
-            try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
+        // -- Act --
+        try sut.receiveLegacyDiagnosticPayloads([payload])
+
+        // -- Assert --
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 1)
+        let event = try XCTUnwrap(client.captureEventWithScopeInvocations.first?.event)
+        XCTAssertEqual(event.timestamp, timeStampBegin)
+        XCTAssertEqual(event.level, .warning)
+
+        XCTAssertEqual(event.exceptions?.count, 1)
+        let exception = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(exception.type, "MXCPUException")
+        XCTAssertEqual(exception.value, "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        XCTAssertEqual(exception.mechanism?.type, "mx_cpu_exception")
+        XCTAssertEqual(exception.mechanism?.handled, true)
+        XCTAssertEqual(exception.mechanism?.synthetic, true)
+        XCTAssertEqual(exception.threadId, 0)
+
+        // The call stack isn't per thread, so all samples are aggregated into one thread holding
+        // the most sampled stack. Sentry -> iOS-Swift -> iOS-Swift has 2 samples, every other stack 1.
+        XCTAssertEqual(event.threads?.count, 1)
+        let thread = try XCTUnwrap(event.threads?.first)
+        XCTAssertEqual(thread.threadId, 0)
+        XCTAssertEqual(thread.crashed, false)
+        XCTAssertEqual(exception.stacktrace?.frames, thread.stacktrace?.frames)
+
+        let frames = try XCTUnwrap(thread.stacktrace?.frames)
+        XCTAssertEqual(frames.map(\.package), ["Sentry", "iOS-Swift", "iOS-Swift"])
+        XCTAssertEqual(frames.map(\.instructionAddress), ["0x000000010110140c", "0x0000000100f4752c", "0x0000000100f474fa"])
+        XCTAssertEqual(frames.map(\.imageAddress), ["0x000000010109c000", "0x0000000100f3c000", "0x0000000100f3bfd8"])
+        XCTAssertEqual(frames.map(\.inApp), [false, false, false])
+
+        let debugMeta = try XCTUnwrap(event.debugMeta)
+        XCTAssertEqual(debugMeta.map(\.type), ["macho", "macho", "macho", "macho"])
+        XCTAssertEqual(debugMeta.map(\.codeFile), ["Sentry", "iOS-Swift", "libswiftCore.dylib", "libsystem_pthread.dylib"])
+        XCTAssertEqual(debugMeta.map(\.debugID), [
+            "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967",
+            "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+            "56C020FC-0369-3775-B947-148F388A65B3",
+            "45AC734E-6649-3EE2-A096-3FD66441AB78"
+        ])
+        XCTAssertEqual(debugMeta.map(\.imageAddress), ["0x000000010109c000", "0x0000000100f3c000", "0x000000018d51a001", "0x00000001e19cc000"])
     }
 
     func testCPUExceptionDiagnostic_OnlyOneFrame() throws {
             givenSDKWithHubWithScope()
 
             let options = Options()
+            #if !SDK_V10
             options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+            #endif // !SDK_V10
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -342,7 +496,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         cpuException.overrides.callStackTree = callStackTree
         payload.overrides.cpuDiagnostic = [cpuException]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
             guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
                 XCTFail("Hub Client is not a `TestClient`")
@@ -365,12 +519,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             }
     }
 
-    func testDiskWriteExceptionDiagnostic() throws {
-            givenSDKWithHubWithScope()
-
-            let options = Options()
-            options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+    func testDidReceive_whenDiskWriteExceptionDiagnostic_shouldCaptureMostSampledStack() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        #if !SDK_V10
+        options.enableMetricKit = true
+        #endif // !SDK_V10
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -379,17 +535,57 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         diskWriteException.overrides.callStackTree = callStackTree
         payload.overrides.diskWriteDiagnostic = [diskWriteException]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
 
-            try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib", exceptionMechanism: "mx_disk_write_exception")
+        // -- Act --
+        try sut.receiveLegacyDiagnosticPayloads([payload])
+
+        // -- Assert --
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 1)
+        let event = try XCTUnwrap(client.captureEventWithScopeInvocations.first?.event)
+        XCTAssertEqual(event.timestamp, timeStampBegin)
+        XCTAssertEqual(event.level, .warning)
+
+        XCTAssertEqual(event.exceptions?.count, 1)
+        let exception = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(exception.type, "MXDiskWriteException")
+        XCTAssertEqual(exception.value, "MXDiskWriteException totalWritesCaused:5.5 Mib")
+        XCTAssertEqual(exception.mechanism?.type, "mx_disk_write_exception")
+        XCTAssertEqual(exception.mechanism?.handled, true)
+        XCTAssertEqual(exception.mechanism?.synthetic, true)
+        XCTAssertEqual(exception.threadId, 0)
+
+        // Both root frames are the same frame, so they collapse into one stack.
+        XCTAssertEqual(event.threads?.count, 1)
+        let thread = try XCTUnwrap(event.threads?.first)
+        XCTAssertEqual(thread.threadId, 0)
+        XCTAssertEqual(thread.crashed, false)
+        XCTAssertEqual(exception.stacktrace?.frames, thread.stacktrace?.frames)
+
+        let frames = try XCTUnwrap(thread.stacktrace?.frames)
+        XCTAssertEqual(frames.count, 1)
+        let frame = try XCTUnwrap(frames.first)
+        XCTAssertEqual(frame.package, "libsystem_pthread.dylib")
+        XCTAssertEqual(frame.instructionAddress, "0x000000021f1a1a04")
+        XCTAssertEqual(frame.imageAddress, "0x000000021f1a0001")
+        XCTAssertEqual(frame.inApp, false)
+
+        XCTAssertEqual(event.debugMeta?.count, 1)
+        let debugImage = try XCTUnwrap(event.debugMeta?.first)
+        XCTAssertEqual(debugImage.type, "macho")
+        XCTAssertEqual(debugImage.debugID, "810E428A-F26D-37BB-BB0F-609CBB4718C7")
+        XCTAssertEqual(debugImage.codeFile, "libsystem_pthread.dylib")
+        XCTAssertEqual(debugImage.imageAddress, "0x000000021f1a0001")
     }
 
-    func testHangDiagnostic() throws {
-            givenSDKWithHubWithScope()
-
-            let options = Options()
-            options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+    func testDidReceive_whenHangDiagnostic_shouldCaptureEveryFrameWithTreeData() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        #if !SDK_V10
+        options.enableMetricKit = true
+        #endif // !SDK_V10
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -398,17 +594,58 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         hangDiagnostic.overrides.callStackTree = callStackTree
         payload.overrides.hangDiagnostic = [hangDiagnostic]
         payload.overrides.timeStampBegin = timeStampBegin
-        sut.mxManager.didReceive([payload])
 
-            try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")
+        // -- Act --
+        try sut.receiveLegacyDiagnosticPayloads([payload])
+
+        // -- Assert --
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 1)
+        let event = try XCTUnwrap(client.captureEventWithScopeInvocations.first?.event)
+        XCTAssertEqual(event.timestamp, timeStampBegin)
+        // Hangs longer than 500 ms are reported as errors.
+        XCTAssertEqual(event.level, .error)
+
+        XCTAssertEqual(event.exceptions?.count, 1)
+        let exception = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(exception.type, "MXHangDiagnostic")
+        XCTAssertEqual(exception.value, "MXHangDiagnostic hangDuration:6.6 sec")
+        XCTAssertEqual(exception.mechanism?.type, "mx_hang_diagnostic")
+        XCTAssertEqual(exception.mechanism?.handled, true)
+        XCTAssertEqual(exception.mechanism?.synthetic, true)
+        XCTAssertEqual(exception.threadId, 0)
+
+        // Legacy hang reporting keeps every frame of the tree instead of the most sampled stack.
+        XCTAssertEqual(event.threads?.count, 1)
+        let thread = try XCTUnwrap(event.threads?.first)
+        XCTAssertEqual(thread.threadId, 0)
+        XCTAssertEqual(thread.crashed, false)
+        XCTAssertEqual(exception.stacktrace?.frames, thread.stacktrace?.frames)
+
+        let frames = try XCTUnwrap(thread.stacktrace?.frames)
+        XCTAssertEqual(frames.map(\.package), ["libsystem_pthread.dylib", "libsystem_pthread.dylib"])
+        XCTAssertEqual(frames.map(\.instructionAddress), ["0x000000021f1a1a04", "0x000000021f1a1a04"])
+        XCTAssertEqual(frames.map(\.imageAddress), ["0x000000021f1a0001", "0x000000021f1a0001"])
+        XCTAssertEqual(frames.map(\.inApp), [false, false])
+        XCTAssertEqual(frames.map(\.parentIndex), [-1, -1])
+        XCTAssertEqual(frames.map(\.sampleCount), [92, 92])
+
+        XCTAssertEqual(event.debugMeta?.count, 1)
+        let debugImage = try XCTUnwrap(event.debugMeta?.first)
+        XCTAssertEqual(debugImage.type, "macho")
+        XCTAssertEqual(debugImage.debugID, "810E428A-F26D-37BB-BB0F-609CBB4718C7")
+        XCTAssertEqual(debugImage.codeFile, "libsystem_pthread.dylib")
+        XCTAssertEqual(debugImage.imageAddress, "0x000000021f1a0001")
     }
 
     func testHangDiagnostic_shouldSetLevelBasedOnDuration() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        #endif // !SDK_V10
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -433,7 +670,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [majorHang, severeThresholdHang, severeHang, criticalHang]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -442,280 +679,94 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual([.warning, .warning, .error, .error], invocations.map(\.event.level))
     }
 
-    func testDidReceive_whenDiagnosticFromPreviousAppVersion_shouldSetReleaseAndDistFromDiagnostic() throws {
+#if os(iOS) || os(visionOS)
+    func testDidReceive_whenAppLaunchDiagnosticEnabled_shouldCaptureEvent() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("MXAppLaunchDiagnostic requires iOS 16")
+        }
+
         // -- Arrange --
         givenSDKWithHubWithScope()
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.releaseName, "io.sentry.app@1.2.3+45")
-            XCTAssertEqual(event?.dist, "45")
-        }
-    }
-
-    func testDidReceive_whenDiagnosticFromPreviousBuild_shouldSetReleaseAndDistFromDiagnostic() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope()
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "19")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.releaseName, "io.sentry.app@2.0.0+19")
-            XCTAssertEqual(event?.dist, "19")
-        }
-    }
-
-    func testDidReceive_whenDiagnosticFromCurrentAppVersion_shouldNotSetReleaseAndDist() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope()
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertNil(event?.releaseName)
-            XCTAssertNil(event?.dist)
-        }
-    }
-
-    func testDidReceive_whenCustomReleaseNameAndDiagnosticFromPreviousAppVersion_shouldNotSetReleaseAndDist() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope()
-        let sut = givenSut(releaseName: "my-custom-release")
-        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertNil(event?.releaseName)
-            XCTAssertNil(event?.dist)
-        }
-    }
-
-    func testDidReceive_whenDiagnosticHasMetadata_shouldReplaceAppAndOSContextOnScope() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope(appContext: Self.runningAppContext, osContext: Self.runningOSContext)
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", osVersion: "iPhone OS 18.6.2 (22G100)")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, scope, _ in
-            // The contexts are set on the scope, because the scope merge can't remove keys.
-            XCTAssertNil(event?.context)
-            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, [
-                "app_identifier": "io.sentry.app",
-                "app_version": "1.2.3",
-                "app_build": "45"
-            ])
-            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, [
-                "name": "iOS",
-                "version": "18.6.2",
-                "build": "22G100"
-            ])
-        }
-    }
-
-    func testDidReceive_whenDiagnosticHasOnlyAppVersion_shouldSetAppContextWithoutBuild() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope(appContext: Self.runningAppContext)
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { _, scope, _ in
-            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, [
-                "app_identifier": "io.sentry.app",
-                "app_version": "1.2.3"
-            ])
-        }
-    }
-
-    func testDidReceive_whenScopeHasNoAppContext_shouldSetAppVersionAndBuildOnScope() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope()
-        SentrySDKInternal.currentHub().scope.removeContext(key: "app")
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { _, scope, _ in
-            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, ["app_version": "1.2.3", "app_build": "45"])
-        }
-    }
-
-    func testDidReceive_whenOSVersionHasNoBuild_shouldSetOSContextWithoutBuild() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope(osContext: Self.runningOSContext)
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "macOS 14.1")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, scope, _ in
-            XCTAssertNil(event?.context?["os"])
-            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, ["name": "iOS", "version": "14.1"])
-        }
-    }
-
-    func testDidReceive_whenScopeHasNoOSContext_shouldSetOSVersionAndBuildOnScope() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope()
-        SentrySDKInternal.currentHub().scope.removeContext(key: "os")
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "iPhone OS 18.6.2 (22G100)")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { _, scope, _ in
-            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, ["version": "18.6.2", "build": "22G100"])
-        }
-    }
-
-    func testDidReceive_whenOSVersionIsUnparseable_shouldKeepOSContextOfScope() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope(osContext: Self.runningOSContext)
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "unknown")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, scope, _ in
-            XCTAssertNil(event?.context?["os"])
-            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
-        }
-    }
-
-    func testDidReceive_shouldNotModifyAppAndOSContextOfHubScope() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope(appContext: Self.runningAppContext, osContext: Self.runningOSContext)
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", osVersion: "iPhone OS 18.6.2 (22G100)")
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        let hubScope = SentrySDKInternal.currentHub().scope
-        XCTAssertEqual(hubScope.getContextForKey("app") as NSDictionary?, Self.runningAppContext as NSDictionary)
-        XCTAssertEqual(hubScope.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
-    }
-
-    func testDidReceive_whenDiagnosticHasNoMetadata_shouldNotSetReleaseDistOrContext() throws {
-        // -- Arrange --
-        givenSDKWithHubWithScope(appContext: Self.runningAppContext, osContext: Self.runningOSContext)
-        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
-        let diagnostic = TestMXHangDiagnostic()
-        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
-        let payload = TestMXDiagnosticPayload()
-        payload.overrides.hangDiagnostic = [diagnostic]
-
-        // -- Act --
-        sut.didReceive([payload])
-
-        // -- Assert --
-        try assertEventWithScopeCaptured { event, scope, _ in
-            XCTAssertNil(event?.releaseName)
-            XCTAssertNil(event?.dist)
-            XCTAssertNil(event?.context)
-            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, Self.runningAppContext as NSDictionary)
-            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
-        }
-    }
-
-    private func givenSut(releaseName: String?) -> SentryMXManager {
-        SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            releaseName: releaseName,
-            bundleInfo: [
-                "CFBundleIdentifier": "io.sentry.app",
-                "CFBundleShortVersionString": "2.0.0",
-                "CFBundleVersion": "20"
-            ]
-        )
-    }
-
-    private func givenHangPayload(
-        appVersion: String,
-        appBuild: String,
-        osVersion: String = "iPhone OS 18.6.2 (22G100)"
-    ) throws -> TestMXDiagnosticPayload {
-        let metaData = TestMXMetaData()
-        metaData.overrides.applicationBuildVersion = appBuild
-        metaData.overrides.osVersion = osVersion
-
-        let diagnostic = TestMXHangDiagnostic()
-        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
-        diagnostic.overrides.metaData = metaData
-        diagnostic.overrides.applicationVersion = appVersion
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.appLaunch]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
-        payload.overrides.hangDiagnostic = [diagnostic]
-        return payload
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let appLaunchDiagnostic = TestMXAppLaunchDiagnostic()
+        appLaunchDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.appLaunchDiagnostics = [appLaunchDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+
+        // -- Act --
+        try sut.receiveLegacyDiagnosticPayloads([payload])
+
+        // -- Assert --
+        try assertPerThread(exceptionType: "MXAppLaunchDiagnostic", exceptionValue: "MXAppLaunchDiagnostic launchDuration:3.3 sec", exceptionMechanism: "mx_app_launch_diagnostic")
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.first?.event.level, .warning)
     }
 
-    private static let runningAppContext: [String: Any] = [
-        "app_identifier": "io.sentry.app",
-        "app_name": "SentryApp",
-        "app_version": "2.0.0",
-        "app_build": "20",
-        "build_type": "app store",
-        "app_start_time": "2026-10-05T10:00:00.000Z",
-        "device_app_hash": "abc123"
-    ]
+    func testDidReceive_whenAppLaunchDiagnosticNotEnabled_shouldNotCaptureEvent() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("MXAppLaunchDiagnostic requires iOS 16")
+        }
 
-    private static let runningOSContext: [String: Any] = [
-        "name": "iOS",
-        "version": "26.0",
-        "build": "23A340",
-        "kernel_version": "Darwin Kernel Version 25.0.0",
-        "rooted": false
-    ]
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
-    private func givenSDKWithHubWithScope(appContext: [String: Any]? = nil, osContext: [String: Any]? = nil) {
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let appLaunchDiagnostic = TestMXAppLaunchDiagnostic()
+        appLaunchDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.appLaunchDiagnostics = [appLaunchDiagnostic]
+
+        // -- Act --
+        try sut.receiveLegacyDiagnosticPayloads([payload])
+
+        // -- Assert --
+        assertNothingCaptured()
+    }
+#endif // os(iOS) || os(visionOS)
+
+    /// Whether `MetricManager` delivers diagnostics, which it does on xOS 27 when the SDK is built
+    /// with Xcode 27.
+    private static var metricManagerDeliversDiagnostics: Bool {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+            return true
+        }
+        #endif // compiler(>=6.4)
+        return false
+    }
+
+    /// Whether `MetricManager` delivers metrics, which it doesn't on visionOS.
+    private static var metricManagerDeliversMetrics: Bool {
+        #if os(visionOS)
+        return false
+        #else
+        return metricManagerDeliversDiagnostics
+        #endif // os(visionOS)
+    }
+
+    private func capturedHintAttachments() throws -> [Attachment] {
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        XCTAssertEqual(client.captureEventWithScopeAndHintInvocations.count, 1, "Expected exactly one event captured with a hint.")
+        let capture = try XCTUnwrap(client.captureEventWithScopeAndHintInvocations.first)
+        return capture.hint?.attachments ?? []
+    }
+
+    private func givenSDKWithHubWithScope() {
         let scope = Scope()
         scope.addBreadcrumb(TestData.crumb)
         scope.addAttachment(TestData.dataAttachment)
 
         givenSdkWithHub(scope: scope)
-
-        // Creating the hub enriches the scope with the running app and OS, so presets must come after.
-        if let appContext {
-            SentrySDKInternal.currentHub().scope.setContext(value: appContext, key: "app")
-        }
-        if let osContext {
-            SentrySDKInternal.currentHub().scope.setContext(value: osContext, key: "os")
-        }
     }
 
     private func assertPerThread(exceptionType: String, exceptionValue: String, exceptionMechanism: String, handled: Bool = true) throws {
@@ -736,16 +787,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
 
         XCTAssertEqual(0, client.captureEventWithScopeInvocations.count, "No events should be captured")
-    }
-
-    private func assertNotPerThread(exceptionType: String, exceptionValue: String, exceptionMechanism: String) throws {
-        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
-            XCTFail("Hub Client is not a `TestClient`")
-            return
-        }
-
-        let invocations = client.captureEventWithScopeInvocations.invocations
-        XCTAssertEqual(1, invocations.count, "Client expected to capture 1 event.")
     }
 
     private func assertFrames(event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, framesCount: Int, handled: Bool = true, debugMetaCount: Int = 2) throws {
@@ -779,19 +820,16 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual("iOS-Swift", try XCTUnwrap(debugMeta.element(at: 1)).codeFile)
     }
 
-    private func assertFrame(mxFrame: SentryMXFrame, sentryFrame: Frame) {
-        XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
+}
 
-        let lastRootFrameAddress = formatHexAddress(value: mxFrame.address)
-        XCTAssertEqual(lastRootFrameAddress, sentryFrame.instructionAddress)
-
-        XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
-        let lastRootFrameImageAddress = formatHexAddress(value: mxFrame.address - UInt64(mxFrame.offsetIntoBinaryTextSegment))
-        XCTAssertEqual(lastRootFrameImageAddress, sentryFrame.imageAddress)
-
-        XCTAssertFalse(sentryFrame.inApp as? Bool ?? true)
+extension SentryMetricKitIntegration {
+    /// Captures legacy diagnostic payloads with the integration's diagnostic capturer. The
+    /// integration doesn't receive them through the subscriber on xOS 27 and later, where
+    /// `MetricManager` delivers the diagnostics.
+    func receiveLegacyDiagnosticPayloads(_ payloads: [MXDiagnosticPayload]) throws {
+        let diagnosticCapturer = try XCTUnwrap(diagnosticCapturer)
+        SentryMXManager(diagnosticCapturer: diagnosticCapturer).didReceive(payloads)
     }
-
 }
 
 @available(tvOS, unavailable)
@@ -813,12 +851,27 @@ class TestMXCallStackTree: MXCallStackTree {
 class TestMXCrashDiagnostic: MXCrashDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
+        var exceptionType: NSNumber?
+        var exceptionCode: NSNumber?
+        var signal: NSNumber?
     }
 
     public var overrides = Override()
 
     override var callStackTree: MXCallStackTree {
         return overrides.callStackTree
+    }
+
+    override var exceptionType: NSNumber? {
+        return overrides.exceptionType
+    }
+
+    override var exceptionCode: NSNumber? {
+        return overrides.exceptionCode
+    }
+
+    override var signal: NSNumber? {
+        return overrides.signal
     }
 }
 
@@ -898,18 +951,44 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
     }
 }
 
+#if os(iOS) || os(visionOS)
+@available(iOS 16.0, *)
+class TestMXAppLaunchDiagnostic: MXAppLaunchDiagnostic {
+    struct Override {
+        var callStackTree = TestMXCallStackTree()
+        var launchDuration = Measurement(value: 3.3, unit: UnitDuration.seconds)
+    }
+
+    public var overrides = Override()
+
+    override var callStackTree: MXCallStackTree {
+        return overrides.callStackTree
+    }
+
+    override var launchDuration: Measurement<UnitDuration> {
+        return overrides.launchDuration
+    }
+}
+#endif // os(iOS) || os(visionOS)
+
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXMetaData: MXMetaData {
     struct Override {
         var osVersion = ""
         var applicationBuildVersion = ""
+        var pid: pid_t = 0
     }
 
     public var overrides = Override()
 
     override var osVersion: String {
         return overrides.osVersion
+    }
+
+    @available(iOS 17.0, macOS 14.0, *)
+    override var pid: pid_t {
+        return overrides.pid
     }
 
     override var applicationBuildVersion: String {

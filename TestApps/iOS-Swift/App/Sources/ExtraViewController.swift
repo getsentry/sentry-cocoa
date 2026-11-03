@@ -42,7 +42,7 @@ class ExtraViewController: UIViewController {
         SentrySDK.logger.info("ExtraViewController.viewDidAppear")
 
         SentrySDK.configureScope { (scope) in
-            let dict = scope.serialize()
+            let dict = SentrySDK.internal.serializer.serialize(scope: scope)
 
             guard
                 let crumbs = dict["breadcrumbs"] as? [[String: Any]],

@@ -6,7 +6,9 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,7 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryMechanismContext;
 
 NS_SWIFT_NAME(Mechanism)
+#if SDK_V10
+@interface SentryMechanism : NSObject
+#else
 @interface SentryMechanism : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 SENTRY_NO_INIT
 

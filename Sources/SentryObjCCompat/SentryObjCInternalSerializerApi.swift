@@ -13,6 +13,14 @@ import Foundation
         self.wrapped = Box(wrapped)
     }
 
+    @objc public func serializeScope(_ scope: SentryObjCScope) -> [String: Any] {
+        wrapped.value.serialize(scope: scope.wrapped)
+    }
+
+    @objc public func serializeDebugMeta(_ debugMeta: SentryObjCDebugMeta) -> [String: Any] {
+        wrapped.value.serialize(debugMeta: debugMeta.wrapped)
+    }
+
     @objc public func serializeEvent(_ event: SentryObjCEvent) -> [String: Any] {
         wrapped.value.serialize(event: event.wrapped)
     }

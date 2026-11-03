@@ -35,6 +35,15 @@
          <TestPlanReference
             reference = "container:Plans/SentrySPM_Base_v10.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/SentrySPM_Flaky.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/SentrySPM_TestServer.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/SentrySPM_TestServer_v10.xctestplan">
+         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

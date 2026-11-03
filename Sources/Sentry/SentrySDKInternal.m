@@ -6,8 +6,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryReplayApi.h"
-#import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -91,16 +89,6 @@ static BOOL sdkStarted;
 {
     return SentryDependencyContainer.sharedInstance.startOptions;
 }
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (SentryReplayApi *)replay
-{
-    static SentryReplayApi *replay;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
-    return replay;
-}
-#endif
 
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHubInternal *)hub
@@ -764,11 +752,8 @@ static BOOL sdkStarted;
         }
     }
 
-    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
-        SENTRY_LOG_WARN(@"There is already a profile session running.");
-        return;
-    }
-
+    // When the profiler already runs, this cancels a pending stop instead of starting a new
+    // session.
     [SentryContinuousProfiler start];
 }
 

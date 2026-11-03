@@ -280,6 +280,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+#if !SENTRY_NO_UI_FRAMEWORK
     // MARK: starting with continuous v2 trace lifecycle with TTFD
     func test_lastLaunch_continuousV2_traceLifecycle_withTTFD_currentLaunch_continuousV2_traceLifecycle_noTTFD() throws {
         // Arrange
@@ -375,6 +376,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+#endif // !SENTRY_NO_UI_FRAMEWORK
 }
 #endif // !os(macOS)
 

@@ -9,7 +9,11 @@ struct SPMTestApp: App {
     options.enableAppHangTracking = true
     #endif // !SDK_V10
     options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
+    #if SDK_V10
+    options.privacy.maskAllImages = false
+    #else
     options.sessionReplay.maskAllImages = false
+    #endif // SDK_V10
     options.enableDataSwizzling = true
     options.enableFileManagerSwizzling = true
     SentrySDK.start(options: options)

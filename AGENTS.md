@@ -36,7 +36,9 @@ SentrySDK (public API)
 
 - Read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) before changing `SentryObjC`, `SentryObjCCompat`, or their build configuration
 - Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before changing or reviewing swizzling code
+- Read [`develop-docs/SWIFT.md`](develop-docs/SWIFT.md) before refactoring any Objective-C code to Swift, or when adding new Swift code
 - Follow [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md) when behavior is covered by an SDK specification
+- Follow [`develop-docs/CI.md`](develop-docs/CI.md#background-steps-and-dependency-ordering) when changing CI step ordering or background processes
 
 ## Tooling
 
@@ -89,6 +91,7 @@ SentrySDK (public API)
 - Before the pull request exists, either estimate its number from the current highest issue or pull request, or add the changelog in a follow-up commit after opening the pull request
 - Other pull request types require `#skip-changelog` in the pull request description, never in a commit message
 - V10-only changes go in `CHANGELOG_V10.md` and require `#skip-changelog` in the pull request description
+- Resolve changelog conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
 - Pull request titles follow the commit subject format
 - Add `run-full-ci` only when the pull request is ready for comprehensive testing
 - After committing, include any `Agent transcript:` link from `git log main..HEAD` in the pull request description

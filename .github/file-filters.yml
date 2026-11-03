@@ -43,6 +43,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
@@ -67,6 +68,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Package*.swift"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
@@ -78,12 +81,23 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/Sentry/**"
   - "Sources/Swift/**"
   - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Module/**"
+  - "Sources/SentryCrashV9Swift/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
+  - "Tests/SentryObjCTests/**"
   - "Tests/SentryProfilerTests/**"
+  - "Tests/SentryTests/**"
+  - "Tests/Resources/**"
+  - "SentryTestUtilsDynamic/**"
   - "Plans/Sentry_Base.xctestplan"
+  - "Plans/SentryV10_Base.xctestplan"
+  - "Plans/Sentry_Flaky.xctestplan"
+  - "Plans/Sentry_TestServer.xctestplan"
+  - "Plans/SentryV10_TestServer.xctestplan"
   - "Plans/SentrySPM_*.xctestplan"
   - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
   - "Tests/Configuration/**"
@@ -96,6 +110,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
 
   # Scripts & actions
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - "scripts/ci-select-xcode.sh"
   - "scripts/resolve-test-destination.sh"
@@ -209,6 +224,8 @@ run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "scripts/ci-utils.sh"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "Brewfile*"
 
 run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
@@ -263,6 +280,7 @@ run_release_for_prs: &run_release_for_prs
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
@@ -292,11 +310,10 @@ run_release_for_prs: &run_release_for_prs
   - "TestApps/SPM-Dynamic/**"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
-
-  # Test files
-  - "Tests/Perf/metrics-test.yml"
 
 run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
   - "**/*.swift"
@@ -332,6 +349,8 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
 
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
+  - ".github/actionlint.yaml"
+  - ".pre-commit-config.yaml"
   - ".github/file-filters.yml"
 
   # Formatting
@@ -375,6 +394,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -413,6 +433,7 @@ run_v10_for_prs: &run_v10_for_prs
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
@@ -464,6 +485,7 @@ run_crash_e2e_for_prs:
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
   - "Sources/Swift/**"
+  # Includes the app, Swift runner, and regression/live harness tests.
   - "TestApps/CrashE2E/**"
 
   # GH Actions
@@ -473,6 +495,7 @@ run_crash_e2e_for_prs:
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - ".github/actions/ci-diagnostics/**"
   - "scripts/resolve-test-destination.sh"
@@ -498,6 +521,7 @@ run_thread_inspection_harness_for_prs:
   - ".github/workflows/test-v10.yml"
   - ".github/file-filters.yml"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/ci-diagnostics/**"
 
 run_build_for_prs: &run_build_for_prs
@@ -517,6 +541,7 @@ run_build_for_prs: &run_build_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/check-ui-framework-linkage.sh"
@@ -527,6 +552,7 @@ run_build_for_prs: &run_build_for_prs
   - "scripts/.xcodegen-version"
 
   # Build configuration
+  - ".ruby-version"
   - "fastlane/**"
   - "Gemfile.lock"
   - "Makefile"
@@ -540,9 +566,12 @@ run_testflight_for_prs: &run_testflight_for_prs
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-utils.sh"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
 
@@ -566,6 +595,7 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -596,6 +626,7 @@ run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -662,6 +693,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
@@ -681,6 +713,8 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "TestApps/Shared/**"
 
   # Build configuration
+  - ".ruby-version"
+  - "Gemfile.lock"
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
@@ -713,6 +747,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - ".github/actions/resolve-test-destination/**"
   - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
@@ -720,6 +755,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
+  - ".ruby-version"
   - "fastlane/**"
   - "Gemfile.lock"
   - "Makefile"
@@ -752,6 +788,7 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -772,6 +809,8 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Sources/Sentry/**"
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Swift/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
@@ -815,6 +854,7 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/setup-git-access/**"
   - "scripts/ci-utils.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/prepare-package.sh"

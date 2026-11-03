@@ -20,10 +20,14 @@ final class SentryMXManagerTests: XCTestCase {
     
     private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: SentryMXManager.Diagnostic.all
-                .subtracting(disableCrashDiagnostics ? [.crash] : [])
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: SentryMXManager.Diagnostic.all
+                    .subtracting(disableCrashDiagnostics ? [.crash] : []),
+                // Every payload counts as recorded by this process.
+                processStartDate: .distantPast
+            )
         )
 
         return sut
@@ -64,6 +68,8 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         var cpuDiagnostic: [MXCPUExceptionDiagnostic]?
         var diskWriteDiagnostic: [MXDiskWriteExceptionDiagnostic]?
         var hangDiagnostic: [MXHangDiagnostic]?
+        // MXAppLaunchDiagnostic needs iOS 16, which is newer than the test deployment target.
+        var appLaunchDiagnostics: [MXDiagnostic]?
         
         var timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date()
     }
@@ -85,6 +91,13 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
     override var hangDiagnostics: [MXHangDiagnostic]? {
         return overrides.hangDiagnostic
     }
+
+#if os(iOS) || os(visionOS)
+    @available(iOS 16.0, *)
+    override var appLaunchDiagnostics: [MXAppLaunchDiagnostic]? {
+        return overrides.appLaunchDiagnostics as? [MXAppLaunchDiagnostic]
+    }
+#endif // os(iOS) || os(visionOS)
     
     override var timeStampBegin: Date {
         return overrides.timeStampBegin

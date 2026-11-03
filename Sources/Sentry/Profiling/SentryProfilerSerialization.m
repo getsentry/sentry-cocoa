@@ -1,4 +1,5 @@
 #import "SentryProfilerSerialization.h"
+#import "SentryInternalSerializable.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -25,7 +26,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTransaction+Private.h"
 #    import "SentryTransactionContext+Private.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
@@ -305,7 +305,8 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 #    pragma mark - Public
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
-    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
+    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState,
+    NSArray<SentryDebugMeta *> *debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -314,9 +315,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 {
     SentryId *chunkID = [[SentryId alloc] init];
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
-        profileID, chunkID, profileState, metricProfilerState,
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache],
-        SentrySDKInternal.currentHub
+        profileID, chunkID, profileState, metricProfilerState, debugImages, hub
 #    if SENTRY_HAS_UIKIT
         ,
         gpuData
@@ -380,12 +379,12 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
     }
 
     payload[@"platform"] = SentryPlatformName;
+    SentryTracer *trace = (SentryTracer *)transaction.trace;
     NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
-        @"trace_id" : transaction.trace.traceId.sentryIdString,
+        @"trace_id" : trace.traceId.sentryIdString,
     }];
-    NSNumber *_Nullable activeThreadId =
-        [transaction.trace.transactionContext sentry_threadInfo].threadId;
+    NSNumber *_Nullable activeThreadId = [trace.transactionContext sentry_threadInfo].threadId;
     if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
         transactionDict[@"active_thread_id"] = activeThreadId;
     }

@@ -16,6 +16,7 @@
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
+#import "SentryInternalSerializable.h"
 #if SDK_V10
 #    import "SentryKSCrashManagedSignal.h"
 #    import "SentryKSCrashReportWriterCallbacks.h"
@@ -94,8 +95,8 @@
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
+#import "SentryURLRequestWrapper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryUser+Private.h"

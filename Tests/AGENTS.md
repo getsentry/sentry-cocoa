@@ -42,10 +42,13 @@ make -C test-server stop
 ## SentryObjC Tests
 
 - ObjC public API tests belong in `Tests/SentryObjCTests` and import `SentryObjC`
-- Swift wrapper tests belong in `Tests/SentryObjCCompatTests` and use `@testable import SentryObjCCompat`
+- Swift consumers of the public ObjC API belong in `Tests/SentryObjCTests/Swift` and also import `SentryObjC`; SwiftPM runs them in `SentryObjCTestsSwift`
+- Swift implementation tests belong in `Tests/SentryObjCCompatTests` and use `@testable import SentryObjCCompat`
 - Do not create implementation tests against header-only `SentryHeaders`
-- Run `make test-macos FOR_AGENTS=true TEST_SCHEME=SentryObjCTests`
-- Target a class with `ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
+- For SwiftPM, follow the [package test instructions](../develop-docs/TEST.md#package-tests-with-xcodebuild) and select `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests` with `-only-testing:`
+- Use `xcodebuild`, not `swift test`, to execute the Objective-C package tests
+- The existing Xcode targets remain supported: `make test-macos FOR_AGENTS=true TEST_SCHEME=SentryObjCTests` tests the project, not the package
+- Target a project test class with `ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
 - Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md)
 
 ## Untestable Paths

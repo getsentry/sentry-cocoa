@@ -2,16 +2,82 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` cases to the experimental `SentryMetricKit.MetricReport` enum, so exhaustive `switch` statements over it need to handle them. On iOS and macOS 27 and later, `animationScrollHitchTimeRatio` is no longer sent because MetricKit only reports the hitch time of all animations (#9476)
+
+### Features
+
+- Expose `options.experimental.metrickit.enabledMetricReports` through the SentryObjC SDK as the `SentryObjCMetricKitMetricReport` bitmask and through the `enabledMetricReports` key of the `metrickit` options dictionary, which also accepts `"all"` (#9490)
+- Receive MetricKit metrics through `MetricManager` on iOS and macOS 27 and later with the same names, types and units as on earlier OS versions, and add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` metric reports that only `MetricManager` provides, also available through the `SentryObjCMetricKitMetricReport` bitmask (#9476)
+
+### Improvements
+
+- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
+
+### Fixes
+
+- Report the tvOS OS name as `tvOS` in profiles instead of occasionally reporting `Apple TVOS` (#9497)
+- Fix trace-lifecycle profiling getting stuck after backgrounding when a root transaction remains active or is abandoned. Parented transactions no longer start or keep the profiler running (#9481)
+- Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
+- Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
+- Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
+
+## 9.32.0
+
+### Features
+
+- Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
+- Add `attachAllThreads` and scope block overloads for `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)`, also available through `SentryObjC` (#9424)
+- Align the metrics API with the other Sentry SDKs: `SentrySDK.metrics.count(_:value:options:)`, `gauge(_:value:options:)` and `distribution(_:value:options:)` take the metric name, the value and `SentryMetricOptions` with `unit`, `attributes`, `scope` and `timestamp`. `SentryObjC` exposes the same API through `count:value:options:`, `gauge:value:options:`, `distribution:value:options:` and `SentryObjCMetricOptions`. The key-based methods such as `count(key:value:attributes:)` and `countWithKey:value:attributes:` keep working but are deprecated and will be removed in v10; use the options-based methods instead (#9453)
+- Capture MetricKit app launch diagnostics on iOS 16 and later and on visionOS when `options.experimental.metrickit.enabledDiagnosticReports` contains `.appLaunch` (#9441)
+- Expose `options.experimental.metrickit.enabledDiagnosticReports` through the SentryObjC SDK as `options.experimental.metrickit` and through the `metrickit` key of the options dictionary (#9296)
+- Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, and report the current hinge status as `hinge_status` in the device context, which requires iOS 27.1 or later and is not available on Mac Catalyst (#9464)
+- Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
+- Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
+- Capture MetricKit memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException` (#9465)
+
+### Fixes
+
+- Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
+- Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
+- Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
+- Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9463)
+
+## 9.31.0
+
+### Features
+
+- Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree, which is also retained when flame graph attachment creation fails (#9347, #9421)
+
+### Fixes
+
+- Resolve the application state at `UIApplicationDidFinishLaunchingNotification` when the SDK starts before `UIApplication` exists, such as from a SwiftUI `App.init`. A process launched in the background was treated as active for its whole lifetime, which let the app hang tracker report fatal app hangs with an idle main thread (#8988)
+- Keep the UI profiler running when `SentrySDK.startProfiler()` is called before a requested stop takes effect at the end of the current chunk (#9401)
+- Increase the crash report read limit in SentryCrash to 20 MB (#9386)
+- Stop applying the current scope, app state and mutable device data to MetricKit events from an earlier app run. These events carry the app and OS versions of the diagnostic and the stable device attributes, while breadcrumbs, user, tags, extras, scope attachments and the current replay stay out. Diagnostics recorded by the running process keep the scope data (#9297)
+
+### Internal
+
+- Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
+  The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
+
+## 9.30.2
+
 ### Fixes
 
 - Fix a data race on the span end timestamp that could crash in `SentryTracer.trimEndTimestamp` when a child span finishes on another thread while its transaction finishes (#9305)
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
 - Read the initial `UIApplication.applicationState` asynchronously on the main queue when the SDK's dependency container is first accessed off the main thread, instead of blocking the calling thread while waiting for the main thread during app launch (#9304)
 - Prevent crash report buffer overflows when flushing pending data fails (#9317)
+- Exempt symbol images from Session Replay masking using the public `isSymbolImage` API without inspecting their image assets (#9335)
 - Fix an `EXC_BAD_ACCESS` crash while reading the cellular network technology on iOS. The SDK now copies the value from CoreTelephony under the lock that CoreTelephony uses to change it (#9332)
 - Avoid crash-handler deadlocks caused by SDK debug logging or NSException backtrace memory management while other threads are suspended (#9324)
   - Prepare NSException backtraces before suspending other threads, and resume them before releasing the backtrace buffer.
   - NSException-monitor debug and warning diagnostics now use the async-safe logger's compile-time threshold (`ERROR` by default), so runtime debug options no longer enable them.
+- Prevent Session Replay image redaction from changing archived images' rendered size while preserving masking exemptions for bundled images and system symbols (#9344)
+- Fix an `EXC_BAD_ACCESS` crash in `cow_cleanup` when a `URLSessionTask` changes state while another thread writes protocol properties into its request. The network tracker now reads the task's requests without copying them to Swift `URLRequest` values (#9343)
+- Prevent crash report buffer overflows and file descriptor leaks when the report writer receives file descriptor zero (#9341)
 
 ## 9.30.1
 

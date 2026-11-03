@@ -504,6 +504,95 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.data["http.request.method"] as? String, "GET")
     }
 
+    /// Reproduces #9307: `setState:` bridges the task's `originalRequest` (iOS, tvOS, visionOS) and
+    /// `currentRequest` to `URLRequest`. Bridging copies the request's protocol-property dictionary
+    /// without synchronization. When another thread inserts the first protocol property during
+    /// that copy, the copy gets `{storage = NULL, size > 0}`, and releasing it crashes in
+    /// CoreFoundation's `cow_cleanup`.
+    func testSetState_whenProtocolPropertiesWrittenConcurrently_shouldNotCrash() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let currentTask = LockedTask(Self.makeCompletedTask())
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        let writerFinished = DispatchSemaphore(value: 0)
+
+        // Every request accepts its first protocol property only once, so each write needs a new task.
+        let writer = Thread {
+            while ProcessInfo.processInfo.systemUptime < deadline {
+                autoreleasepool {
+                    let task = Self.makeCompletedTask()
+                    let requests = Self.requestObjects(of: task)
+                    currentTask.set(task)
+                    Self.spin(nanoseconds: UInt64.random(in: 0...2_000))
+                    requests.forEach(Self.insertFirstProtocolProperties(into:))
+                }
+            }
+            writerFinished.signal()
+        }
+        writer.start()
+
+        // -- Act --
+        while ProcessInfo.processInfo.systemUptime < deadline {
+            autoreleasepool {
+                sut.urlSessionTask(currentTask.get(), setState: .completed)
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(writerFinished.wait(timeout: .now() + 5), .success)
+    }
+
+    private final class LockedTask: @unchecked Sendable {
+        private let lock = NSLock()
+        private var task: URLSessionDataTaskMock
+
+        init(_ task: URLSessionDataTaskMock) {
+            self.task = task
+        }
+
+        func get() -> URLSessionDataTaskMock {
+            lock.withLock { task }
+        }
+
+        func set(_ task: URLSessionDataTaskMock) {
+            lock.withLock { self.task = task }
+        }
+    }
+
+    /// A completed task skips breadcrumbs and failed-request capture, so `setState:` mostly reads requests.
+    private static func makeCompletedTask() -> URLSessionDataTaskMock {
+        let task = URLSessionDataTaskMock(request: URLRequest(url: fullUrl))
+        task.state = .completed
+        return task
+    }
+
+    /// Returns the request objects the task holds. The Swift properties return bridged copies instead.
+    private static func requestObjects(of task: URLSessionTask) -> [NSURLRequest] {
+        [#selector(getter: URLSessionTask.originalRequest), #selector(getter: URLSessionTask.currentRequest)]
+            .compactMap { task.perform($0)?.takeUnretainedValue() as? NSURLRequest }
+    }
+
+    /// Inserts two protocol properties, as any code holding the request can do.
+    ///
+    /// `URLProtocol.setProperty(_:forKey:in:)` only sends `-_setProperty:forKey:`, which
+    /// `NSURLRequest` implements, so it also writes into an immutable `originalRequest`. The first
+    /// insert briefly leaves the dictionary with a size but no storage. The second insert detaches
+    /// the dictionary from the copy-on-write storage that a concurrent copy shares.
+    private static func insertFirstProtocolProperties(into request: NSURLRequest) {
+        let pointer = Unmanaged.passUnretained(request).toOpaque()
+        let mutableRequest = Unmanaged<NSMutableURLRequest>.fromOpaque(pointer).takeUnretainedValue()
+        URLProtocol.setProperty(true, forKey: "first", in: mutableRequest)
+        URLProtocol.setProperty(true, forKey: "second", in: mutableRequest)
+    }
+
+    /// Busy-waits so that the writes land at different points of the concurrent copy.
+    private static func spin(nanoseconds: UInt64) {
+        let end = DispatchTime.now().uptimeNanoseconds + nanoseconds
+        while DispatchTime.now().uptimeNanoseconds < end {
+            continue
+        }
+    }
+
     func testStatusForTaskRunning() {
         let sut = fixture.getSut()
         let task = createDataTask()

@@ -37,9 +37,11 @@ tests.
 
 ## Source synchronization rules
 
-The current dependency and Signal-monitor synchronization baseline is the getsentry 2.6 backport
-revision `18a633dec20c265f03386294f9d82d208bb13094`. Its `KSCrashMonitor_Signal.c` is byte-identical
-to the previously reviewed dependency revision.
+The current dependency and Signal-monitor synchronization baseline is upstream KSCrash
+`2.6.1`, revision `c3882b4db5e810a8ed4148b79cab29a173d4c5c5`. Its
+`KSCrashMonitor_Signal.c` is byte-identical to the previously reviewed upstream `2.6.1-beta.2`
+revision `3ed3818b641f5062b083e53999837dd0c49360d8` and getsentry 2.6 backport
+revision `18a633dec20c265f03386294f9d82d208bb13094`.
 
 Keep the SDK implementation structurally close to the corresponding KSCrash Signal monitor:
 

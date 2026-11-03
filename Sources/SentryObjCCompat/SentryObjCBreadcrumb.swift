@@ -51,6 +51,11 @@ import Foundation
         set { wrapped.origin = newValue }
     }
 
+    #if SDK_V10
+    @objc public var data: [String: Any]? {
+        wrapped.data
+    }
+    #else
     @objc public var data: [String: Any]? {
         get { wrapped.data }
         @available(*, deprecated, message: "Use setData(value:key:) instead.")
@@ -58,6 +63,8 @@ import Foundation
         set { wrapped.data = newValue } // pass-through mirroring the data setter; removed in V10
         // swiftlint:enable no_breadcrumb_data_setter
     }
+
+    #endif
 
     @objc(setDataValue:forKey:) public func setData(value: Any?, key: String) {
         wrapped.setData(value: value, key: key)

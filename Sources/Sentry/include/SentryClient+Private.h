@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)populateHintAttachments:(SentryHint *)hint
                           scope:(SentryScope *)scope
-                   isFatalEvent:(BOOL)isFatalEvent;
+          isFromPreviousProcess:(BOOL)isFromPreviousProcess;
 
 - (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
                                                 attachments:
@@ -227,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction
+- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
                    withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
 

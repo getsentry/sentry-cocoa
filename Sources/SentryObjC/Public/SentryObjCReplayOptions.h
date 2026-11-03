@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
 #    import "SentryObjCReplayQuality.h"
 #else
+#    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCReplayQuality.h>
 #endif
 
@@ -26,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) float onErrorSampleRate;
 
+#if !SDK_V10
 /**
  * Indicates whether session replay should redact all text in the app
  * by drawing a black rectangle over it.
@@ -37,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
  * in the app by drawing a black rectangle over it.
  */
 @property (nonatomic) BOOL maskAllImages;
+
+#endif // !SDK_V10
 
 /**
  * Indicates the quality of the replay.
@@ -64,6 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableFastViewRendering;
 
+#if !SDK_V10
 /**
  * A list of custom @c UIView subclasses that need to be masked during session replay.
  * By default Sentry already masks text and image elements from UIKit.
@@ -77,6 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
  * This property has precedence over @c maskedViewClasses.
  */
 @property (nonatomic, copy) NSArray<Class> *unmaskedViewClasses;
+
+#endif // !SDK_V10
 
 /**
  * Whether to capture request and response bodies for allowed URLs.
@@ -104,6 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Initializes session replay options with default values.
 - (instancetype)init;
 
+#if !SDK_V10
 /**
  * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being
  * traversed during session replay redaction.
@@ -124,6 +133,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param viewType The view type identifier to include in subtree traversal.
  */
 - (void)includeViewTypeInSubtreeTraversal:(NSString *)viewType;
+
+#endif // !SDK_V10
 
 @end
 

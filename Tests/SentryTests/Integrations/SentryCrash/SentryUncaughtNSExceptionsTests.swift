@@ -1,5 +1,6 @@
-#if !SDK_V10
+#if !SDK_V10 && os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 #if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) import Sentry
@@ -10,7 +11,6 @@ import XCTest
 
 final class SentryUncaughtNSExceptionsTests: XCTestCase {
 
-#if os(macOS)
     func testConfigure_SetsUserDefault() throws {
         defer { resetUserDefaults() }
         
@@ -117,8 +117,6 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
 
-#endif // os(macOS)
-
 }
 
 // We need to declare this on the file level because otherwise we get the error:
@@ -134,4 +132,4 @@ func uncaughtExceptionHandler(exception: NSException) {
 
 let uncaughtInternalInconsistencyException = NSException(name: .internalInconsistencyException, reason: "reason", userInfo: nil)
 
-#endif // !SDK_V10
+#endif // !SDK_V10 && os(macOS) && !SENTRY_NO_UI_FRAMEWORK

@@ -33,6 +33,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
+        #if SDK_V10
+        options.insert("privacy") // Shared V10 masking options. Docs update pending for the major release.
+        #endif
         #if !SDK_V10
         options.insert("enableStandaloneAppStartTracing")
         #endif

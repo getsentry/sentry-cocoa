@@ -12,7 +12,8 @@
 {
     __block NSArray<NSDictionary<NSString *, id> *> *values = nil;
     [SentryObjCSDK configureScope:^(SentryObjCScope *scope) {
-        NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+        NSDictionary<NSString *, id> *context =
+            [SentryObjCSDK.internal.serializer serializeScope:scope][@"context"];
         NSDictionary<NSString *, id> *flags = context[@"flags"];
         values = flags[@"values"];
     }];
@@ -200,6 +201,25 @@
     XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
+- (void)testCaptureEventAttachAllThreadsWithScopeBlock_shouldReturnNonEmptyIdAndCallBlock
+{
+    // -- Arrange --
+    SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
+    __block BOOL blockCalled = NO;
+
+    // -- Act --
+    SentryObjCId *result =
+        [SentryObjCSDK captureEvent:event
+                   attachAllThreads:YES
+                         scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+
+    // -- Assert --
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
+}
+
 #pragma mark - Transactions
 
 - (void)testStartTransaction_shouldReturnSpanWithCorrectOperation
@@ -349,6 +369,25 @@
     XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
+- (void)testCaptureErrorAttachAllThreadsWithScopeBlock_shouldReturnNonEmptyIdAndCallBlock
+{
+    // -- Arrange --
+    NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+    __block BOOL blockCalled = NO;
+
+    // -- Act --
+    SentryObjCId *result =
+        [SentryObjCSDK captureError:error
+                   attachAllThreads:YES
+                         scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+
+    // -- Assert --
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
+}
+
 #pragma mark - Capture Exception
 
 - (void)testCaptureException_shouldReturnNonEmptyId
@@ -420,6 +459,27 @@
     XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
+- (void)testCaptureExceptionAttachAllThreadsWithScopeBlock_shouldReturnNonEmptyIdAndCallBlock
+{
+    // -- Arrange --
+    NSException *exception = [NSException exceptionWithName:NSGenericException
+                                                     reason:@"test"
+                                                   userInfo:nil];
+    __block BOOL blockCalled = NO;
+
+    // -- Act --
+    SentryObjCId *result =
+        [SentryObjCSDK captureException:exception
+                       attachAllThreads:YES
+                             scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+
+    // -- Assert --
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
+}
+
 #pragma mark - Capture Message
 
 - (void)testCaptureMessage_shouldReturnNonEmptyId
@@ -473,6 +533,24 @@
     XCTAssertNotNil(result);
     XCTAssertEqual(result.sentryIdString.length, 32U);
     XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+}
+
+- (void)testCaptureMessageAttachAllThreadsWithScopeBlock_shouldReturnNonEmptyIdAndCallBlock
+{
+    // -- Arrange --
+    __block BOOL blockCalled = NO;
+
+    // -- Act --
+    SentryObjCId *result =
+        [SentryObjCSDK captureMessage:@"hello"
+                     attachAllThreads:YES
+                           scopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
+
+    // -- Assert --
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
 }
 
 #pragma mark - Feedback
@@ -636,7 +714,7 @@
 
 #pragma mark - Extended App Start
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+#if SENTRY_OBJC_HAS_UIKIT
 - (void)testExtendAppStart_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
@@ -711,7 +789,7 @@
 
 #pragma mark - Platform-Conditional
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if (TARGET_OS_IOS || TARGET_OS_TV) && SENTRY_OBJC_REPLAY_SUPPORTED
 - (void)testReplay_shouldReturnReplayApi
 {
     // -- Arrange & Act --
@@ -738,7 +816,7 @@
 }
 #endif
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_OBJC_HAS_UIKIT
 - (void)testFeedback_shouldReturnFeedbackApi
 {
     // -- Arrange & Act --

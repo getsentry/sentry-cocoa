@@ -2059,7 +2059,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="ppk-0Y-Ki7">
-                                <rect key="frame" x="16" y="180" width="361" height="185.33333333333337"/>
+                                <rect key="frame" x="16" y="180" width="361" height="235.66666666666669"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4BA-Uh-TgP">
                                         <rect key="frame" x="0.0" y="0.0" width="361" height="34.333333333333336"/>
@@ -2088,9 +2088,17 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vaw-bR-gqD">
                                         <rect key="frame" x="0.0" y="151" width="361" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Hang Diagnostic"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Hang: Catalog Refresh (~4 s)"/>
                                         <connections>
-                                            <action selector="triggerHangDiagnostic:" destination="3U9-VC-HIs" eventType="touchUpInside" id="vah-q7-dIj"/>
+                                            <action selector="triggerCatalogHangDiagnostic:" destination="3U9-VC-HIs" eventType="touchUpInside" id="vah-q7-dIj"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vQs-93-bKe">
+                                        <rect key="frame" x="0.0" y="201.33333333333334" width="361" height="34.333333333333343"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Hang: Checkout (~4 s)"/>
+                                        <connections>
+                                            <action selector="triggerCheckoutHangDiagnostic:" destination="3U9-VC-HIs" eventType="touchUpInside" id="Zd2-ek-R9v"/>
                                         </connections>
                                     </button>
                                 </subviews>

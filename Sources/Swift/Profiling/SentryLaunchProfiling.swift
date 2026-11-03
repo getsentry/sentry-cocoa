@@ -36,9 +36,9 @@ enum SentryLaunchProfileConfigKey {
 
     // This is called from SentryProfiler.load, but in the future we may expose access directly to
     // customers, and we'll want to ensure it only runs once.
-    private static let startLaunchProfileOnce: Void = {
+    private static let startLaunchProfileOnce = SentryOnce {
         startLaunchProfileWithoutDeduplication()
-    }()
+    }
 
     /// Whether or not the profiler started with the app launch. With trace profiling, this means
     /// there is a tracer managing the profile that will eventually need to be stopped and either
@@ -63,7 +63,7 @@ enum SentryLaunchProfileConfigKey {
     /// Starts the launch profile if the previous launch configured one. Only the first call has an
     /// effect.
     @objc public static func startLaunchProfile() {
-        _ = startLaunchProfileOnce
+        Self.startLaunchProfileOnce()
     }
 
     /// Stop a launch tracer in order to stop the associated profiler. Must attach a hub, since

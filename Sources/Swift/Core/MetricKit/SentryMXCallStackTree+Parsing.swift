@@ -3,6 +3,53 @@
 internal import _SentryPrivate
 
 extension SentryMXCallStackTree {
+    func flamegraphAttachment(inAppLogic: SentryInAppLogic) -> Attachment? {
+        guard !callStacks.isEmpty,
+              callStacks.allSatisfy({ !$0.callStackRootFrames.isEmpty && $0.callStackRootFrames.allSatisfy { $0.hasValidHangSampleCounts } }) else {
+            SentrySDKLog.warning("MetricKit flame graph requires non-empty trees with valid sample counts")
+            return nil
+        }
+
+        var frames = [SentryRelayWireFormat.Profiling.V2.Frame]()
+        typealias FlameGraph = SentryRelayWireFormat.Attachments.FlameGraph
+        var frameIndices = [SentryMXSampleFrame: SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex]()
+
+        var nodes = [SentryRelayWireFormat.Attachments.FlameGraph.Node]()
+        let trees = callStacks.map { stack in
+            let baseIndex = nodes.count
+            var pending = stack.callStackRootFrames
+            let roots = pending.indices.map { FlameGraph.Node.Index(baseIndex + $0) }
+            var index = 0
+            while index < pending.count {
+                let source = pending[index]
+                let subFrames = source.subFrames ?? []
+                let children = subFrames.indices.map { FlameGraph.Node.Index(baseIndex + pending.count + $0) }
+                nodes.append(SentryRelayWireFormat.Attachments.FlameGraph.Node(
+                    frameID: source.flamegraphFrameIndex(frames: &frames, indices: &frameIndices, inAppLogic: inAppLogic), sampleCount: source.sampleCount ?? 0,
+                    children: children.isEmpty ? nil : children
+                ))
+                pending.append(contentsOf: subFrames)
+                index += 1
+            }
+            return SentryRelayWireFormat.Attachments.FlameGraph.Tree(roots: roots, threadAttributed: stack.threadAttributed)
+        }
+        let images = toDebugMeta().map { image in
+            SentryRelayWireFormat.EventPayloads.DebugMeta.Image(type: image.type, debugID: image.debugID, codeFile: image.codeFile, imageAddress: image.imageAddress, imageSize: image.imageSize?.uint64Value, imageVmAddress: image.imageVmAddress)
+        }
+        let payload = SentryRelayWireFormat.Attachments.FlameGraph(frames: frames, nodes: nodes, trees: trees, debugMeta: SentryRelayWireFormat.EventPayloads.DebugMeta(images: images))
+        do {
+            let data = try JSONEncoder().encode(payload)
+            guard data.count <= 10 * 1_024 * 1_024 else {
+                SentrySDKLog.error("MetricKit flame graph exceeds the 10 MiB attachment limit")
+                return nil
+            }
+            return Attachment(data: data, filename: "flamegraph.json", contentType: "application/json", attachmentType: .flamegraph)
+        } catch {
+            SentrySDKLog.error("Failed to serialize MetricKit flame graph: \(error)")
+            return nil
+        }
+    }
+
     func toDebugMeta() -> [DebugMeta] {
         callStacks.flatMap { frame in
             frame.toDebugMeta()
@@ -25,7 +72,7 @@ extension SentryMXCallStackTree {
             let thread = SentryThread(threadId: NSNumber(value: index))
             let samples = callStack.callStackRootFrames.flatMap { $0.toSamples() }
             // Group by stacktrace in case there are multiple samples with the same trace
-            var samplesToCount = [[MXSample.MXFrame]: Int]()
+            var samplesToCount = [[SentryMXSampleFrame]: Int]()
             for sample in samples {
                 let count = samplesToCount[sample.frames] ?? 0
                 samplesToCount[sample.frames] = sample.count + count
@@ -89,75 +136,35 @@ extension SentryMXCallStackTree {
     }
 }
 
-extension SentryMXCallStack {
-    func toDebugMeta() -> [DebugMeta] {
-        callStackRootFrames.flatMap { frame in
-            frame.toDebugMeta()
+private extension SentryMXFrame {
+    func flamegraphFrameIndex(
+        frames: inout [SentryRelayWireFormat.Profiling.V2.Frame],
+        indices: inout [SentryMXSampleFrame: SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex],
+        inAppLogic: SentryInAppLogic
+    ) -> SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex {
+        let key = SentryMXSampleFrame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
+        if let existing = indices[key] {
+            return existing
         }
-    }
-}
-
-extension SentryMXFrame {
-    func toDebugMeta() -> [DebugMeta] {
-        // MetricKit can omit binary metadata while still providing a frame's address and samples.
-        guard let binaryUUID else {
-            return subFrames?.flatMap { $0.toDebugMeta() } ?? []
-        }
-        let result = DebugMeta()
-        result.type = "macho"
-        result.debugID = binaryUUID.uuidString
-        result.codeFile = binaryName
-        if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            result.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-        }
-        return [result] + (subFrames?.flatMap { $0.toDebugMeta() } ?? [])
+        let index = SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex(frames.count)
+        indices[key] = index
+        frames.append(SentryRelayWireFormat.Profiling.V2.Frame(
+            instructionAddress: sentry_formatHexAddressUInt64Swift(address),
+            package: binaryName,
+            inApp: binaryName.map { inAppLogic.is(inApp: $0) }
+        ))
+        return index
     }
 
-    func toSamples() -> [MXSample] {
-        let selfFrame = MXSample.MXFrame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
-        let subframes = subFrames ?? []
-
-        let childCount = subframes.map { $0.sampleCount ?? 0 }.reduce(0, +)
-        let selfCount = (sampleCount ?? 0) - childCount
-        var result = subframes.flatMap { $0.toSamples() }.map { MXSample(count: $0.count, frames: [selfFrame] + $0.frames) }
-        if selfCount > 0 {
-            result.append(MXSample(count: selfCount, frames: [selfFrame]))
+    var hasValidHangSampleCounts: Bool {
+        guard let sampleCount, sampleCount > 0, sampleCount <= 9_007_199_254_740_991 else { return false }
+        var remaining = sampleCount
+        for child in subFrames ?? [] {
+            guard child.hasValidHangSampleCounts, let childCount = child.sampleCount, childCount <= remaining else { return false }
+            // Subtract rather than sum untrusted child counts, avoiding integer overflow.
+            remaining -= childCount
         }
-        return result
-    }
-
-    /// Converts this frame to a SentryFrame.
-    func toSentryFrameWithTreeData(parentFrameIndex: Int) -> Frame {
-        let frame = Frame()
-        frame.package = binaryName
-        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-        }
-
-        frame.parentIndex = parentFrameIndex as NSNumber
-        frame.sampleCount = sampleCount as NSNumber?
-
-        return frame
-    }
-}
-
-private extension MXSample.MXFrame {
-    func toSentryFrame() -> Frame {
-        let frame = Frame()
-        frame.package = binaryName
-        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-        }
-        return frame
-    }
-}
-
-private extension Sequence {
-    func unique<T: Hashable>(by key: (Element) -> T) -> [Element] {
-        var seen = Set<T>()
-        return filter { seen.insert(key($0)).inserted }
+        return true
     }
 }
 

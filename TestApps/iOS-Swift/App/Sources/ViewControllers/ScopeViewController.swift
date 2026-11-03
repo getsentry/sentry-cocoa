@@ -1,4 +1,5 @@
 @_spi(Private) import SentrySwift
+import _SentryPrivate
 import UIKit
 
 // swiftlint:disable private_outlet
@@ -87,13 +88,13 @@ class ScopeViewController: UIViewController {
             guard let self else { return }
 
             let currentSpanData: Any
-            if let currentSpan = SentrySDK.span {
+            if let currentSpan = SentrySDK.span as? SentrySpanInternal {
                 currentSpanData = currentSpan.serialize()
             } else {
                 currentSpanData = "No active span"
             }
             let debugData: [String: Any] = [
-                "scope": scope.serialize(),
+                "scope": SentrySDK.internal.serializer.serialize(scope: scope),
                 "currentSpan": currentSpanData
             ]
             guard let jsonData = try? JSONSerialization.data(

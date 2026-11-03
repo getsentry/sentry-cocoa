@@ -219,7 +219,9 @@ bool sentrycrashfu_writeBufferedWriter(
  *
  * @param writer The writer to flush.
  *
- * @return True if the buffer was successfully flushed.
+ * @return True if the buffer was empty or successfully flushed. Returns false if pending
+ * data cannot be written, including when the file descriptor is invalid. On failure,
+ * the buffer contents and position are unchanged.
  */
 bool sentrycrashfu_flushBufferedWriter(SentryCrashBufferedWriter *writer);
 

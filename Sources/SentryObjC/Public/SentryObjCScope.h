@@ -128,8 +128,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// The current Span or Transaction bound to the scope.
 @property (nullable, nonatomic, strong) SentryObjCSpan *span;
 
+#if !SDK_V10
 /// Serializes the scope to a dictionary.
 - (NSDictionary<NSString *, id> *)serialize;
+#endif // !SDK_V10
 
 /// Clears the current scope.
 - (void)clear;

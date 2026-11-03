@@ -231,6 +231,11 @@ extension Options {
         #endif
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if SDK_V10
+        if let privacy = dictionary["privacy"] as? [String: Any] {
+            self.privacy = SentryPrivacyOptions(dictionary: privacy)
+        }
+        #endif // SDK_V10
         if let sessionReplay = dictionary["sessionReplay"] as? [String: Any] {
             self.sessionReplay = SentryReplayOptions(dictionary: sessionReplay)
         }
@@ -313,13 +318,17 @@ extension Options {
         }
 
         #if canImport(MetricKit) && !os(tvOS)
+        #if !SDK_V10
         if let enableMetricKit = boolValue(dictionary["enableMetricKit"]) {
             self.enableMetricKit = enableMetricKit
         }
+        #endif // !SDK_V10
 
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
+
+        self.experimental.metrickit.apply(optionsDictionary: dictionary)
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {

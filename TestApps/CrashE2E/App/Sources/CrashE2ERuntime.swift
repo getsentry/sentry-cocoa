@@ -7,6 +7,7 @@ import Sentry
 enum CrashE2EScenario: String {
     case idle
     case drain
+    case harnessTimeout = "harness-timeout"
     case signal
     case nsException = "ns-exception"
     case nsExceptionRethrow = "ns-exception-rethrow"
@@ -128,6 +129,11 @@ enum CrashE2ERuntime {
             abortBecausePreSDKScenarioReturned()
         case .sigterm:
             waitForExternalSigterm()
+        case .harnessTimeout:
+            // Keep the UI responsive so this tests the runner deadline, not the OS watchdog.
+            Thread.detachNewThread {
+                crashE2EHarnessTimeoutWait()
+            }
         case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
@@ -160,6 +166,8 @@ enum CrashE2ERuntime {
             abortBecausePreSDKScenarioReturned()
         case .sigterm:
             waitForExternalSigtermSynchronously()
+        case .harnessTimeout:
+            crashE2EHarnessTimeoutWait()
         case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,

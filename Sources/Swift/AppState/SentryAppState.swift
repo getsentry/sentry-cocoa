@@ -2,7 +2,7 @@
 internal import _SentryPrivate
 import Foundation
 
-@objcMembers @_spi(Private) public class SentryAppState: NSObject, SentrySerializable {
+@objcMembers @_spi(Private) public class SentryAppState: NSObject {
     
     public private(set) var releaseName: String?
     public private(set) var osVersion: String
@@ -133,4 +133,7 @@ import Foundation
         return data
     }
 }
+#if !SDK_V10
+extension SentryAppState: SentrySerializable { }
+#endif
 // swiftlint:enable missing_docs

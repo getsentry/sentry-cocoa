@@ -56,7 +56,10 @@ typealias SentryLogOutput = ((String) -> Void)
     @objc
     public static func willLog(atLevel level: SentryLevel) -> Bool {
         #if SENTRY_TEST || SENTRY_TEST_CI
-            willLogCallCount.withLock { $0 += 1 }
+            willLogCallCount.withLock { state in
+                guard state.thread === Thread.current else { return }
+                state.count += 1
+            }
         #endif
         if level == .none {
             return false
@@ -81,16 +84,21 @@ typealias SentryLogOutput = ((String) -> Void)
 
     #if SENTRY_TEST || SENTRY_TEST_CI
 
-        /// Counts the calls to ``willLog(atLevel:)`` so tests can verify that
-        /// each log call checks the level exactly once.
-        private static let willLogCallCount = SentryMutex(0)
+        private struct WillLogCallCount {
+            var thread: Thread?
+            var count = 0
+        }
+
+        /// Counts calls on the thread that last reset the counter, so unrelated
+        /// background logging cannot affect synchronous logging tests.
+        private static let willLogCallCount = SentryMutex(WillLogCallCount())
 
         static func getWillLogCallCount() -> Int {
-            return willLogCallCount.withLock { $0 }
+            return willLogCallCount.withLock { $0.count }
         }
 
         static func resetWillLogCallCount() {
-            willLogCallCount.withLock { $0 = 0 }
+            willLogCallCount.withLock { $0 = WillLogCallCount(thread: Thread.current) }
         }
 
         static func getOutput() -> SentryLogOutput {

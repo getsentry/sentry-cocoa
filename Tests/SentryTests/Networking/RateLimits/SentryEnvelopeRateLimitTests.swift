@@ -8,13 +8,13 @@ import XCTest
 
 class SentryEnvelopeRateLimitTests: XCTestCase {
     
-    private var rateLimits: TestRateLimits!
+    private var rateLimits = TestRateLimits()
 // swiftlint:disable weak_delegate
 // Swiftlint automatically changes this to a weak reference,
 // but we need a strong reference to make the test work.
     private var delegate: TestEnvelopeRateLimitDelegate!
 // swiftlint:enable weak_delegate
-    private var sut: EnvelopeRateLimit!
+    private lazy var sut = EnvelopeRateLimit(rateLimits: rateLimits)
     
     override func setUp() {
         super.setUp()

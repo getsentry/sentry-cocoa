@@ -4,6 +4,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryMessage.h"
 #import "SentryRequest.h"
 #import "SentrySanitizerUtils.h"

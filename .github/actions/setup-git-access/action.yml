@@ -1,0 +1,22 @@
+name: "Set up Git access"
+description: >-
+  Configures git for https://github.com so fetches of public repositories
+  (SwiftPM dependencies, Homebrew) don't fail when GitHub rejects anonymous
+  requests. Run it right after checkout, before any step that fetches from
+  github.com.
+runs:
+  using: "composite"
+  steps:
+    # GitHub intermittently rejects anonymous clones of public repos with a
+    # 401. Answer those challenges with the workflow token. The empty helper
+    # drops system helpers such as osxkeychain for github.com, so no stale
+    # token is read from the keychain. HTTP/1.1 avoids the HTTP/2 401s and
+    # the HTTP 400s on authenticated retries seen with HTTP/2.
+    # Context: https://github.com/orgs/community/discussions/206581
+    # Remove this action once GitHub stops rejecting anonymous fetches.
+    - name: Configure GitHub git access
+      shell: bash
+      run: |
+        git config --global --replace-all credential.https://github.com.helper ''
+        git config --global --add credential.https://github.com.helper '!f() { echo username=x-access-token; echo password=${{ github.token }}; }; f'
+        git config --global http.https://github.com.version HTTP/1.1

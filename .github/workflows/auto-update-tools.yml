@@ -64,7 +64,7 @@ jobs:
       - name: Generate GitHub App Token
         id: app_token
         if: github.event_name != 'pull_request'
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_ID }}
           private-key: ${{ secrets.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_PRIVATE_KEY }}
@@ -76,7 +76,7 @@ jobs:
 
       # Bazel is required so `make update-versions` can regenerate
       # linters/SwiftLintCustomRules/MODULE.bazel.lock after bumping SwiftLint.
-      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # v0.19.0
+      - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # v0.19.1
         with:
           module-root: linters/SwiftLintCustomRules
           bazelisk-cache: true

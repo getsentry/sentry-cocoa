@@ -5,6 +5,8 @@
 @class SentryProfileOptions;
 @class SentrySpanId;
 @class SentryClientInternal;
+@class SentryDebugImageProvider;
+@class SentryDebugMeta;
 @class SentryDispatchQueueWrapper;
 @class SentryScreenFrames;
 @class SentryTracer;
@@ -27,6 +29,8 @@ NSString *sentry_stringFromSentryID(SentryId *sentryID);
 NSDate *sentry_getDate(void);
 uint64_t sentry_getSystemTime(void);
 SentryId *sentry_getSentryId(void);
+SentryDebugImageProvider *sentry_getDebugImageProvider(void);
+NSArray<SentryDebugMeta *> *sentry_getDebugImagesFromCache(SentryDebugImageProvider *provider);
 SentryProfileOptions *sentry_getSentryProfileOptions(void);
 BOOL sentry_isTraceLifecycle(SentryProfileOptions *options);
 float sentry_sessionSampleRate(SentryProfileOptions *options);
@@ -48,6 +52,7 @@ void sentry_startLaunchProfile(void);
 BOOL sentry_isTracingAppLaunch(void);
 void sentry_setIsTracingAppLaunch(BOOL isTracingAppLaunch);
 SentryTracer *_Nullable sentry_getLaunchTracer(void);
+SentryTracer *_Nullable sentry_tracerForTransaction(id transaction);
 
 #if SENTRY_HAS_UIKIT
 #    if !SDK_V10

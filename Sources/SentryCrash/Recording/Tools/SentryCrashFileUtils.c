@@ -537,7 +537,7 @@ sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *
 void
 sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter *writer)
 {
-    if (writer->fd > 0) {
+    if (writer->fd >= 0) {
         sentrycrashfu_flushBufferedWriter(writer);
         close(writer->fd);
         writer->fd = -1;
@@ -569,7 +569,10 @@ sentrycrashfu_writeBufferedWriter(
 bool
 sentrycrashfu_flushBufferedWriter(SentryCrashBufferedWriter *writer)
 {
-    if (writer->fd > 0 && writer->position > 0) {
+    if (writer->position > 0) {
+        if (writer->fd < 0) {
+            return false;
+        }
         if (!sentrycrashfu_writeBytesToFD(writer->fd, writer->buffer, writer->position)) {
             return false;
         }

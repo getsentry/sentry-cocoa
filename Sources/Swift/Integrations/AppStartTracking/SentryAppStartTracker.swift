@@ -30,7 +30,6 @@ public final class SentryAppStartTracker: NSObject {
     // swiftlint:disable:next missing_docs
     @objc public private(set) var isRunning = false
 
-    let dispatchQueue: SentryDispatchQueueWrapper
     let appStateManager: SentryAppStateManager
     #if !SDK_V10
     private let framesTracker: SentryFramesTracker
@@ -47,15 +46,15 @@ public final class SentryAppStartTracker: NSObject {
     private var sysctlWrapper: SentrySysctl
     private var appStartInfoProvider: AppStartInfoProvider
 
-    #if !(SENTRY_TEST || SENTRY_TEST_CI || DEBUG)
-    private var onceToken: Int = 0
-    #endif
+    // Passing the tracker as input avoids lazy initialization and a stored self capture.
+    private let buildAppStartMeasurementOnce = SentryOnce<(SentryAppStartTracker, Date)> { tracker, appStartEnd in
+        tracker.buildAppStartMeasurementWithoutDeduplication(appStartEnd)
+    }
 
     // MARK: - Initialization
 
     #if SDK_V10
     init(
-        dispatchQueueWrapper: SentryDispatchQueueWrapper,
         appStateManager: SentryAppStateManager,
         enablePreWarmedAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
@@ -63,7 +62,6 @@ public final class SentryAppStartTracker: NSObject {
         appStartInfoProvider: AppStartInfoProvider,
         extendedAppLaunchManager: SentryExtendedAppLaunchManager
     ) {
-        self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         self.extendedAppLaunchManager = extendedAppLaunchManager
@@ -78,7 +76,6 @@ public final class SentryAppStartTracker: NSObject {
     }
     #else
     init(
-        dispatchQueueWrapper: SentryDispatchQueueWrapper,
         appStateManager: SentryAppStateManager,
         framesTracker: SentryFramesTracker,
         enablePreWarmedAppStartTracing: Bool,
@@ -88,7 +85,6 @@ public final class SentryAppStartTracker: NSObject {
         appStartInfoProvider: AppStartInfoProvider,
         extendedAppLaunchManager: SentryExtendedAppLaunchManager
     ) {
-        self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
@@ -194,111 +190,109 @@ public final class SentryAppStartTracker: NSObject {
     #endif
 
     // MARK: - Private Methods
-    // swiftlint:disable function_body_length
     private func buildAppStartMeasurement(_ appStartEnd: Date) {
-        let block = {
-            self.stop()
+        // Tests and debug builds can measure repeated app starts within the same process.
+        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+        buildAppStartMeasurementWithoutDeduplication(appStartEnd)
+        #else
+        buildAppStartMeasurementOnce((self, appStartEnd))
+        #endif
+    }
 
-            var isPreWarmed = false
-            if self.isActivePrewarmAvailable() && self.appStartInfoProvider.isActivePrewarm() {
-                SentrySDKLog.info("The app was prewarmed.")
+    // swiftlint:disable function_body_length
+    private func buildAppStartMeasurementWithoutDeduplication(_ appStartEnd: Date) {
+        self.stop()
 
-                if self.enablePreWarmedAppStartTracing {
-                    isPreWarmed = true
-                } else {
-                    SentrySDKLog.info("EnablePreWarmedAppStartTracing disabled. Not measuring app start.")
-                    return
-                }
-            }
+        var isPreWarmed = false
+        if self.isActivePrewarmAvailable() && self.appStartInfoProvider.isActivePrewarm() {
+            SentrySDKLog.info("The app was prewarmed.")
 
-            let appStartType = self.getStartType()
-
-            if appStartType == .unknown {
-                SentrySDKLog.warning("Unknown start type. Not measuring app start.")
-                return
-            }
-
-            if self.wasInBackground {
-                // If the app was already running in the background it's not a cold or warm
-                // start.
-                SentrySDKLog.info("App was in background. Not measuring app start.")
-                return
-            }
-
-            // According to a talk at WWDC about optimizing app launch
-            // (https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
-            // slide 17) no process exists for cold and warm launches. Since iOS 15, though, the system
-            // might decide to pre-warm your app before the user tries to open it.
-            // Prewarming can stop at any of the app launch steps. Our findings show that most of
-            // the prewarmed app starts don't call the main method. Therefore we subtract the
-            // time before the module initialization / main method to calculate the app start
-            // duration. If the app start stopped during a later launch step, we drop it below with
-            // checking the SENTRY_APP_START_MAX_DURATION. With this approach, we will
-            // lose some warm app starts, but we accept this tradeoff. Useful resources:
-            // https://developer.apple.com/documentation/uikit/app_and_environment/responding_to_the_launch_of_your_app/about_the_app_launch_sequence#3894431
-            // https://developer.apple.com/documentation/metrickit/mxapplaunchmetric,
-            // https://twitter.com/steipete/status/1466013492180312068,
-            // https://github.com/MobileNativeFoundation/discussions/discussions/146
-            // https://eisel.me/startup
-            let sysctl = self.sysctlWrapper
-            let appStartTimestamp: Date
-            let appStartDuration: TimeInterval
-
-            if isPreWarmed {
-                appStartDuration = appStartEnd.timeIntervalSince(sysctl.moduleInitializationTimestamp)
-                appStartTimestamp = sysctl.moduleInitializationTimestamp
+            if self.enablePreWarmedAppStartTracing {
+                isPreWarmed = true
             } else {
-                appStartDuration = appStartEnd.timeIntervalSince(sysctl.processStartTimestamp)
-                appStartTimestamp = sysctl.processStartTimestamp
-            }
-
-            if !self.reportingStrategy.shouldSkipMaxAppStartDurationLimit() && appStartDuration >= Self.maxAppStartDuration {
-                SentrySDKLog.info("The app start exceeded the max duration of \(Self.maxAppStartDuration) seconds. Not measuring app start.")
+                SentrySDKLog.info("EnablePreWarmedAppStartTracing disabled. Not measuring app start.")
                 return
             }
-
-            var finalAppStartDuration = appStartDuration
-            var finalDidFinishLaunchingTimestamp = self.didFinishLaunchingTimestamp
-
-            // On HybridSDKs, we miss the didFinishLaunchNotification and the
-            // didBecomeVisibleNotification. Therefore, we can't set the
-            // didFinishLaunchingTimestamp, and we can't calculate the appStartDuration. Instead,
-            // the SDK provides the information we know and leaves the rest to the HybridSDKs.
-            if SentrySDKInternal.appStartMeasurementHybridSDKMode {
-                finalDidFinishLaunchingTimestamp = Date(timeIntervalSinceReferenceDate: 0)
-                finalAppStartDuration = 0
-            }
-
-            guard let sdkStart = SentrySDKInternal.startTimestamp else {
-                SentrySDKLog.debug("Skipping app start measurement: missing SDK start timestamp.")
-                return
-            }
-
-            let traceId = self.appStartTraceId ?? SentryId()
-
-            let appStartMeasurement = SentryAppStartMeasurement(
-                type: appStartType,
-                isPreWarmed: isPreWarmed,
-                appStartTimestamp: appStartTimestamp,
-                runtimeInitSystemTimestamp: sysctl.runtimeInitSystemTimestamp,
-                duration: finalAppStartDuration,
-                runtimeInitTimestamp: self.appStartInfoProvider.runtimeInitTimestamp(),
-                moduleInitializationTimestamp: sysctl.moduleInitializationTimestamp,
-                sdkStartTimestamp: sdkStart,
-                didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
-            )
-
-            self.reportingStrategy.report(appStartMeasurement, traceId: traceId)
         }
 
-        // With only running this once we know that the process is a new one when the following
-        // code is executed.
-        // We need to make sure the block runs on each test instead of only once
-        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-        block()
-        #else
-        dispatchQueue.dispatchOnce(&onceToken, block: block)
-        #endif
+        let appStartType = self.getStartType()
+
+        if appStartType == .unknown {
+            SentrySDKLog.warning("Unknown start type. Not measuring app start.")
+            return
+        }
+
+        if self.wasInBackground {
+            // If the app was already running in the background it's not a cold or warm
+            // start.
+            SentrySDKLog.info("App was in background. Not measuring app start.")
+            return
+        }
+
+        // According to a talk at WWDC about optimizing app launch
+        // (https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
+        // slide 17) no process exists for cold and warm launches. Since iOS 15, though, the system
+        // might decide to pre-warm your app before the user tries to open it.
+        // Prewarming can stop at any of the app launch steps. Our findings show that most of
+        // the prewarmed app starts don't call the main method. Therefore we subtract the
+        // time before the module initialization / main method to calculate the app start
+        // duration. If the app start stopped during a later launch step, we drop it below with
+        // checking the SENTRY_APP_START_MAX_DURATION. With this approach, we will
+        // lose some warm app starts, but we accept this tradeoff. Useful resources:
+        // https://developer.apple.com/documentation/uikit/app_and_environment/responding_to_the_launch_of_your_app/about_the_app_launch_sequence#3894431
+        // https://developer.apple.com/documentation/metrickit/mxapplaunchmetric,
+        // https://twitter.com/steipete/status/1466013492180312068,
+        // https://github.com/MobileNativeFoundation/discussions/discussions/146
+        // https://eisel.me/startup
+        let sysctl = self.sysctlWrapper
+        let appStartTimestamp: Date
+        let appStartDuration: TimeInterval
+
+        if isPreWarmed {
+            appStartDuration = appStartEnd.timeIntervalSince(sysctl.moduleInitializationTimestamp)
+            appStartTimestamp = sysctl.moduleInitializationTimestamp
+        } else {
+            appStartDuration = appStartEnd.timeIntervalSince(sysctl.processStartTimestamp)
+            appStartTimestamp = sysctl.processStartTimestamp
+        }
+
+        if !self.reportingStrategy.shouldSkipMaxAppStartDurationLimit() && appStartDuration >= Self.maxAppStartDuration {
+            SentrySDKLog.info("The app start exceeded the max duration of \(Self.maxAppStartDuration) seconds. Not measuring app start.")
+            return
+        }
+
+        var finalAppStartDuration = appStartDuration
+        var finalDidFinishLaunchingTimestamp = self.didFinishLaunchingTimestamp
+
+        // On HybridSDKs, we miss the didFinishLaunchNotification and the
+        // didBecomeVisibleNotification. Therefore, we can't set the
+        // didFinishLaunchingTimestamp, and we can't calculate the appStartDuration. Instead,
+        // the SDK provides the information we know and leaves the rest to the HybridSDKs.
+        if SentrySDKInternal.appStartMeasurementHybridSDKMode {
+            finalDidFinishLaunchingTimestamp = Date(timeIntervalSinceReferenceDate: 0)
+            finalAppStartDuration = 0
+        }
+
+        guard let sdkStart = SentrySDKInternal.startTimestamp else {
+            SentrySDKLog.debug("Skipping app start measurement: missing SDK start timestamp.")
+            return
+        }
+
+        let traceId = self.appStartTraceId ?? SentryId()
+
+        let appStartMeasurement = SentryAppStartMeasurement(
+            type: appStartType,
+            isPreWarmed: isPreWarmed,
+            appStartTimestamp: appStartTimestamp,
+            runtimeInitSystemTimestamp: sysctl.runtimeInitSystemTimestamp,
+            duration: finalAppStartDuration,
+            runtimeInitTimestamp: self.appStartInfoProvider.runtimeInitTimestamp(),
+            moduleInitializationTimestamp: sysctl.moduleInitializationTimestamp,
+            sdkStartTimestamp: sdkStart,
+            didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
+        )
+
+        self.reportingStrategy.report(appStartMeasurement, traceId: traceId)
     }
     // swiftlint:enable function_body_length
 

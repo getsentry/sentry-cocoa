@@ -3,7 +3,6 @@
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
-#import "SentryTransaction+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,7 +38,7 @@ extern NSString *const DropSessionLogMessage;
                       withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:YES];
+    [self populateHintAttachments:hint scope:scope isFromPreviousProcess:YES];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -49,13 +48,15 @@ extern NSString *const DropSessionLogMessage;
     return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
 }
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
+                   withScope:(SentryScope *)scope
 {
+    SentryTransaction *typedTransaction = (SentryTransaction *)transaction;
     // Populate the hint so beforeSendTransaction sees the same attachments as for regular
     // transactions. Attachments are only informational here because storeEvent doesn't send them.
     SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
-    SentryEvent *preparedEvent = [self prepareEvent:transaction
+    [self populateHintAttachments:hint scope:scope isFromPreviousProcess:NO];
+    SentryEvent *preparedEvent = [self prepareEvent:typedTransaction
                                           withScope:scope
                              alwaysAttachStacktrace:NO
                                        isFatalEvent:NO
@@ -65,7 +66,7 @@ extern NSString *const DropSessionLogMessage;
         return;
     }
 
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:typedTransaction
                                                           withScope:scope
                                                        currentScope:nil];
 
@@ -83,7 +84,9 @@ extern NSString *const DropSessionLogMessage;
                                               withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint
 {
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
+    [self populateHintAttachments:hint
+                            scope:scope
+            isFromPreviousProcess:event.isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope

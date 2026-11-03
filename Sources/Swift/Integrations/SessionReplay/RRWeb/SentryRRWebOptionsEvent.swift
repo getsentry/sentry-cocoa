@@ -7,23 +7,23 @@ final class SentryRRWebOptionsEvent: SentryRRWebCustomEvent {
         super.init(timestamp: timestamp, tag: "options", payload: customOptions)
     }
     
-    init(timestamp: Date, options: SentryReplayOptions) {
+    init(timestamp: Date, options: SentryReplayOptions, redactOptions: SentryRedactOptions) {
         var payload: [String: Any] = [
             "sessionSampleRate": options.sessionSampleRate,
             "errorSampleRate": options.onErrorSampleRate,
-            "maskAllText": options.maskAllText,
-            "maskAllImages": options.maskAllImages,
+            "maskAllText": redactOptions.maskAllText,
+            "maskAllImages": redactOptions.maskAllImages,
             "quality": String(describing: options.quality),
             "nativeSdkName": SentryMeta.sdkName,
             "nativeSdkVersion": SentryMeta.versionString
         ]
         
-        if !options.maskedViewClasses.isEmpty {
-            payload["maskedViewClasses"] = options.maskedViewClasses.map(String.init(describing:)).joined(separator: ", ")
+        if !redactOptions.maskedViewClasses.isEmpty {
+            payload["maskedViewClasses"] = redactOptions.maskedViewClasses.map(String.init(describing:)).joined(separator: ", ")
         }
         
-        if !options.unmaskedViewClasses.isEmpty {
-            payload["unmaskedViewClasses"] = options.unmaskedViewClasses.map(String.init(describing:)).joined(separator: ", ")
+        if !redactOptions.unmaskedViewClasses.isEmpty {
+            payload["unmaskedViewClasses"] = redactOptions.unmaskedViewClasses.map(String.init(describing:)).joined(separator: ", ")
         }
         
         payload["networkDetailHasUrls"] = options.networkDetailHasUrls

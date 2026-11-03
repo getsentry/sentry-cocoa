@@ -3,6 +3,9 @@ import Foundation
 /// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
+    /// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
+    @nonobjc public let metrickit = SentryMetricKitOptions()
+
     #if !SDK_V10
     /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
     ///

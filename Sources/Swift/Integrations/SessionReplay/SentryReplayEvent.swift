@@ -46,7 +46,17 @@ import Foundation
         fatalError("init() has not been implemented")
     }
     
+    #if SDK_V10
+    override func serialize() -> [String: Any] {
+        serializeReplayEvent()
+    }
+    #else
     @_spi(Private) public override func serialize() -> [String: Any] {
+        serializeReplayEvent()
+    }
+    #endif
+
+    private func serializeReplayEvent() -> [String: Any] {
         var result = super.serialize()
         result["urls"] = urls
         // Omit `trace_ids` entirely when empty; the buffer is left nil for segments without traces.

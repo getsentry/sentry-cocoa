@@ -106,6 +106,7 @@ schemeTemplates:
         # metric kit
         "--io.sentry.metric-kit.disable": false
         "--io.sentry.metric-kit.disable-raw-payloads": false
+        "--io.sentry.metric-kit.slow-launch": false
 
         # metrics
         "--io.sentry.metrics.enable": true

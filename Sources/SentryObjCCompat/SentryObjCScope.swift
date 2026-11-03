@@ -123,9 +123,11 @@ import Foundation
         set { wrapped.span = newValue?.wrapped }
     }
 
+    #if !SDK_V10
     @objc public func serialize() -> [String: Any] {
         wrapped.serialize()
     }
+    #endif
 
     @objc public func clear() {
         wrapped.clear()

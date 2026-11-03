@@ -25,7 +25,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.count(key: "network.request.count", value: 1)
+        SentrySDK.metrics.count("network.request.count", value: 1)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -40,7 +40,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
         // -- Act --
-        SentrySDK.metrics.count(key: "test.metric", value: 1)
+        SentrySDK.metrics.count("test.metric", value: 1)
 
         // -- Assert --
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
@@ -52,7 +52,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub(isMetricsEnabled: false)
 
         // -- Act --
-        SentrySDK.metrics.count(key: "test.metric", value: 1)
+        SentrySDK.metrics.count("test.metric", value: 1)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -65,7 +65,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.count(key: "button.click", value: 0)
+        SentrySDK.metrics.count("button.click", value: 0)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -78,7 +78,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.count(key: "events.processed", value: 1_000_000_000)
+        SentrySDK.metrics.count("events.processed", value: 1_000_000_000)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -92,14 +92,16 @@ class SentryMetricsApiE2ETests: XCTestCase {
 
         // -- Act --
         SentrySDK.metrics.count(
-            key: "api.request.count",
+            "api.request.count",
             value: 1,
-            attributes: [
-                "endpoint": "api/users",
-                "success": true,
-                "status_code": 200,
-                "response_time": 0.125
-            ]
+            options: SentryMetricOptions(
+                attributes: [
+                    "endpoint": "api/users",
+                    "success": true,
+                    "status_code": 200,
+                    "response_time": 0.125
+                ]
+            )
         )
 
         // -- Assert --
@@ -119,7 +121,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.distribution(key: "http.request.duration", value: 187.5)
+        SentrySDK.metrics.distribution("http.request.duration", value: 187.5)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -134,7 +136,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
         // -- Act --
-        SentrySDK.metrics.distribution(key: "test.metric", value: 1.0)
+        SentrySDK.metrics.distribution("test.metric", value: 1.0)
 
         // -- Assert --
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
@@ -146,7 +148,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub(isMetricsEnabled: false)
 
         // -- Act --
-        SentrySDK.metrics.distribution(key: "test.metric", value: 1.0)
+        SentrySDK.metrics.distribution("test.metric", value: 1.0)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -159,7 +161,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.distribution(key: "latency", value: -10.5)
+        SentrySDK.metrics.distribution("latency", value: -10.5)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -173,12 +175,14 @@ class SentryMetricsApiE2ETests: XCTestCase {
 
         // -- Act --
         SentrySDK.metrics.distribution(
-            key: "db.query.duration",
+            "db.query.duration",
             value: 45.7,
-            attributes: [
-                "database": "postgres",
-                "cached": false
-            ]
+            options: SentryMetricOptions(
+                attributes: [
+                    "database": "postgres",
+                    "cached": false
+                ]
+            )
         )
 
         // -- Assert --
@@ -196,7 +200,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.gauge(key: "memory.usage", value: 1_024.0)
+        SentrySDK.metrics.gauge("memory.usage", value: 1_024.0)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -211,7 +215,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
         // -- Act --
-        SentrySDK.metrics.gauge(key: "test.metric", value: 1.0)
+        SentrySDK.metrics.gauge("test.metric", value: 1.0)
 
         // -- Assert --
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
@@ -223,7 +227,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub(isMetricsEnabled: false)
 
         // -- Act --
-        SentrySDK.metrics.gauge(key: "test.metric", value: 1.0)
+        SentrySDK.metrics.gauge("test.metric", value: 1.0)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -236,7 +240,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
 
         // -- Act --
-        SentrySDK.metrics.gauge(key: "temperature", value: -5.0)
+        SentrySDK.metrics.gauge("temperature", value: -5.0)
 
         // -- Assert --
         let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
@@ -250,13 +254,15 @@ class SentryMetricsApiE2ETests: XCTestCase {
 
         // -- Act --
         SentrySDK.metrics.gauge(
-            key: "system.cpu.usage",
+            "system.cpu.usage",
             value: 75.5,
-            attributes: [
-                "process": "main_app",
-                "core_count": 8,
-                "utilization": 0.755
-            ]
+            options: SentryMetricOptions(
+                attributes: [
+                    "process": "main_app",
+                    "core_count": 8,
+                    "utilization": 0.755
+                ]
+            )
         )
 
         // -- Assert --

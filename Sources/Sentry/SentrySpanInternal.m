@@ -1,4 +1,5 @@
 #import "SentryBaggage.h"
+#import "SentryInternalSerializable.h"
 #if SDK_V10
 #    import "SentryThreadSnapshot.h"
 #else
@@ -35,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySpanInternal {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
+#if SDK_V10
+    NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
+#endif
     NSObject *_stateLock;
     BOOL _isFinished;
     NSDate *_Nullable _timestamp;
@@ -86,6 +90,9 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
+#if SDK_V10
+        _measurements = [[NSMutableDictionary alloc] init];
+#endif
         self.featureFlagBuffer = [SentryFeatureFlagBufferWrapper spanBuffer];
         _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
@@ -227,13 +234,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
+#if SDK_V10
+    [self setMeasurement:name measurement:[[SentryMeasurementValue alloc] initWithValue:value]];
+#else
     [self.tracer setMeasurement:name value:value];
+#endif
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
+#if SDK_V10
+    [self setMeasurement:name
+             measurement:[[SentryMeasurementValue alloc] initWithValue:value unit:unit]];
+#else
     [self.tracer setMeasurement:name value:value unit:unit];
+#endif
 }
+
+#if SDK_V10
+- (void)setMeasurement:(NSString *)name measurement:(SentryMeasurementValue *)measurement
+{
+    // Objective-C callers can pass nil despite the nonnull contract.
+    if (name == nil) {
+        SENTRY_LOG_ERROR(@"The name of the measurement is nil. Discarding the measurement.");
+        return;
+    }
+
+    @synchronized(_measurements) {
+        _measurements[name] = measurement;
+    }
+}
+#endif
 
 - (NSDictionary<NSString *, id> *)tags
 {
@@ -402,7 +433,14 @@ NS_ASSUME_NONNULL_BEGIN
                              forKey:kSentrySpanStatusSerializationKey];
     }
 
+#if SDK_V10
+    NSDate *timestamp = self.timestamp;
+    if (timestamp != nil) {
+        mutableDictionary[@"timestamp"] = @(timestamp.timeIntervalSince1970);
+    }
+#else
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
+#endif
 
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
@@ -431,6 +469,18 @@ NS_ASSUME_NONNULL_BEGIN
             mutableDictionary[@"tags"] = _tags.copy;
         }
     }
+
+#if SDK_V10
+    @synchronized(_measurements) {
+        if (_measurements.count > 0) {
+            NSMutableDictionary<NSString *, id> *measurements = [[NSMutableDictionary alloc] init];
+            for (NSString *name in _measurements) {
+                measurements[name] = [_measurements[name] serialize];
+            }
+            mutableDictionary[@"measurements"] = measurements;
+        }
+    }
+#endif
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profileSessionID != nil) {

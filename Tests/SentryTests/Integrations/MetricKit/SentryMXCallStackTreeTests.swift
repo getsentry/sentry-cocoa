@@ -18,7 +18,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testDecodeCallStackTree_PerThread() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/per-thread")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         
         XCTAssertEqual(true, callStackTree.callStackPerThread)
         XCTAssertEqual(2, callStackTree.callStacks.count)
@@ -31,7 +31,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testDecodeCallStackTree_NotPerThread() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         
         XCTAssertFalse(callStackTree.callStackPerThread)
         let firstSamples = callStackTree.callStacks[0].callStackRootFrames[0].toSamples()
@@ -44,7 +44,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testMostCommonStack() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/per-thread-flamegraph")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         let threads = callStackTree.sentryMXBacktrace(inAppLogic: nil, handled: false)
         XCTAssertEqual(1, threads.count)
         let frames = try XCTUnwrap(threads[0].stacktrace).frames
@@ -56,7 +56,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testInAppTrue_WhenPackageIsNil() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/per-thread-nil-package")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         let threads = callStackTree.sentryMXBacktrace(inAppLogic: nil, handled: false)
         XCTAssertEqual(1, threads.count)
         let frames = try XCTUnwrap(threads[0].stacktrace).frames
@@ -67,7 +67,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testInAppTrue_WhenPackageIsNilFlamegraph() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/per-thread-nil-package")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         let threads = callStackTree.flattenedBacktrace(inAppLogic: nil, handled: false)
         XCTAssertEqual(1, threads.count)
         let frames = try XCTUnwrap(threads[0].stacktrace).frames
@@ -78,14 +78,14 @@ final class SentryMXCallStackTreeTests: XCTestCase {
 
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/tree-unknown-fields")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         
         try assertCallStackTree(callStackTree)
     }
     
     func testDecodeCallStackTree_RealPayload() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/tree-real")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         
         XCTAssertNotNil(callStackTree)
         
@@ -102,7 +102,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let callStackTreeData = try JSONSerialization.data(withJSONObject: callStackTreeJSON)
 
         // -- Act --
-        let callStackTree = try SentryMXCallStackTree.from(data: callStackTreeData)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: callStackTreeData)
 
         // -- Assert --
         XCTAssertTrue(callStackTree.callStackPerThread)
@@ -149,7 +149,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         """.utf8)
 
         // -- Act --
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let callStackTree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents)
         let images = callStackTree.toDebugMeta()
         let backtrace = callStackTree.sentryMXBacktrace(inAppLogic: nil, handled: true)
         let flattenedBacktrace = callStackTree.flattenedBacktrace(inAppLogic: nil, handled: true)
@@ -174,9 +174,45 @@ final class SentryMXCallStackTreeTests: XCTestCase {
 
     func testDecodeCallStackTree_GarbagePayload() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/tree-garbage")
-        XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
+        XCTAssertThrowsError(try JSONDecoder().decode(SentryMXCallStackTree.self, from: contents))
     }
     
+    func testBacktrace_whenDuplicateStacks_shouldCombineSampleCounts() throws {
+        // -- Arrange --
+        let uuid = UUID()
+        let repeated = SentryMXFrame(binaryUUID: uuid, offsetIntoBinaryTextSegment: 0, binaryName: "App", address: 4_096, subFrames: nil, sampleCount: 3)
+        let other = SentryMXFrame(binaryUUID: uuid, offsetIntoBinaryTextSegment: 4, binaryName: "App", address: 4_100, subFrames: nil, sampleCount: 4)
+        let tree = SentryMXCallStackTree(callStacks: [SentryMXCallStack(threadAttributed: true, callStackRootFrames: [repeated, other, repeated])], callStackPerThread: true)
+
+        // -- Act --
+        let thread = try XCTUnwrap(tree.sentryMXBacktrace(inAppLogic: nil, handled: false).first)
+
+        // -- Assert --
+        let frames = try XCTUnwrap(thread.stacktrace).frames
+        XCTAssertEqual(frames.map(\.instructionAddress), ["0x0000000000001000"])
+        XCTAssertEqual(thread.crashed, true)
+    }
+
+    func testToDebugMeta_whenImagesRepeatedAcrossThreads_shouldKeepFirstImage() throws {
+        // -- Arrange --
+        let uuid = UUID()
+        let first = SentryMXFrame(binaryUUID: uuid, offsetIntoBinaryTextSegment: 0, binaryName: "First", address: 4_096, subFrames: nil, sampleCount: 1)
+        let duplicate = SentryMXFrame(binaryUUID: uuid, offsetIntoBinaryTextSegment: 0, binaryName: "Second", address: 8_192, subFrames: nil, sampleCount: 1)
+        let tree = SentryMXCallStackTree(callStacks: [
+            SentryMXCallStack(threadAttributed: true, callStackRootFrames: [first]),
+            SentryMXCallStack(threadAttributed: false, callStackRootFrames: [duplicate])
+        ], callStackPerThread: true)
+
+        // -- Act --
+        let images = tree.toDebugMeta()
+
+        // -- Assert --
+        XCTAssertEqual(images.count, 1)
+        let image = try XCTUnwrap(images.first)
+        XCTAssertEqual(image.codeFile, "First")
+        XCTAssertEqual(image.imageAddress, "0x0000000000001000")
+    }
+
     private func assertCallStackTree(_ callStackTree: SentryMXCallStackTree) throws {
 
         let callStack = try XCTUnwrap(callStackTree.callStacks.first)

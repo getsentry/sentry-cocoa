@@ -6,7 +6,9 @@
 #    import <SentryDefines.h>
 #endif
 #import SENTRY_HEADER(SentrySampleDecision)
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 #import SENTRY_HEADER(SentrySpanStatus)
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString const *SENTRY_TRACE_TYPE = @"trace";
 
 NS_SWIFT_NAME(SpanContext)
+#if SDK_V10
+@interface SentrySpanContext : NSObject
+#else
 @interface SentrySpanContext : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 SENTRY_NO_INIT
 

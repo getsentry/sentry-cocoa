@@ -49,7 +49,6 @@
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
         "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",
-        "SentryProfilerSwiftTests\/testConcurrentSpansWithTimeout()",
         "SentryReachabilityTest\/testMultipleReachabilityObservers",
         "SentrySDKIntegrationTestsBase",
         "SentrySDKInternalTests\/testResumeAndPauseAppHangTracking()",
@@ -77,10 +76,6 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : [
-        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()",
-        "SentryProfilerTests\/testProfilerMutationDuringSlicing"
-      ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "8431EECF29B27B1100D8DC56",

@@ -453,6 +453,13 @@ import Foundation
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+    #if SDK_V10
+    @objc public var privacy: SentryObjCPrivacyOptions {
+        get { SentryObjCPrivacyOptions(parent: wrapped) }
+        set { wrapped.privacy = newValue.wrapped }
+    }
+    #endif // SDK_V10
+
     @objc public var sessionReplay: SentryObjCReplayOptions {
         get { SentryObjCReplayOptions(wrapped.sessionReplay) }
         set { wrapped.sessionReplay = newValue.wrapped }
@@ -583,10 +590,12 @@ import Foundation
 
     #if canImport(MetricKit) && !os(tvOS)
 
+    #if !SDK_V10
     @objc public var enableMetricKit: Bool {
         get { wrapped.enableMetricKit }
         set { wrapped.enableMetricKit = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var enableMetricKitRawPayload: Bool {
         get { wrapped.enableMetricKitRawPayload }

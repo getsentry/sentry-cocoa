@@ -12,23 +12,33 @@ public final class TestMetricsApi: NSObject, SentryMetricsApiProtocol {
     @objc public let distributionInvocations = ObjCInvocations()
     @objc public let gaugeInvocations = ObjCInvocations()
 
-    public func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
-        countInvocations.record(["key": key, "value": value] as NSDictionary)
+    public func count(_ name: String, value: UInt, options: SentryMetricOptions) {
+        countInvocations.record(Self.record(name: name, value: value, options: options))
     }
 
-    public func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        var dict: [String: Any] = ["key": key, "value": value]
-        if let unit {
-            dict["unit"] = unit.rawValue
-        }
-        distributionInvocations.record(dict as NSDictionary)
+    public func distribution(_ name: String, value: Double, options: SentryMetricOptions) {
+        distributionInvocations.record(Self.record(name: name, value: value, options: options))
     }
 
-    public func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        var dict: [String: Any] = ["key": key, "value": value]
-        if let unit {
+    public func gauge(_ name: String, value: Double, options: SentryMetricOptions) {
+        gaugeInvocations.record(Self.record(name: name, value: value, options: options))
+    }
+
+    private static func record(name: String, value: Any, options: SentryMetricOptions) -> NSDictionary {
+        var dict: [String: Any] = [
+            "name": name,
+            "value": value,
+            "attributes": options.attributes.mapValues { $0.asSentryAttributeContent.anyValue }
+        ]
+        if let unit = options.unit {
             dict["unit"] = unit.rawValue
         }
-        gaugeInvocations.record(dict as NSDictionary)
+        if let scope = options.scope {
+            dict["scope"] = scope
+        }
+        if let timestamp = options.timestamp {
+            dict["timestamp"] = timestamp
+        }
+        return dict as NSDictionary
     }
 }

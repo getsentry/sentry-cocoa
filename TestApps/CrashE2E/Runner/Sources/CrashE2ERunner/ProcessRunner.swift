@@ -19,7 +19,10 @@ struct ProcessResult {
         if timedOut {
             return timeout.map { "timeout after \(Int($0))s" } ?? "timeout"
         }
+        return terminationSummary
+    }
 
+    var terminationSummary: String {
         switch terminationReason {
         case .exit:
             return "status \(terminationStatus)"

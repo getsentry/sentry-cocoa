@@ -60,4 +60,63 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.enableMemoryIntrospection)
     }
+
+    func testInitWithDictionary_whenMetricKitHangReportingModeIsFlamegraphAttachment_shouldSetMode() throws {
+        #if canImport(MetricKit) && !os(tvOS)
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metricKitHangReportingMode": "flamegraphAttachment"
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.hangReportingMode, .flamegraphAttachment)
+        #else
+        throw XCTSkip("MetricKit options are not parsed on this platform")
+        #endif
+    }
+
+    func testInitWithDictionary_whenMetricKitHangReportingModeIsLegacy_shouldSetMode() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metricKitHangReportingMode": "legacy"
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.hangReportingMode, .legacy)
+    }
+
+    func testInitWithDictionary_whenMetricKitHangReportingModeIsUnknown_shouldKeepDefault() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "metricKitHangReportingMode": "unknown"
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.hangReportingMode, .legacy)
+    }
+
+    func testInitWithDictionary_whenMetricKitHangReportingModeNotSet_shouldDefaultToLegacy() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1"
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.experimental.metrickit.hangReportingMode, .legacy)
+    }
 }

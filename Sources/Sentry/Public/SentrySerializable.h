@@ -9,6 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if !SDK_V10
 @protocol SentrySerializable <NSObject>
 SENTRY_NO_INIT
 
@@ -19,5 +20,6 @@ SENTRY_NO_INIT
 - (NSDictionary<NSString *, id> *)serialize;
 
 @end
+#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_END
