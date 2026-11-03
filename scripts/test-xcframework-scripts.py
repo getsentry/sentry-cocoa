@@ -158,34 +158,128 @@ fi
                     self.assertIn(f"{framework.name}/payload", zipped.namelist())
                     self.assertEqual(f"{framework.name}/signature" in zipped.namelist(), signed)
 
-    def test_framework_rewrites_legacy_and_swift64_module_qualifiers(self):
-        # Exercise the real packager with textual interfaces from both compiler formats.
-        # Linking is stubbed; the clean-consumer test covers real compilation and loading.
-        self.env["SDK_V10"] = "0"
+    def stub_framework_linker(self):
+        # The clean-consumer test covers real compilation and loading.
         self.env["FIXTURE_SDK"] = str(self.root / "sdk")
         (self.root / "sdk/System/Library/Frameworks/AppKit.framework").mkdir(parents=True)
         self.tool("xcrun", '''#!/usr/bin/env python3
 import os, pathlib, sys
 args = sys.argv[1:]
-if args == ["--sdk", "macosx", "--show-sdk-path"]:
+if args[0] == "--sdk" and args[-1] == "--show-sdk-path":
     print(os.environ["FIXTURE_SDK"])
 elif args[0] in ("swiftc", "dsymutil"):
     output = pathlib.Path(args[args.index("-o") + 1])
-    output.mkdir() if args[0] == "dsymutil" else output.touch()
+    output.mkdir(exist_ok=True) if args[0] == "dsymutil" else output.touch()
 elif args[0] == "lipo":
     pathlib.Path(args[args.index("-output") + 1]).touch()
 elif args[0] != "strip":
     sys.exit("Unexpected tool invocation: " + repr(args))
 ''')
+
+    def test_dynamic_builder_copies_prepared_inputs_without_rewriting(self):
+        self.stub_framework_linker()
         headers = self.root / "headers"
         headers.mkdir()
-        (headers / "Public.h").write_text("typedef struct { int value; } HeaderValue;\n")
+        header = "#import <Foundation/Foundation.h>\n"
+        (headers / "Fixture.h").write_text(header)
+        modules = self.root / "modules"
+        module = modules / "Fixture.swiftmodule"
+        module.mkdir(parents=True)
+        interface = "// Already prepared; SentryHeaders.Type must not be rewritten here.\n"
+        (module / "arm64.swiftinterface").write_text(interface)
+        resources = self.root / "resources"
+        bundle = resources / "Fixture.bundle"
+        bundle.mkdir(parents=True)
+        (bundle / "payload").write_text("resource contents")
         library = self.root / "libFixture.a"
         library.touch()
-        archive = self.root / "Fixture.xcarchive"
+        custom_map = 'framework module Fixture { header "Fixture.h" export * }\n'
+        for sdk in ("macosx", "maccatalyst", "iphoneos"):
+            for mode in ("headers-only", "modules-only", "resources-only", "prepared"):
+                with self.subTest(sdk=sdk, mode=mode):
+                    output = self.root / f"output-{sdk}-{mode}"
+                    args = []
+                    (modules / "module.modulemap").unlink(missing_ok=True)
+                    if mode == "prepared":
+                        (modules / "module.modulemap").write_text(custom_map)
+                    if mode in ("modules-only", "prepared"):
+                        args.extend(["--modules", modules])
+                    if mode in ("resources-only", "prepared"):
+                        args.extend(["--resources", resources])
+                    result = self.run_script(
+                        "build-dynamic-framework.sh", "--sdk", sdk,
+                        "--static-lib", library, "--headers", headers,
+                        "--output-dir", output, "--framework-name", "Fixture",
+                        "--version", "1.2.3", *args)
+                    self.assertEqual(result.returncode, 0, result.stdout)
+                    framework = output / f"framework/Fixture/{sdk}/Fixture.framework"
+                    self.assertEqual((framework / "Headers/Fixture.h").read_text(), header)
+                    modulemap = (framework / "Modules/module.modulemap").read_text()
+                    if mode == "prepared":
+                        self.assertEqual(modulemap, custom_map)
+                    else:
+                        self.assertIn('umbrella header "Fixture.h"', modulemap)
+                    copied_interface = framework / "Modules/Fixture.swiftmodule/arm64.swiftinterface"
+                    if mode in ("modules-only", "prepared"):
+                        self.assertEqual(copied_interface.read_text(), interface)
+                    else:
+                        self.assertFalse(copied_interface.exists())
+                    resource_dir = framework if sdk == "iphoneos" else framework / "Resources"
+                    payload = resource_dir / "Fixture.bundle/payload"
+                    if mode in ("resources-only", "prepared"):
+                        self.assertEqual(payload.read_text(), "resource contents")
+                    else:
+                        self.assertFalse(payload.exists())
+                    if sdk != "iphoneos":
+                        self.assertTrue((framework / "Modules").is_symlink())
+                        self.assertTrue((framework / "Resources").is_symlink())
+                    self.assertTrue(framework.with_suffix(".framework.dSYM").is_dir())
+
+    def test_dynamic_builder_validates_optional_directories_before_replacing_output(self):
+        headers = self.root / "headers"
+        headers.mkdir()
+        library = self.root / "libFixture.a"
+        library.touch()
+        output = self.root / "output"
+        framework = output / "framework/Fixture/macosx/Fixture.framework"
+        framework.mkdir(parents=True)
+        marker = framework / "existing"
+        marker.touch()
+        for option in ("--modules", "--resources"):
+            with self.subTest(option=option):
+                result = self.run_script(
+                    "build-dynamic-framework.sh", "--sdk", "macosx",
+                    "--static-lib", library, "--headers", headers,
+                    "--output-dir", output, "--framework-name", "Fixture",
+                    "--version", "1.2.3", option, self.root / "missing")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("directory not found", result.stdout)
+                self.assertTrue(marker.exists())
+
+    def sentry_inputs(self, root):
+        headers = root / "headers"
+        headers.mkdir(parents=True)
+        (headers / "Public.h").write_text(
+            "#import <Types.h>\n#import SENTRY_HEADER(Types)\n#import <Foundation/Foundation.h>\n")
+        (headers / "Types.h").write_text("typedef struct { int value; } HeaderValue;\n")
+        archive = root / "Fixture.xcarchive"
         module = archive / "Products/Swift/Fixture.swiftmodule"
         module.mkdir(parents=True)
         (module.parent / "Fixture-Swift.h").write_text("@import SentryHeaders;\n")
+        (module / "arm64-apple-macos.swiftinterface").write_text(
+            "// swift-module-flags: -module-name Fixture\n@_exported import SentryHeaders\n")
+        bundle = archive / "Products/Resources/Fixture.bundle"
+        bundle.mkdir(parents=True)
+        (bundle / "payload").write_text("resource contents")
+        return archive, headers
+
+    def snapshot(self, directory):
+        return {str(path.relative_to(directory)): path.read_bytes()
+                for path in directory.rglob("*") if path.is_file()}
+
+    def test_preparation_rewrites_interfaces_and_preserves_inputs(self):
+        archive, headers = self.sentry_inputs(self.root)
+        module = archive / "Products/Swift/Fixture.swiftmodule"
         cases = [
             ("@_exported import SentryHeaders", "@_exported import Fixture"),
             ("public func legacy(_ value: SentryHeaders.HeaderValue) -> SentryHeaders.HeaderValue",
@@ -202,17 +296,100 @@ elif args[0] != "strip":
         expected = flags + "\n".join(after for _, after in cases) + "\n"
         for suffix in ("swiftinterface", "private.swiftinterface"):
             (module / f"arm64-apple-macos.{suffix}").write_text(original)
-        output = self.root / "output"
-        result = self.run_script("build-dynamic-framework.sh", "--sdk", "macosx",
-                                 "--static-lib", library, "--headers", headers,
-                                 "--output-dir", output, "--framework-name", "Fixture",
-                                 "--version", "1.2.3", "--swift-archive", archive)
+        for suffix in ("swiftmodule", "swiftdoc", "package.swiftinterface"):
+            (module / f"arm64-apple-macos.{suffix}").write_text("not distributable")
+        archive_before = self.snapshot(archive)
+        headers_before = self.snapshot(headers)
+        output = self.root / "prepared"
+        for v10 in ("1", "0"):
+            with self.subTest(v10=v10):
+                self.env["SDK_V10"] = v10
+                result = self.run_script(
+                    "prepare-sentry-framework-inputs.sh", "--swift-archive", archive,
+                    "--headers", headers, "--output-dir", output, "--framework-name", "Fixture")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                prepared_module = output / "Modules/Fixture.swiftmodule"
+                self.assertEqual(set(path.name for path in prepared_module.iterdir()), {
+                    "arm64-apple-macos.swiftinterface", "arm64-apple-macos.private.swiftinterface"})
+                for interface in prepared_module.iterdir():
+                    self.assertEqual(interface.read_text(), expected)
+                self.assertEqual((output / "Headers/Fixture-Swift.h").read_text(), "@import Fixture;\n")
+                self.assertEqual((output / "Headers/Public.h").read_text(),
+                                 '#import "Types.h"\n#import "Types.h"\n#import <Foundation/Foundation.h>\n')
+                umbrella = (output / "Headers/SentryHeaders.h").read_text()
+                self.assertIn('#import "Public.h"', umbrella)
+                self.assertNotIn("Fixture-Swift.h", umbrella)
+                self.assertEqual("SentryV10Configuration.h" in umbrella, v10 == "1")
+                self.assertEqual((output / "Headers/SentryV10Configuration.h").exists(), v10 == "1")
+                self.assertIn('umbrella header "SentryHeaders.h"',
+                              (output / "Modules/module.modulemap").read_text())
+                self.assertEqual((output / "Resources/Fixture.bundle/payload").read_text(), "resource contents")
+                self.assertTrue((output / "Resources/PrivacyInfo.xcprivacy").is_file())
+                self.assertEqual(self.snapshot(archive), archive_before)
+                self.assertEqual(self.snapshot(headers), headers_before)
+
+    def test_preparation_accepts_empty_resources_but_rejects_missing_directory(self):
+        archive, headers = self.sentry_inputs(self.root)
+        resources = archive / "Products/Resources"
+        shutil.rmtree(resources / "Fixture.bundle")
+        output = self.root / "prepared"
+        args = ("--swift-archive", archive, "--headers", headers,
+                "--output-dir", output, "--framework-name", "Fixture")
+        result = self.run_script("prepare-sentry-framework-inputs.sh", *args)
         self.assertEqual(result.returncode, 0, result.stdout)
-        framework = output / "framework/Fixture/macosx/Fixture.framework"
-        for suffix in ("swiftinterface", "private.swiftinterface"):
-            with self.subTest(interface=suffix):
-                interface = framework / f"Modules/Fixture.swiftmodule/arm64-apple-macos.{suffix}"
-                self.assertEqual(interface.read_text(), expected)
+        self.assertEqual(set(path.name for path in (output / "Resources").iterdir()),
+                         {"PrivacyInfo.xcprivacy"})
+        prepared_before = self.snapshot(output)
+        resources.rmdir()
+        result = self.run_script("prepare-sentry-framework-inputs.sh", *args)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Resources", result.stdout)
+        self.assertEqual(self.snapshot(output), prepared_before)
+
+    def test_preparation_rejects_output_overlapping_inputs(self):
+        for location in ("headers", "archive", "nested", "parent", "symlink"):
+            with self.subTest(location=location):
+                root = self.root / location
+                archive, headers = self.sentry_inputs(root)
+                output = {"headers": headers, "archive": archive,
+                          "nested": archive / "new/prepared", "parent": root,
+                          "symlink": root / "alias"}[location]
+                if location == "symlink":
+                    output.symlink_to(headers, target_is_directory=True)
+                archive_before = self.snapshot(archive)
+                headers_before = self.snapshot(headers)
+                result = self.run_script(
+                    "prepare-sentry-framework-inputs.sh", "--swift-archive", archive,
+                    "--headers", headers, "--output-dir", output, "--framework-name", "Fixture")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("Output directory must not overlap", result.stdout)
+                self.assertEqual(self.snapshot(archive), archive_before)
+                self.assertEqual(self.snapshot(headers), headers_before)
+                self.assertFalse((archive / "new").exists())
+
+    def test_preparation_rejects_invalid_swift_artifacts(self):
+        for invalid in ("module", "header", "interfaces", "module-name"):
+            with self.subTest(invalid=invalid):
+                archive, headers = self.sentry_inputs(self.root / invalid)
+                module = archive / "Products/Swift/Fixture.swiftmodule"
+                if invalid == "module":
+                    shutil.rmtree(module)
+                elif invalid == "header":
+                    (module.parent / "Fixture-Swift.h").unlink()
+                elif invalid == "interfaces":
+                    (module / "arm64-apple-macos.swiftinterface").rename(module / "arm64-apple-macos.package.swiftinterface")
+                else:
+                    (module / "arm64-apple-macos.swiftinterface").write_text(
+                        "// swift-module-flags: -module-name Different\n")
+                output = self.root / invalid / "prepared"
+                result = self.run_script(
+                    "prepare-sentry-framework-inputs.sh", "--swift-archive", archive,
+                    "--headers", headers, "--output-dir", output, "--framework-name", "Fixture")
+                self.assertNotEqual(result.returncode, 0)
+                expected = {"module": "Missing Swift artifacts", "header": "Missing Swift artifacts",
+                            "interfaces": "No distributable Swift interfaces", "module-name": "Swift module name does not match"}
+                self.assertIn(expected[invalid], result.stdout)
+                self.assertFalse(output.exists())
 
     def test_builders_require_explicit_parameters_before_building(self):
         package = self.root / "package"
@@ -232,6 +409,10 @@ elif args[0] != "strip":
                 "--sdk": "macosx", "--output-dir": str(self.root / "output"),
                 "--static-lib": str(library), "--headers": str(headers),
                 "--framework-name": "Fixture", "--version": "1.2.3",
+            },
+            "prepare-sentry-framework-inputs.sh": {
+                "--swift-archive": str(self.root / "archive"), "--headers": str(headers),
+                "--output-dir": str(self.root / "output"), "--framework-name": "Fixture",
             },
         }
         for script, parameters in builders.items():

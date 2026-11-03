@@ -238,9 +238,9 @@ end_group
 
 # SwiftPM installs objects, but not its interfaces, generated headers or resource bundles.
 # Preserve those beside the objects so framework packaging needs only this archive.
-build_products="$DERIVED_DATA/Build/Intermediates.noindex/ArchiveIntermediates/$SCHEME/BuildProductsPath"
+build_products="$DERIVED_DATA/Build/Intermediates.noindex/ArchiveIntermediates/$SCHEME/BuildProductsPath/$CONFIGURATION$platform_suffix"
 mkdir -p "$archive_path/Products/Swift" "$archive_path/Products/Resources"
-for module in "$build_products"/*/*.swiftmodule; do
+for module in "$build_products"/*.swiftmodule; do
     [ -d "$module" ] || continue
     cp -RL "$module" "$archive_path/Products/Swift/"
 done
@@ -248,7 +248,7 @@ for header in "$generated_maps"/*-Swift.h; do
     [ -f "$header" ] || continue
     cp "$header" "$archive_path/Products/Swift/"
 done
-for bundle in "$build_products"/*/*.bundle; do
+for bundle in "$build_products"/*.bundle; do
     [ -d "$bundle" ] || continue
     cp -RL "$bundle" "$archive_path/Products/Resources/"
 done
