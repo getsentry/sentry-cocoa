@@ -36,53 +36,26 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 `assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
 
-## Public API Dump Generation
+## SwiftPM Public API Generation
 
-[`generate-api-dump.sh`](../scripts/generate-api-dump.sh) builds and extracts the main SDK's public API through either build system independently:
-
-```bash
-# SwiftPM only: no Xcode project or workspace is required.
-./scripts/generate-api-dump.sh --build-system spm --output-dir /tmp/sentry-spm-api
-
-# Xcode project only: no package-based SDK build is performed.
-./scripts/generate-api-dump.sh --build-system xcode --output-dir /tmp/sentry-xcode-api
-```
-
-The output is a raw `swift-api-digester` dump (`spm-public.json` or `xcode-public.json`), the extracted module list, `context.json`, and build/extraction logs. Generation does not compare APIs or overwrite tracked snapshots. This command currently covers **V9 Release, arm64 iOS Simulator, main SDK only**; it does not replace `make generate-public-api` or generate the V10, SentrySwiftUI, or Objective-C wrapper snapshots.
-
-SwiftPM mode uses `xcodebuild` against a disposable source package without `Sentry.xcodeproj`, `Sentry.xcworkspace`, or binary products. All versioned manifests are retained so SwiftPM selects the appropriate one. It extracts `SentrySwift` together with its re-exported `SentryHeaders`. Xcode mode builds the `Sentry` framework. `--build-system both` generates both dumps from one working-tree snapshot without comparing them.
-
-The output directory must not exist and must be outside the checkout. Use `--source-packages /path/to/SourcePackages` to seed builds from an existing Xcode package cache, or `--keep-builds` to retain the disposable sources and build products. Seed caches must contain the dependency versions required by the current manifests; refresh them with Xcode package resolution after dependency updates. No simulator is booted and no SDK consumer is executed.
-
-For Xcode 16 interface verification, the generator exposes SwiftPM's generated `SentryHeaders` module map and original public headers through Swift search paths. This only affects the disposable build; it does not change SDK declarations or disable interface verification.
-
-## Informational SwiftPM API Parity
-
-The [API parity workflow](../.github/workflows/api-parity.yml) calls the generator in `both` mode, then compares the Xcode and SwiftPM dumps. Both builds use the same source snapshot, Xcode, configuration, and target. CI uses Xcode 16.4; local runs use the selected Xcode.
+`make generate-public-api` and the existing API-stability checks remain unchanged. To generate the **main SDK's** API independently from SwiftPM sources:
 
 ```bash
-./scripts/report-api-parity.sh --output-dir /tmp/sentry-api-parity
-python3 scripts/test-compare-public-api.py -v
-python3 scripts/test-generate-api-dump.py -v
+DEVELOPER_DIR='/Applications/Xcode-16.4.app/Contents/Developer' \
+  make generate-public-api-spm API_OUTPUT_DIR=/tmp/sentry-spm-api
+
+# V10: use a separate output directory.
+DEVELOPER_DIR='/Applications/Xcode-16.4.app/Contents/Developer' \
+  make generate-public-api-spm API_GENERATION=v10 API_OUTPUT_DIR=/tmp/sentry-spm-api-v10
 ```
 
-The generation tests use fake Xcode tools to check independent build selection, shared snapshots, header discovery, cleanup, and failure handling without building the SDK.
+The output directory must be new and outside the checkout. The [generator](../scripts/generate-spm-api.sh) builds an arm64 iOS-device source package in a temporary copy, without the Xcode project/workspace or binary products. It requires Xcode 16 and reuses [`extract-swift-api.sh`](../scripts/extract-swift-api.sh), including its existing device extraction target and snapshot formatter.
 
-The report lists missing and additional declarations, changed signatures, and missing members by their qualified names. It includes transitively imported Objective-C header modules. Comparison normalizes `SentrySwift`/`SentryHeaders` to `Sentry` and omits binary symbol identities, but preserves parameter order, overloads, availability, and API attributes. Private SPI and runtime behavior are not compared.
+Output is `sdk_api.json` (or `sdk_api_v10.json`), an accompanying `*.raw.json` preserving the unformatted digester output, and build/extraction logs. Both `SentrySwift` and its re-exported `SentryHeaders` are extracted; their actual module identities are retained. No SDK declarations, checked-in manifests, or tracked snapshots are changed.
 
-> [!NOTE]
-> API differences produce a warning and a job summary, not a failing check. Build, extraction, and comparison errors remain visible failures. This workflow is not a required check and does not change the existing blocking API-stability workflow or its tracked snapshots. Known differences are reported rather than allowlisted.
+For cache seeding or debugging, invoke the script directly with `--source-packages /path/to/SourcePackages` or `--keep-builds`; see `--help`. This command does not generate separate SentrySwiftUI or Objective-C wrapper snapshots; those remain available through the existing `make generate-public-api`.
 
-Raw API dumps, normalized copies, the complete diff, build context, and logs are uploaded as an artifact. To compare previously extracted **raw** dumps without rebuilding:
-
-```bash
-python3 scripts/compare-public-api.py \
-  --baseline /tmp/sentry-api-parity/xcode-public.json \
-  --candidate /tmp/sentry-api-parity/spm-public.json \
-  --output-dir /tmp/sentry-api-comparison
-```
-
-The comparator exits with `0` for a match, `1` for API differences, and `2` for invalid input. Use dumps from matching toolchains/platforms, including re-exported header APIs. Do not mix raw dumps with recursively sorted CI snapshots: sorting every array discards parameter order. Neither this check nor matching source APIs prove ABI compatibility.
+Run the generator/extractor tests with `python3 scripts/test-generate-spm-api.py -v`.
 
 ## Platform-Specific Build Notes
 

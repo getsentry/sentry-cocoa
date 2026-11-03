@@ -148,6 +148,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "scripts/assemble-xcframework.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/update-api.sh"
+  - "scripts/extract-swift-api.sh"
   - "scripts/extract-objc-api.sh"
   - "scripts/ci-diagnostics.sh"
 
@@ -161,26 +162,6 @@ run_api_stability_for_prs: &run_api_stability_for_prs
 
   # Build configuration
   - "Makefile"
-
-run_api_parity_for_prs:
-  - "Sources/**"
-  - "Package*.swift"
-  - "Sentry.xcodeproj/**"
-  - "Sentry.xcworkspace/**"
-  - "SentryTestUtils*/**"
-  - "Tests/**"
-  - ".github/workflows/api-parity.yml"
-  - ".github/file-filters.yml"
-  - ".github/actions/setup-xcode/**"
-  - ".github/actions/setup-git-access/**"
-  - "scripts/ci-select-xcode.sh"
-  - "scripts/ci-utils.sh"
-  - "scripts/prepare-package.sh"
-  - "scripts/generate-api-dump.sh"
-  - "scripts/report-api-parity.sh"
-  - "scripts/compare-public-api.py"
-  - "scripts/test-generate-api-dump.py"
-  - "scripts/test-compare-public-api.py"
 
 run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "**/*.h"
