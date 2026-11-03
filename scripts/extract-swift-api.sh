@@ -12,7 +12,6 @@ source "$SCRIPT_DIR/ci-utils.sh"
 
 MODULES=()
 OUTPUT=""
-RAW_OUTPUT=""
 FRAMEWORK_PATHS=()
 INCLUDE_PATHS=()
 
@@ -20,7 +19,6 @@ usage() {
     log_info "Usage: $0"
     log_info "  --module <name>           Module to extract (required, repeatable)"
     log_info "  --output <path>           Formatted JSON file path (required)"
-    log_info "  --raw-output <path>       Also save the unformatted digester output (optional)"
     log_info "  --framework-path <path>   Framework search path (repeatable)"
     log_info "  --include-path <path>     Swift module or header search path (repeatable)"
     log_info "At least one framework or include path is required."
@@ -33,7 +31,6 @@ while [[ $# -gt 0 ]]; do
             [[ -n "$2" ]] || usage
             MODULES+=("$2"); shift 2 ;;
         --output)         OUTPUT="$2";                          shift 2 ;;
-        --raw-output)     RAW_OUTPUT="$2";                      shift 2 ;;
         --framework-path) FRAMEWORK_PATHS+=("$2");              shift 2 ;;
         --include-path)   INCLUDE_PATHS+=("$2");                shift 2 ;;
         *)                usage ;;
@@ -88,9 +85,6 @@ xcrun --sdk iphoneos swift-api-digester \
     -target arm64-apple-ios10.0 \
     "${SEARCH_ARGS[@]}"
 
-if [[ -n "$RAW_OUTPUT" ]]; then
-    cp "$OUTPUT" "$RAW_OUTPUT"
-fi
 log_info "Sorting JSON keys and arrays for stable output"
 jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
 

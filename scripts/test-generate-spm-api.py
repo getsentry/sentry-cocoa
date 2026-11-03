@@ -122,7 +122,7 @@ class GenerationTests(unittest.TestCase):
     def assert_succeeded(self, result):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_v9_generation_without_project_preserves_raw_and_formats_snapshot(self):
+    def test_v9_generation_without_project_formats_snapshot(self):
         shutil.rmtree(self.repo / "Sentry.xcodeproj")
         shutil.rmtree(self.repo / "Sentry.xcworkspace")
         self.assert_succeeded(self.run_script(SDK_V10="1"))
@@ -136,11 +136,10 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual([args[i + 1] for i, arg in enumerate(args) if arg == "-module"],
                          ["SentrySwift", "SentryHeaders"])
         self.assertEqual(args[args.index("-target") + 1], "arm64-apple-ios10.0")
-        def parameters(filename):
-            nodes = json.loads((self.output / filename).read_text())["ABIRoot"]["children"]
-            return [node["printedName"] for node in next(n for n in nodes if n["name"] == "example")["children"]]
-        self.assertEqual(parameters("sdk_api.raw.json"), ["()", "Swift.String", "Swift.Int"])
-        self.assertEqual(parameters("sdk_api.json"), ["()", "Swift.Int", "Swift.String"])
+        nodes = json.loads((self.output / "sdk_api.json").read_text())["ABIRoot"]["children"]
+        parameters = [node["printedName"] for node in next(n for n in nodes if n["name"] == "example")["children"]]
+        self.assertEqual(parameters, ["()", "Swift.Int", "Swift.String"])
+        self.assertEqual(list(self.output.glob("*.json")), [self.output / "sdk_api.json"])
         self.assertEqual(list(self.output.glob("work.*")), [])
         self.assertFalse((self.repo / "sdk_api.json").exists())
 
@@ -155,7 +154,7 @@ class GenerationTests(unittest.TestCase):
         self.assertTrue(any(arg.endswith("/SentryV10Configuration/include") for arg in extraction["args"]))
         self.assertFalse(any("SentryCrashV9Headers" in arg for arg in extraction["args"]))
         self.assertTrue((self.output / "sdk_api_v10.json").is_file())
-        self.assertTrue((self.output / "sdk_api_v10.raw.json").is_file())
+        self.assertEqual(list(self.output.glob("*.json")), [self.output / "sdk_api_v10.json"])
 
     def test_build_and_extraction_failures_propagate_and_keep_logs(self):
         for flag, status, log in (("FAIL_BUILD", 65, "build"), ("FAIL_EXTRACT", 70, "extract")):

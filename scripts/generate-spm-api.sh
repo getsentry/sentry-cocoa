@@ -132,8 +132,7 @@ else
     include_args+=(--include-path "$WORK/package/Sources/SentryCrashV9Headers/include")
 fi
 run_logged extract "$SCRIPT_DIR/extract-swift-api.sh" --module SentrySwift --module SentryHeaders \
-    --output "$OUTPUT_DIR/$api_file" --raw-output "$OUTPUT_DIR/${api_file%.json}.raw.json" \
-    "${include_args[@]}"
+    --output "$OUTPUT_DIR/$api_file" "${include_args[@]}"
 if ! jq -e 'any(.ABIRoot.children[]; .name == "SentrySDK") and
             any(.ABIRoot.children[]; .name == "Options")' "$OUTPUT_DIR/$api_file" > /dev/null; then
     log_error "Extraction is missing expected SDK declarations"; exit 1

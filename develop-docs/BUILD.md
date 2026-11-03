@@ -51,7 +51,7 @@ DEVELOPER_DIR='/Applications/Xcode-16.4.app/Contents/Developer' \
 
 The output directory must be new and outside the checkout. The [generator](../scripts/generate-spm-api.sh) builds an arm64 iOS-device source package in a temporary copy, without the Xcode project/workspace or binary products. It requires Xcode 16 and reuses [`extract-swift-api.sh`](../scripts/extract-swift-api.sh), including its existing device extraction target and snapshot formatter.
 
-Output is `sdk_api.json` (or `sdk_api_v10.json`), an accompanying `*.raw.json` preserving the unformatted digester output, and build/extraction logs. Both `SentrySwift` and its re-exported `SentryHeaders` are extracted; their actual module identities are retained. No SDK declarations, checked-in manifests, or tracked snapshots are changed.
+Output is `sdk_api.json` (or `sdk_api_v10.json`) and build/extraction logs. Both `SentrySwift` and its re-exported `SentryHeaders` are extracted; their actual module identities are retained. No SDK declarations, checked-in manifests, or tracked snapshots are changed.
 
 For cache seeding or debugging, invoke the script directly with `--source-packages /path/to/SourcePackages` or `--keep-builds`; see `--help`. This command does not generate separate SentrySwiftUI or Objective-C wrapper snapshots; those remain available through the existing `make generate-public-api`.
 
