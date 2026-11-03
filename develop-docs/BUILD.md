@@ -60,6 +60,36 @@ export SDK_V10=0
 
 Run architecture regression tests with `./scripts/test-sentryobjc-archive-architectures.sh`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
 
+## Public API Generation
+
+Run the existing command without additional options:
+
+```bash
+make generate-public-api
+```
+
+[`update-api.sh`](../scripts/update-api.sh) runs the framework build/extraction steps first, followed by SwiftPM source build/extraction steps. Both paths generate V9 and V10 snapshots in the repository root, using the same Xcode 16 selection, extractors, JSON formatter, and Objective-C compatibility-diff generation.
+
+The existing framework filenames are unchanged. Additional SwiftPM snapshots use an `_spm` suffix so they do not overwrite framework output:
+
+| API surface        | Framework snapshot        | SwiftPM snapshot              |
+| ------------------ | ------------------------- | ----------------------------- |
+| Main SDK           | `sdk_api.json`            | `sdk_api_spm.json`            |
+| Objective-C        | `sdk_api_objc.json`       | `sdk_api_objc_spm.json`       |
+| Swift wrappers     | `sdk_api_objccompat.json` | `sdk_api_objccompat_spm.json` |
+| Compatibility diff | `sdk_api_objc.diff.json`  | `sdk_api_objc_spm.diff.json`  |
+
+V10 uses `_v10` before the build suffix: for example, `sdk_api_v10.json` / `sdk_api_v10_spm.json` and `sdk_api_objc_v10.diff.json` / `sdk_api_objc_v10_spm.diff.json`.
+
+> [!NOTE]
+> SwiftPM SentrySwiftUI extraction is deferred: its package target depends on the released Sentry binary rather than the source-built SDK. The framework workflow still generates `sdk_api_sentryswiftui.json`; no separate SwiftPM snapshot is generated yet.
+
+The SwiftPM steps reuse the [source-built framework pipeline](#source-built-sdk-frameworks), with explicit V9 (`SentrySPM`, `Release`) and V10 (`Sentry`, `ReleaseV10`) calls. Both currently use `SentrySwift` as the compiled target. Build artifacts and logs remain in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`; no checkout copies or manifest rewriting are needed.
+
+API extraction uses only the packaged slices in `Sentry-SPM.xcframework` and `SentryV10-SPM.xcframework`, with the existing framework extraction flags. These are disposable API-generation copies: the extractor removes their private interfaces to exclude SPI, leaving the original packaged frameworks intact. The compatibility snapshots reuse the earlier generation-matched wrapper extraction, which already builds through SwiftPM. The `_spm` snapshots remain separate from the Xcode snapshots.
+
+Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -v`. Packaging regressions are documented [above](#source-built-sdk-frameworks) and run independently in the packaging workflow.
+
 ## Platform-Specific Build Notes
 
 ### visionOS Considerations

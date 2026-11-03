@@ -46,6 +46,8 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
 fi
 end_group
 
+export SDK_V10=0
+
 # Build both frameworks at once, as they depend on each other
 begin_group "Build Sentry-Dynamic XCFramework"
 log_info "Building Sentry-Dynamic slice"
@@ -98,6 +100,7 @@ begin_group "Diff SentryObjC vs SentryObjCCompat"
 end_group
 
 # V10 API extraction uses the KSCrash-backed target that V10 ships.
+export SDK_V10=1
 
 begin_group "Build Sentry V10 XCFramework"
 "$SCRIPT_DIR/build-xcframework-v10.sh" \
@@ -129,4 +132,95 @@ begin_group "Diff SentryObjC vs SentryObjCCompat (V10)"
     --headers sdk_api_objc_v10.json \
     --compat sdk_api_objccompat_v10.json \
     --output sdk_api_objc_v10.diff.json
+end_group
+
+# SwiftPM snapshots use separate filenames to preserve the framework snapshots.
+export SDK_V10=0
+SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM"
+SPM_ARCHIVE="$SPM_BUILD_DIR/archive/SentrySPM/iphoneos.xcarchive"
+
+begin_group "Build Sentry SwiftPM XCFramework"
+"$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
+    --sdk iphoneos --scheme SentrySPM --architecture-target SentrySwift \
+    --configuration Release --output-dir "$SPM_BUILD_DIR"
+"$SCRIPT_DIR/build-dynamic-framework-sentryobjc.sh" \
+    --sdk iphoneos --framework-name SentrySwift --swift-archive "$SPM_ARCHIVE" \
+    --static-lib "$SPM_BUILD_DIR/lib/SentrySPM/iphoneos/libSentrySPM-Debug.a" \
+    --headers "$(pwd)/Sources/Sentry/Public" --output-dir "$SPM_BUILD_DIR"
+"$SCRIPT_DIR/assemble-xcframework.sh" \
+    --sdks iphoneos \
+    --framework-template "$SPM_BUILD_DIR/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
+    --output "$(pwd)/Sentry-SPM.xcframework"
+end_group
+
+begin_group "Extract SwiftPM Public API"
+"$SCRIPT_DIR/extract-swift-api.sh" \
+    --module SentrySwift \
+    --output sdk_api_spm.json \
+    --framework-path "$(pwd)/Sentry-SPM.xcframework/ios-arm64"
+end_group
+
+# TODO: Extract SentrySwiftUI against the source-built SDK.
+# Its current package target re-exports the prebuilt Sentry binary.
+# The framework snapshot is still generated above.
+log_info "Skipping SentrySwiftUI SwiftPM: no source-backed package target is available yet."
+
+begin_group "Extract SentryObjC SwiftPM Public API"
+"$SCRIPT_DIR/extract-objc-api.sh" \
+    --output sdk_api_objc_spm.json
+end_group
+
+begin_group "Reuse SentryObjCCompat SwiftPM Public API"
+# The original compatibility extraction already builds the same SwiftPM wrapper product.
+cp sdk_api_objccompat.json sdk_api_objccompat_spm.json
+end_group
+
+begin_group "Diff SentryObjC vs SentryObjCCompat (SwiftPM)"
+"$SCRIPT_DIR/generate-objc-compat-api-diff.sh" \
+    --headers sdk_api_objc_spm.json \
+    --compat sdk_api_objccompat_spm.json \
+    --output sdk_api_objc_spm.diff.json
+end_group
+
+export SDK_V10=1
+SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM-V10"
+SPM_ARCHIVE="$SPM_BUILD_DIR/archive/Sentry/iphoneos.xcarchive"
+
+begin_group "Build Sentry V10 SwiftPM XCFramework"
+# V10 still compiles SentrySwift on this base; update the module name when #9459 lands.
+"$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
+    --sdk iphoneos --scheme Sentry --architecture-target SentrySwift \
+    --configuration ReleaseV10 --output-dir "$SPM_BUILD_DIR"
+"$SCRIPT_DIR/build-dynamic-framework-sentryobjc.sh" \
+    --sdk iphoneos --framework-name SentrySwift --swift-archive "$SPM_ARCHIVE" \
+    --static-lib "$SPM_BUILD_DIR/lib/Sentry/iphoneos/libSentry-Debug.a" \
+    --headers "$(pwd)/Sources/Sentry/Public" --output-dir "$SPM_BUILD_DIR"
+"$SCRIPT_DIR/assemble-xcframework.sh" \
+    --sdks iphoneos \
+    --framework-template "$SPM_BUILD_DIR/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
+    --output "$(pwd)/SentryV10-SPM.xcframework"
+end_group
+
+begin_group "Extract V10 SwiftPM Public API"
+"$SCRIPT_DIR/extract-swift-api.sh" \
+    --module SentrySwift \
+    --output sdk_api_v10_spm.json \
+    --framework-path "$(pwd)/SentryV10-SPM.xcframework/ios-arm64"
+end_group
+
+begin_group "Extract SentryObjC V10 SwiftPM Public API"
+"$SCRIPT_DIR/extract-objc-api.sh" \
+    --output sdk_api_objc_v10_spm.json \
+    --define SDK_V10=1
+end_group
+
+begin_group "Reuse SentryObjCCompat V10 SwiftPM Public API"
+cp sdk_api_objccompat_v10.json sdk_api_objccompat_v10_spm.json
+end_group
+
+begin_group "Diff SentryObjC vs SentryObjCCompat (V10 SwiftPM)"
+"$SCRIPT_DIR/generate-objc-compat-api-diff.sh" \
+    --headers sdk_api_objc_v10_spm.json \
+    --compat sdk_api_objccompat_v10_spm.json \
+    --output sdk_api_objc_v10_spm.diff.json
 end_group
