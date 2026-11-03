@@ -47,6 +47,8 @@ extension SentrySpanStatus {
 }
 
 /// Objective-C calls this because a Swift extension on the enum is not visible there.
+/// ABI-visible so Release and package links do not localize the C symbol.
+@usableFromInline
 @_cdecl("sentry_spanStatusName")
 func sentry_spanStatusName(_ rawValue: UInt) -> NSString {
     (SentrySpanStatus(rawValue: rawValue) ?? .undefined).name as NSString
