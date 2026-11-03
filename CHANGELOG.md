@@ -18,7 +18,7 @@
 - Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
 - Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 - Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
-- Count every batched log and metric in client reports when an envelope is rate limited, dropped from the cache, or fails to send, instead of counting one per envelope item (#9528)
+- Count every batched log and metric in client reports when an envelope is rate limited, dropped from the cache, or fails to send, instead of counting one per envelope item (#9530)
 
 ## 9.32.0
 
