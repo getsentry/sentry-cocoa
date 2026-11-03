@@ -52,7 +52,11 @@ log_info "Building Sentry-Dynamic slice"
 "$SCRIPT_DIR/build-xcframework-slice.sh" --sdk iphoneos --scheme Sentry --suffix '-Dynamic' --mach-o-type mh_dylib
 
 log_info "Assembling Sentry-Dynamic xcframework"
-"$SCRIPT_DIR/assemble-xcframework.sh" --scheme Sentry --suffix '-Dynamic' --sdks iphoneos \
+"$SCRIPT_DIR/assemble-xcframework.sh" \
+    --scheme Sentry \
+    --suffix '-Dynamic' \
+    --sdks iphoneos \
+    --require-debug-symbols \
     --archive-template "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
@@ -61,7 +65,10 @@ log_info "Building SentrySwiftUI slice"
 "$SCRIPT_DIR/build-xcframework-slice.sh" --sdk iphoneos --scheme SentrySwiftUI --mach-o-type mh_dylib
 
 log_info "Assembling SentrySwiftUI xcframework"
-"$SCRIPT_DIR/assemble-xcframework.sh" --scheme SentrySwiftUI --sdks iphoneos \
+"$SCRIPT_DIR/assemble-xcframework.sh" \
+    --scheme SentrySwiftUI \
+    --sdks iphoneos \
+    --require-debug-symbols \
     --archive-template "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
 end_group
 

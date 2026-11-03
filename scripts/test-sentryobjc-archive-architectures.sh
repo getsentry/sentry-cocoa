@@ -43,7 +43,15 @@ cat > "$WORK_DIR/tools/xcodebuild" <<'SH'
 set -euo pipefail
 [ "${1:-}" = -list ] && exit 0
 [ "${1:-}" = archive ] || exit 1
-echo 'Using precompiled fixture archive products.'
+while [[ $# -gt 0 ]]; do
+    if [ "$1" = -scheme ]; then
+        [ "$2" = "$EXPECTED_SCHEME" ] || exit 1
+        echo 'Using precompiled fixture archive products.'
+        exit 0
+    fi
+    shift
+done
+exit 1
 SH
 chmod +x "$WORK_DIR/tools/xcodebuild"
 
@@ -67,18 +75,32 @@ xcrun lipo -create "$WORK_DIR/objects/dependency-matching.o" "$WORK_DIR/objects/
 run_case() {
     local name="$1" dependency="$2" expected_error="$3"
     local wrapper="${4:-$WORK_DIR/objects/SentryObjCCompat.o}"
+    local scheme="${5:-SentryObjC}" architecture_target="${6:-SentryObjCCompat}"
     local root="$WORK_DIR/$name"
-    local products="$root/archive/SentryObjC/watchos.xcarchive/Products/Objects"
+    local products="$root/archive/$scheme/watchos.xcarchive/Products/Objects"
 
     mkdir -p "$products"
-    if [ "$name" != missing-wrapper ]; then
-        cp "$wrapper" "$products/SentryObjCCompat.o"
+    if [[ "$name" != missing-*target && "$name" != missing-wrapper ]]; then
+        cp "$wrapper" "$products/$architecture_target.o"
     fi
     cp "$dependency" "$products/Dependency.o"
 
+    local build_products="$root/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/$scheme/BuildProductsPath"
+    local configuration
+    for configuration in Release-watchos Debug-watchos Release-iphoneos; do
+        mkdir -p "$build_products/$configuration/Fixture.swiftmodule" "$build_products/$configuration/Fixture.bundle"
+        touch "$build_products/$configuration/Fixture.swiftmodule/$configuration"
+        touch "$build_products/$configuration/Fixture.bundle/$configuration"
+    done
+
     local status=0
-    PATH="$WORK_DIR/tools:$PATH" "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
-        --sdk watchos --output-dir "$root" --package-path "$WORK_DIR/package" \
+    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library.sh" \
+        --sdk watchos \
+        --output-dir "$root" \
+        --package-path "$WORK_DIR/package" \
+        --configuration Release \
+        --scheme "$scheme" \
+        --architecture-target "$architecture_target" \
         > "$root/build.log" 2>&1 || status=$?
     printf '%s\n' "$status" > "$root/build.exit-status"
 
@@ -87,20 +109,29 @@ run_case() {
             log_error "$name: expected '$expected_error'; see $root/build.log"
             exit 1
         fi
-        if [ -e "$root/lib/SentryObjC/watchos/libSentryObjC.a" ] || \
-            [ -e "$root/lib/SentryObjC/watchos/libSentryObjC-Debug.a" ]; then
+        if [ -e "$root/lib/$scheme/watchos/lib$scheme.a" ] || \
+            [ -e "$root/lib/$scheme/watchos/lib$scheme-Debug.a" ]; then
             log_error "$name: invalid archive produced a distributable library"
             exit 1
         fi
     else
         if [ "$status" -ne 0 ]; then log_error "$name: packaging failed; see $root/build.log"; exit 1; fi
+        local artifact
+        for artifact in Swift/Fixture.swiftmodule Resources/Fixture.bundle; do
+            local archived="$root/archive/$scheme/watchos.xcarchive/Products/$artifact"
+            if [ ! -f "$archived/Release-watchos" ] || \
+                [ -e "$archived/Debug-watchos" ] || [ -e "$archived/Release-iphoneos" ]; then
+                log_error "$name: $artifact must contain only the selected configuration and platform"
+                exit 1
+            fi
+        done
         local expected_archs
         expected_archs="$(xcrun lipo -archs "$wrapper")"
         local expected_arch_array=()
         read -r -a expected_arch_array <<< "$expected_archs"
 
-        for library in libSentryObjC.a libSentryObjC-Debug.a; do
-            local binary="$root/lib/SentryObjC/watchos/$library"
+        for library in "lib$scheme.a" "lib$scheme-Debug.a"; do
+            local binary="$root/lib/$scheme/watchos/$library"
             local archs
             archs="$(xcrun lipo -archs "$binary")"
 
@@ -127,7 +158,12 @@ run_case() {
 run_case extra-dependency-architecture "$WORK_DIR/objects/dependency-extra.o" ''
 run_case matching-architectures "$WORK_DIR/objects/dependency-matching.o" ''
 run_case single-wrapper-architecture "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/wrapper-arm64.o"
-run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required wrapper architectures'
+run_case source-v9 "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
+run_case source-v10-current "$WORK_DIR/objects/dependency-matching.o" '' "$WORK_DIR/objects/SentryObjCCompat.o" Sentry SentrySwift
+run_case source-v10-renamed "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/wrapper-arm64.o" Sentry Sentry
+run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentryObjCCompat architecture'
 run_case missing-wrapper "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentryObjCCompat.o'
+run_case missing-source-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentrySwift architecture' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
+run_case missing-source-target "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentrySwift.o' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
 
 log_info 'All archive architecture regressions passed.'

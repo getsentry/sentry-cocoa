@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Builds a single SentryObjC dynamic framework slice from a static library.
+# Builds a single dynamic framework slice.
 #
-# Takes a pre-built libSentryObjC.a (from build-static-library-sentryobjc.sh)
+# Takes a pre-built static library (from build-static-library.sh)
 # and re-links it as a dynamic library via swiftc, then packages the result
-# as a .framework bundle with headers and a modulemap.
+# as a .framework bundle with headers and optional prepared modules and resources.
 
 set -euo pipefail
 
@@ -17,27 +17,39 @@ source "$SCRIPT_DIR/tools.sh"
 SDK=""
 STATIC_LIB=""
 HEADERS_DIR=""
-OUTPUT_DIR="XCFrameworkBuildPath"
-FRAMEWORK_NAME="SentryObjC"
+OUTPUT_DIR=""
+FRAMEWORK_NAME=""
+MODULES_DIR=""
+RESOURCES_DIR=""
 VERSION=""
 
 usage() {
     log_info "Usage: $0"
-    log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_info "  --static-lib <path>       Path to libSentryObjC.a (required)"
-    log_info "  --headers <path>          Path to public headers directory (required)"
-    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_info "  --version <semver>        Version string for the framework (default: 0.0.0)"
+    log_info "  -d, --sdk <name>              Target SDK (required)"
+    log_info "  -l, --static-lib <path>       Path to the static library (required)"
+    log_info "  -H, --headers <path>          Path to public headers directory (required)"
+    log_info "  -o, --output-dir <path>       Output directory (required)"
+    log_info "  -v, --version <semver>        Framework version string (required)"
+    log_info "  -n, --framework-name <name>   Framework/module name (required)"
+    log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
+    log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
+    if [[ "$1" != -h && "$1" != --help ]] && [[ $# -lt 2 || "$2" == --* ]]; then
+        log_error "Missing value for $1"
+        usage
+    fi
     case $1 in
-        --sdk)         SDK="$2";         shift 2 ;;
-        --static-lib)  STATIC_LIB="$2";  shift 2 ;;
-        --headers)     HEADERS_DIR="$2";  shift 2 ;;
-        --output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
-        --version)     VERSION="$2";      shift 2 ;;
+        -d|--sdk)         SDK="$2";         shift 2 ;;
+        -l|--static-lib)  STATIC_LIB="$2";  shift 2 ;;
+        -H|--headers)     HEADERS_DIR="$2";  shift 2 ;;
+        -o|--output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
+        -v|--version)     VERSION="$2";      shift 2 ;;
+        -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
+        -m|--modules) MODULES_DIR="$2"; shift 2 ;;
+        -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
         -h|--help)     usage ;;
         *)             log_error "Unknown argument: $1"; usage ;;
     esac
@@ -64,16 +76,32 @@ if [ ! -d "$HEADERS_DIR" ]; then
     exit 1
 fi
 
-if [ -z "$VERSION" ]; then
-    version_xcconfig="$SCRIPT_DIR/../Sources/Configuration/Versioning.xcconfig"
-    if [ -f "$version_xcconfig" ]; then
-        VERSION="$(read_xcconfig_value --key MARKETING_VERSION --file "$version_xcconfig")"
-    fi
+if [ -z "$OUTPUT_DIR" ]; then
+    log_error "--output-dir is required"
+    usage
+fi
+if [ -z "$FRAMEWORK_NAME" ]; then
+    log_error "--framework-name is required"
+    usage
 fi
 if [ -z "$VERSION" ]; then
-    log_error "Error: could not determine version. Pass --version or ensure Versioning.xcconfig exists."
+    log_error "--version is required"
+    usage
+fi
+
+if [[ ! "$FRAMEWORK_NAME" =~ ^[A-Za-z_][A-Za-z_0-9]*$ ]]; then
+    log_error "Invalid framework module name: $FRAMEWORK_NAME"
     exit 1
 fi
+if [ -n "$MODULES_DIR" ] && [ ! -d "$MODULES_DIR" ]; then
+    log_error "Modules directory not found: $MODULES_DIR"
+    exit 1
+fi
+if [ -n "$RESOURCES_DIR" ] && [ ! -d "$RESOURCES_DIR" ]; then
+    log_error "Resources directory not found: $RESOURCES_DIR"
+    exit 1
+fi
+
 BUNDLE_SHORT_VERSION="${VERSION%%+*}"
 BUNDLE_VERSION="${BUNDLE_SHORT_VERSION%%-*}"
 
@@ -157,7 +185,6 @@ begin_group "Build $FRAMEWORK_NAME.framework for $SDK"
 if is_macos_layout "$SDK"; then
     versioned="$FW_DIR/Versions/A"
     mkdir -p "$versioned/Headers" "$versioned/Modules" "$versioned/Resources"
-    cp -R "$HEADERS_DIR"/. "$versioned/Headers/"
     # Homebrew coreutils can put GNU ln ahead of /bin/ln; it rejects -h, breaking framework packaging.
     # -n preserves the same no-dereference behavior on both GNU and BSD ln.
     ln -sfn A "$FW_DIR/Versions/Current"
@@ -170,19 +197,30 @@ if is_macos_layout "$SDK"; then
     resources_dir="$versioned/Resources"
 else
     mkdir -p "$FW_DIR/Headers" "$FW_DIR/Modules"
-    cp -R "$HEADERS_DIR"/. "$FW_DIR/Headers/"
     modules_dir="$FW_DIR/Modules"
     binary_path="$FW_DIR/$FRAMEWORK_NAME"
     resources_dir="$FW_DIR"
 fi
 
-cat > "$modules_dir/module.modulemap" <<EOF
+# Prepared inputs are copied verbatim; product-specific transformations belong to the caller.
+cp -R "$HEADERS_DIR"/. "$FW_DIR/Headers/"
+if [ -n "$MODULES_DIR" ]; then
+    cp -R "$MODULES_DIR"/. "$modules_dir/"
+fi
+if [ -n "$RESOURCES_DIR" ]; then
+    cp -R "$RESOURCES_DIR"/. "$resources_dir/"
+fi
+
+# Preserve a supplied module map, or generate the existing headers-only framework module.
+if [ ! -f "$modules_dir/module.modulemap" ]; then
+    cat > "$modules_dir/module.modulemap" <<EOF
 framework module $FRAMEWORK_NAME {
   umbrella header "$FRAMEWORK_NAME.h"
   export *
   module * { export * }
 }
 EOF
+fi
 
 MIN_OS_VERSION="$(minimum_os_version_for_sdk "$SDK")"
 SUPPORTED_PLATFORM="$(supported_platforms_for_sdk "$SDK")"
@@ -268,17 +306,17 @@ done
 
 # --- Link per architecture ---
 read -r -a arch_targets <<< "$(arch_targets_for_sdk "$SDK")"
-dummy_swift="$(mktemp /tmp/SentryObjC_dummy_XXXXXX.swift)"
+link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
+trap 'rm -rf "$link_dir"' EXIT
+dummy_swift="$link_dir/empty.swift"
 echo "" > "$dummy_swift"
-# shellcheck disable=SC2064
-trap "rm -f '$dummy_swift' /tmp/SentryObjC_${SDK}_*" EXIT
 
 arch_binaries=()
 for target in "${arch_targets[@]}"; do
     arch="${target%%-*}"
     log_info "  Linking arch: $arch ($target)"
 
-    arch_output="/tmp/SentryObjC_${SDK}_${arch}"
+    arch_output="$link_dir/$arch"
     xcrun swiftc \
         "$dummy_swift" \
         -emit-library \

@@ -104,6 +104,7 @@ jobs:
       MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       scheme: ${{matrix.variant.scheme}}
+      macho-type: ${{matrix.variant.macho-type}}
       suffix: ${{matrix.variant.suffix}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
