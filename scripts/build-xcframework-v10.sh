@@ -102,8 +102,14 @@ for sdk in "${sdks[@]}"; do
         --build-log XCFrameworkBuildPath/raw-build-output.log
 done
 
+debug_symbol_args=()
+if [[ "$MACH_O_TYPE" != staticlib ]]; then
+    debug_symbol_args=(--require-debug-symbols)
+fi
+
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
 "$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \
     --sdks "$xcframework_sdks" \
+    "${debug_symbol_args[@]+${debug_symbol_args[@]}}" \
     --archive-template "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive" \
     --product-name "$PRODUCT_NAME"

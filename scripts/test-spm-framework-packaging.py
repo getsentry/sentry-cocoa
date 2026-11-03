@@ -75,13 +75,13 @@ public func value(_ input: HeaderValue) -> Int32 { input.value }
         public.parent.mkdir(parents=True)
         public.symlink_to(cls.package / "Sources/SentryHeaders/include", target_is_directory=True)
         cls.run_tool([
-            str(SCRIPTS / "build-static-library-sentryobjc.sh"), "--sdk", "macosx",
-            "--scheme", "Fixture", "--architecture-target", "SentrySwift",
+            str(SCRIPTS / "build-static-library.sh"), "--sdk", "macosx",
+            "--configuration", "Release", "--scheme", "Fixture", "--architecture-target", "SentrySwift",
             "--package-path", str(cls.package), "--output-dir", str(cls.build),
         ], "archive")
         cls.archive = cls.build / "archive/Fixture/macosx.xcarchive"
         cls.run_tool([
-            str(SCRIPTS / "build-dynamic-framework-sentryobjc.sh"), "--sdk", "macosx",
+            str(SCRIPTS / "build-dynamic-framework.sh"), "--sdk", "macosx", "--version", "1.2.3",
             "--static-lib", str(cls.build / "lib/Fixture/macosx/libFixture-Debug.a"),
             "--headers", str(public), "--output-dir", str(cls.build),
             "--framework-name", "SentrySwift", "--swift-archive", str(cls.archive),
@@ -91,7 +91,7 @@ public func value(_ input: HeaderValue) -> Int32 { input.value }
         cls.run_tool([
             str(SCRIPTS / "assemble-xcframework.sh"), "--sdks", "macosx",
             "--framework-template", str(cls.build / "framework/SentrySwift/macosx/SentrySwift.framework"),
-            "--output", str(cls.artifact),
+            "--output", str(cls.artifact), "--require-debug-symbols",
         ], "assemble")
         # The consumer must work after producer sources, intermediates and modules disappear.
         shutil.rmtree(cls.package)

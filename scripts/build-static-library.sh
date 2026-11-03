@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Builds a single static library slice via SPM (SentryObjC by default).
+# Builds a single static library slice via SPM.
 #
 # Archives the selected SPM scheme for a given SDK and merges its target
 # objects into two libraries: a stripped static distribution and an unstripped
@@ -13,31 +13,35 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 
 SDK=""
-OUTPUT_DIR="XCFrameworkBuildPath"
+OUTPUT_DIR=""
 PACKAGE_PATH=""
-CONFIGURATION="Release"
-SCHEME="SentryObjC"
-ARCHITECTURE_TARGET="SentryObjCCompat"
+CONFIGURATION=""
+SCHEME=""
+ARCHITECTURE_TARGET=""
 
 usage() {
     log_info "Usage: $0"
-    log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_info "  --package-path <path>     Swift Package root (default: repo root)"
-    log_info "  --configuration <name>    Xcode configuration (default: Release)"
-    log_info "  --scheme <name>           Package scheme and output library name (default: SentryObjC)"
-    log_info "  --architecture-target <name>  Archived target whose architectures are required (default: SentryObjCCompat)"
+    log_info "  -d, --sdk <name>                  Target SDK (required)"
+    log_info "  -o, --output-dir <path>           Output directory (required)"
+    log_info "  -p, --package-path <path>         Swift Package root (required)"
+    log_info "  -c, --configuration <name>        Xcode configuration (required)"
+    log_info "  -s, --scheme <name>               Package scheme and output library name (required)"
+    log_info "  -a, --architecture-target <name>  Archived target whose architectures are required (required)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
+    if [[ "$1" != -h && "$1" != --help ]] && [[ $# -lt 2 || "$2" == --* ]]; then
+        log_error "Missing value for $1"
+        usage
+    fi
     case $1 in
-        --sdk)            SDK="$2";            shift 2 ;;
-        --output-dir)     OUTPUT_DIR="$2";     shift 2 ;;
-        --package-path)   PACKAGE_PATH="$2";   shift 2 ;;
-        --configuration)  CONFIGURATION="$2";  shift 2 ;;
-        --scheme)         SCHEME="$2";         shift 2 ;;
-        --architecture-target) ARCHITECTURE_TARGET="$2"; shift 2 ;;
+        -d|--sdk)            SDK="$2";            shift 2 ;;
+        -o|--output-dir)     OUTPUT_DIR="$2";     shift 2 ;;
+        -p|--package-path)   PACKAGE_PATH="$2";   shift 2 ;;
+        -c|--configuration)  CONFIGURATION="$2";  shift 2 ;;
+        -s|--scheme)         SCHEME="$2";         shift 2 ;;
+        -a|--architecture-target) ARCHITECTURE_TARGET="$2"; shift 2 ;;
         -h|--help)        usage ;;
         *)                log_error "Unknown argument: $1"; usage ;;
     esac
@@ -48,13 +52,25 @@ if [ -z "$SDK" ]; then
     usage
 fi
 
-if [ -z "$SCHEME" ] || [ -z "$ARCHITECTURE_TARGET" ]; then
-    log_error "Error: --scheme and --architecture-target must not be empty"
+if [ -z "$OUTPUT_DIR" ]; then
+    log_error "--output-dir is required"
     usage
 fi
-
 if [ -z "$PACKAGE_PATH" ]; then
-    PACKAGE_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
+    log_error "--package-path is required"
+    usage
+fi
+if [ -z "$CONFIGURATION" ]; then
+    log_error "--configuration is required"
+    usage
+fi
+if [ -z "$SCHEME" ]; then
+    log_error "--scheme is required"
+    usage
+fi
+if [ -z "$ARCHITECTURE_TARGET" ]; then
+    log_error "--architecture-target is required"
+    usage
 fi
 
 if [ ! -f "$PACKAGE_PATH/Package.swift" ]; then

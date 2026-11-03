@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Builds a single dynamic framework slice (SentryObjC by default).
+# Builds a single dynamic framework slice.
 #
-# Takes a pre-built static library (from build-static-library-sentryobjc.sh)
+# Takes a pre-built static library (from build-static-library.sh)
 # and re-links it as a dynamic library via swiftc, then packages the result
 # as a .framework bundle with headers and a modulemap.
 
@@ -17,32 +17,36 @@ source "$SCRIPT_DIR/tools.sh"
 SDK=""
 STATIC_LIB=""
 HEADERS_DIR=""
-OUTPUT_DIR="XCFrameworkBuildPath"
-FRAMEWORK_NAME="SentryObjC"
+OUTPUT_DIR=""
+FRAMEWORK_NAME=""
 SWIFT_ARCHIVE=""
 VERSION=""
 
 usage() {
     log_info "Usage: $0"
-    log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_info "  --static-lib <path>       Path to the static library (required)"
-    log_info "  --headers <path>          Path to public headers directory (required)"
-    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_info "  --version <semver>        Version string (default: Versioning.xcconfig)"
-    log_info "  --framework-name <name>   Framework/module name (default: SentryObjC)"
-    log_info "  --swift-archive <path>    Source archive containing the main SDK's Swift artifacts (optional)"
+    log_info "  -d, --sdk <name>              Target SDK (required)"
+    log_info "  -l, --static-lib <path>       Path to the static library (required)"
+    log_info "  -H, --headers <path>          Path to public headers directory (required)"
+    log_info "  -o, --output-dir <path>       Output directory (required)"
+    log_info "  -v, --version <semver>        Framework version string (required)"
+    log_info "  -n, --framework-name <name>   Framework/module name (required)"
+    log_info "  -a, --swift-archive <path>    Source archive containing the main SDK's Swift artifacts (optional)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
+    if [[ "$1" != -h && "$1" != --help ]] && [[ $# -lt 2 || "$2" == --* ]]; then
+        log_error "Missing value for $1"
+        usage
+    fi
     case $1 in
-        --sdk)         SDK="$2";         shift 2 ;;
-        --static-lib)  STATIC_LIB="$2";  shift 2 ;;
-        --headers)     HEADERS_DIR="$2";  shift 2 ;;
-        --output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
-        --version)     VERSION="$2";      shift 2 ;;
-        --framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
-        --swift-archive) SWIFT_ARCHIVE="$2"; shift 2 ;;
+        -d|--sdk)         SDK="$2";         shift 2 ;;
+        -l|--static-lib)  STATIC_LIB="$2";  shift 2 ;;
+        -H|--headers)     HEADERS_DIR="$2";  shift 2 ;;
+        -o|--output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
+        -v|--version)     VERSION="$2";      shift 2 ;;
+        -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
+        -a|--swift-archive) SWIFT_ARCHIVE="$2"; shift 2 ;;
         -h|--help)     usage ;;
         *)             log_error "Unknown argument: $1"; usage ;;
     esac
@@ -69,6 +73,19 @@ if [ ! -d "$HEADERS_DIR" ]; then
     exit 1
 fi
 
+if [ -z "$OUTPUT_DIR" ]; then
+    log_error "--output-dir is required"
+    usage
+fi
+if [ -z "$FRAMEWORK_NAME" ]; then
+    log_error "--framework-name is required"
+    usage
+fi
+if [ -z "$VERSION" ]; then
+    log_error "--version is required"
+    usage
+fi
+
 if [[ ! "$FRAMEWORK_NAME" =~ ^[A-Za-z_][A-Za-z_0-9]*$ ]]; then
     log_error "Invalid framework module name: $FRAMEWORK_NAME"
     exit 1
@@ -82,16 +99,6 @@ if [ -n "$SWIFT_ARCHIVE" ]; then
     fi
 fi
 
-if [ -z "$VERSION" ]; then
-    version_xcconfig="$SCRIPT_DIR/../Sources/Configuration/Versioning.xcconfig"
-    if [ -f "$version_xcconfig" ]; then
-        VERSION="$(read_xcconfig_value --key MARKETING_VERSION --file "$version_xcconfig")"
-    fi
-fi
-if [ -z "$VERSION" ]; then
-    log_error "Error: could not determine version. Pass --version or ensure Versioning.xcconfig exists."
-    exit 1
-fi
 BUNDLE_SHORT_VERSION="${VERSION%%+*}"
 BUNDLE_VERSION="${BUNDLE_SHORT_VERSION%%-*}"
 
@@ -230,7 +237,8 @@ if [ -n "$SWIFT_ARCHIVE" ]; then
             log_error "Swift module name does not match $FRAMEWORK_NAME: $interface"
             exit 1
         fi
-        sed -E "s/(^|[^[:alnum:]_])SentryHeaders([.]|$)/\1$FRAMEWORK_NAME\2/g" \
+        # Swift 6.4 qualifies module types with ::; preserve either compiler spelling.
+        sed -E "s/(^|[^[:alnum:]_])SentryHeaders([.]|::|$)/\1$FRAMEWORK_NAME\2/g" \
             "$interface" > "$module_dir/${interface##*/}"
         interfaces=$((interfaces + 1))
     done

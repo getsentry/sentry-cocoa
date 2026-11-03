@@ -78,10 +78,6 @@ run_case() {
     local scheme="${5:-SentryObjC}" architecture_target="${6:-SentryObjCCompat}"
     local root="$WORK_DIR/$name"
     local products="$root/archive/$scheme/watchos.xcarchive/Products/Objects"
-    local options=()
-    if [ $# -ge 5 ]; then
-        options+=(--scheme "$scheme" --architecture-target "$architecture_target")
-    fi
 
     mkdir -p "$products"
     if [[ "$name" != missing-*target && "$name" != missing-wrapper ]]; then
@@ -90,9 +86,9 @@ run_case() {
     cp "$dependency" "$products/Dependency.o"
 
     local status=0
-    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
+    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library.sh" \
         --sdk watchos --output-dir "$root" --package-path "$WORK_DIR/package" \
-        ${options[@]+"${options[@]}"} \
+        --configuration Release --scheme "$scheme" --architecture-target "$architecture_target" \
         > "$root/build.log" 2>&1 || status=$?
     printf '%s\n' "$status" > "$root/build.exit-status"
 
@@ -148,18 +144,5 @@ run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'M
 run_case missing-wrapper "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentryObjCCompat.o'
 run_case missing-source-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentrySwift architecture' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
 run_case missing-source-target "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentrySwift.o' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
-
-for option in --scheme --architecture-target; do
-    root="$WORK_DIR/empty-${option#--}"
-    if PATH="$WORK_DIR/tools:$PATH" "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
-        --sdk watchos --package-path "$WORK_DIR/package" --output-dir "$root" "$option" '' \
-        > "$root.log" 2>&1; then
-        log_error "$option: empty value was accepted"
-        exit 1
-    fi
-    grep -Fq 'must not be empty' "$root.log"
-    [ ! -d "$root" ]
-    log_info "PASS empty-${option#--}"
-done
 
 log_info 'All archive architecture regressions passed.'

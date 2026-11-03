@@ -15,6 +15,7 @@ LIBRARY_TEMPLATE=""
 HEADERS=""
 PRODUCT_NAME=""
 OUTPUT=""
+REQUIRE_DEBUG_SYMBOLS=false
 
 usage() {
     log_info "Usage: $0 --sdks <list> (--archive-template|--framework-template|--library-template) <path> [options]"
@@ -28,11 +29,12 @@ usage() {
     log_info "  -c, --configuration-suffix <value> Archived framework product suffix (default: empty)"
     log_info "  -p, --product-name <name>           Archived framework name (default: scheme)"
     log_info "  -o, --output <path>                 Output xcframework (default: scheme+suffix.xcframework)"
+    log_info "  -r, --require-debug-symbols         Require a dSYM for every framework slice"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
-    if [[ $# -lt 2 && "$1" != -h && "$1" != --help ]]; then
+    if [[ $# -lt 2 && "$1" != -h && "$1" != --help && "$1" != -r && "$1" != --require-debug-symbols ]]; then
         log_error "Missing value for $1"
         usage
     fi
@@ -47,6 +49,7 @@ while [[ $# -gt 0 ]]; do
         -c|--configuration-suffix) CONFIGURATION_SUFFIX="$2"; shift 2 ;;
         -p|--product-name)         PRODUCT_NAME="$2"; shift 2 ;;
         -o|--output)               OUTPUT="$2"; shift 2 ;;
+        -r|--require-debug-symbols) REQUIRE_DEBUG_SYMBOLS=true; shift ;;
         -h|--help)                 usage ;;
         *)                         log_error "Unknown argument: $1"; usage ;;
     esac
@@ -71,6 +74,10 @@ if [[ -n "$ARCHIVE_TEMPLATE" && -z "$SCHEME" ]]; then
     usage
 fi
 if [[ -n "$LIBRARY_TEMPLATE" ]]; then
+    if [[ "$REQUIRE_DEBUG_SYMBOLS" == true ]]; then
+        log_error "--require-debug-symbols is only supported with frameworks"
+        usage
+    fi
     if [[ -z "$HEADERS" || ! -d "$HEADERS" ]]; then
         log_error "--headers must point to a directory with --library-template"
         usage
@@ -101,6 +108,9 @@ add_framework() {
     xcodebuild_args+=(-framework "$framework_path")
     if [[ -d "$dsym_path" ]]; then
         xcodebuild_args+=(-debug-symbols "$(cd "$dsym_path" && pwd)")
+    elif [[ "$REQUIRE_DEBUG_SYMBOLS" == true ]]; then
+        log_error "Missing required dSYM: $dsym_path"
+        return 1
     fi
 }
 
