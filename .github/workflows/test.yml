@@ -97,7 +97,7 @@ jobs:
         include:
           - mode: V9
             sdk-v10: "0"
-            runs-on: macos-26
+            runs-on: ["bitrise_pool_name:tahoe"]
             test-plan: SentrySPM_Base
           - mode: V10
             sdk-v10: "1"
