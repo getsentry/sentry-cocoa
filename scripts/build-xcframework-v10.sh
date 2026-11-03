@@ -108,7 +108,9 @@ if [[ "$MACH_O_TYPE" != staticlib ]]; then
 fi
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-"$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \
+"$SCRIPT_DIR/assemble-xcframework.sh" \
+    --scheme "$SCHEME" \
+    --suffix "$SUFFIX" \
     --sdks "$xcframework_sdks" \
     "${debug_symbol_args[@]+${debug_symbol_args[@]}}" \
     --archive-template "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive" \

@@ -154,8 +154,11 @@ jobs:
           if [[ "$MACH_O_TYPE" != staticlib ]]; then
             debug_symbol_args=(--require-debug-symbols)
           fi
-          ./scripts/assemble-xcframework.sh --scheme "$SCHEME" --suffix "$SUFFIX" \
-            --configuration-suffix "$CONFIGURATION_SUFFIX" --sdks "$SDKS" \
+          ./scripts/assemble-xcframework.sh \
+            --scheme "$SCHEME" \
+            --suffix "$SUFFIX" \
+            --configuration-suffix "$CONFIGURATION_SUFFIX" \
+            --sdks "$SDKS" \
             --archive-template "$GITHUB_WORKSPACE/xcframework-slices/SDK_NAME.xcarchive" \
             "${debug_symbol_args[@]}"
         shell: bash
@@ -200,9 +203,7 @@ jobs:
           overwrite: true
           name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
-          path: |
-            ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip
-            ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip.sha256
+          path: ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()

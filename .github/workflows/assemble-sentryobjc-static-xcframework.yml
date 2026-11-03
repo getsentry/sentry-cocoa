@@ -117,9 +117,7 @@ jobs:
           overwrite: true
           name: xcframework-${{ github.sha }}-sentryobjc-static
           if-no-files-found: error
-          path: |
-            SentryObjC-Static.xcframework.zip
-            SentryObjC-Static.xcframework.zip.sha256
+          path: SentryObjC-Static.xcframework.zip
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

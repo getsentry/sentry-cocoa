@@ -64,8 +64,10 @@ jobs:
         run: |
           ./scripts/build-static-library.sh \
             --sdk "$SDK" \
-            --scheme SentryObjC --architecture-target SentryObjCCompat \
-            --package-path "$GITHUB_WORKSPACE" --configuration Release \
+            --scheme SentryObjC \
+            --architecture-target SentryObjCCompat \
+            --package-path "$GITHUB_WORKSPACE" \
+            --configuration Release \
             --output-dir XCFrameworkBuildPath
 
       # Build the dynamic framework on the same runner so dsymutil can
@@ -78,7 +80,8 @@ jobs:
           VERSION: ${{ env.VERSION }}
         run: |
           ./scripts/build-dynamic-framework.sh \
-            --framework-name SentryObjC --version "$VERSION" \
+            --framework-name SentryObjC \
+            --version "$VERSION" \
             --sdk "$SDK" \
             --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
             --headers "Sources/SentryObjC/Public" \

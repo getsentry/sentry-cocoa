@@ -24,9 +24,13 @@ Calls `scripts/build-xcframework-sentryobjc.sh`, which loops over SDKs sequentia
 
 ```
 for each SDK:
-  scripts/build-static-library.sh --sdk <sdk> \
-    --scheme SentryObjC --architecture-target SentryObjCCompat \
-    --package-path <repo-root> --configuration Release --output-dir XCFrameworkBuildPath
+  scripts/build-static-library.sh \
+    --sdk <sdk> \
+    --scheme SentryObjC \
+    --architecture-target SentryObjCCompat \
+    --package-path <repo-root> \
+    --configuration Release \
+    --output-dir XCFrameworkBuildPath
     → xcodebuild archive (via SPM, resolves full dependency chain)
     → find .o files in xcarchive
     → libtool -static → libSentryObjC.a

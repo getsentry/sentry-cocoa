@@ -50,22 +50,30 @@ source scripts/ci-utils.sh
 source scripts/tools.sh
 version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file Sources/Configuration/Versioning.xcconfig)"
 ./scripts/build-static-library.sh \
-  --sdk iphoneos --scheme SentrySPM --architecture-target SentrySwift \
-  --package-path "$(pwd)" --configuration Release --output-dir XCFrameworkBuildPath
+  --sdk iphoneos \
+  --scheme SentrySPM \
+  --architecture-target SentrySwift \
+  --package-path "$(pwd)" \
+  --configuration Release \
+  --output-dir XCFrameworkBuildPath
 ./scripts/build-dynamic-framework.sh \
-  --sdk iphoneos --framework-name SentrySwift --version "$version" \
+  --sdk iphoneos \
+  --framework-name SentrySwift \
+  --version "$version" \
   --output-dir XCFrameworkBuildPath \
   --swift-archive XCFrameworkBuildPath/archive/SentrySPM/iphoneos.xcarchive \
   --static-lib XCFrameworkBuildPath/lib/SentrySPM/iphoneos/libSentrySPM-Debug.a \
   --headers Sources/Sentry/Public
-./scripts/assemble-xcframework.sh --sdks iphoneos \
+./scripts/assemble-xcframework.sh \
+  --sdks iphoneos \
   --framework-template "$(pwd)/XCFrameworkBuildPath/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
-  --output "$(pwd)/SentrySwift.xcframework" --require-debug-symbols
+  --output "$(pwd)/SentrySwift.xcframework" \
+  --require-debug-symbols
 ```
 
-`compress-xcframework.sh` signs when requested, creates the ZIP, then writes `<framework>.xcframework.zip.sha256` using the ZIP basename. Keep the ZIP and checksum together and verify with `shasum -a 256 -c <framework>.xcframework.zip.sha256` from their directory. CI uploads both files. Release manifest checksum generation remains unchanged. `ci-diagnostics.sh` reports the active Swift compiler via `xcrun swift --version` alongside Xcode and SDK details.
+`compress-xcframework.sh` signs when requested and creates the ZIP. `ci-diagnostics.sh` reports the active Swift compiler via `xcrun swift --version` alongside Xcode and SDK details.
 
-Run script argument, dSYM, and checksum regressions with `python3 scripts/test-xcframework-scripts.py -v`. Run architecture regression tests with `./scripts/test-sentryobjc-archive-architectures.sh`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
+Run script argument, dSYM, and compression regressions with `python3 scripts/test-xcframework-scripts.py -v`. Run architecture regression tests with `./scripts/test-sentryobjc-archive-architectures.sh`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
 
 ## Platform-Specific Build Notes
 

@@ -479,7 +479,6 @@ jobs:
           overwrite: true
           path: |
             ${{github.workspace}}/XCFrameworkBuildPath/*.zip
-            ${{github.workspace}}/XCFrameworkBuildPath/*.zip.sha256
             ${{github.workspace}}/XCFrameworkBuildPath/*.tgz
 
       # update-package-sha.sh uses this env variable to update Package.swift.

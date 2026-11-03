@@ -1,6 +1,5 @@
 """Regression tests for XCFramework assembly, compression and builder arguments."""
 
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -137,7 +136,7 @@ if sys.argv[1] != "-create-xcframework":
         self.assertIn("--require-debug-symbols is only supported with frameworks", result.stdout)
         self.assertFalse(self.calls.exists())
 
-    def test_checksum_matches_final_zip_and_is_relocatable(self):
+    def test_compression_preserves_contents_and_optional_signature(self):
         self.tool("codesign", '''#!/bin/bash
 set -euo pipefail
 if [[ "$1" == --sign ]]; then
@@ -154,18 +153,10 @@ fi
                                          *(["--sign"] if signed else []))
                 self.assertEqual(result.returncode, 0, result.stdout)
                 archive = framework.with_suffix(".xcframework.zip")
-                checksum = archive.with_suffix(".zip.sha256")
-                self.assertTrue(checksum.is_file(), result.stdout)
-                digest = hashlib.sha256(archive.read_bytes()).hexdigest()
-                self.assertEqual(checksum.read_text(), f"{digest}  {archive.name}\n")
+                self.assertEqual(set(directory.iterdir()), {framework, archive})
                 with zipfile.ZipFile(archive) as zipped:
                     self.assertIn(f"{framework.name}/payload", zipped.namelist())
                     self.assertEqual(f"{framework.name}/signature" in zipped.namelist(), signed)
-                relocated = self.root / f"relocated-{signed}"
-                directory.rename(relocated)
-                check = subprocess.run(["shasum", "-a", "256", "-c", checksum.name], cwd=relocated,
-                                       text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                self.assertEqual(check.returncode, 0, check.stdout)
 
     def test_framework_rewrites_legacy_and_swift64_module_qualifiers(self):
         # Exercise the real packager with textual interfaces from both compiler formats.
