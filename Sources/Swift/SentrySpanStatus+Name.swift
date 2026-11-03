@@ -46,9 +46,7 @@ extension SentrySpanStatus {
     }
 }
 
-/// Objective-C entry point for `SentrySpanStatus.name`. A Swift extension on the
-/// enum is not visible to Objective-C, and this is not a public type.
-@used
+/// Objective-C calls this because a Swift extension on the enum is not visible there.
 @_cdecl("sentry_spanStatusName")
 func sentry_spanStatusName(_ rawValue: UInt) -> NSString {
     (SentrySpanStatus(rawValue: rawValue) ?? .undefined).name as NSString
