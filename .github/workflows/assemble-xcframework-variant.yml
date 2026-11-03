@@ -10,6 +10,11 @@ on:
         required: true
         type: string
 
+      macho-type:
+        description: Mach-O type of the slices (mh_dylib or staticlib).
+        required: true
+        type: string
+
       suffix:
         description: |-
           The suffix to add to the build product name.
@@ -143,7 +148,16 @@ jobs:
           SUFFIX: ${{ inputs.suffix }}
           CONFIGURATION_SUFFIX: ${{ inputs.configuration-suffix }}
           SDKS: ${{ inputs.sdks }}
-        run: ./scripts/assemble-xcframework.sh --scheme "$SCHEME" --suffix "$SUFFIX" --configuration-suffix "$CONFIGURATION_SUFFIX" --sdks "$SDKS" --archive-template "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
+          MACH_O_TYPE: ${{ inputs.macho-type }}
+        run: |
+          debug_symbol_args=()
+          if [[ "$MACH_O_TYPE" != staticlib ]]; then
+            debug_symbol_args=(--require-debug-symbols)
+          fi
+          ./scripts/assemble-xcframework.sh --scheme "$SCHEME" --suffix "$SUFFIX" \
+            --configuration-suffix "$CONFIGURATION_SUFFIX" --sdks "$SDKS" \
+            --archive-template "$GITHUB_WORKSPACE/xcframework-slices/SDK_NAME.xcarchive" \
+            "${debug_symbol_args[@]}"
         shell: bash
 
       - name: Rename XCFramework
@@ -186,7 +200,9 @@ jobs:
           overwrite: true
           name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
-          path: ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip
+          path: |
+            ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip
+            ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip.sha256
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
