@@ -36,6 +36,7 @@ SentrySDK (public API)
 
 - Read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) before changing `SentryObjC`, `SentryObjCCompat`, or their build configuration
 - Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before changing or reviewing swizzling code
+- Read [`develop-docs/SWIFT.md`](develop-docs/SWIFT.md) before refactoring any Objective-C code to Swift, or when adding new Swift code
 - Follow [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md) when behavior is covered by an SDK specification
 
 ## Tooling
