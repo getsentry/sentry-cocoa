@@ -848,26 +848,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        let scope = hub.scope
-        if let span = scope.span, let tracer = SentryTracer.getTracer(span) {
-            SentryTracePropagation.addBaggageHeader(
-                tracer.traceContext?.toBaggage(),
-                traceHeader: span.toTraceHeader(),
-                propagateTraceparent: options.enablePropagateTraceparent,
-                tracePropagationTargets: options.tracePropagationTargets,
-                toRequest: task
-            )
-            return
-        }
-
-        let baggage = SentryTraceContextSwiftHelper.baggage(
-            traceId: scope.propagationContextTraceId.sentryIdString,
-            options: options,
-            replayId: scope.replayId
-        )
+        let trace = SentryOutgoingTrace.current(scope: hub.scope, options: options)
         SentryTracePropagation.addBaggageHeader(
-            baggage,
-            traceHeader: scope.propagationContextTraceHeader,
+            trace.baggage,
+            traceHeader: trace.traceHeader,
             propagateTraceparent: options.enablePropagateTraceparent,
             tracePropagationTargets: options.tracePropagationTargets,
             toRequest: task
