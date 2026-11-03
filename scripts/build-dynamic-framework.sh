@@ -4,7 +4,7 @@
 #
 # Takes a pre-built static library (from build-static-library.sh)
 # and re-links it as a dynamic library via swiftc, then packages the result
-# as a .framework bundle with headers and a modulemap.
+# as a .framework bundle with headers and optional prepared modules and resources.
 
 set -euo pipefail
 
@@ -19,7 +19,8 @@ STATIC_LIB=""
 HEADERS_DIR=""
 OUTPUT_DIR=""
 FRAMEWORK_NAME=""
-SWIFT_ARCHIVE=""
+MODULES_DIR=""
+RESOURCES_DIR=""
 VERSION=""
 
 usage() {
@@ -30,7 +31,8 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
-    log_info "  -a, --swift-archive <path>    Source archive containing the main SDK's Swift artifacts (optional)"
+    log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
+    log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
 }
 
@@ -46,7 +48,8 @@ while [[ $# -gt 0 ]]; do
         -o|--output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
         -v|--version)     VERSION="$2";      shift 2 ;;
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
-        -a|--swift-archive) SWIFT_ARCHIVE="$2"; shift 2 ;;
+        -m|--modules) MODULES_DIR="$2"; shift 2 ;;
+        -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
         -h|--help)     usage ;;
         *)             log_error "Unknown argument: $1"; usage ;;
     esac
@@ -90,13 +93,13 @@ if [[ ! "$FRAMEWORK_NAME" =~ ^[A-Za-z_][A-Za-z_0-9]*$ ]]; then
     log_error "Invalid framework module name: $FRAMEWORK_NAME"
     exit 1
 fi
-if [ -n "$SWIFT_ARCHIVE" ]; then
-    swift_products="$SWIFT_ARCHIVE/Products/Swift"
-    if [ ! -d "$swift_products/$FRAMEWORK_NAME.swiftmodule" ] || \
-        [ ! -f "$swift_products/$FRAMEWORK_NAME-Swift.h" ]; then
-        log_error "Missing Swift artifacts for $FRAMEWORK_NAME in $SWIFT_ARCHIVE"
-        exit 1
-    fi
+if [ -n "$MODULES_DIR" ] && [ ! -d "$MODULES_DIR" ]; then
+    log_error "Modules directory not found: $MODULES_DIR"
+    exit 1
+fi
+if [ -n "$RESOURCES_DIR" ] && [ ! -d "$RESOURCES_DIR" ]; then
+    log_error "Resources directory not found: $RESOURCES_DIR"
+    exit 1
 fi
 
 BUNDLE_SHORT_VERSION="${VERSION%%+*}"
@@ -182,7 +185,6 @@ begin_group "Build $FRAMEWORK_NAME.framework for $SDK"
 if is_macos_layout "$SDK"; then
     versioned="$FW_DIR/Versions/A"
     mkdir -p "$versioned/Headers" "$versioned/Modules" "$versioned/Resources"
-    cp -R "$HEADERS_DIR"/. "$versioned/Headers/"
     # Homebrew coreutils can put GNU ln ahead of /bin/ln; it rejects -h, breaking framework packaging.
     # -n preserves the same no-dereference behavior on both GNU and BSD ln.
     ln -sfn A "$FW_DIR/Versions/Current"
@@ -195,73 +197,30 @@ if is_macos_layout "$SDK"; then
     resources_dir="$versioned/Resources"
 else
     mkdir -p "$FW_DIR/Headers" "$FW_DIR/Modules"
-    cp -R "$HEADERS_DIR"/. "$FW_DIR/Headers/"
     modules_dir="$FW_DIR/Modules"
     binary_path="$FW_DIR/$FRAMEWORK_NAME"
     resources_dir="$FW_DIR"
 fi
 
-umbrella_header="$FRAMEWORK_NAME.h"
-if [ -n "$SWIFT_ARCHIVE" ]; then
-    # Combine the package's public Clang declarations with its Swift overlay, like an
-    # Xcode-built framework. Do not rename the compiled Swift module or ship its
-    # serialized modules: those retain producer-only imports and search paths.
-    headers_dir="$FW_DIR/Headers"
-    umbrella_header="SentryHeaders.h"
-    for header in "$headers_dir"/*.h; do
-        sed -E \
-            -e 's/(#[[:space:]]*(import|include))[[:space:]]+<([A-Za-z0-9_]+\.h)>/\1 "\3"/' \
-            -e 's/(#[[:space:]]*(import|include))[[:space:]]+SENTRY_HEADER\(([A-Za-z0-9_]+)\)/\1 "\3.h"/' \
-            "$header" > "$header.tmp"
-        mv "$header.tmp" "$header"
-    done
-    # Enumerate before creating the umbrella or copying the generated Swift header.
-    public_headers=("$headers_dir"/*.h)
-    {
-        # Match the archive's generation without requiring consumer compiler flags.
-        if [ "${SDK_V10:-0}" = 1 ]; then
-            cp "$SCRIPT_DIR/../Sources/SentryV10Configuration/include/SentryV10Configuration.h" "$headers_dir/"
-            printf '#import "SentryV10Configuration.h"\n'
-        fi
-        for header in "${public_headers[@]}"; do
-            printf '#import "%s"\n' "${header##*/}"
-        done
-    } > "$headers_dir/$umbrella_header"
-    module_dir="$modules_dir/$FRAMEWORK_NAME.swiftmodule"
-    mkdir -p "$module_dir"
-    interfaces=0
-    for interface in "$swift_products/$FRAMEWORK_NAME.swiftmodule"/*.swiftinterface; do
-        [ -f "$interface" ] || continue
-        [[ "$interface" != *.package.swiftinterface ]] || continue
-        if ! grep -Eq -- "-module-name $FRAMEWORK_NAME( |$)" "$interface"; then
-            log_error "Swift module name does not match $FRAMEWORK_NAME: $interface"
-            exit 1
-        fi
-        # Swift 6.4 qualifies module types with ::; preserve either compiler spelling.
-        sed -E "s/(^|[^[:alnum:]_])SentryHeaders([.]|::|$)/\1$FRAMEWORK_NAME\2/g" \
-            "$interface" > "$module_dir/${interface##*/}"
-        interfaces=$((interfaces + 1))
-    done
-    if [ "$interfaces" -eq 0 ]; then
-        log_error "No distributable Swift interfaces for $FRAMEWORK_NAME"
-        exit 1
-    fi
-    sed "s/@import SentryHeaders;/@import $FRAMEWORK_NAME;/" \
-        "$swift_products/$FRAMEWORK_NAME-Swift.h" > "$headers_dir/$FRAMEWORK_NAME-Swift.h"
-    cp "$SCRIPT_DIR/../Sources/Resources/PrivacyInfo.xcprivacy" "$resources_dir/"
-    for bundle in "$SWIFT_ARCHIVE/Products/Resources"/*.bundle; do
-        [ -d "$bundle" ] || continue
-        cp -R "$bundle" "$resources_dir/"
-    done
+# Prepared inputs are copied verbatim; product-specific transformations belong to the caller.
+cp -R "$HEADERS_DIR"/. "$FW_DIR/Headers/"
+if [ -n "$MODULES_DIR" ]; then
+    cp -R "$MODULES_DIR"/. "$modules_dir/"
+fi
+if [ -n "$RESOURCES_DIR" ]; then
+    cp -R "$RESOURCES_DIR"/. "$resources_dir/"
 fi
 
-cat > "$modules_dir/module.modulemap" <<EOF
+# Preserve a supplied module map, or generate the existing headers-only framework module.
+if [ ! -f "$modules_dir/module.modulemap" ]; then
+    cat > "$modules_dir/module.modulemap" <<EOF
 framework module $FRAMEWORK_NAME {
-  umbrella header "$umbrella_header"
+  umbrella header "$FRAMEWORK_NAME.h"
   export *
   module * { export * }
 }
 EOF
+fi
 
 MIN_OS_VERSION="$(minimum_os_version_for_sdk "$SDK")"
 SUPPORTED_PLATFORM="$(supported_platforms_for_sdk "$SDK")"

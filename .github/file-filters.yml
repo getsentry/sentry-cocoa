@@ -451,6 +451,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/build-xcframework-sentryobjc.sh"
   - "scripts/build-static-library.sh"
   - "scripts/build-dynamic-framework.sh"
+  - "scripts/prepare-sentry-framework-inputs.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/compress-xcframework.sh"
   - "scripts/tools.sh"

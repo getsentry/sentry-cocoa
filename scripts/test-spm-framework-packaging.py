@@ -80,11 +80,24 @@ public func value(_ input: HeaderValue) -> Int32 { input.value }
             "--package-path", str(cls.package), "--output-dir", str(cls.build),
         ], "archive")
         cls.archive = cls.build / "archive/Fixture/macosx.xcarchive"
+        prepared = cls.build / "prepared/SentrySwift/macosx"
         cls.run_tool([
-            str(SCRIPTS / "build-dynamic-framework.sh"), "--sdk", "macosx", "--version", "1.2.3",
+            str(SCRIPTS / "prepare-sentry-framework-inputs.sh"),
+            "--swift-archive", str(cls.archive),
+            "--headers", str(public),
+            "--output-dir", str(prepared),
+            "--framework-name", "SentrySwift",
+        ], "prepare")
+        cls.run_tool([
+            str(SCRIPTS / "build-dynamic-framework.sh"),
+            "--sdk", "macosx",
+            "--version", "1.2.3",
             "--static-lib", str(cls.build / "lib/Fixture/macosx/libFixture-Debug.a"),
-            "--headers", str(public), "--output-dir", str(cls.build),
-            "--framework-name", "SentrySwift", "--swift-archive", str(cls.archive),
+            "--headers", str(prepared / "Headers"),
+            "--modules", str(prepared / "Modules"),
+            "--resources", str(prepared / "Resources"),
+            "--output-dir", str(cls.build),
+            "--framework-name", "SentrySwift",
         ], "framework")
         cls.artifact = cls.root / "distribution/SentrySwift.xcframework"
         cls.artifact.parent.mkdir()

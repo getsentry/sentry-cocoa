@@ -85,6 +85,14 @@ run_case() {
     fi
     cp "$dependency" "$products/Dependency.o"
 
+    local build_products="$root/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/$scheme/BuildProductsPath"
+    local configuration
+    for configuration in Release-watchos Debug-watchos Release-iphoneos; do
+        mkdir -p "$build_products/$configuration/Fixture.swiftmodule" "$build_products/$configuration/Fixture.bundle"
+        touch "$build_products/$configuration/Fixture.swiftmodule/$configuration"
+        touch "$build_products/$configuration/Fixture.bundle/$configuration"
+    done
+
     local status=0
     PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library.sh" \
         --sdk watchos \
@@ -108,6 +116,15 @@ run_case() {
         fi
     else
         if [ "$status" -ne 0 ]; then log_error "$name: packaging failed; see $root/build.log"; exit 1; fi
+        local artifact
+        for artifact in Swift/Fixture.swiftmodule Resources/Fixture.bundle; do
+            local archived="$root/archive/$scheme/watchos.xcarchive/Products/$artifact"
+            if [ ! -f "$archived/Release-watchos" ] || \
+                [ -e "$archived/Debug-watchos" ] || [ -e "$archived/Release-iphoneos" ]; then
+                log_error "$name: $artifact must contain only the selected configuration and platform"
+                exit 1
+            fi
+        done
         local expected_archs
         expected_archs="$(xcrun lipo -archs "$wrapper")"
         local expected_arch_array=()
