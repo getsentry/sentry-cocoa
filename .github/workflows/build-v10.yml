@@ -273,6 +273,9 @@ jobs:
       - name: Test wrapper archive architectures
         if: matrix.sdk == 'watchos'
         run: ./scripts/test-sentryobjc-archive-architectures.sh --work-dir "$RUNNER_TEMP/wrapper-archive-architectures"
+      - name: Test source framework packaging
+        if: matrix.sdk == 'macosx'
+        run: python3 scripts/test-spm-framework-packaging.py -v
       - name: Build and audit dynamic V10 XCFramework
         run: make build-xcframework-v10-dynamic SDKS=${{ matrix.sdk }}
       - name: Build and audit static V10 XCFramework
