@@ -435,7 +435,6 @@ jobs:
             runs-on: tahoe-27
             xcode: "27"
             platform: "tvOS"
-            device: "Apple TV 4K (3rd generation)"
 
           # visionOS 26
           - name: visionOS 26 Sentry

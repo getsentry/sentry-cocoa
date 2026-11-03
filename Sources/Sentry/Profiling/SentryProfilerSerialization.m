@@ -305,7 +305,8 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 #    pragma mark - Public
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
-    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
+    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState,
+    NSArray<SentryDebugMeta *> *debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -314,9 +315,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 {
     SentryId *chunkID = [[SentryId alloc] init];
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
-        profileID, chunkID, profileState, metricProfilerState,
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache],
-        SentrySDKInternal.currentHub
+        profileID, chunkID, profileState, metricProfilerState, debugImages, hub
 #    if SENTRY_HAS_UIKIT
         ,
         gpuData

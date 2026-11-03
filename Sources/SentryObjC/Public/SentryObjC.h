@@ -158,9 +158,11 @@
 // --- MetricKit types ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCMetricKitDiagnosticReport.h"
+#    import "SentryObjCMetricKitMetricReport.h"
 #    import "SentryObjCMetricKitOptions.h"
 #else
 #    import <SentryObjC/SentryObjCMetricKitDiagnosticReport.h>
+#    import <SentryObjC/SentryObjCMetricKitMetricReport.h>
 #    import <SentryObjC/SentryObjCMetricKitOptions.h>
 #endif
 

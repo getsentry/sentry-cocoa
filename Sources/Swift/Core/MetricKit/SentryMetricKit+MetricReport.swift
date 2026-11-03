@@ -109,6 +109,9 @@ extension SentryMetricKit {
 
         /// The share of scrolling time the app spent hitching, sent as the
         /// `metrickit.animation.scroll_hitch_time_ratio` gauge as a ratio.
+        ///
+        /// - Note: Not sent on iOS 27 and macOS 27 and later, where MetricKit only reports the
+        ///   hitch time of all animations.
         case animationScrollHitchTimeRatio
 
         /// The share of animation time the app spent hitching, sent as the
@@ -116,6 +119,38 @@ extension SentryMetricKit {
         ///
         /// - Note: Requires iOS 26 or macOS 26.
         case animationHitchTimeRatio
+
+        /// The time the app spent hitching during animations, sent as the
+        /// `metrickit.animation.total_hitch_time` distribution in seconds.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case animationTotalHitchTime
+
+        /// The time the app spent animating, sent as the
+        /// `metrickit.animation.total_animation_time` distribution in seconds.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case animationTotalAnimationTime
+
+        // MARK: Metal
+
+        /// The frame rate of a Metal layer, sent as the `metrickit.metal.frames_per_second` gauge
+        /// in frames per second with the layer's name as the `metal.layer_name` attribute.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case metalFramesPerSecond
+
+        /// The frames a Metal layer drew, sent as the `metrickit.metal.frame_count` count with the
+        /// layer's name as the `metal.layer_name` attribute.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case metalFrameCount
+
+        /// The time a Metal layer was drawing, sent as the `metrickit.metal.active_drawing_duration`
+        /// distribution in seconds with the layer's name as the `metal.layer_name` attribute.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case metalActiveDrawingDuration
 
         // MARK: Disk Space Usage
 
@@ -265,6 +300,11 @@ extension SentryMetricKit.MetricReport {
         case .displayAveragePixelLuminance: return "metrickit.display.avg_pixel_luminance"
         case .animationScrollHitchTimeRatio: return "metrickit.animation.scroll_hitch_time_ratio"
         case .animationHitchTimeRatio: return "metrickit.animation.hitch_time_ratio"
+        case .animationTotalHitchTime: return "metrickit.animation.total_hitch_time"
+        case .animationTotalAnimationTime: return "metrickit.animation.total_animation_time"
+        case .metalFramesPerSecond: return "metrickit.metal.frames_per_second"
+        case .metalFrameCount: return "metrickit.metal.frame_count"
+        case .metalActiveDrawingDuration: return "metrickit.metal.active_drawing_duration"
         case .diskSpaceBinaryFileSize: return "metrickit.disk_space.binary_file_size"
         case .diskSpaceBinaryFileCount: return "metrickit.disk_space.binary_file_count"
         case .diskSpaceDataFileSize: return "metrickit.disk_space.data_file_size"
@@ -289,6 +329,66 @@ extension SentryMetricKit.MetricReport {
         case .exitBackgroundWatchdog: return "metrickit.exit.bg.watchdog"
         case .exitBackgroundSuspendedWithLockedFile: return "metrickit.exit.bg.suspended_with_locked_file"
         case .exitBackgroundTaskTimeout: return "metrickit.exit.bg.background_task_timeout"
+        }
+    }
+
+    /// Creates a report from its name in the options dictionary hybrid SDKs use.
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
+    init?(dictionaryValue: String) {
+        switch dictionaryValue {
+        case "cpuCumulativeTime": self = .cpuCumulativeTime
+        case "cpuCumulativeInstructions": self = .cpuCumulativeInstructions
+        case "gpuCumulativeTime": self = .gpuCumulativeTime
+        case "appTimeForeground": self = .appTimeForeground
+        case "appTimeBackground": self = .appTimeBackground
+        case "appTimeBackgroundAudio": self = .appTimeBackgroundAudio
+        case "appTimeBackgroundLocation": self = .appTimeBackgroundLocation
+        case "networkWifiUpload": self = .networkWifiUpload
+        case "networkWifiDownload": self = .networkWifiDownload
+        case "networkCellularUpload": self = .networkCellularUpload
+        case "networkCellularDownload": self = .networkCellularDownload
+        case "diskIOLogicalWrites": self = .diskIOLogicalWrites
+        case "locationBestAccuracyTime": self = .locationBestAccuracyTime
+        case "locationBestAccuracyForNavigationTime": self = .locationBestAccuracyForNavigationTime
+        case "locationNearestTenMetersTime": self = .locationNearestTenMetersTime
+        case "locationHundredMetersTime": self = .locationHundredMetersTime
+        case "locationKilometerTime": self = .locationKilometerTime
+        case "locationThreeKilometersTime": self = .locationThreeKilometersTime
+        case "memoryPeakUsage": self = .memoryPeakUsage
+        case "memoryAverageSuspended": self = .memoryAverageSuspended
+        case "displayAveragePixelLuminance": self = .displayAveragePixelLuminance
+        case "animationScrollHitchTimeRatio": self = .animationScrollHitchTimeRatio
+        case "animationHitchTimeRatio": self = .animationHitchTimeRatio
+        case "animationTotalHitchTime": self = .animationTotalHitchTime
+        case "animationTotalAnimationTime": self = .animationTotalAnimationTime
+        case "metalFramesPerSecond": self = .metalFramesPerSecond
+        case "metalFrameCount": self = .metalFrameCount
+        case "metalActiveDrawingDuration": self = .metalActiveDrawingDuration
+        case "diskSpaceBinaryFileSize": self = .diskSpaceBinaryFileSize
+        case "diskSpaceBinaryFileCount": self = .diskSpaceBinaryFileCount
+        case "diskSpaceDataFileSize": self = .diskSpaceDataFileSize
+        case "diskSpaceDataFileCount": self = .diskSpaceDataFileCount
+        case "diskSpaceCacheFolderSize": self = .diskSpaceCacheFolderSize
+        case "diskSpaceCloneSize": self = .diskSpaceCloneSize
+        case "diskSpaceTotalUsed": self = .diskSpaceTotalUsed
+        case "diskSpaceTotalCapacity": self = .diskSpaceTotalCapacity
+        case "exitForegroundNormal": self = .exitForegroundNormal
+        case "exitForegroundMemoryResourceLimit": self = .exitForegroundMemoryResourceLimit
+        case "exitForegroundBadAccess": self = .exitForegroundBadAccess
+        case "exitForegroundAbnormal": self = .exitForegroundAbnormal
+        case "exitForegroundIllegalInstruction": self = .exitForegroundIllegalInstruction
+        case "exitForegroundWatchdog": self = .exitForegroundWatchdog
+        case "exitBackgroundNormal": self = .exitBackgroundNormal
+        case "exitBackgroundMemoryResourceLimit": self = .exitBackgroundMemoryResourceLimit
+        case "exitBackgroundCPUResourceLimit": self = .exitBackgroundCPUResourceLimit
+        case "exitBackgroundMemoryPressure": self = .exitBackgroundMemoryPressure
+        case "exitBackgroundBadAccess": self = .exitBackgroundBadAccess
+        case "exitBackgroundAbnormal": self = .exitBackgroundAbnormal
+        case "exitBackgroundIllegalInstruction": self = .exitBackgroundIllegalInstruction
+        case "exitBackgroundWatchdog": self = .exitBackgroundWatchdog
+        case "exitBackgroundSuspendedWithLockedFile": self = .exitBackgroundSuspendedWithLockedFile
+        case "exitBackgroundTaskTimeout": self = .exitBackgroundTaskTimeout
+        default: return nil
         }
     }
 }

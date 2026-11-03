@@ -7,6 +7,8 @@
 import _SentryPrivate
 import XCTest
 
+// Keep the profiling scenario explanations and timelines beside their tests.
+// swiftlint:disable file_length
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
 
@@ -28,6 +30,7 @@ class SentrySpanTests: XCTestCase {
         let options: Options
         let notificationCenter = TestNSNotificationCenterWrapper()
         let currentDateProvider = TestCurrentDateProvider()
+        lazy var profilingTimerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDateProvider)
 #if os(iOS) || os(tvOS) || os(visionOS)
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
 #else
@@ -71,6 +74,7 @@ class SentrySpanTests: XCTestCase {
         
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
+        SentryDependencyContainer.sharedInstance().timerFactory = fixture.profilingTimerFactory
     }
     
     override func tearDown() {
@@ -80,139 +84,247 @@ class SentrySpanTests: XCTestCase {
     }
     
 #if os(iOS) || os(macOS)
-    func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
+    /**
+     Given an already running continuous profiler,
+     when a span is created,
+     then it does not register for profiler-start notifications because it can capture the ID now.
+     */
+    func testInit_whenProfilerIsRunning_shouldNotObserveProfilerStart() {
+        // -- Arrange --
         SentryContinuousProfiler.start()
         SentrySDK.setStart(with: fixture.options)
+
+        // -- Act --
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
+
+        // -- Assert --
         XCTAssertEqual(continuousProfileObservations.count, 0)
     }
     
-    func testSpanDoesSubscribeToNotificationsIfNotAlreadyCapturedContinuousProfileID() {
+    /**
+     Given no running continuous profiler,
+     when a span is created,
+     then it observes profiler-start notifications so it can correlate with profiling begun later.
+     */
+    func testInit_whenProfilerIsNotRunning_shouldObserveProfilerStart() {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
+
+        // -- Act --
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
+
+        // -- Assert --
         XCTAssertEqual(continuousProfileObservations.count, 1)
     }
     
-    /// Test a span that starts before and ends before a continuous profile, includes profile id
-    ///
-    /// ```
-    /// +-------span-------+
-    ///     +----profile----+
-    /// ```
-    func test_spanStart_profileStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
+    /**
+     Given a span that starts before profiling,
+     when profiling starts and the span finishes while profiling is still running,
+     then the serialized span includes the profiler ID received after span creation.
+
+     ```
+     +-------span-------+
+         +----profile----+
+     ```
+     */
+    func testSerialize_whenProfilingStartsDuringSpan_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         let span = fixture.getSut()
-        XCTAssertEqual(fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
-            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
-        }.count, 1)
+
+        // -- Act --
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         span.finish()
-        
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
-        
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that starts before and ends after a continuous profile, includes profile id
-    ///
-    /// ```
-    /// +-----------span-----------+
-    ///     +----profile----+
-    /// ```
-    func test_spanStart_profileStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
+    /**
+     Given a span that starts before profiling,
+     when profiling starts and fully stops before the span finishes,
+     then the serialized span retains the profiler ID despite the profiler no longer running.
+
+     ```
+     +-----------span-----------+
+         +----profile----+
+     ```
+     */
+    func testSerialize_whenProfileIsContainedWithinSpan_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         let span = fixture.getSut()
+
+        // -- Act --
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        SentryContinuousProfiler.stop()
+        try stopContinuousProfiler()
         span.finish()
-        
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
-        
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that starts after and ends after a continuous profile, includes profile id
-    ///
-    /// ```
-    ///     +----profile----+
-    ///         +-------span-------+
-    /// ```
-    func test_profileStart_spanStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
-        SentrySDK.setStart(with: fixture.options)
-        SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        let span = fixture.getSut()
-        SentryContinuousProfiler.stop()
-        span.finish()
-        
-        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
-        
-        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
-    }
-    
-    /// Test a span that starts after and ends before a continuous profile, includes profile id
-    ///
-    /// ```
-    ///     +------------------profile------------------+
-    ///         +-------span-------+
-    /// ```
-    func test_profileStart_spanStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
+    /**
+     Given profiling is already running when a span starts,
+     when profiling fully stops before the span finishes,
+     then the serialized span retains the profiler ID captured at creation.
+
+     ```
+         +----profile----+
+             +-------span-------+
+     ```
+     */
+    func testSerialize_whenProfilingStopsDuringSpan_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         let span = fixture.getSut()
+
+        // -- Act --
+        try stopContinuousProfiler()
         span.finish()
-        
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that spans multiple profiles, which both should have the same profile ID, and that
-    /// the span also contains that profile ID.
-    ///
-    /// ```
-    /// +-----------------span-----------------+
-    ///     +--profile1--+    +--profile2--+
-    /// ```
-    func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesSameProfileID() throws {
+    /**
+     Given a running continuous profiler,
+     when a span starts and finishes entirely within that profiling run,
+     then the serialized span includes the active profiler ID.
+
+     ```
+     +------------------profile------------------+
+         +-------span-------+
+     ```
+     */
+    func testSerialize_whenSpanIsContainedWithinProfile_shouldIncludeProfilerID() throws {
+        // -- Arrange --
+        SentrySDK.setStart(with: fixture.options)
+        SentryContinuousProfiler.start()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+
+        // -- Act --
+        let span = fixture.getSut()
+        span.finish()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
+    }
+    
+    /**
+     Given a span that overlaps two profiling runs separated by a completed stop,
+     when the span is serialized after both runs,
+     then both distinct profiler instances and the span share the same profiling-session ID.
+     Correlation remains stable across profiler restarts within the app session.
+
+     ```
+     +-----------------span-----------------+
+         +--profile1--+    +--profile2--+
+     ```
+     */
+    func testSerialize_whenSpanOverlapsSeparateProfiles_shouldIncludeSameProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         let span = fixture.getSut()
+
+        // -- Act --
         SentryContinuousProfiler.start()
-        let profileId1 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        SentryContinuousProfiler.stop()
+        let firstProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let profileId1 = firstProfiler.profilerId.sentryIdString
+        try stopContinuousProfiler()
         SentryContinuousProfiler.start()
-        let profileId2 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        SentryContinuousProfiler.stop()
+        let secondProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let profileId2 = secondProfiler.profilerId.sentryIdString
+        try stopContinuousProfiler()
+        span.finish()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertFalse(firstProfiler === secondProfiler)
         XCTAssertEqual(profileId1, profileId2)
-        span.finish()
-        
-        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId1)
     }
     
-    /// Test a span that starts and ends before a profile starts, does not include profile id
-    ///
-    /// ```
-    /// +-------span-------+
-    ///                          +----profile----+
-    /// ```
-    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() throws {
+    /**
+     Given a span that has already finished,
+     when profiling starts before that span is serialized,
+     then the serialized span omits the profiler ID because their lifetimes never overlapped.
+     A later profiler-start notification must not correlate an already finished span.
+
+     ```
+     +-------span-------+
+                              +----profile----+
+     ```
+     */
+    func testSerialize_whenSpanFinishesBeforeProfilingStarts_shouldOmitProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
-        SentryContinuousProfiler.start()
-        SentryContinuousProfiler.stop()
         let span = fixture.getSut()
         span.finish()
-        
+
+        // -- Act --
+        SentryContinuousProfiler.start()
+        defer {
+            do {
+                try stopContinuousProfiler()
+            } catch {
+                XCTFail("Failed to stop continuous profiler: \(error)")
+            }
+        }
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
-        XCTAssertNil(serialized["profile_id"])
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertNil(serialized["profiler_id"])
+    }
+
+    /**
+     Given a profiling run that has fully stopped, including its final chunk,
+     when a span starts and finishes afterward,
+     then the serialized span omits the profiler ID because their lifetimes never overlapped.
+
+     ```
+     +----profile----+
+                          +-------span-------+
+     ```
+     */
+    func testSerialize_whenSpanStartsAfterProfilingStops_shouldOmitProfilerID() throws {
+        // -- Arrange --
+        SentrySDK.setStart(with: fixture.options)
+        SentryContinuousProfiler.start()
+        try stopContinuousProfiler()
+
+        // -- Act --
+        let span = fixture.getSut()
+        span.finish()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertNil(serialized["profiler_id"])
+    }
+
+    private func stopContinuousProfiler() throws {
+        SentryContinuousProfiler.stop()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.profilingTimerFactory.check()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 #endif // os(iOS) || os(macOS)
     
@@ -967,3 +1079,4 @@ private final class BlockingDateProvider: NSObject, SentryCurrentDateProvider {
 
     func getAbsoluteTime() -> UInt64 { 0 }
 }
+// swiftlint:enable file_length
