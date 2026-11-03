@@ -1,6 +1,5 @@
 #if compiler(>=6.2)
-import SentrySampleShared
-import SentrySwift
+@_spi(Private) import SentrySwift
 import SwiftUI
 import WebKit
 
@@ -27,7 +26,7 @@ struct WebPageView: View {
             )
             let page = WebPage(configuration: configuration)
             if let baseURL = URL(string: "https://\(WebViewController.host)/") {
-                page.load(html: WebViewController.html(dsn: SentrySDKWrapper.shared.dsn), baseURL: baseURL)
+                page.load(html: WebViewController.html(dsn: SentrySDK.startOption?.dsn), baseURL: baseURL)
             }
             self.page = page
         }
