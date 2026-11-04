@@ -19,6 +19,7 @@
 - Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
 - Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 - Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
+- Prevent SentryCrash from deadlocking while handling uncaught C++ exceptions, and keep concurrent throws from overwriting another thread's captured stack trace (#9531)
 
 ## 9.32.0
 
