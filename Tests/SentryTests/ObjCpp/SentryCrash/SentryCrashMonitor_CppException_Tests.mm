@@ -5,10 +5,34 @@
 
 #    include <atomic>
 #    include <mach/mach.h>
+#    include <mach/mach_time.h>
 #    include <pthread.h>
 #    include <stdexcept>
 #    include <thread>
 #    include <unistd.h>
+
+static uint64_t
+spinTimeoutTicks()
+{
+    // Resolve the clock APIs during setup, before the terminate handler can suspend threads.
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    (void)mach_absolute_time();
+    return 5ULL * 1000 * 1000 * 1000 * timebase.denom / timebase.numer;
+}
+
+static bool
+waitForFlag(const std::atomic<bool> &flag, uint64_t timeoutTicks)
+{
+    const uint64_t start = mach_absolute_time();
+    while (!flag.load()) {
+        if (mach_absolute_time() - start >= timeoutTicks) {
+            return false;
+        }
+        usleep(1000);
+    }
+    return true;
+}
 
 struct ConcurrentThrowState {
     std::atomic<bool> shouldThrow { false };
@@ -20,9 +44,10 @@ struct ConcurrentThrowState {
 // catches the ordering regression deterministically without hanging the test runner.
 class SuspensionCheckingException : public std::exception {
 public:
-    SuspensionCheckingException(thread_t thread, ConcurrentThrowState &state)
+    SuspensionCheckingException(thread_t thread, ConcurrentThrowState &state, uint64_t timeoutTicks)
         : thread(thread)
         , state(state)
+        , timeoutTicks(timeoutTicks)
     {
     }
 
@@ -50,8 +75,8 @@ public:
 
         state.shouldThrow = true;
 
-        while (!state.didThrow) {
-            usleep(1000);
+        if (!waitForFlag(state.didThrow, timeoutTicks)) {
+            return "Timed out waiting for other thread to throw";
         }
 
         return "Other thread is running";
@@ -60,6 +85,7 @@ public:
 private:
     thread_t thread;
     ConcurrentThrowState &state;
+    uint64_t timeoutTicks;
 };
 
 @interface SentryTestNSExceptionSubclass : NSException
@@ -296,14 +322,21 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     api->setEnabled(true);
     sentrycrashcm_cppexception_enable_swap_cxa_throw();
 
+    const uint64_t timeoutTicks = spinTimeoutTicks();
     ConcurrentThrowState state;
     std::atomic<bool> ready(false);
     std::atomic<bool> finished(false);
+    bool workerTimedOut = false;
 
     std::thread otherThread([&] {
+        const uint64_t start = mach_absolute_time();
         ready = true;
 
         while (!finished) {
+            if (mach_absolute_time() - start >= timeoutTicks) {
+                workerTimedOut = true;
+                return;
+            }
             if (state.shouldThrow && !state.didThrow) {
                 try {
                     throw std::runtime_error("Other thread during what()");
@@ -321,8 +354,11 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
         }
     });
 
-    while (!ready) {
-        usleep(1000);
+    if (!waitForFlag(ready, timeoutTicks)) {
+        finished = true;
+        otherThread.join();
+        XCTFail("Timed out waiting for other thread to become ready");
+        return;
     }
 
     thread_t thread = pthread_mach_thread_np(otherThread.native_handle());
@@ -331,7 +367,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     uintptr_t originalStackAddress = 0;
 
     try {
-        throw SuspensionCheckingException(thread, state);
+        throw SuspensionCheckingException(thread, state, timeoutTicks);
     } catch (...) {
         SentryCrashStackCursor cursor = sentrycrashcm_cppexception_getStackCursor();
         cursor.advanceCursor(&cursor);
@@ -344,6 +380,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     otherThread.join();
 
     // -- Assert --
+    XCTAssertFalse(workerTimedOut, "Timed out waiting for the test to finish");
     XCTAssertEqual(capturedCrashType, SentryCrashMonitorTypeCPPException);
     XCTAssertEqualObjects(capturedExceptionContextCrashReason, @"Other thread is running");
     XCTAssertTrue(state.didThrow.load());
@@ -398,10 +435,12 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     api->setEnabled(true);
     sentrycrashcm_cppexception_enable_swap_cxa_throw();
 
+    const uint64_t timeoutTicks = spinTimeoutTicks();
     std::atomic<bool> captured(false);
     std::atomic<bool> reenabled(false);
     uintptr_t originalAddress = 0;
     bool hasStaleFrame = true;
+    bool reenableTimedOut = false;
 
     std::thread otherThread([&] {
         try {
@@ -415,15 +454,19 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
         originalAddress = cursor.stackEntry.address;
 
         captured = true;
-        while (!reenabled) {
-            usleep(1000);
+        if (!waitForFlag(reenabled, timeoutTicks)) {
+            reenableTimedOut = true;
+            return;
         }
         cursor = sentrycrashcm_cppexception_getStackCursor();
         hasStaleFrame = cursor.advanceCursor(&cursor);
     });
 
-    while (!captured) {
-        usleep(1000);
+    if (!waitForFlag(captured, timeoutTicks)) {
+        reenabled = true;
+        otherThread.join();
+        XCTFail("Timed out waiting for other thread to capture its stack trace");
+        return;
     }
 
     // -- Act --
@@ -433,6 +476,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     otherThread.join();
 
     // -- Assert --
+    XCTAssertFalse(reenableTimedOut, "Timed out waiting for the monitor to be reenabled");
     XCTAssertNotEqual(originalAddress, (uintptr_t)0);
     XCTAssertFalse(hasStaleFrame);
 }
