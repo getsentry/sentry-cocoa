@@ -87,18 +87,20 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
-
-      - run: make init-ci-build
-      - run: make xcode-ci
 
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
@@ -110,9 +112,16 @@ jobs:
 
       - name: Boot simulator
         id: boot-simulator
+        background: true
         env:
           OS_VERSION: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
         run: ./scripts/ci-boot-simulator.sh --device "iPhone 16 Pro" --os-version "$OS_VERSION"
+
+      - run: make init-ci-build
+      - run: make xcode-ci
+
+      - name: Wait for simulator readiness
+        wait: boot-simulator
 
       - name: Run SwiftUI Crash Test
         run: |
@@ -122,6 +131,8 @@ jobs:
             --screenshots-dir "swiftui-crash-test-screenshots"
 
       - name: Upload SwiftUI Crash Test Screenshots
+        id: upload-swiftui-screenshots
+        background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -138,6 +149,9 @@ jobs:
         with:
           name: swiftui-crash-test-log.logarchive
           path: swiftui-crash-test-log.logarchive
+
+      - name: Wait for artifact uploads
+        wait: [upload-swiftui-screenshots]
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

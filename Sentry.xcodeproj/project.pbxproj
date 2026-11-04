@@ -1813,6 +1813,7 @@
 				Public/SentryObjCUserFeedbackFormConfiguration.h,
 				Public/SentryObjCUserFeedbackFormElementOutlineStyle.h,
 				Public/SentryObjCUserFeedbackThemeConfiguration.h,
+				Public/SentryObjCWebViewTracing.h,
 			);
 			target = D49BE455302DFF3300FF88D3 /* SentryObjCV10 */;
 		};
@@ -1915,6 +1916,7 @@
 				Public/SentryObjCUserFeedbackFormConfiguration.h,
 				Public/SentryObjCUserFeedbackFormElementOutlineStyle.h,
 				Public/SentryObjCUserFeedbackThemeConfiguration.h,
+				Public/SentryObjCWebViewTracing.h,
 			);
 			target = 6ECCF11F627ECB41E3A0C7E3 /* SentryObjC */;
 		};
@@ -13757,7 +13759,7 @@
 			repositoryURL = "https://github.com/kstenerud/KSCrash.git";
 			requirement = {
 				kind = exactVersion;
-				version = "2.6.1-beta.2";
+				version = "2.6.1";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
