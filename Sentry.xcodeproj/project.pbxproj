@@ -13756,10 +13756,10 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kstenerud/KSCrash.git";
+			repositoryURL = "https://github.com/getsentry/KSCrash.git";
 			requirement = {
-				kind = exactVersion;
-				version = "2.6.1";
+				kind = revision;
+				revision = fec4fb8942ff30b92488196eb439f62faad85334;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
