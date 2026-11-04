@@ -13757,7 +13757,7 @@
 			repositoryURL = "https://github.com/kstenerud/KSCrash.git";
 			requirement = {
 				kind = exactVersion;
-				version = "2.6.1-beta.2";
+				version = "2.6.1";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
