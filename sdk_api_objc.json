@@ -176,6 +176,11 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportMemoryException",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitDiagnosticReportNone",
     "parent": "SentryObjCMetricKitDiagnosticReport"
   },
@@ -202,6 +207,16 @@
   {
     "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportAnimationScrollHitchTimeRatio",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAnimationTotalAnimationTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAnimationTotalHitchTime",
     "parent": "SentryObjCMetricKitMetricReport"
   },
   {
@@ -407,6 +422,21 @@
   {
     "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportMemoryPeakUsage",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMetalActiveDrawingDuration",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMetalFrameCount",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMetalFramesPerSecond",
     "parent": "SentryObjCMetricKitMetricReport"
   },
   {
@@ -1143,6 +1173,18 @@
     "has_inner": true
   },
   {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCWebViewTracing",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCWebViewTracingOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
     "kind": "ObjCMethodDecl",
     "name": "addAttachment:",
     "parent": "SentryObjCScope",
@@ -1231,6 +1273,34 @@
     "name": "addScreenshotButtonLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addTracePropagationToConfiguration:options:",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "BOOL",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addTracePropagationToUserContentController:options:",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "BOOL",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addTracePropagationToWebView:options:",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "BOOL",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "allowedHosts",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "NSArray<NSString *> * _Nonnull",
     "instance": true
   },
   {
@@ -3972,6 +4042,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithAllowedHosts:",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithAttachment:maxAttachmentSize:",
     "parent": "SentryObjCEnvelopeItem",
     "returnType": "instancetype _Nullable",
@@ -5386,6 +5477,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "none",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -6221,6 +6326,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setAddScreenshotButtonLabel:",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAllowedHosts:",
+    "parent": "SentryObjCWebViewTracingOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9658,6 +9770,12 @@
     "name": "addScreenshotButtonLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "allowedHosts",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
