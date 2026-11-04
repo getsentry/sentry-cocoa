@@ -45,6 +45,10 @@
 - Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
 - Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9463)
 
+### Deprecations
+
+- Deprecate the public C error helpers (`NSErrorFromSentryError`, `NSErrorFromSentryErrorWithUnderlyingError`, `NSErrorFromSentryErrorWithException`, `NSErrorFromSentryErrorWithKernelError`, and `SentryErrorDomain`), span-status names (`nameForSentrySpanStatus` and the `kSentrySpanStatusName*` constants), and the header constants `SENTRY_BAGGAGE_HEADER` and `SENTRY_TRACE_HEADER`. Use `SentryError.nsError(description:)`, `SentryError.domain`, `SentrySpanStatus.name`, `Baggage.httpHeaderField`, and `TraceHeader.httpHeaderField`. SentryObjC users can use `[SentryObjCError nsErrorWithCode:description:]`, `[SentryObjCSpanStatusName nameForStatus:]`, `SentryObjCBaggage.httpHeaderField`, and `SentryObjCTraceHeader.httpHeaderField`. `SENTRY_TRACE_TYPE`, `defaultMaxBreadcrumbs`, `kSentryTrueString`, and `kSentryFalseString` are deprecated with no replacement. These symbols will be removed in a future major version. The `kSentryError*` and `kSentrySpanStatus*` enum cases are not deprecated. (#9502)
+
 ## 9.31.0
 
 ### Features

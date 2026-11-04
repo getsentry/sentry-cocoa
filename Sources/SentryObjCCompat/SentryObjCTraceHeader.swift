@@ -9,6 +9,10 @@ import Foundation
 @objc(SentryObjCTraceHeader) public final class SentryObjCTraceHeader: NSObject {
     internal let wrapped: TraceHeader
 
+    @objc public static var httpHeaderField: String {
+        TraceHeader.httpHeaderField
+    }
+
     internal init(_ wrapped: TraceHeader) {
         self.wrapped = wrapped
     }

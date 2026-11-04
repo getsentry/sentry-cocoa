@@ -6,6 +6,7 @@
 #    import "SentryCrashThread.h"
 #endif
 #import "SentryDefaultThreadInspector.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -400,7 +401,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)serialize
 {
     NSMutableDictionary *mutableDictionary = @{
-        @"type" : SENTRY_TRACE_TYPE,
+        @"type" : SentrySpanTypeTrace,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"op" : self.operation,
@@ -429,7 +430,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (self.status != kSentrySpanStatusUndefined) {
-        [mutableDictionary setValue:nameForSentrySpanStatus(self.status)
+        [mutableDictionary setValue:sentry_spanStatusName(self.status)
                              forKey:kSentrySpanStatusSerializationKey];
     }
 
