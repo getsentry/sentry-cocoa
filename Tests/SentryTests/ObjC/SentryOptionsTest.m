@@ -815,7 +815,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 #endif // SDK_V10
     XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
     XCTAssertNil(options.dist);
-    XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
+    XCTAssertEqual(100, options.maxBreadcrumbs);
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
     XCTAssertEqual(30, options.maxCacheItems);
 

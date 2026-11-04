@@ -67,9 +67,11 @@ SENTRY_NO_INIT
  * payload for transmission.
  */
 - (NSDictionary *)copyMetricProfilerData;
+/** Readings recorded after the snapshot remain available for the next chunk. */
+- (NSDictionary *)copyAndClearMetricProfilerData;
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
-+ (void)setSystemWrapperOverride:(SENTRY_SWIFT_MIGRATION_ID(SentrySystemWrapper))value;
++ (void)setSystemWrapperOverride:(nullable SENTRY_SWIFT_MIGRATION_ID(SentrySystemWrapper))value;
 #    endif
 
 @end

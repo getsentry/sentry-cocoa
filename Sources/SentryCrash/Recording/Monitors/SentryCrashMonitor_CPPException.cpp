@@ -36,6 +36,7 @@
 
 #    include "SentryAsyncSafeLog.h"
 
+#    include <atomic>
 #    include <cxxabi.h>
 #    include <dlfcn.h>
 #    include <exception>
@@ -58,10 +59,13 @@
 // ============================================================================
 
 /** True if this handler has been installed. */
-static volatile bool g_isEnabled = false;
+static std::atomic<bool> g_isEnabled(false);
 
-/** True if the handler should capture the next stack trace. */
-static bool g_captureNextStackTrace = false;
+// Invalidate per-thread cursors without touching TLS when disabling from a signal handler.
+static std::atomic<unsigned> g_cursorGeneration(1);
+
+/** Suppress the monitor's own rethrow without affecting throws on other threads. */
+static thread_local bool g_isDiscoveringDescription = false;
 
 static std::terminate_handler g_originalTerminateHandler;
 
@@ -69,13 +73,25 @@ static char g_eventID[37];
 
 static SentryCrash_MonitorContext g_monitorContext;
 
-// TODO: Thread local storage is not supported < ios 9.
-// Find some other way to do thread local. Maybe storage with lookup by tid?
-static SentryCrashStackCursor g_stackCursor;
+// Other threads can throw while we discover the description, before suspending the environment.
+// Keep both the throw-site backtrace and its cursor local to the throwing thread.
+static thread_local SentryCrashStackCursor g_stackCursor;
+static thread_local unsigned g_stackCursorGeneration = 0;
 
 // ============================================================================
 #    pragma mark - Helpers -
 // ============================================================================
+
+static SentryCrashStackCursor *
+currentStackCursor(void)
+{
+    unsigned generation = g_cursorGeneration.load(std::memory_order_relaxed);
+    if (g_stackCursorGeneration != generation) {
+        sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
+        g_stackCursorGeneration = generation;
+    }
+    return &g_stackCursor;
+}
 
 // The ObjC runtime uses a custom C++ type_info subclass (objc_typeinfo) for all Objective-C
 // exceptions. Its vtable pointer is set to objc_ehtype_vtable+2 (the +2 skips the Itanium C++ ABI
@@ -162,8 +178,8 @@ captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION
         return;
     }
 
-    if (g_captureNextStackTrace) {
-        sentrycrashsc_initSelfThread(&g_stackCursor, 2);
+    if (g_isEnabled.load(std::memory_order_relaxed) && !g_isDiscoveringDescription) {
+        sentrycrashsc_initSelfThread(currentStackCursor(), 2);
     }
     THWART_TAIL_CALL_OPTIMISATION
 }
@@ -207,8 +223,8 @@ __sentry_cxa_rethrow()
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Entering __sentry_cxa_rethrow");
 
-    if (g_captureNextStackTrace) {
-        sentrycrashsc_initSelfThread(&g_stackCursor, 1);
+    if (g_isEnabled.load(std::memory_order_relaxed) && !g_isDiscoveringDescription) {
+        sentrycrashsc_initSelfThread(currentStackCursor(), 1);
     }
 
     static cxa_rethrow_type orig_cxa_rethrow = NULL;
@@ -235,6 +251,53 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
     }
 }
 
+/** Rethrows the active C++ exception to describe it. Never call while other threads are suspended:
+ * unwinding can acquire dyld locks, and a user-supplied what() can also take locks.
+ */
+static const char *
+cpp_discoverDescription(
+    const std::type_info *tinfo, bool isObjCExc, char *buffer, size_t bufferLength)
+{
+    if (tinfo == NULL) {
+        // throw; without an active exception would recurse into std::terminate().
+        return buffer;
+    }
+    if (isObjCExc) {
+        // Arbitrary Objective-C objects belong to this monitor, but must not be rethrown
+        // through the C++ catch list to discover a C++-style description.
+        return NULL;
+    }
+    const char *description = buffer;
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Discovering what kind of exception was thrown.");
+    // Preserve the original throw-site cursor captured by __cxa_throw. Capturing this rethrow
+    // would only show the handler, since the original exception has already unwound.
+    g_isDiscoveringDescription = true;
+    try {
+        throw;
+    } catch (std::exception &exc) {
+        strlcpy(buffer, exc.what(), bufferLength);
+    }
+#    define CATCH_VALUE(TYPE, PRINTFTYPE)                                                          \
+        catch (TYPE value) { snprintf(buffer, bufferLength, "%" #PRINTFTYPE, value); }
+    CATCH_VALUE(char, d)
+    CATCH_VALUE(short, d)
+    CATCH_VALUE(int, d)
+    CATCH_VALUE(long, ld)
+    CATCH_VALUE(long long, lld)
+    CATCH_VALUE(unsigned char, u)
+    CATCH_VALUE(unsigned short, u)
+    CATCH_VALUE(unsigned int, u)
+    CATCH_VALUE(unsigned long, lu)
+    CATCH_VALUE(unsigned long long, llu)
+    CATCH_VALUE(float, f)
+    CATCH_VALUE(double, f)
+    CATCH_VALUE(long double, Lf)
+    CATCH_VALUE(char *, s)
+    catch (...) { description = NULL; }
+    g_isDiscoveringDescription = false;
+    return description;
+}
+
 static void
 CPPExceptionTerminate(void)
 {
@@ -251,6 +314,21 @@ CPPExceptionTerminate(void)
     }
 
     if (!isNSExceptionExc) {
+        // Initialize this thread's cursor before suspension, even if no throw hook ran.
+        SentryCrashStackCursor *stackCursor = currentStackCursor();
+        char descriptionBuff[DESCRIPTION_BUFFER_LENGTH] = { 0 };
+
+        // The rethrow's unwind-section lookup (_dyld_find_unwind_sections) can take the dyld
+        // loaders lock, particularly on the simulator. Suspending a thread holding that lock
+        // before rethrowing would deadlock the crash handler and prevent a report being written.
+        // https://github.com/kstenerud/KSCrash/pull/979
+        const char *description
+            = cpp_discoverDescription(tinfo, isObjCExc, descriptionBuff, sizeof(descriptionBuff));
+        if (tinfo == NULL) {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
+            sentrycrashsc_initSelfThread(stackCursor, 0);
+        }
+
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // The cxa_throw hook reenters only from other threads. Edge case:
@@ -261,66 +339,6 @@ CPPExceptionTerminate(void)
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
 
-        char descriptionBuff[DESCRIPTION_BUFFER_LENGTH];
-        const char *description = descriptionBuff;
-        descriptionBuff[0] = 0;
-
-        std::exception_ptr currException = std::current_exception();
-        if (currException == NULL) {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
-            sentrycrashsc_initSelfThread(&g_stackCursor, 0);
-        } else if (isObjCExc) {
-            // Objective-C object throws that are not NSException won't be handled by
-            // NSSetUncaughtExceptionHandler. Report them via the C++ monitor, but don't rethrow
-            // through the C++ catch list while discovering a C++-style description.
-            description = NULL;
-        } else {
-
-            // When we reach this point, the stack has already been unwound and the original stack
-            // frame where the exception was thrown is lost. This is because __cxa_rethrow is called
-            // after the exception has propagated up the call stack and the stack frames have been
-            // cleaned up. Therefore, any attempt to capture the stacktrace here would only show the
-            // current location in the  exception handling code, not where the exception originated.
-            //
-            // This is why we use a fishhook via sentrycrashct_swap to intercept __cxa_throw
-            // instead. When an exception is first thrown, __cxa_throw is called before any stack
-            // unwinding occurs, allowing us to capture the complete stacktrace at the exact point
-            // where the exception originated. This gives us much more useful debugging information
-            // about where and why the exception was thrown with a slight overhead of getting the
-            // stacktrace for every C++ exception. Sadly, there is no reliable way to know if an
-            // exception is going to be handled or not in __cxa_throw, so we can't avoid the
-            // overhead.
-
-            SENTRY_ASYNC_SAFE_LOG_DEBUG("Discovering what kind of exception was thrown.");
-            g_captureNextStackTrace = false;
-            try {
-                throw;
-            } catch (std::exception &exc) {
-                strlcpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
-            }
-#    define CATCH_VALUE(TYPE, PRINTFTYPE)                                                          \
-        catch (TYPE value)                                                                         \
-        {                                                                                          \
-            snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);            \
-        }
-            CATCH_VALUE(char, d)
-            CATCH_VALUE(short, d)
-            CATCH_VALUE(int, d)
-            CATCH_VALUE(long, ld)
-            CATCH_VALUE(long long, lld)
-            CATCH_VALUE(unsigned char, u)
-            CATCH_VALUE(unsigned short, u)
-            CATCH_VALUE(unsigned int, u)
-            CATCH_VALUE(unsigned long, lu)
-            CATCH_VALUE(unsigned long long, llu)
-            CATCH_VALUE(float, f)
-            CATCH_VALUE(double, f)
-            CATCH_VALUE(long double, Lf)
-            CATCH_VALUE(char *, s)
-            catch (...) { description = NULL; }
-            g_captureNextStackTrace = g_isEnabled;
-        }
-
         // TODO: Should this be done here? Maybe better in the exception
         // handler?
         SentryCrashMC_NEW_CONTEXT(machineContext);
@@ -330,7 +348,7 @@ CPPExceptionTerminate(void)
         crashContext->crashType = SentryCrashMonitorTypeCPPException;
         crashContext->eventID = g_eventID;
         crashContext->registersAreValid = false;
-        crashContext->stackCursor = &g_stackCursor;
+        crashContext->stackCursor = stackCursor;
         crashContext->CPPException.name = name;
         crashContext->exceptionName = name;
         crashContext->crashReason = description;
@@ -351,23 +369,12 @@ CPPExceptionTerminate(void)
 // ============================================================================
 
 static void
-initialize(void)
-{
-    static bool isInitialized = false;
-    if (!isInitialized) {
-        isInitialized = true;
-        sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
-    }
-}
-
-static void
 setEnabled(bool isEnabled)
 {
-    if (isEnabled != g_isEnabled) {
-        g_isEnabled = isEnabled;
+    if (isEnabled != g_isEnabled.load(std::memory_order_relaxed)) {
+        g_cursorGeneration.fetch_add(1, std::memory_order_relaxed);
+        g_isEnabled.store(isEnabled, std::memory_order_relaxed);
         if (isEnabled) {
-            initialize();
-
             sentrycrashid_generate(g_eventID);
             g_originalTerminateHandler = std::set_terminate(CPPExceptionTerminate);
         } else {
@@ -376,11 +383,7 @@ setEnabled(bool isEnabled)
 
             // This method is a no-op if cxa_throw is not swapped.
             sentrycrashct_unswap_cxa_throw();
-
-            // Reset the stack cursor to the default state
-            sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
         }
-        g_captureNextStackTrace = isEnabled;
     }
 }
 
@@ -393,13 +396,13 @@ sentrycrashcm_cppexception_enable_swap_cxa_throw(void)
 SentryCrashStackCursor
 sentrycrashcm_cppexception_getStackCursor(void)
 {
-    return g_stackCursor;
+    return *currentStackCursor();
 }
 
 static bool
 isEnabled(void)
 {
-    return g_isEnabled;
+    return g_isEnabled.load(std::memory_order_relaxed);
 }
 
 extern "C" SentryCrashMonitorAPI *
