@@ -169,21 +169,32 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
@@ -208,6 +219,10 @@ jobs:
       - name: Strip expectedSignature attributes from XCFramework project
         if: ${{ github.event_name == 'pull_request' }}
         run: make strip-xcframework-expected-signature
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: make build-xcframework-testapp
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -228,15 +243,16 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -252,11 +268,25 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: swift build
         working-directory: TestApps/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -275,15 +305,16 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -299,11 +330,25 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: swift build
         working-directory: TestApps/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -322,15 +367,16 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -346,11 +392,25 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -368,15 +428,16 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -392,11 +453,25 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
         working-directory: TestApps/visionOS-SPM
       - name: Run CI Diagnostics
