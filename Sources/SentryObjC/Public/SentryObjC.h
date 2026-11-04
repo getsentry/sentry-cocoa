@@ -10,6 +10,7 @@
 // --- Enums (no dependencies) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttachmentType.h"
+#    import "SentryObjCError.h"
 #    import "SentryObjCFeedbackSource.h"
 #    import "SentryObjCLastRunStatus.h"
 #    import "SentryObjCLevel.h"
@@ -21,6 +22,7 @@
 #    import "SentryObjCTransactionNameSource.h"
 #else
 #    import <SentryObjC/SentryObjCAttachmentType.h>
+#    import <SentryObjC/SentryObjCError.h>
 #    import <SentryObjC/SentryObjCFeedbackSource.h>
 #    import <SentryObjC/SentryObjCLastRunStatus.h>
 #    import <SentryObjC/SentryObjCLevel.h>
@@ -49,6 +51,7 @@
 
 // --- Leaf types (no wrapper dependencies) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCBaggage.h"
 #    import "SentryObjCDebugMeta.h"
 #    import "SentryObjCFrame.h"
 #    import "SentryObjCGeo.h"
@@ -62,6 +65,7 @@
 #    import "SentryObjCSpanId.h"
 #    import "SentryObjCTraceHeader.h"
 #else
+#    import <SentryObjC/SentryObjCBaggage.h>
 #    import <SentryObjC/SentryObjCDebugMeta.h>
 #    import <SentryObjC/SentryObjCFrame.h>
 #    import <SentryObjC/SentryObjCGeo.h>

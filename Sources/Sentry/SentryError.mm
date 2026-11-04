@@ -9,7 +9,10 @@ NSString *const SentryErrorDomain = @"SentryErrorDomain";
 static NSError *
 sentry_errorWithUserInfo(SentryError error, NSDictionary *userInfo)
 {
-    return [NSError errorWithDomain:@"SentryErrorDomain" code:error userInfo:userInfo];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    return [NSError errorWithDomain:SentryErrorDomain code:error userInfo:userInfo];
+#pragma clang diagnostic pop
 }
 
 NSError *
