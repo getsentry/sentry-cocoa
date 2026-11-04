@@ -20,6 +20,7 @@
 - Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
 - Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
 - Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
+- Fix app start transactions from hybrid SDKs such as React Native being dropped for prewarmed app starts. `SentrySDK.internal.appStart.measurementWithSpans` added the Pre Runtime Init and Runtime init to Pre Main initializers spans only for prewarmed app starts, where Pre Runtime Init ended before it started, and left them out of all other app starts (#9473)
 - Prevent SentryCrash from deadlocking while handling uncaught C++ exceptions, and keep concurrent throws from overwriting another thread's captured stack trace (#9531)
 - Count every batched log and metric in client reports when an envelope is rate limited, dropped from the cache, or fails to send, instead of counting one per envelope item (#9530)
 - Preserve profiling metrics across chunk rollover and avoid recording a finished trace's metrics on its replacement profiler (#9500)
