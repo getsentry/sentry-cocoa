@@ -185,6 +185,11 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) else {
             throw XCTSkip("SwiftUI WebView requires iOS 26, macOS 26 or visionOS 26.")
         }
+        // Mac Catalyst unit tests run without an NSApplication, and creating a UIWindow without one
+        // throws an uncaught exception that ends the test process.
+        if ProcessInfo.processInfo.isMacCatalystApp {
+            throw XCTSkip("Mac Catalyst unit tests can't create a window.")
+        }
         // -- Arrange --
         try install()
         let refresher = try XCTUnwrap(SentryWebViewTraceRefresherProxy.shared.target)
