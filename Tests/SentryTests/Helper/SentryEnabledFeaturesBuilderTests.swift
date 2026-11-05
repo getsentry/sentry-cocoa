@@ -606,6 +606,33 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("uiViewControllerInitSwizzling"))
     }
 
+    func testEnableUIUpdateLinkFramesTracking_isEnabled_shouldAddFeature() throws {
+#if os(iOS) || os(tvOS) || os(visionOS)
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableUIUpdateLinkFramesTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("uiUpdateLinkFramesTracking"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableUIUpdateLinkFramesTracking_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiUpdateLinkFramesTracking"))
+    }
+
     func testAttachViewHierarchy_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --

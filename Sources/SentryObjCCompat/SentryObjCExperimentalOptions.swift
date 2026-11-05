@@ -45,6 +45,11 @@ import Foundation
         get { wrapped.enableUIViewControllerInitSwizzling }
         set { wrapped.enableUIViewControllerInitSwizzling = newValue }
     }
+
+    @objc public var enableUIUpdateLinkFramesTracking: Bool {
+        get { wrapped.enableUIUpdateLinkFramesTracking }
+        set { wrapped.enableUIUpdateLinkFramesTracking = newValue }
+    }
 }
 
 // swiftlint:enable missing_docs
