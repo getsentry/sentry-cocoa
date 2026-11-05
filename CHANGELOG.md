@@ -5,6 +5,7 @@
 ### Features
 
 - Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+- Add experimental option `options.experimental.enableUIUpdateLinkFramesTracking` that tracks slow and frozen frames, frames delay, and time to display on iOS 18, tvOS 18 and visionOS 2 and later with the main run loop and a `UIUpdateLink` instead of a `CADisplayLink`, so the SDK no longer wakes up an idle app for every frame. Disabled by default (#9541)
 
 ### Fixes
 
