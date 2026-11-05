@@ -31,6 +31,9 @@
 @class SentryObjCScope;
 @class SentryObjCSpan;
 @class SentryObjCUserFeedbackConfiguration;
+#if SENTRY_OBJC_WEBVIEW_SUPPORTED
+@class SentryObjCWebViewTracingOptions;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -385,6 +388,23 @@ NS_ASSUME_NONNULL_BEGIN
  * @note The default is @c YES.
  */
 @property (nonatomic) BOOL enableNetworkTracking;
+
+#if SENTRY_OBJC_WEBVIEW_SUPPORTED
+/**
+ * Connects the traces of every @c WKWebView in the app with the app's trace, without calling
+ * @c SentryObjCWebViewTracing for each WebView.
+ *
+ * When set, the SDK swizzles the @c WKWebView load methods to add trace propagation to each WebView
+ * before it loads, and refreshes the trace of those WebViews whenever the current span or
+ * propagation context changes.
+ *
+ * @warning This applies to every @c WKWebView in the process, including in-app browsers and
+ * WebViews created by other SDKs. Only list hosts whose content you trust.
+ * @note Requires @c enableSwizzling. The default is @c nil, which disables the feature. The getter
+ * returns a copy, so assign a new object to change the hosts.
+ */
+@property (nonatomic, strong, nullable) SentryObjCWebViewTracingOptions *webViewTracing;
+#endif
 
 /**
  * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
