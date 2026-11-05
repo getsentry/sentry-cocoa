@@ -1,12 +1,13 @@
 @_spi(Private) import SentrySwift
 import Foundation
+import SentrySampleShared
 import SwiftUI
 import WebKit
 
 class WebViewController: UIViewController {
 
     // Served under this host so the page receives the injected trace.
-    static let host = "webview.sentry-sample.local"
+    static let host = SentrySDKWrapper.webViewHost
 
     private lazy var webView: WKWebView = {
         let configuration = WKWebViewConfiguration()
@@ -25,6 +26,12 @@ class WebViewController: UIViewController {
         super.viewDidLoad()
         webView.loadHTMLString(Self.html(dsn: SentrySDK.startOption?.dsn), baseURL: URL(string: "https://\(Self.host)/"))
 
+        let automaticButton = UIBarButtonItem(title: "Auto", primaryAction: UIAction { [weak self] _ in
+            self?.navigationController?.pushViewController(AutomaticWebViewController(), animated: true)
+        })
+        automaticButton.accessibilityIdentifier = "webview-automatic"
+        navigationItem.rightBarButtonItems = [automaticButton]
+
 #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             let swiftUIButton = UIBarButtonItem(title: "SwiftUI", primaryAction: UIAction { [weak self] _ in
@@ -33,7 +40,7 @@ class WebViewController: UIViewController {
                 self?.navigationController?.pushViewController(controller, animated: true)
             })
             swiftUIButton.accessibilityIdentifier = "webview-swiftui"
-            navigationItem.rightBarButtonItem = swiftUIButton
+            navigationItem.rightBarButtonItems?.append(swiftUIButton)
         }
 #endif
     }
@@ -41,7 +48,10 @@ class WebViewController: UIViewController {
     /// The page runs `@sentry/browser`, which continues the injected trace on pageload. It also
     /// shows the injected tags, read before any page script could add them, so UI tests can check
     /// the injection without network access.
-    static func html(dsn: String?) -> String {
+    ///
+    /// With `showsNextPageLink`, the page links to another page of the same host. Following it is a
+    /// navigation inside the page that doesn't go through a `WKWebView` load method.
+    static func html(dsn: String?, showsNextPageLink: Bool = false) -> String {
         let dsnLiteral = dsn.flatMap { try? JSONSerialization.data(withJSONObject: $0, options: [.fragmentsAllowed]) }
             .flatMap { String(data: $0, encoding: .utf8) } ?? "null"
         return """
@@ -77,9 +87,12 @@ class WebViewController: UIViewController {
         <body style="font-family: -apple-system; padding: 16px; word-break: break-all;">
         <h3>sentry-trace</h3><p id="sentry-trace"></p>
         <h3>baggage</h3><p id="baggage"></p>
+        \(showsNextPageLink ? "<p id=\"page\"></p><p><a href=\"/next\">Next page</a></p>" : "")
         <script>
         document.getElementById('sentry-trace').textContent = 'sentry-trace: ' + window.injected.trace;
         document.getElementById('baggage').textContent = window.injected.baggage;
+        var page = document.getElementById('page');
+        if (page) { page.textContent = 'page: ' + window.location.pathname; }
         </script>
         </body>
         </html>
