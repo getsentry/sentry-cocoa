@@ -48,6 +48,38 @@ final class SentryOptionsDictionaryTests: XCTestCase {
     #endif // SDK_V10
     }
 
+#if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testInitWithDictionary_whenWebViewTracingHasAllowedHosts_shouldSetOption() throws {
+        // -- Act --
+        let options = try Options(dictionary: [
+            "dsn": "https://username:password@sentry.io/1",
+            "webViewTracing": ["allowedHosts": ["example.com", 42, "app.example.com"]]
+        ])
+
+        // -- Assert --
+        XCTAssertEqual(options.webViewTracing?.allowedHosts, ["example.com", "app.example.com"])
+    }
+
+    func testInitWithDictionary_whenWebViewTracingNotSet_shouldBeNil() throws {
+        // -- Act --
+        let options = try Options(dictionary: ["dsn": "https://username:password@sentry.io/1"])
+
+        // -- Assert --
+        XCTAssertNil(options.webViewTracing)
+    }
+
+    func testInitWithDictionary_whenWebViewTracingIsMalformed_shouldBeNil() throws {
+        // -- Act --
+        let dsn = "https://username:password@sentry.io/1"
+        let notADictionary = try Options(dictionary: ["dsn": dsn, "webViewTracing": ["example.com"]])
+        let missingHosts = try Options(dictionary: ["dsn": dsn, "webViewTracing": ["hosts": ["example.com"]]])
+
+        // -- Assert --
+        XCTAssertNil(notADictionary.webViewTracing)
+        XCTAssertNil(missingHosts.webViewTracing)
+    }
+#endif
+
     func testInitWithDictionary_whenMemoryIntrospectionNotSet_shouldDefaultToFalse() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [

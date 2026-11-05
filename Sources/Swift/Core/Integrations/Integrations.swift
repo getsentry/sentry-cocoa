@@ -114,11 +114,21 @@ private struct AnyIntegration {
         integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
 
+        integrations.append(contentsOf: webViewIntegrations)
+
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
             SentrySDKInternal.currentHub().addInstalledIntegration(integration, name: anyIntegration.name)
         }
+    }
+
+    private static var webViewIntegrations: [AnyIntegration] {
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        return [.init(SentryWebViewTracePropagationIntegration.self)]
+        #else
+        return []
+        #endif
     }
 }
 // swiftlint:enable missing_docs
