@@ -33,17 +33,17 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertEqual(60, kSentryProfilerChunkExpirationInterval)
     }
 
-    func testStartingAndStoppingContinuousProfiler() throws {
+    func testStartAndStop_whenCollectingThreeChunks_shouldCaptureSamplesAndMetrics() throws {
         try performContinuousProfilingTest()
     }
     
-    func testProfilingDataContainsEnvironmentSetFromOptions() throws {
+    func testTransmitChunk_whenEnvironmentIsSetInOptions_shouldUseOptionsEnvironment() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
     
-    func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
+    func testTransmitChunk_whenEnvironmentIsSetInScope_shouldUseScopeEnvironment() throws {
         let expectedEnvironment = "test-environment"
         fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
@@ -51,7 +51,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
 
-    func testProfilingDataContainsEnvironmentSetFromConfigureScopeAndOptions() throws {
+    func testTransmitChunk_whenScopeAndOptionsHaveEnvironments_shouldPreferScopeEnvironment() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = "options-environment"
         fixture.hub.configureScope { scope in
@@ -60,7 +60,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
 
-    func testProfilingDataContainsEnvironmentSetFromConfigureScopeAndOptionsAndEvent() throws {
+    func testTransmitChunk_whenScopeOptionsAndEventHaveEnvironments_shouldPreferScopeEnvironment() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = "options-environment"
         fixture.hub.configureScope { scope in
@@ -790,7 +790,9 @@ private extension SentryContinuousProfilerTests {
     func performContinuousProfilingTest(expectedEnvironment: String = Options.defaultEnvironment) throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        var chunkStartTime = fixture.currentDateProvider.date().timeIntervalSince1970
         
         func runTestPart(expectedAddresses: [NSNumber], mockMetrics: SentryProfileTestFixture.MockMetric, countMetricsReadingAtProfileStart: Bool = true) throws {
             fixture.setMockMetrics(mockMetrics)
@@ -798,9 +800,11 @@ private extension SentryContinuousProfilerTests {
             try fixture.gatherMockedContinuousProfileMetrics()
             try addMockSamples(mockAddresses: expectedAddresses)
             fixture.currentDateProvider.advanceBy(interval: 1)
+            let chunkEndTime = fixture.currentDateProvider.date().timeIntervalSince1970
             try fixture.timeoutTimerFactory.check()
             XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
-            try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: countMetricsReadingAtProfileStart)
+            try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: countMetricsReadingAtProfileStart, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+            chunkStartTime = chunkEndTime
     #if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
             fixture.resetProfileGPUExpectations()
     #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
@@ -823,7 +827,7 @@ private extension SentryContinuousProfilerTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
-    func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber], countMetricsReadingAtProfileStart: Bool = true) throws {
+    func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber], countMetricsReadingAtProfileStart: Bool = true, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         XCTAssertEqual(1, envelope.items.count)
         let profileItem = try XCTUnwrap(envelope.items.first)
@@ -905,9 +909,6 @@ private extension SentryContinuousProfilerTests {
 
         let measurements = try XCTUnwrap(profile["measurements"] as? [String: Any])
 
-        let chunkStartTime = try XCTUnwrap(samples.first?["timestamp"] as? TimeInterval)
-        let chunkEndTime = try XCTUnwrap(samples.last?["timestamp"] as? TimeInterval)
- 
         // the metric profiler takes a reading right at the start of a profile, so we also get that in addition to the ones that are mocked in these tests
         let expectedReadingsPerBatch = fixture.mockMetrics.readingsPerBatch + (countMetricsReadingAtProfileStart ? 1 : 0)
         
@@ -949,7 +950,7 @@ private extension SentryContinuousProfilerTests {
             let actualTimestamp = try XCTUnwrap(actualEntry["timestamp"] as? TimeInterval)
             let expectedTimestamp = try XCTUnwrap(expectedEntry["timestamp"] as? TimeInterval)
             XCTAssertEqual(actualTimestamp, expectedTimestamp)
-            try assertTimestampOccursWithinTransaction(timestamp: actualTimestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+            try assertTimestampOccursWithinChunk(timestamp: actualTimestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
 
             let actualValue = try XCTUnwrap(actualEntry["value"] as? NSNumber)
             let expectedValue = try XCTUnwrap(expectedEntry["value"] as? NSNumber)
@@ -969,26 +970,22 @@ private extension SentryContinuousProfilerTests {
         })
     }
 
-    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, expectedValue: T? = nil, expectedUnits: String, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval, readingsPerBatch: Int, expectOneLessEnergyReading: Bool = false) throws {
+    func assertMetricValue(measurements: [String: Any], key: String, expectedValue: NSNumber, expectedUnits: String, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval, readingsPerBatch: Int, expectOneLessEnergyReading: Bool = false) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let values = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
         XCTAssertEqual(values.count, readingsPerBatch - (expectOneLessEnergyReading ? 1 : 0), "Wrong number of values under \(key); (expectOneLessEnergyReading: \(expectOneLessEnergyReading))")
+        XCTAssertEqual(metricContainer["unit"] as? String, expectedUnits)
 
-        if let expectedValue = expectedValue {
-            let actualValue = try XCTUnwrap(try XCTUnwrap(values.element(at: 1))["value"] as? T)
-            XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
-
-            let timestamp = try XCTUnwrap(values.first?["timestamp"] as? TimeInterval)
-            try assertTimestampOccursWithinTransaction(timestamp: timestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
-
-            let actualUnits = try XCTUnwrap(metricContainer["unit"] as? String)
-            XCTAssertEqual(actualUnits, expectedUnits)
+        for reading in values {
+            XCTAssertEqual(try XCTUnwrap(reading["value"] as? NSNumber), expectedValue, "Wrong value for \(key)")
+            let timestamp = try XCTUnwrap(reading["timestamp"] as? TimeInterval)
+            try assertTimestampOccursWithinChunk(timestamp: timestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
         }
     }
     
-    /// Assert that the absolute timestamp actually falls within the chunk's duration, so it should be between 0 and the chunk duration.
-    func assertTimestampOccursWithinTransaction(timestamp: TimeInterval, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
-        XCTAssertGreaterThanOrEqual(timestamp, 0)
+    /// Check the absolute timestamp against the chunk's collection window.
+    func assertTimestampOccursWithinChunk(timestamp: TimeInterval, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
+        XCTAssertGreaterThanOrEqual(timestamp, chunkStartTime)
         XCTAssertLessThanOrEqual(timestamp, chunkEndTime)
     }
 }

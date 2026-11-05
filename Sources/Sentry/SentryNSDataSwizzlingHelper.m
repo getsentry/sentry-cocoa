@@ -97,7 +97,9 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return _tracker != nil
+            // ObjC callers such as MessageUI may pass a nil URL. The tracker takes a non-optional
+            // Swift URL and bridging nil to it traps, so let the original handle it untracked.
+            return _tracker != nil && url != nil
                 ? [_tracker
                       measureNSDataFromURL:url
                                    options:options
