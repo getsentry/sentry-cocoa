@@ -5,6 +5,7 @@
 ### Features
 
 - Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#XXXX)
+- Expose `options.webViewTracing` through the SentryObjC SDK as `SentryObjCOptions.webViewTracing` (#XXXX)
 
 ## 9.33.0
 
