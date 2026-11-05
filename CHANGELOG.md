@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#XXXX)
+- Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
 
 ## 9.33.0
 
