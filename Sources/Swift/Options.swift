@@ -490,6 +490,22 @@
     /// @c enableNetworkBreadcrumbs instead.
     @objc public var enableNetworkTracking: Bool = true
 
+    #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Connects the traces of every `WKWebView` in the app with the app's trace, without calling
+    /// ``SentryWebViewTracing`` for each WebView.
+    ///
+    /// When set, the SDK swizzles the `WKWebView` load methods to add trace propagation to each
+    /// WebView before it loads, and refreshes the trace of those WebViews whenever the current
+    /// span or propagation context changes. WebViews passed to ``SentryWebViewTracing`` keep the
+    /// hosts of that call and are refreshed too.
+    ///
+    /// - Warning: This applies to every `WKWebView` in the process, including in-app browsers and
+    ///   WebViews created by other SDKs. Only list hosts whose content you trust. To add trace
+    ///   propagation only to specific WebViews, leave this `nil` and use ``SentryWebViewTracing``.
+    /// - Note: Requires ``enableSwizzling``. The default is `nil`, which disables the feature.
+    public var webViewTracing: SentryWebViewTracingOptions?
+    #endif
+
     /// When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
     /// performance tracking and enableSwizzling are enabled.
     /// @note The default is @c true.
