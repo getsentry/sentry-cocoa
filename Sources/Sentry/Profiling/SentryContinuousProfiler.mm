@@ -67,8 +67,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         = SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gContinuousCurrentProfiler);
     const auto profilerState = [profiler.state copyAndClearProfilingData];
 
-    NSDictionary *_Nonnull metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
-    [profiler.metricProfiler clear];
+    NSDictionary *_Nonnull metricProfilerState =
+        [profiler.metricProfiler copyAndClearMetricProfilerData];
 
 #    if SENTRY_HAS_UIKIT
     SentryScreenFrames *screenFrameData =
