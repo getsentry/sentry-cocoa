@@ -2804,6 +2804,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableScopePersistence",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableScreenshot",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "BOOL",
@@ -7025,6 +7032,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableScopePersistence:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableScreenshot:",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
@@ -10480,6 +10494,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enablePropagateTraceparent",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableScopePersistence",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },

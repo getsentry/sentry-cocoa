@@ -365,6 +365,11 @@ import Foundation
     }
 #endif // os(iOS) || os(macOS)
 
+    @objc public var enableScopePersistence: Bool {
+        get { wrapped.enableScopePersistence }
+        set { wrapped.enableScopePersistence = newValue }
+    }
+
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
         didSet {
             let initialScope = initialScope

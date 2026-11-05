@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+
 ## 9.33.0
 
 ### Breaking Changes
