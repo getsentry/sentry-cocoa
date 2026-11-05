@@ -13,16 +13,6 @@ public enum SentryUrlMatcher {
     /// NSRegularExpression pattern for regex matching.
     case regex(NSRegularExpression)
 
-    /// Converts the matcher back to its underlying `SentryUrlMatchable` representation.
-    var matchable: SentryUrlMatchable {
-        switch self {
-        case .string(let string):
-            return string
-        case .regex(let regex):
-            return regex
-        }
-    }
-
     /// Evaluates whether the given URL string matches this pattern.
     func matches(url: String) -> Bool {
         switch self {

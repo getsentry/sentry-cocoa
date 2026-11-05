@@ -354,19 +354,6 @@ public class SentryReplayOptions: NSObject {
 
     private let networkDetailLock: SentryMutex<NetworkDetailState>
 
-    public var networkDetailAllowUrls: [SentryUrlMatchable] {
-        get {
-            networkDetailLock.withLock { $0.allowUrls }
-        }
-        set {
-            let matchers = newValue.map { $0.asSentryUrlMatcher }
-            networkDetailLock.withLock { state in
-                state.allowUrls = newValue
-                state.allowMatchers = matchers
-            }
-        }
-    }
-
     /**
      * A list of URL patterns to exclude from network detail capture during session replay.
      *
@@ -386,6 +373,19 @@ public class SentryReplayOptions: NSObject {
      * - Mixed arrays are supported with both types
      *
      */
+    public var networkDetailAllowUrls: [SentryUrlMatchable] {
+        get {
+            networkDetailLock.withLock { $0.allowUrls }
+        }
+        set {
+            let matchers = newValue.map { $0.asSentryUrlMatcher }
+            networkDetailLock.withLock { state in
+                state.allowUrls = newValue
+                state.allowMatchers = matchers
+            }
+        }
+    }
+
     public var networkDetailDenyUrls: [SentryUrlMatchable] {
         get {
             networkDetailLock.withLock { $0.denyUrls }
