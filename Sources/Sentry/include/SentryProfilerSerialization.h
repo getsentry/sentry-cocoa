@@ -5,6 +5,7 @@
 #    import "SentryDefines.h"
 
 @class SentryEnvelope;
+@class SentryDebugMeta;
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryId;
@@ -23,7 +24,8 @@ SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(Sent
     SentryTransaction *transaction, NSDate *startTimestamp);
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
-    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
+    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState,
+    NSArray<SentryDebugMeta *> *debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData

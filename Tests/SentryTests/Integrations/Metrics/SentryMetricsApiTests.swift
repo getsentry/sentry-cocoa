@@ -594,6 +594,182 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertNil(invocation.metric.unit, "Count metrics have no unit")
     }
 
+    // MARK: - Internal API timestamp
+
+    func testCount_withTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 1_800_000_000))
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
+
+        // -- Act --
+        sut.count(key: "network.request.count", value: 3, timestamp: timestamp, traceId: SentryId(), attributes: ["endpoint": "/api/users"])
+
+        // -- Assert --
+        let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "network.request.count")
+        XCTAssertEqual(metric.value, .counter(3))
+        XCTAssertNil(metric.unit)
+        XCTAssertEqual(metric.attributes["endpoint"]?.anyValue as? String, "/api/users")
+    }
+
+    func testDistribution_withTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 1_800_000_000))
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
+
+        // -- Act --
+        sut.distribution(key: "app.launch.time", value: 1.25, unit: .second, timestamp: timestamp, traceId: SentryId())
+
+        // -- Assert --
+        let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "app.launch.time")
+        XCTAssertEqual(metric.value, .distribution(1.25))
+        XCTAssertEqual(metric.unit, .second)
+    }
+
+    func testGauge_withTimestamp_shouldUseTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setDate(date: Date(timeIntervalSince1970: 1_800_000_000))
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration(),
+            dateProvider: dateProvider
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let timestamp = Date(timeIntervalSince1970: 1_799_913_600)
+
+        // -- Act --
+        sut.gauge(key: "memory.peak", value: 512, unit: .megabyte, timestamp: timestamp, traceId: SentryId())
+
+        // -- Assert --
+        let metric = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first?.metric)
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "memory.peak")
+        XCTAssertEqual(metric.value, .gauge(512))
+        XCTAssertEqual(metric.unit, .megabyte)
+    }
+
+    func testCount_withTimestampAndSDKDisabled_shouldNotCreateMetric() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: false,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count(key: "network.request.count", value: 1, timestamp: Date(timeIntervalSince1970: 1_799_913_600), traceId: SentryId())
+
+        // -- Assert --
+        XCTAssertEqual(dependencies.metricsIntegration?.addMetricInvocations.count, 0)
+    }
+
+    // MARK: - Previous Process
+
+    func testCount_withOptions_shouldNotBeFromPreviousProcess() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        // -- Act --
+        sut.count("network.request.count", value: 1, options: SentryMetricOptions(attributes: ["endpoint": "/api/users"]))
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertFalse(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, scope.propagationContextTraceId)
+    }
+
+    func testCount_withTraceId_shouldBeFromPreviousProcessWithTraceId() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.count(
+            key: "network.request.count",
+            value: 1,
+            timestamp: Date(timeIntervalSince1970: 1_799_913_600),
+            traceId: traceId,
+            attributes: ["sentry.release": "io.sentry.app@1.0.0+1"]
+        )
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertTrue(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, traceId)
+        XCTAssertNil(invocation.currentScope)
+        XCTAssertEqual(invocation.metric.attributes["sentry.release"], .string("io.sentry.app@1.0.0+1"))
+    }
+
+    func testDistribution_withTraceId_shouldBeFromPreviousProcessWithTraceId() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.distribution(key: "app.launch.time", value: 1.25, unit: .second, timestamp: Date(timeIntervalSince1970: 1_799_913_600), traceId: traceId)
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertTrue(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, traceId)
+    }
+
+    func testGauge_withTraceId_shouldBeFromPreviousProcessWithTraceId() throws {
+        // -- Arrange --
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: scope,
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.gauge(key: "memory.peak", value: 512, unit: .megabyte, timestamp: Date(timeIntervalSince1970: 1_799_913_600), traceId: traceId)
+
+        // -- Assert --
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertTrue(invocation.isFromPreviousProcess)
+        XCTAssertEqual(invocation.metric.traceId, traceId)
+    }
+
     #if !SDK_V10
     // MARK: - Deprecated key-based API
 
@@ -644,9 +820,9 @@ final class SentryMetricsApiTests: XCTestCase {
 // MARK: - Mock Dependencies
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
-    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?)>()
-    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
-        addMetricInvocations.record((metric, scope, currentScope))
+    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?, isFromPreviousProcess: Bool)>()
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil, isFromPreviousProcess: Bool = false) {
+        addMetricInvocations.record((metric, scope, currentScope, isFromPreviousProcess))
     }
 }
 

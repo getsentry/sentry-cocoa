@@ -4,9 +4,9 @@ This macOS Swift package tests the C capture path used by the V10 `SentryDefault
 
 This is a nonfatal inspection path. Fatal reports use KSCrash's own thread capture pipeline.
 
-KSCrash `develop` has report APIs that are incompatible with the SDK's 2.6 integration. The SDK and
-harness therefore pin the validated 2.6 backport in `getsentry/KSCrash` at revision
-`18a633dec20c265f03386294f9d82d208bb13094`.
+The SDK and harness pin upstream KSCrash `2.6.1` at revision
+`c3882b4db5e810a8ed4148b79cab29a173d4c5c5`, which includes reserved-thread lookup (#913).
+KSCrash `develop` has report APIs that are incompatible with the SDK's 2.6 integration.
 
 ## Run the Tests
 

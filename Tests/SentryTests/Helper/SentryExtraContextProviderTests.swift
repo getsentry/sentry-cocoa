@@ -16,11 +16,21 @@ final class SentryExtraContextProviderTests: XCTestCase {
 #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
 #endif // os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        let hingeObserver = TestSentryHingeObserver()
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
         let processWrapper = MockSentryProcessInfo()
         var reachability = SentryReachability()
 
         func getSut() -> SentryExtraContextProvider {
-            #if os(iOS)
+            #if os(iOS) && !targetEnvironment(macCatalyst)
+            return SentryExtraContextProvider(
+                    memoryMetricsProvider: memoryMetricsProvider,
+                    processInfoWrapper: processWrapper,
+                    deviceWrapper: deviceWrapper,
+                    hingeObserver: hingeObserver,
+                    reachability: reachability)
+            #elseif os(iOS)
             return SentryExtraContextProvider(
                     memoryMetricsProvider: memoryMetricsProvider,
                     processInfoWrapper: processWrapper,
@@ -78,6 +88,47 @@ final class SentryExtraContextProviderTests: XCTestCase {
 #endif // os(iOS)
     }
     
+    func testExtraDeviceInfo_whenHingeStateIsKnown_shouldSetHingeStatus() throws {
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.hingeObserver.currentState = SentryHingeState(status: .partiallyOpen, angle: 1.0)
+
+        // -- Act --
+        let device = sut.getExtraContext()["device"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertEqual(device?["hinge_status"] as? String, "partially_open")
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
+    }
+
+    func testExtraDeviceInfo_whenHingeStateIsUnknown_shouldNotSetHingeStatus() throws {
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.hingeObserver.currentState = SentryHingeState(status: .unknown, angle: 0)
+
+        // -- Act --
+        let device = sut.getExtraContext()["device"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertNil(device?["hinge_status"])
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
+    }
+
+    func testExtraDeviceInfo_whenNoHingeState_shouldNotSetHingeStatus() throws {
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // -- Act --
+        let device = sut.getExtraContext()["device"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertNil(device?["hinge_status"])
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
+    }
+
     func testExtraProcessInfo() throws {
         let sut = fixture.getSut()
         fixture.processWrapper.overrides.processorCount = 12
