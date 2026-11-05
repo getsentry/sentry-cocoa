@@ -6,6 +6,10 @@
 
 - Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
 
+### Fixes
+
+- Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
+
 ## 9.33.0
 
 ### Breaking Changes
