@@ -318,6 +318,14 @@ static BOOL sdkStarted;
         dispatchAsyncOnMainQueueIfNotMainThread:^{
             SENTRY_LOG_DEBUG(@"SDK main thread init started...");
 
+            // Earlier background starts may still have a pending hub installation. Detach the
+            // scope being replaced here, rather than the hub visible when start was called.
+            [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
+            if (options.enableScopePersistence) {
+                [SentryDependencyContainer.sharedInstance.scopePersistentStore
+                    startPersistingUserInScope:scope];
+            }
+
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
 #if SENTRY_HAS_UIKIT
@@ -678,6 +686,7 @@ static BOOL sdkStarted;
         startTimestamp = nil;
 
         SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        [hub.scope configureUserPersistence:nil];
         [hub removeAllIntegrations];
 
         SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
