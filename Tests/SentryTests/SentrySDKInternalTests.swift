@@ -325,6 +325,37 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
     }
 
+    func testStart_whenStartedTwiceBeforeMainQueueInit_shouldStopPersistingOldScope() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        let disabledOptions = try userPersistenceOptions(enabled: false)
+        disabledOptions.cacheDirectoryPath = options.cacheDirectoryPath
+        var oldScope: Scope?
+        options.initialScope = { scope in
+            scope.setUser(User(userId: "persisted-user"))
+            oldScope = scope
+            return scope
+        }
+        defer { SentrySDK.close() }
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { false }
+        startForUserPersistence(options)
+        startForUserPersistence(disabledOptions)
+        let pendingInitializations = fixture.dispatchQueueWrapper.blockOnMainInvocations.invocations
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { true }
+        for initialize in pendingInitializations {
+            initialize()
+        }
+
+        // -- Act --
+        try XCTUnwrap(oldScope).setUser(User(userId: "stale-user"))
+        SentrySDK.close()
+        options.initialScope = { $0 }
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+    }
+
     func testStart_whenAutomaticUserCollectionDisabled_shouldRestoreExplicitUser() throws {
         // -- Arrange --
         let options = try userPersistenceOptions()

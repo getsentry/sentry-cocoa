@@ -270,9 +270,6 @@ static BOOL sdkStarted;
         sdkStarted = YES;
     }
     if (alreadyStarted) {
-        // Startup replaces the hub and scope below. A retained old scope must no longer persist
-        // user changes, even if persistence is disabled for the new scope.
-        [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
         SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
                         @"close() may lead to undefined behavior.");
     }
@@ -315,15 +312,19 @@ static BOOL sdkStarted;
     SentryScope *scope = options.initialScope(
         [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
                                     maxFeatureFlags:options.maxFeatureFlags]);
-    if (options.enableScopePersistence) {
-        [SentryDependencyContainer.sharedInstance.scopePersistentStore
-            startPersistingUserInScope:scope];
-    }
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchAsyncOnMainQueueIfNotMainThread:^{
             SENTRY_LOG_DEBUG(@"SDK main thread init started...");
+
+            // Earlier background starts may still have a pending hub installation. Detach the
+            // scope being replaced here, rather than the hub visible when start was called.
+            [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
+            if (options.enableScopePersistence) {
+                [SentryDependencyContainer.sharedInstance.scopePersistentStore
+                    startPersistingUserInScope:scope];
+            }
 
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
