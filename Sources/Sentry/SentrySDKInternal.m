@@ -270,6 +270,8 @@ static BOOL sdkStarted;
         sdkStarted = YES;
     }
     if (alreadyStarted) {
+        // Startup replaces the hub and scope below. A retained old scope must no longer persist
+        // user changes, even if persistence is disabled for the new scope.
         [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
         SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
                         @"close() may lead to undefined behavior.");
