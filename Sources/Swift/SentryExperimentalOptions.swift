@@ -63,4 +63,24 @@ public final class SentryExperimentalOptions: NSObject {
      * See https://github.com/getsentry/sentry-cocoa/issues/8548.
      */
     public var enableUIViewControllerInitSwizzling = false
+
+    /// Tracks slow and frozen frames, frames delay, and time to display without waking up the app
+    /// for every frame.
+    ///
+    /// By default, the SDK tracks frames with a `CADisplayLink`, which makes the main thread wake up
+    /// for every frame of the display for as long as the app is active, even when nothing on screen
+    /// changes. With this option, the SDK observes the main run loop to measure how long the main
+    /// thread is blocked, and uses a `UIUpdateLink` to observe the UI updates UIKit produces anyway.
+    /// An idle app stays idle.
+    ///
+    /// The frame data can differ slightly from the default implementation: the total frame count
+    /// is calculated from the time that passed, and a frame counts as slow or frozen when one piece
+    /// of work blocks the main thread for longer than the duration of a frame.
+    ///
+    /// Only has an effect on iOS 18, tvOS 18, and visionOS 2 and later. On older versions and on
+    /// Mac Catalyst the SDK keeps using a `CADisplayLink`. Configure this option before starting
+    /// the SDK.
+    ///
+    /// - Experiment: Disabled by default while this implementation is being tested.
+    public var enableUIUpdateLinkFramesTracking = false
 }

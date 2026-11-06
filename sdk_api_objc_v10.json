@@ -2839,6 +2839,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableUIViewControllerInitSwizzling",
     "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
@@ -7067,6 +7074,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableUIUpdateLinkFramesTracking:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableUIViewControllerInitSwizzling:",
     "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
@@ -10525,6 +10539,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

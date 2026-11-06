@@ -342,7 +342,20 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
         let sentryAutoTransactionMaxDuration = 500.0
         let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
-        return SentryFramesTracker(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+        return SentryFramesTracker(frameSource: makeFrameSource(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+    }
+
+    func makeFrameSource() -> SentryFrameSource {
+        // UIUpdateLink lets the tracker observe frames without waking up the app for every frame.
+        // It isn't available on Mac Catalyst. The tracker keeps its frame source until the SDK
+        // closes, so the option only has an effect when it's set before the SDK starts.
+        #if !targetEnvironment(macCatalyst)
+        if #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *), startOptions?.experimental.enableUIUpdateLinkFramesTracking == true {
+            let uiUpdateObserver = SentryUIUpdateLinkObserver(notificationCenter: notificationCenterWrapper, dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
+            return SentryUpdateLinkFrameSource(dateProvider: dateProvider, runLoopObserver: SentryMainRunLoopActivityObserver(), uiUpdateObserver: uiUpdateObserver)
+        }
+        #endif
+        return SentryDisplayLinkFrameSource(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider)
     }
 
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?

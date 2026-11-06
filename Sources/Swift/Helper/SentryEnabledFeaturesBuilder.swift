@@ -118,6 +118,11 @@ import Foundation
         if options.experimental.enableUIViewControllerInitSwizzling {
             features.append("uiViewControllerInitSwizzling")
         }
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        if options.experimental.enableUIUpdateLinkFramesTracking {
+            features.append("uiUpdateLinkFramesTracking")
+        }
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.experimental.metrickit.hangReportingMode == .flamegraphAttachment {
             features.append("metricKitHangFlamegraphAttachment")
         }

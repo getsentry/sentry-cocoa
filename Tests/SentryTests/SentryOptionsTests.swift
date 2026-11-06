@@ -27,6 +27,14 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling)
     }
 
+    func testEnableUIUpdateLinkFramesTracking_whenDefault_shouldBeFalse() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertFalse(options.experimental.enableUIUpdateLinkFramesTracking)
+    }
+
 #if canImport(MetricKit) && !os(tvOS)
     func testMetricKitEnabledDiagnosticReports_whenDefault_shouldDependOnSDKVersion() {
         // -- Arrange --

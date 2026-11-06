@@ -998,7 +998,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
     private func reportFrame() {
         advanceTime(bySeconds: self.frameDuration)
-        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
+        SentryDependencyContainer.sharedInstance().framesTracker.manualReportNewFrame()
     }
 }
 #endif // os(iOS) || os(tvOS)
