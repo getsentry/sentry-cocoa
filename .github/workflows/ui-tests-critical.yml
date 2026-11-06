@@ -170,7 +170,7 @@ jobs:
   # to make UI tests critical a required check with only running the UI tests critical when required.
   # So, we don't have to run UI tests critical, for example, for unrelated changes.
   ui_tests_critical-required-check:
-    needs: [files-changed, run-tests, run-swiftui-crash-test]
+    needs: [run-full-ci-gate, files-changed, run-tests, run-swiftui-crash-test]
     name: UI Tests Critical
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

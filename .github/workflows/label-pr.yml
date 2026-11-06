@@ -9,6 +9,8 @@ on:
       converted_to_draft,
       ready_for_review,
       reopened,
+      labeled,
+      unlabeled,
     ]
   pull_request_review:
     types: [submitted, dismissed]
@@ -19,7 +21,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   label:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Label
     runs-on: ubuntu-latest
     steps:

@@ -2,10 +2,24 @@ name: Validate PR
 
 on:
   pull_request_target:
-    types: [opened, reopened]
+    types: [
+      opened,
+      reopened,
+      synchronize,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   validate-pr:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     runs-on: ubuntu-24.04
     permissions:
       pull-requests: write

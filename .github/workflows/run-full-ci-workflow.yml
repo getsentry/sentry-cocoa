@@ -18,7 +18,8 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            if (context.eventName !== 'pull_request') {
+            const pullRequestEvents = ['pull_request', 'pull_request_target', 'pull_request_review'];
+            if (!pullRequestEvents.includes(context.eventName)) {
               core.setOutput('run_ci', 'true');
               core.info('Not a PR. Proceeding with CI.');
               return;
