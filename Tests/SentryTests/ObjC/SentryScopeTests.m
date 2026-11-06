@@ -1,7 +1,5 @@
 #import "SentryBreadcrumb.h"
 #import "SentryInternalSerializable.h"
-#import "SentryScope+Private.h"
-#import "SentryScope.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
 #if SWIFT_PACKAGE

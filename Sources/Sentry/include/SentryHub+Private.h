@@ -5,7 +5,6 @@
 @class SentryClientInternal;
 @class SentryEnvelopeItem;
 @class SentryId;
-@class SentryScope;
 @class SentryTransaction;
 @class SentryDispatchQueueWrapper;
 @class SentrySession;
@@ -42,13 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureFatalEvent:(SentryEvent *)event;
 
-- (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (void)captureFatalEvent:(SentryEvent *)event
+                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(captureFatalEvent(_:with:));
 
 /**
  * Captures a fatal event and returns its ID, or @c SentryId.empty when no event was accepted.
  */
 - (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
-                                withScope:(SentryScope *)scope
+                                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
     NS_SWIFT_NAME(captureFatalEvent(_:scope:preserveCrashedSessionOnFailure:));
 
@@ -71,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   SentryTracerConfiguration))configuration;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
@@ -84,26 +85,30 @@ NS_ASSUME_NONNULL_BEGIN
              withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-          attachAllThreads:(nullable NSNumber *)attachAllThreads;
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+          attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(captureError(_:with:attachAllThreads:));
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-              attachAllThreads:(nullable NSNumber *)attachAllThreads;
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+              attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(_:with:attachAllThreads:));
 
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope
-            attachAllThreads:(nullable NSNumber *)attachAllThreads;
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+            attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(captureMessage(_:with:attachAllThreads:));
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
 
 - (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(_:with:));
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(capture(_:with:));
 
 - (void)captureTransaction:(SentryTransaction *)transaction
-                  withScope:(SentryScope *)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 - (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
     NS_SWIFT_NAME(saveCrash(_:));

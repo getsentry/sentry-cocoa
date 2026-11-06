@@ -1,5 +1,7 @@
+#import "SentryLevel.h"
 #import "SentryScope+Equality.h"
 #import "SentryScope+Properties.h"
+#import "SentrySwift.h"
 #import "SentryUser.h"
 
 @implementation SentryScope (Equality)

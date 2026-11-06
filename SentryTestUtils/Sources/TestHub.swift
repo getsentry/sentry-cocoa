@@ -42,12 +42,20 @@ public class TestHub: SentryTestHubWrapper {
     }
     
     public var sentFatalEventsWithScope = Invocations<(event: Event, scope: Scope)>()
-    public override func captureFatalEvent(_ event: Event, with scope: Scope) {
+    public override func captureFatalEvent(_ event: Event, with scope: Any) {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return
+        }
         sentFatalEventsWithScope.record((event, scope))
     }
     
     @_spi(Private) public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func wrapper_capture(event: Event, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
+    public override func wrapper_capture(event: Event, scope: Any, additionalEnvelopeItems: [Any]) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         guard let additionalEnvelopeItems = additionalEnvelopeItems as? [SentryEnvelopeItem] else {
             XCTFail("TestHub.wrapper_capture: Expected [SentryEnvelopeItem], got \(additionalEnvelopeItems.map { type(of: $0) })")
             return event.eventId
@@ -73,7 +81,11 @@ public class TestHub: SentryTestHubWrapper {
     }
 
     public var capturedTransactionsWithScope = Invocations<(transaction: [String: Any], scope: Scope)>()
-    public override func wrapper_capture(transaction: Any, with scope: Scope) {
+    public override func wrapper_capture(transaction: Any, with scope: Any) {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return
+        }
         guard let transaction = transaction as? Transaction else {
             XCTFail("TestHub.wrapper_capture(transaction:with:): Expected Transaction, got \(type(of: transaction))")
             return

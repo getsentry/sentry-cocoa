@@ -3,7 +3,6 @@
 
 @class SentryId;
 @class SentryTracer;
-@class SentryScope;
 @class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -52,7 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a SentryTraceContext with data from scope and options.
  */
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;
+- (nullable instancetype)initWithScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                               options:(SentryOptions *)options;
 
 /**
  * Initializes a SentryTraceContext with data from a dictionary.
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a SentryTraceContext with data from a trace, scope and options.
  */
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
-                                  scope:(nullable SentryScope *)scope
+                                  scope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                                 options:(SentryOptions *)options;
 
 /**

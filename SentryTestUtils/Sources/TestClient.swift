@@ -96,7 +96,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     @_spi(Private) public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func wrapper_capture(event: Event, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
+    public override func wrapper_capture(event: Event, scope: Any, additionalEnvelopeItems: [Any]) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         guard let additionalEnvelopeItems = additionalEnvelopeItems as? [SentryEnvelopeItem] else {
             XCTFail("TestClient.wrapper_capture: Expected [SentryEnvelopeItem], got \(additionalEnvelopeItems.map { type(of: $0) })")
             return event.eventId
@@ -106,7 +110,11 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     public var captureEventWithScopeAndHintInvocations = Invocations<(event: Event, scope: Scope, hint: Hint?)>()
-    public override func wrapper_capture(event: Event, scope: Scope, hint: Any?) -> SentryId {
+    public override func wrapper_capture(event: Event, scope: Any, hint: Any?) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         // Also recorded as a capture with scope, so assertions don't depend on whether the
         // captured event came with a hint.
         captureEventWithScopeInvocations.record((event, scope, []))
@@ -121,13 +129,21 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureMessageWithScopeInvocations = Invocations<(message: String, scope: Scope)>()
-    public override func capture(message: String, scope: Scope) -> SentryId {
+    public override func capture(message: String, scope: Any) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         captureMessageWithScopeInvocations.record((message, scope))
         return SentryId()
     }
 
     public var captureMessageWithScopeAttachAllThreadsInvocations = Invocations<(message: String, scope: Scope, attachAllThreads: NSNumber?)>()
-    public override func capture(message: String, scope: Scope, attachAllThreads: NSNumber?) -> SentryId {
+    public override func capture(message: String, scope: Any, attachAllThreads: NSNumber?) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         super.capture(message: message, scope: scope, attachAllThreads: attachAllThreads)
         captureMessageWithScopeAttachAllThreadsInvocations.record((message, scope, attachAllThreads))
         return SentryId()
@@ -142,7 +158,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureErrorWithScopeInvocations = Invocations<(error: Error, scope: Scope)>()
-    public override func capture(error: Error, scope: Scope) -> SentryId {
+    public override func capture(error: Error, scope: Any) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         super.capture(error: error, scope: scope)
 
         captureErrorWithScopeInvocations.record((error, scope))
@@ -150,7 +170,11 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     public var captureErrorWithScopeAttachAllThreadsInvocations = Invocations<(error: Error, scope: Scope, attachAllThreads: NSNumber?)>()
-    public override func capture(error: Error, scope: Scope, attachAllThreads: NSNumber?) -> SentryId {
+    public override func capture(error: Error, scope: Any, attachAllThreads: NSNumber?) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         super.capture(error: error, scope: scope, attachAllThreads: attachAllThreads)
         
         captureErrorWithScopeAttachAllThreadsInvocations.record((error, scope, attachAllThreads))
@@ -166,7 +190,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureExceptionWithScopeInvocations = Invocations<(exception: NSException, scope: Scope)>()
-    public override func capture(exception: NSException, scope: Scope) -> SentryId {
+    public override func capture(exception: NSException, scope: Any) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         super.capture(exception: exception, scope: scope)
 
         captureExceptionWithScopeInvocations.record((exception, scope))
@@ -174,14 +202,22 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     public var captureExceptionWithScopeAttachAllThreadsInvocations = Invocations<(exception: NSException, scope: Scope, attachAllThreads: NSNumber?)>()
-    public override func capture(exception: NSException, scope: Scope, attachAllThreads: NSNumber?) -> SentryId {
+    public override func capture(exception: NSException, scope: Any, attachAllThreads: NSNumber?) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         super.capture(exception: exception, scope: scope, attachAllThreads: attachAllThreads)
         captureExceptionWithScopeAttachAllThreadsInvocations.record((exception, scope, attachAllThreads))
         return SentryId()
     }
 
     @_spi(Private) public var captureEventIncrementingSessionErrorCountInvocations = Invocations<(event: Event, scope: Scope)>()
-    @_spi(Private) public override func captureEventIncrementingSessionErrorCount(_ event: Event, with scope: Scope) -> SentryId {
+    @_spi(Private) public override func captureEventIncrementingSessionErrorCount(_ event: Event, with scope: Any) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         super.captureEventIncrementingSessionErrorCount(event, with: scope)
 
         captureEventIncrementingSessionErrorCountInvocations.record((event, scope))
@@ -189,7 +225,11 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     public var captureFatalEventInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+    public override func captureFatalEvent(_ event: Event, with scope: Any) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         captureFatalEventInvocations.record((event, scope))
         return SentryId()
     }
@@ -197,7 +237,11 @@ open class TestClient: SentryTestClientWrapper {
     @_spi(Private)
     public var captureFatalEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
     @_spi(Private)
-    public override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Scope) -> SentryId {
+    public override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Any) -> SentryId {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return SentryId()
+        }
         guard let session = session as? SentrySession else {
             XCTFail("TestClient.wrapper_captureFatalEvent: Expected SentrySession, got \(type(of: session))")
             return event.eventId
@@ -207,7 +251,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var saveCrashTransactionInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func wrapper_saveCrashTransaction(transaction: Any, scope: Scope) {
+    public override func wrapper_saveCrashTransaction(transaction: Any, scope: Any) {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return
+        }
         guard let transaction = transaction as? Transaction else {
             XCTFail("TestClient.wrapper_saveCrashTransaction: Expected Transaction, got \(type(of: transaction))")
             return
@@ -216,7 +264,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureFeedbackInvocations = Invocations<(SentryFeedback, Scope)>()
-    public override func wrapper_capture(feedback: Any, scope: Scope) {
+    public override func wrapper_capture(feedback: Any, scope: Any) {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return
+        }
         guard let feedback = feedback as? SentryFeedback else {
             XCTFail("TestClient.wrapper_capture(feedback:scope:): Expected SentryFeedback, got \(type(of: feedback))")
             return
@@ -225,7 +277,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureSerializedFeedbackInvocations = Invocations<(String, Scope)>()
-    public override func captureSerializedFeedback(_ serializedFeedback: [AnyHashable: Any], withEventId feedbackEventId: String, attachments: [Attachment], scope: Scope) {
+    public override func captureSerializedFeedback(_ serializedFeedback: [AnyHashable: Any], withEventId feedbackEventId: String, attachments: [Attachment], scope: Any) {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return
+        }
         captureSerializedFeedbackInvocations.record((feedbackEventId, scope))
     }
     
@@ -273,7 +329,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
-    public override func _swiftCaptureLog(_ log: NSObject, with scope: Scope) {
+    public override func _swiftCaptureLog(_ log: NSObject, with scope: Any) {
+        guard let scope = scope as? Scope else {
+            XCTFail("Expected Scope, got \(type(of: scope))")
+            return
+        }
         if let castLog = log as? SentryLog {
             captureLogInvocations.record((castLog, scope))
         }
