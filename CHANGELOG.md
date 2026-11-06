@@ -23,6 +23,10 @@
 - Connect traces of web content in a `WKWebView` with the app's trace. Call `SentryWebViewTracing.addTracePropagation(to:options:)` with a `WKWebView`, `WKWebViewConfiguration`, `WKUserContentController`, or SwiftUI `WebPage.Configuration` to inject the current trace as `sentry-trace` and `baggage` meta tags before page scripts run, so `@sentry/browser` in the page continues the trace on pageload. Only pages on the hosts in `SentryWebViewTracingOptions.allowedHosts` receive the trace (#9474)
 - Expose WebView trace propagation through the SentryObjC SDK as `SentryObjCWebViewTracing` and `SentryObjCWebViewTracingOptions` (#9488)
 
+### Improvements
+
+- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
+
 ### Fixes
 
 - Report the tvOS OS name as `tvOS` in profiles instead of occasionally reporting `Apple TVOS` (#9497)
