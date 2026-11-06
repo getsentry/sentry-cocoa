@@ -34,35 +34,36 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
-                      withScope:(SentryScope *)scope NS_SWIFT_NAME(captureFatalEvent(_:with:with:));
+                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(captureFatalEvent(_:with:with:));
 
 - (void)captureSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
     NS_SWIFT_NAME(capture(session:));
 - (void)captureReplayEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryReplayEvent))event
            replayRecording:(SENTRY_SWIFT_MIGRATION_ID(SentryReplayRecording))recording
                      video:(NSURL *)video
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(capture(_:replayRecording:video:with:));
 - (void)storeEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope NS_SWIFT_NAME(store(_:));
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(event:scope:hint:));
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(error:scope:hint:));
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                           hint:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(exception:scope:hint:));
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                         hint:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray *)items
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 @end

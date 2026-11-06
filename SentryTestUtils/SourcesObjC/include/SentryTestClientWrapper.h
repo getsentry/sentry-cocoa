@@ -30,29 +30,29 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(wrapper_capture(session:));
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event
-                         withScope:(SentryScope *)scope
+                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event
-                         withScope:(SentryScope *)scope
+                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                               hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint
     NS_SWIFT_NAME(wrapper_capture(event:scope:hint:));
 
 - (SentryId *)wrapper_captureFatalEvent:(SentryEvent *)event
                             withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
-                              withScope:(SentryScope *)scope
+                              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(wrapper_captureFatalEvent(_:session:scope:));
 
 - (void)wrapper_captureFeedback:(SENTRY_SWIFT_MIGRATION_ID(SentryFeedback))feedback
-                      withScope:(SentryScope *)scope
+                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(wrapper_capture(feedback:scope:));
 
 - (void)wrapper_captureEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope
     NS_SWIFT_NAME(wrapper_capture(envelope:));
 
 - (void)wrapper_saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                           withScope:(SentryScope *)scope
+                           withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(wrapper_saveCrashTransaction(transaction:scope:));
 
 - (void)wrapper_storeEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope
@@ -71,7 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal (TestFeedbackAccess)
 - (void)captureFeedback:(SENTRY_SWIFT_MIGRATION_ID(SentryFeedback))feedback
-              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
+              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(capture(feedback:scope:));
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1543,11 +1543,11 @@ class SentryHubTests: XCTestCase {
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
             var scope: Scope?
-            override func capture(_ event: Any, replayRecording recording: Any, video videoURL: URL, with scope: Scope) {
+            override func capture(_ event: Any, replayRecording recording: Any, video videoURL: URL, with scope: Any) {
                 self.replayEvent = event as? SentryReplayEvent
                 self.replayRecording = recording as? SentryReplayRecording
                 self.videoUrl = videoURL
-                self.scope = scope
+                self.scope = scope as? Scope
             }
         }
         let mockClient = SentryClientMockReplay(options: fixture.options)

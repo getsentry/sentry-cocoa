@@ -47,7 +47,7 @@
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     return [self wrapper_captureEvent:event
@@ -56,7 +56,7 @@
 }
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event
-                         withScope:(SentryScope *)scope
+                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
 {
     // Return only the event ID: Swift TestClient overrides this SwiftPM-compatible bridge method
@@ -65,14 +65,14 @@
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(SentryHint *_Nullable)hint
 {
     return [self wrapper_captureEvent:event withScope:scope hint:hint];
 }
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event
-                         withScope:(SentryScope *)scope
+                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                               hint:(id _Nullable)hint
 {
     return event.eventId;
@@ -80,26 +80,27 @@
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope
+                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self wrapper_captureFatalEvent:event withSession:session withScope:scope];
 }
 
 - (SentryId *)wrapper_captureFatalEvent:(SentryEvent *)event
                             withSession:(id)session
-                              withScope:(SentryScope *)scope
+                              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     // Return only the event ID: Swift TestClient overrides this SwiftPM-compatible bridge method
     // to record the invocation without capturing a real fatal event or session.
     return event.eventId;
 }
 
-- (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     [self wrapper_captureFeedback:feedback withScope:scope];
 }
 
-- (void)wrapper_captureFeedback:(id)feedback withScope:(SentryScope *)scope
+- (void)wrapper_captureFeedback:(id)feedback withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
     // to record the invocation without capturing real feedback.
@@ -111,12 +112,13 @@
 }
 
 - (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                   withScope:(SentryScope *)scope
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     [self wrapper_saveCrashTransaction:transaction withScope:scope];
 }
 
-- (void)wrapper_saveCrashTransaction:(id)transaction withScope:(SentryScope *)scope
+- (void)wrapper_saveCrashTransaction:(id)transaction
+                           withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
     // to record the invocation without storing a real crash transaction.

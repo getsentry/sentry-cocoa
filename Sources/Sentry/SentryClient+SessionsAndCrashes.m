@@ -13,8 +13,8 @@ extern NSString *const DropSessionLogMessage;
 - (SentryTransportAdapter *)transportAdapter;
 
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                           currentScope:(nullable SentryScope *)currentScope;
+                                              withScope:(id)scope
+                                           currentScope:(nullable id)currentScope;
 
 @end
 
@@ -23,7 +23,7 @@ extern NSString *const DropSessionLogMessage;
 
 @implementation SentryClientInternal (SessionsAndCrashes)
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(id)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
     return [self sendEvent:event
@@ -35,7 +35,7 @@ extern NSString *const DropSessionLogMessage;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope
+                      withScope:(id)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint scope:scope isFromPreviousProcess:YES];
@@ -49,7 +49,7 @@ extern NSString *const DropSessionLogMessage;
 }
 
 - (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                   withScope:(SentryScope *)scope
+                   withScope:(id)scope
 {
     SentryTransaction *typedTransaction = (SentryTransaction *)transaction;
     // Populate the hint so beforeSendTransaction sees the same attachments as for regular
@@ -73,15 +73,14 @@ extern NSString *const DropSessionLogMessage;
     [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event withScope:(id)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
+                                              withScope:(id)scope
                                                    hint:(SentryHint *)hint
 {
     [self populateHintAttachments:hint
