@@ -20,6 +20,7 @@ high_risk_code: &high_risk_code
   - ".github/file-filters.yml"
 
 run_unit_tests_for_prs: &run_unit_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -75,6 +76,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Brewfile*"
 
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Resources/**"
   - "Sources/SentryDistribution/**"
   - "Sources/SentryDistributionTests/**"
@@ -254,6 +256,7 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - ".swiftlint.yml"
 
 run_release_for_prs: &run_release_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -406,6 +409,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Makefile"
 
 run_v10_for_prs: &run_v10_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -478,6 +482,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "Makefile"
 
 run_crash_e2e_for_prs:
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -512,6 +517,7 @@ run_crash_e2e_for_prs:
   - "Brewfile*"
 
 run_thread_inspection_harness_for_prs:
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Sentry/SentryThreadSnapshot.c"
   - "Sources/Sentry/SentryThreadSnapshotKSCrash.c"
   - "Sources/Sentry/include/SentryThreadSnapshot.h"
@@ -525,6 +531,7 @@ run_thread_inspection_harness_for_prs:
   - ".github/actions/ci-diagnostics/**"
 
 run_build_for_prs: &run_build_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/**"
   - "TestApps/**"
   - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
@@ -673,6 +680,7 @@ run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_
   - "3rd-party-integrations/**"
 
 run_ui_tests_for_prs: &run_ui_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -720,6 +728,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Brewfile*"
 
 run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -803,6 +812,7 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Brewfile*"
 
 run_size_analysis_for_prs: &run_size_analysis_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -835,6 +845,7 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Brewfile*"
 
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"

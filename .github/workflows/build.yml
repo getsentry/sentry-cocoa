@@ -7,7 +7,15 @@ on:
       - release/**
 
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
@@ -22,13 +30,14 @@ concurrency:
 
 jobs:
   run-full-ci-gate:
-    name: run-full-ci gate
+    name: CI eligibility
     uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
     needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
