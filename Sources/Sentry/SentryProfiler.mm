@@ -9,6 +9,7 @@
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
