@@ -47,6 +47,7 @@ final class SentryProfilerSDKAdapterCaptureTests: XCTestCase {
         }
         SentryContinuousProfiler.start()
         let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        profiler.state = SentryProfilerState()
         SentryProfilerMocksSwiftCompatible.appendMockBacktrace(
             to: profiler.state, threadID: 1, threadPriority: 0, threadName: "test", addresses: [0x1])
         fixture.currentDateProvider.advanceBy(nanoseconds: 1)
