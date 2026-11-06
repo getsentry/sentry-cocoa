@@ -10,14 +10,6 @@ import _SentryPrivate
 import SentryTestUtilsObjCpp
 import XCTest
 
-private final class UnavailableEnrichmentProfilerBackend: SentryDefaultProfilerSDKBackend {
-    override var debugImageProvider: SentryDebugImageProvider? { nil }
-
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-    override func copyCurrentFrames() -> SentryScreenFrames? { nil }
-#endif
-}
-
 final class SentryProfilerSDKAdapterCaptureTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
 
@@ -37,7 +29,7 @@ final class SentryProfilerSDKAdapterCaptureTests: XCTestCase {
         // -- Arrange --
         let adapter = SentryProfilerSDKAdapter.shared
         let previousBackend = try XCTUnwrap(adapter.target)
-        let backend = UnavailableEnrichmentProfilerBackend()
+        let backend = sentry_test_createProfilerBackendWithoutEnrichment()
         adapter.setTarget(backend)
         defer {
             withExtendedLifetime(backend) {
