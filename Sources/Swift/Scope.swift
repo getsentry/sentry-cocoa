@@ -618,7 +618,7 @@ open class Scope: NSObject {
         if let eventContext = event.context {
             let merged = NSMutableDictionary(dictionary: newContext)
             mergeEntries(from: eventContext as NSDictionary, into: merged)
-            event.context = merged as? [String: [String: Any]] ?? newContext
+            event.context = merged as? [String: [String: Any]] ?? bridgedContext(merged)
         } else {
             event.context = newContext
         }
@@ -683,7 +683,7 @@ open class Scope: NSObject {
             var merged = event.context ?? [:]
             let mergedDictionary = NSMutableDictionary(dictionary: merged)
             mergeEntries(from: overlayContext as NSDictionary, into: mergedDictionary)
-            merged = mergedDictionary as? [String: [String: Any]] ?? merged
+            merged = mergedDictionary as? [String: [String: Any]] ?? bridgedContext(mergedDictionary)
             let isRegularEvent = event.type == nil || event.type == SentryEnvelopeItemTypes.event
             if !isRegularEvent {
                 merged.removeValue(forKey: "flags")
@@ -941,7 +941,27 @@ open class Scope: NSObject {
     }
 
     private func contextDictionaryCopy() -> [String: [String: Any]] {
-        contextDictionary.copy() as? [String: [String: Any]] ?? [:]
+        if let context = contextDictionary.copy() as? [String: [String: Any]] {
+            return context
+        }
+        // One non-dictionary value must not discard the dictionaries beside it.
+        return bridgedContext(contextDictionary)
+    }
+
+    /// Keeps every top-level dictionary. A value that is not a dictionary cannot be stored on
+    /// `Event.context`, but it must not cause the merged dictionaries to be thrown away.
+    private func bridgedContext(_ dictionary: NSDictionary) -> [String: [String: Any]] {
+        var result: [String: [String: Any]] = [:]
+        dictionary.enumerateKeysAndObjects { key, value, _ in
+            guard let key = key as? String, let nested = value as? NSDictionary else { return }
+            var inner: [String: Any] = [:]
+            nested.enumerateKeysAndObjects { innerKey, innerValue, _ in
+                guard let innerKey = innerKey as? String else { return }
+                inner[innerKey] = innerValue
+            }
+            result[key] = inner
+        }
+        return result
     }
 
     private func stringDictionary(_ dictionary: NSMutableDictionary) -> [String: String] {
