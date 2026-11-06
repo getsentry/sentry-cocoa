@@ -343,7 +343,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertTrue(appState.isANROngoing)
     }
-    #endif // !SDK_V10
 
     @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
@@ -359,7 +358,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertTrue(appState.isANROngoing)
     }
 
-    #if !SDK_V10
     func testANRStopped_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
@@ -372,7 +370,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
     }
-    #endif // !SDK_V10
 
     @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
@@ -492,6 +489,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertNotNil(integration)
     }
 
+    #endif // !SDK_V10
+
     func testUninstall_shouldFlushAndCloseBreadcrumbProcessor() throws {
         // -- Arrange --
         let breadcrumbProcessor = MockWatchdogTerminationBreadcrumbProcessor()
@@ -511,7 +510,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 #if !SDK_V10
 typealias MockDependenciesProtocol = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
 #else
-typealias MockDependenciesProtocol = ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
+typealias MockDependenciesProtocol = ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
 #endif
 private class MockDependencies: MockDependenciesProtocol {
 
@@ -531,6 +530,7 @@ private class MockDependencies: MockDependenciesProtocol {
 
     func application() -> SentryApplication? { nil }
 
+    #if !SDK_V10
     struct TestRunLoopObserver: SentryRunLoopObserver { }
 
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
@@ -551,6 +551,7 @@ private class MockDependencies: MockDependenciesProtocol {
         )
         return SentryDefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
     }()
+    #endif
 
     var processInfoWrapper: any SentryProcessInfoSource {
         SentryDependencyContainer.sharedInstance().processInfoWrapper
@@ -584,6 +585,7 @@ private class MockDependencies: MockDependenciesProtocol {
     }
 }
 
+#if !SDK_V10
 /// A mock run loop delay tracker that allows manual triggering of delay events
 private class MockRunLoopDelayTracker: SentryRunLoopDelayTracker {
     private var observers: [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler] = [:]
@@ -607,11 +609,7 @@ private class MockRunLoopDelayTracker: SentryRunLoopDelayTracker {
 
 /// Mock dependencies that use a controllable MockRunLoopDelayTracker wrapped in a real
 /// SentryDefaultAppHangTracker, so per-observer threshold logic is exercised.
-#if !SDK_V10
 typealias ControllableDelayTrackerMockDependenciesProtocol = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
-#else
-typealias ControllableDelayTrackerMockDependenciesProtocol = ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
-#endif
 private class MockDependenciesWithControllableDelayTracker: ControllableDelayTrackerMockDependenciesProtocol {
 
 #if !SDK_V10
@@ -651,4 +649,5 @@ private class MockDependenciesWithControllableDelayTracker: ControllableDelayTra
     }
 }
 
+#endif // !SDK_V10
 #endif // os(iOS) || os(tvOS)
