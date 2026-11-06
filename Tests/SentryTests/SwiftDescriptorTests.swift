@@ -14,6 +14,10 @@ class SwiftDescriptorTests: XCTestCase {
     private class InnerClass: NSObject {
         
     }
+
+    private class GenericClass<T>: NSObject {
+
+    }
     
     func testDescriptionWithBaseObject() {
         let object = NSObject()
@@ -35,6 +39,18 @@ class SwiftDescriptorTests: XCTestCase {
         
         XCTAssertNotEqual(name, object.description)
         XCTAssertEqual(name, "InnerClass")
+    }
+
+    func testGetObjectClassName_whenGenericClass_shouldMatchStringDescribing() {
+        // -- Arrange --
+        let object = GenericClass<GenericClass<[Int]>>()
+
+        // -- Act --
+        let name = SwiftDescriptor.getObjectClassName(object)
+
+        // -- Assert --
+        XCTAssertEqual(name, "GenericClass<GenericClass<Array<Int>>>")
+        XCTAssertEqual(name, String(describing: type(of: object)))
     }
     
     func testGetSwiftErrorDescription_EnumValue() {
