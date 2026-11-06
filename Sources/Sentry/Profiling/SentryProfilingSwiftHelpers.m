@@ -93,6 +93,12 @@ sentry_isNotSampled(SentryTransactionContext *context)
     return context.sampled != kSentrySampleDecisionYes;
 }
 
+void
+sentry_startLaunchProfile(void)
+{
+    [SentryLaunchProfiling startLaunchProfile];
+}
+
 SentryTracer *_Nullable sentry_tracerForTransaction(id transaction)
 {
     return (SentryTracer *)[(SentryTransaction *)transaction trace];

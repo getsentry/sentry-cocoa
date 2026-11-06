@@ -37,6 +37,7 @@ BOOL sentry_profileAppStarts(SentryProfileOptions *options);
 SentrySpanId *_Nullable sentry_getParentSpanID(SentryTransactionContext *context);
 SentryId *sentry_getTraceID(SentryTransactionContext *context);
 BOOL sentry_isNotSampled(SentryTransactionContext *context);
+void sentry_startLaunchProfile(void);
 SentryTracer *_Nullable sentry_tracerForTransaction(id transaction);
 
 #if SENTRY_HAS_UIKIT

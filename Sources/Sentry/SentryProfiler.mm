@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFileManagerHelper.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -93,8 +92,6 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 + (void)load
 {
-    sentry_bootstrapProfilerSDKAdapter();
-
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
@@ -111,7 +108,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    [SentryProfilerSDKAdapter.shared startLaunchProfile];
+    sentry_startLaunchProfile();
 }
 
 - (instancetype)initWithMode:(SentryProfilerMode)mode

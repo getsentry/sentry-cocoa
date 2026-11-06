@@ -1,10 +1,14 @@
 @import XCTest;
 #import "SentryDependencyContainerSwiftHelper.h"
+#import "SentryFileManagerHelper.h"
+#import "SentryProfiler+Private.h"
 #import "SentryProfilerSDKAdapter.h"
 #import "SentryProfilerSerialization.h"
 #import "SentryProfilerState.h"
 #import "SentryProfilerTestConditionals.h"
+#import "SentryProfilingSwiftHelpers.h"
 #import "SentrySDK+Private.h"
+#import <objc/runtime.h>
 #if SWIFT_PACKAGE
 #    import "SentrySwift.h"
 #else
@@ -13,21 +17,12 @@
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 @interface TestProfilingSDKBackend : SentryDefaultProfilerSDKBackend
-@property (nonatomic) NSUInteger launchStarts;
 @end
 
 @implementation TestProfilingSDKBackend
 - (NSDate *)date
 {
     return [NSDate dateWithTimeIntervalSince1970:123];
-}
-- (void)startLaunchProfile
-{
-    self.launchStarts++;
-}
-- (SentryDebugImageProvider *_Nullable)debugImageProvider
-{
-    return nil;
 }
 @end
 #endif
@@ -39,7 +34,35 @@
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 
-- (void)testProfilingAdapter_whenConfigured_shouldForwardClockAndLaunchOperations
+- (void)testLaunchProfiling_whenConfigurationMissing_shouldNotAccessDependencies
+{
+    // -- Arrange --
+    removeAppLaunchProfilingConfigFile();
+    Method method
+        = class_getClassMethod(SentryDependencyContainer.class, @selector(sharedInstance));
+    IMP original = method_getImplementation(method);
+    __block NSUInteger dependencyAccesses = 0;
+    IMP replacement = imp_implementationWithBlock(^SentryDependencyContainer *(id receiver) {
+        dependencyAccesses++;
+        return ((SentryDependencyContainer * (*)(id, SEL)) original)(
+            receiver, @selector(sharedInstance));
+    });
+    method_setImplementation(method, replacement);
+
+    @try {
+        // -- Act --
+        [SentryProfiler load];
+        sentry_startLaunchProfile();
+
+        // -- Assert --
+        XCTAssertEqual(dependencyAccesses, 0U);
+    } @finally {
+        method_setImplementation(method, original);
+        imp_removeBlock(replacement);
+    }
+}
+
+- (void)testProfilingAdapter_whenConfigured_shouldForwardClock
 {
     // -- Arrange --
     SentryProfilerSDKAdapter *adapter = [[SentryProfilerSDKAdapter alloc] init];
@@ -48,54 +71,39 @@
 
     // -- Act --
     NSDate *date = [adapter date];
-    [adapter startLaunchProfile];
 
     // -- Assert --
     XCTAssertEqualObjects(date, [NSDate dateWithTimeIntervalSince1970:123]);
-    XCTAssertEqual(backend.launchStarts, 1UL);
 }
 
 - (void)testContinuousProfileEnvelope_whenEnrichmentUnavailable_shouldKeepProfileAndMetrics
 {
     // -- Arrange --
-    SentryProfilerSDKAdapter *adapter = SentryProfilerSDKAdapter.shared;
-    id<SentryProfilerSDKBackend> previousBackend = adapter.target;
-    TestProfilingSDKBackend *backend = [[TestProfilingSDKBackend alloc] init];
     SentryProfilerState *state = [[SentryProfilerState alloc] init];
     NSDictionary *metrics = @{
         @"cpu_usage" :
             @ { @"unit" : @"percent", @"values" : @[ @{ @"timestamp" : @123, @"value" : @12 } ] }
     };
-    [adapter setTarget:backend];
 
-    @try {
-        // -- Act --
-        SentryEnvelope *envelope = sentry_continuousProfileChunkEnvelope([[SentryId alloc] init],
-            [state copyProfilingData], metrics, @[], SentrySDKInternal.currentHub
+    // -- Act --
+    SentryEnvelope *envelope = sentry_continuousProfileChunkEnvelope([[SentryId alloc] init],
+        [state copyProfilingData], metrics, @[], SentrySDKInternal.currentHub
 #    if SENTRY_HAS_UIKIT
-            ,
-            nil
+        ,
+        nil
 #    endif
-        );
+    );
 
-        // -- Assert --
-        XCTAssertNotNil(envelope);
-        NSError *error = nil;
-        NSDictionary *payload =
-            [NSJSONSerialization JSONObjectWithData:envelope.items.firstObject.data
-                                            options:0
-                                              error:&error];
-        XCTAssertNil(error);
-        XCTAssertNotNil(payload[@"profile"]);
-        XCTAssertNil(payload[@"debug_meta"]);
-        XCTAssertEqualObjects(payload[@"measurements"], metrics);
-    } @finally {
-        if (previousBackend != nil) {
-            [adapter setTarget:previousBackend];
-        } else {
-            [adapter removeTarget:backend];
-        }
-    }
+    // -- Assert --
+    XCTAssertNotNil(envelope);
+    NSError *error = nil;
+    NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:envelope.items.firstObject.data
+                                                            options:0
+                                                              error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(payload[@"profile"]);
+    XCTAssertNil(payload[@"debug_meta"]);
+    XCTAssertEqualObjects(payload[@"measurements"], metrics);
 }
 
 - (void)testProfilingAdapter_whenNoTarget_shouldNotScheduleWork
@@ -153,10 +161,10 @@
     XCTAssertNil(adapter.dateProvider);
 }
 
-- (void)testProfilingAdapter_whenBootstrappedBeforeSDKStart_shouldUseContainerDependencies
+- (void)testProfilingAdapter_whenContainerInitializedBeforeSDKStart_shouldUseContainerDependencies
 {
     // -- Arrange --
-    sentry_bootstrapProfilerSDKAdapter();
+    (void)SentryDependencyContainer.sharedInstance;
     SentryProfilerSDKAdapter *adapter = SentryProfilerSDKAdapter.shared;
     id<SentryProfilerSDKBackend> backend = adapter.target;
 
@@ -182,7 +190,7 @@
 - (void)testProfilingAdapter_whenContainerReset_shouldReplaceBackendWithoutRetainingOldContainer
 {
     // -- Arrange --
-    sentry_bootstrapProfilerSDKAdapter();
+    (void)SentryDependencyContainer.sharedInstance;
     SentryProfilerSDKAdapter *adapter = SentryProfilerSDKAdapter.shared;
     __weak SentryDependencyContainer *oldContainer;
     __weak id<SentryProfilerSDKBackend> oldBackend;

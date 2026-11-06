@@ -9,13 +9,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-void
-sentry_bootstrapProfilerSDKAdapter(void)
-{
-    // Accessing the initial container registers its backend before +load starts launch profiling.
-    (void)[SentryDependencyContainer sharedInstance];
-}
-
 @implementation SentryDefaultProfilerSDKBackend
 - (void)activate
 {
@@ -127,11 +120,6 @@ sentry_bootstrapProfilerSDKAdapter(void)
                               selector:selector
                               userInfo:userInfo
                                repeats:repeats];
-}
-
-- (void)startLaunchProfile
-{
-    [SentryLaunchProfiling startLaunchProfile];
 }
 
 - (BOOL)isTracingAppLaunch

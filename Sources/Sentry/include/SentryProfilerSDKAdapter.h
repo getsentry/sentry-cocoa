@@ -42,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
                       selector:(SEL)selector
                       userInfo:(id _Nullable)userInfo
                        repeats:(BOOL)repeats;
-- (void)startLaunchProfile;
 @property (nonatomic) BOOL isTracingAppLaunch;
 @property (nonatomic, readonly, nullable) SentryTracer *launchTracer;
 

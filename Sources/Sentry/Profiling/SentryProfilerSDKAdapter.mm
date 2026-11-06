@@ -126,11 +126,6 @@
                                            repeats:repeats];
 }
 
-- (void)startLaunchProfile
-{
-    [self.target startLaunchProfile];
-}
-
 - (BOOL)isTracingAppLaunch
 {
     return [self.target isTracingAppLaunch];

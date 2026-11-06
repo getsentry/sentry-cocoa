@@ -19,13 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)activate;
 @end
 
-#    ifdef __cplusplus
-extern "C" {
-#    endif
-void sentry_bootstrapProfilerSDKAdapter(void);
-#    ifdef __cplusplus
-}
-#    endif
 #endif
 
 @interface SentryDefaultRedactOptions : NSObject
