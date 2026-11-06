@@ -630,6 +630,21 @@ class SentryScopeSwiftTests: XCTestCase {
                        actual?.context as? [String: [String: String]])
     }
 
+    func testApplyToEvent_nonDictionaryContextValue_keepsOtherContext() {
+        let scope = Scope()
+        scope.contextDictionary["os"] = ["name": "iOS"]
+        scope.contextDictionary["legacy"] = "scalar"
+        let event = Event()
+        event.context = ["app": ["app_id": "abc"], "os": ["version": "17"]]
+
+        let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
+
+        XCTAssertEqual(actual?.context?["os"]?["name"] as? String, "iOS")
+        XCTAssertEqual(actual?.context?["os"]?["version"] as? String, "17")
+        XCTAssertEqual(actual?.context?["app"]?["app_id"] as? String, "abc")
+        XCTAssertNil(actual?.context?["legacy"])
+    }
+
     func testApplyToEvent_whenTransactionTracerIsUnbound_shouldPopulateTransactionTrace() throws {
 #if !SDK_V10
         throw XCTSkip("Test skipped for non SDK_V10")
