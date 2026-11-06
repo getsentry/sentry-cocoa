@@ -9,15 +9,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClientInternal (Telemetry)
 
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(id)scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];
     [self _swiftCaptureLog:log withScope:scope currentScope:cs];
 }
 
-- (void)_swiftCaptureLog:(NSObject *)log
-               withScope:(SentryScope *)scope
-            currentScope:(nullable SentryScope *)currentScope
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(id)scope currentScope:(nullable id)currentScope
 {
     if ([self isDisabled]) {
         [self logDisabledMessage];

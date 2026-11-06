@@ -8,7 +8,6 @@
 #import "SentryId.h"
 #import "SentryLogC.h"
 #import "SentryNativeReportFields.h"
-#import "SentryScope+Private.h"
 #import "SentrySwift.h"
 
 NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
@@ -84,7 +83,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
                         description:@"No Sentry client is available to capture the crash report."];
         }
 
-        SentryScope *scope = [[SentryScope alloc] initWithScope:hub.scope];
+        SentryScope *scope = [[SentryScope alloc] initWithScope:(SentryScope *)hub.scope];
         // KSCrash stitch injects crash-time screenshot and view-hierarchy paths under this key.
         for (NSString *attachmentPath in report[SentryNativeReportAttachmentsKey] ?: @[]) {
             [scope addCrashReportAttachmentInPath:attachmentPath];

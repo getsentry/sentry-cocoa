@@ -742,16 +742,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryScope",
-        "printedName": "Sentry.SentryScope"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentrySerializable",
         "printedName": "Sentry.SentrySerializable"
       },
@@ -26636,13 +26626,13 @@
                         "kind": "TypeNominal",
                         "name": "Scope",
                         "printedName": "Sentry.Scope",
-                        "usr": "c:objc(cs)SentryScope"
+                        "usr": "c:@M@Sentry@objc(cs)SentryScope"
                       },
                       {
                         "kind": "TypeNominal",
                         "name": "Scope",
                         "printedName": "Sentry.Scope",
-                        "usr": "c:objc(cs)SentryScope"
+                        "usr": "c:@M@Sentry@objc(cs)SentryScope"
                       }
                     ],
                     "kind": "TypeFunc",
@@ -26657,7 +26647,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC12initialScopeySo0aD0CAFcvg",
+                "mangledName": "$s6Sentry7OptionsC12initialScopeyAA0D0CAFcvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -26672,13 +26662,13 @@
                         "kind": "TypeNominal",
                         "name": "Scope",
                         "printedName": "Sentry.Scope",
-                        "usr": "c:objc(cs)SentryScope"
+                        "usr": "c:@M@Sentry@objc(cs)SentryScope"
                       },
                       {
                         "kind": "TypeNominal",
                         "name": "Scope",
                         "printedName": "Sentry.Scope",
-                        "usr": "c:objc(cs)SentryScope"
+                        "usr": "c:@M@Sentry@objc(cs)SentryScope"
                       }
                     ],
                     "kind": "TypeFunc",
@@ -26698,7 +26688,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC12initialScopeySo0aD0CAFcvs",
+                "mangledName": "$s6Sentry7OptionsC12initialScopeyAA0D0CAFcvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -26712,13 +26702,13 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -26734,7 +26724,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC12initialScopeySo0aD0CAFcvp",
+            "mangledName": "$s6Sentry7OptionsC12initialScopeyAA0D0CAFcvp",
             "moduleName": "Sentry",
             "name": "initialScope",
             "printedName": "initialScope",
@@ -30422,7 +30412,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declAttributes": [
@@ -30434,12 +30424,13 @@
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry5ScopeCACycfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "init",
             "overriding": true,
             "printedName": "init()",
-            "usr": "c:objc(cs)SentryScope(im)init"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)init"
           },
           {
             "children": [
@@ -30453,21 +30444,21 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry5ScopeC14maxBreadcrumbsACSi_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithMaxBreadcrumbs:",
             "printedName": "init(maxBreadcrumbs:)",
-            "usr": "c:objc(cs)SentryScope(im)initWithMaxBreadcrumbs:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)initWithMaxBreadcrumbs:"
           },
           {
             "children": [
@@ -30475,97 +30466,83 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry5ScopeC5scopeA2C_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithScope:",
             "printedName": "init(scope:)",
-            "usr": "c:objc(cs)SentryScope(im)initWithScope:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)initWithScope:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
                 "usr": "c:objc(cs)SentryAttachment"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC13addAttachmentyySo0aD0CF",
             "moduleName": "Sentry",
             "name": "addAttachment",
             "objc_name": "addAttachment:",
             "printedName": "addAttachment(_:)",
-            "usr": "c:objc(cs)SentryScope(im)addAttachment:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)addAttachment:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "Breadcrumb",
                 "printedName": "Sentry.Breadcrumb",
                 "usr": "c:objc(cs)SentryBreadcrumb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC13addBreadcrumbyySo0aD0CF",
             "moduleName": "Sentry",
             "name": "addBreadcrumb",
             "objc_name": "addBreadcrumb:",
             "printedName": "addBreadcrumb(_:)",
-            "usr": "c:objc(cs)SentryScope(im)addBreadcrumb:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)addBreadcrumb:"
           },
           {
             "children": [
@@ -30594,98 +30571,74 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$sSo11SentryScopeC0A0E14addFeatureFlag4name6resultySS_SbtF",
+            "mangledName": "$s6Sentry5ScopeC14addFeatureFlag4name6resultySS_SbtF",
             "moduleName": "Sentry",
             "name": "addFeatureFlag",
             "printedName": "addFeatureFlag(name:result:)",
-            "usr": "s:So11SentryScopeC0A0E14addFeatureFlag4name6resultySS_SbtF"
+            "usr": "s:6Sentry5ScopeC14addFeatureFlag4name6resultySS_SbtF"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC5clearyyF",
             "moduleName": "Sentry",
             "name": "clear",
-            "objc_name": "clear",
             "printedName": "clear()",
-            "usr": "c:objc(cs)SentryScope(im)clear"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)clear"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC16clearAttachmentsyyF",
             "moduleName": "Sentry",
             "name": "clearAttachments",
-            "objc_name": "clearAttachments",
             "printedName": "clearAttachments()",
-            "usr": "c:objc(cs)SentryScope(im)clearAttachments"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)clearAttachments"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC16clearBreadcrumbsyyF",
             "moduleName": "Sentry",
             "name": "clearBreadcrumbs",
-            "objc_name": "clearBreadcrumbs",
             "printedName": "clearBreadcrumbs()",
-            "usr": "c:objc(cs)SentryScope(im)clearBreadcrumbs"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)clearBreadcrumbs"
           },
           {
             "children": [
@@ -30702,151 +30655,123 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$sSo11SentryScopeC0A0E17clearFeatureFlagsyyF",
+            "mangledName": "$s6Sentry5ScopeC17clearFeatureFlagsyyF",
             "moduleName": "Sentry",
             "name": "clearFeatureFlags",
             "printedName": "clearFeatureFlags()",
-            "usr": "s:So11SentryScopeC0A0E17clearFeatureFlagsyyF"
+            "usr": "s:6Sentry5ScopeC17clearFeatureFlagsyyF"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC15removeAttribute3keyySS_tF",
             "moduleName": "Sentry",
             "name": "removeAttribute",
             "objc_name": "removeAttributeForKey:",
             "printedName": "removeAttribute(key:)",
-            "usr": "c:objc(cs)SentryScope(im)removeAttributeForKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)removeAttributeForKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC13removeContext3keyySS_tF",
             "moduleName": "Sentry",
             "name": "removeContext",
             "objc_name": "removeContextForKey:",
             "printedName": "removeContext(key:)",
-            "usr": "c:objc(cs)SentryScope(im)removeContextForKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)removeContextForKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC11removeExtra3keyySS_tF",
             "moduleName": "Sentry",
             "name": "removeExtra",
             "objc_name": "removeExtraForKey:",
             "printedName": "removeExtra(key:)",
-            "usr": "c:objc(cs)SentryScope(im)removeExtraForKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)removeExtraForKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC9removeTag3keyySS_tF",
             "moduleName": "Sentry",
             "name": "removeTag",
             "objc_name": "removeTagForKey:",
             "printedName": "removeTag(key:)",
-            "usr": "c:objc(cs)SentryScope(im)removeTagForKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)removeTagForKey:"
           },
           {
             "children": [
@@ -30872,33 +30797,21 @@
             ],
             "declAttributes": [
               "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC9serializeSDySSypGyF",
             "moduleName": "Sentry",
             "name": "serialize",
             "objc_name": "serialize",
             "printedName": "serialize()",
-            "usr": "c:objc(cs)SentryScope(im)serialize"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)serialize"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "ProtocolComposition",
@@ -30909,36 +30822,29 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC12setAttribute5value3keyyyp_SStF",
             "moduleName": "Sentry",
             "name": "setAttribute",
             "objc_name": "setAttributeValue:forKey:",
             "printedName": "setAttribute(value:key:)",
-            "usr": "c:objc(cs)SentryScope(im)setAttributeValue:forKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setAttributeValue:forKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -30963,36 +30869,29 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC10setContext5value3keyySDySSypG_SStF",
             "moduleName": "Sentry",
             "name": "setContext",
             "objc_name": "setContextValue:forKey:",
             "printedName": "setContext(value:key:)",
-            "usr": "c:objc(cs)SentryScope(im)setContextValue:forKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setContextValue:forKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31006,36 +30905,29 @@
                 "name": "Optional",
                 "printedName": "Swift.String?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC7setDistyySSSgF",
             "moduleName": "Sentry",
             "name": "setDist",
             "objc_name": "setDist:",
             "printedName": "setDist(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setDist:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setDist:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31049,36 +30941,29 @@
                 "name": "Optional",
                 "printedName": "Swift.String?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC14setEnvironmentyySSSgF",
             "moduleName": "Sentry",
             "name": "setEnvironment",
             "objc_name": "setEnvironment:",
             "printedName": "setEnvironment(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setEnvironment:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setEnvironment:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31097,36 +30982,29 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC8setExtra5value3keyyypSg_SStF",
             "moduleName": "Sentry",
             "name": "setExtra",
             "objc_name": "setExtraValue:forKey:",
             "printedName": "setExtra(value:key:)",
-            "usr": "c:objc(cs)SentryScope(im)setExtraValue:forKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setExtraValue:forKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31153,36 +31031,29 @@
                 "name": "Optional",
                 "printedName": "[Swift.String : Any]?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC9setExtrasyySDySSypGSgF",
             "moduleName": "Sentry",
             "name": "setExtras",
             "objc_name": "setExtras:",
             "printedName": "setExtras(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setExtras:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setExtras:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31204,56 +31075,54 @@
                 "name": "Optional",
                 "printedName": "[Swift.String]?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC14setFingerprintyySaySSGSgF",
             "moduleName": "Sentry",
             "name": "setFingerprint",
             "objc_name": "setFingerprint:",
             "printedName": "setFingerprint(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setFingerprint:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setFingerprint:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "SentryLevel",
                 "printedName": "Sentry.SentryLevel",
                 "usr": "c:@E@SentryLevel"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC8setLevelyySo0aD0VF",
             "moduleName": "Sentry",
             "name": "setLevel",
             "objc_name": "setLevel:",
             "printedName": "setLevel(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setLevel:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setLevel:"
           },
           {
             "children": [
@@ -31261,55 +31130,44 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
                   }
                 ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC6setTag5value3keyySSSg_SStF",
             "moduleName": "Sentry",
             "name": "setTag",
             "objc_name": "setTagValue:forKey:",
             "printedName": "setTag(value:key:)",
-            "usr": "c:objc(cs)SentryScope(im)setTagValue:forKey:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setTagValue:forKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31337,36 +31195,29 @@
                 "name": "Optional",
                 "printedName": "[Swift.String : Swift.String]?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC7setTagsyySDyS2SGSgF",
             "moduleName": "Sentry",
             "name": "setTags",
             "objc_name": "setTags:",
             "printedName": "setTags(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setTags:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setTags:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -31380,21 +31231,26 @@
                 "name": "Optional",
                 "printedName": "Sentry.User?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry5ScopeC7setUseryySo0aD0CSgF",
             "moduleName": "Sentry",
             "name": "setUser",
             "objc_name": "setUser:",
             "printedName": "setUser(_:)",
-            "usr": "c:objc(cs)SentryScope(im)setUser:"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setUser:"
           },
           {
             "accessors": [
@@ -31422,18 +31278,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5ScopeC10attributesSDySSypGvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "attributes",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryScope(im)attributes"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope(im)attributes"
               }
             ],
             "children": [
@@ -31458,17 +31312,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5ScopeC10attributesSDySSypGvp",
             "moduleName": "Sentry",
             "name": "attributes",
-            "objc_name": "attributes",
             "printedName": "attributes",
-            "usr": "c:objc(cs)SentryScope(py)attributes"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(py)attributes"
           },
           {
             "accessors": [
@@ -31491,34 +31344,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5ScopeC8replayIdSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "replayId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryScope(im)replayId"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope(im)replayId"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -31532,20 +31372,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5ScopeC8replayIdSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setReplayId:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryScope(im)setReplayId:"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setReplayId:"
               }
             ],
             "children": [
@@ -31565,17 +31410,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5ScopeC8replayIdSSSgvp",
             "moduleName": "Sentry",
             "name": "replayId",
-            "objc_name": "replayId",
             "printedName": "replayId",
-            "usr": "c:objc(cs)SentryScope(py)replayId"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(py)replayId"
           },
           {
             "accessors": [
@@ -31598,34 +31445,20 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5ScopeC4spanSo0A4Span_pSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "span",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryScope(im)span"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope(im)span"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -31639,20 +31472,25 @@
                     "name": "Optional",
                     "printedName": "(any Sentry.Span)?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5ScopeC4spanSo0A4Span_pSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "objc_name": "setSpan:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryScope(im)setSpan:"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope(im)setSpan:"
               }
             ],
             "children": [
@@ -31672,17 +31510,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5ScopeC4spanSo0A4Span_pSgvp",
             "moduleName": "Sentry",
             "name": "span",
-            "objc_name": "span",
             "printedName": "span",
-            "usr": "c:objc(cs)SentryScope(py)span"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(py)span"
           },
           {
             "accessors": [
@@ -31711,18 +31548,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5ScopeC4tagsSDyS2SGvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "tags",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryScope(im)tags"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope(im)tags"
               }
             ],
             "children": [
@@ -31748,17 +31583,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5ScopeC4tagsSDyS2SGvp",
             "moduleName": "Sentry",
             "name": "tags",
-            "objc_name": "tags",
             "printedName": "tags",
-            "usr": "c:objc(cs)SentryScope(py)tags"
+            "usr": "c:@M@Sentry@objc(cs)SentryScope(py)tags"
           }
         ],
         "conformances": [
@@ -31825,13 +31659,13 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
           "ObjC"
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry5ScopeC",
         "moduleName": "Sentry",
         "name": "Scope",
         "objc_name": "SentryScope",
@@ -31840,7 +31674,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryScope"
+        "usr": "c:@M@Sentry@objc(cs)SentryScope"
       },
       {
         "children": [
@@ -35162,7 +34996,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -35179,7 +35013,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture5error5scopeSo0A2IdCs5Error_p_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture5error5scopeSo0A2IdCs5Error_p_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureError:withScope:",
@@ -35228,7 +35062,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -35245,7 +35079,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture5event5scopeSo0A2IdCSo0A5EventC_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:",
@@ -35294,7 +35128,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -35311,7 +35145,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureException:withScope:",
@@ -35324,7 +35158,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -35345,7 +35179,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture8feedback5scopeyAA0A8FeedbackC_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture8feedback5scopeyAA0A8FeedbackC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureFeedback:withScope:",
@@ -35358,7 +35192,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -35379,7 +35213,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture3log5scopeyAA0A3LogC_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture3log5scopeyAA0A3LogC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureLog:withScope:",
@@ -35422,7 +35256,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -35445,7 +35279,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture7message5scopeSo0A2IdCSS_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture7message5scopeSo0A2IdCSS_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureMessage:withScope:",
@@ -40726,7 +40560,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -40761,7 +40595,7 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A3HubC6client8andScopeAcA0A6ClientCSg_So0aE0CSgtcfc",
+            "mangledName": "$s6Sentry0A3HubC6client8andScopeAcA0A6ClientCSg_AA0E0CSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithClient:andScope:",
@@ -40906,7 +40740,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -40923,7 +40757,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5error5scopeSo0A2IdCs5Error_p_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture5error5scopeSo0A2IdCs5Error_p_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureError:withScope:",
@@ -40948,7 +40782,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -40965,7 +40799,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5error5scope4hintSo0A2IdCs5Error_p_So0A5ScopeCAA4HintCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture5error5scope4hintSo0A2IdCs5Error_p_AA5ScopeCAA4HintCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureError:withScope:hint:",
@@ -41014,7 +40848,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -41031,7 +40865,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5event5scopeSo0A2IdCSo0A5EventC_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:",
@@ -41056,7 +40890,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -41073,7 +40907,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5event5scope4hintSo0A2IdCSo0A5EventC_So0A5ScopeCAA4HintCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture5event5scope4hintSo0A2IdCSo0A5EventC_AA5ScopeCAA4HintCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:hint:",
@@ -41122,7 +40956,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -41139,7 +40973,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureException:withScope:",
@@ -41164,7 +40998,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -41181,7 +41015,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_So0A5ScopeCAA4HintCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_AA5ScopeCAA4HintCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureException:withScope:hint:",
@@ -41252,7 +41086,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -41275,7 +41109,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture7message5scopeSo0A2IdCSS_So0A5ScopeCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture7message5scopeSo0A2IdCSS_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureMessage:withScope:",
@@ -41294,7 +41128,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -41317,7 +41151,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture7message5scope4hintSo0A2IdCSS_So0A5ScopeCAA4HintCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture7message5scope4hintSo0A2IdCSS_AA5ScopeCAA4HintCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureMessage:withScope:hint:",
@@ -41365,7 +41199,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -41385,7 +41219,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC14configureScopeyyySo0aD0CcF",
+            "mangledName": "$s6Sentry0A3HubC14configureScopeyyyAA0D0CcF",
             "moduleName": "Sentry",
             "name": "configureScope",
             "printedName": "configureScope(_:)",
@@ -41967,7 +41801,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "declAttributes": [
@@ -41976,7 +41810,7 @@
                 ],
                 "declKind": "Accessor",
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A3HubC5scopeSo0A5ScopeCvg",
+                "mangledName": "$s6Sentry0A3HubC5scopeAA5ScopeCvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -41988,7 +41822,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declAttributes": [
@@ -41997,7 +41831,7 @@
             ],
             "declKind": "Var",
             "kind": "Var",
-            "mangledName": "$s6Sentry0A3HubC5scopeSo0A5ScopeCvp",
+            "mangledName": "$s6Sentry0A3HubC5scopeAA5ScopeCvp",
             "moduleName": "Sentry",
             "name": "scope",
             "printedName": "scope",
@@ -44553,23 +44387,23 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A16InternalScopeApiV05cloneC0ySo0aC0CAFF",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV05cloneC0yAA0C0CAFF",
             "moduleName": "Sentry",
             "name": "cloneScope",
             "printedName": "cloneScope(_:)",
-            "usr": "s:6Sentry0A16InternalScopeApiV05cloneC0ySo0aC0CAFF"
+            "usr": "s:6Sentry0A16InternalScopeApiV05cloneC0yAA0C0CAFF"
           },
           {
             "children": [
@@ -44577,17 +44411,17 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A16InternalScopeApiV06createC0So0aC0CyF",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV06createC0AA0C0CyF",
             "moduleName": "Sentry",
             "name": "createScope",
             "printedName": "createScope()",
-            "usr": "s:6Sentry0A16InternalScopeApiV06createC0So0aC0CyF"
+            "usr": "s:6Sentry0A16InternalScopeApiV06createC0AA0C0CyF"
           },
           {
             "children": [
@@ -44667,7 +44501,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -44678,11 +44512,11 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A16InternalScopeApiV011withCurrentC0yySo0aC0C_yyXEtF",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV011withCurrentC0yyAA0C0C_yyXEtF",
             "moduleName": "Sentry",
             "name": "withCurrentScope",
             "printedName": "withCurrentScope(_:_:)",
-            "usr": "s:6Sentry0A16InternalScopeApiV011withCurrentC0yySo0aC0C_yyXEtF"
+            "usr": "s:6Sentry0A16InternalScopeApiV011withCurrentC0yyAA0C0C_yyXEtF"
           }
         ],
         "conformances": [
@@ -45234,17 +45068,17 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               }
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGSo0A5ScopeC_tF",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGAA5ScopeC_tF",
             "moduleName": "Sentry",
             "name": "serialize",
             "printedName": "serialize(scope:)",
-            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGSo0A5ScopeC_tF"
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGAA5ScopeC_tF"
           }
         ],
         "conformances": [
@@ -53663,7 +53497,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "hasDefaultArg": true,
@@ -53697,11 +53531,11 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A13MetricOptionsV4unit10attributes5scope9timestampAcA0A4UnitOSg_SDySSAA0A14AttributeValue_pGSo0A5ScopeCSg10Foundation4DateVSgtcfc",
+            "mangledName": "$s6Sentry0A13MetricOptionsV4unit10attributes5scope9timestampAcA0A4UnitOSg_SDySSAA0A14AttributeValue_pGAA5ScopeCSg10Foundation4DateVSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "printedName": "init(unit:attributes:scope:timestamp:)",
-            "usr": "s:6Sentry0A13MetricOptionsV4unit10attributes5scope9timestampAcA0A4UnitOSg_SDySSAA0A14AttributeValue_pGSo0A5ScopeCSg10Foundation4DateVSgtcfc"
+            "usr": "s:6Sentry0A13MetricOptionsV4unit10attributes5scope9timestampAcA0A4UnitOSg_SDySSAA0A14AttributeValue_pGAA5ScopeCSg10Foundation4DateVSgtcfc"
           },
           {
             "accessors": [
@@ -53822,7 +53656,7 @@
                         "kind": "TypeNominal",
                         "name": "Scope",
                         "printedName": "Sentry.Scope",
-                        "usr": "c:objc(cs)SentryScope"
+                        "usr": "c:@M@Sentry@objc(cs)SentryScope"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -53834,11 +53668,11 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A13MetricOptionsV5scopeSo0A5ScopeCSgvg",
+                "mangledName": "$s6Sentry0A13MetricOptionsV5scopeAA5ScopeCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
-                "usr": "s:6Sentry0A13MetricOptionsV5scopeSo0A5ScopeCSgvg"
+                "usr": "s:6Sentry0A13MetricOptionsV5scopeAA5ScopeCSgvg"
               },
               {
                 "accessorKind": "set",
@@ -53849,7 +53683,7 @@
                         "kind": "TypeNominal",
                         "name": "Scope",
                         "printedName": "Sentry.Scope",
-                        "usr": "c:objc(cs)SentryScope"
+                        "usr": "c:@M@Sentry@objc(cs)SentryScope"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -53866,11 +53700,11 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A13MetricOptionsV5scopeSo0A5ScopeCSgvs",
+                "mangledName": "$s6Sentry0A13MetricOptionsV5scopeAA5ScopeCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
-                "usr": "s:6Sentry0A13MetricOptionsV5scopeSo0A5ScopeCSgvs"
+                "usr": "s:6Sentry0A13MetricOptionsV5scopeAA5ScopeCSgvs"
               }
             ],
             "children": [
@@ -53880,7 +53714,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -53896,11 +53730,11 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry0A13MetricOptionsV5scopeSo0A5ScopeCSgvp",
+            "mangledName": "$s6Sentry0A13MetricOptionsV5scopeAA5ScopeCSgvp",
             "moduleName": "Sentry",
             "name": "scope",
             "printedName": "scope",
-            "usr": "s:6Sentry0A13MetricOptionsV5scopeSo0A5ScopeCSgvp"
+            "usr": "s:6Sentry0A13MetricOptionsV5scopeAA5ScopeCSgvp"
           },
           {
             "accessors": [
@@ -62319,7 +62153,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -62354,7 +62188,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5error16attachAllThreads5blockSo0A2IdCs5Error_p_SbySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5error16attachAllThreads5blockSo0A2IdCs5Error_p_SbyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureError:attachAllThreads:scopeBlock:",
@@ -62382,7 +62216,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -62411,7 +62245,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5error5blockSo0A2IdCs5Error_p_ySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5error5blockSo0A2IdCs5Error_p_yAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureError:withScopeBlock:",
@@ -62475,7 +62309,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -62509,12 +62343,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5error4hint5blockSo0A2IdCs5Error_p_AA4HintCySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5error4hint5blockSo0A2IdCs5Error_p_AA4HintCyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(error:hint:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture5error4hint5blockSo0A2IdCs5Error_p_AA4HintCySo0A5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKC7capture5error4hint5blockSo0A2IdCs5Error_p_AA4HintCyAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -62528,7 +62362,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -62546,7 +62380,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5error5scopeSo0A2IdCs5Error_p_So0A5ScopeCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5error5scopeSo0A2IdCs5Error_p_AA5ScopeCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureError:withScope:",
@@ -62572,7 +62406,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -62589,12 +62423,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5error5scope4hintSo0A2IdCs5Error_p_So0A5ScopeCAA4HintCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5error5scope4hintSo0A2IdCs5Error_p_AA5ScopeCAA4HintCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(error:scope:hint:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture5error5scope4hintSo0A2IdCs5Error_p_So0A5ScopeCAA4HintCtFZ"
+            "usr": "s:6Sentry0A3SDKC7capture5error5scope4hintSo0A2IdCs5Error_p_AA5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -62686,7 +62520,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -62721,7 +62555,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5event16attachAllThreads5blockSo0A2IdCSo0A5EventC_SbySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5event16attachAllThreads5blockSo0A2IdCSo0A5EventC_SbyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:attachAllThreads:scopeBlock:",
@@ -62749,7 +62583,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -62778,7 +62612,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5event5blockSo0A2IdCSo0A5EventC_ySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5event5blockSo0A2IdCSo0A5EventC_yAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScopeBlock:",
@@ -62842,7 +62676,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -62876,12 +62710,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:hint:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCySo0A5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKC7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCyAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -62895,7 +62729,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -62913,7 +62747,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5event5scopeSo0A2IdCSo0A5EventC_So0A5ScopeCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:",
@@ -62939,7 +62773,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -62956,12 +62790,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5event5scope4hintSo0A2IdCSo0A5EventC_So0A5ScopeCAA4HintCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture5event5scope4hintSo0A2IdCSo0A5EventC_AA5ScopeCAA4HintCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:scope:hint:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture5event5scope4hintSo0A2IdCSo0A5EventC_So0A5ScopeCAA4HintCtFZ"
+            "usr": "s:6Sentry0A3SDKC7capture5event5scope4hintSo0A2IdCSo0A5EventC_AA5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -63053,7 +62887,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63088,7 +62922,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture9exception16attachAllThreads5blockSo0A2IdCSo11NSExceptionC_SbySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture9exception16attachAllThreads5blockSo0A2IdCSo11NSExceptionC_SbyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureException:attachAllThreads:scopeBlock:",
@@ -63116,7 +62950,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63145,7 +62979,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture9exception5blockSo0A2IdCSo11NSExceptionC_ySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture9exception5blockSo0A2IdCSo11NSExceptionC_yAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureException:withScopeBlock:",
@@ -63209,7 +63043,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63243,12 +63077,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture9exception4hint5blockSo0A2IdCSo11NSExceptionC_AA4HintCySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture9exception4hint5blockSo0A2IdCSo11NSExceptionC_AA4HintCyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(exception:hint:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture9exception4hint5blockSo0A2IdCSo11NSExceptionC_AA4HintCySo0A5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKC7capture9exception4hint5blockSo0A2IdCSo11NSExceptionC_AA4HintCyAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -63262,7 +63096,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -63280,7 +63114,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_So0A5ScopeCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_AA5ScopeCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureException:withScope:",
@@ -63306,7 +63140,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -63323,12 +63157,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_So0A5ScopeCAA4HintCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_AA5ScopeCAA4HintCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(exception:scope:hint:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_So0A5ScopeCAA4HintCtFZ"
+            "usr": "s:6Sentry0A3SDKC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_AA5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -63450,7 +63284,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63485,7 +63319,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture7message16attachAllThreads5blockSo0A2IdCSS_SbySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture7message16attachAllThreads5blockSo0A2IdCSS_SbyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureMessage:attachAllThreads:scopeBlock:",
@@ -63513,7 +63347,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63542,7 +63376,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture7message5blockSo0A2IdCSS_ySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture7message5blockSo0A2IdCSS_yAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureMessage:withScopeBlock:",
@@ -63606,7 +63440,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63640,12 +63474,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture7message4hint5blockSo0A2IdCSS_AA4HintCySo0A5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture7message4hint5blockSo0A2IdCSS_AA4HintCyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(message:hint:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture7message4hint5blockSo0A2IdCSS_AA4HintCySo0A5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKC7capture7message4hint5blockSo0A2IdCSS_AA4HintCyAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -63653,7 +63487,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -63677,7 +63511,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture7message5scopeSo0A2IdCSS_So0A5ScopeCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture7message5scopeSo0A2IdCSS_AA5ScopeCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureMessage:withScope:",
@@ -63697,7 +63531,7 @@
                 "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
+                "usr": "c:@M@Sentry@objc(cs)SentryScope"
               },
               {
                 "kind": "TypeNominal",
@@ -63720,12 +63554,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture7message5scope4hintSo0A2IdCSS_So0A5ScopeCAA4HintCtFZ",
+            "mangledName": "$s6Sentry0A3SDKC7capture7message5scope4hintSo0A2IdCSS_AA5ScopeCAA4HintCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(message:scope:hint:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture7message5scope4hintSo0A2IdCSS_So0A5ScopeCAA4HintCtFZ"
+            "usr": "s:6Sentry0A3SDKC7capture7message5scope4hintSo0A2IdCSS_AA5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -63770,7 +63604,7 @@
                     "kind": "TypeNominal",
                     "name": "Scope",
                     "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
+                    "usr": "c:@M@Sentry@objc(cs)SentryScope"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -63791,7 +63625,7 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC14configureScopeyyySo0aD0CcFZ",
+            "mangledName": "$s6Sentry0A3SDKC14configureScopeyyyAA0D0CcFZ",
             "moduleName": "Sentry",
             "name": "configureScope",
             "objc_name": "configureScope:",

@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)applyCultureContextToEvent:(SentryEvent *)event;
 - (void)applyExtraDeviceContextToEvent:(SentryEvent *)event;
 #if SENTRY_HAS_UIKIT
-- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event
+                                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
 #endif // SENTRY_HAS_UIKIT
 - (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event;
 

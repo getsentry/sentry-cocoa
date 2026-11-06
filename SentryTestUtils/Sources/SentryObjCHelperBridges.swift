@@ -17,8 +17,8 @@
 #if !SDK_V10
 extension SentryCrashScopeHelper {
     @_spi(Private) public static func getScopeObserver(withMaxBreacdrumb maxBreadcrumbs: Int) -> SentryScopeObserver {
-        // Preserve the original ObjC helper's id<SentryScopeObserver> cast: the legacy
-        // observer implements these selectors without formally declaring conformance.
+        // The helper returns NSObject. SentryCrashScopeObserver adopts SentryScopeObserver in its
+        // implementation file, which this Swift file cannot name without an import cycle.
         unsafeBitCast(makeScopeObserver(maxBreadcrumbs: maxBreadcrumbs), to: SentryScopeObserver.self)
     }
 }
