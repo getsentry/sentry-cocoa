@@ -9,6 +9,7 @@
 ### Fixes
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
+- Clean weak-map entries incrementally to reduce UIViewController tracing overhead when adding many child view controllers (#9551)
 
 ## 9.33.0
 

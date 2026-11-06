@@ -2,6 +2,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * A weak-key, strong-value map backed by a hash dictionary and a doubly linked cleanup list.
+ * Each access inspects a bounded number of entries for dead keys. Values for dead keys remain
+ * retained until cleanup reaches them or an explicit call to prune.
+ */
 @interface SentryWeakMap<KeyType, ObjectType> : NSObject
 
 /**
@@ -22,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setObject:(nullable ObjectType)anObject forKey:(nullable KeyType)aKey;
 
 /**
- * Removes the object for the given key and prunes the map table.
+ * Removes the object for the given key.
  *
  * Does nothing if `aKey` does not exist.
  *
