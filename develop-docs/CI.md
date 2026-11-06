@@ -9,7 +9,7 @@ PR-triggered workflows use a shared gate to conserve runner capacity:
 - If both labels are present, draft PRs run CI and ready-for-review PRs skip it.
 - Non-PR events proceed with their existing conditions.
 
-The gate reads current PR state for pull request, pull request target, and PR review events. Skipping CI succeeds, and existing changed-file filters still apply when CI is enabled.
+The gate reads current PR state for pull request, pull request target, and PR review events. Skipping CI succeeds, and existing changed-file filters still apply when CI is enabled. The Label PR workflow also runs on draft conversion to remove stale review-status labels.
 
 ### How to use the gate
 

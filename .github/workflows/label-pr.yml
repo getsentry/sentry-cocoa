@@ -27,7 +27,8 @@ jobs:
 
   label:
     needs: run-full-ci-gate
-    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
+    # Draft conversion must clear stale review labels even when CI is disabled.
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true' || github.event.action == 'converted_to_draft'
     name: Label
     runs-on: ubuntu-latest
     steps:
