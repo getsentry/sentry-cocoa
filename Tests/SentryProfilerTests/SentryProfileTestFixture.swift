@@ -52,7 +52,9 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
-        SentryMetricProfiler.setSystemWrapperOverride(systemWrapper)
+        let profilingBackend = SentryProfilerSDKAdapter.shared.target as? SentryDefaultProfilerSDKBackend
+        XCTAssertNotNil(profilingBackend)
+        profilingBackend?.systemWrapper = systemWrapper
 
         timeoutTimerFactory = TestSentryNSTimerFactory(currentDateProvider: self.currentDateProvider)
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory

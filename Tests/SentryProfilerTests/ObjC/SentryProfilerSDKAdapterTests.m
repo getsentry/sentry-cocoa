@@ -1,5 +1,5 @@
 @import XCTest;
-#import "SentryDependencyContainerSwiftHelper.h"
+#import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryProfiler+Private.h"
 #import "SentryProfilerSDKAdapter.h"
@@ -115,7 +115,9 @@
     // -- Act --
     [adapter dispatchAsync:^{ called = YES; }];
     [adapter dispatchAsyncOnMainIfNotMainThread:^{ called = YES; }];
-    NSTimer *timer = [adapter scheduledTimerWithInterval:1 repeats:NO block:^{ called = YES; }];
+    id<SentryProfilingCancellation> timer = [adapter scheduleTimerWithInterval:1
+                                                                       repeats:NO
+                                                                         block:^{ called = YES; }];
 
     // -- Assert --
     XCTAssertFalse(called);
@@ -158,7 +160,7 @@
     // -- Assert --
     XCTAssertNil(weakBackend);
     XCTAssertNil(adapter.target);
-    XCTAssertNil(adapter.dateProvider);
+    XCTAssertNil([adapter date]);
 }
 
 - (void)testProfilingAdapter_whenContainerInitializedBeforeSDKStart_shouldUseContainerDependencies
@@ -206,7 +208,6 @@
     XCTAssertNil(oldContainer);
     XCTAssertNil(oldBackend);
     XCTAssertNotNil(adapter.target);
-    XCTAssertEqual(adapter.dateProvider, SentryDependencyContainer.sharedInstance.dateProvider);
 }
 
 #endif // SENTRY_PROFILER_TESTS_SUPPORTED
