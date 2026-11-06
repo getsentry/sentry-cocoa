@@ -1,25 +1,35 @@
 # CI inner working
 
-## `run-full-ci` label
+## PR CI eligibility
 
-CI checks are great, but macOS runners are limited on every provider, because of this, we need to be smarter on how we run jobs.
-To avoid running many jobs on every PR's commit, we have decided to only run a subset of tests regularily and run the full suite only when the PR has the label `run-full-ci`.
+PR-triggered workflows use a shared gate to conserve runner capacity:
+
+- Draft PRs run CI only when labeled `run-full-ci`.
+- Ready-for-review PRs run CI unless labeled `run-no-ci`.
+- If both labels are present, draft PRs run CI and ready-for-review PRs skip it.
+- Non-PR events proceed with their existing conditions.
+
+The gate reads current PR state for pull request, pull request target, and PR review events. Skipping CI succeeds, and existing changed-file filters still apply when CI is enabled. The Label PR workflow also runs on draft conversion to remove stale review-status labels.
 
 ### How to use the gate
 
-Add this job at the start the workflow and then add `need: run-full-ci-gate` to jobs that you want to be skipped.
+Add the shared gate and check its output on root jobs:
 
+```yaml
+jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
+  files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
+    # Existing job configuration follows.
 ```
-run-full-ci-gate:
-  name: run-full-ci gate
-  uses: ./.github/workflows/run-full-ci-workflow.yml
-```
 
-This job will:
+Downstream jobs retain their existing dependencies. Required-check jobs using `always()` must also depend directly on the gate so they report gate failures while accepting intentionally skipped jobs.
 
-- Pass if the event is not a PR
-- Fail if the event is a PR and is missing the `run-full-ci` label
-- Pass if the event is a PR and is has the `run-full-ci` label
+PR triggers must include `opened`, `synchronize`, `reopened`, `labeled`, `unlabeled`, `ready_for_review`, and `converted_to_draft`, plus any workflow-specific event types. This reevaluates eligibility after label and draft-state changes.
 
 ## Background Steps and Dependency Ordering
 

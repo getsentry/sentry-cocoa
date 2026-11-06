@@ -2,7 +2,16 @@ name: Danger
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited, ready_for_review]
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      edited,
+      ready_for_review,
+      labeled,
+      unlabeled,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple Danger runs on the same PR,
@@ -14,7 +23,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   danger:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Danger
     runs-on: ubuntu-latest
     steps:
