@@ -72,6 +72,13 @@ xcrun lipo -create "$WORK_DIR/objects/dependency-arm64.o" "$WORK_DIR/objects/dep
 xcrun lipo -create "$WORK_DIR/objects/dependency-matching.o" "$WORK_DIR/objects/dependency-armv7k.o" \
     -output "$WORK_DIR/objects/dependency-extra.o"
 
+# Arguments:
+#   name: case directory; missing-*target cases omit the architecture target.
+#   dependency: compiled dependency object.
+#   expected_error: required log substring on failure; empty means success.
+#   target_object: fixture defining the required architecture set.
+#   scheme: archived scheme and output library name.
+#   architecture_target: target name used for the archived <target>.o file.
 run_case() {
     local name="$1" dependency="$2" expected_error="$3"
     local target_object="$4" scheme="$5" architecture_target="$6"
@@ -154,25 +161,103 @@ run_case() {
     log_info "PASS $name"
 }
 
-run_case extra-dependency-architecture "$WORK_DIR/objects/dependency-extra.o" '' \
-    "$WORK_DIR/objects/target.o" SentryObjC SentryObjCCompat
-run_case matching-architectures "$WORK_DIR/objects/dependency-matching.o" '' \
-    "$WORK_DIR/objects/target.o" SentryObjC SentryObjCCompat
-run_case single-target-architecture "$WORK_DIR/objects/dependency-extra.o" '' \
-    "$WORK_DIR/objects/target-arm64.o" SentryObjC SentryObjCCompat
-run_case spm-v9 "$WORK_DIR/objects/dependency-extra.o" '' \
-    "$WORK_DIR/objects/target.o" SentrySPM SentrySwift
-run_case spm-v10-current "$WORK_DIR/objects/dependency-matching.o" '' \
-    "$WORK_DIR/objects/target.o" Sentry SentrySwift
-run_case spm-v10-renamed "$WORK_DIR/objects/dependency-extra.o" '' \
-    "$WORK_DIR/objects/target-arm64.o" Sentry Sentry
-run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentryObjCCompat architecture' \
-    "$WORK_DIR/objects/target.o" SentryObjC SentryObjCCompat
-run_case missing-architecture-target "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentryObjCCompat.o' \
-    "$WORK_DIR/objects/target.o" SentryObjC SentryObjCCompat
-run_case missing-spm-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentrySwift architecture' \
-    "$WORK_DIR/objects/target.o" SentrySPM SentrySwift
-run_case missing-spm-target "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentrySwift.o' \
-    "$WORK_DIR/objects/target.o" SentrySPM SentrySwift
+# Ignore the dependency's extra armv7k slice: distribute only the target's
+# arm64 and arm64_32 architectures.
+run_case \
+    extra-dependency-architecture \
+    "$WORK_DIR/objects/dependency-extra.o" \
+    '' \
+    "$WORK_DIR/objects/target.o" \
+    SentryObjC \
+    SentryObjCCompat
+
+# Preserve both architectures and both objects' symbols when their slices match.
+run_case \
+    matching-architectures \
+    "$WORK_DIR/objects/dependency-matching.o" \
+    '' \
+    "$WORK_DIR/objects/target.o" \
+    SentryObjC \
+    SentryObjCCompat
+
+# An arm64-only target must produce an arm64-only library even when its
+# dependency also contains arm64_32 and armv7k.
+run_case \
+    single-target-architecture \
+    "$WORK_DIR/objects/dependency-extra.o" \
+    '' \
+    "$WORK_DIR/objects/target-arm64.o" \
+    SentryObjC \
+    SentryObjCCompat
+
+# For v9, archive SentrySPM but derive its architectures from SentrySwift,
+# excluding the dependency's legacy armv7k slice.
+run_case \
+    spm-v9 \
+    "$WORK_DIR/objects/dependency-extra.o" \
+    '' \
+    "$WORK_DIR/objects/target.o" \
+    SentrySPM \
+    SentrySwift
+
+# For current v10 naming, Sentry is the scheme while SentrySwift remains
+# the architecture target; preserve both matching slices.
+run_case \
+    spm-v10-current \
+    "$WORK_DIR/objects/dependency-matching.o" \
+    '' \
+    "$WORK_DIR/objects/target.o" \
+    Sentry \
+    SentrySwift
+
+# After the v10 target rename, accept Sentry for both names and retain
+# only the target's arm64 slice.
+run_case \
+    spm-v10-renamed \
+    "$WORK_DIR/objects/dependency-extra.o" \
+    '' \
+    "$WORK_DIR/objects/target-arm64.o" \
+    Sentry \
+    Sentry
+
+# Reject a dependency missing arm64_32 instead of silently dropping a
+# required target architecture.
+run_case \
+    missing-required-architecture \
+    "$WORK_DIR/objects/dependency-arm64.o" \
+    'Missing required SentryObjCCompat architecture' \
+    "$WORK_DIR/objects/target.o" \
+    SentryObjC \
+    SentryObjCCompat
+
+# Reject an archive without SentryObjCCompat.o instead of inferring its
+# supported architectures from dependencies.
+run_case \
+    missing-architecture-target \
+    "$WORK_DIR/objects/dependency-matching.o" \
+    'Expected one archived SentryObjCCompat.o' \
+    "$WORK_DIR/objects/target.o" \
+    SentryObjC \
+    SentryObjCCompat
+
+# Apply the missing-slice check to SentrySwift too: its dependency lacks
+# required arm64_32, so neither output library may be produced.
+run_case \
+    missing-spm-architecture \
+    "$WORK_DIR/objects/dependency-arm64.o" \
+    'Missing required SentrySwift architecture' \
+    "$WORK_DIR/objects/target.o" \
+    SentrySPM \
+    SentrySwift
+
+# Reject a missing SentrySwift.o even though the SentrySPM archive command
+# succeeds and its dependency has both expected architectures.
+run_case \
+    missing-spm-target \
+    "$WORK_DIR/objects/dependency-matching.o" \
+    'Expected one archived SentrySwift.o' \
+    "$WORK_DIR/objects/target.o" \
+    SentrySPM \
+    SentrySwift
 
 log_info 'All archive architecture regressions passed.'
