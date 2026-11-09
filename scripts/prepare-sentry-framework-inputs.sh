@@ -106,12 +106,7 @@ mkdir -p "$headers_dir" "$modules_dir" "$resources_dir"
 umbrella_header="SentryHeaders.h"
 # Reuse the source list for the umbrella, excluding headers generated during preparation.
 public_headers=("$HEADERS_DIR"/*.h)
-for header in "${public_headers[@]}"; do
-    sed -E \
-        -e 's/(#[[:space:]]*(import|include))[[:space:]]+<([A-Za-z0-9_]+\.h)>/\1 "\3"/' \
-        -e 's/(#[[:space:]]*(import|include))[[:space:]]+SENTRY_HEADER\(([A-Za-z0-9_]+)\)/\1 "\3.h"/' \
-        "$header" > "$headers_dir/${header##*/}"
-done
+cp "${public_headers[@]}" "$headers_dir/"
 {
     # Match the archive's generation without requiring consumer compiler flags.
     if [ "${SDK_V10:-0}" = 1 ]; then
