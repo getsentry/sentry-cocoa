@@ -31,9 +31,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -77,9 +79,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -130,9 +134,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -176,9 +182,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -202,9 +210,11 @@
           }
         ],
         "declAttributes": [
+          "Available",
           "DiscardableResult"
         ],
         "declKind": "Func",
+        "deprecated": true,
         "funcSelfKind": "NonMutating",
         "kind": "Function",
         "moduleName": "Sentry",
@@ -531,6 +541,16 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentryDefines",
         "printedName": "Sentry.SentryDefines"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryDeprecated",
+        "printedName": "Sentry.SentryDeprecated"
       },
       {
         "declAttributes": [
@@ -3768,6 +3788,57 @@
             "objc_name": "environment",
             "printedName": "environment",
             "usr": "c:objc(cs)SentryBaggage(py)environment"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo13SentryBaggageC0A0E15httpHeaderFieldSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So13SentryBaggageC0A0E15httpHeaderFieldSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isFromExtension": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$sSo13SentryBaggageC0A0E15httpHeaderFieldSSvpZ",
+            "moduleName": "Sentry",
+            "name": "httpHeaderField",
+            "printedName": "httpHeaderField",
+            "static": true,
+            "usr": "s:So13SentryBaggageC0A0E15httpHeaderFieldSSvpZ"
           },
           {
             "accessors": [
@@ -25186,6 +25257,82 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC22enableScopePersistenceSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableScopePersistence"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC22enableScopePersistenceSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableScopePersistence:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC22enableScopePersistenceSbvp",
+            "moduleName": "Sentry",
+            "name": "enableScopePersistence",
+            "printedName": "enableScopePersistence",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableScopePersistence"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC15enableSpotlightSbvg",
                 "moduleName": "Sentry",
@@ -37975,6 +38122,124 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011descriptionSo7NSErrorCSS_tF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011descriptionSo7NSErrorCSS_tF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011description9exceptionSo7NSErrorCSS_So11NSExceptionCtF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:exception:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011description9exceptionSo7NSErrorCSS_So11NSExceptionCtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011description06kernelB4CodeSo7NSErrorCSS_s5Int32VtF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:kernelErrorCode:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011description06kernelB4CodeSo7NSErrorCSS_s5Int32VtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSError",
+                "printedName": "Foundation.NSError",
+                "usr": "c:objc(cs)NSError"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryErrorV0A0E02nsB011description010underlyingB0So7NSErrorCSS_AHtF",
+            "moduleName": "Sentry",
+            "name": "nsError",
+            "printedName": "nsError(description:underlyingError:)",
+            "usr": "s:So11SentryErrorV0A0E02nsB011description010underlyingB0So7NSErrorCSS_AHtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "Int",
                 "printedName": "Swift.Int",
                 "usr": "s:Si"
@@ -38066,6 +38331,47 @@
             "name": "couldNotFindDirectory",
             "printedName": "couldNotFindDirectory",
             "usr": "c:@E@SentryError@kSentryErrorCouldNotFindDirectory"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo11SentryErrorV0A0E6domainSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So11SentryErrorV0A0E6domainSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$sSo11SentryErrorV0A0E6domainSSvpZ",
+            "moduleName": "Sentry",
+            "name": "domain",
+            "printedName": "domain",
+            "static": true,
+            "usr": "s:So11SentryErrorV0A0E6domainSSvpZ"
           },
           {
             "children": [
@@ -50948,6 +51254,43 @@
                 "name": "hashValue",
                 "printedName": "hashValue",
                 "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO9hashValueSivp"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.DiagnosticReport.Type) -> Sentry.SentryMetricKit.DiagnosticReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO15memoryExceptionyA2EmF",
+                "moduleName": "Sentry",
+                "name": "memoryException",
+                "printedName": "memoryException",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO15memoryExceptionyA2EmF"
               }
             ],
             "conformances": [
@@ -51246,6 +51589,80 @@
                 "name": "animationScrollHitchTimeRatio",
                 "printedName": "animationScrollHitchTimeRatio",
                 "usr": "s:6Sentry0A9MetricKitO0B6ReportO29animationScrollHitchTimeRatioyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO27animationTotalAnimationTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "animationTotalAnimationTime",
+                "printedName": "animationTotalAnimationTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO27animationTotalAnimationTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO23animationTotalHitchTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "animationTotalHitchTime",
+                "printedName": "animationTotalHitchTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO23animationTotalHitchTimeyA2EmF"
               },
               {
                 "children": [
@@ -52800,6 +53217,117 @@
                 "name": "memoryPeakUsage",
                 "printedName": "memoryPeakUsage",
                 "usr": "s:6Sentry0A9MetricKitO0B6ReportO15memoryPeakUsageyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO26metalActiveDrawingDurationyA2EmF",
+                "moduleName": "Sentry",
+                "name": "metalActiveDrawingDuration",
+                "printedName": "metalActiveDrawingDuration",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO26metalActiveDrawingDurationyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO15metalFrameCountyA2EmF",
+                "moduleName": "Sentry",
+                "name": "metalFrameCount",
+                "printedName": "metalFrameCount",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO15metalFrameCountyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO20metalFramesPerSecondyA2EmF",
+                "moduleName": "Sentry",
+                "name": "metalFramesPerSecond",
+                "printedName": "metalFramesPerSecond",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO20metalFramesPerSecondyA2EmF"
               },
               {
                 "children": [
@@ -64997,6 +65525,45 @@
             "usr": "c:@E@SentrySpanStatus@kSentrySpanStatusInvalidArgument"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo16SentrySpanStatusV0A0E4nameSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So16SentrySpanStatusV0A0E4nameSSvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$sSo16SentrySpanStatusV0A0E4nameSSvp",
+            "moduleName": "Sentry",
+            "name": "name",
+            "printedName": "name",
+            "usr": "s:So16SentrySpanStatusV0A0E4nameSSvp"
+          },
+          {
             "children": [
               {
                 "children": [
@@ -75556,6 +76123,287 @@
       {
         "children": [
           {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "WKUserContentController",
+                "printedName": "WebKit.WKUserContentController",
+                "usr": "c:objc(cs)WKUserContentController"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo23WKUserContentControllerC_AA0abcD7OptionsVtFZ",
+            "moduleName": "Sentry",
+            "name": "addTracePropagation",
+            "printedName": "addTracePropagation(to:options:)",
+            "static": true,
+            "usr": "s:6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo23WKUserContentControllerC_AA0abcD7OptionsVtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "WKWebView",
+                "printedName": "WebKit.WKWebView",
+                "usr": "c:objc(cs)WKWebView"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC0C_AA0abcD7OptionsVtFZ",
+            "moduleName": "Sentry",
+            "name": "addTracePropagation",
+            "printedName": "addTracePropagation(to:options:)",
+            "static": true,
+            "usr": "s:6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC0C_AA0abcD7OptionsVtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "WKWebViewConfiguration",
+                "printedName": "WebKit.WKWebViewConfiguration",
+                "usr": "c:objc(cs)WKWebViewConfiguration"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC13ConfigurationC_AA0abcD7OptionsVtFZ",
+            "moduleName": "Sentry",
+            "name": "addTracePropagation",
+            "printedName": "addTracePropagation(to:options:)",
+            "static": true,
+            "usr": "s:6Sentry0A14WebViewTracingO19addTracePropagation2to7optionsSbSo05WKWebC13ConfigurationC_AA0abcD7OptionsVtFZ"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Enum",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A14WebViewTracingO",
+        "moduleName": "Sentry",
+        "name": "SentryWebViewTracing",
+        "printedName": "SentryWebViewTracing",
+        "usr": "s:6Sentry0A14WebViewTracingO"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryWebViewTracingOptions",
+                "printedName": "Sentry.SentryWebViewTracingOptions",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+              }
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsACSaySSG_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(allowedHosts:)",
+            "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsACSaySSG_tcfc"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "usr": "s:Sa"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvp",
+            "moduleName": "Sentry",
+            "name": "allowedHosts",
+            "printedName": "allowedHosts",
+            "usr": "s:6Sentry0A21WebViewTracingOptionsV12allowedHostsSaySSGvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A21WebViewTracingOptionsV",
+        "moduleName": "Sentry",
+        "name": "SentryWebViewTracingOptions",
+        "printedName": "SentryWebViewTracingOptions",
+        "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+      },
+      {
+        "children": [
+          {
             "accessors": [
               {
                 "accessorKind": "get",
@@ -79367,6 +80215,57 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo17SentryTraceHeaderC0A0E04httpC5FieldSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So17SentryTraceHeaderC0A0E04httpC5FieldSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isFromExtension": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$sSo17SentryTraceHeaderC0A0E04httpC5FieldSSvpZ",
+            "moduleName": "Sentry",
+            "name": "httpHeaderField",
+            "printedName": "httpHeaderField",
+            "static": true,
+            "usr": "s:So17SentryTraceHeaderC0A0E04httpC5FieldSSvpZ"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentrySampleDecision",
                     "printedName": "Sentry.SentrySampleDecision",
                     "usr": "c:@E@SentrySampleDecision"
@@ -82682,7 +83581,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -82952,7 +83855,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -82970,7 +83877,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83072,7 +83983,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83124,7 +84039,11 @@
             "usr": "s:Si"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83142,7 +84061,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83160,7 +84083,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83178,7 +84105,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83196,7 +84127,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83214,7 +84149,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83232,7 +84171,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83250,7 +84193,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83268,7 +84215,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83286,7 +84237,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83304,7 +84259,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83322,7 +84281,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83340,7 +84303,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83358,7 +84325,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83376,7 +84347,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83394,7 +84369,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83412,7 +84391,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83430,7 +84413,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83448,7 +84435,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83466,7 +84457,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",
@@ -83484,7 +84479,11 @@
             "usr": "s:SS"
           }
         ],
+        "declAttributes": [
+          "Available"
+        ],
         "declKind": "Var",
+        "deprecated": true,
         "hasStorage": true,
         "isLet": true,
         "kind": "Var",

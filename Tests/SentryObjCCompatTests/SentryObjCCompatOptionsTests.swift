@@ -11,6 +11,28 @@ import XCTest
 
 final class SentryObjCCompatOptionsTests: XCTestCase {
 
+    func testEnableScopePersistence_whenSetThroughObjCOptions_shouldUpdateSDKOptions() {
+        // -- Arrange --
+        let options = SentryObjCOptions()
+        #if SDK_V10
+        XCTAssertTrue(options.enableScopePersistence)
+        #else
+        XCTAssertFalse(options.enableScopePersistence)
+        #endif
+
+        // -- Act --
+        options.enableScopePersistence = false
+
+        // -- Assert --
+        XCTAssertFalse(options.wrapped.enableScopePersistence)
+
+        // -- Act --
+        options.enableScopePersistence = true
+
+        // -- Assert --
+        XCTAssertTrue(options.wrapped.enableScopePersistence)
+    }
+
     func testHangReportingMode_whenSetThroughObjCOptions_shouldUpdateSDKOptions() {
         // -- Arrange --
         let options = SentryObjCOptions()

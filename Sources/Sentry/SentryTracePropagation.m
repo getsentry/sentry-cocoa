@@ -1,3 +1,4 @@
+#import "SentryDeprecated+Private.h"
 #import <SentryBaggage.h>
 #import <SentryInternalDefines.h>
 #import <SentryLogC.h>
@@ -31,7 +32,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSString *_Nullable rawHeader = [request valueForHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+        NSString *_Nullable rawHeader = [request valueForHTTPHeaderField:SentryBaggageHeaderField];
         NSDictionary *originalBaggage = [SentryBaggageSerialization decode:rawHeader ?: @""];
         if (originalBaggage[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
@@ -58,8 +59,8 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
                    baggageHeader:(NSString *)baggageHeader
             propagateTraceparent:(BOOL)propagateTraceparent
 {
-    if ([request valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
-        [request setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+    if ([request valueForHTTPHeaderField:SentryTraceHeaderField] == nil) {
+        [request setValue:traceHeader.value forHTTPHeaderField:SentryTraceHeaderField];
     }
 
     if (propagateTraceparent && [request valueForHTTPHeaderField:SENTRY_TRACEPARENT] == nil) {
@@ -72,7 +73,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     }
 
     if (baggageHeader.length > 0) {
-        [request setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+        [request setValue:baggageHeader forHTTPHeaderField:SentryBaggageHeaderField];
     }
 }
 

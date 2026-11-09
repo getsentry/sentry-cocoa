@@ -33,7 +33,8 @@
     SentryObjCMetricKitDiagnosticReport all = SentryObjCMetricKitDiagnosticReportCrash
         | SentryObjCMetricKitDiagnosticReportHang | SentryObjCMetricKitDiagnosticReportCPUException
         | SentryObjCMetricKitDiagnosticReportDiskWriteException
-        | SentryObjCMetricKitDiagnosticReportAppLaunch;
+        | SentryObjCMetricKitDiagnosticReportAppLaunch
+        | SentryObjCMetricKitDiagnosticReportMemoryException;
 
     // -- Act --
     options.experimental.metrickit.enabledDiagnosticReports = all;
@@ -203,8 +204,13 @@
     XCTAssertEqual(
         SentryObjCMetricKitMetricReportExitBackgroundSuspendedWithLockedFile, 1ULL << 45);
     XCTAssertEqual(SentryObjCMetricKitMetricReportExitBackgroundTaskTimeout, 1ULL << 46);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportAnimationTotalHitchTime, 1ULL << 47);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportAnimationTotalAnimationTime, 1ULL << 48);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportMetalFramesPerSecond, 1ULL << 49);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportMetalFrameCount, 1ULL << 50);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportMetalActiveDrawingDuration, 1ULL << 51);
     XCTAssertEqual(SentryObjCMetricKitMetricReportNone, 0ULL);
-    XCTAssertEqual(SentryObjCMetricKitMetricReportAll, (1ULL << 47) - 1);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportAll, (1ULL << 52) - 1);
 }
 
 @end

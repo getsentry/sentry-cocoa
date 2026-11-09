@@ -669,7 +669,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertNotNil(dict)
 
         let logItem = try XCTUnwrap(dict?["log_item:ratelimit_backoff"])
-        XCTAssertEqual(1, logItem.quantity)
+        XCTAssertEqual(2, logItem.quantity)
 
         let logByte = try XCTUnwrap(dict?["log_byte:ratelimit_backoff"])
         XCTAssertEqual(UInt(fixture.logsData.count), logByte.quantity)
@@ -691,7 +691,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertNotNil(dict)
 
         let traceMetric = try XCTUnwrap(dict?["trace_metric:ratelimit_backoff"])
-        XCTAssertEqual(1, traceMetric.quantity)
+        XCTAssertEqual(2, traceMetric.quantity)
 
         let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:ratelimit_backoff"])
         XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
@@ -748,7 +748,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(2, dict?.count)
 
         let logItem = try XCTUnwrap(dict?["log_item:cache_overflow"])
-        XCTAssertEqual(1, logItem.quantity)
+        XCTAssertEqual(2, logItem.quantity)
 
         let logByte = try XCTUnwrap(dict?["log_byte:cache_overflow"])
         XCTAssertEqual(UInt(fixture.logsData.count), logByte.quantity)
@@ -771,7 +771,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(2, dict?.count)
 
         let traceMetric = try XCTUnwrap(dict?["trace_metric:cache_overflow"])
-        XCTAssertEqual(1, traceMetric.quantity)
+        XCTAssertEqual(2, traceMetric.quantity)
 
         let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:cache_overflow"])
         XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
@@ -1077,7 +1077,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(2, dict?.count)
 
         let logItem = try XCTUnwrap(dict?["log_item:send_error"])
-        XCTAssertEqual(1, logItem.quantity)
+        XCTAssertEqual(2, logItem.quantity)
 
         let logByte = try XCTUnwrap(dict?["log_byte:send_error"])
         XCTAssertEqual(UInt(fixture.logsData.count), logByte.quantity)
@@ -1102,7 +1102,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(2, dict?.count)
 
         let traceMetric = try XCTUnwrap(dict?["trace_metric:send_error"])
-        XCTAssertEqual(1, traceMetric.quantity)
+        XCTAssertEqual(2, traceMetric.quantity)
 
         let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:send_error"])
         XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
@@ -1163,6 +1163,119 @@ class SentryHttpTransportTests: XCTestCase {
         try assertClientReportStoredInMemory()
     }
     
+    func testRequestManagerReturnsErroredResponse_WithLogs_RecordsEveryBatchedLog() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+
+        // -- Act --
+        sut.send(envelope: fixture.getLogsEnvelope())
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(2, dict?.count)
+
+        let logItem = try XCTUnwrap(dict?["log_item:send_error"])
+        XCTAssertEqual(2, logItem.quantity)
+
+        let logByte = try XCTUnwrap(dict?["log_byte:send_error"])
+        XCTAssertEqual(UInt(fixture.logsData.count), logByte.quantity)
+    }
+
+    func testRequestManagerReturnsErroredResponse_WithMetrics_RecordsEveryBatchedMetric() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+
+        // -- Act --
+        sut.send(envelope: fixture.getMetricsEnvelope())
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(2, dict?.count)
+
+        let traceMetric = try XCTUnwrap(dict?["trace_metric:send_error"])
+        XCTAssertEqual(2, traceMetric.quantity)
+
+        let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:send_error"])
+        XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
+    }
+
+    func testRequestManagerReturnsErroredResponse_WithFiveLogs_RecordsQuantityOfFive() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+        var logsBuffer = InMemoryInternalTelemetryBuffer<SentryLog>()
+        for index in 0..<5 {
+            try logsBuffer.append(SentryLog(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, level: .info, body: "log \(index)", attributes: [:]))
+        }
+        let logsData = logsBuffer.batchedData
+        let logItem = SentryEnvelopeItem(
+            type: SentryEnvelopeItemTypes.log,
+            data: logsData,
+            contentType: "application/vnd.sentry.items.log+json",
+            itemCount: 5
+        )
+
+        // -- Act --
+        sut.send(envelope: SentryEnvelope(id: nil, singleItem: logItem))
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(2, dict?.count)
+
+        let discardedLogItem = try XCTUnwrap(dict?["log_item:send_error"])
+        XCTAssertEqual(5, discardedLogItem.quantity)
+
+        let logByte = try XCTUnwrap(dict?["log_byte:send_error"])
+        XCTAssertEqual(UInt(logsData.count), logByte.quantity)
+    }
+
+    func testRequestManagerReturnsErroredResponse_WithThreeMetrics_RecordsQuantityOfThree() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+        var metricsBuffer = InMemoryInternalTelemetryBuffer<SentryMetric>()
+        for index in 0..<3 {
+            try metricsBuffer.append(SentryMetric(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, name: "metric.\(index)", value: .counter(1), unit: nil, attributes: [:]))
+        }
+        let metricsData = metricsBuffer.batchedData
+        let metricItem = SentryEnvelopeItem(
+            type: SentryEnvelopeItemTypes.traceMetric,
+            data: metricsData,
+            contentType: "application/vnd.sentry.items.trace-metric+json",
+            itemCount: 3
+        )
+
+        // -- Act --
+        sut.send(envelope: SentryEnvelope(id: nil, singleItem: metricItem))
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(2, dict?.count)
+
+        let traceMetric = try XCTUnwrap(dict?["trace_metric:send_error"])
+        XCTAssertEqual(3, traceMetric.quantity)
+
+        let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:send_error"])
+        XCTAssertEqual(UInt(metricsData.count), traceMetricByte.quantity)
+    }
+
+    func testRequestManagerReturnsErroredResponse_WithLogsWithoutItemCount_RecordsQuantityOfOne() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+        let logItem = SentryEnvelopeItem(type: SentryEnvelopeItemTypes.log, data: fixture.logsData, addPlatform: false)
+
+        // -- Act --
+        sut.send(envelope: SentryEnvelope(id: nil, singleItem: logItem))
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        let discardedLogItem = try XCTUnwrap(dict?["log_item:send_error"])
+        XCTAssertEqual(1, discardedLogItem.quantity)
+    }
+
     func testSendClientReportsDisabled_DoesNotRecordLostEvents() throws {
         fixture.options.sendClientReports = false
         sut = try fixture.getSut()

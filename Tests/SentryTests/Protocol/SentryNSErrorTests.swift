@@ -44,11 +44,12 @@ class SentryNSErrorTests: XCTestCase {
         let inputUnderlyingErrorCode = 5_123
         let inputUnderlyingError = NSError(domain: "test-error-domain", code: inputUnderlyingErrorCode)
         let inputDescription = "some test error"
-        let actualError = NSErrorFromSentryErrorWithUnderlyingError(SentryError.unknownError, inputDescription, inputUnderlyingError)
+        let actualError = SentryError.unknownError.nsError(
+            description: inputDescription, underlyingError: inputUnderlyingError)
 
-        XCTAssertEqual(actualError?.localizedDescription, inputDescription)
+        XCTAssertEqual(actualError.localizedDescription, inputDescription)
         
-        guard let error = actualError, let actualUnderlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError else {
+        guard let actualUnderlyingError = actualError.userInfo[NSUnderlyingErrorKey] as? NSError else {
             XCTFail("Expected an underlying error in the returned error's info dict")
             return
         }
@@ -62,24 +63,20 @@ class SentryNSErrorTests: XCTestCase {
         let inputUnderlyingException = NSException(name: inputExceptionName, reason: inputExceptionReason, userInfo: ["some userinfo key": "some userinfo value"])
         let inputDescription = "some test exception"
 
-        let actualError = NSErrorFromSentryErrorWithException(SentryError.unknownError, inputDescription, inputUnderlyingException)
+        let actualError = SentryError.unknownError.nsError(
+            description: inputDescription, exception: inputUnderlyingException)
 
-        guard let actualDescription = actualError?.localizedDescription else {
-            XCTFail("Expected a localizedDescription in the resulting error")
-            return
-        }
-        XCTAssertEqual(actualDescription, "\(inputDescription) (\(inputExceptionReason))")
+        XCTAssertEqual(actualError.localizedDescription, "\(inputDescription) (\(inputExceptionReason))")
     }
 
     func testWithKernelError() {
         let inputKernelErrorCode = KERN_NOT_RECEIVER
         let inputDescription = "some test kernel error"
-        let actualError = NSErrorFromSentryErrorWithKernelError(SentryError.unknownError, inputDescription, inputKernelErrorCode)
+        let actualError = SentryError.unknownError.nsError(
+            description: inputDescription, kernelErrorCode: Int32(inputKernelErrorCode))
 
-        guard let actualDescription = actualError?.localizedDescription else {
-            XCTFail("Expected a localizedDescription in the resulting error")
-            return
-        }
-        XCTAssertEqual(actualDescription, "\(inputDescription) (The task in question does not hold receive rights for the port argument.)")
+        XCTAssertEqual(
+            actualError.localizedDescription,
+            "\(inputDescription) (The task in question does not hold receive rights for the port argument.)")
     }
 }

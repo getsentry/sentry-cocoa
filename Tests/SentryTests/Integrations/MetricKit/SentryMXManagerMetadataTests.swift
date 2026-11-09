@@ -10,7 +10,7 @@ import XCTest
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-/// Covers how `SentryMXManager` tells diagnostics of a previous process from the current one and
+/// Covers how `SentryMXDiagnosticCapturer` tells diagnostics of a previous process from the current one and
 /// which metadata it gives their events.
 final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
@@ -413,7 +413,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         let runningDevice = try XCTUnwrap(scope.getContextForKey("device"))
 
         // -- Act --
-        let deviceContext = try XCTUnwrap(SentryMXManager.diagnosticDeviceContext(runningDevice: runningDevice))
+        let deviceContext = try XCTUnwrap(SentryMXDiagnosticCapturer.diagnosticDeviceContext(runningDevice: runningDevice))
 
         // -- Assert --
         var mutableKeys: Set<String> = ["free_memory", "usable_memory"]
@@ -423,7 +423,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(
             Set(runningDevice.keys).subtracting(deviceContext.keys),
             mutableKeys,
-            "The enricher sets a device key that is neither in SentryMXManager.stableDeviceContextKeys nor in the mutable keys of this test. Decide whether it can change between app runs on the same device, then add it to one of them."
+            "The enricher sets a device key that is neither in SentryMXDiagnosticCapturer.stableDeviceContextKeys nor in the mutable keys of this test. Decide whether it can change between app runs on the same device, then add it to one of them."
         )
     }
 
@@ -439,17 +439,19 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
     private func givenSut(releaseName: String?) -> SentryMXManager {
         SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            releaseName: releaseName,
-            bundleInfo: [
-                "CFBundleIdentifier": "io.sentry.app",
-                "CFBundleShortVersionString": "2.0.0",
-                "CFBundleVersion": "20"
-            ],
-            processIdentifier: Self.currentPid,
-            processStartDate: Self.processStartDate
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.hang],
+                releaseName: releaseName,
+                bundleInfo: [
+                    "CFBundleIdentifier": "io.sentry.app",
+                    "CFBundleShortVersionString": "2.0.0",
+                    "CFBundleVersion": "20"
+                ],
+                processIdentifier: Self.currentPid,
+                processStartDate: Self.processStartDate
+            )
         )
     }
 
