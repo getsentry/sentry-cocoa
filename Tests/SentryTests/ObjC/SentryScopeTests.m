@@ -5,7 +5,7 @@
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
 #if SWIFT_PACKAGE
-@import SentrySwift;
+#    import "SentrySwift.h"
 #else
 @import Sentry;
 #endif

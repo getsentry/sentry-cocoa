@@ -1,8 +1,16 @@
+#if !SDK_V10
 @_spi(Private) import SentrySwift
+#else
+@_spi(Private) import Sentry
+#endif
 import _SentryPrivate
 import Intents
 import SentrySampleShared
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 
 class IntentHandler: INExtension, INSendMessageIntentHandling {
 
