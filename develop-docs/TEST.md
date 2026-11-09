@@ -26,7 +26,7 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
-For macOS, `scripts/sentry-xcodebuild.sh` explicitly selects the host architecture (`uname -m`) for both building and running tests. This keeps the SDK and test-support targets aligned: an implicit destination can build only `arm64e` SDK modules while `arm64` test targets import stale modules from an earlier build. An explicit `--destination` overrides this default; distribution archive architectures are unchanged. Run the destination regressions with `python3 scripts/test-sentry-xcodebuild.py -v`.
+For macOS, `scripts/sentry-xcodebuild.sh` explicitly selects the host architecture (`uname -m`) for both building and running tests. This keeps the SDK and test-support targets aligned: an implicit destination can build only `arm64e` SDK modules while `arm64` test targets import stale modules from an earlier build. An explicit `--destination` overrides this default; distribution archive architectures are unchanged.
 
 ### Main Test Source Layout
 

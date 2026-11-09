@@ -46,45 +46,36 @@ For the main Swift SDK, `prepare-sentry-framework-inputs.sh` requires `--swift-a
 
 The main SDK pipeline is `build-static-library.sh` → `prepare-sentry-framework-inputs.sh` → `build-dynamic-framework.sh` → `assemble-xcframework.sh`. One XCFramework/binary target supports `import SentrySwift` without a companion headers artifact. V10 will use `import Sentry` after the upstream module rename lands.
 
-For example, to package a V9 iOS device slice:
+`make build-xcframework-source` runs this pipeline, requires dynamic debug symbols, validates the artifact with `scripts/validate-xcframework.sh`, and compresses it. Output defaults to `XCFrameworkBuildPath/Source/SentrySwift.xcframework.zip`; override `SOURCE_XCFRAMEWORK_BUILD_PATH` with an absolute build directory when needed.
 
 ```bash
-export SDK_V10=0
-source scripts/ci-utils.sh
-source scripts/tools.sh
-version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file Sources/Configuration/Versioning.xcconfig)"
-./scripts/build-static-library.sh \
-  --sdk iphoneos \
-  --scheme SentrySPM \
-  --architecture-target SentrySwift \
-  --package-path "$(pwd)" \
-  --configuration Release \
-  --output-dir XCFrameworkBuildPath
-prepared=XCFrameworkBuildPath/prepared/SentrySwift/iphoneos
-./scripts/prepare-sentry-framework-inputs.sh \
-  --swift-archive XCFrameworkBuildPath/archive/SentrySPM/iphoneos.xcarchive \
-  --headers Sources/Sentry/Public \
-  --framework-name SentrySwift \
-  --output-dir "$prepared"
-./scripts/build-dynamic-framework.sh \
-  --sdk iphoneos \
-  --framework-name SentrySwift \
-  --version "$version" \
-  --output-dir XCFrameworkBuildPath \
-  --static-lib XCFrameworkBuildPath/lib/SentrySPM/iphoneos/libSentrySPM-Debug.a \
-  --headers "$prepared/Headers" \
-  --modules "$prepared/Modules" \
-  --resources "$prepared/Resources"
-./scripts/assemble-xcframework.sh \
-  --sdks iphoneos \
-  --framework-template "$(pwd)/XCFrameworkBuildPath/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
-  --output "$(pwd)/SentrySwift.xcframework" \
-  --require-debug-symbols
+SDK_V10=0 make build-xcframework-source SDKS=iphoneos FOR_AGENTS=true
+SDK_V10=1 make build-xcframework-source SDKS=macosx FOR_AGENTS=true
 ```
 
 `compress-xcframework.sh` signs when requested and creates the ZIP. `ci-diagnostics.sh` reports the active Swift compiler via `xcrun swift --version` alongside Xcode and SDK details.
 
-Run script argument, input preparation, dSYM, and compression regressions with `python3 scripts/test-xcframework-scripts.py -v`. Run architecture regression tests with `./scripts/test-sentryobjc-archive-architectures.sh`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, prepares its framework inputs, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup. It also compiles unmodified SDK public headers in source and framework layouts for V9/V10, Objective-C/Objective-C++, and modules enabled/disabled on macOS and iOS, including the existing `Sentry` framework's strict quoted-include warning.
+The Release workflow packages the real source SDK for macOS in V9 and V10 configurations, alongside the existing Xcode-project artifacts. Its separate `validate-source-sdk` job downloads only the packaged ZIP into a separate runner, runs the shared XCFramework validator again after extraction, and copies `TestApps/SPM-Dynamic` outside the checkout. In this mode the consumer depends only on the binary target, not the SDK source package. It compiles and runs public API, private SPI, generated Objective-C header, and privacy-resource checks without starting the SDK or sending events.
+
+Both `package-source-sdk` and `validate-source-sdk` are **advisory** until the packaging switchover: job-level `continue-on-error: true` prevents their failures from failing the workflow, and failures produce warning annotations, job summaries, and available logs. The source consumer still attempts each generation when another producer matrix leg fails, so one failure does not hide coverage of the other artifact. Neither source job is a prerequisite of the existing consumers, `job_release`, or `release-required-check`; Xcode-project packaging and publishing proceed independently. Source artifacts use the separate `source-sdk-*` namespace and are not published as release assets.
+
+To run the same consumer locally against an unpacked macOS artifact, pass its path relative to the consumer's package directory:
+
+```bash
+SENTRY_SOURCE_XCFRAMEWORK="../../XCFrameworkBuildPath/Source/SentrySwift.xcframework" \
+  swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
+```
+
+The existing static, dynamic, Xcode app, and SwiftUI release-consumer builds remain in place. Run archive architecture regressions with `./scripts/test-sentryobjc-archive-architectures.sh`.
+
+#### Switching release packaging to SwiftPM sources
+
+The advisory lane is not a release backend toggle: it currently covers macOS dynamic artifacts and the compiled `SentrySwift` module. Before switching:
+
+1. Extend source packaging and artifact-consumer validation to the platforms, architectures, and static/dynamic variants being migrated. Establish parity for public module names (`import Sentry` where required), Objective-C and hybrid SPI, deployment targets, resources, debug symbols, signing, and release filenames. The V10 module rename remains a separate prerequisite rather than an interface-only rename.
+2. In the reviewed switchover change, remove advisory `continue-on-error` handling for the migrated source jobs and make their packaging and consumer validation required dependencies of both `release-required-check` and `job_release`. Remove the advisory warning wording at the same time. Do not make a configuration flag select source artifacts while bypassing these gates.
+3. Route the existing assembly, signing, compression, and upload pipeline to the validated source artifacts for the migrated variants. Update consumers and binary-package URLs/checksums as necessary; do not publish the temporary `source-sdk-*` validation artifacts accidentally.
+4. Retain the Xcode-project path as a rollback option until the new release path is established. A rollback must restore both the artifact selection and its corresponding validation dependencies, not merely ignore a failed source check.
 
 ## Platform-Specific Build Notes
 

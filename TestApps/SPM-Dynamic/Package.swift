@@ -1,7 +1,20 @@
 // swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
+
+// The path is relative to this package. The downloaded framework is the only SDK dependency.
+let sourceFramework = ProcessInfo.processInfo.environment["SENTRY_SOURCE_XCFRAMEWORK"]
+let sdkTargets: [Target] = sourceFramework.map { path in
+    [
+        .binaryTarget(name: "SentrySwift", path: path),
+        .target(name: "ObjCConsumer", dependencies: ["SentrySwift"])
+    ]
+} ?? []
+let sdkDependencies: [Target.Dependency] = sourceFramework == nil
+    ? [.product(name: "Sentry-Dynamic", package: "Sentry")]
+    : ["SentrySwift", "ObjCConsumer"]
 
 let package = Package(
     name: "SPM-Dynamic",
@@ -9,16 +22,15 @@ let package = Package(
     products: [
         .executable(name: "SPM-Dynamic", targets: ["SPM-Dynamic"])
     ],
-    dependencies: [
-        // branch is replaced in CI to the current sha
+    dependencies: sourceFramework == nil ? [
         .package(name: "Sentry", path: "../../../sentry-cocoa")
-    ],
-    targets: [
+    ] : [],
+    targets: sdkTargets + [
         .target(
             name: "SPM-Dynamic",
-            dependencies: [.product(name: "Sentry-Dynamic", package: "Sentry")],
+            dependencies: sdkDependencies,
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
-            ])
+            ] + (sourceFramework == nil ? [] : [.define("SENTRY_SOURCE_FRAMEWORK")]))
     ]
 )
