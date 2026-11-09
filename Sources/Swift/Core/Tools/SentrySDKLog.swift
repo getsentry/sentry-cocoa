@@ -1,5 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
+import os
 
 typealias SentryLogOutput = ((String) -> Void)
 
@@ -25,7 +26,11 @@ typealias SentryLogOutput = ((String) -> Void)
     static let alwaysLevel = SentryLevel.fatal
     private static let defaultLogOutput: SentryLogOutput = { message in
         // Keep diagnostics separate from machine-readable output written by the host.
-        try? FileHandle.standardError.write(contentsOf: Data((message + "\n").utf8))
+        do {
+            try FileHandle.standardError.write(contentsOf: Data((message + "\n").utf8))
+        } catch {
+            os_log("Failed to write Sentry diagnostic to stderr: %@", type: .error, String(describing: error))
+        }
     }
     private static var logOutput: SentryLogOutput = defaultLogOutput
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
