@@ -70,9 +70,13 @@ jobs:
             platform: "visionOS"
             timeout: 60
 
+  hybrid-sdks:
+    name: Hybrid SDKs
+    uses: ./.github/workflows/test-hybrid-sdks.yml
+
   slack-notification:
     name: Slack Notification
-    needs: [unit-tests]
+    needs: [unit-tests, hybrid-sdks]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -80,11 +84,12 @@ jobs:
         id: results
         run: |
           UNIT_RESULT="${{ needs.unit-tests.result }}"
+          HYBRID_RESULT="${{ needs.hybrid-sdks.result }}"
 
-          if [ "$UNIT_RESULT" = "failure" ]; then
+          if [ "$UNIT_RESULT" = "failure" ] || [ "$HYBRID_RESULT" = "failure" ]; then
             echo "status=failure" >> "$GITHUB_OUTPUT"
             echo "emoji=:x:" >> "$GITHUB_OUTPUT"
-          elif [ "$UNIT_RESULT" = "cancelled" ]; then
+          elif [ "$UNIT_RESULT" = "cancelled" ] || [ "$HYBRID_RESULT" = "cancelled" ]; then
             echo "status=cancelled" >> "$GITHUB_OUTPUT"
             echo "emoji=:warning:" >> "$GITHUB_OUTPUT"
           else
@@ -107,12 +112,14 @@ jobs:
               }
             );
 
+            const isTestJob = j => j.name.startsWith('Unit ') || j.name.startsWith('Hybrid SDKs / ');
+
             const failed = jobs
-              .filter(j => j.conclusion === 'failure' && j.name.startsWith('Unit '))
+              .filter(j => j.conclusion === 'failure' && isTestJob(j))
               .map(j => j.name);
 
             const cancelled = jobs
-              .filter(j => j.conclusion === 'cancelled' && j.name.startsWith('Unit '))
+              .filter(j => j.conclusion === 'cancelled' && isTestJob(j))
               .map(j => j.name);
 
             let details = '';
@@ -170,7 +177,7 @@ jobs:
               -d @-
 
   nightly-test-required-check:
-    needs: [unit-tests]
+    needs: [unit-tests, hybrid-sdks]
     name: Nightly Tests
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

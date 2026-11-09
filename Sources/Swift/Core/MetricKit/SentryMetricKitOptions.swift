@@ -41,6 +41,20 @@ public final class SentryMetricKitOptions {
     /// - Note: Defaults to an empty set.
     public var enabledDiagnosticReports: Set<SentryMetricKit.DiagnosticReport> = []
     #endif // SDK_V10
+
+    /// The MetricKit metric reports the SDK sends as Sentry metrics.
+    ///
+    /// A non-empty set enables the MetricKit integration, even when no diagnostic reports are
+    /// enabled. Use `.all` to send every metric report.
+    ///
+    /// MetricKit delivers metric payloads about once a day, and each enabled report adds up to one
+    /// metric per payload, which counts towards your metrics quota.
+    ///
+    /// On macOS, MetricKit delivers metric payloads from macOS 26, and only to apps built with
+    /// Xcode 26 or later.
+    ///
+    /// - Note: Defaults to an empty set.
+    public var enabledMetricReports: Set<SentryMetricKit.MetricReport> = []
     #endif // canImport(MetricKit) && !os(tvOS)
 
     /// How hang diagnostics are reported. Defaults to `.legacy`.
@@ -51,7 +65,8 @@ public final class SentryMetricKitOptions {
     /// Applies MetricKit options from the options dictionary, primarily for hybrid SDK configuration.
     ///
     /// Reads `metricKitHangReportingMode` and the nested `metrickit` dictionary. Report names in
-    /// `enabledDiagnosticReports` that the SDK doesn't know are ignored.
+    /// `enabledDiagnosticReports` and `enabledMetricReports` that the SDK doesn't know are ignored.
+    /// `enabledMetricReports` also accepts `"all"` to enable every metric report.
     func apply(optionsDictionary: [String: Any]) {
         if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(optionsDictionary["metricKitHangReportingMode"] as? String) {
             self.hangReportingMode = hangReportingMode
@@ -62,6 +77,10 @@ public final class SentryMetricKitOptions {
         }
         if let reports = SentryDictionaryDecoder.strings(dictionary, "enabledDiagnosticReports") {
             enabledDiagnosticReports = Set(reports.compactMap(SentryMetricKit.DiagnosticReport.init(dictionaryValue:)))
+        }
+        if let reports = SentryDictionaryDecoder.strings(dictionary, "enabledMetricReports") {
+            // "all" saves hybrid SDKs from listing every report by name.
+            enabledMetricReports = reports.contains("all") ? .all : Set(reports.compactMap(SentryMetricKit.MetricReport.init(dictionaryValue:)))
         }
     }
     #endif // canImport(MetricKit) && !os(tvOS)

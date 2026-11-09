@@ -12,6 +12,7 @@
 #    import "SentryCrashDynamicLinker.h"
 #    import "SentryCrashUUIDConversion.h"
 #endif
+#import "SentryDeprecated+Private.h"
 #import "SentryError.h"
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
@@ -95,7 +96,6 @@
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryURLRequestWrapper.h"

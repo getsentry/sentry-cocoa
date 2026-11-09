@@ -52,6 +52,18 @@ sentry_getSentryId(void)
     return [[SentryId alloc] init];
 }
 
+SentryDebugImageProvider *
+sentry_getDebugImageProvider(void)
+{
+    return SentryDependencyContainer.sharedInstance.debugImageProvider;
+}
+
+NSArray<SentryDebugMeta *> *
+sentry_getDebugImagesFromCache(SentryDebugImageProvider *provider)
+{
+    return [provider getDebugImagesFromCache];
+}
+
 SentryProfileOptions *
 sentry_getSentryProfileOptions(void)
 {
@@ -182,6 +194,11 @@ sentry_setIsTracingAppLaunch(BOOL isTracingAppLaunch)
 SentryTracer *_Nullable sentry_getLaunchTracer(void)
 {
     return (SentryTracer *)SentryLaunchProfiling.launchTracer;
+}
+
+SentryTracer *_Nullable sentry_tracerForTransaction(id transaction)
+{
+    return (SentryTracer *)[(SentryTransaction *)transaction trace];
 }
 
 #    if SENTRY_HAS_UIKIT

@@ -36,4 +36,15 @@ extension SentryObjCSpanStatus {
     }
 }
 
+@objc(SentryObjCSpanStatusName) public final class SentryObjCSpanStatusName: NSObject {
+    private override init() {
+        super.init()
+    }
+
+    @objc(nameForStatus:)
+    public static func name(for status: SentryObjCSpanStatus) -> String {
+        status.underlying.name
+    }
+}
+
 // swiftlint:enable missing_docs

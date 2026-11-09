@@ -4,16 +4,63 @@
 
 ### Features
 
+- Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+
+### Fixes
+
+- Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
+
+## 9.33.0
+
+### Breaking Changes
+
+- Add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` cases to the experimental `SentryMetricKit.MetricReport` enum, so exhaustive `switch` statements over it need to handle them. On iOS and macOS 27 and later, `animationScrollHitchTimeRatio` is no longer sent because MetricKit only reports the hitch time of all animations (#9476)
+
+### Features
+
+- Expose `options.experimental.metrickit.enabledMetricReports` through the SentryObjC SDK as the `SentryObjCMetricKitMetricReport` bitmask and through the `enabledMetricReports` key of the `metrickit` options dictionary, which also accepts `"all"` (#9490)
+- Receive MetricKit metrics through `MetricManager` on iOS and macOS 27 and later with the same names, types and units as on earlier OS versions, and add the `animationTotalHitchTime`, `animationTotalAnimationTime`, `metalFramesPerSecond`, `metalFrameCount` and `metalActiveDrawingDuration` metric reports that only `MetricManager` provides, also available through the `SentryObjCMetricKitMetricReport` bitmask (#9476)
+- Connect traces of web content in a `WKWebView` with the app's trace. Call `SentryWebViewTracing.addTracePropagation(to:options:)` with a `WKWebView`, `WKWebViewConfiguration`, `WKUserContentController`, or SwiftUI `WebPage.Configuration` to inject the current trace as `sentry-trace` and `baggage` meta tags before page scripts run, so `@sentry/browser` in the page continues the trace on pageload. Only pages on the hosts in `SentryWebViewTracingOptions.allowedHosts` receive the trace (#9474)
+  - Expose WebView trace propagation through the SentryObjC SDK as `SentryObjCWebViewTracing` and `SentryObjCWebViewTracingOptions` (#9488)
+  - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
+
+### Fixes
+
+- Report the tvOS OS name as `tvOS` in profiles instead of occasionally reporting `Apple TVOS` (#9497)
+- Fix trace-lifecycle profiling getting stuck after backgrounding when a root transaction remains active or is abandoned. Parented transactions no longer start or keep the profiler running (#9481)
+- Prevent sampled backtraces from being dropped when continuous profiling starts a new chunk (#9485)
+- Prevent stale profiling callbacks from affecting restarted profilers or routing queued chunks to a replacement SDK client (#9491)
+- Prevent stale trace-profiler timers from stopping replacement profiles or shortening their timeout (#9492)
+- Fix app start transactions from hybrid SDKs such as React Native being dropped for prewarmed app starts. `SentrySDK.internal.appStart.measurementWithSpans` added the Pre Runtime Init and Runtime init to Pre Main initializers spans only for prewarmed app starts, where Pre Runtime Init ended before it started, and left them out of all other app starts (#9473)
+- Prevent SentryCrash from deadlocking while handling uncaught C++ exceptions, and keep concurrent throws from overwriting another thread's captured stack trace (#9531)
+- Count every batched log and metric in client reports when an envelope is rate limited, dropped from the cache, or fails to send, instead of counting one per envelope item (#9530)
+- Preserve profiling metrics across chunk rollover and avoid recording a finished trace's metrics on its replacement profiler (#9500)
+- Synchronize profiling energy-counter readings and prevent invalid energy spikes when cumulative counters decrease (#9517)
+
+## 9.32.0
+
+### Features
+
 - Add `options.experimental.metrickit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
 - Add `attachAllThreads` and scope block overloads for `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)`, also available through `SentryObjC` (#9424)
 - Align the metrics API with the other Sentry SDKs: `SentrySDK.metrics.count(_:value:options:)`, `gauge(_:value:options:)` and `distribution(_:value:options:)` take the metric name, the value and `SentryMetricOptions` with `unit`, `attributes`, `scope` and `timestamp`. `SentryObjC` exposes the same API through `count:value:options:`, `gauge:value:options:`, `distribution:value:options:` and `SentryObjCMetricOptions`. The key-based methods such as `count(key:value:attributes:)` and `countWithKey:value:attributes:` keep working but are deprecated and will be removed in v10; use the options-based methods instead (#9453)
 - Capture MetricKit app launch diagnostics on iOS 16 and later and on visionOS when `options.experimental.metrickit.enabledDiagnosticReports` contains `.appLaunch` (#9441)
 - Expose `options.experimental.metrickit.enabledDiagnosticReports` through the SentryObjC SDK as `options.experimental.metrickit` and through the `metrickit` key of the options dictionary (#9296)
+- Add breadcrumbs when the hinge of foldable devices such as iPhone Duo opens, closes, or reaches the fully open or closed position, and report the current hinge status as `hinge_status` in the device context, which requires iOS 27.1 or later and is not available on Mac Catalyst (#9464)
+- Add `options.experimental.metrickit.enabledMetricReports` to send MetricKit metric payloads as Sentry metrics, such as CPU time, network transfer, memory and app exit counts. Metrics are named `metrickit.<group>.<name>` and carry the app and OS versions they were recorded with. The option defaults to an empty set and is only available from Swift (#9452)
+- Receive MetricKit diagnostics through `MetricManager` on iOS, macOS and visionOS 27 and later. Diagnostics produce the same events as on earlier OS versions. The raw report attached by `enableMetricKitRawPayload` is named `DiagnosticReport.json` on these versions (#9462)
+- Capture MetricKit memory exception diagnostics on iOS 27 and later when `options.experimental.metrickit.enabledDiagnosticReports` contains `.memoryException` (#9465)
 
 ### Fixes
 
 - Wait for transactions that are still being captured on a background thread when calling `flush` or `close`, so short-lived processes no longer lose a transaction finished right before the call (#9415)
+- Keep pending Session Replay video when `SentrySDK.replay.stop()` follows `flush()` (#9429)
 - Stop reporting a false watchdog termination on the launch after `SentrySDK.close()` when app start tracking isn't installed, such as with `enableAutoPerformanceTracing` disabled (#9451)
+- Prevent NSException crash handling from deadlocking when a suspended thread holds a lock needed to read or format exception metadata (#9463)
+
+### Deprecations
+
+- Deprecate the public C error helpers (`NSErrorFromSentryError`, `NSErrorFromSentryErrorWithUnderlyingError`, `NSErrorFromSentryErrorWithException`, `NSErrorFromSentryErrorWithKernelError`, and `SentryErrorDomain`), span-status names (`nameForSentrySpanStatus` and the `kSentrySpanStatusName*` constants), and the header constants `SENTRY_BAGGAGE_HEADER` and `SENTRY_TRACE_HEADER`. Use `SentryError.nsError(description:)`, `SentryError.domain`, `SentrySpanStatus.name`, `Baggage.httpHeaderField`, and `TraceHeader.httpHeaderField`. SentryObjC users can use `[SentryObjCError nsErrorWithCode:description:]`, `[SentryObjCSpanStatusName nameForStatus:]`, `SentryObjCBaggage.httpHeaderField`, and `SentryObjCTraceHeader.httpHeaderField`. `SENTRY_TRACE_TYPE`, `defaultMaxBreadcrumbs`, `kSentryTrueString`, and `kSentryFalseString` are deprecated with no replacement. These symbols will be removed in a future major version. The `kSentryError*` and `kSentrySpanStatus*` enum cases are not deprecated. (#9502)
 
 ## 9.31.0
 
