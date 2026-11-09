@@ -1,5 +1,5 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @testable import SentrySwift
 #else
 @testable import Sentry
