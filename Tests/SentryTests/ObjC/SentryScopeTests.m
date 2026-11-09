@@ -8,6 +8,13 @@
 @import Sentry;
 #endif
 
+// V10 keeps serialize off the public interface. The method is still @objc, so tests can call it.
+#if SDK_V10
+@interface SentryScope (V10InternalSerialize)
+- (NSDictionary<NSString *, id> *)serialize;
+@end
+#endif
+
 @interface SentryScopeTests : XCTestCase
 
 @end
