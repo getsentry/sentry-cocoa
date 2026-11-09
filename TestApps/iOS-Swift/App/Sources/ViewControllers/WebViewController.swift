@@ -1,4 +1,5 @@
 @_spi(Private) import SentrySwift
+import _SentryPrivate
 import Foundation
 import SwiftUI
 import WebKit
@@ -44,6 +45,13 @@ class WebViewController: UIViewController {
 #endif
     }
 
+    /// The trace the SDK propagates right now, read from the scope so UI tests can compare it with
+    /// the injected tags.
+    private static var nativeTraceId: String {
+        let scope = SentrySDKInternal.currentHub().scope
+        return (scope.span?.traceId ?? scope.propagationContextTraceId).sentryIdString
+    }
+
     /// The page runs `@sentry/browser`, which continues the injected trace on pageload. It also
     /// shows the injected tags, read before any page script could add them, so UI tests can check
     /// the injection without network access.
@@ -81,6 +89,7 @@ class WebViewController: UIViewController {
         </script>
         </head>
         <body style="font-family: -apple-system; padding: 16px; word-break: break-all;">
+        <p>native-trace: \(nativeTraceId)</p>
         <h3>sentry-trace</h3><p id="sentry-trace"></p>
         <h3>baggage</h3><p id="baggage"></p>
         <script>
