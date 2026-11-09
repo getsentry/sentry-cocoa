@@ -1,5 +1,6 @@
 import Foundation
-#if SENTRY_SOURCE_FRAMEWORK
+// Both modes use SwiftPM; this flag selects the SwiftPM-built XCFramework.
+#if SENTRY_SPM_FRAMEWORK
 @_spi(Private) import SentrySwift
 import ObjCConsumer
 
@@ -16,7 +17,7 @@ guard let privacyManifest = framework.url(forResource: "PrivacyInfo", withExtens
 }
 let manifest = try Data(contentsOf: privacyManifest)
 _ = try PropertyListSerialization.propertyList(from: manifest, format: nil)
-print("Source-built SDK: public API, SPI, Objective-C and resources passed")
+print("SPM-built SDK: public API, SPI, Objective-C and resources passed")
 #else
 import Sentry
 

@@ -158,12 +158,12 @@ run_case() {
 run_case extra-dependency-architecture "$WORK_DIR/objects/dependency-extra.o" ''
 run_case matching-architectures "$WORK_DIR/objects/dependency-matching.o" ''
 run_case single-wrapper-architecture "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/wrapper-arm64.o"
-run_case source-v9 "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
-run_case source-v10-current "$WORK_DIR/objects/dependency-matching.o" '' "$WORK_DIR/objects/SentryObjCCompat.o" Sentry SentrySwift
-run_case source-v10-renamed "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/wrapper-arm64.o" Sentry Sentry
+run_case spm-v9 "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
+run_case spm-v10-current "$WORK_DIR/objects/dependency-matching.o" '' "$WORK_DIR/objects/SentryObjCCompat.o" Sentry SentrySwift
+run_case spm-v10-renamed "$WORK_DIR/objects/dependency-extra.o" '' "$WORK_DIR/objects/wrapper-arm64.o" Sentry Sentry
 run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentryObjCCompat architecture'
 run_case missing-wrapper "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentryObjCCompat.o'
-run_case missing-source-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentrySwift architecture' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
-run_case missing-source-target "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentrySwift.o' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
+run_case missing-spm-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required SentrySwift architecture' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
+run_case missing-spm-target "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentrySwift.o' "$WORK_DIR/objects/SentryObjCCompat.o" SentrySPM SentrySwift
 
 log_info 'All archive architecture regressions passed.'

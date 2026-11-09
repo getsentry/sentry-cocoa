@@ -5,14 +5,14 @@ import Foundation
 import PackageDescription
 
 // The path is relative to this package. The downloaded framework is the only SDK dependency.
-let sourceFramework = ProcessInfo.processInfo.environment["SENTRY_SOURCE_XCFRAMEWORK"]
-let sdkTargets: [Target] = sourceFramework.map { path in
+let spmFramework = ProcessInfo.processInfo.environment["SENTRY_SPM_XCFRAMEWORK"]
+let sdkTargets: [Target] = spmFramework.map { path in
     [
         .binaryTarget(name: "SentrySwift", path: path),
         .target(name: "ObjCConsumer", dependencies: ["SentrySwift"])
     ]
 } ?? []
-let sdkDependencies: [Target.Dependency] = sourceFramework == nil
+let sdkDependencies: [Target.Dependency] = spmFramework == nil
     ? [.product(name: "Sentry-Dynamic", package: "Sentry")]
     : ["SentrySwift", "ObjCConsumer"]
 
@@ -22,7 +22,7 @@ let package = Package(
     products: [
         .executable(name: "SPM-Dynamic", targets: ["SPM-Dynamic"])
     ],
-    dependencies: sourceFramework == nil ? [
+    dependencies: spmFramework == nil ? [
         .package(name: "Sentry", path: "../../../sentry-cocoa")
     ] : [],
     targets: sdkTargets + [
@@ -31,6 +31,6 @@ let package = Package(
             dependencies: sdkDependencies,
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
-            ] + (sourceFramework == nil ? [] : [.define("SENTRY_SOURCE_FRAMEWORK")]))
+            ] + (spmFramework == nil ? [] : [.define("SENTRY_SPM_FRAMEWORK")]))
     ]
 )

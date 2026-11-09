@@ -36,25 +36,25 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 [assemble-xcframework.sh](../scripts/assemble-xcframework.sh) combines archives, frameworks, or static libraries. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for wrapper packaging.
 
-### Source-built SDK frameworks
+### SPM-built SDK frameworks
 
 Build a self-contained `SentrySwift` XCFramework from SwiftPM sources:
 
 ```bash
-SDK_V10=0 make build-xcframework-source SDKS=macosx FOR_AGENTS=true
-SDK_V10=1 make build-xcframework-source SDKS=macosx FOR_AGENTS=true
+SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
+SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 ```
 
-Output: `XCFrameworkBuildPath/Source/SentrySwift.xcframework.zip` (override `SOURCE_XCFRAMEWORK_BUILD_PATH`). See the [build script](../scripts/build-xcframework-variant-spm.sh) and [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for implementation and options.
+Output: `XCFrameworkBuildPath/SPM/SentrySwift.xcframework.zip` (override `SPM_XCFRAMEWORK_BUILD_PATH`). See the [build script](../scripts/build-xcframework-variant-spm.sh) and [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for implementation and options.
 
 Validate an unpacked macOS artifact locally:
 
 ```bash
-SENTRY_SOURCE_XCFRAMEWORK="../../XCFrameworkBuildPath/Source/SentrySwift.xcframework" \
+SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/SentrySwift.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
 ```
 
-The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; source artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
+The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
 ## Platform-Specific Build Notes
 
