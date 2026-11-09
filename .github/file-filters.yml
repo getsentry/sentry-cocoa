@@ -300,6 +300,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-variant.sh"
+  - "scripts/build-xcframework-variant-spm.sh"
   - "scripts/validate-xcframework*.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/assemble-xcframework.sh"

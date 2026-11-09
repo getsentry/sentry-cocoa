@@ -41,14 +41,6 @@ else
 fi
 end_group
 
-begin_group "Active Swift compiler"
-if command -v xcrun >/dev/null 2>&1; then
-  xcrun swift --version || true
-else
-  log_warning "xcrun not found in PATH"
-fi
-end_group
-
 begin_group "Installed SDKs (xcodebuild -showsdks)"
 if command -v xcodebuild >/dev/null 2>&1; then
   xcodebuild -showsdks || true

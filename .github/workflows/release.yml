@@ -113,7 +113,6 @@ jobs:
       MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       scheme: ${{matrix.variant.scheme}}
-      macho-type: ${{matrix.variant.macho-type}}
       suffix: ${{matrix.variant.suffix}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
@@ -304,7 +303,7 @@ jobs:
         if: failure()
 
   # Advisory source pipeline: runs beside releases, never as their prerequisite.
-  # Promote these jobs to release gates only as part of the documented switchover.
+  # Promote these jobs to release gates only when switching release packaging.
   package-source-sdk:
     name: Package Source SDK ${{ matrix.generation }} (advisory)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
