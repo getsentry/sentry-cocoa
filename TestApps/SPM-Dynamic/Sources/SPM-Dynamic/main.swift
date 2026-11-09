@@ -1,4 +1,23 @@
 import Foundation
+#if SENTRY_SOURCE_FRAMEWORK
+@_spi(Private) import SentrySwift
+import ObjCConsumer
+
+// Exercise the packaged SDK without starting integrations or sending network requests.
+precondition(SentryId().sentryIdString.count == 32)
+precondition(SentrySDKLog.willLog(atLevel: .fatal))
+precondition(sentryObjCConsumer())
+if let expected = ProcessInfo.processInfo.environment["SENTRY_EXPECTED_GENERATION"] {
+    precondition("v\(sentrySDKGeneration())" == expected)
+}
+let framework = Bundle(for: SentrySDKLog.self)
+guard let privacyManifest = framework.url(forResource: "PrivacyInfo", withExtension: "xcprivacy") else {
+    fatalError("The packaged framework is missing its privacy manifest")
+}
+let manifest = try Data(contentsOf: privacyManifest)
+_ = try PropertyListSerialization.propertyList(from: manifest, format: nil)
+print("Source-built SDK: public API, SPI, Objective-C and resources passed")
+#else
 import Sentry
 
 SentrySDK.start { options in
@@ -25,3 +44,4 @@ private func captureMessage() {
 }
 
 captureMessage()
+#endif

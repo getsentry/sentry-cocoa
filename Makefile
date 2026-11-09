@@ -532,6 +532,39 @@ build-xcframework-testapp:
 	@echo "[MAKE] $@: Building test app with xcodebuild"
 	xcodebuild -project "TestApps/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+## Package the source SDK as a dynamic XCFramework
+#
+# Uses the SwiftPM product selected by SDK_V10. CI validates these artifacts
+# separately from the existing Xcode-project release products.
+SOURCE_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/Source
+.PHONY: build-xcframework-source
+build-xcframework-source:
+	@set -euo pipefail; \
+		source scripts/ci-utils.sh; source scripts/tools.sh; \
+		version="$$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file Sources/Configuration/Versioning.xcconfig)"; \
+		scheme=SentrySPM; if [ "$${SDK_V10:-0}" = 1 ]; then scheme=Sentry; fi; \
+		build_path="$(SOURCE_XCFRAMEWORK_BUILD_PATH)"; \
+		IFS=, read -ra sdks <<< "$(SDKS)"; \
+		for sdk in "$${sdks[@]}"; do \
+			./scripts/build-static-library.sh --sdk "$$sdk" --scheme "$$scheme" \
+				--architecture-target SentrySwift --package-path "$(CURDIR)" \
+				--configuration Release --output-dir "$$build_path"; \
+			prepared="$$build_path/prepared/$$sdk"; \
+			./scripts/prepare-sentry-framework-inputs.sh \
+				--swift-archive "$$build_path/archive/$$scheme/$$sdk.xcarchive" \
+				--headers Sources/Sentry/Public --framework-name SentrySwift --output-dir "$$prepared"; \
+			./scripts/build-dynamic-framework.sh --sdk "$$sdk" --framework-name SentrySwift \
+				--version "$$version" --output-dir "$$build_path" \
+				--static-lib "$$build_path/lib/$$scheme/$$sdk/lib$$scheme-Debug.a" \
+				--headers "$$prepared/Headers" --modules "$$prepared/Modules" --resources "$$prepared/Resources"; \
+		done; \
+		artifact="$$build_path/SentrySwift.xcframework"; \
+		./scripts/assemble-xcframework.sh --sdks "$(SDKS)" \
+			--framework-template "$$build_path/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
+			--output "$$artifact" --require-debug-symbols; \
+		./scripts/validate-xcframework.sh --xcframework "$$artifact"; \
+		./scripts/compress-xcframework.sh --xcframework "$$artifact"
+
 ## Build Sentry-Dynamic XCFramework
 #
 # SDKS is a comma-separated list of SDK names (default: all).
