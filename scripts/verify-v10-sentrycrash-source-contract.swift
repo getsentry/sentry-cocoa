@@ -232,12 +232,10 @@ private func run() throws {
         }
     }
 
-    let olderManifest = try text("Package@swift-6.1.swift")
-    if olderManifest.contains(#".when(traits: ["V10"])"#) {
-        report("The older manifest must use environment-only V10 development selection")
-    }
-    if !(try text("Package@swift-6.2.swift")).contains(#".when(traits: ["V10"])"#) {
-        report("The modern manifest is missing its development V10 opt-in")
+    for manifestName in manifestNames + ["TestApps/SentrySampleShared/Package.swift"] {
+        if (try text(manifestName)).contains(#".when(traits: ["V10"])"#) {
+            report("\(manifestName) must select V10 through SDK_V10=1, not a trait")
+        }
     }
 
     for requiredPath in [
@@ -305,7 +303,7 @@ private func run() throws {
     }
 
     for requiredAudit in ["test-v10-empty-objects.sh", "--build-log v10-environment.log",
-                          "--build-log v10-trait.log", "--build-log v10-base-manifest.log"] where !workflow.contains(requiredAudit) {
+                          "--build-log v10-base-manifest.log"] where !workflow.contains(requiredAudit) {
         report("SwiftPM V10 builds must run the object checker with their build logs; missing workflow command: \(requiredAudit)")
     }
 }
