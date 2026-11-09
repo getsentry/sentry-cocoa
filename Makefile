@@ -145,6 +145,29 @@ check-changelog:
 # BUILDING
 # ============================================================================
 
+## Remove local build artifacts and caches, preserving all Git-tracked files
+#
+# Only repository-local build outputs are selected, including ignored files.
+# A single force flag preserves nested Git repositories. Symlinks are not followed.
+.PHONY: clean
+clean:
+	@echo "[MAKE] $@: Removing untracked build artifacts and caches"
+	git clean -fdx -- \
+		':(glob)**/*.xcframework' ':(glob)**/*.xcframework/**' \
+		':(glob)**/*.xcframework.zip' \
+		':(glob)**/*.log' \
+		':(glob)**/*.xcarchive' ':(glob)**/*.xcarchive/**' \
+		':(glob)**/*.xcresult' ':(glob)**/*.xcresult/**' \
+		':(glob)**/.build' ':(glob)**/.build/**' \
+		':(glob)**/build' ':(glob)**/build/**' \
+		':(glob)**/DerivedData' ':(glob)**/DerivedData/**' \
+		':(glob)**/XCFrameworkBuildPath' ':(glob)**/XCFrameworkBuildPath/**' \
+		':(glob)**/.swiftpm' ':(glob)**/.swiftpm/**' \
+		':(glob)**/Pods' ':(glob)**/Pods/**' \
+		':(glob)**/Carthage' ':(glob)**/Carthage/**' \
+		':(glob)**/Packages' ':(glob)**/Packages/**' \
+		uikit-check-build analyzer fastlane/test_output fastlane/test_results
+
 ## Build all platforms
 #
 # Convenience target that invokes all platform build targets.
