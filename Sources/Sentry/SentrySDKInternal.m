@@ -297,6 +297,9 @@ static BOOL sdkStarted;
     [PlaceholderNotificationCenterClass class];
     [PlaceholderOptionsDictionaryClass class];
     [PlaceholderReplayNetworkDetailsClass class];
+    [PlaceholderScopeEventClass class];
+    [PlaceholderScopeObserversClass class];
+    [PlaceholderScopeStateClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
