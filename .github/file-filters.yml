@@ -51,6 +51,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
+  - "scripts/test-sentry-xcodebuild.py"
   - "test-server/Makefile"
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"

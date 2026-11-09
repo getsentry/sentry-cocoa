@@ -1,5 +1,6 @@
 """Build a tiny source package and consume its single packaged XCFramework."""
 
+from itertools import product
 import os
 from pathlib import Path
 import shutil
@@ -8,6 +9,87 @@ import tempfile
 import unittest
 
 SCRIPTS = Path(__file__).resolve().parent
+
+
+class PublicHeaderImportTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix="sentry public headers ")
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+
+    def test_public_headers_compile_without_rewriting(self):
+        public = SCRIPTS.parent / "Sources/Sentry/Public"
+        configuration = SCRIPTS.parent / "Sources/SentryV10Configuration/include"
+        for sdk, target in (("macosx", "arm64-apple-macosx11.0"),
+                            ("iphoneos", "arm64-apple-ios15.0")):
+            sysroot = subprocess.check_output(
+                ["xcrun", "--sdk", sdk, "--show-sdk-path"], text=True).strip()
+            for version, layout in product((9, 10), ("source", "Sentry", "SentryWithoutUIKit", "SentrySwift")):
+                directory = self.root / f"{sdk}-{version}-{layout}"
+                headers = (directory / "include" if layout == "source"
+                           else directory / f"{layout}.framework/Headers")
+                shutil.copytree(public, headers)
+                public_headers = sorted(headers.glob("*.h"))
+                module_name = "SentryHeaders" if layout == "source" else layout
+                modules = headers if layout == "source" else headers.parent / "Modules"
+                modules.mkdir(exist_ok=True)
+                flags = []
+                if layout == "source":
+                    flags = ["-I", str(headers), "-DSWIFT_PACKAGE=1"]
+                    if version == 10:
+                        flags += ["-I", str(configuration)]
+                else:
+                    flags = ["-F", str(directory)]
+                if layout in ("Sentry", "SentryWithoutUIKit"):
+                    # Existing framework builds select the generation explicitly, even if
+                    # the separate SwiftPM configuration header happens to be visible.
+                    flags += [f"-DSDK_V10={int(version == 10)}", "-I", str(configuration)]
+                    umbrella = f"{layout}.h"
+                    shutil.copy(SCRIPTS.parent / f"Sources/Resources/{layout}.modulemap",
+                                modules / "module.modulemap")
+                    if layout == "Sentry":
+                        flags += ["-Werror=quoted-include-in-framework-header"]
+                    else:
+                        flags += ["-DSENTRY_NO_UI_FRAMEWORK=1"]
+                else:
+                    umbrella = "ConsumerHeaders.h"
+                    imports = ""
+                    if layout == "SentrySwift" and version == 10:
+                        shutil.copy(configuration / "SentryV10Configuration.h", headers)
+                        imports = '#import "SentryV10Configuration.h"\n'
+                    imports += "".join(f'#import "{header.name}"\n' for header in public_headers)
+                    (headers / umbrella).write_text(imports)
+                    prefix = "" if layout == "source" else "framework "
+                    (modules / "module.modulemap").write_text(
+                        f'{prefix}module {module_name} {{ umbrella header "{umbrella}" '
+                        'export * module * { export * } }\n')
+                for language, use_modules in product(("objective-c", "objective-c++"), (False, True)):
+                    with self.subTest(sdk=sdk, version=version, layout=layout,
+                                      language=language, modules=use_modules):
+                        if use_modules:
+                            include = f"@import {module_name};\n"
+                        elif layout == "source":
+                            include = f'#import "{umbrella}"\n'
+                        else:
+                            include = f"#import <{module_name}/{umbrella}>\n"
+                        source = directory / "consumer.m"
+                        source.write_text(include + f'''#if SDK_V10 != {int(version == 10)}
+#error Incorrect SDK generation
+#endif
+SentryLevel level = kSentryLevelInfo;
+''')
+                        args = ["xcrun", "clang", "-fsyntax-only", "-x", language,
+                                "-fobjc-arc", "-fblocks", "-target", target, "-isysroot", sysroot,
+                                "-Wno-deprecated-declarations", *flags]
+                        if use_modules:
+                            args += ["-fmodules", "-fcxx-modules",
+                                     "-fmodules-cache-path=" + str(self.root / "cache")]
+                        else:
+                            args += ["-fno-modules"]
+                        result = subprocess.run(args + [str(source)], text=True,
+                                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                                timeout=90)
+                        self.assertEqual(result.returncode, 0, result.stdout)
 
 
 class SwiftPMFrameworkPackagingTests(unittest.TestCase):
@@ -33,7 +115,8 @@ let package = Package(
     ])
 ''',
             "Sources/SentryHeaders/include/SentryDefines.h": '''#pragma once
-#define SENTRY_HEADER(file) <file.h>
+#define SENTRY_HEADER_STRINGIFY(file) #file
+#define SENTRY_HEADER(file) SENTRY_HEADER_STRINGIFY(file.h)
 #if SDK_V10
 #define SELECTED_VERSION 10
 #else
@@ -41,11 +124,11 @@ let package = Package(
 #endif
 ''',
             "Sources/SentryHeaders/include/Types.h": '''#pragma once
-#import <SentryDefines.h>
+#import "SentryDefines.h"
 typedef struct { int value; } HeaderValue;
 ''',
             "Sources/SentryHeaders/include/Public.h": '''#pragma once
-#import <SentryDefines.h>
+#import "SentryDefines.h"
 #import SENTRY_HEADER(Types)
 ''',
             "Sources/SentryHeaders/empty.c": "void headers_marker(void) {}\n",

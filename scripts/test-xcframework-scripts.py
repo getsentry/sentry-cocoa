@@ -260,7 +260,7 @@ elif args[0] != "strip":
         headers = root / "headers"
         headers.mkdir(parents=True)
         (headers / "Public.h").write_text(
-            "#import <Types.h>\n#import SENTRY_HEADER(Types)\n#import <Foundation/Foundation.h>\n")
+            '#import "Types.h"\n#import SENTRY_HEADER(Types)\n#import <Foundation/Foundation.h>\n')
         (headers / "Types.h").write_text("typedef struct { int value; } HeaderValue;\n")
         archive = root / "Fixture.xcarchive"
         module = archive / "Products/Swift/Fixture.swiftmodule"
@@ -314,8 +314,8 @@ elif args[0] != "strip":
                 for interface in prepared_module.iterdir():
                     self.assertEqual(interface.read_text(), expected)
                 self.assertEqual((output / "Headers/Fixture-Swift.h").read_text(), "@import Fixture;\n")
-                self.assertEqual((output / "Headers/Public.h").read_text(),
-                                 '#import "Types.h"\n#import "Types.h"\n#import <Foundation/Foundation.h>\n')
+                for name, contents in headers_before.items():
+                    self.assertEqual((output / "Headers" / name).read_bytes(), contents)
                 umbrella = (output / "Headers/SentryHeaders.h").read_text()
                 self.assertIn('#import "Public.h"', umbrella)
                 self.assertNotIn("Fixture-Swift.h", umbrella)

@@ -178,7 +178,9 @@ else
 case $PLATFORM in
 
 "macOS")
-    DESTINATION="platform=macOS"
+    # Keep SDK and test targets on the same architecture. Otherwise Xcode can build
+    # only arm64e for the SDK while arm64 test utilities import stale arm64 modules.
+    DESTINATION="platform=macOS,arch=$(uname -m)"
     ;;
 
 "Catalyst")
