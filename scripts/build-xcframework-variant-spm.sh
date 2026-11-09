@@ -46,7 +46,9 @@ case "$SDKS" in
     *) IFS=',' read -r -a sdks <<< "$SDKS" ;;
 esac
 
-version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
+version="$(read_xcconfig_value_or_exit \
+    --key MARKETING_VERSION \
+    --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
 scheme=SentrySPM
 if [ "${SDK_V10:-0}" = 1 ]; then scheme=Sentry; fi
 framework_name=SentrySwift
@@ -54,20 +56,33 @@ mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 
 for sdk in "${sdks[@]}"; do
-    "$SCRIPT_DIR/build-static-library.sh" --sdk "$sdk" --scheme "$scheme" \
-        --architecture-target "$framework_name" --package-path "$PACKAGE_PATH" \
-        --configuration Release --output-dir "$OUTPUT_DIR"
+    "$SCRIPT_DIR/build-static-library.sh" \
+        --sdk "$sdk" \
+        --scheme "$scheme" \
+        --architecture-target "$framework_name" \
+        --package-path "$PACKAGE_PATH" \
+        --configuration Release \
+        --output-dir "$OUTPUT_DIR"
     prepared="$OUTPUT_DIR/prepared/$sdk"
     "$SCRIPT_DIR/prepare-sentry-framework-inputs.sh" \
         --swift-archive "$OUTPUT_DIR/archive/$scheme/$sdk.xcarchive" \
-        --headers "$PACKAGE_PATH/Sources/Sentry/Public" --framework-name "$framework_name" --output-dir "$prepared"
-    "$SCRIPT_DIR/build-dynamic-framework.sh" --sdk "$sdk" --framework-name "$framework_name" \
-        --version "$version" --output-dir "$OUTPUT_DIR" \
+        --headers "$PACKAGE_PATH/Sources/Sentry/Public" \
+        --framework-name "$framework_name" \
+        --output-dir "$prepared"
+    "$SCRIPT_DIR/build-dynamic-framework.sh" \
+        --sdk "$sdk" \
+        --framework-name "$framework_name" \
+        --version "$version" \
+        --output-dir "$OUTPUT_DIR" \
         --static-lib "$OUTPUT_DIR/lib/$scheme/$sdk/lib$scheme-Debug.a" \
-        --headers "$prepared/Headers" --modules "$prepared/Modules" --resources "$prepared/Resources"
+        --headers "$prepared/Headers" \
+        --modules "$prepared/Modules" \
+        --resources "$prepared/Resources"
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-"$SCRIPT_DIR/assemble-xcframework.sh" --sdks "$xcframework_sdks" \
+"$SCRIPT_DIR/assemble-xcframework.sh" \
+    --sdks "$xcframework_sdks" \
     --framework-template "$OUTPUT_DIR/framework/$framework_name/SDK_NAME/$framework_name.framework" \
-    --output "$OUTPUT_DIR/$framework_name.xcframework" --require-debug-symbols
+    --output "$OUTPUT_DIR/$framework_name.xcframework" \
+    --require-debug-symbols
