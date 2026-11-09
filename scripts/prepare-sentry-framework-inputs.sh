@@ -134,9 +134,11 @@ done
 sed "s/@import SentryHeaders;/@import $FRAMEWORK_NAME;/" \
     "$swift_products/$FRAMEWORK_NAME-Swift.h" > "$headers_dir/$FRAMEWORK_NAME-Swift.h"
 
+# The Swift header imports this module, so exclude it rather than adding it to the umbrella.
 cat > "$modules_dir/module.modulemap" <<EOF
 framework module $FRAMEWORK_NAME {
   umbrella header "$umbrella_header"
+  exclude header "$FRAMEWORK_NAME-Swift.h"
   export *
   module * { export * }
 }

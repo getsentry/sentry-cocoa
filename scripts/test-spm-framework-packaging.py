@@ -142,6 +142,7 @@ precondition(SELECTED_VERSION == 10)
             "xcodebuild", "build", "-workspace", str(consumer), "-scheme", "Consumer",
             "-configuration", "Release", "-destination", "platform=macOS",
             "-derivedDataPath", str(derived), "CODE_SIGNING_ALLOWED=NO",
+            "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES",
         ], "consumer")
         # A CLI target has no app bundle to embed frameworks in. Load the distributable slice.
         framework = next(self.artifact.glob("*/SentrySwift.framework"))
