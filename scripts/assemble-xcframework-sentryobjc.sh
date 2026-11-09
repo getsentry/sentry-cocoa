@@ -67,7 +67,7 @@ assemble_args=(--sdks "$SDKS" --output "$xcframework_path")
 if [ -n "$LIB_PATH_TEMPLATE" ]; then
     assemble_args+=(--library-template "$LIB_PATH_TEMPLATE" --headers "$HEADERS_DIR")
 else
-    assemble_args+=(--framework-template "$FRAMEWORK_PATH_TEMPLATE" --require-debug-symbols)
+    assemble_args+=(--framework-template "$FRAMEWORK_PATH_TEMPLATE")
 fi
 
 "$SCRIPT_DIR/assemble-xcframework.sh" "${assemble_args[@]}"

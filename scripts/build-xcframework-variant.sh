@@ -65,16 +65,7 @@ if [ -n "$EXCLUDED_ARCHS" ]; then
     "$SCRIPT_DIR/remove-architectures.sh" --xcarchive "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/" --excluded-arch "$EXCLUDED_ARCHS"
 fi
 
-debug_symbol_args=()
-if [[ "$MACH_O_TYPE" != staticlib ]]; then
-    debug_symbol_args=(--require-debug-symbols)
-fi
-
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-"$SCRIPT_DIR/assemble-xcframework.sh" \
-    --scheme "$SCHEME" \
-    --suffix "$SUFFIX" \
-    --configuration-suffix "$CONFIGURATION_SUFFIX" \
-    --sdks "$xcframework_sdks" \
-    "${debug_symbol_args[@]+${debug_symbol_args[@]}}" \
+"$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \
+    --configuration-suffix "$CONFIGURATION_SUFFIX" --sdks "$xcframework_sdks" \
     --archive-template "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive"

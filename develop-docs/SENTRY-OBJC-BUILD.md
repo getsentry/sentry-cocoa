@@ -24,13 +24,7 @@ Calls `scripts/build-xcframework-sentryobjc.sh`, which loops over SDKs sequentia
 
 ```
 for each SDK:
-  scripts/build-static-library.sh \
-    --sdk <sdk> \
-    --scheme SentryObjC \
-    --architecture-target SentryObjCCompat \
-    --package-path <repo-root> \
-    --configuration Release \
-    --output-dir XCFrameworkBuildPath
+  scripts/build-static-library.sh
     → xcodebuild archive (via SPM, resolves full dependency chain)
     → find .o files in xcarchive
     → libtool -static → libSentryObjC.a
@@ -75,8 +69,6 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 | `assemble-xcframework-sentryobjc.sh` | Forward SentryObjC slice paths and headers to the shared `assemble-xcframework.sh` command |
 | `build-xcframework-sentryobjc.sh`    | Local orchestrator: loops over SDKs, calls the above scripts sequentially                  |
 
-Both slice builders require explicit paths and product parameters; see [Source-built SDK frameworks](BUILD.md#source-built-sdk-frameworks). The SentryObjC orchestrator supplies the scheme, architecture target, framework name, and version from the package checkout. CI supplies the same values explicitly, including the release/build version.
-
 ## Workflows
 
 | Workflow                                      | Purpose                                                                                            |
@@ -95,7 +87,7 @@ Both slice builders require explicit paths and product parameters; see [Source-b
 
 4. **Dynamic re-linking.** `swiftc -emit-library -force_load` re-links each per-SDK `libSentryObjC.a` as a dynamic library. The result is packaged as a `.framework` bundle with headers, modulemap, and Info.plist.
 
-5. **Dynamic XCFramework assembly.** The SentryObjC assembly wrapper calls `assemble-xcframework.sh --framework-template --require-debug-symbols`, passing the per-SDK `.framework` bundles and requiring their dSYMs to `xcodebuild -create-xcframework`, producing `SentryObjC-Dynamic.xcframework`.
+5. **Dynamic XCFramework assembly.** `assemble-xcframework.sh --framework-template` passes the per-SDK `.framework` bundles and available dSYMs to `xcodebuild -create-xcframework`, producing `SentryObjC-Dynamic.xcframework`.
 
 ## V10 builds
 
