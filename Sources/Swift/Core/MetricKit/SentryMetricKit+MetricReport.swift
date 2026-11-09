@@ -109,6 +109,9 @@ extension SentryMetricKit {
 
         /// The share of scrolling time the app spent hitching, sent as the
         /// `metrickit.animation.scroll_hitch_time_ratio` gauge as a ratio.
+        ///
+        /// - Note: Not sent on iOS 27 and macOS 27 and later, where MetricKit only reports the
+        ///   hitch time of all animations.
         case animationScrollHitchTimeRatio
 
         /// The share of animation time the app spent hitching, sent as the
@@ -116,6 +119,38 @@ extension SentryMetricKit {
         ///
         /// - Note: Requires iOS 26 or macOS 26.
         case animationHitchTimeRatio
+
+        /// The time the app spent hitching during animations, sent as the
+        /// `metrickit.animation.total_hitch_time` distribution in seconds.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case animationTotalHitchTime
+
+        /// The time the app spent animating, sent as the
+        /// `metrickit.animation.total_animation_time` distribution in seconds.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case animationTotalAnimationTime
+
+        // MARK: Metal
+
+        /// The frame rate of a Metal layer, sent as the `metrickit.metal.frames_per_second` gauge
+        /// in frames per second with the layer's name as the `metal.layer_name` attribute.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case metalFramesPerSecond
+
+        /// The frames a Metal layer drew, sent as the `metrickit.metal.frame_count` count with the
+        /// layer's name as the `metal.layer_name` attribute.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case metalFrameCount
+
+        /// The time a Metal layer was drawing, sent as the `metrickit.metal.active_drawing_duration`
+        /// distribution in seconds with the layer's name as the `metal.layer_name` attribute.
+        ///
+        /// - Note: Requires iOS 27 or macOS 27.
+        case metalActiveDrawingDuration
 
         // MARK: Disk Space Usage
 
@@ -265,6 +300,11 @@ extension SentryMetricKit.MetricReport {
         case .displayAveragePixelLuminance: return "metrickit.display.avg_pixel_luminance"
         case .animationScrollHitchTimeRatio: return "metrickit.animation.scroll_hitch_time_ratio"
         case .animationHitchTimeRatio: return "metrickit.animation.hitch_time_ratio"
+        case .animationTotalHitchTime: return "metrickit.animation.total_hitch_time"
+        case .animationTotalAnimationTime: return "metrickit.animation.total_animation_time"
+        case .metalFramesPerSecond: return "metrickit.metal.frames_per_second"
+        case .metalFrameCount: return "metrickit.metal.frame_count"
+        case .metalActiveDrawingDuration: return "metrickit.metal.active_drawing_duration"
         case .diskSpaceBinaryFileSize: return "metrickit.disk_space.binary_file_size"
         case .diskSpaceBinaryFileCount: return "metrickit.disk_space.binary_file_count"
         case .diskSpaceDataFileSize: return "metrickit.disk_space.data_file_size"
@@ -319,6 +359,11 @@ extension SentryMetricKit.MetricReport {
         case "displayAveragePixelLuminance": self = .displayAveragePixelLuminance
         case "animationScrollHitchTimeRatio": self = .animationScrollHitchTimeRatio
         case "animationHitchTimeRatio": self = .animationHitchTimeRatio
+        case "animationTotalHitchTime": self = .animationTotalHitchTime
+        case "animationTotalAnimationTime": self = .animationTotalAnimationTime
+        case "metalFramesPerSecond": self = .metalFramesPerSecond
+        case "metalFrameCount": self = .metalFrameCount
+        case "metalActiveDrawingDuration": self = .metalActiveDrawingDuration
         case "diskSpaceBinaryFileSize": self = .diskSpaceBinaryFileSize
         case "diskSpaceBinaryFileCount": self = .diskSpaceBinaryFileCount
         case "diskSpaceDataFileSize": self = .diskSpaceDataFileSize

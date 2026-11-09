@@ -43,7 +43,8 @@ void sentrycrashcm_cppexception_enable_swap_cxa_throw(void);
  */
 void sentrycrashcm_cppexception_callOriginalTerminationHandler(void);
 
-/** For testing.
+/** For testing. Returns the calling thread's cursor. Its backtrace storage remains owned by
+ * that thread and is valid only until its next capture or exit.
  */
 SentryCrashStackCursor sentrycrashcm_cppexception_getStackCursor(void);
 
