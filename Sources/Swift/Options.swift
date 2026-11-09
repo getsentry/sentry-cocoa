@@ -360,6 +360,21 @@
     /// @note The default is @c false.
     @objc public var enablePersistingTracesWhenCrashing: Bool = false
 
+    /// Enables scope persistence across app launches. Only explicitly set user information is retained.
+    /// Other scope fields are not restored. This option is independent of watchdog tracking.
+    /// Restoration and storage run asynchronously. Events captured before restoration completes may
+    /// not contain the persisted user. Explicit user changes, including in `initialScope`, take precedence.
+    /// Call `SentrySDK.setUser(nil)` on logout to remove the persisted identity.
+    /// This option is independent of `dataCollection.userInfo`, which controls automatic collection.
+    /// @note The default is @c true in V10 and @c false in V9. Configure this option before starting the SDK.
+    @objc public var enableScopePersistence: Bool = {
+        #if SDK_V10
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     /// A block that configures the initial scope when starting the SDK.
     /// @discussion The block receives a suggested default scope. You can either configure and return
     /// this, or create your own scope instead.

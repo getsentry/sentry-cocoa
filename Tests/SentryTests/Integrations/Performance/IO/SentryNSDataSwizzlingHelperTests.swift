@@ -66,6 +66,27 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
     }
 
+    /// Calls `+[NSData dataWithContentsOfURL:options:error:]` with a nil URL, as MessageUI does.
+    /// Swift can't pass a nil `URL`, so this calls the method's IMP directly.
+    /// - Returns: The raised exception name, `"nil"` for a nil result, or `"data"` otherwise.
+    private func readDataFromNilURL() -> String {
+        typealias DataWithContentsOfURL = @convention(c) (
+            AnyClass, Selector, NSURL?, NSData.ReadingOptions, NSErrorPointer
+        ) -> Unmanaged<NSData>?
+        let selector = NSSelectorFromString("dataWithContentsOfURL:options:error:")
+        let dataWithContentsOfURL = unsafeBitCast(NSData.method(for: selector), to: DataWithContentsOfURL.self)
+
+        var readData: Unmanaged<NSData>?
+        let exception = ExceptionCatcher.try {
+            var error: NSError?
+            readData = dataWithContentsOfURL(NSData.self, selector, nil, [], &error)
+        }
+        if let exception {
+            return exception.name.rawValue
+        }
+        return readData == nil ? "nil" : "data"
+    }
+
     // MARK: - Write Methods
 
     func testWriteToFileAtomically_whenSwizzled_shouldCallTracker() throws {
@@ -224,6 +245,21 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         XCTAssertNil(call.path, "Should not have path for URL options variant")
         XCTAssertEqual(call.url, fileUrl, "Should record correct URL")
         XCTAssertEqual(call.options, .uncached, "Should record options")
+    }
+
+    /// Regression test for https://github.com/getsentry/sentry-cocoa/issues/9519
+    func testInitWithContentsOfURLOptionsError_whenURLIsNil_shouldCallOriginalWithoutTracking() {
+        // -- Arrange --
+        // Foundation either raises or returns nil for a nil URL, depending on the OS version.
+        let unswizzledOutcome = readDataFromNilURL()
+        swizzle()
+
+        // -- Act --
+        let swizzledOutcome = readDataFromNilURL()
+
+        // -- Assert --
+        XCTAssertEqual(swizzledOutcome, unswizzledOutcome, "Should behave like the original implementation")
+        XCTAssertEqual(mockTracker.readCalls.count, 0, "Should not track reads without a URL")
     }
 
     // MARK: - Swizzling State Tests

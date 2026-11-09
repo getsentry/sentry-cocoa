@@ -22,6 +22,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var options: Set<String> = [
             "parsedDsn",
             "experimental",
+            "enableScopePersistence", // Docs update pending for user persistence across launches.
             "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
 

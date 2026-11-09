@@ -10,7 +10,7 @@ if let kscrashPath = ProcessInfo.processInfo.environment["KSCRASH_PATH"] {
 } else {
     kscrashDependency = .package(
         url: "https://github.com/kstenerud/KSCrash.git",
-        exact: "2.6.1-beta.2"
+        exact: "2.6.1"
     )
 }
 

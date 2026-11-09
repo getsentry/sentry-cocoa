@@ -931,3 +931,15 @@ Related links:
 - [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
 - [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
 - [V10 build checks](BUILD.md#temporary-v10-development-verification)
+
+## 41. Select SwiftPM V10 through the environment only
+
+Date: October 30, 2026
+Contributors: @denrase
+
+Superseding the SwiftPM selection in decisions [35](#35-kscrash-migration-strategy-dual-integrations-on-main) and [40](#40-develop-v10-on-main-then-branch-off-v9), use `SDK_V10=1` as the only V10 selector. Remove the development-only `V10` trait rather than keep a no-op compatibility marker, so compiler settings, dependencies, and products cannot diverge. V9 defaults and unrelated traits remain unchanged. Remove the environment selector at the V9 branch split.
+
+Related links:
+
+- [V10 selection PR](https://github.com/getsentry/sentry-cocoa/pull/9458)
+- [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection)

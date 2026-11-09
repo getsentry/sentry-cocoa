@@ -19,7 +19,7 @@ private struct BuildCase {
     let name: String
     let traits: [String]?
     var includeDefaultTraits = false
-    var environmentV10 = false
+    var v10 = false
     var baseManifest = false
     var swift61Manifest = false
     var nativeBuild = false
@@ -30,21 +30,20 @@ private let cases = [
     BuildCase(name: "disabled-defaults-v9", traits: []),
     BuildCase(name: "default-v9", traits: nil),
     BuildCase(name: "default-v9-native", traits: nil, nativeBuild: true),
-    BuildCase(name: "trait-v10", traits: ["V10"]),
     BuildCase(name: "no-ui-only", traits: ["NoUIFramework"]),
     BuildCase(name: "no-ui-defaults", traits: ["NoUIFramework"], includeDefaultTraits: true),
-    BuildCase(name: "no-ui-v10", traits: ["V10", "NoUIFramework"]),
-    BuildCase(name: "environment-v10", traits: [], environmentV10: true),
-    BuildCase(name: "environment-v10-defaults", traits: nil, environmentV10: true),
+    BuildCase(name: "v10", traits: [], v10: true),
+    BuildCase(name: "v10-defaults", traits: nil, v10: true),
+    BuildCase(name: "v10-no-ui", traits: ["NoUIFramework"], v10: true),
     BuildCase(name: "base-v9", traits: nil, baseManifest: true),
     BuildCase(name: "base-v9-native", traits: nil, baseManifest: true, nativeBuild: true),
-    BuildCase(name: "base-v10", traits: nil, environmentV10: true, baseManifest: true),
+    BuildCase(name: "base-v10", traits: nil, v10: true, baseManifest: true),
     BuildCase(name: "disabled-defaults-v9-swift61", traits: [], swift61Manifest: true, nativeBuild: true),
     BuildCase(name: "no-ui-only-swift61", traits: ["NoUIFramework"], swift61Manifest: true, nativeBuild: true),
-    BuildCase(name: "environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true),
+    BuildCase(name: "v10-swift61", traits: [], v10: true, swift61Manifest: true, nativeBuild: true),
     BuildCase(name: "shared-testapp-default-v9", traits: nil, sharedTestApp: true),
-    BuildCase(name: "shared-testapp-v10", traits: ["V10"], sharedTestApp: true),
-    BuildCase(name: "shared-testapp-environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true, sharedTestApp: true)
+    BuildCase(name: "shared-testapp-v10", traits: [], v10: true, sharedTestApp: true),
+    BuildCase(name: "shared-testapp-v10-swift61", traits: [], v10: true, swift61Manifest: true, nativeBuild: true, sharedTestApp: true)
 ]
 
 private func require(_ condition: Bool, _ message: String) throws {
@@ -127,7 +126,7 @@ private func test(_ scenario: BuildCase, root: URL) throws {
         return ", traits: [\(entries.joined(separator: ", "))]"
     } ?? ""
     let dependency = scenario.sharedTestApp ? sdk.appendingPathComponent("TestApps/SentrySampleShared") : sdk
-    let product = scenario.sharedTestApp ? "SentrySampleShared" : (scenario.environmentV10 ? "Sentry" : "SentrySPM")
+    let product = scenario.sharedTestApp ? "SentrySampleShared" : (scenario.v10 ? "Sentry" : "SentrySPM")
 
     try write("""
     // swift-tools-version: \(scenario.nativeBuild ? "6.1" : "6.2")
@@ -144,26 +143,26 @@ private func test(_ scenario: BuildCase, root: URL) throws {
 
     // Referencing SDK startup also exercises the backend registration linkage. Do not run
     // startup here; these are compile/link contract checks, not SDK runtime tests.
-    let v10 = scenario.environmentV10 || scenario.traits?.contains("V10") == true
-    let publicHeaderCheck = v10 ? "import SentryHeaders\nlet _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
+    let publicHeaderCheck = scenario.v10 ? "import SentryHeaders\nlet _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
     let sharedImport = scenario.sharedTestApp ? "import SentrySampleShared\nlet _ = SentrySDKWrapper.shared\n" : ""
-    try write("import SentrySwift\n\(sharedImport)\(publicHeaderCheck)SentrySDK.start { _ in }\n", to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
+    try write("import SentrySwift\n\(sharedImport)\(publicHeaderCheck)SentrySDK.start { _ in }\n",
+              to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
 
     var command = ["swift", "build", "--package-path", consumer.path, "--scratch-path",
                    consumer.appendingPathComponent("build").path]
     if scenario.nativeBuild { command += ["--build-system", "native"] }
     let pathLog = root.appendingPathComponent(scenario.name + "-bin-path.log")
-    let pathStatus = try run(command + ["--show-bin-path"], in: consumer, log: pathLog, v10: scenario.environmentV10)
+    let pathStatus = try run(command + ["--show-bin-path"], in: consumer, log: pathLog, v10: scenario.v10)
     let binPath = try String(contentsOf: pathLog, encoding: .utf8)
         .split(separator: "\n").last.map(String.init) ?? ""
     try require(pathStatus == 0 && binPath.hasPrefix("/"), "Could not determine consumer binary path; see \(pathLog.path)")
 
     let binary = URL(fileURLWithPath: binPath).appendingPathComponent("BackendConsumer")
     let log = root.appendingPathComponent(scenario.name + ".log")
-    let status = try run(command + ["-v"], in: consumer, log: log, v10: scenario.environmentV10)
+    let status = try run(command + ["-v"], in: consumer, log: log, v10: scenario.v10)
     try require(status == 0 && files.fileExists(atPath: binary.path),
                 "\(scenario.name): expected a linked consumer; see \(log.path)")
-    if v10 {
+    if scenario.v10 {
         let auditLog = root.appendingPathComponent(scenario.name + "-object-audit.log")
         let auditStatus = try run(["swift", repository.appendingPathComponent("scripts/verify-v10-empty-objects.swift").path,
                                    "--build-path", consumer.appendingPathComponent("build").path,

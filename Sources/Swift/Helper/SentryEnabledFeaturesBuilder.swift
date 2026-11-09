@@ -28,6 +28,9 @@ import Foundation
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
         }
+        if options.enableScopePersistence {
+            features.append("scopePersistence")
+        }
         if options.maxFeatureFlags != defaultMaxScopeFeatureFlags {
             // Only tracking if modified from the default
             features.append("maxFeatureFlags")
