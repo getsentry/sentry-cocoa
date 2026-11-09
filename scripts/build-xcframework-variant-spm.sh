@@ -10,12 +10,12 @@ source "$SCRIPT_DIR/tools.sh"
 
 PACKAGE_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
 SDKS=""
-OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/Source"
+OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM"
 
 usage() {
     log_info "Usage: $0 [options]"
     log_info "  -d, --sdks <list>        Comma-separated SDKs or AllSDKs, iOSOnly, macOSOnly, macCatalystOnly (default: all)"
-    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/Source)"
+    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM)"
     log_info "Set SDK_V10=1 to build V10 instead of V9."
     exit 1
 }
