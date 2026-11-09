@@ -27,6 +27,19 @@ class WebViewTracePropagationUITests: BaseUITest {
         assertPageShowsInjectedTrace()
     }
 
+    func testExistingWebView_shouldInjectTraceOnNextNavigation() {
+        // -- Arrange --
+        app.tabBars.buttons["Extra"].tap()
+        app.buttons["Web View"].tap()
+
+        // -- Act --
+        app.buttons["webview-existing"].tap()
+
+        // -- Assert --
+        XCTAssertTrue(app.navigationBars["Existing"].waitForExistence(timeout: 10), "The existing web view screen didn't open.")
+        assertPageShowsInjectedTrace()
+    }
+
     /// The page's first script reads the tag and shows it, so this works without network access.
     private func assertPageShowsInjectedTrace(file: StaticString = #filePath, line: UInt = #line) {
         let trace = app.webViews.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'sentry-trace: '")).firstMatch

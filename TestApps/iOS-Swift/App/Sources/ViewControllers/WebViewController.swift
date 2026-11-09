@@ -25,6 +25,12 @@ class WebViewController: UIViewController {
         super.viewDidLoad()
         webView.loadHTMLString(Self.html(dsn: SentrySDK.startOption?.dsn), baseURL: URL(string: "https://\(Self.host)/"))
 
+        let existingButton = UIBarButtonItem(title: "Existing", primaryAction: UIAction { [weak self] _ in
+            self?.navigationController?.pushViewController(ExistingWebViewController(), animated: true)
+        })
+        existingButton.accessibilityIdentifier = "webview-existing"
+        navigationItem.rightBarButtonItems = [existingButton]
+
 #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             let swiftUIButton = UIBarButtonItem(title: "SwiftUI", primaryAction: UIAction { [weak self] _ in
@@ -33,7 +39,7 @@ class WebViewController: UIViewController {
                 self?.navigationController?.pushViewController(controller, animated: true)
             })
             swiftUIButton.accessibilityIdentifier = "webview-swiftui"
-            navigationItem.rightBarButtonItem = swiftUIButton
+            navigationItem.rightBarButtonItems?.append(swiftUIButton)
         }
 #endif
     }
