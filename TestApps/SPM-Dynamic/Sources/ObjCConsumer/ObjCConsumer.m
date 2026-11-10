@@ -1,9 +1,5 @@
 #import "ObjCConsumer.h"
-#if SDK_V10
 @import Sentry;
-#else
-@import SentrySwift;
-#endif
 
 BOOL
 sentryObjCConsumer(void)

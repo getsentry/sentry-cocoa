@@ -18,17 +18,20 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let envSelectsV10 = envFlag("SDK_V10")
-// Environment V10 removes the binary Sentry target, freeing its module name for source builds.
-// V9 keeps SentrySwift until the V9 branch split. SDK_V10=1 selects both the
-// V10 implementation and the Sentry module; traits never select a different SDK.
-let sentrySwiftTargetName = envSelectsV10 ? "Sentry" : "SentrySwift"
+// Packaging changes the module name, never the SDK implementation or crash backend.
+let buildXCFramework = envFlag("SENTRY_BUILD_XCFRAMEWORK")
+let sourceUsesSentryModule = envSelectsV10 || buildXCFramework
+let sentrySwiftTargetName = sourceUsesSentryModule ? "Sentry" : "SentrySwift"
+let frameworkSwiftSettings: [SwiftSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK")] : []
+let frameworkCSettings: [CSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK", to: "1")] : []
+let frameworkCxxSettings: [CXXSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK", to: "1")] : []
 let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []
 let v10CSettings: [CSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
 let v10CxxSettings: [CXXSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
-let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSettings
+let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSettings + frameworkSwiftSettings
 // SwiftPM's defaults do not reach Swift's Clang importer.
-let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings
-let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CxxSettings
+let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings + frameworkCSettings
+let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CxxSettings + frameworkCxxSettings
 
 // Match the wrapper targets' compiler settings in Sentry.xcodeproj.
 let objcCompatSwiftSettings: [SwiftSetting] = [
@@ -40,11 +43,11 @@ let objcCompatSwiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("NonisolatedNonsendingByDefault")
 ]
 
-var products: [Product] = [
+var products: [Product] = buildXCFramework ? [] : [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
-if !envSelectsV10 {
+if !sourceUsesSentryModule {
     // BEGIN:BINARY_PRODUCTS
     products += [
         .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -59,12 +62,12 @@ if !envSelectsV10 {
     // END:BINARY_PRODUCTS
 }
 
-var targets: [Target] = [
+var targets: [Target] = buildXCFramework ? [] : [
     .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-if !envSelectsV10 {
+if !sourceUsesSentryModule {
     // BEGIN:BINARY_TARGETS
     targets += [
         .binaryTarget(
@@ -123,7 +126,7 @@ if !envSelectsV10 {
 }
 
 // Targets required to support compile-from-source builds via SPM.
-if envSelectsV10 {
+if sourceUsesSentryModule {
     products.append(.library(name: "Sentry", targets: ["SentryObjCInternal"]))
 } else {
     products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
@@ -222,7 +225,8 @@ if !envSelectsV10 {
         .target(
             name: "SentryCrashV9Swift",
             dependencies: [.target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
-            path: "Sources/SentryCrashV9Swift"
+            path: "Sources/SentryCrashV9Swift",
+            swiftSettings: frameworkSwiftSettings
         ),
         .target(
             name: "SentryCrashV9",
@@ -252,6 +256,11 @@ targets += [
         exclude: sentryObjCInternalExcludes,
         cSettings: sentryObjCInternalCSettings)
 ]
+
+// Packaging builds only the main SDK. Keep wrapper and test source graphs unchanged;
+// they are not part of this XCFramework and retain ordinary source-module imports.
+let xcframeworkProducts = products
+let xcframeworkTargets = targets
 
 // BEGIN:OBJC_WRAPPER
 products.append(.library(name: "SentryObjC", targets: ["SentryObjC"]))
@@ -427,9 +436,9 @@ let packageDependencies: [Package.Dependency] = [
 let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
-    products: products,
+    products: buildXCFramework ? xcframeworkProducts : products,
     dependencies: packageDependencies,
-    targets: targets,
+    targets: buildXCFramework ? xcframeworkTargets : targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
 )

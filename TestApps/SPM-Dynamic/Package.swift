@@ -4,24 +4,15 @@
 import Foundation
 import PackageDescription
 
-// The path is relative to this package. The downloaded framework is the only SDK dependency.
-let spmFramework = ProcessInfo.processInfo.environment["SENTRY_SPM_XCFRAMEWORK"]
-let isV10 = ProcessInfo.processInfo.environment["SDK_V10"] == "1"
-let sdkModuleName = isV10 ? "Sentry" : "SentrySwift"
+// Both producers expose Sentry; only the dependency location changes.
+// Local framework paths are relative to this package.
+let spmFramework = ProcessInfo.processInfo.environment["SENTRY_XCFRAMEWORK"]
 let sdkTargets: [Target] = spmFramework.map { path in
-    [
-        .binaryTarget(name: sdkModuleName, path: path),
-        .target(
-            name: "ObjCConsumer",
-            dependencies: [.byName(name: sdkModuleName)],
-            cSettings: isV10 ? [.define("SDK_V10", to: "1")] : [])
-    ]
+    [.binaryTarget(name: "Sentry", path: path)]
 } ?? []
 let sdkDependencies: [Target.Dependency] = spmFramework == nil
     ? [.product(name: "Sentry-Dynamic", package: "Sentry")]
-    : [.byName(name: sdkModuleName), "ObjCConsumer"]
-let sdkSwiftSettings: [SwiftSetting] = spmFramework == nil ? []
-    : [.define("SENTRY_SPM_FRAMEWORK")] + (isV10 ? [.define("SDK_V10")] : [])
+    : [.byName(name: "Sentry")]
 
 let package = Package(
     name: "SPM-Dynamic",
@@ -34,10 +25,13 @@ let package = Package(
     ] : [],
     targets: sdkTargets + [
         .target(
+            name: "ObjCConsumer",
+            dependencies: sdkDependencies),
+        .executableTarget(
             name: "SPM-Dynamic",
-            dependencies: sdkDependencies,
+            dependencies: sdkDependencies + ["ObjCConsumer"],
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
-            ] + sdkSwiftSettings)
+            ])
     ]
 )

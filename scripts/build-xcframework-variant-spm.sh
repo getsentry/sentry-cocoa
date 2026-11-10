@@ -10,12 +10,14 @@ source "$SCRIPT_DIR/tools.sh"
 
 PACKAGE_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
 SDKS=""
-OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM"
+generation=v9
+if [ "${SDK_V10:-0}" = 1 ]; then generation=v10; fi
+OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM/$generation"
 
 usage() {
     log_info "Usage: $0 [options]"
     log_info "  -d, --sdks <list>        Comma-separated SDKs or AllSDKs, iOSOnly, macOSOnly, macCatalystOnly (default: all)"
-    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM)"
+    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM/v9 or v10)"
     log_info "Set SDK_V10=1 to build V10 instead of V9."
     exit 1
 }
@@ -49,12 +51,10 @@ esac
 version="$(read_xcconfig_value_or_exit \
     --key MARKETING_VERSION \
     --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
-scheme=SentrySPM
-framework_name=SentrySwift
-if [ "${SDK_V10:-0}" = 1 ]; then
-    scheme=Sentry
-    framework_name=Sentry
-fi
+# Select the source module name without changing the SDK generation.
+export SENTRY_BUILD_XCFRAMEWORK=1
+scheme=Sentry
+framework_name=Sentry
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 
