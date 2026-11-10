@@ -130,6 +130,32 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         XCTAssertTrue(isRetainedOnFailure)
     }
 
+    func testProcessReport_whenMetricKitReportsCrashOfSameRun_shouldNotCaptureItAgain() throws {
+        // -- Arrange --
+        var report = try getCrashReport(resource: "Resources/crash-report-1")
+        var user = report["user"] as? [AnyHashable: Any] ?? [:]
+        user[SentryCurrentRun.userInfoKey] = "crashed-run-id"
+        report["user"] = user
+        try sut.process(report: report)
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        defer { SentryDependencyContainer.sharedInstance().fileManager?.deleteAllFolders() }
+
+        // -- Act --
+        let result = SentryDependencyContainer.sharedInstance().eventSourceCoordinator.submit(
+            SentryEventSourceReport(
+                source: .metricKit,
+                kind: .diagnostic(attachments: [], runEnd: .crash),
+                runId: SentryCurrentRun.ID(rawValue: "crashed-run-id"),
+                event: Event(level: .error)
+            )
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result, .accepted)
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 0)
+    }
+
     func testProcessReport_whenCaptureGateDeclines_shouldReturnGateErrorWithoutCapturing() throws {
         // -- Arrange --
         let report = try getCrashReport(resource: "Resources/crash-report-1")

@@ -35,7 +35,7 @@ struct SentryHubEventSourceSink: SentryEventSourceSink {
             // An empty event ID is still final when the client dropped the event on purpose. It
             // only means the report wasn't taken when the client went away during the capture.
             return hub.isFatalEventCaptureResultTerminal(eventId, client: client) ? .accepted : .unavailable
-        case let .diagnostic(attachments):
+        case let .diagnostic(attachments, _):
             guard beforeAccepting() else {
                 return .withdrawn
             }

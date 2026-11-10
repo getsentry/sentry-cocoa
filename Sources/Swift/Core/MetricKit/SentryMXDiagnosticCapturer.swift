@@ -82,7 +82,10 @@ final class SentryMXDiagnosticCapturer {
         eventSourceSink.submit(
             SentryEventSourceReport(
                 source: .metricKit,
-                kind: .diagnostic(attachments: attachments(of: diagnostic, flamegraph: callStacks.flamegraph)),
+                kind: .diagnostic(
+                    attachments: attachments(of: diagnostic, flamegraph: callStacks.flamegraph),
+                    runEnd: diagnosticReport.runEnd
+                ),
                 runId: callStacks.runId,
                 event: event
             )
