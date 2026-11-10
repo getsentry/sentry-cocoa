@@ -1,7 +1,7 @@
 // swiftlint:disable file_length
 
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -1209,7 +1209,7 @@ class SentryFileManagerTests: XCTestCase {
 
         // -- Assert -
         XCTAssertFalse(result)
-        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.domain, SentryError.domain)
         XCTAssertEqual(error?.code, 108)
 
         let expectedLogMessage = "Failed to create directory, path is too long: \(path)"
@@ -1230,7 +1230,7 @@ class SentryFileManagerTests: XCTestCase {
         let result = createDirectoryIfNotExists(path, &error)
         // -- Assert -
         XCTAssertFalse(result)
-        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.domain, SentryError.domain)
         XCTAssertEqual(error?.code, 108)
         let unexpectedLogMessage = "Failed to create directory, path is too long: \(path)"
         XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains(unexpectedLogMessage) })

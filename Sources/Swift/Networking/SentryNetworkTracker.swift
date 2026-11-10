@@ -819,7 +819,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     private func isDuplicateTask(_ request: SentryURLRequestWrapper, currentSpan: Span?) -> Bool {
-        guard let traceHeader = request.value(forHTTPHeaderField: SENTRY_TRACE_HEADER),
+        guard let traceHeader = request.value(forHTTPHeaderField: TraceHeader.httpHeaderField),
               let tracer = currentSpan.flatMap(SentryTracer.getTracer) else {
             return false
         }

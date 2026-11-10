@@ -7,21 +7,6 @@ import CommonCrypto
 @objc(SentryDsn)
 public final class SentryDsn: NSObject {
     
-    // Error code constant - must match SentryError.h
-    // Note: We use the numeric value directly since kSentryErrorInvalidDsnError
-    // is not accessible from Swift (it's a C enum value)
-    private static let kSentryErrorInvalidDsnError: Int = 100
-    
-    private static func createError(code: Int, description: String) -> NSError {
-        // Use the Objective-C constant instead of hardcoding the string
-        // SentryErrorDomain is accessible because it's in the public header
-        return NSError(
-            domain: SentryErrorDomain,
-            code: code,
-            userInfo: [NSLocalizedDescriptionKey: description]
-        )
-    }
-    
     /// The parsed URL from the DSN string.
     @objc public let url: URL
     
@@ -47,7 +32,7 @@ public final class SentryDsn: NSObject {
     public convenience init(string: String?) throws {
         var error: NSError?
         guard let parsedUrl = SentryDsn.convertDsnString(string, didFailWithError: &error) else {
-            throw error ?? SentryDsn.createError(code: SentryDsn.kSentryErrorInvalidDsnError, description: "Invalid DSN")
+            throw error ?? SentryError.invalidDsnError.nsError(description: "Invalid DSN")
         }
         self.init(url: parsedUrl)
     }
@@ -204,7 +189,7 @@ public final class SentryDsn: NSObject {
     ///   - message: The error message.
     private static func setError(_ error: NSErrorPointer, message: String) {
         if let error = error {
-            error.pointee = createError(code: SentryDsn.kSentryErrorInvalidDsnError, description: message)
+            error.pointee = SentryError.invalidDsnError.nsError(description: message)
         }
     }
 }

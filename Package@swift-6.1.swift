@@ -18,6 +18,10 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let envSelectsV10 = envFlag("SDK_V10")
+// Environment V10 removes the binary Sentry target, freeing its module name for source builds.
+// V9 keeps SentrySwift until the V9 branch split. SDK_V10=1 selects both the
+// V10 implementation and the Sentry module; traits never select a different SDK.
+let sentrySwiftTargetName = envSelectsV10 ? "Sentry" : "SentrySwift"
 // Xcode 16.4 can expose inactive trait-conditioned configuration targets. Keep V9's
 // graph deterministic here; older-toolchain V10 development uses SDK_V10=1 instead.
 let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []
@@ -29,8 +33,8 @@ let kscrashDependencies: [Target.Dependency] = envSelectsV10
 let kscrashSwiftDependencies: [Target.Dependency] = kscrashDependencies + (envSelectsV10
     ? [.product(name: "RecordingCore", package: "KSCrash")]
     : [])
-// SwiftPM's defaults do not reach Swift's Clang importer.
 let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSettings
+// SwiftPM's defaults do not reach Swift's Clang importer.
 let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings
 let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CxxSettings
 
@@ -73,38 +77,38 @@ if !envSelectsV10 {
     targets += [
         .binaryTarget(
             name: "Sentry",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/Sentry.xcframework.zip",
-            checksum: "ae8864b653ede36cea934552348941b92f6dcd5d7e94c3227d8a9bb168256bcc" //Sentry-Static
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/Sentry.xcframework.zip",
+            checksum: "ede8d9a33a43f70d33e2f24752a681dc9dcb4a7b6245bd6bca2fa7b30e2c63f5" //Sentry-Static
         ),
         .binaryTarget(
             name: "Sentry-Dynamic",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/Sentry-Dynamic.xcframework.zip",
-            checksum: "4048a28ad13ee6dce70bc601c7b983280c8eb8f078b3d367f8b9f9bd25757326" //Sentry-Dynamic
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/Sentry-Dynamic.xcframework.zip",
+            checksum: "02615a62509df7b4cc3a4b49c6f818f29d48b355323afb02c6a30464fb723fa9" //Sentry-Dynamic
         ),
         .binaryTarget(
             name: "Sentry-Dynamic-WithARM64e",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
-            checksum: "56784a5692b8e3b282644533c47f6a66f183aa12bb6a092a1ee332b5806e2850" //Sentry-Dynamic-WithARM64e
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+            checksum: "7f7ae992ea86c0aa3dc833b7e841866938b4eaa9a03417754a089fd38c3cbf5d" //Sentry-Dynamic-WithARM64e
         ),
         .binaryTarget(
             name: "Sentry-WithoutUIKitOrAppKit",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-            checksum: "1724d83e2fe78086d5788622cf5ad619bf88c77f088ee8bc211562ac73276283" //Sentry-WithoutUIKitOrAppKit
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+            checksum: "885a1a0f1d4b5c40e4119765c972d998d66ff7fc095c48124b960cf47905c031" //Sentry-WithoutUIKitOrAppKit
         ),
         .binaryTarget(
             name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-            checksum: "5b20cafbee5919a565d869f8f83cec1ed1f90645fef5dd6c4de5c365da4581d5" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+            checksum: "ca81f7d29c518b87ef8f6519f8d422c06c27b2341b974baf563d802432990e5d" //Sentry-WithoutUIKitOrAppKit-WithARM64e
         ),
         .binaryTarget(
             name: "SentryObjC-Dynamic",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/SentryObjC-Dynamic.xcframework.zip",
-            checksum: "a7afc3ac8c72d913f6289a93a1ab6183d124e47ba1772a948018479beed6acc2" //SentryObjC-Dynamic
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/SentryObjC-Dynamic.xcframework.zip",
+            checksum: "55feb466ba30dc0758715fd042b61a0ba9032caa015581dca37f5c60653c88cf" //SentryObjC-Dynamic
         ),
         .binaryTarget(
             name: "SentryObjC-Static",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.32.0/SentryObjC-Static.xcframework.zip",
-            checksum: "2174c3a407bf129b14733a89eed65899d0c7da42c4b4086d6689066d3667e545" //SentryObjC-Static
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.33.0/SentryObjC-Static.xcframework.zip",
+            checksum: "0f4605a4128d02c47b9759328d361a7754dd39e214a50418977d336a570d7ab7" //SentryObjC-Static
         ),
         .target(
             name: "SentrySwiftUI",
@@ -134,7 +138,7 @@ if envSelectsV10 {
 }
 
 let sentrySwiftTarget: Target = .target(
-    name: "SentrySwift",
+    name: sentrySwiftTargetName,
     dependencies: [
         "_SentryPrivate",
         "SentryHeaders"
@@ -215,19 +219,10 @@ targets += [
         cSettings: cSettings
     ),
 
-    sentrySwiftTarget,
-    .target(
-        name: "SentryCrashV9Swift",
-        dependencies: ["SentrySwift", "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
-        path: "Sources/SentryCrashV9Swift",
-        cSettings: v10CSettings,
-        swiftSettings: [
-            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ] + v10SwiftSettings
-    )
+    sentrySwiftTarget
 ]
 
-var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"] + kscrashDependencies
+var sentryObjCInternalDependencies: [Target.Dependency] = [.target(name: sentrySwiftTargetName)] + kscrashDependencies
 if !envSelectsV10 {
     sentryObjCInternalDependencies += [
         .target(name: "SentryCrashV9"),
@@ -235,25 +230,41 @@ if !envSelectsV10 {
     ]
 }
 
+// Package-wide builds schedule every regular target, not only product dependencies.
+// Keep both recorder targets out of the environment-selected V10 graph entirely.
+if !envSelectsV10 {
+    targets += [
+        .target(
+            name: "SentryCrashV9Swift",
+            dependencies: [.target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
+            path: "Sources/SentryCrashV9Swift",
+            cSettings: v10CSettings,
+            swiftSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+            ] + v10SwiftSettings
+        ),
+        .target(
+            name: "SentryCrashV9",
+            dependencies: ["SentryCrashV9Swift", .target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
+            path: "Sources",
+            // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
+            exclude: ["Resources"],
+            sources: [
+                "SentryCrash",
+                "Sentry/SentryCrashDefaultMachineContextWrapper.m",
+                "Sentry/SentryCrashReportSink.m",
+                "Sentry/SentryCrashScopeObserver.m"
+            ],
+            publicHeadersPath: "SentryCrashV9Module/include",
+            cSettings: [
+                .headerSearchPath("Sentry"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cSettings
+        )
+    ]
+}
+
 targets += [
-    .target(
-        name: "SentryCrashV9",
-        dependencies: ["SentryCrashV9Swift", "SentrySwift", "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
-        path: "Sources",
-        // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
-        exclude: ["Resources"],
-        sources: [
-            "SentryCrash",
-            "Sentry/SentryCrashDefaultMachineContextWrapper.m",
-            "Sentry/SentryCrashReportSink.m",
-            "Sentry/SentryCrashScopeObserver.m"
-        ],
-        publicHeadersPath: "SentryCrashV9Module/include",
-        cSettings: [
-            .headerSearchPath("Sentry"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CSettings
-    ),
     // The recorder stays separate from reporter-neutral SDK code; environment V10 excludes it.
     .target(
         name: "SentryObjCInternal",
@@ -292,7 +303,7 @@ targets += [
 targets += [
     .target(
         name: "SentryTestUtilsObjC",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
+        dependencies: ["SentryObjCInternal", .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
         // One fixture bundle shared by Swift and Clang tests. Copy preserves nested paths.
         resources: [
@@ -332,7 +343,7 @@ targets += [
         name: "SentryTestUtils",
         dependencies: [
             "SentryObjCInternal",
-            "SentrySwift",
+            .target(name: sentrySwiftTargetName),
             "_SentryPrivate",
             "SentryTestUtilsObjC",
             "SentryTestUtilsObjCpp"
@@ -349,7 +360,7 @@ targets += [
 targets += [
     .testTarget(
         name: "SentryTestUtilsTests",
-        dependencies: ["SentrySwift", "SentryTestUtils"],
+        dependencies: [.target(name: sentrySwiftTargetName), "SentryTestUtils"],
         path: "SentryTestUtilsTests/Sources",
         cSettings: cSettings,
         swiftSettings: [
@@ -358,7 +369,7 @@ targets += [
     ),
     .testTarget(
         name: "SentryObjCCompatTests",
-        dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
+        dependencies: ["SentryObjCCompat", .target(name: sentrySwiftTargetName), "SentryTestUtils"],
         path: "Tests/SentryObjCCompatTests",
         cSettings: cSettings,
         swiftSettings: [
@@ -373,7 +384,7 @@ targets += [
     .testTarget(
         name: "SentryTests",
         dependencies: [
-            "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
+            .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
             .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
         ] + (envSelectsV10 ? [] : [.target(name: "SentryCrashV9Swift")]),
         path: "Tests/SentryTests",
@@ -396,7 +407,7 @@ targets += [
 targets += [
     .testTarget(
         name: "SentryTestsObjC",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
+        dependencies: ["SentryObjCInternal", .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
         path: "Tests/SentryTests/ObjC",
         cSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
@@ -441,7 +452,7 @@ if !envSelectsV10 {
     targets += [
         .testTarget(
             name: "SentryProfilerTests",
-            dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
+            dependencies: [.target(name: sentrySwiftTargetName), "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
             // Keep Swift's Clang importer consistent with the NoUI SDK declarations.

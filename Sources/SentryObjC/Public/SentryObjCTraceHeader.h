@@ -19,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryObjCTraceHeader : NSObject
 SENTRY_NO_INIT
 
+/// The name of the sentry-trace HTTP header.
+@property (class, nonatomic, readonly, copy) NSString *httpHeaderField;
+
 /// The trace ID.
 @property (nonatomic, readonly, strong) SentryObjCId *traceId;
 
