@@ -32,6 +32,10 @@ let package = Package(
             dependencies: sdkDependencies + ["ObjCConsumer"],
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
+            ],
+            linkerSettings: [
+                // Xcode copies the framework beside this command-line executable.
+                .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path"])
             ])
     ]
 )

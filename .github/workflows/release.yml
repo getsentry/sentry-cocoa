@@ -490,7 +490,13 @@ jobs:
       # === Build and validation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
-      - run: swift build
+      # Xcode 16's default `swift build` can copy static Sentry from the unused
+      # SentrySwiftUI dependency instead of the requested dynamic binary. Use Xcode's
+      # build system and `swift run` to verify dynamic loading and resources at runtime.
+      # Newer SwiftPM defaults to SwiftBuild (verified with Xcode 27.1), which selects
+      # the correct binary. The legacy native build system remains affected.
+      - name: Run dynamic consumer
+        run: swift run --build-system xcode SPM-Dynamic
         working-directory: TestApps/SPM-Dynamic
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
