@@ -211,14 +211,7 @@ extension Scope {
         }
     }
 
-    #if !SDK_V10
-    /// Serializes the scope to JSON.
-    @objc
-    @discardableResult
-    open func serialize() -> [String: Any] {
-        serializedScope()
-    }
-    #else
+    #if SDK_V10
     @objc
     @discardableResult
     func serialize() -> [String: Any] {
@@ -226,7 +219,7 @@ extension Scope {
     }
     #endif
 
-    private func serializedScope() -> [String: Any] {
+    func serializedScope() -> [String: Any] {
         let serializedData = NSMutableDictionary()
         let scopeTags = tags
         if !scopeTags.isEmpty {

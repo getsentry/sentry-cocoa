@@ -198,17 +198,160 @@ open class Scope: NSObject {
         span = scope.span
         replayId = scope.replayId
     }
+
+    /// Sets the user sent with every event.
+    @objc(setUser:)
+    open func setUser(_ user: User?) {
+        storeUser(user)
+    }
+
+    /// Sets a global tag. Tags are searchable key/value string pairs attached to every event.
+    /// Passing `nil` removes the tag, matching `NSMutableDictionary` subscript assignment.
+    @objc(setTagValue:forKey:)
+    open func setTag(value: String?, key: String) {
+        storeTag(value: value, key: key)
+    }
+
+    /// Removes the tag for the specified key.
+    @objc(removeTagForKey:)
+    open func removeTag(key: String) {
+        deleteTag(key: key)
+    }
+
+    /// Sets global tags. Tags are searchable key/value string pairs attached to every event.
+    @objc(setTags:)
+    open func setTags(_ tags: [String: String]?) {
+        storeTags(tags)
+    }
+
+    /// Sets global extras sent with every event.
+    @objc(setExtras:)
+    open func setExtras(_ extras: [String: Any]?) {
+        storeExtras(extras)
+    }
+
+    /// Sets one global extra sent with every event.
+    @objc(setExtraValue:forKey:)
+    open func setExtra(value: Any?, key: String) {
+        storeExtra(value: value, key: key)
+    }
+
+    /// Removes the extra for the specified key.
+    @objc(removeExtraForKey:)
+    open func removeExtra(key: String) {
+        deleteExtra(key: key)
+    }
+
+    /// Sets the distribution in the scope.
+    @objc(setDist:)
+    open func setDist(_ dist: String?) {
+        storeDist(dist)
+    }
+
+    /// Sets the environment in the scope.
+    @objc(setEnvironment:)
+    open func setEnvironment(_ environment: String?) {
+        storeEnvironment(environment)
+    }
+
+    /// Sets the fingerprint in the scope.
+    @objc(setFingerprint:)
+    open func setFingerprint(_ fingerprint: [String]?) {
+        storeFingerprint(fingerprint)
+    }
+
+    /// Sets the level in the scope.
+    @objc(setLevel:)
+    open func setLevel(_ level: SentryLevel) {
+        storeLevel(level)
+    }
+
+    /// Adds a breadcrumb to the scope.
+    @objc(addBreadcrumb:)
+    open func addBreadcrumb(_ crumb: Breadcrumb) {
+        storeBreadcrumb(crumb)
+    }
+
+    /// Clears all breadcrumbs in the scope.
+    @objc
+    open func clearBreadcrumbs() {
+        deleteBreadcrumbs()
+    }
+
+    /// Sets context values which overwrite `SentryEvent.context` when an event is enriched.
+    /// The `flags` context key is reserved for feature flag evaluations.
+    @objc(setContextValue:forKey:)
+    open func setContext(value: [String: Any], key: String) {
+        storeContext(value: value, key: key)
+    }
+
+    /// Removes the context for the specified key.
+    @objc(removeContextForKey:)
+    open func removeContext(key: String) {
+        deleteContext(key: key)
+    }
+
+    /// Adds an attachment to every event sent to Sentry.
+    ///
+    /// The SDK doesn't add scope attachments to fatal events, such as crashes or watchdog
+    /// terminations, because those are captured on the next app launch and the scope's attachments
+    /// belong to that later run. Use `beforeSend` with a hint to attach files to fatal events.
+    @objc(addAttachment:)
+    open func addAttachment(_ attachment: Attachment) {
+        storeAttachment(attachment)
+    }
+
+    /// Sets a global attribute. Attributes are searchable key/value pairs attached to every log.
+    ///
+    /// The SDK only applies attributes to logs. It doesn't apply them to events, transactions,
+    /// spans, profiles, or session replay.
+    /// Supported values are strings, integers, booleans, doubles, and arrays of those types.
+    /// `key` cannot be an empty string.
+    @objc(setAttributeValue:forKey:)
+    open func setAttribute(value: Any, key: String) {
+        storeAttribute(value: value, key: key)
+    }
+
+    /// Removes the attribute for the specified key.
+    ///
+    /// The SDK only applies attributes to logs.
+    @objc(removeAttributeForKey:)
+    open func removeAttribute(key: String) {
+        deleteAttribute(key: key)
+    }
+
+    /// Clears all attachments in the scope.
+    @objc
+    open func clearAttachments() {
+        deleteAttachments()
+    }
+
+    /// Clears the current scope.
+    ///
+    /// Collections are emptied in place because each collection is also the lock that guards it.
+    @objc
+    open func clear() {
+        resetScope()
+    }
+
+    #if !SDK_V10
+    /// Serializes the scope to JSON.
+    @objc
+    @discardableResult
+    open func serialize() -> [String: Any] {
+        serializedScope()
+    }
+    #endif
 }
 
-private let kSentryScopeSpanStatusSerializationKey = "status"
 private let defaultScopeMaxBreadcrumbs: UInt = 100
 
 #if !SDK_V10
 extension Scope: SentrySerializable {}
 #endif
 
-extension Scope {
-    private func replaceSpan(_ span: Span?) {
+private extension Scope {
+    func replaceSpan(_ span: Span?) {
         synchronized(spanLock) {
             spanStorage = span
             let observers = observerSnapshot()
@@ -220,7 +363,7 @@ extension Scope {
         }
     }
 
-    private func replacePropagationContext(_ propagationContext: SentryPropagationContext) {
+    func replacePropagationContext(_ propagationContext: SentryPropagationContext) {
         synchronized(propagationContextLock) {
             propagationContextStorage = propagationContext
             let observers = observerSnapshot()
@@ -232,138 +375,10 @@ extension Scope {
         }
     }
 
-    private func replaceCurrentScreen(_ currentScreen: String?) {
+    func replaceCurrentScreen(_ currentScreen: String?) {
         currentScreenStorage = currentScreen
         for observer in observerSnapshot() {
             observer.setCurrentScreen?(currentScreen)
         }
-    }
-
-    func applySpan(_ span: Span?, to event: Event) {
-        var context = event.context ?? [:]
-        let previousTraceId = context["trace"]?["trace_id"] as? String
-        #if SDK_V10
-        if event.type == SentryEnvelopeItemTypes.transaction, let transaction = event as? Transaction {
-            // Transaction capture is asynchronous, so the scope may no longer hold its tracer.
-            context["trace"] = transaction.trace.serialize()
-        } else {
-            context["trace"] = buildTraceContext(span)
-        }
-        #else
-        context["trace"] = buildTraceContext(span)
-        #endif
-        event.context = context
-
-        guard event.type != SentryEnvelopeItemTypes.transaction else { return }
-
-        let updatedTraceId = context["trace"]?["trace_id"] as? String
-        if let tracer = SentryTracer.getTracer(span) {
-            event.transaction = tracer.transactionContext.name
-        } else if span != nil, previousTraceId != nil, previousTraceId != updatedTraceId {
-            event.transaction = nil
-        }
-    }
-
-    func buildTraceContext(_ span: Span?) -> [String: Any] {
-        #if SDK_V10
-        // Public spans no longer require the SDK's internal serialization contract.
-        if let serializable = span as? SentryInternalSerializable {
-            return normalizedTraceContext(serializable.serialize())
-        }
-        return propagationContext.traceContextForEvent()
-        #else
-        if let span {
-            return normalizedTraceContext(span.serialize())
-        }
-        return propagationContext.traceContextForEvent()
-        #endif
-    }
-
-    private func normalizedTraceContext(_ dict: [String: Any]) -> [String: Any] {
-        if dict[kSentryScopeSpanStatusSerializationKey] != nil {
-            return dict
-        }
-        // Unfinished spans on the scope usually have no status. Default the trace context to OK
-        // so it is not reported as undefined. Finishing a span still sets its own status.
-        var mutable = dict
-        mutable[kSentryScopeSpanStatusSerializationKey] = SentrySpanStatus.ok.name
-        return mutable
-    }
-
-    /// Must be called while synchronized on `contextDictionary`.
-    func updateFeatureFlagsContextLocked() {
-        let featureFlags = featureFlagBuffer.serializeForContext()
-        if let featureFlags, !featureFlags.isEmpty {
-            contextDictionary["flags"] = featureFlags
-        } else {
-            contextDictionary.removeObject(forKey: "flags")
-        }
-        let contextCopy = contextDictionaryCopy()
-        notifyObservers { $0.setContext(contextCopy) }
-    }
-
-    private func observerSnapshot() -> [AnyObject] {
-        synchronized(observersLock) { observers }
-    }
-
-    func notifyObservers(_ body: (SentryScopeObserver) -> Void) {
-        for observer in observerSnapshot() {
-            guard let observer = observer as? SentryScopeObserver else { continue }
-            body(observer)
-        }
-    }
-
-    /// Recursively overlays `source` onto `destination`. Nested dictionaries merge; other values replace.
-    func mergeEntries(from source: NSDictionary, into destination: NSMutableDictionary) {
-        source.enumerateKeysAndObjects { key, value, _ in
-            if let sourceDictionary = value as? NSDictionary,
-               let existing = destination[key] as? NSDictionary {
-                let merged = NSMutableDictionary(dictionary: existing)
-                mergeEntries(from: sourceDictionary, into: merged)
-                destination[key] = merged
-                return
-            }
-            destination[key] = value
-        }
-    }
-
-    func contextDictionaryCopy() -> [String: [String: Any]] {
-        if let context = contextDictionary.copy() as? [String: [String: Any]] {
-            return context
-        }
-        // One non-dictionary value must not discard the dictionaries beside it.
-        return bridgedContext(contextDictionary)
-    }
-
-    /// Keeps every top-level dictionary. A value that is not a dictionary cannot be stored on
-    /// `Event.context`, but it must not cause the merged dictionaries to be thrown away.
-    func bridgedContext(_ dictionary: NSDictionary) -> [String: [String: Any]] {
-        var result: [String: [String: Any]] = [:]
-        dictionary.enumerateKeysAndObjects { key, value, _ in
-            guard let key = key as? String, let nested = value as? NSDictionary else { return }
-            var inner: [String: Any] = [:]
-            nested.enumerateKeysAndObjects { innerKey, innerValue, _ in
-                guard let innerKey = innerKey as? String else { return }
-                inner[innerKey] = innerValue
-            }
-            result[key] = inner
-        }
-        return result
-    }
-
-    func stringDictionary(_ dictionary: NSMutableDictionary) -> [String: String] {
-        dictionary.copy() as? [String: String] ?? [:]
-    }
-
-    func anyDictionary(_ dictionary: NSMutableDictionary) -> [String: Any] {
-        dictionary.copy() as? [String: Any] ?? [:]
-    }
-
-    func stringArray(_ array: NSMutableArray) -> [String] {
-        array.copy() as? [String] ?? []
-    }
-
-    func objects<T>(of type: T.Type, in array: NSMutableArray) -> [T] {
-        array.compactMap { $0 as? T }
     }
 }

@@ -5,9 +5,7 @@ import Foundation
 @_spi(Private) @objc public final class PlaceholderScopeStateClass: NSObject {}
 
 extension Scope {
-    /// Sets the user sent with every event.
-    @objc(setUser:)
-    open func setUser(_ user: User?) {
+    func storeUser(_ user: User?) {
         synchronized(self) {
             userObject = user
             userWasSet = true
@@ -41,10 +39,7 @@ extension Scope {
         }
     }
 
-    /// Sets a global tag. Tags are searchable key/value string pairs attached to every event.
-    /// Passing `nil` removes the tag, matching `NSMutableDictionary` subscript assignment.
-    @objc(setTagValue:forKey:)
-    open func setTag(value: String?, key: String) {
+    func storeTag(value: String?, key: String) {
         synchronized(tagDictionary) {
             if let value {
                 tagDictionary[key] = value
@@ -56,9 +51,7 @@ extension Scope {
         }
     }
 
-    /// Removes the tag for the specified key.
-    @objc(removeTagForKey:)
-    open func removeTag(key: String) {
+    func deleteTag(key: String) {
         synchronized(tagDictionary) {
             tagDictionary.removeObject(forKey: key)
             let tagsCopy = stringDictionary(tagDictionary)
@@ -66,9 +59,7 @@ extension Scope {
         }
     }
 
-    /// Sets global tags. Tags are searchable key/value string pairs attached to every event.
-    @objc(setTags:)
-    open func setTags(_ tags: [String: String]?) {
+    func storeTags(_ tags: [String: String]?) {
         guard let tags else { return }
         let tagsCopy = tags as NSDictionary
         synchronized(tagDictionary) {
@@ -78,9 +69,7 @@ extension Scope {
         }
     }
 
-    /// Sets global extras sent with every event.
-    @objc(setExtras:)
-    open func setExtras(_ extras: [String: Any]?) {
+    func storeExtras(_ extras: [String: Any]?) {
         guard let extras else { return }
         synchronized(extraDictionary) {
             extraDictionary.addEntries(from: extras)
@@ -89,9 +78,7 @@ extension Scope {
         }
     }
 
-    /// Sets one global extra sent with every event.
-    @objc(setExtraValue:forKey:)
-    open func setExtra(value: Any?, key: String) {
+    func storeExtra(value: Any?, key: String) {
         synchronized(extraDictionary) {
             extraDictionary.setValue(value, forKey: key)
             let extrasCopy = anyDictionary(extraDictionary)
@@ -99,9 +86,7 @@ extension Scope {
         }
     }
 
-    /// Removes the extra for the specified key.
-    @objc(removeExtraForKey:)
-    open func removeExtra(key: String) {
+    func deleteExtra(key: String) {
         synchronized(extraDictionary) {
             extraDictionary.removeObject(forKey: key)
             let extrasCopy = anyDictionary(extraDictionary)
@@ -109,23 +94,17 @@ extension Scope {
         }
     }
 
-    /// Sets the distribution in the scope.
-    @objc(setDist:)
-    open func setDist(_ dist: String?) {
+    func storeDist(_ dist: String?) {
         distString = dist
         notifyObservers { $0.setDist(dist) }
     }
 
-    /// Sets the environment in the scope.
-    @objc(setEnvironment:)
-    open func setEnvironment(_ environment: String?) {
+    func storeEnvironment(_ environment: String?) {
         environmentString = environment
         notifyObservers { $0.setEnvironment(environment) }
     }
 
-    /// Sets the fingerprint in the scope.
-    @objc(setFingerprint:)
-    open func setFingerprint(_ fingerprint: [String]?) {
+    func storeFingerprint(_ fingerprint: [String]?) {
         synchronized(fingerprintArray) {
             fingerprintArray.removeAllObjects()
             if let fingerprint {
@@ -136,16 +115,12 @@ extension Scope {
         }
     }
 
-    /// Sets the level in the scope.
-    @objc(setLevel:)
-    open func setLevel(_ level: SentryLevel) {
+    func storeLevel(_ level: SentryLevel) {
         levelEnum = level
         notifyObservers { $0.setLevel(level) }
     }
 
-    /// Adds a breadcrumb to the scope.
-    @objc(addBreadcrumb:)
-    open func addBreadcrumb(_ crumb: Breadcrumb) {
+    func storeBreadcrumb(_ crumb: Breadcrumb) {
         guard maxBreadcrumbs >= 1 else { return }
         SentrySDKLog.debug("Add breadcrumb: \(crumb.category) - \(crumb.message ?? "")")
         synchronized(breadcrumbArray) {
@@ -159,9 +134,7 @@ extension Scope {
         }
     }
 
-    /// Clears all breadcrumbs in the scope.
-    @objc
-    open func clearBreadcrumbs() {
+    func deleteBreadcrumbs() {
         synchronized(breadcrumbArray) {
             currentBreadcrumbIndex = 0
             breadcrumbArray.removeAllObjects()
@@ -169,10 +142,7 @@ extension Scope {
         }
     }
 
-    /// Sets context values which overwrite `SentryEvent.context` when an event is enriched.
-    /// The `flags` context key is reserved for feature flag evaluations.
-    @objc(setContextValue:forKey:)
-    open func setContext(value: [String: Any], key: String) {
+    func storeContext(value: [String: Any], key: String) {
         synchronized(contextDictionary) {
             contextDictionary.setValue(value, forKey: key)
             let contextCopy = contextDictionaryCopy()
@@ -180,9 +150,7 @@ extension Scope {
         }
     }
 
-    /// Removes the context for the specified key.
-    @objc(removeContextForKey:)
-    open func removeContext(key: String) {
+    func deleteContext(key: String) {
         synchronized(contextDictionary) {
             contextDictionary.removeObject(forKey: key)
             let contextCopy = contextDictionaryCopy()
@@ -190,26 +158,13 @@ extension Scope {
         }
     }
 
-    /// Adds an attachment to every event sent to Sentry.
-    ///
-    /// The SDK doesn't add scope attachments to fatal events, such as crashes or watchdog
-    /// terminations, because those are captured on the next app launch and the scope's attachments
-    /// belong to that later run. Use `beforeSend` with a hint to attach files to fatal events.
-    @objc(addAttachment:)
-    open func addAttachment(_ attachment: Attachment) {
+    func storeAttachment(_ attachment: Attachment) {
         synchronized(attachmentArray) {
             attachmentArray.add(attachment)
         }
     }
 
-    /// Sets a global attribute. Attributes are searchable key/value pairs attached to every log.
-    ///
-    /// The SDK only applies attributes to logs. It doesn't apply them to events, transactions,
-    /// spans, profiles, or session replay.
-    /// Supported values are strings, integers, booleans, doubles, and arrays of those types.
-    /// `key` cannot be an empty string.
-    @objc(setAttributeValue:forKey:)
-    open func setAttribute(value: Any, key: String) {
+    func storeAttribute(value: Any, key: String) {
         guard !key.isEmpty else {
             SentrySDKLog.error("Attribute's key cannot be nil nor empty")
             return
@@ -221,11 +176,7 @@ extension Scope {
         }
     }
 
-    /// Removes the attribute for the specified key.
-    ///
-    /// The SDK only applies attributes to logs.
-    @objc(removeAttributeForKey:)
-    open func removeAttribute(key: String) {
+    func deleteAttribute(key: String) {
         synchronized(attributesDictionary) {
             attributesDictionary.removeObject(forKey: key)
             let attributesCopy = anyDictionary(attributesDictionary)
@@ -233,20 +184,14 @@ extension Scope {
         }
     }
 
-    /// Clears all attachments in the scope.
-    @objc
-    open func clearAttachments() {
+    func deleteAttachments() {
         synchronized(attachmentArray) {
             attachmentArray.removeAllObjects()
         }
     }
 
-    /// Clears the current scope.
-    ///
-    /// Collections are emptied in place because each collection is also the lock that guards it.
-    @objc
-    open func clear() {
-        clearBreadcrumbs()
+    func resetScope() {
+        deleteBreadcrumbs()
         synchronized(tagDictionary) { tagDictionary.removeAllObjects() }
         synchronized(extraDictionary) { extraDictionary.removeAllObjects() }
         synchronized(contextDictionary) {
@@ -254,7 +199,7 @@ extension Scope {
             featureFlagBuffer.removeAll()
         }
         synchronized(fingerprintArray) { fingerprintArray.removeAllObjects() }
-        clearAttachments()
+        deleteAttachments()
         synchronized(spanLock) { spanStorage = nil }
         synchronized(attributesDictionary) { attributesDictionary.removeAllObjects() }
 
