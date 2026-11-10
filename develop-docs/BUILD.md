@@ -38,23 +38,27 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 ### SPM-built SDK frameworks
 
-Build a self-contained XCFramework from SwiftPM sources: `SentrySwift` for V9 or `Sentry` for V10.
+Build a self-contained `Sentry.xcframework` from SwiftPM sources for either V9 or V10. Swift binary consumers always use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
 
 ```bash
 SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 ```
 
-Output: `XCFrameworkBuildPath/SPM/SentrySwift.xcframework.zip` for V9 or `XCFrameworkBuildPath/SPM/Sentry.xcframework.zip` for V10 (override `SPM_XCFRAMEWORK_BUILD_PATH`). See the [build script](../scripts/build-xcframework-variant-spm.sh) and [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for implementation and options.
+The [build script](../scripts/build-xcframework-variant-spm.sh) automatically sets the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`, without changing the implementation or crash backend selected by `SDK_V10`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
 
-Validate an unpacked macOS artifact locally, using the same `SDK_V10` selection as the build:
+Output: `XCFrameworkBuildPath/SPM/v9/Sentry.xcframework.zip` or `XCFrameworkBuildPath/SPM/v10/Sentry.xcframework.zip`. The generation-specific directories keep intermediates and identically named artifacts separate. When overriding `SPM_XCFRAMEWORK_BUILD_PATH` (or the script’s `--output-dir`), use separate paths for each generation. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
+
+Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
 
 ```bash
-SDK_V10=0 SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/SentrySwift.xcframework" \
+SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v9/Sentry.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
-SDK_V10=1 SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/Sentry.xcframework" \
+SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v10/Sentry.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
 ```
+
+The sample checks public API, SPI, ordinary Objective-C imports, and the privacy manifest without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, it runs the same checks against the existing `Sentry-Dynamic` product. That legacy manifest exposes several binaries named `Sentry.framework`, and SwiftPM can copy a static variant instead; the sample checks API and resource availability, not dynamic linkage.
 
 The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
@@ -88,7 +92,7 @@ Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry
 | No `SDK_V10=1` | V9  | `SentrySPM` / `SentrySwift`   |
 | `SDK_V10=1`    | V10 | `Sentry` / `Sentry`           |
 
-Shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. Do not use `canImport` to select a version: cached modules can survive mode switches.
+For ordinary source builds, shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. The packaging-only mode above also selects `Sentry`, using explicit `SENTRY_BUILD_XCFRAMEWORK` compiler conditions for internal imports. Do not use `canImport` to select a version or module name: cached modules can survive mode switches.
 
 `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
 
