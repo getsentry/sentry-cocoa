@@ -182,6 +182,24 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertUserInfoField(userInfo: userInfo, key: "environment", expected: environment)
     }
 
+    func testConfigureScope_shouldPassRunIdToSentryCrash() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
+        // -- Arrange --
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: "current-run-id")
+
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.removeAllIntegrations()
+            options.enableCrashHandler = true
+        }
+
+        // -- Assert --
+        let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
+        assertUserInfoField(userInfo: userInfo, key: SentryCurrentRun.userInfoKey, expected: "current-run-id")
+    }
+
     func testContext_IsPassedToSentryCrash() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
@@ -1210,6 +1228,10 @@ class MockCrashDependencies: CrashIntegrationProvider {
 
     var dateProvider: SentryCurrentDateProvider {
         SentryDependencyContainer.sharedInstance().dateProvider
+    }
+
+    var currentRun: SentryCurrentRun {
+        SentryDependencyContainer.sharedInstance().currentRun
     }
 
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper {

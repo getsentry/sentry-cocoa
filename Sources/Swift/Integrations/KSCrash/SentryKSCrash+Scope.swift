@@ -9,12 +9,14 @@ extension SentryKSCrash.Scope {
     class Configuration {
         private let options: Options
         private let installer: SentryKSCrash.Installing
+        private let currentRun: SentryCurrentRun
 
         private let observer: SentryKSCrash.Scope.Observer
 
-        init(installer: SentryKSCrash.Installing, options: Options) {
+        init(installer: SentryKSCrash.Installing, options: Options, currentRun: SentryCurrentRun) {
             self.installer = installer
             self.options = options
+            self.currentRun = currentRun
             self.observer = .init(maxBreadcrumbs: options.maxBreadcrumbs)
 
             configure()
@@ -46,6 +48,10 @@ extension SentryKSCrash.Scope {
                 // Crashes don't use the attributes field, we remove them to avoid uploading them
                 // unnecessarily.
                 userInfo.removeValue(forKey: "attributes")
+
+                // The run ID links the crash report to the reports of other event sources, such
+                // as MetricKit, that describe the same run.
+                userInfo[SentryCurrentRun.userInfoKey] = self.currentRun.id
                 installer.setUserInfo(userInfo)
 
                 // add(_:) only observes later mutations. Seed current nested fields

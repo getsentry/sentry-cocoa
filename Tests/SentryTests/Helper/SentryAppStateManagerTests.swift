@@ -18,6 +18,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         let sysctlWrapper: SentrySysctl
         let dispatchQueueWrapper: SentryDispatchQueueWrapper
         let notificationCenterWrapper: SentryNSNotificationCenterWrapper
+        let currentRun = SentryCurrentRun(id: "run-id")
 
         init(
             debuggerStatusProvider: SentryDebuggerStatusProvider,
@@ -99,6 +100,23 @@ final class SentryAppStateManagerTests: XCTestCase {
         let appState = sut.buildCurrentAppState()
 
         XCTAssertTrue(appState.isDebugging)
+    }
+
+    func testBuildCurrentAppState_shouldCarryRunIdOfCurrentRun() {
+        // -- Act --
+        let appState = sut.buildCurrentAppState()
+
+        // -- Assert --
+        XCTAssertEqual(appState.runId, fixture.dependencies.currentRun.id)
+    }
+
+    func testStart_shouldStoreAppStateWithRunIdOfCurrentRun() throws {
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        let storedAppState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertEqual(storedAppState.runId, fixture.dependencies.currentRun.id)
     }
 
     func testStartOnlyRunsLogicWhenStartCountBecomesOne() {

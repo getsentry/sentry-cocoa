@@ -15,18 +15,21 @@ final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
     let testDispatchQueueWrapper: TestSentryDispatchQueueWrapper
     let fileManager: SentryFileManager?
     let dateProvider: SentryCurrentDateProvider
+    let currentRun: SentryCurrentRun
     var dispatchQueueWrapper: SentryDispatchQueueWrapper { testDispatchQueueWrapper }
 
     init(
         installer: MockKSCrashInstaller = .init(),
         dispatchQueueWrapper: TestSentryDispatchQueueWrapper = .init(),
         fileManager: SentryFileManager? = nil,
-        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider(),
+        currentRun: SentryCurrentRun = SentryCurrentRun(id: "run-id")
     ) {
         self.kscrashInstaller = installer
         self.testDispatchQueueWrapper = dispatchQueueWrapper
         self.fileManager = fileManager
         self.dateProvider = dateProvider
+        self.currentRun = currentRun
     }
 
     func getKSCrashInstaller() -> MockKSCrashInstaller {
