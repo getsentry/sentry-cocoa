@@ -11,6 +11,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./tools.sh disable=SC1091
+source "$SCRIPT_DIR/tools.sh"
 
 SDK=""
 OUTPUT_DIR=""
@@ -81,6 +83,8 @@ fi
 ARCHIVE_DIR="$OUTPUT_DIR/archive/$SCHEME"
 DERIVED_DATA="$OUTPUT_DIR/DerivedData"
 LIB_DIR="$OUTPUT_DIR/lib/$SCHEME"
+SDK_VERSION="$(read_xcconfig_value_or_exit --key MARKETING_VERSION \
+    --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
 
 destination_for_sdk() {
     case "$1" in
@@ -135,6 +139,8 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     -clonedSourcePackagesDirPath "$DERIVED_DATA/SourcePackages" \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+    VERSIONING_SYSTEM=apple-generic \
+    CURRENT_PROJECT_VERSION="$SDK_VERSION" \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGN_IDENTITY= \
     ENABLE_CODE_COVERAGE=NO \
