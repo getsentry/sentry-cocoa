@@ -7,7 +7,7 @@
 /// Records the reports the event sources submit, without capturing them.
 final class TestEventSourceSink: SentryEventSourceSink {
     var isAvailable = true
-    private(set) var submittedReports: [SentryEventSourceReport] = []
+    var submittedReports: [SentryEventSourceReport] = []
 
     func submit(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult {
         guard isAvailable else {

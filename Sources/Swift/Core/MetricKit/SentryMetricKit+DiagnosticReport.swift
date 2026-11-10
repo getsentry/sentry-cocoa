@@ -105,4 +105,18 @@ extension SentryMetricKit.DiagnosticReport {
         }
     }
 }
+
+extension SentryMetricKit.DiagnosticReport {
+    /// How the diagnostic says the run ended, for the event source report.
+    var runEnd: SentryEventSourceReport.RunEnd? {
+        switch self {
+        case .crash:
+            return .crash
+        case .memoryException:
+            return .memoryTermination
+        case .hang, .cpuException, .diskWriteException, .appLaunch:
+            return nil
+        }
+    }
+}
 #endif // canImport(MetricKit) && !os(tvOS)

@@ -73,14 +73,15 @@ flowchart LR
     Crash["Crash handler: SentryCrash before V10, KSCrash from V10 on"] --> CrashSource["SentryCrashHandlerEventSource"]
     CrashSource -- "source: crashHandler, run ID from the stored report" --> Coordinator
     Watchdog["Watchdog termination integration"] -- "source: watchdogTermination, run ID from the persisted app state" --> Coordinator
-    MetricKit["MetricKit"] -- "source: metricKit, no run ID yet" --> Coordinator
-    Coordinator["SentryEventSourceCoordinator: matching and merging of one run's reports"] --> HubSink["SentryHubEventSourceSink: captures on the current hub"]
+    MetricKit["MetricKit"] -- "source: metricKit, run ID from the thread crumb" --> Coordinator
+    Coordinator["SentryEventSourceCoordinator: records fatal runs, drops reports of runs already reported"] --> HubSink["SentryHubEventSourceSink: captures on the current hub"]
+    Coordinator <--> FatalRuns[("fatal-runs.json: run ID and reporting source, 7 days")]
     HubSink --> Hub["SentryHub"]
 ```
 
 - The sources are equal: each one converts its own format into an event, builds its own report and submits it through the same `SentryEventSourceSink` protocol. The crash handler converts in Objective-C, so `SentryCrashHandlerEventSource` builds the report for it. No sink has source-specific entry points.
-- A report identifies its pipeline (`source`) and, when the source can read it back, the run it belongs to (`runId`, the ID `SentryCurrentRun` creates for every run). The sink uses the pipeline to process the report the way that pipeline needs, and the run ID to find the reports of other pipelines that describe the same run. The crash handler reads the run ID from the user section of its stored report and the watchdog termination integration from the persisted app state; MetricKit can't yet, so its reports have none and are sent on their own.
-- `SentryEventSourceCoordinator` is the one place between the sources and the core SDK. It forwards every report unchanged for now. Matching the reports of one run and merging them into one event belongs here.
+- A report identifies its pipeline (`source`) and, when the source can read it back, the run it belongs to (`runId`, the ID `SentryCurrentRun` creates for every run). The sink uses the pipeline to process the report the way that pipeline needs, and the run ID to find the reports of other pipelines that describe the same run. The crash handler reads the run ID from the user section of its stored report, the watchdog termination integration from the persisted app state, and MetricKit from the thread crumb the SDK parks at launch (`Sources/Swift/Core/MetricKit/RunId`). A diagnostic report also says how the run ended (`runEnd`), when it does.
+- `SentryEventSourceCoordinator` is the one place between the sources and the core SDK. It records every fatal report it lets through in a `SentryFatalRunRecordStore` for seven days, and drops a MetricKit crash diagnostic of a run the crash handler already reported, so one crash yields one event. Holding a watchdog termination report for a matching diagnostic and merging the two belongs here as well.
 - `SentryHubEventSourceSink` is the only place where a report reaches the hub. The hub and the client don't know which source an event came from.
 
 The types are in [`Sources/Swift/Core/EventSources`](../Sources/Swift/Core/EventSources).
