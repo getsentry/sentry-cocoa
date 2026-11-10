@@ -5,6 +5,7 @@
 ### Features
 
 - Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+- Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9573)
 
 ### Fixes
 

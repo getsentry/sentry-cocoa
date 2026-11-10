@@ -807,6 +807,8 @@
     [replayApi startBuffering];
     [replayApi pause];
     [replayApi resume];
+    [replayApi pauseTouchTracking];
+    [replayApi resumeTouchTracking];
     [replayApi flush];
     [replayApi stop];
 

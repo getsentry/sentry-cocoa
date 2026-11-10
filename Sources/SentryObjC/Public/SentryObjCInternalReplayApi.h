@@ -29,6 +29,12 @@ SENTRY_NO_INIT
 /// Resumes a replay paused with @c pause.
 - (void)resume;
 
+/// Stops recording touch positions until @c resumeTouchTracking is called.
+- (void)pauseTouchTracking;
+
+/// Resumes recording touch positions paused with @c pauseTouchTracking.
+- (void)resumeTouchTracking;
+
 /// Flushes buffered replay data or starts a new replay session if Replay is inactive.
 - (void)flush;
 

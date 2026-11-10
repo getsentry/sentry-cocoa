@@ -5743,6 +5743,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "pebibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -6062,6 +6076,20 @@
     "parent": "SentryObjCSDK",
     "returnType": "void",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
