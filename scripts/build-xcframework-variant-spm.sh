@@ -87,5 +87,5 @@ xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
 "$SCRIPT_DIR/assemble-xcframework.sh" \
     --sdks "$xcframework_sdks" \
     --framework-template "$OUTPUT_DIR/framework/$framework_name/SDK_NAME/$framework_name.framework" \
-    --output "$OUTPUT_DIR/$framework_name.xcframework" \
+    --output "$OUTPUT_DIR/${framework_name}-Dynamic.xcframework" \
     --require-debug-symbols
