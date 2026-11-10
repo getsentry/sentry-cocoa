@@ -541,10 +541,10 @@ SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM/$(if $(filter 1
 build-xcframework-spm:
 	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-variant-spm.sh --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
-	@echo "[MAKE] $@: Validating Sentry.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry.xcframework"
-	@echo "[MAKE] $@: Compressing Sentry.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry.xcframework"
+	@echo "[MAKE] $@: Validating Sentry-Dynamic.xcframework"
+	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
+	@echo "[MAKE] $@: Compressing Sentry-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
 
 ## Build Sentry-Dynamic XCFramework
 #

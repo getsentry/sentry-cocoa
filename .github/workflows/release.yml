@@ -342,7 +342,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
-          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/Sentry.xcframework.zip
+          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/Sentry-Dynamic.xcframework.zip
           if-no-files-found: error
       - name: Upload archive logs
         if: failure()
@@ -400,8 +400,8 @@ jobs:
         wait: download-spm-sdk
       - name: Prepare isolated consumer
         run: |
-          ditto -x -k "$RUNNER_TEMP/spm-sdk/Sentry.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
-          ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/Sentry.xcframework"
+          ditto -x -k "$RUNNER_TEMP/spm-sdk/Sentry-Dynamic.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
+          ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/Sentry-Dynamic.xcframework"
           # Copy just the consumer, outside the checkout and all producer build paths.
           mkdir -p "$RUNNER_TEMP/spm-sdk/consumer"
           cp TestApps/SPM-Dynamic/Package.swift "$RUNNER_TEMP/spm-sdk/consumer/"
@@ -410,7 +410,7 @@ jobs:
       # === Build and validation ===
       - name: Build and run SPM consumer
         env:
-          SENTRY_XCFRAMEWORK: ../Sentry.xcframework
+          SENTRY_XCFRAMEWORK: ../Sentry-Dynamic.xcframework
         run: |
           status=0
           swift run --package-path "$RUNNER_TEMP/spm-sdk/consumer" --configuration release SPM-Dynamic > "$RUNNER_TEMP/spm-sdk/consumer.log" 2>&1 || status=$?
