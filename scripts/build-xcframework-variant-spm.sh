@@ -69,8 +69,6 @@ for sdk in "${sdks[@]}"; do
     prepared="$OUTPUT_DIR/prepared/$sdk"
     "$SCRIPT_DIR/prepare-sentry-framework-inputs.sh" \
         --swift-archive "$OUTPUT_DIR/archive/$scheme/$sdk.xcarchive" \
-        --headers "$PACKAGE_PATH/Sources/Sentry/Public" \
-        --framework-name "$framework_name" \
         --output-dir "$prepared"
     "$SCRIPT_DIR/build-dynamic-framework.sh" \
         --sdk "$sdk" \
