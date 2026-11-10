@@ -35,6 +35,8 @@ log_info "Evidence: $WORK_DIR"
 mkdir -p "$WORK_DIR/tools" "$WORK_DIR/package" "$WORK_DIR/objects"
 
 printf '// Fixture package, archive invocation is stubbed.\n' > "$WORK_DIR/package/Package.swift"
+mkdir -p "$WORK_DIR/package/Sources/Configuration"
+printf 'MARKETING_VERSION = 9.33.0\n' > "$WORK_DIR/package/Sources/Configuration/Versioning.xcconfig"
 printf 'int target_marker(void) { return 1; }\n' > "$WORK_DIR/target.c"
 printf 'int dependency_marker(void) { return 1; }\n' > "$WORK_DIR/dependency.c"
 

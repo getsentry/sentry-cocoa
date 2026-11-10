@@ -289,8 +289,8 @@ linker_flags=()
 linker_flags+=( -Xlinker -install_name -Xlinker "@rpath/$FRAMEWORK_NAME.framework/$FRAMEWORK_NAME" )
 linker_flags+=( -Xlinker -rpath -Xlinker "@executable_path/Frameworks" )
 linker_flags+=( -Xlinker -force_load -Xlinker "$STATIC_LIB" )
-linker_flags+=( -Xlinker -compatibility_version -Xlinker "$BUNDLE_VERSION" )
-linker_flags+=( -Xlinker -current_version -Xlinker "$BUNDLE_VERSION" )
+linker_flags+=( -Xlinker -compatibility_version -Xlinker 1 )
+linker_flags+=( -Xlinker -current_version -Xlinker 1 )
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi
