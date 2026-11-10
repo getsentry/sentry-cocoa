@@ -4,7 +4,7 @@
 #elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
 #else
-#    import "SentryDefines.h"
+#    import <SentryDefines.h>
 #endif
 #if !SDK_V10
 #    import SENTRY_HEADER(SentrySerializable)
