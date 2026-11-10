@@ -30,12 +30,11 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
         // SentryCrash retains its legacy batch cleanup policy, so it does not preserve a session
         // after an unavailable-client capture failure. KSCrash opts into session preservation
         // because it retains retryable reports individually.
-        self.reportProcessor =
-            [[SentryStoredCrashReportProcessor alloc] initWithInAppLogic:inAppLogic
-                                                      currentHubProvider:^SentryHubInternal * {
-                                                          return SentrySDKInternal.currentHub;
-                                                      }
-                                  preserveCrashedSessionOnCaptureFailure:NO];
+        self.reportProcessor = [[SentryStoredCrashReportProcessor alloc]
+                                initWithInAppLogic:inAppLogic
+                           crashHandlerEventSource:SentryDependencyContainer.sharedInstance
+                                                       .crashHandlerEventSource
+            preserveCrashedSessionOnCaptureFailure:NO];
         self.crashWrapper = crashWrapper;
         self.dispatchQueue = dispatchQueue;
         self.startupCrashFlush = startupCrashFlush;

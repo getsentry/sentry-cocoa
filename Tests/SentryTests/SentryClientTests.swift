@@ -853,7 +853,8 @@ final class SentryClientTests: XCTestCase {
                     "CFBundleVersion": "20"
                 ],
                 processIdentifier: Self.metricKitProcessIdentifier,
-                processStartDate: Self.metricKitProcessStartDate
+                processStartDate: Self.metricKitProcessStartDate,
+                eventSourceSink: SentryDependencyContainer.sharedInstance().eventSourceCoordinator
             )
         )
     }

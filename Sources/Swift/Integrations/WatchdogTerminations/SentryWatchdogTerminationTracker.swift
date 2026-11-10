@@ -22,19 +22,22 @@ final class SentryWatchdogTerminationTracker: NSObject {
     private let dispatchQueue: SentryDispatchQueueWrapper
     private let fileManager: SentryFileManager
     private let scopePersistentStore: SentryScopePersistentStore
+    private let eventSourceSink: SentryEventSourceSink
 
-    @objc public init(options: Options,
-                      watchdogTerminationLogic: SentryWatchdogTerminationLogic,
-                      appStateManager: SentryAppStateManager,
-                      dispatchQueueWrapper: SentryDispatchQueueWrapper,
-                      fileManager: SentryFileManager,
-                      scopePersistentStore: SentryScopePersistentStore) {
+    init(options: Options,
+         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
+         appStateManager: SentryAppStateManager,
+         dispatchQueueWrapper: SentryDispatchQueueWrapper,
+         fileManager: SentryFileManager,
+         scopePersistentStore: SentryScopePersistentStore,
+         eventSourceSink: SentryEventSourceSink) {
         self.options = options
         self.watchdogTerminationLogic = watchdogTerminationLogic
         self.appStateManager = appStateManager
         self.dispatchQueue = dispatchQueueWrapper
         self.fileManager = fileManager
         self.scopePersistentStore = scopePersistentStore
+        self.eventSourceSink = eventSourceSink
     }
 
     @objc public func start() {
@@ -43,19 +46,22 @@ final class SentryWatchdogTerminationTracker: NSObject {
         // Check synchronously so the SDK can read fatalDetected after all
         // integrations have initialized. The actual event capture still happens
         // asynchronously below.
-        let isWatchdogTermination = watchdogTerminationLogic.isWatchdogTermination()
-        if isWatchdogTermination {
+        // The run ID is taken from the app state the decision was based on, before the capture is
+        // dispatched, so a later change of the persisted state can't swap it. An app state written
+        // before the SDK had run IDs is still a termination, just one without an ID.
+        let terminatedRunAppState = watchdogTerminationLogic.terminatedRunAppState()
+        if terminatedRunAppState != nil {
             SentrySDKInternal.fatalDetected = true
         }
 
         dispatchQueue.dispatchAsync {
-            if isWatchdogTermination {
-                self.captureWatchdogTerminationEvent()
+            if let terminatedRunAppState {
+                self.captureWatchdogTerminationEvent(terminatedRunId: terminatedRunAppState.runId)
             }
         }
     }
 
-    private func captureWatchdogTerminationEvent() {
+    private func captureWatchdogTerminationEvent(terminatedRunId: String?) {
 
         let event = Event(level: .fatal)
 
@@ -80,7 +86,14 @@ final class SentryWatchdogTerminationTracker: NSObject {
         // We don't need to update the releaseName of the event to the previous app state as we
         // assume it's not a watchdog termination when the releaseName changed between app
         // starts.
-        SentrySDKInternal.captureFatalEvent(event)
+        eventSourceSink.submit(
+            SentryEventSourceReport(
+                source: .watchdogTermination,
+                kind: .fatal(attachmentPaths: [], isRetainedOnFailure: false),
+                runId: terminatedRunId,
+                event: event
+            )
+        )
     }
 
     private func addBreadcrumbs(to event: Event) {
