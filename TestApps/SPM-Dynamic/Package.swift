@@ -26,7 +26,10 @@ let package = Package(
     targets: sdkTargets + [
         .target(
             name: "ObjCConsumer",
-            dependencies: sdkDependencies),
+            dependencies: sdkDependencies,
+            cSettings: [
+                .unsafeFlags(["-Werror=quoted-include-in-framework-header"])
+            ]),
         .executableTarget(
             name: "SPM-Dynamic",
             dependencies: sdkDependencies + ["ObjCConsumer"],

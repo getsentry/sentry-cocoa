@@ -3,7 +3,7 @@
 #elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
 #else
-#    import "SentryDefines.h"
+#    import <SentryDefines.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

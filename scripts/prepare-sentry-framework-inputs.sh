@@ -134,10 +134,10 @@ fi
 
 {
     if [ "${SDK_V10:-0}" = 1 ]; then
-        printf '#import "SentryV10Configuration.h"\n'
+        printf '#import <%s/SentryV10Configuration.h>\n' "$FRAMEWORK_NAME"
     fi
     for header in "${public_headers[@]}"; do
-        printf '#import "%s"\n' "${header##*/}"
+        printf '#import <%s/%s>\n' "$FRAMEWORK_NAME" "${header##*/}"
     done
 } > "$staged_headers_dir/$umbrella_header"
 

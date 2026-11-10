@@ -3,7 +3,7 @@
 #elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
 #else
-#    import "SentryDefines.h"
+#    import <SentryDefines.h>
 #endif
 #import SENTRY_HEADER(SentrySampleDecision)
 #import SENTRY_HEADER(SentryDeprecated)

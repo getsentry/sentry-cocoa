@@ -4,7 +4,7 @@
 #elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDeprecated.h>
 #else
-#    import "SentryDeprecated.h"
+#    import <SentryDeprecated.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
