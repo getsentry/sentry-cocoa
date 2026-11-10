@@ -58,7 +58,7 @@ SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v10/Sentry.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
 ```
 
-The sample checks public API, SPI, ordinary Objective-C imports, and the privacy manifest without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, it runs the same checks against the existing `Sentry-Dynamic` product. That legacy manifest exposes several binaries named `Sentry.framework`, and SwiftPM can copy a static variant instead; the sample checks API and resource availability, not dynamic linkage.
+The sample checks dynamic loading, public API, SPI, ordinary Objective-C imports, and the privacy manifest from the loaded SDK bundle without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, it consumes the existing `Sentry-Dynamic` product; use `swift run --build-system xcode --package-path TestApps/SPM-Dynamic SPM-Dynamic` as in the Release workflow.
 
 The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
