@@ -420,7 +420,6 @@ jobs:
         env:
           SDK_V10: ${{ matrix.sdk-v10 }}
           SENTRY_SPM_XCFRAMEWORK: ../${{ matrix.framework-name }}.xcframework
-          SENTRY_EXPECTED_GENERATION: ${{ matrix.generation }}
         run: |
           status=0
           swift run --package-path "$RUNNER_TEMP/spm-sdk/consumer" --configuration release SPM-Dynamic > "$RUNNER_TEMP/spm-sdk/consumer.log" 2>&1 || status=$?

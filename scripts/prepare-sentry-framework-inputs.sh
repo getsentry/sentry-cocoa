@@ -151,16 +151,21 @@ for interface in "${interfaces[@]}"; do
     sed -E "s/(^|[^[:alnum:]_])SentryHeaders([.]|::|$)/\1$FRAMEWORK_NAME\2/g" \
         "$interface" > "$staged_module_dir/${interface##*/}"
 done
-sed "s/@import SentryHeaders;/@import $FRAMEWORK_NAME;/" \
+# Include the Clang declarations without importing the parent module while building its Swift submodule.
+sed "s|@import SentryHeaders;|#import <$FRAMEWORK_NAME/$umbrella_header>|" \
     "$swift_products/$FRAMEWORK_NAME-Swift.h" > "$staged_headers_dir/$FRAMEWORK_NAME-Swift.h"
 
-# The Swift header imports this module, so exclude it rather than adding it to the umbrella.
+# Match Xcode's Swift submodule so ObjC imports see Swift declarations without reimporting them into Swift.
 cat > "$staged_modules_dir/module.modulemap" <<EOF
 framework module $FRAMEWORK_NAME {
   umbrella header "$umbrella_header"
-  exclude header "$FRAMEWORK_NAME-Swift.h"
   export *
   module * { export * }
+}
+
+module $FRAMEWORK_NAME.Swift {
+  header "$FRAMEWORK_NAME-Swift.h"
+  requires objc
 }
 EOF
 
