@@ -1,7 +1,11 @@
 import Foundation
 // Both modes use SwiftPM; this flag selects the SwiftPM-built XCFramework.
 #if SENTRY_SPM_FRAMEWORK
+#if SENTRY_SPM_V10
+@_spi(Private) import Sentry
+#else
 @_spi(Private) import SentrySwift
+#endif
 import ObjCConsumer
 
 // Exercise the packaged SDK without starting integrations or sending network requests.

@@ -1,5 +1,9 @@
 #import "ObjCConsumer.h"
-#import <SentrySwift/SentrySwift-Swift.h>
+#if SENTRY_SPM_V10
+#    import <Sentry/Sentry-Swift.h>
+#else
+#    import <SentrySwift/SentrySwift-Swift.h>
+#endif
 
 BOOL
 sentryObjCConsumer(void)

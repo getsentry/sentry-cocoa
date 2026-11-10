@@ -50,8 +50,11 @@ version="$(read_xcconfig_value_or_exit \
     --key MARKETING_VERSION \
     --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
 scheme=SentrySPM
-if [ "${SDK_V10:-0}" = 1 ]; then scheme=Sentry; fi
 framework_name=SentrySwift
+if [ "${SDK_V10:-0}" = 1 ]; then
+    scheme=Sentry
+    framework_name=Sentry
+fi
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 
