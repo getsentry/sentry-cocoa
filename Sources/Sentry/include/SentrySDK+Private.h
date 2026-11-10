@@ -21,12 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySDKInternal ()
 
-+ (void)captureFatalEvent:(SentryEvent *)event;
++ (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event;
 
-+ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
++ (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                withScope:(SentryScope *)scope;
 
 #if SENTRY_HAS_UIKIT && !SDK_V10
-+ (void)captureFatalAppHangEvent:(SentryEvent *)event;
++ (void)captureFatalAppHangEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+    NS_SWIFT_NAME(captureFatalAppHang(_:));
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 /**

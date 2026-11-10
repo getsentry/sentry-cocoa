@@ -2,7 +2,6 @@
 
 #import "SentryClient+Private.h"
 #import "SentryCrashReportConverter.h"
-#import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryId.h"

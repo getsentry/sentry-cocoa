@@ -82,7 +82,10 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
 
     // MARK: - SentryClientAttachmentProcessor
 
-    func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
+    func processAttachments(_ attachments: [Attachment], for event: Any) -> [Attachment] {
+        guard let event = event as? Event else {
+            return attachments
+        }
         // We don't attach the view hierarchy if there is no exception/error.
         // We don't attach the view hierarchy if the event is a crash or metric kit event.
         if (event.exceptions == nil && event.error == nil) || event.isFatalEvent {

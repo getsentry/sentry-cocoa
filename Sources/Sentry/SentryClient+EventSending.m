@@ -1,5 +1,4 @@
 #import "SentryClient+EventSending.h"
-#import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
@@ -15,11 +14,12 @@ extern NSString *const DropSessionLogMessage;
 - (SentryCurrentScopeStorage *)currentScopeStorage;
 - (SentryTransportAdapter *)transportAdapter;
 
-- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                                  hint:(SentryHint *)hint;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))event
+                                                      withScope:(SentryScope *)scope
+                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                                   isFatalEvent:(BOOL)isFatalEvent
+                                                           hint:(SentryHint *)hint;
 
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
@@ -32,10 +32,11 @@ extern NSString *const DropSessionLogMessage;
 
 @implementation SentryClientInternal (EventSending)
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self sendEvent:event
                       withScope:scope
@@ -45,11 +46,12 @@ extern NSString *const DropSessionLogMessage;
                            hint:hint];
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                       hint:(SentryHint *)hint
 {
+    SentryEvent *event = untypedEvent;
     return [self sendEvent:event
                       withScope:scope
          alwaysAttachStacktrace:alwaysAttachStacktrace
@@ -58,11 +60,12 @@ extern NSString *const DropSessionLogMessage;
                            hint:hint];
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
               isFatalEvent:(BOOL)isFatalEvent
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self sendEvent:event
                       withScope:scope
@@ -72,12 +75,13 @@ extern NSString *const DropSessionLogMessage;
                            hint:hint];
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
               isFatalEvent:(BOOL)isFatalEvent
                       hint:(SentryHint *)hint
 {
+    SentryEvent *event = untypedEvent;
     return [self sendEvent:event
                       withScope:scope
          alwaysAttachStacktrace:alwaysAttachStacktrace
@@ -86,12 +90,13 @@ extern NSString *const DropSessionLogMessage;
                            hint:hint];
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                   withScope:(SentryScope *)scope
      alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                isFatalEvent:(BOOL)isFatalEvent
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self sendEvent:event
                       withScope:scope
@@ -101,13 +106,14 @@ extern NSString *const DropSessionLogMessage;
                            hint:hint];
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                   withScope:(SentryScope *)scope
      alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                isFatalEvent:(BOOL)isFatalEvent
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
                        hint:(SentryHint *)hint
 {
+    SentryEvent *event = untypedEvent;
     BOOL isFromPreviousProcess = isFatalEvent || event.isFromPreviousProcess;
     [self populateHintAttachments:hint scope:scope isFromPreviousProcess:isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
@@ -134,10 +140,11 @@ extern NSString *const DropSessionLogMessage;
     return preparedEvent.eventId;
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
             withSession:(nullable SentrySession *)session
               withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint
                             scope:scope
@@ -146,11 +153,12 @@ extern NSString *const DropSessionLogMessage;
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event
+- (SentryId *)sendEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
             withSession:(nullable SentrySession *)session
               withScope:(SentryScope *)scope
                    hint:(SentryHint *)hint
 {
+    SentryEvent *event = untypedEvent;
     if (event == nil) {
         return SentryId.empty;
     }

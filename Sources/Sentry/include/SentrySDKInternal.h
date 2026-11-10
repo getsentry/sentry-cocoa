@@ -11,7 +11,6 @@
 @protocol SentrySpan;
 
 @class SentryBreadcrumb;
-@class SentryEvent;
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
@@ -59,7 +58,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+    NS_SWIFT_NAME(capture(event:));
 
 /**
  * Captures a manually created event and sends it to Sentry. Only the data in this scope object will
@@ -69,7 +69,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryId *)captureEvent:(SentryEvent *)event
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
@@ -80,7 +80,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryId *)captureEvent:(SentryEvent *)event
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
@@ -244,7 +244,7 @@ SENTRY_NO_INIT
  * @param hint The hint providing additional context for callbacks.
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
-+ (SentryId *)captureEvent:(SentryEvent *)event
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                  withScope:(SentryScope *)scope
                       hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(event:scope:hint:));

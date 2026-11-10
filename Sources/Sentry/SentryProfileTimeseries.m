@@ -3,7 +3,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryEvent+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    if SENTRY_HAS_UIKIT

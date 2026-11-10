@@ -161,10 +161,7 @@ class SentryScopeSwiftTests: XCTestCase {
         event2.eventId = event1.eventId
         scope.applyTo(event: event1, maxBreadcrumbs: 10)
         cloned.applyTo(event: event2, maxBreadcrumbs: 10)
-        XCTAssertEqual(
-            try XCTUnwrap(event1.serialize() as? [String: AnyHashable]),
-            try XCTUnwrap(event2.serialize() as? [String: AnyHashable])
-        )
+        XCTAssertEqual(event1.serialize() as NSDictionary, event2.serialize() as NSDictionary)
 
         cloned.setExtras(["aa": "b"])
         cloned.setTags(["ab": "c"])

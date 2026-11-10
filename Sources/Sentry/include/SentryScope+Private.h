@@ -63,9 +63,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
-- (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
-                         maxBreadcrumb:(NSUInteger)maxBreadcrumbs
-    NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))applyToEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))event
+                                                  maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+    NS_SWIFT_NAME(applyToMigration(event:maxBreadcrumbs:));
 
 - (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
 

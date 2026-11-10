@@ -4,7 +4,6 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDateUtils.h"
-#import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryId.h"

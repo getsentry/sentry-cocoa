@@ -15,7 +15,6 @@
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
@@ -593,6 +592,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
+@end
+
+// Event is a Swift class. The internal serializable conformance stays in Objective-C so the
+// public Swift interface does not expose the private protocol.
+@interface SentryEvent (SentryInternalSerializableConformance) <SentryInternalSerializable>
+@end
+
+@implementation SentryEvent (SentryInternalSerializableConformance)
 @end
 
 NS_ASSUME_NONNULL_END

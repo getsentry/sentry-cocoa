@@ -2,7 +2,6 @@
 #import "SentryDateUtils.h"
 #import "SentryDeprecated+Private.h"
 #import "SentryError.h"
-#import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
@@ -536,8 +535,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 #if !SDK_V10
 #    pragma mark - AppHangs
 
-- (void)storeAppHangEvent:(SentryEvent *)appHangEvent
+- (void)storeAppHangEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedAppHangEvent
 {
+    SentryEvent *appHangEvent = untypedAppHangEvent;
     NSData *jsonData = [SentrySerializationSwift dataWithJSONObject:[appHangEvent serialize]];
     if (jsonData == nil) {
         SENTRY_LOG_ERROR(@"Failed to store app hang event, because of an error in serialization.");
@@ -549,7 +549,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-- (nullable SentryEvent *)readAppHangEvent
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))readAppHangEvent
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *appHangEventJSONData = nil;
