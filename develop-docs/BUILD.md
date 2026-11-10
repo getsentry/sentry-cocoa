@@ -38,19 +38,23 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 
 ### SPM-built SDK frameworks
 
-Build a self-contained `SentrySwift` XCFramework from SwiftPM sources:
+Build a self-contained XCFramework from SwiftPM sources: `SentrySwift` for V9 or `Sentry` for V10.
 
 ```bash
 SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 ```
 
-Output: `XCFrameworkBuildPath/SPM/SentrySwift.xcframework.zip` (override `SPM_XCFRAMEWORK_BUILD_PATH`). See the [build script](../scripts/build-xcframework-variant-spm.sh) and [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for implementation and options.
+Output: `XCFrameworkBuildPath/SPM/SentrySwift.xcframework.zip` for V9 or `XCFrameworkBuildPath/SPM/Sentry.xcframework.zip` for V10 (override `SPM_XCFRAMEWORK_BUILD_PATH`). See the [build script](../scripts/build-xcframework-variant-spm.sh) and [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for implementation and options.
 
-Validate an unpacked macOS artifact locally:
+Validate an unpacked macOS artifact locally, using the same `SDK_V10` selection as the build:
 
 ```bash
-SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/SentrySwift.xcframework" \
+SDK_V10=0 SENTRY_EXPECTED_GENERATION=v9 \
+  SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/SentrySwift.xcframework" \
+  swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
+SDK_V10=1 SENTRY_EXPECTED_GENERATION=v10 \
+  SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/Sentry.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
 ```
 

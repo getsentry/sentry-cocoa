@@ -6,15 +6,23 @@ import PackageDescription
 
 // The path is relative to this package. The downloaded framework is the only SDK dependency.
 let spmFramework = ProcessInfo.processInfo.environment["SENTRY_SPM_XCFRAMEWORK"]
+let isV10 = ProcessInfo.processInfo.environment["SDK_V10"] == "1"
+let sdkModuleName = isV10 ? "Sentry" : "SentrySwift"
+// Do not define SDK_V10 for consumers: the generation check must read the artifact's configuration.
 let sdkTargets: [Target] = spmFramework.map { path in
     [
-        .binaryTarget(name: "SentrySwift", path: path),
-        .target(name: "ObjCConsumer", dependencies: ["SentrySwift"])
+        .binaryTarget(name: sdkModuleName, path: path),
+        .target(
+            name: "ObjCConsumer",
+            dependencies: [.byName(name: sdkModuleName)],
+            cSettings: isV10 ? [.define("SENTRY_SPM_V10")] : [])
     ]
 } ?? []
 let sdkDependencies: [Target.Dependency] = spmFramework == nil
     ? [.product(name: "Sentry-Dynamic", package: "Sentry")]
-    : ["SentrySwift", "ObjCConsumer"]
+    : [.byName(name: sdkModuleName), "ObjCConsumer"]
+let sdkSwiftSettings: [SwiftSetting] = spmFramework == nil ? []
+    : [.define("SENTRY_SPM_FRAMEWORK")] + (isV10 ? [.define("SENTRY_SPM_V10")] : [])
 
 let package = Package(
     name: "SPM-Dynamic",
@@ -31,6 +39,6 @@ let package = Package(
             dependencies: sdkDependencies,
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
-            ] + (spmFramework == nil ? [] : [.define("SENTRY_SPM_FRAMEWORK")]))
+            ] + sdkSwiftSettings)
     ]
 )

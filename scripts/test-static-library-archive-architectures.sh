@@ -200,20 +200,10 @@ run_case \
     SentrySPM \
     SentrySwift
 
-# For current v10 naming, Sentry is the scheme while SentrySwift remains
-# the architecture target; preserve both matching slices.
+# For v10, use Sentry for both the scheme and architecture target,
+# retaining only the target's arm64 slice.
 run_case \
-    spm-v10-current \
-    "$WORK_DIR/objects/dependency-matching.o" \
-    '' \
-    "$WORK_DIR/objects/target.o" \
-    Sentry \
-    SentrySwift
-
-# After the v10 target rename, accept Sentry for both names and retain
-# only the target's arm64 slice.
-run_case \
-    spm-v10-renamed \
+    spm-v10 \
     "$WORK_DIR/objects/dependency-extra.o" \
     '' \
     "$WORK_DIR/objects/target-arm64.o" \

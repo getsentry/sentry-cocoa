@@ -317,10 +317,12 @@ jobs:
         include:
           - generation: v9
             sdk-v10: "0"
+            framework-name: SentrySwift
             runner: macos-15
             xcode: "16"
           - generation: v10
             sdk-v10: "1"
+            framework-name: Sentry
             runner: macos-26
             xcode: "26"
     steps:
@@ -342,7 +344,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
-          path: XCFrameworkBuildPath/SPM/SentrySwift.xcframework.zip
+          path: XCFrameworkBuildPath/SPM/${{ matrix.framework-name }}.xcframework.zip
           if-no-files-found: error
       - name: Upload archive logs
         if: failure()
@@ -376,9 +378,13 @@ jobs:
       matrix:
         include:
           - generation: v9
+            sdk-v10: "0"
+            framework-name: SentrySwift
             runner: macos-15
             xcode: "16"
           - generation: v10
+            sdk-v10: "1"
+            framework-name: Sentry
             runner: macos-26
             xcode: "26"
     steps:
@@ -399,9 +405,11 @@ jobs:
       - name: Wait for SPM framework
         wait: download-spm-sdk
       - name: Prepare isolated consumer
+        env:
+          FRAMEWORK_NAME: ${{ matrix.framework-name }}
         run: |
-          ditto -x -k "$RUNNER_TEMP/spm-sdk/SentrySwift.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
-          ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/SentrySwift.xcframework"
+          ditto -x -k "$RUNNER_TEMP/spm-sdk/$FRAMEWORK_NAME.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
+          ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/$FRAMEWORK_NAME.xcframework"
           # Copy just the consumer, outside the checkout and all producer build paths.
           mkdir -p "$RUNNER_TEMP/spm-sdk/consumer"
           cp TestApps/SPM-Dynamic/Package.swift "$RUNNER_TEMP/spm-sdk/consumer/"
@@ -410,7 +418,8 @@ jobs:
       # === Build and validation ===
       - name: Build and run SPM consumer
         env:
-          SENTRY_SPM_XCFRAMEWORK: ../SentrySwift.xcframework
+          SDK_V10: ${{ matrix.sdk-v10 }}
+          SENTRY_SPM_XCFRAMEWORK: ../${{ matrix.framework-name }}.xcframework
           SENTRY_EXPECTED_GENERATION: ${{ matrix.generation }}
         run: |
           status=0
