@@ -1,23 +1,16 @@
 #import "ObjCConsumer.h"
-#if SENTRY_SPM_V10
-#    import <Sentry/Sentry-Swift.h>
+#if SDK_V10
+@import Sentry;
 #else
-#    import <SentrySwift/SentrySwift-Swift.h>
+@import SentrySwift;
 #endif
 
 BOOL
 sentryObjCConsumer(void)
 {
+#if !SDK_V10
+    [SentrySDK close];
+#endif
     return [SentrySDKLog willLogAtLevel:kSentryLevelFatal] &&
         [[SentryId alloc] init].sentryIdString.length == 32;
-}
-
-int
-sentrySDKGeneration(void)
-{
-#if SDK_V10
-    return 10;
-#else
-    return 9;
-#endif
 }

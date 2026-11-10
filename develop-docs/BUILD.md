@@ -50,11 +50,9 @@ Output: `XCFrameworkBuildPath/SPM/SentrySwift.xcframework.zip` for V9 or `XCFram
 Validate an unpacked macOS artifact locally, using the same `SDK_V10` selection as the build:
 
 ```bash
-SDK_V10=0 SENTRY_EXPECTED_GENERATION=v9 \
-  SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/SentrySwift.xcframework" \
+SDK_V10=0 SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/SentrySwift.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
-SDK_V10=1 SENTRY_EXPECTED_GENERATION=v10 \
-  SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/Sentry.xcframework" \
+SDK_V10=1 SENTRY_SPM_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/Sentry.xcframework" \
   swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
 ```
 

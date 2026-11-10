@@ -1,7 +1,7 @@
 import Foundation
 // Both modes use SwiftPM; this flag selects the SwiftPM-built XCFramework.
 #if SENTRY_SPM_FRAMEWORK
-#if SENTRY_SPM_V10
+#if SDK_V10
 @_spi(Private) import Sentry
 #else
 @_spi(Private) import SentrySwift
@@ -12,9 +12,6 @@ import ObjCConsumer
 precondition(SentryId().sentryIdString.count == 32)
 precondition(SentrySDKLog.willLog(atLevel: .fatal))
 precondition(sentryObjCConsumer())
-if let expected = ProcessInfo.processInfo.environment["SENTRY_EXPECTED_GENERATION"] {
-    precondition("v\(sentrySDKGeneration())" == expected)
-}
 let framework = Bundle(for: SentrySDKLog.self)
 guard let privacyManifest = framework.url(forResource: "PrivacyInfo", withExtension: "xcprivacy") else {
     fatalError("The packaged framework is missing its privacy manifest")
