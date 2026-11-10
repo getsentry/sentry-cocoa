@@ -90,13 +90,21 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureEventInvocations = Invocations<Event>()
-    public override func capture(event: Event) -> SentryId {
+    public override func capture(event: Any) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestClient.capture(event:): Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         captureEventInvocations.record(event)
         return event.eventId
     }
     
     @_spi(Private) public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func wrapper_capture(event: Event, scope: Any, additionalEnvelopeItems: [Any]) -> SentryId {
+    public override func wrapper_capture(event: Any, scope: Any, additionalEnvelopeItems: [Any]) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestClient.wrapper_capture: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         guard let scope = scope as? Scope else {
             XCTFail("Expected Scope, got \(type(of: scope))")
             return SentryId()
@@ -110,7 +118,11 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     public var captureEventWithScopeAndHintInvocations = Invocations<(event: Event, scope: Scope, hint: Hint?)>()
-    public override func wrapper_capture(event: Event, scope: Any, hint: Any?) -> SentryId {
+    public override func wrapper_capture(event: Any, scope: Any, hint: Any?) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestClient.wrapper_capture: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         guard let scope = scope as? Scope else {
             XCTFail("Expected Scope, got \(type(of: scope))")
             return SentryId()
@@ -213,7 +225,11 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     @_spi(Private) public var captureEventIncrementingSessionErrorCountInvocations = Invocations<(event: Event, scope: Scope)>()
-    @_spi(Private) public override func captureEventIncrementingSessionErrorCount(_ event: Event, with scope: Any) -> SentryId {
+    @_spi(Private) public override func captureEventIncrementingSessionErrorCount(_ event: Any, with scope: Any) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestClient.captureEventIncrementingSessionErrorCount: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         guard let scope = scope as? Scope else {
             XCTFail("Expected Scope, got \(type(of: scope))")
             return SentryId()
@@ -225,7 +241,11 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     public var captureFatalEventInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func captureFatalEvent(_ event: Event, with scope: Any) -> SentryId {
+    public override func captureFatalEvent(_ event: Any, with scope: Any) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestClient.captureFatalEvent: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         guard let scope = scope as? Scope else {
             XCTFail("Expected Scope, got \(type(of: scope))")
             return SentryId()
@@ -237,7 +257,11 @@ open class TestClient: SentryTestClientWrapper {
     @_spi(Private)
     public var captureFatalEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
     @_spi(Private)
-    public override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Any) -> SentryId {
+    public override func wrapper_captureFatalEvent(_ event: Any, session: Any, scope: Any) -> SentryId {
+        guard let event = event as? Event else {
+            XCTFail("TestClient.wrapper_captureFatalEvent: Expected Event, got \(type(of: event))")
+            return SentryId.empty
+        }
         guard let scope = scope as? Scope else {
             XCTFail("Expected Scope, got \(type(of: scope))")
             return SentryId()

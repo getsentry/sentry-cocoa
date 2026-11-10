@@ -1,6 +1,5 @@
 #import "SentryClient.h"
 #import "SentryDeprecated+Private.h"
-#import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"

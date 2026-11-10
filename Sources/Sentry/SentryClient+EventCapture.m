@@ -1,6 +1,5 @@
 #import "SentryClient+ErrorEvents.h"
 #import "SentryClient+EventCapture.h"
-#import "SentryEvent+Private.h"
 #import "SentryMessage.h"
 #import "SentrySwift.h"
 
@@ -100,21 +99,24 @@ shouldIncrementSessionErrors(SentryEvent *event)
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     return [self captureEvent:event withScope:[[SentryScope alloc] init]];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
+    SentryEvent *event = untypedEvent;
     return [self captureEvent:event withScope:scope hint:nil];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     // Only transactions pass additional envelope items, and the session path can't send them.
     if (additionalEnvelopeItems.count == 0 && shouldIncrementSessionErrors(event)) {
@@ -131,10 +133,11 @@ shouldIncrementSessionErrors(SentryEvent *event)
                            hint:hint];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(SentryHint *_Nullable)hint
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
     if (shouldIncrementSessionErrors(event)) {
         return [self captureEventIncrementingSessionErrorCount:event

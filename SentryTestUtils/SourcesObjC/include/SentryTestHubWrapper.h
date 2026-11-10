@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
                       andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
 
-- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                          withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));

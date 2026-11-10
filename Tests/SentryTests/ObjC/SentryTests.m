@@ -2,7 +2,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDateUtils.h"
-#import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryMessage.h"
 #import "SentryOptions+Tests.h"

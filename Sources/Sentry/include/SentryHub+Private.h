@@ -39,16 +39,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryClientInternal *_Nullable)client;
 
-- (void)captureFatalEvent:(SentryEvent *)event;
+- (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event;
 
-- (void)captureFatalEvent:(SentryEvent *)event
+- (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(captureFatalEvent(_:with:));
-
 /**
  * Captures a fatal event and returns its ID, or @c SentryId.empty when no event was accepted.
  */
-- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+- (SentryId *)captureFatalEventWithResult:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
     NS_SWIFT_NAME(captureFatalEvent(_:scope:preserveCrashedSessionOnFailure:));
@@ -60,7 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client;
 
 #if SENTRY_HAS_UIKIT && !SDK_V10
-- (void)captureFatalAppHangEvent:(SentryEvent *)event;
+- (void)captureFatalAppHangEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+    NS_SWIFT_NAME(captureFatalAppHang(_:));
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
@@ -73,14 +73,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                   SentryTracerConfiguration))configuration
     NS_SWIFT_NAME(startTransaction(with:bindToScope:customSamplingContext:configuration:));
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
-- (SentryId *)captureErrorEvent:(SentryEvent *)event NS_SWIFT_NAME(captureErrorEvent(event:));
+- (SentryId *)captureErrorEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+    NS_SWIFT_NAME(captureErrorEvent(event:));
 
-- (SentryId *)captureErrorEvent:(SentryEvent *)event
+- (SentryId *)captureErrorEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                        withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb

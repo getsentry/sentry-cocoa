@@ -6,7 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryAppState;
 @class SentryDispatchQueueWrapper;
-@class SentryEvent;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
 @class SentryOptions;
@@ -103,8 +102,9 @@ SENTRY_NO_INIT
 
 #if !SDK_V10
 #    pragma mark - AppHangs
-- (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
-- (nullable SentryEvent *)readAppHangEvent;
+- (void)storeAppHangEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))appHangEvent
+    NS_SWIFT_NAME(storeAppHang(_:));
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))readAppHangEvent;
 - (BOOL)appHangEventExists;
 - (void)deleteAppHangEvent;
 #endif // !SDK_V10
