@@ -1,7 +1,7 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, SwiftIntegration {
+final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourceSinkProvider>: NSObject, SwiftIntegration {
     
     /// Captures the enabled diagnostics, or `nil` when none is enabled.
     let diagnosticCapturer: SentryMXDiagnosticCapturer?
@@ -27,7 +27,8 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider>: NSObject, 
             enabledDiagnostics: enabledDiagnostics,
             releaseName: options.releaseName,
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
-            processStartDate: dependencies.sysctlWrapper.processStartTimestamp
+            processStartDate: dependencies.sysctlWrapper.processStartTimestamp,
+            eventSourceSink: dependencies.eventSourceSink
         )
         let metricRecorder = enabledMetricReports.isEmpty ? nil : SentryMXMetricRecorder(
             enabledMetricReports: enabledMetricReports,

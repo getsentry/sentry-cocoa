@@ -1,11 +1,9 @@
 #import "SentryDefines.h"
 
-@class SentryHubInternal;
+@class SentryCrashHandlerEventSource;
 @class SentryInAppLogic;
 
 NS_ASSUME_NONNULL_BEGIN
-
-typedef SentryHubInternal *_Nonnull (^SentryCurrentHubProvider)(void);
 
 FOUNDATION_EXPORT NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain;
 
@@ -18,31 +16,37 @@ typedef NS_ERROR_ENUM(
     SentryStoredCrashReportProcessorErrorConversionFailed,
 };
 
-/** Converts a dictionary crash report and captures it as a fatal Sentry event. */
+/**
+ * Converts a dictionary crash report into a fatal Sentry event and submits it through the crash
+ * handler event source, so it reaches the SDK like the reports of every other event source.
+ */
 @interface SentryStoredCrashReportProcessor : NSObject
 SENTRY_NO_INIT
 
 /**
- * @param currentHubProvider Resolves the current hub at each processing stage so asynchronous
- * processing does not retain a hub across SDK lifecycle changes.
+ * @param crashHandlerEventSource Takes the converted events. The sink behind it resolves the
+ * current hub for each of them so asynchronous processing does not retain a hub across SDK
+ * lifecycle changes.
  * @param preserveCrashedSessionOnCaptureFailure Set to YES only when the caller retains retryable
  * reports. Use NO to preserve the legacy SentryCrash cleanup behavior.
  */
 - (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic
-                        currentHubProvider:(SentryCurrentHubProvider)currentHubProvider
+                   crashHandlerEventSource:
+                       (SENTRY_SWIFT_MIGRATION_ID(
+                           SentryCrashHandlerEventSource))crashHandlerEventSource
     preserveCrashedSessionOnCaptureFailure:(BOOL)preserveCrashedSessionOnCaptureFailure;
 
 /**
  * Processes one dictionary crash report.
- * @return YES after the converted fatal event has been handed to the Sentry client.
+ * @return YES after the converted fatal event has been accepted.
  */
 - (BOOL)processReport:(NSDictionary *)report
                 error:(NSError *_Nullable *_Nullable)error NS_SWIFT_NAME(process(report:));
 
 /**
  * Processes one dictionary crash report with a gate invoked after conversion and immediately
- * before client capture. Returning an error from the gate declines capture and propagates that
- * error to the caller.
+ * before the event is accepted. Returning an error from the gate withdraws the event and
+ * propagates that error to the caller.
  */
 - (BOOL)processReport:(NSDictionary *)report
         beforeCapture:(SentryStoredCrashReportProcessorBeforeCapture)beforeCapture

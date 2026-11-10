@@ -58,7 +58,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             return try getSut(fileManager: fileManager )
         }
         
-        func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
+        func getSut(
+            fileManager: SentryFileManager,
+            eventSourceSink: SentryEventSourceSink = SentryDependencyContainer.sharedInstance().eventSourceCoordinator
+        ) throws -> SentryWatchdogTerminationTracker {
             let dependencies = SentryDependencyContainer.sharedInstance()
             dependencies.fileManager = fileManager
             dependencies.sysctlWrapper = sysctl
@@ -79,7 +82,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopePersistentStore: scopePersistentStore
+                scopePersistentStore: scopePersistentStore,
+                eventSourceSink: eventSourceSink
             )
         }
     }
@@ -247,6 +251,36 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
+    func testStart_whenWatchdogTermination_shouldSubmitFatalReportWithRunIdOfTerminatedRun() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        // The run that gets terminated persists its app state with its own run ID.
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: "terminated-run-id")
+        sut = try fixture.getSut(fileManager: fixture.fileManager, eventSourceSink: eventSourceSink)
+        sut.start()
+        goToForeground()
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        // The next run detects the termination and reports it under the terminated run's ID.
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: "next-run-id")
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertEqual(eventSourceSink.submittedReports.count, 1)
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(report.source, .watchdogTermination)
+        XCTAssertEqual(report.event.exceptions?.first?.type, "WatchdogTermination")
+        XCTAssertEqual(report.runId, "terminated-run-id")
+        guard case let .fatal(attachmentPaths, isRetainedOnFailure) = report.kind else {
+            return XCTFail("Expected a fatal report")
+        }
+        XCTAssertEqual(attachmentPaths, [])
+        XCTAssertFalse(isRetainedOnFailure)
+        // The tracker only reports the termination, the sink decides whether it is captured.
+        XCTAssertEqual(fixture.client.captureFatalEventInvocations.count, 0)
+    }
+
     func testSDKStartedTwice_NoOOM() {
         sut.start()
         goToForeground()
