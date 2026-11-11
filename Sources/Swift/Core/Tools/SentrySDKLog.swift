@@ -1,5 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
+import os
 
 typealias SentryLogOutput = ((String) -> Void)
 
@@ -23,7 +24,14 @@ typealias SentryLogOutput = ((String) -> Void)
      * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
-    private static let defaultLogOutput: SentryLogOutput = { print($0) }
+    private static let defaultLogOutput: SentryLogOutput = { message in
+        // Keep diagnostics separate from machine-readable output written by the host.
+        do {
+            try FileHandle.standardError.write(contentsOf: Data((message + "\n").utf8))
+        } catch {
+            os_log("Failed to write Sentry diagnostic to stderr: %@", type: .error, String(describing: error))
+        }
+    }
     private static var logOutput: SentryLogOutput = defaultLogOutput
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
@@ -74,11 +82,11 @@ typealias SentryLogOutput = ((String) -> Void)
     /// to intercept SDK log messages and forward them to their respective consoles.
     /// - Note: Exposed through `SentryInternalApi.setLogOutput` for hybrid SDK consumption.
     /// - Parameter output: A closure to handle log output. If `nil` is passed (which can happen
-    ///   from Objective-C callers despite nullability annotations), the default `print` handler is used.
+    ///   from Objective-C callers despite nullability annotations), diagnostics are written to standard error.
     @objc
     public static func setOutput(_ output: ((String) -> Void)?) {
         // Objective-C callers can pass nil at runtime despite NS_ASSUME_NONNULL annotations.
-        // Fall back to default print handler to prevent crashes when logging.
+        // Fall back to the default handler to prevent crashes when logging.
         logOutput = output ?? defaultLogOutput
     }
 

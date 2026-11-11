@@ -337,24 +337,62 @@ class SentrySDKLogTests: XCTestCase {
     }
 
     /// Verifies that passing nil to setOutput (which can happen from Objective-C callers
-    /// despite NS_ASSUME_NONNULL) falls back to the default print handler instead of crashing.
-    func testSetOutput_whenNilFromObjC_shouldFallbackToDefaultPrint() {
+    /// despite NS_ASSUME_NONNULL) falls back to the default handler instead of crashing.
+    func testSetOutput_whenNilFromObjC_shouldFallbackToDefaultHandler() {
         // -- Arrange --
         // Simulate what happens when an Objective-C caller passes nil despite nullability annotations.
         // In Swift, we can't directly pass nil to a non-optional parameter, but the Swift method
         // now accepts an optional to handle this case defensively.
 
         // -- Act --
-        // Call setOutput with nil - this should not crash and should reset to default print handler
+        // Call setOutput with nil - this should not crash and should reset to default handler
         SentrySDKLog.setOutput(nil)
 
         // -- Assert --
-        // Logging should work without crashing (uses default print handler)
+        // Logging should work without crashing (uses default handler)
         // This would crash before the fix if logOutput was actually nil
         SentrySDKLog.log(message: "test message after nil output", andLevel: SentryLevel.error)
 
         // If we reach here without crashing, the test passes
     }
+
+    #if os(macOS)
+    func testDefaultOutput_whenDebugDisabled_writesFatalDiagnosticOnlyToStderr() throws {
+        let message = "startup failure"
+        SentrySDKLog.setOutput(nil)
+        SentrySDKLog._configure(false, diagnosticLevel: .none)
+
+        var standardError = ""
+        let standardOutput = try captureOutput(STDOUT_FILENO) {
+            standardError = try captureOutput(STDERR_FILENO) {
+                SentrySDKLog.log(message: message, andLevel: .fatal)
+            }
+        }
+
+        XCTAssertFalse(standardOutput.contains(message))
+        XCTAssertTrue(standardError.contains("[Sentry] [fatal] [\(timeIntervalSince1970)] \(message)\n"))
+    }
+
+    private func captureOutput(_ descriptor: Int32, during body: () throws -> Void) throws -> String {
+        let file = try XCTUnwrap(tmpfile())
+        defer { fclose(file) }
+
+        let original = dup(descriptor)
+        try XCTSkipIf(original == -1, "Could not duplicate the output descriptor")
+        defer { close(original) }
+
+        fflush(nil)
+        let result = dup2(fileno(file), descriptor)
+        try XCTSkipIf(result == -1, "Could not redirect the output descriptor")
+        defer { dup2(original, descriptor) }
+
+        try body()
+        fflush(nil)
+        rewind(file)
+        let handle = FileHandle(fileDescriptor: fileno(file), closeOnDealloc: false)
+        return String(decoding: handle.readDataToEndOfFile(), as: UTF8.self)
+    }
+    #endif
 
     /// This test only ensures we're not crashing when calling configure and log from multiple threads.
     func testAccessFromMultipleThreads_DoesNotCrash() {

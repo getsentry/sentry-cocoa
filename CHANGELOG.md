@@ -9,6 +9,7 @@
 ### Fixes
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
+- Write SDK diagnostics to stderr to keep command-line output clean (#9565)
 
 ## 9.33.0
 
