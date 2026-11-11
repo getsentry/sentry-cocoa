@@ -583,12 +583,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         NSMutableDictionary *context;
         if (event.context == nil) {
             context = [[NSMutableDictionary alloc] init];
-            event.context = context;
         } else {
             context = [event.context mutableCopy];
         }
 
+        // Event.context is a Swift dictionary, so mutating the local copy is not visible
+        // until it is assigned back onto the property.
         [context setValue:sentry_sanitize_dictionary(userInfo) forKey:@"user info"];
+        event.context = context;
     }
 }
 
