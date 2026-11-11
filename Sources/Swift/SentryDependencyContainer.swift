@@ -36,7 +36,17 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     // MARK: Private
 
     private static let instanceLock = NSRecursiveLock()
-    private static var instance = SentryDependencyContainer()
+    private static var instance: SentryDependencyContainer = {
+        let container = SentryDependencyContainer()
+#if os(iOS) || os(macOS)
+        container.profilingSDKBackend.activate()
+#endif
+        return container
+    }()
+
+#if os(iOS) || os(macOS)
+    private let profilingSDKBackend = SentryDefaultProfilerSDKBackend()
+#endif
     private let paramLock = NSRecursiveLock()
 
     private func getLazyVar<T>(_ keyPath: ReferenceWritableKeyPath<SentryDependencyContainer, T?>, builder: () -> T) -> T {
@@ -89,8 +99,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             instance._framesTracker?.stop()
 #endif
-            instance = SentryDependencyContainer()
-            instance._startOptions = currentOptions
+            let newInstance = SentryDependencyContainer()
+            newInstance._startOptions = currentOptions
+#if os(iOS) || os(macOS)
+            newInstance.profilingSDKBackend.activate()
+#endif
+            instance = newInstance
         }
     }
 
