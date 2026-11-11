@@ -35,11 +35,11 @@ NSString *const kSentryProfilerSerializationKeyFrameRates = @"screen_frame_rates
  * */
 NSArray<NSDictionary *> *
 _sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
-    NSArray<SentrySample *> *samples, uint64_t startSystemTime)
+    NSArray<SentryProfilingSample *> *samples, uint64_t startSystemTime)
 {
     NSMutableArray<NSDictionary *> *result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentryProfilingSample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         // This shouldn't happen as we would've filtered out any such samples, but we should still
         // guard against it before calling getDurationNs as a defensive measure
         if (!orderedChronologically(startSystemTime, sample.absoluteTimestamp)) {
@@ -67,11 +67,11 @@ _sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
  * serialized JSON mapping with their data.
  * */
 NSArray<NSDictionary *> *
-_sentry_serializedContinuousProfileSamples(NSArray<SentrySample *> *samples)
+_sentry_serializedContinuousProfileSamples(NSArray<SentryProfilingSample *> *samples)
 {
     NSMutableArray<NSDictionary *> *result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentryProfilingSample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         dict[@"timestamp"] = @(sample.absoluteNSDateInterval);
         dict[@"thread_id"] = sentry_stringForUInt64(sample.threadID);
@@ -109,7 +109,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
+    NSMutableArray<SentryProfilingSample *> *const samples = profileData[@"profile"][@"samples"];
     // We need at least two samples to be able to draw a stack frame for any given function: one
     // sample for the start of the frame and another for the end. Otherwise we would only have a
     // stack frame with 0 duration, which wouldn't make sense.
@@ -121,7 +121,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData
     }
 
     // slice the profile data to only include the samples/metrics within the transaction
-    NSArray<SentrySample *> *slicedSamples
+    NSArray<SentryProfilingSample *> *slicedSamples
         = sentry_slicedProfileSamples(samples, startSystemTime, endSystemTime);
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
@@ -222,7 +222,7 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
+    NSMutableArray<SentryProfilingSample *> *const samples = profileData[@"profile"][@"samples"];
     // !!!: assumption: in trace profiling, we would avoid sending a payload with less than 2
     // samples. now, we may have previously sent a chunk with many samples, and then this chunk may
     // be the last of the continuous profiling session and it only has 1 sample. assuming we'll want
