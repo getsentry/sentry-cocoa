@@ -1,4 +1,8 @@
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 
 final class MetricKitCPUStressor {
     private static let duration: TimeInterval = 180

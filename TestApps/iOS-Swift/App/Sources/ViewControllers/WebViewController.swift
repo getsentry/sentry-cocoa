@@ -1,4 +1,9 @@
+#if !SDK_V10
 @_spi(Private) import SentrySwift
+#else
+@_spi(Private) import Sentry
+#endif
+import _SentryPrivate
 import Foundation
 import SwiftUI
 import WebKit
@@ -25,6 +30,12 @@ class WebViewController: UIViewController {
         super.viewDidLoad()
         webView.loadHTMLString(Self.html(dsn: SentrySDK.startOption?.dsn), baseURL: URL(string: "https://\(Self.host)/"))
 
+        let existingButton = UIBarButtonItem(title: "Existing", primaryAction: UIAction { [weak self] _ in
+            self?.navigationController?.pushViewController(ExistingWebViewController(), animated: true)
+        })
+        existingButton.accessibilityIdentifier = "webview-existing"
+        navigationItem.rightBarButtonItems = [existingButton]
+
 #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             let swiftUIButton = UIBarButtonItem(title: "SwiftUI", primaryAction: UIAction { [weak self] _ in
@@ -33,9 +44,16 @@ class WebViewController: UIViewController {
                 self?.navigationController?.pushViewController(controller, animated: true)
             })
             swiftUIButton.accessibilityIdentifier = "webview-swiftui"
-            navigationItem.rightBarButtonItem = swiftUIButton
+            navigationItem.rightBarButtonItems?.append(swiftUIButton)
         }
 #endif
+    }
+
+    /// The trace the SDK propagates right now, read from the scope so UI tests can compare it with
+    /// the injected tags.
+    private static var nativeTraceId: String {
+        let scope = SentrySDKInternal.currentHub().scope
+        return (scope.span?.traceId ?? scope.propagationContextTraceId).sentryIdString
     }
 
     /// The page runs `@sentry/browser`, which continues the injected trace on pageload. It also
@@ -75,6 +93,7 @@ class WebViewController: UIViewController {
         </script>
         </head>
         <body style="font-family: -apple-system; padding: 16px; word-break: break-all;">
+        <p>native-trace: \(nativeTraceId)</p>
         <h3>sentry-trace</h3><p id="sentry-trace"></p>
         <h3>baggage</h3><p id="baggage"></p>
         <script>
