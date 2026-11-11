@@ -9,7 +9,7 @@ final class SentryWebViewTraceRefresher {
     private let hubProvider: () -> SentryHubInternal?
 
     /// Maps each tracked controller to its allowed hosts. Keys are weak, so tracking never keeps a
-    /// WebView's controller alive. Only accessed on the main actor.
+    /// WebView's controller alive. Only accessed on the main thread.
     private let controllers = NSMapTable<WKUserContentController, NSArray>(
         keyOptions: .weakMemory,
         valueOptions: .strongMemory
@@ -25,7 +25,6 @@ final class SentryWebViewTraceRefresher {
 
     /// Installs a fresh script right before the WebView loads, tracking its controller with the
     /// app-wide hosts unless ``SentryWebViewTracing`` already tracks it with its own.
-    @MainActor
     func willLoad(_ webView: WKWebView) {
         let controller = webView.configuration.userContentController
         let hosts: [String]
@@ -40,13 +39,11 @@ final class SentryWebViewTraceRefresher {
 
     /// Tracks a controller that ``SentryWebViewTracing`` configured, so its own hosts are kept on
     /// later loads and refreshes.
-    @MainActor
     func track(_ controller: WKUserContentController, allowedHosts: [String]) {
         controllers.setObject(allowedHosts as NSArray, forKey: controller)
     }
 
     /// Re-installs the script with the current trace on every tracked controller.
-    @MainActor
     func refreshAll() {
         let hub = hubProvider()
         for controller in trackedControllers() {
@@ -58,12 +55,10 @@ final class SentryWebViewTraceRefresher {
     }
 
     /// The tracked controllers that are still alive.
-    @MainActor
     func trackedControllers() -> [WKUserContentController] {
         controllers.keyEnumerator().allObjects.compactMap { $0 as? WKUserContentController }
     }
 
-    @MainActor
     func trackedHosts(for controller: WKUserContentController) -> [String]? {
         controllers.object(forKey: controller) as? [String]
     }

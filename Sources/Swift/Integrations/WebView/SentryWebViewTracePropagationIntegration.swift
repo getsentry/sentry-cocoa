@@ -48,7 +48,7 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
         SentryWebViewTraceRefresherProxy.shared.setTarget(refresher)
         Self.swizzleLoadMethods()
 
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher)
+        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, dispatchQueue: dependencies.dispatchQueueWrapper)
         SentrySDKInternal.currentHub().configureScope { scope in
             scope.add(observer)
         }
@@ -132,9 +132,7 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
             SentrySDKLog.warning("Not adding WebView trace propagation to a WKWebView load that runs off the main thread.")
             return
         }
-        MainActor.assumeIsolated {
-            SentryWebViewTraceRefresherProxy.shared.target?.willLoad(webView)
-        }
+        SentryWebViewTraceRefresherProxy.shared.target?.willLoad(webView)
     }
 }
 #endif

@@ -161,7 +161,6 @@ enum SentryWebViewTracePropagation {
 
     /// Records feature adoption once per hub. Recorded on use rather than on success, like the
     /// other SDKs, so apps that wired the feature up count even when a call can't install.
-    @MainActor
     static func recordUsage(in hub: SentryHubInternal?) {
         guard let hub = hub, !hub.hasIntegration(integrationName) else {
             return
@@ -171,7 +170,6 @@ enum SentryWebViewTracePropagation {
 
     /// Removes any previous Sentry script so a stale trace is never injected, then adds a fresh one
     /// before the app's own scripts.
-    @MainActor
     @discardableResult
     static func install(allowedHosts: [String], on controller: WKUserContentController, hub: SentryHubInternal?) -> Bool {
         let source = makeScriptSource(allowedHosts: allowedHosts, hub: hub)

@@ -4,18 +4,15 @@ internal import _SentryPrivate
 /// Refreshes the tracked WebViews when the scope's span or propagation context changes.
 ///
 /// The scope calls observers synchronously from any thread while holding its locks, so the refresh
-/// is dispatched to the main actor, and changes that arrive before it runs are coalesced into one.
+/// is dispatched to the main queue, and changes that arrive before it runs are coalesced into one.
 final class SentryWebViewTraceScopeObserver: NSObject, SentryScopeObserver {
     private weak var refresher: SentryWebViewTraceRefresher?
-    private let scheduleOnMain: (@escaping () -> Void) -> Void
+    private let dispatchQueue: SentryDispatchQueueWrapper
     private let isRefreshScheduled = SentryMutex(false)
 
-    init(
-        refresher: SentryWebViewTraceRefresher,
-        scheduleOnMain: @escaping (@escaping () -> Void) -> Void = { DispatchQueue.main.async(execute: $0) }
-    ) {
+    init(refresher: SentryWebViewTraceRefresher, dispatchQueue: SentryDispatchQueueWrapper) {
         self.refresher = refresher
-        self.scheduleOnMain = scheduleOnMain
+        self.dispatchQueue = dispatchQueue
     }
 
     func setTraceContext(_ traceContext: [String: Any]?) {
@@ -50,14 +47,14 @@ final class SentryWebViewTraceScopeObserver: NSObject, SentryScopeObserver {
             return
         }
 
-        scheduleOnMain { [weak self] in
+        // Always on a later turn, also on the main thread, so the refresh never runs inside the
+        // scope's locks.
+        dispatchQueue.dispatchAsyncOnMainQueue { [weak self] in
             guard let self = self else {
                 return
             }
             self.isRefreshScheduled.withLock { $0 = false }
-            MainActor.assumeIsolated {
-                self.refresher?.refreshAll()
-            }
+            self.refresher?.refreshAll()
         }
     }
 }

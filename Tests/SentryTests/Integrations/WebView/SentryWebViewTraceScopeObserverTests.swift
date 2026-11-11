@@ -35,16 +35,17 @@ final class SentryWebViewTraceScopeObserverTests: XCTestCase {
         let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
         let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
         refresher.willLoad(webView)
-        var scheduled: [() -> Void] = []
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, scheduleOnMain: { scheduled.append($0) })
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncOnMainQueueExecutesBlock = false
+        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, dispatchQueue: dispatchQueue)
         scope.add(observer)
         let newTraceId = SentryId()
 
         // -- Act --
         scope.propagationContext = SentryPropagationContext(traceId: SentryId(), spanId: SpanId())
         scope.propagationContext = SentryPropagationContext(traceId: newTraceId, spanId: SpanId())
-        XCTAssertEqual(scheduled.count, 1)
-        scheduled.forEach { $0() }
+        XCTAssertEqual(dispatchQueue.dispatchAsyncOnMainQueueInvocations.count, 1)
+        dispatchQueue.dispatchAsyncOnMainQueueInvocations.invocations.forEach { $0() }
 
         // -- Assert --
         let source = try XCTUnwrap(webView.configuration.userContentController.sentryScripts.first?.source)
@@ -54,16 +55,17 @@ final class SentryWebViewTraceScopeObserverTests: XCTestCase {
     func testScopeObserver_whenTraceChangesAfterRefresh_shouldScheduleAgain() {
         // -- Arrange --
         let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { nil })
-        var scheduled: [() -> Void] = []
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, scheduleOnMain: { scheduled.append($0) })
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncOnMainQueueExecutesBlock = false
+        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, dispatchQueue: dispatchQueue)
 
         // -- Act --
         observer.setTraceContext(nil)
-        scheduled.removeFirst()()
+        dispatchQueue.dispatchAsyncOnMainQueueInvocations.first?()
         observer.setTraceContext(nil)
 
         // -- Assert --
-        XCTAssertEqual(scheduled.count, 1)
+        XCTAssertEqual(dispatchQueue.dispatchAsyncOnMainQueueInvocations.count, 2)
     }
 }
 #endif
