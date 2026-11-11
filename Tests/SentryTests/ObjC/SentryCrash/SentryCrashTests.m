@@ -16,6 +16,8 @@
 
 - (void)doctorReport:(NSMutableDictionary *)report;
 
+- (NSDictionary *)reportWithIntID:(int64_t)reportID;
+
 @end
 
 @implementation SentryCrashTests
@@ -157,6 +159,47 @@
     } mutableCopy];
 
     XCTAssertNoThrow([sentryCrash doctorReport:report]);
+}
+
+- (void)testReportWithIntID_whenTopLevelArray_shouldReturnNil
+{
+    // -- Arrange --
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+    int64_t reportID = [self addReportWithJSON:@"[1,2,3]"];
+
+    // -- Act --
+    NSDictionary *report = nil;
+    XCTAssertNoThrow(report = [sentryCrash reportWithIntID:reportID]);
+
+    // -- Assert --
+    XCTAssertNil(report);
+}
+
+- (void)testReportWithIntID_whenTopLevelObject_shouldReturnReport
+{
+    // -- Arrange --
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+    int64_t reportID = [self addReportWithJSON:@"{\"key\":\"value\"}"];
+
+    // -- Act --
+    NSDictionary *report = [sentryCrash reportWithIntID:reportID];
+
+    // -- Assert --
+    XCTAssertEqualObjects(report[@"key"], @"value");
+}
+
+- (int64_t)addReportWithJSON:(NSString *)json
+{
+    NSString *reportStorePath = [self.tempPath stringByAppendingPathComponent:@"Reports"];
+    sentrycrashcrs_initialize("AppName", reportStorePath.UTF8String);
+
+    // Short reports run out of space during JSON reformatting before reaching the decoder.
+    NSString *padded = [json stringByPaddingToLength:json.length + 400
+                                          withString:@" "
+                                     startingAtIndex:0];
+    return sentrycrashcrs_addUserReport(padded.UTF8String, (int)padded.length);
 }
 
 - (void)initReport:(uint64_t)reportId withScreenshots:(int)amount
