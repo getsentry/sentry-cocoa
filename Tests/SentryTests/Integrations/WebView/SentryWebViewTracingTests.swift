@@ -379,10 +379,26 @@ final class SentryWebViewTracingTests: XCTestCase {
 
         // -- Act --
         let baseURL = try XCTUnwrap(URL(string: "https://app.example.com/"))
-        for try await event in page.load(html: seenTraceHTML, baseURL: baseURL) where event == .finished {
-            break
+        let seenTrace: String?
+        do {
+            for try await event in page.load(html: seenTraceHTML, baseURL: baseURL) where event == .finished {
+                break
+            }
+            seenTrace = try await page.callJavaScript("return window.seenTrace") as? String
+        } catch {
+            #if os(visionOS) && targetEnvironment(simulator)
+            // The visionOS 27 simulator's backboardd deadlocks and aborts repeatedly (see the
+            // visionOS 27 comment in .github/workflows/test.yml and #9043). When that happens
+            // while the page loads or runs the script, the WebContent process hangs for minutes,
+            // crashes with backboardd, and the call fails with `InvalidTransition { phase: idle,
+            // targetPhase: failed(deinit) }`. The SDK can't influence that, so skip instead of
+            // failing.
+            if #available(visionOS 27.0, *) {
+                throw XCTSkip("WebPage failed on the visionOS 27 simulator, likely due to the backboardd deadlock: \(error)")
+            }
+            #endif
+            throw error
         }
-        let seenTrace = try await page.callJavaScript("return window.seenTrace") as? String
 
         // -- Assert --
         XCTAssertEqual(seenTrace?.hasPrefix(expectedTraceId), true)
