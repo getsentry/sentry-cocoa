@@ -57,7 +57,7 @@ class SentryInternalApiTests: XCTestCase {
     #if !os(tvOS) && !os(watchOS) && !os(visionOS)
     func testGetCurrentProfiler_whenProfilerLockHeld_shouldWaitForLock() throws {
         // -- Arrange --
-        XCTAssertTrue(SentryTraceProfiler.start(withTracer: SentryId()))
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: SentryProfilingId()))
         let profiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
         let blockingMetricProfiler = BlockingMetricProfiler(mode: .trace)
         profiler.metricProfiler = blockingMetricProfiler

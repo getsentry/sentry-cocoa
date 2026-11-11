@@ -466,7 +466,7 @@
     __block NSUInteger serializations = 0;
 
     // -- Act --
-    [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
+    [backend captureProfileChunkWithID:[[SentryProfilingId alloc] init]
                                   data:state
                                metrics:^{
                                    serializations++;
@@ -509,7 +509,8 @@
         @"cpu_usage" :
             @ { @"unit" : @"percent", @"values" : @[ @{ @"timestamp" : @123, @"value" : @25 } ] }
     };
-    NSString *profileID = @"0123456789abcdef0123456789abcdef";
+    SentryProfilingId *profileID = [[SentryProfilingId alloc]
+        initWithUUID:[[NSUUID alloc] initWithUUIDString:@"01234567-89AB-CDEF-0123-456789ABCDEF"]];
 
     // -- Act --
     [adapter captureProfileChunkWithID:profileID
@@ -551,7 +552,7 @@
     NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(payload[@"version"], @"2");
-    XCTAssertEqualObjects(payload[@"profiler_id"], profileID);
+    XCTAssertEqualObjects(payload[@"profiler_id"], profileID.stringValue);
     XCTAssertEqualObjects(payload[@"chunk_id"], envelope.header.eventId.sentryIdString);
     XCTAssertEqualObjects(payload[@"environment"], @"delivery-scope");
     XCTAssertEqualObjects(payload[@"measurements"], metrics);
@@ -569,7 +570,7 @@
     NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
 
     // -- Act --
-    [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
+    [backend captureProfileChunkWithID:[[SentryProfilingId alloc] init]
                                   data:state
                                metrics:^{ return @ { @"unsupported" : [NSDate date] }; }
 #    if SENTRY_HAS_UIKIT
@@ -594,7 +595,7 @@
     NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
 
     // -- Act --
-    [adapter captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
+    [adapter captureProfileChunkWithID:[[SentryProfilingId alloc] init]
                                   data:state
                                metrics:^{ return @ { }; }
 #    if SENTRY_HAS_UIKIT
