@@ -33,6 +33,146 @@ class SentrySDKLogTests: XCTestCase {
         SentrySDKLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
     
+    /// Reproduces a burst of diagnostics without controller tracing or transport work.
+    func testLogPerformance_whenUsingDefaultOutput_shouldMeasureDiagnosticBurst() {
+        // -- Arrange --
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
+        SentrySDKLog.setOutput(nil)
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                SentrySDKLog.debug("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+    }
+
+    func testLogPerformance_whenWritingToStderr_shouldMeasureDiagnosticBurst() {
+        // -- Arrange --
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
+        SentrySDKLog.setOutput { message in
+            do {
+                try FileHandle.standardError.write(contentsOf: Data((message + "\n").utf8))
+            } catch {
+                XCTFail("Writing diagnostics failed: \(error)")
+            }
+        }
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                SentrySDKLog.debug("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+    }
+
+    func testLogPerformance_whenWritingDirectlyToStdout_shouldMeasureDiagnosticBurst() {
+        // -- Arrange --
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
+        SentrySDKLog.setOutput { message in
+            do {
+                try FileHandle.standardOutput.write(contentsOf: Data((message + "\n").utf8))
+            } catch {
+                XCTFail("Writing diagnostics failed: \(error)")
+            }
+        }
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                SentrySDKLog.debug("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+    }
+
+    /// Separates source-location and message formatting from console I/O.
+    func testLogPerformance_whenUsingCustomOutput_shouldMeasureSwiftFormatting() {
+        // -- Arrange --
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
+        var bytes = 0
+        SentrySDKLog.setOutput { bytes += $0.utf8.count }
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                SentrySDKLog.debug("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+
+        // -- Assert --
+        XCTAssertGreaterThan(bytes, 0)
+    }
+
+    func testLogPerformance_whenUsingCustomOutput_shouldMeasureObjCFormatting() {
+        // -- Arrange --
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
+        var bytes = 0
+        SentrySDKLog.setOutput { bytes += $0.utf8.count }
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                sentryLogErrorWithMacro("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+
+        // -- Assert --
+        XCTAssertGreaterThan(bytes, 0)
+    }
+
+    func testLogPerformance_whenDebugDisabled_shouldMeasureSwiftBurst() {
+        // -- Arrange --
+        SentrySDKLog._configure(false, diagnosticLevel: .debug)
+        var bytes = 0
+        SentrySDKLog.setOutput { bytes += $0.utf8.count }
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                SentrySDKLog.debug("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(bytes, 0)
+    }
+
+    func testLogPerformance_whenDebugDisabled_shouldMeasureObjCBurst() {
+        // -- Arrange --
+        SentrySDKLog._configure(false, diagnosticLevel: .debug)
+        var bytes = 0
+        SentrySDKLog.setOutput { bytes += $0.utf8.count }
+
+        // -- Act --
+        measure {
+            for _ in 0..<5_000 {
+                sentryLogErrorWithMacro("Getting span id for controller: <ChildViewController: 0x1234>")
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(bytes, 0)
+    }
+
+    func testConvenienceLogs_whenSourcePathContainsDotsOrUnicode_shouldPreserveFileName() {
+        // -- Arrange --
+        let logOutput = TestLogOutput(thread: Thread.current)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
+
+        // -- Act --
+        SentrySDKLog.debug("first", file: "/Sources/Version.2/Controller.test.swift", line: 42)
+        SentrySDKLog.debug("second", file: "/Sources/Ünicode/日本語.swift", line: 43)
+        SentrySDKLog.debug("third", file: "Controller", line: 44)
+
+        // -- Assert --
+        XCTAssertEqual(logOutput.loggedMessages, [
+            "[Sentry] [debug] [\(timeIntervalSince1970)] [Controller.test:42] first",
+            "[Sentry] [debug] [\(timeIntervalSince1970)] [日本語:43] second",
+            "[Sentry] [debug] [\(timeIntervalSince1970)] [Controller:44] third"
+        ])
+    }
+
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)
