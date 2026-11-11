@@ -160,7 +160,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
 
         // -- Assert --
-        XCTAssertEqual(sentryScripts(in: webView.configuration.userContentController).count, 1)
+        XCTAssertEqual(webView.configuration.userContentController.sentryScripts.count, 1)
     }
 
 #if compiler(>=6.2)
@@ -178,7 +178,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         _ = page.load(html: "", baseURL: try XCTUnwrap(URL(string: "https://example.com/")))
 
         // -- Assert --
-        XCTAssertEqual(sentryScripts(in: configuration.userContentController).count, 1)
+        XCTAssertEqual(configuration.userContentController.sentryScripts.count, 1)
     }
 
     func testLoad_whenSwiftUIWebViewWithURL_shouldTrackItsController() throws {
@@ -206,98 +206,9 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
 
         // -- Assert --
         let controller = try XCTUnwrap(refresher.trackedControllers().first, "The WebView didn't load through a swizzled method.")
-        XCTAssertEqual(sentryScripts(in: controller).count, 1)
+        XCTAssertEqual(controller.sentryScripts.count, 1)
     }
 #endif
-
-    // MARK: - Refresher
-
-    func testWillLoad_whenControllerTrackedByManualCall_shouldKeepItsHosts() throws {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
-        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
-        let controller = webView.configuration.userContentController
-        refresher.track(controller, allowedHosts: ["other.com"])
-
-        // -- Act --
-        refresher.willLoad(webView)
-
-        // -- Assert --
-        XCTAssertEqual(refresher.trackedHosts(for: controller), ["other.com"])
-        let source = try XCTUnwrap(sentryScripts(in: controller).first?.source)
-        XCTAssertTrue(source.contains("[\"other.com\"]"))
-    }
-
-    func testRefreshAll_whenTraceChanged_shouldInstallNewTrace() throws {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
-        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
-        refresher.willLoad(webView)
-        let newTraceId = SentryId()
-        scope.propagationContext = SentryPropagationContext(traceId: newTraceId, spanId: SpanId())
-
-        // -- Act --
-        refresher.refreshAll()
-
-        // -- Assert --
-        let scripts = sentryScripts(in: webView.configuration.userContentController)
-        XCTAssertEqual(scripts.count, 1)
-        XCTAssertEqual(scripts.first?.source.contains(newTraceId.sentryIdString), true)
-    }
-
-    func testTrack_shouldNotRetainController() {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { nil })
-        weak var weakController: WKUserContentController?
-
-        // -- Act --
-        autoreleasepool {
-            let controller = WKUserContentController()
-            weakController = controller
-            refresher.track(controller, allowedHosts: ["example.com"])
-        }
-
-        // -- Assert --
-        XCTAssertNil(weakController)
-    }
-
-    // MARK: - Scope observer
-
-    func testScopeObserver_whenTraceChangesTwiceBeforeRefresh_shouldRefreshOnce() throws {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
-        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
-        refresher.willLoad(webView)
-        var scheduled: [() -> Void] = []
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, scheduleOnMain: { scheduled.append($0) })
-        scope.add(observer)
-        let newTraceId = SentryId()
-
-        // -- Act --
-        scope.propagationContext = SentryPropagationContext(traceId: SentryId(), spanId: SpanId())
-        scope.propagationContext = SentryPropagationContext(traceId: newTraceId, spanId: SpanId())
-        XCTAssertEqual(scheduled.count, 1)
-        scheduled.forEach { $0() }
-
-        // -- Assert --
-        let source = try XCTUnwrap(sentryScripts(in: webView.configuration.userContentController).first?.source)
-        XCTAssertTrue(source.contains(newTraceId.sentryIdString))
-    }
-
-    func testScopeObserver_whenTraceChangesAfterRefresh_shouldScheduleAgain() {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { nil })
-        var scheduled: [() -> Void] = []
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, scheduleOnMain: { scheduled.append($0) })
-
-        // -- Act --
-        observer.setTraceContext(nil)
-        scheduled.removeFirst()()
-        observer.setTraceContext(nil)
-
-        // -- Assert --
-        XCTAssertEqual(scheduled.count, 1)
-    }
 
     // MARK: - Manual API
 
@@ -413,7 +324,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         try load(webView)
 
         // -- Assert --
-        XCTAssertEqual(sentryScripts(in: controller).count, 1, file: file, line: line)
+        XCTAssertEqual(controller.sentryScripts.count, 1, file: file, line: line)
         XCTAssertEqual(controller.userScripts.last?.source, "window.app = 1;", file: file, line: line)
         let refresher = try XCTUnwrap(SentryWebViewTraceRefresherProxy.shared.target, file: file, line: line)
         XCTAssertEqual(refresher.trackedHosts(for: controller), ["example.com"], file: file, line: line)
@@ -447,10 +358,6 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
 #endif
     }
 #endif
-
-    private func sentryScripts(in controller: WKUserContentController) -> [WKUserScript] {
-        controller.userScripts.filter { $0.source.hasPrefix(SentryWebViewTracePropagation.scriptMarker) }
-    }
 }
 
 private final class WebViewSubclass: WKWebView {}
