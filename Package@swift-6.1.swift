@@ -18,6 +18,10 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let envSelectsV10 = envFlag("SDK_V10")
+// Environment V10 removes the binary Sentry target, freeing its module name for source builds.
+// V9 keeps SentrySwift until the V9 branch split. SDK_V10=1 selects both the
+// V10 implementation and the Sentry module; traits never select a different SDK.
+let sentrySwiftTargetName = envSelectsV10 ? "Sentry" : "SentrySwift"
 // Xcode 16.4 can expose inactive trait-conditioned configuration targets. Keep V9's
 // graph deterministic here; older-toolchain V10 development uses SDK_V10=1 instead.
 let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []
@@ -29,8 +33,8 @@ let kscrashDependencies: [Target.Dependency] = envSelectsV10
 let kscrashSwiftDependencies: [Target.Dependency] = kscrashDependencies + (envSelectsV10
     ? [.product(name: "RecordingCore", package: "KSCrash")]
     : [])
-// SwiftPM's defaults do not reach Swift's Clang importer.
 let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSettings
+// SwiftPM's defaults do not reach Swift's Clang importer.
 let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings
 let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CxxSettings
 
@@ -134,7 +138,7 @@ if envSelectsV10 {
 }
 
 let sentrySwiftTarget: Target = .target(
-    name: "SentrySwift",
+    name: sentrySwiftTargetName,
     dependencies: [
         "_SentryPrivate",
         "SentryHeaders"
@@ -215,19 +219,10 @@ targets += [
         cSettings: cSettings
     ),
 
-    sentrySwiftTarget,
-    .target(
-        name: "SentryCrashV9Swift",
-        dependencies: ["SentrySwift", "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
-        path: "Sources/SentryCrashV9Swift",
-        cSettings: v10CSettings,
-        swiftSettings: [
-            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ] + v10SwiftSettings
-    )
+    sentrySwiftTarget
 ]
 
-var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"] + kscrashDependencies
+var sentryObjCInternalDependencies: [Target.Dependency] = [.target(name: sentrySwiftTargetName)] + kscrashDependencies
 if !envSelectsV10 {
     sentryObjCInternalDependencies += [
         .target(name: "SentryCrashV9"),
@@ -235,25 +230,41 @@ if !envSelectsV10 {
     ]
 }
 
+// Package-wide builds schedule every regular target, not only product dependencies.
+// Keep both recorder targets out of the environment-selected V10 graph entirely.
+if !envSelectsV10 {
+    targets += [
+        .target(
+            name: "SentryCrashV9Swift",
+            dependencies: [.target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
+            path: "Sources/SentryCrashV9Swift",
+            cSettings: v10CSettings,
+            swiftSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+            ] + v10SwiftSettings
+        ),
+        .target(
+            name: "SentryCrashV9",
+            dependencies: ["SentryCrashV9Swift", .target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
+            path: "Sources",
+            // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
+            exclude: ["Resources"],
+            sources: [
+                "SentryCrash",
+                "Sentry/SentryCrashDefaultMachineContextWrapper.m",
+                "Sentry/SentryCrashReportSink.m",
+                "Sentry/SentryCrashScopeObserver.m"
+            ],
+            publicHeadersPath: "SentryCrashV9Module/include",
+            cSettings: [
+                .headerSearchPath("Sentry"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cSettings
+        )
+    ]
+}
+
 targets += [
-    .target(
-        name: "SentryCrashV9",
-        dependencies: ["SentryCrashV9Swift", "SentrySwift", "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
-        path: "Sources",
-        // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
-        exclude: ["Resources"],
-        sources: [
-            "SentryCrash",
-            "Sentry/SentryCrashDefaultMachineContextWrapper.m",
-            "Sentry/SentryCrashReportSink.m",
-            "Sentry/SentryCrashScopeObserver.m"
-        ],
-        publicHeadersPath: "SentryCrashV9Module/include",
-        cSettings: [
-            .headerSearchPath("Sentry"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CSettings
-    ),
     // The recorder stays separate from reporter-neutral SDK code; environment V10 excludes it.
     .target(
         name: "SentryObjCInternal",
@@ -292,7 +303,7 @@ targets += [
 targets += [
     .target(
         name: "SentryTestUtilsObjC",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
+        dependencies: ["SentryObjCInternal", .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
         // One fixture bundle shared by Swift and Clang tests. Copy preserves nested paths.
         resources: [
@@ -332,7 +343,7 @@ targets += [
         name: "SentryTestUtils",
         dependencies: [
             "SentryObjCInternal",
-            "SentrySwift",
+            .target(name: sentrySwiftTargetName),
             "_SentryPrivate",
             "SentryTestUtilsObjC",
             "SentryTestUtilsObjCpp"
@@ -349,7 +360,7 @@ targets += [
 targets += [
     .testTarget(
         name: "SentryTestUtilsTests",
-        dependencies: ["SentrySwift", "SentryTestUtils"],
+        dependencies: [.target(name: sentrySwiftTargetName), "SentryTestUtils"],
         path: "SentryTestUtilsTests/Sources",
         cSettings: cSettings,
         swiftSettings: [
@@ -358,7 +369,7 @@ targets += [
     ),
     .testTarget(
         name: "SentryObjCCompatTests",
-        dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
+        dependencies: ["SentryObjCCompat", .target(name: sentrySwiftTargetName), "SentryTestUtils"],
         path: "Tests/SentryObjCCompatTests",
         cSettings: cSettings,
         swiftSettings: [
@@ -373,7 +384,7 @@ targets += [
     .testTarget(
         name: "SentryTests",
         dependencies: [
-            "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
+            .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
             .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
         ] + (envSelectsV10 ? [] : [.target(name: "SentryCrashV9Swift")]),
         path: "Tests/SentryTests",
@@ -396,7 +407,7 @@ targets += [
 targets += [
     .testTarget(
         name: "SentryTestsObjC",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
+        dependencies: ["SentryObjCInternal", .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
         path: "Tests/SentryTests/ObjC",
         cSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
@@ -441,7 +452,7 @@ if !envSelectsV10 {
     targets += [
         .testTarget(
             name: "SentryProfilerTests",
-            dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
+            dependencies: [.target(name: sentrySwiftTargetName), "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
             // Keep Swift's Clang importer consistent with the NoUI SDK declarations.
