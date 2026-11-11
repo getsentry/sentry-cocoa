@@ -40,8 +40,9 @@ final class SentryMXMetricRecorder {
         let count: Int
     }
 
-    /// The most values a histogram is sent as, so a busy reporting interval doesn't send thousands
-    /// of values for one metric.
+    /// The number of values a histogram with more samples is scaled down to, so a busy reporting
+    /// interval doesn't send thousands of values for one metric. Every non-empty bucket sends at
+    /// least one value, so the total can exceed this by up to one value per bucket.
     static let maxHistogramValues = 100
 
     let enabledMetricReports: Set<MetricReport>
@@ -171,7 +172,9 @@ final class SentryMXMetricRecorder {
         }
 
         // Above the limit, every bucket keeps its share of the values, so the distribution keeps
-        // its shape. Rounding keeps rare long values, so the total can exceed the limit slightly.
+        // its shape. A bucket whose share rounds to zero still sends one value, otherwise rare
+        // long values, or a whole histogram of small buckets, would be dropped. The total can
+        // therefore exceed the limit by up to one value per bucket.
         let scale = min(1, Double(Self.maxHistogramValues) / Double(sampleCount))
         if scale < 1 {
             SentrySDKLog.debug("MetricKit histogram \(report.name) has \(sampleCount) samples, sending about \(Self.maxHistogramValues) values")
@@ -179,7 +182,7 @@ final class SentryMXMetricRecorder {
 
         let duration = context.end.timeIntervalSince(context.begin)
         for bucket in buckets {
-            let valueCount = Int((Double(bucket.count) * scale).rounded())
+            let valueCount = max(1, Int((Double(bucket.count) * scale).rounded()))
             let value = (bucket.lowerBound + bucket.upperBound) / 2
             for index in 0..<valueCount {
                 metricsApi.distribution(
