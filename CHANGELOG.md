@@ -9,7 +9,7 @@
 ### Fixes
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
-- Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9589)
+- Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
 
 ## 9.33.0
 
