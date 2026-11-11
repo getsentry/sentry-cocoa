@@ -349,6 +349,27 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         XCTAssertEqual(try page.seenTraceId(), newTraceId)
     }
 
+    /// The refresh runs on the next main-queue turn, but its script update still reaches the web
+    /// content process before the reloaded document is created, so a reload in the same turn as the
+    /// trace change gets the new trace. Repeated because the outcome depends on WebKit's ordering.
+    func testNavigation_whenTraceChangesInSameTurnAsReload_shouldInjectNewTrace() throws {
+        // -- Arrange --
+        try install()
+        let page = PageLoader()
+        try page.load { try $0.load(URLRequest(url: XCTUnwrap(URL(string: "sentry-test://app.example.com/a")))) }
+
+        for _ in 0..<10 {
+            let traceId = SentryId()
+
+            // -- Act --
+            scope.propagationContext = SentryPropagationContext(traceId: traceId, spanId: SpanId())
+            try page.load { $0.reload() }
+
+            // -- Assert --
+            XCTAssertEqual(try page.seenTraceId(), traceId.sentryIdString)
+        }
+    }
+
     /// WebKit restores the previous page from its back/forward cache without running any script, so
     /// neither our script nor the Browser SDK's pageload runs again, and the page keeps its trace.
     func testNavigation_whenGoingBackToCachedPage_shouldKeepItsOriginalTrace() throws {
