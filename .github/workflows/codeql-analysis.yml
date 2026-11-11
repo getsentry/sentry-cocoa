@@ -7,6 +7,15 @@ on:
       - v8.x
 
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
     branches:
       - main
       - v8.x
@@ -26,7 +35,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
@@ -63,7 +78,7 @@ jobs:
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@256d634097be96e792d6764f9edaefc4320557b1 # v4
+        uses: github/codeql-action/init@0911ee96d2d6c8def97122c36c5cadd93829a4b4 # v4
         with:
           languages: ${{ matrix.language }}
       - name: Wait for CoreSimulator warmup
@@ -94,7 +109,7 @@ jobs:
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@256d634097be96e792d6764f9edaefc4320557b1 # v4
+        uses: github/codeql-action/analyze@0911ee96d2d6c8def97122c36c5cadd93829a4b4 # v4
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -104,7 +119,7 @@ jobs:
   # to make CodeQL analysis a required check with only running the analysis when required.
   # So, we don't have to run CodeQL analysis, for example, for unrelated changes.
   codeql_analysis-required-check:
-    needs: [files-changed, analyze]
+    needs: [run-full-ci-gate, files-changed, analyze]
     name: Analyze
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
