@@ -352,7 +352,7 @@ public class SentryReplayOptions: NSObject {
         var denyMatchers: [SentryUrlMatcher] = []
     }
 
-    private let networkDetailLock: SentryMutex<NetworkDetailState>
+    private let networkDetailState: SentryMutex<NetworkDetailState>
 
     /**
      * A list of URL patterns to exclude from network detail capture during session replay.
@@ -375,11 +375,11 @@ public class SentryReplayOptions: NSObject {
      */
     public var networkDetailAllowUrls: [SentryUrlMatchable] {
         get {
-            networkDetailLock.withLock { $0.allowUrls }
+            networkDetailState.withLock { $0.allowUrls }
         }
         set {
             let matchers = newValue.map { $0.asSentryUrlMatcher }
-            networkDetailLock.withLock { state in
+            networkDetailState.withLock { state in
                 state.allowUrls = newValue
                 state.allowMatchers = matchers
             }
@@ -388,11 +388,11 @@ public class SentryReplayOptions: NSObject {
 
     public var networkDetailDenyUrls: [SentryUrlMatchable] {
         get {
-            networkDetailLock.withLock { $0.denyUrls }
+            networkDetailState.withLock { $0.denyUrls }
         }
         set {
             let matchers = newValue.map { $0.asSentryUrlMatcher }
-            networkDetailLock.withLock { state in
+            networkDetailState.withLock { state in
                 state.denyUrls = newValue
                 state.denyMatchers = matchers
             }
@@ -467,7 +467,7 @@ public class SentryReplayOptions: NSObject {
     private var _networkResponseHeaders: [String]
 
     @nonobjc func networkDetailUrlPatternsSnapshot() -> (allowUrls: [SentryUrlMatcher], denyUrls: [SentryUrlMatcher]) {
-        return networkDetailLock.withLock { ($0.allowMatchers, $0.denyMatchers) }
+        return networkDetailState.withLock { ($0.allowMatchers, $0.denyMatchers) }
     }
 
     /**
@@ -535,7 +535,7 @@ public class SentryReplayOptions: NSObject {
      * - Returns: `true` if `networkDetailAllowUrls` is non-empty, `false` otherwise.
      */
     var networkDetailHasUrls: Bool {
-        return networkDetailLock.withLock { !$0.allowMatchers.isEmpty }
+        return networkDetailState.withLock { !$0.allowMatchers.isEmpty }
     }
 
     /**
@@ -565,27 +565,11 @@ public class SentryReplayOptions: NSObject {
             return false
         }
 
-        if matches(url: urlString, against: denyUrls) {
+        if denyUrls.contains(where: { $0.matches(url: urlString) }) {
             return false
         }
 
-        return matches(url: urlString, against: allowUrls)
-    }
-
-    /**
-     * Helper method to check if a URL string matches any pattern in a list.
-     *
-     * Supports both String and NSRegularExpression patterns:
-     * - String: Uses substring match
-     * - NSRegularExpression: Uses full regex matching
-     *
-     * - Parameters:
-     *   - url: The URL string to test
-     *   - matchers: Array of SentryUrlMatcher patterns
-     * - Returns: `true` if the URL matches any pattern, `false` otherwise
-     */
-    private func matches(url: String, against matchers: [SentryUrlMatcher]) -> Bool {
-        matchers.contains { $0.matches(url: url) }
+        return allowUrls.contains(where: { $0.matches(url: urlString) })
     }
 
     /**
@@ -812,7 +796,7 @@ public class SentryReplayOptions: NSObject {
         #endif // !SDK_V10
         let resolvedAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
         let resolvedDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
-        self.networkDetailLock = SentryMutex(NetworkDetailState(
+        self.networkDetailState = SentryMutex(NetworkDetailState(
             allowUrls: resolvedAllowUrls,
             allowMatchers: resolvedAllowUrls.map { $0.asSentryUrlMatcher },
             denyUrls: resolvedDenyUrls,
