@@ -1559,7 +1559,7 @@ final class SentryClientTests: XCTestCase {
             return self.fixture.session
         }
         sut.sessionDelegate = sessionDelegate
-        let data = try XCTUnwrap("{}".data(using: .utf8))
+        let data = Data("{}".utf8)
         let item = SentryEnvelopeItem(header: SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count)), data: data)
 
         // -- Act --
