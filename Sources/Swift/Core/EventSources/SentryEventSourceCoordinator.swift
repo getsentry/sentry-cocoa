@@ -18,7 +18,7 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink {
 
     func submit(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult {
         let result = downstream.submit(report, beforeAccepting: beforeAccepting)
-        SentrySDKLog.debug("Report of event source \(report.source.rawValue) for run \(report.runId ?? "unknown") was \(result.logDescription)")
+        SentrySDKLog.debug("Report of event source \(report.source.rawValue) for run \(report.runId?.rawValue ?? "unknown") was \(result.logDescription)")
         return result
     }
 }

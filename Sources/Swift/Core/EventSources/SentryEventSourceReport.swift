@@ -31,6 +31,6 @@ struct SentryEventSourceReport {
     /// of its stored report, the watchdog termination integration in the persisted app state,
     /// MetricKit in a parked thread crumb or the reported states of xOS 27. Reports with the same
     /// run ID describe the same run, whichever pipeline they came through.
-    let runId: String?
+    let runId: SentryCurrentRun.ID?
     let event: Event
 }

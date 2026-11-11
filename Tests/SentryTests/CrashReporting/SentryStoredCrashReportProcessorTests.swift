@@ -122,7 +122,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         // -- Assert --
         let submitted = try XCTUnwrap(sink.submittedReports.first)
         XCTAssertEqual(submitted.source, .crashHandler)
-        XCTAssertEqual(submitted.runId, "crashed-run-id")
+        XCTAssertEqual(submitted.runId, SentryCurrentRun.ID(rawValue: "crashed-run-id"))
         XCTAssertEqual(submitted.event.level, .fatal)
         guard case let .fatal(_, isRetainedOnFailure) = submitted.kind else {
             return XCTFail("Expected a fatal report")

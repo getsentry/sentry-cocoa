@@ -61,7 +61,7 @@ final class SentryWatchdogTerminationTracker: NSObject {
         }
     }
 
-    private func captureWatchdogTerminationEvent(terminatedRunId: String?) {
+    private func captureWatchdogTerminationEvent(terminatedRunId: SentryCurrentRun.ID?) {
 
         let event = Event(level: .fatal)
 

@@ -36,7 +36,7 @@ final class SentryCrashHandlerEventSourceTests: XCTestCase {
         let report = try XCTUnwrap(sink.submittedReports.first)
         XCTAssertEqual(report.source, .crashHandler)
         XCTAssertIdentical(report.event, event)
-        XCTAssertEqual(report.runId, "run-id")
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "run-id"))
         guard case let .fatal(attachmentPaths, isRetainedOnFailure) = report.kind else {
             return XCTFail("Expected a fatal report")
         }
