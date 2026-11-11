@@ -1,6 +1,6 @@
 #if canImport(MetricKit) && !os(tvOS)
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -61,7 +61,12 @@ enum SentryObjCMetricKitMetricReportMapping {
         .exitBackgroundIllegalInstruction,
         .exitBackgroundWatchdog,
         .exitBackgroundSuspendedWithLockedFile,
-        .exitBackgroundTaskTimeout
+        .exitBackgroundTaskTimeout,
+        .animationTotalHitchTime,
+        .animationTotalAnimationTime,
+        .metalFramesPerSecond,
+        .metalFrameCount,
+        .metalActiveDrawingDuration
     ]
 
     static func bit(for report: SentryMetricKit.MetricReport) -> SentryObjCMetricKitMetricReport? {

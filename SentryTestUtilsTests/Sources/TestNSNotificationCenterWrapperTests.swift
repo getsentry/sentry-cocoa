@@ -1,6 +1,6 @@
 // swiftlint:disable file_length type_body_length
 
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @testable @_spi(Private) import SentrySwift
 #else
 @testable @_spi(Private) import Sentry

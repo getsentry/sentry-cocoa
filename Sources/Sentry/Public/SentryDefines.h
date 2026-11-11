@@ -214,10 +214,13 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
-static NSUInteger const defaultMaxBreadcrumbs = 100;
+static NSUInteger const defaultMaxBreadcrumbs DEPRECATED_MSG_ATTRIBUTE(
+    "This constant will be removed in a future major version.") = 100;
 
-static NSString *_Nonnull const kSentryTrueString = @"true";
-static NSString *_Nonnull const kSentryFalseString = @"false";
+static NSString *_Nonnull const kSentryTrueString DEPRECATED_MSG_ATTRIBUTE(
+    "This constant will be removed in a future major version.") = @"true";
+static NSString *_Nonnull const kSentryFalseString DEPRECATED_MSG_ATTRIBUTE(
+    "This constant will be removed in a future major version.") = @"false";
 
 /**
  * Transaction name source.

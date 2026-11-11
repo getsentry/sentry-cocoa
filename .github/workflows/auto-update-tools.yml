@@ -12,6 +12,15 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository
@@ -36,12 +45,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   # This job detects if the PR contains changes that require running auto-update-tools.
   # If yes, the job will output a flag that will be used by the next job to run the auto-update-tools.
   # If no, the job will output a flag that will be used by the next job to skip running the auto-update-tools.
   # At the end of this workflow, we run a check that validates that either auto_update_tools-required-check passed or were
   # skipped, which is called auto_update_tools-required-check.
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -152,7 +167,7 @@ jobs:
   # to make auto-update-tools a required check with only running the auto-update-tools when required.
   # So, we don't have to run auto-update-tools, for example, for unrelated changes.
   auto_update_tools-required-check:
-    needs: [files-changed, auto-update-tools]
+    needs: [run-full-ci-gate, files-changed, auto-update-tools]
     name: Auto Update Tools
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

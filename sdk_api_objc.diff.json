@@ -27,6 +27,11 @@
     },
     {
       "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportMemoryException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitDiagnosticReportNone",
       "parent": "SentryObjCMetricKitDiagnosticReport"
     },
@@ -43,6 +48,16 @@
     {
       "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitMetricReportAnimationScrollHitchTimeRatio",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationTotalAnimationTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationTotalHitchTime",
       "parent": "SentryObjCMetricKitMetricReport"
     },
     {
@@ -252,6 +267,21 @@
     },
     {
       "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalActiveDrawingDuration",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalFrameCount",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalFramesPerSecond",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
       "name": "SentryObjCMetricKitMetricReportNetworkCellularDownload",
       "parent": "SentryObjCMetricKitMetricReport"
     },
@@ -448,6 +478,13 @@
       "kind": "ObjCMethodDecl",
       "name": "new",
       "parent": "SentryObjCFeedbackForm",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCWebViewTracing",
       "returnType": "instancetype _Nonnull",
       "instance": false
     },

@@ -1,5 +1,9 @@
 #if SWIFT_PACKAGE
+#if !SDK_V10
 @_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 #else
 @testable import Sentry
 #endif
@@ -658,7 +662,7 @@ class SentryTransactionContextTests: XCTestCase {
         let data = context.serialize()
 
         // Assert
-        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["type"] as? String, "trace")
         XCTAssertEqual(data["trace_id"] as? String, traceID.sentryIdString)
         XCTAssertEqual(data["span_id"] as? String, spanID.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
@@ -677,7 +681,7 @@ class SentryTransactionContextTests: XCTestCase {
         let data = context.serialize()
 
         // Assert
-        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["type"] as? String, "trace")
         XCTAssertEqual(data["trace_id"] as? String, context.traceId.sentryIdString)
         XCTAssertEqual(data["span_id"] as? String, context.spanId.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)

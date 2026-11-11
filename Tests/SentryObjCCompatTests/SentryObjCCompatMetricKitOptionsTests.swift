@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -16,7 +16,8 @@ final class SentryObjCCompatMetricKitOptionsTests: XCTestCase {
             (.hang, 1 << 1),
             (.cpuException, 1 << 2),
             (.diskWriteException, 1 << 3),
-            (.appLaunch, 1 << 4)
+            (.appLaunch, 1 << 4),
+            (.memoryException, 1 << 5)
         ]
 
         for (report, expectedBit) in cases {
@@ -111,7 +112,12 @@ final class SentryObjCCompatMetricKitOptionsTests: XCTestCase {
         (.exitBackgroundIllegalInstruction, 43),
         (.exitBackgroundWatchdog, 44),
         (.exitBackgroundSuspendedWithLockedFile, 45),
-        (.exitBackgroundTaskTimeout, 46)
+        (.exitBackgroundTaskTimeout, 46),
+        (.animationTotalHitchTime, 47),
+        (.animationTotalAnimationTime, 48),
+        (.metalFramesPerSecond, 49),
+        (.metalFrameCount, 50),
+        (.metalActiveDrawingDuration, 51)
     ]
 
     func testMetricReportBitIndexes_shouldCoverEveryReportOnce() {

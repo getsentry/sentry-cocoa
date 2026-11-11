@@ -42,7 +42,8 @@
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 - [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
 - [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
-- [41. Crash handler and MetricKit as parallel event sources](#41-crash-handler-and-metrickit-as-parallel-event-sources)
+- [41. Select SwiftPM V10 through the environment only](#41-select-swiftpm-v10-through-the-environment-only)
+- [42. Crash handler and MetricKit as parallel event sources](#42-crash-handler-and-metrickit-as-parallel-event-sources)
 
 ---
 
@@ -933,7 +934,19 @@ Related links:
 - [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
 - [V10 build checks](BUILD.md#temporary-v10-development-verification)
 
-## 41. Crash handler and MetricKit as parallel event sources
+## 41. Select SwiftPM V10 through the environment only
+
+Date: October 30, 2026
+Contributors: @denrase
+
+Superseding the SwiftPM selection in decisions [35](#35-kscrash-migration-strategy-dual-integrations-on-main) and [40](#40-develop-v10-on-main-then-branch-off-v9), use `SDK_V10=1` as the only V10 selector. Remove the development-only `V10` trait rather than keep a no-op compatibility marker, so compiler settings, dependencies, and products cannot diverge. V9 defaults and unrelated traits remain unchanged. Remove the environment selector at the V9 branch split.
+
+Related links:
+
+- [V10 selection PR](https://github.com/getsentry/sentry-cocoa/pull/9458)
+- [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection)
+
+## 42. Crash handler and MetricKit as parallel event sources
 
 Date: October 29, 2026
 Contributors: @itaybre, @philprime

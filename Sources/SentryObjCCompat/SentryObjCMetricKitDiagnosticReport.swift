@@ -1,6 +1,6 @@
 #if canImport(MetricKit) && !os(tvOS)
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -18,13 +18,15 @@ enum SentryObjCMetricKitDiagnosticReportMapping {
     static let cpuException: SentryObjCMetricKitDiagnosticReport = 1 << 2
     static let diskWriteException: SentryObjCMetricKitDiagnosticReport = 1 << 3
     static let appLaunch: SentryObjCMetricKitDiagnosticReport = 1 << 4
+    static let memoryException: SentryObjCMetricKitDiagnosticReport = 1 << 5
 
     private static let bitsByReport: [(bit: SentryObjCMetricKitDiagnosticReport, report: SentryMetricKit.DiagnosticReport)] = [
         (crash, .crash),
         (hang, .hang),
         (cpuException, .cpuException),
         (diskWriteException, .diskWriteException),
-        (appLaunch, .appLaunch)
+        (appLaunch, .appLaunch),
+        (memoryException, .memoryException)
     ]
 
     static func bits(for reports: Set<SentryMetricKit.DiagnosticReport>) -> SentryObjCMetricKitDiagnosticReport {

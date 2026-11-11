@@ -48,17 +48,39 @@ major_minor() {
     echo "$1" | awk -F. '{print $1"."$2}'
 }
 
+# Prints the names of the available devices in the given platform's runtime
+# with the given major.minor version, one per line. Runtime keys in
+# `simctl list devices -j` look like
+# com.apple.CoreSimulator.SimRuntime.tvOS-27-2.
+list_runtime_device_names() {
+    local platform="$1"
+    local runtime_key
+    runtime_key="com.apple.CoreSimulator.SimRuntime.$platform-$(echo "$2" | tr '.' '-')"
+    xcrun simctl list devices available -j 2>/dev/null \
+        | jq -r --arg key "$runtime_key" '.devices[$key] // [] | .[].name' || true
+}
+
 # Prints the newest "iPhone N Pro" (excluding Max/Plus) in the iOS runtime
 # with the given major.minor version, or nothing if there is none.
-# `simctl list devices` groups devices by major.minor runtime sections.
 find_newest_iphone_pro() {
-    local os_mm="$1"
-    xcrun simctl list devices available 2>/dev/null \
-        | awk -v platform="iOS" -v version="$os_mm" '
-            $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-            in_section { if (/^-- /) exit; print }' \
-        | grep -E "iPhone [0-9]+ Pro \(" \
-        | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
+    list_runtime_device_names "iOS" "$1" \
+        | grep -E "^iPhone [0-9]+ Pro$" \
+        | sort -V \
+        | tail -n1 || true
+}
+
+# Prints "Apple TV" if the tvOS runtime with the given major.minor version has
+# it, otherwise the newest "Apple TV 4K (Nth generation)" (excluding 1080p
+# variants), or nothing if there is none. Runner images don't create the same
+# Apple TV models for every runtime, e.g. tvOS 27.2 only has 4th generation.
+find_apple_tv() {
+    local devices
+    devices=$(list_runtime_device_names "tvOS" "$1")
+    if grep -qx "Apple TV" <<<"$devices"; then
+        echo "Apple TV"
+        return
+    fi
+    grep -E "^Apple TV 4K \([0-9]+(st|nd|rd|th) generation\)$" <<<"$devices" \
         | sort -V \
         | tail -n1 || true
 }
@@ -130,7 +152,8 @@ else
             fi
             ;;
         tvOS)
-            TEST_DEVICE="Apple TV"
+            TEST_DEVICE=$(find_apple_tv "$(major_minor "$TEST_OS")")
+            TEST_DEVICE="${TEST_DEVICE:-Apple TV}"
             ;;
         watchOS)
             # WatchKit schemes fail to match iPhone-paired watches by

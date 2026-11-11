@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -28,7 +28,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in
@@ -85,7 +85,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in
@@ -117,7 +117,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in

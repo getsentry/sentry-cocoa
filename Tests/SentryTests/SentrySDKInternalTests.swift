@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -104,6 +104,304 @@ class SentrySDKInternalTests: XCTestCase {
 
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
+    }
+
+    func testStart_whenScopePersistenceNotConfigured_shouldUseVersionDefault() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions(enabled: nil)
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.close()
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        #if SDK_V10
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+        #else
+        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
+        #endif
+    }
+
+    func testStart_whenUserPersistenceEnabled_shouldRestoreExplicitUserAcrossLaunches() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        let user = User(userId: "persisted-user")
+        user.email = "user@example.com"
+        SentrySDK.setUser(user)
+        SentrySDK.close()
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.email, "user@example.com")
+    }
+
+    func testStart_whenUserCleared_shouldNotRestoreUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.setUser(nil)
+        SentrySDK.close()
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
+    }
+
+    func testStart_whenInitialScopeClearsUser_shouldNotRestoreUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.close()
+        options.initialScope = { scope in
+            scope.setUser(nil)
+            return scope
+        }
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
+    }
+
+    func testStart_whenTemporaryScopeSetsUser_shouldNotPersistTemporaryUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        let temporaryScope = Scope(scope: SentrySDKInternal.currentHub().scope)
+        temporaryScope.setUser(User(userId: "temporary-user"))
+        SentrySDK.close()
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+    }
+
+    func testStart_whenScopeCleared_shouldRemovePersistedUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.configureScope { $0.clear() }
+        SentrySDK.close()
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
+    }
+
+    func testStart_whenInitialScopeReplacesUser_shouldPersistReplacement() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.close()
+        options.initialScope = { _ in
+            let scope = Scope()
+            scope.setUser(User(userId: "replacement-user"))
+            return scope
+        }
+        startForUserPersistence(options)
+        SentrySDK.close()
+        options.initialScope = { $0 }
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "replacement-user")
+    }
+
+    func testStart_whenPersistenceDisabled_shouldNotRestoreUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.close()
+        options.enableScopePersistence = false
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
+    }
+
+    func testStart_whenUserNotSetAgain_shouldRetainUserAcrossMultipleLaunches() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.close()
+        startForUserPersistence(options)
+        SentrySDK.close()
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+    }
+
+    func testStart_whenStartedTwice_shouldContinuePersistingUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "first-user"))
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "first-user")
+        SentrySDK.setUser(User(userId: "second-user"))
+        SentrySDK.close()
+        startForUserPersistence(options)
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "second-user")
+    }
+
+    func testStart_whenStartedTwice_shouldStopPersistingOldScope() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        let oldScope = SentrySDKInternal.currentHub().scope
+        startForUserPersistence(options)
+
+        // -- Act --
+        oldScope.setUser(User(userId: "stale-user"))
+        SentrySDK.close()
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+    }
+
+    func testStart_whenStartedTwiceWithPersistenceDisabled_shouldStopPersistingUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        let oldScope = SentrySDKInternal.currentHub().scope
+        options.enableScopePersistence = false
+
+        // -- Act --
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
+        SentrySDK.setUser(User(userId: "not-persisted-user"))
+        oldScope.setUser(nil)
+        SentrySDK.close()
+        options.enableScopePersistence = true
+        startForUserPersistence(options)
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+    }
+
+    func testStart_whenStartedTwiceBeforeMainQueueInit_shouldStopPersistingOldScope() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        let disabledOptions = try userPersistenceOptions(enabled: false)
+        disabledOptions.cacheDirectoryPath = options.cacheDirectoryPath
+        var oldScope: Scope?
+        options.initialScope = { scope in
+            scope.setUser(User(userId: "persisted-user"))
+            oldScope = scope
+            return scope
+        }
+        defer { SentrySDK.close() }
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { false }
+        startForUserPersistence(options)
+        startForUserPersistence(disabledOptions)
+        let pendingInitializations = fixture.dispatchQueueWrapper.blockOnMainInvocations.invocations
+        fixture.dispatchQueueWrapper.blockBeforeMainBlock = { true }
+        for initialize in pendingInitializations {
+            initialize()
+        }
+
+        // -- Act --
+        try XCTUnwrap(oldScope).setUser(User(userId: "stale-user"))
+        SentrySDK.close()
+        options.initialScope = { $0 }
+        startForUserPersistence(options)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
+    }
+
+    func testStart_whenAutomaticUserCollectionDisabled_shouldRestoreExplicitUser() throws {
+        // -- Arrange --
+        let options = try userPersistenceOptions()
+        #if SDK_V10
+        options.dataCollection.userInfo = false
+        #else
+        options.sendDefaultPii = false
+        #endif
+        defer { SentrySDK.close() }
+        startForUserPersistence(options)
+        SentrySDK.setUser(User(userId: "persisted-user"))
+        SentrySDK.close()
+        var capturedUser: User?
+        options.beforeSend = { event in
+            capturedUser = event.user
+            return nil
+        }
+        startForUserPersistence(options)
+
+        // -- Act --
+        SentrySDK.capture(message: "after restoration")
+
+        // -- Assert --
+        XCTAssertEqual(capturedUser?.userId, "persisted-user")
+    }
+
+    private func userPersistenceOptions(enabled: Bool? = true) throws -> Options {
+        var dictionary: [String: Any] = ["dsn": Self.dsnAsString]
+        if let enabled {
+            dictionary["enableScopePersistence"] = enabled
+        }
+        let options = try Options(dictionary: dictionary)
+        options.removeAllIntegrations()
+        options.enableAutoSessionTracking = false
+        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        addTeardownBlock {
+            if FileManager.default.fileExists(atPath: options.cacheDirectoryPath) {
+                try FileManager.default.removeItem(atPath: options.cacheDirectoryPath)
+            }
+        }
+        return options
+    }
+
+    private func startForUserPersistence(_ options: Options) {
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueueWrapper
+        SentrySDK.start(options: options)
     }
 
     func testDetectedStartUpCrash() {

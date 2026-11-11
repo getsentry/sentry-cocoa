@@ -4,8 +4,6 @@ import Foundation
 
 @_spi(Private) public typealias SentryRAMBytes = mach_vm_size_t
 
-private let sentryErrorKernelCode = 109
-
 @_spi(Private) @objc
 open class SentrySystemWrapper: NSObject {
 
@@ -29,8 +27,7 @@ open class SentrySystemWrapper: NSObject {
         }
 
         guard status == KERN_SUCCESS else {
-            throw NSError(domain: SentryErrorDomain, code: sentryErrorKernelCode,
-                          userInfo: [NSLocalizedDescriptionKey: "task_info reported an error: \(status)"])
+            throw SentryError.kernel.nsError(description: "task_info reported an error: \(status)")
         }
 
         return NSNumber(value: info.phys_footprint)
@@ -52,13 +49,11 @@ open class SentrySystemWrapper: NSObject {
 
         let taskThreadsStatus = task_threads(mach_task_self_, &list, &count)
         guard taskThreadsStatus == KERN_SUCCESS else {
-            throw NSError(domain: SentryErrorDomain, code: sentryErrorKernelCode,
-                          userInfo: [NSLocalizedDescriptionKey: "task_threads reported an error: \(taskThreadsStatus)"])
+            throw SentryError.kernel.nsError(description: "task_threads reported an error: \(taskThreadsStatus)")
         }
 
         guard let threadList = list else {
-            throw NSError(domain: SentryErrorDomain, code: sentryErrorKernelCode,
-                          userInfo: [NSLocalizedDescriptionKey: "task_threads returned nil list"])
+            throw SentryError.kernel.nsError(description: "task_threads returned nil list")
         }
 
         defer {
@@ -81,8 +76,7 @@ open class SentrySystemWrapper: NSObject {
             }
 
             guard threadInfoStatus == KERN_SUCCESS else {
-                throw NSError(domain: SentryErrorDomain, code: sentryErrorKernelCode,
-                              userInfo: [NSLocalizedDescriptionKey: "thread_info reported an error: \(threadInfoStatus)"])
+                throw SentryError.kernel.nsError(description: "thread_info reported an error: \(threadInfoStatus)")
             }
 
             usage += Float(data.cpu_usage)
@@ -104,8 +98,8 @@ open class SentrySystemWrapper: NSObject {
         }
 
         guard kr == KERN_SUCCESS else {
-            throw NSError(domain: SentryErrorDomain, code: sentryErrorKernelCode,
-                          userInfo: [NSLocalizedDescriptionKey: "Error with task_info(…TASK_POWER_INFO_V2…): \(kr)"])
+            throw SentryError.kernel.nsError(
+                description: "Error with task_info(…TASK_POWER_INFO_V2…): \(kr)")
         }
 
         return NSNumber(value: powerInfo.task_energy)
