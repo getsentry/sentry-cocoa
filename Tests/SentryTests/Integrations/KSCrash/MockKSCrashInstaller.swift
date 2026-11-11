@@ -23,7 +23,7 @@ final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
         dispatchQueueWrapper: TestSentryDispatchQueueWrapper = .init(),
         fileManager: SentryFileManager? = nil,
         dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider(),
-        currentRun: SentryCurrentRun = SentryCurrentRun(id: "run-id")
+        currentRun: SentryCurrentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
     ) {
         self.kscrashInstaller = installer
         self.testDispatchQueueWrapper = dispatchQueueWrapper

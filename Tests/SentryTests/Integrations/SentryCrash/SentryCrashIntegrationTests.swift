@@ -186,7 +186,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
-        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: "current-run-id")
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "current-run-id"))
 
         // -- Act --
         SentrySDK.start { options in

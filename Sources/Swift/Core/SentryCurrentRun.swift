@@ -9,20 +9,27 @@ import Foundation
 /// keeps it in its user info, which ends up in the crash report, and the watchdog termination
 /// integration keeps it in the app state. Reports that carry the same run ID describe the same run.
 /// See decision 41 in `develop-docs/DECISIONS.md`.
-@_spi(Private) public final class SentryCurrentRun {
+@_spi(Private) public struct SentryCurrentRun {
+
+    /// The ID of a run, a random UUID.
+    ///
+    /// The ID is its own type so a run ID can't be mixed up with any other string the SDK passes
+    /// around, such as an event or session ID. It is only turned into a string where the ID is
+    /// stored, and only turned back into an ID where that store is read.
+    public typealias ID = SentryIdentifier<SentryCurrentRun, String>
 
     /// The key under which the crash handlers store the run ID in their user info, which they write
     /// into the `user` section of the crash report.
     public static let userInfoKey = "sentry_run_id"
 
-    /// The ID of the run, a random UUID.
-    public let id: String
+    /// The ID of the run.
+    public let id: ID
 
-    convenience init() {
-        self.init(id: UUID().uuidString)
+    init() {
+        self.init(id: ID(rawValue: UUID().uuidString))
     }
 
-    init(id: String) {
+    init(id: ID) {
         self.id = id
     }
 
@@ -30,10 +37,11 @@ import Foundation
     /// written before the SDK had a run ID.
     ///
     /// SentryCrash and KSCrash both write their user info into the `user` section of the report.
-    public static func runId(ofCrashReport report: [AnyHashable: Any]) -> String? {
-        guard let user = report["user"] as? [AnyHashable: Any] else {
+    public static func runId(ofCrashReport report: [AnyHashable: Any]) -> ID? {
+        guard let user = report["user"] as? [AnyHashable: Any],
+              let rawValue = user[userInfoKey] as? String else {
             return nil
         }
-        return user[userInfoKey] as? String
+        return ID(rawValue: rawValue)
     }
 }

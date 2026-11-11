@@ -190,7 +190,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         defer { SentrySDKInternal.setCurrentHub(originalHub) }
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: TestClient(options: Options()), andScope: Scope()))
         let installer = MockKSCrashInstaller()
-        let deps = MockKSCrashDependencies(installer: installer, currentRun: SentryCurrentRun(id: "current-run-id"))
+        let deps = MockKSCrashDependencies(installer: installer, currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "current-run-id")))
 
         // -- Act --
         let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)

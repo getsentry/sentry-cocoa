@@ -211,7 +211,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
             // The run ID links the crash report to the reports of other event sources, such as
             // MetricKit, that describe the same run.
-            userInfo[SentryCurrentRun.userInfoKey] = self.currentRun.id
+            userInfo[SentryCurrentRun.userInfoKey] = self.currentRun.id.rawValue
 
             crashReporter.userInfo = userInfo
 

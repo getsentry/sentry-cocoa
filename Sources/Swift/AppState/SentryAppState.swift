@@ -23,13 +23,13 @@ import Foundation
     /// termination detected from this app state to the reports of other event sources, such as
     /// MetricKit, that describe the same run. `nil` for app states written before the SDK had a
     /// run ID.
-    public private(set) var runId: String?
+    @nonobjc public private(set) var runId: SentryCurrentRun.ID?
     public var isActive: Bool
     public var wasTerminated: Bool
     public var isANROngoing: Bool
     public var isSDKRunning: Bool
 
-    public init(releaseName: String?, osVersion: String, vendorId: String?, isDebugging: Bool, systemBootTimestamp: Date, runId: String? = nil) {
+    public init(releaseName: String?, osVersion: String, vendorId: String?, isDebugging: Bool, systemBootTimestamp: Date, runId: SentryCurrentRun.ID? = nil) {
         self.releaseName = releaseName
         self.osVersion = osVersion
         self.vendorId = vendorId
@@ -90,11 +90,10 @@ import Foundation
         self.systemBootTimestamp = systemBootTimestamp
 
         // The run ID was added later, so app states without one are still valid.
-        let runId = jsonObject["run_id"]
-        guard runId == nil || runId is String else {
-            return nil
+        if let runId = jsonObject["run_id"] {
+            guard let rawValue = runId as? String else { return nil }
+            self.runId = SentryCurrentRun.ID(rawValue: rawValue)
         }
-        self.runId = runId as? String
 
         // Validate and extract isActive
         guard let isActive = jsonObject["is_active"] as? Bool else {
@@ -140,7 +139,7 @@ import Foundation
         data["is_debugging"] = NSNumber(value: self.isDebugging)
         data["system_boot_timestamp"] = sentry_toIso8601String(self.systemBootTimestamp)
         if let runId = self.runId {
-            data["run_id"] = runId
+            data["run_id"] = runId.rawValue
         }
         data["is_active"] = NSNumber(value: self.isActive)
         data["was_terminated"] = NSNumber(value: self.wasTerminated)

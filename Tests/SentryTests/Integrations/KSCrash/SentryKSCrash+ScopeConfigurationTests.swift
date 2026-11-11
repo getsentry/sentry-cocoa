@@ -37,7 +37,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
 
         // -- Act --
-        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options, currentRun: SentryCurrentRun(id: "run-id"))
+        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options, currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id")))
 
         // -- Assert --
         let userInfo = try XCTUnwrap(installer.setUserInfoInvocations.first)
@@ -58,7 +58,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         _ = SentryKSCrash.Scope.Configuration(
             installer: installer,
             options: Options(),
-            currentRun: SentryCurrentRun(id: "current-run-id")
+            currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "current-run-id"))
         )
 
         // -- Assert --
@@ -74,7 +74,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
 
         // -- Act --
-        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options, currentRun: SentryCurrentRun(id: "run-id"))
+        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options, currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id")))
 
         // -- Assert --
         let userInfo = try XCTUnwrap(installer.setUserInfoInvocations.first)
@@ -102,7 +102,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         _ = SentryKSCrash.Scope.Configuration(
             installer: MockKSCrashInstaller(),
             options: Options(),
-            currentRun: SentryCurrentRun(id: "run-id")
+            currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
         )
 
         // -- Assert --
@@ -141,7 +141,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
 
         // -- Act --
-        let sut = SentryKSCrash.Scope.Configuration(installer: installer, options: Options(), currentRun: SentryCurrentRun(id: "run-id"))
+        let sut = SentryKSCrash.Scope.Configuration(installer: installer, options: Options(), currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id")))
         scope.setDist("updated-dist")
 
         // -- Assert --
@@ -160,7 +160,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         _ = SentryKSCrash.Scope.Configuration(
             installer: MockKSCrashInstaller(),
             options: Options(),
-            currentRun: SentryCurrentRun(id: "run-id")
+            currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
         )
 
         // -- Assert --

@@ -12,7 +12,7 @@ final class SentryCurrentRunTests: XCTestCase {
         let sut = SentryCurrentRun()
 
         // -- Assert --
-        XCTAssertNotNil(UUID(uuidString: sut.id))
+        XCTAssertNotNil(UUID(uuidString: sut.id.rawValue))
     }
 
     func testInit_whenCalledTwice_shouldCreateDifferentIds() {
@@ -30,7 +30,7 @@ final class SentryCurrentRunTests: XCTestCase {
         let second = Dependencies.currentRun
 
         // -- Assert --
-        XCTAssertIdentical(first, second)
+        XCTAssertEqual(first.id, second.id)
     }
 
     func testRunIdOfCrashReport_whenUserSectionHasRunId_shouldReturnIt() {
@@ -43,7 +43,7 @@ final class SentryCurrentRunTests: XCTestCase {
         let runId = SentryCurrentRun.runId(ofCrashReport: report)
 
         // -- Assert --
-        XCTAssertEqual(runId, "run-id")
+        XCTAssertEqual(runId, SentryCurrentRun.ID(rawValue: "run-id"))
     }
 
     func testRunIdOfCrashReport_whenUserSectionHasNoRunId_shouldReturnNil() {

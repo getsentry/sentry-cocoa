@@ -51,7 +51,7 @@ extension SentryKSCrash.Scope {
 
                 // The run ID links the crash report to the reports of other event sources, such
                 // as MetricKit, that describe the same run.
-                userInfo[SentryCurrentRun.userInfoKey] = self.currentRun.id
+                userInfo[SentryCurrentRun.userInfoKey] = self.currentRun.id.rawValue
                 installer.setUserInfo(userInfo)
 
                 // add(_:) only observes later mutations. Seed current nested fields

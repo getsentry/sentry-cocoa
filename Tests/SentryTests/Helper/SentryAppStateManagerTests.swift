@@ -18,7 +18,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         let sysctlWrapper: SentrySysctl
         let dispatchQueueWrapper: SentryDispatchQueueWrapper
         let notificationCenterWrapper: SentryNSNotificationCenterWrapper
-        let currentRun = SentryCurrentRun(id: "run-id")
+        let currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
 
         init(
             debuggerStatusProvider: SentryDebuggerStatusProvider,

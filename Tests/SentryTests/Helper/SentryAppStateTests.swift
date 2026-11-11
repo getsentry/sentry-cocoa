@@ -87,7 +87,7 @@ class SentryAppStateTests: XCTestCase {
     
     func testSerialize_whenRunIdIsSet_shouldAddRunId() {
         // -- Arrange --
-        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: "run-id")
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: SentryCurrentRun.ID(rawValue: "run-id"))
 
         // -- Act --
         let actual = appState.serialize()
@@ -109,13 +109,13 @@ class SentryAppStateTests: XCTestCase {
 
     func testInitWithJSON_whenRunIdIsSet_shouldReadRunId() throws {
         // -- Arrange --
-        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: "run-id")
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: SentryCurrentRun.ID(rawValue: "run-id"))
 
         // -- Act --
         let actual = try XCTUnwrap(SentryAppState(jsonObject: appState.serialize()))
 
         // -- Assert --
-        XCTAssertEqual(actual.runId, "run-id")
+        XCTAssertEqual(actual.runId, SentryCurrentRun.ID(rawValue: "run-id"))
     }
 
     func testInitWithJSON_whenRunIdIsMissing_shouldKeepAppStateWithoutRunId() throws {
