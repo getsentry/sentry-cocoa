@@ -97,6 +97,23 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         XCTAssertTrue(webView.configuration.userContentController.userScripts.isEmpty)
     }
 
+    func testUninstall_shouldRemoveScriptFromTrackedControllers() throws {
+        // -- Arrange --
+        let integration = try install()
+        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        let controller = webView.configuration.userContentController
+        controller.addUserScript(WKUserScript(source: "window.app = 1;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
+        XCTAssertEqual(controller.sentryScripts.count, 1)
+
+        // -- Act --
+        integration.uninstall()
+
+        // -- Assert --
+        XCTAssertTrue(controller.sentryScripts.isEmpty)
+        XCTAssertEqual(controller.userScripts.map(\.source), ["window.app = 1;"])
+    }
+
     // MARK: - Swizzled load methods
 
     func testLoadRequest_shouldInstallScriptBeforeLoad() throws {

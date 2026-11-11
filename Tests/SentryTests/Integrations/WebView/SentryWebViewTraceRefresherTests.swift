@@ -63,6 +63,24 @@ final class SentryWebViewTraceRefresherTests: XCTestCase {
         XCTAssertEqual(scripts.first?.source.contains(newTraceId.sentryIdString), true)
     }
 
+    func testRemoveAll_shouldRemoveScriptsAndStopTracking() {
+        // -- Arrange --
+        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
+        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        let controller = webView.configuration.userContentController
+        controller.addUserScript(WKUserScript(source: "window.app = 1;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        refresher.willLoad(webView)
+        XCTAssertEqual(controller.sentryScripts.count, 1)
+
+        // -- Act --
+        refresher.removeAll()
+
+        // -- Assert --
+        XCTAssertTrue(controller.sentryScripts.isEmpty)
+        XCTAssertEqual(controller.userScripts.map(\.source), ["window.app = 1;"])
+        XCTAssertTrue(refresher.trackedControllers().isEmpty)
+    }
+
     func testTrack_shouldNotRetainController() {
         // -- Arrange --
         let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { nil })

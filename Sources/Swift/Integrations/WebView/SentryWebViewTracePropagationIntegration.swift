@@ -24,6 +24,7 @@ private enum SentryWebViewSwizzleKeys {
 ///   receive the current trace too.
 final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration {
     private let refresher: SentryWebViewTraceRefresher
+    private let dispatchQueue: SentryDispatchQueueWrapper
 
     init?(with options: Options, dependencies: SentryDependencyContainer) {
         guard let webViewTracing = options.webViewTracing else {
@@ -42,13 +43,14 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
         }
 
         refresher = SentryWebViewTraceRefresher(allowedHosts: allowedHosts)
+        dispatchQueue = dependencies.dispatchQueueWrapper
 
         super.init()
 
         SentryWebViewTraceRefresherProxy.shared.setTarget(refresher)
         Self.swizzleLoadMethods()
 
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, dispatchQueue: dependencies.dispatchQueueWrapper)
+        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, dispatchQueue: dispatchQueue)
         SentrySDKInternal.currentHub().configureScope { scope in
             scope.add(observer)
         }
@@ -56,6 +58,11 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
 
     func uninstall() {
         SentryWebViewTraceRefresherProxy.shared.removeTarget(refresher)
+        // The scripts carry the last trace, so remove them. WebKit requires the main thread.
+        let refresher = refresher
+        dispatchQueue.dispatchAsyncOnMainQueueIfNotMainThread {
+            refresher.removeAll()
+        }
     }
 
     static var name: String {

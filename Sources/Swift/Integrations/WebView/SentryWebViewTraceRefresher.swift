@@ -54,6 +54,15 @@ final class SentryWebViewTraceRefresher {
         }
     }
 
+    /// Removes Sentry's script from every tracked controller and stops tracking them, so their
+    /// WebViews stop injecting the last trace once the SDK is closed.
+    func removeAll() {
+        for controller in trackedControllers() {
+            SentryWebViewTracePropagation.removeScript(from: controller)
+        }
+        controllers.removeAllObjects()
+    }
+
     /// The tracked controllers that are still alive.
     func trackedControllers() -> [WKUserContentController] {
         controllers.keyEnumerator().allObjects.compactMap { $0 as? WKUserContentController }

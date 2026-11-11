@@ -168,6 +168,16 @@ enum SentryWebViewTracePropagation {
         hub.addInstalledIntegration(SentryWebViewTracePropagationUsage(), name: integrationName)
     }
 
+    /// Removes Sentry's script and keeps the app's own scripts.
+    static func removeScript(from controller: WKUserContentController) {
+        let appScripts = controller.userScripts.filter { !$0.source.hasPrefix(scriptMarker) }
+        guard appScripts.count != controller.userScripts.count else {
+            return
+        }
+        controller.removeAllUserScripts()
+        appScripts.forEach { controller.addUserScript($0) }
+    }
+
     /// Removes any previous Sentry script so a stale trace is never injected, then adds a fresh one
     /// before the app's own scripts.
     @discardableResult
