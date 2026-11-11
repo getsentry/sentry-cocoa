@@ -52,7 +52,7 @@ sentry_finishProfiledTransaction(SentryHubInternal *hub, SentryProfilingDispatch
 
     if (isProfiling && continuousTraceProfiling) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
-            sentry_stringFromSentryID(trace.profilerReferenceID));
+            trace.profilerReferenceID.stringValue);
         sentry_finishContinuousProfileForTrace(trace.profilerReferenceID);
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
@@ -240,7 +240,8 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
     uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub)
 {
-    SentryProfiler *profiler = sentry_profilerForFinishedTracer(traceId);
+    SentryProfiler *profiler
+        = sentry_profilerForFinishedTracer(sentry_profilingIdFromSentryId(traceId));
     if (!profiler) {
         return nil;
     }

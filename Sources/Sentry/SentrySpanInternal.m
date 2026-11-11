@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _isContinuousProfiling = SentrySDKInternal.options != nil;
         if (_isContinuousProfiling) {
-            _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
+            _profileSessionID = SentryContinuousProfiler.currentProfilerID.stringValue;
             if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
                     addObserver:self
@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)linkProfiler
 {
-    _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
+    _profileSessionID = SentryContinuousProfiler.currentProfilerID.stringValue;
     [self stopObservingContinuousProfiling];
 }
 
@@ -170,10 +170,10 @@ NS_ASSUME_NONNULL_BEGIN
 
         if (context.parentSpanId == nil) {
             SENTRY_LOG_DEBUG(@"Starting root span with tracer with profilerReferenceId %@",
-                tracer.profilerReferenceID.sentryIdString);
+                tracer.profilerReferenceID.stringValue);
         } else {
             SENTRY_LOG_DEBUG(@"Starting span with tracer with profilerReferenceId %@",
-                tracer.profilerReferenceID.sentryIdString);
+                tracer.profilerReferenceID.stringValue);
         }
     }
     return self;
@@ -376,7 +376,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     SENTRY_LOG_DEBUG(@"Marking span %@ as finished in tracer %@ (profileReferenceId %@)",
         _spanId.sentrySpanIdString, _tracer.traceId.sentryIdString,
-        _tracer.profilerReferenceID.sentryIdString);
+        _tracer.profilerReferenceID.stringValue);
     [self.tracer spanFinished:self];
 }
 

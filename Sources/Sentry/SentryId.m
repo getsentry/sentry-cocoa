@@ -31,6 +31,11 @@
     return NO;
 }
 
+- (NSUUID *)uuid
+{
+    return self.id;
+}
+
 - (NSString *)sentryIdString
 {
     return [self.id.UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""]
