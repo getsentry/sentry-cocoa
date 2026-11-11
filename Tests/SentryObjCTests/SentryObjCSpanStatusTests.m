@@ -38,4 +38,53 @@
     XCTAssertEqual(roundTripped, SentryObjCSpanStatusOk);
 }
 
+- (void)testNameForStatus_shouldReturnWireNames
+{
+    // -- Assert --
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusUndefined], @"undefined");
+    XCTAssertEqualObjects([SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusOk], @"ok");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusDeadlineExceeded],
+        @"deadline_exceeded");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusUnauthenticated],
+        @"unauthenticated");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusPermissionDenied],
+        @"permission_denied");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusNotFound], @"not_found");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusResourceExhausted],
+        @"resource_exhausted");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusInvalidArgument],
+        @"invalid_argument");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusUnimplemented],
+        @"unimplemented");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusUnavailable], @"unavailable");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusInternalError],
+        @"internal_error");
+    XCTAssertEqualObjects([SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusUnknownError],
+        @"unknown_error");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusCancelled], @"cancelled");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusAlreadyExists],
+        @"already_exists");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusFailedPrecondition],
+        @"failed_precondition");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusAborted], @"aborted");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusOutOfRange], @"out_of_range");
+    XCTAssertEqualObjects(
+        [SentryObjCSpanStatusName nameForStatus:SentryObjCSpanStatusDataLoss], @"data_loss");
+}
+
 @end

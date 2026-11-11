@@ -5,6 +5,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
+#    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
@@ -14,6 +15,7 @@
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
@@ -23,7 +25,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
-#        import "SentryProfilingScreenFramesHelper.h"
 #    endif // SENTRY_HAS_UIKIT
 
 /**
@@ -199,7 +200,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
                              @"initialized by the time they are being queried");
         }
         if (_gProfilersToTracers.count == 0) {
-            sentry_framesTrackerResetProfilingTimestamps();
+            [SentryProfilerSDKAdapter.shared resetProfilingTimestamps];
         }
 #    endif // SENTRY_HAS_UIKIT
     }
@@ -226,13 +227,12 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
-    profiler.screenFrameData =
-        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
+    profiler.screenFrameData = [SentryProfilerSDKAdapter.shared copyCurrentFrames];
     SENTRY_LOG_DEBUG(
         @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
         profiler.screenFrameData);
     if (_gProfilersToTracers.count == 0) {
-        sentry_framesTrackerResetProfilingTimestamps();
+        [SentryProfilerSDKAdapter.shared resetProfilingTimestamps];
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -265,7 +265,7 @@ sentry_stopProfilerDueToFinishedTransaction(
         // SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer. Other transactions finishing
         // during the launch profiling window (e.g., manual transactions or app start transactions)
         // must still be captured.
-        if (trace != sentry_getLaunchTracer()) {
+        if (trace != SentryProfilerSDKAdapter.shared.launchTracer) {
             [hub captureTransaction:transaction withScope:hub.scope];
         }
         return;
@@ -302,7 +302,7 @@ sentry_stopProfilerDueToFinishedTransaction(
     if (!SENTRY_CASSERT_RETURN(startTimestamp != nil,
             @"A transaction with a profile should have a start timestamp already. We will "
             @"assign the current time but this will be incorrect.")) {
-        startTimestamp = sentry_getDate();
+        startTimestamp = SentryProfilerSDKAdapter.shared.date;
     }
 
     // if we have an app start span, use its app start timestamp. otherwise use the tracer's
@@ -319,11 +319,15 @@ sentry_stopProfilerDueToFinishedTransaction(
     }
 #    endif // SENTRY_HAS_UIKIT
 
-    [SentryTraceProfiler recordMetrics];
-    [(NSObject *)transaction setValue:@(sentry_getSystemTime()) forKey:@"endSystemTime"];
-
     SentryProfiler *_Nullable nullableProfiler
         = sentry_profilerForFinishedTracer(trace.profilerReferenceID);
+    // Finishing a late tracer must not extend metrics from an aborted profiler.
+    if (nullableProfiler != nil
+        && nullableProfiler.truncationReason == SentryProfilerTruncationReasonNormal) {
+        [nullableProfiler.metricProfiler recordMetrics];
+    }
+    [(NSObject *)transaction setValue:@(SentryProfilerSDKAdapter.shared.systemTime)
+                               forKey:@"endSystemTime"];
     if (!nullableProfiler) {
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
@@ -333,21 +337,24 @@ sentry_stopProfilerDueToFinishedTransaction(
     // This code can run on the main thread, and the profile serialization can take a couple of
     // milliseconds. Therefore, we move this to a background thread to avoid potentially
     // blocking the main thread.
-    sentry_dispatchAsync(dispatchQueue, ^{
-        const auto profilingData = [profiler.state copyProfilingData];
+    [SentryProfilerSDKAdapter.shared
+        dispatchAsyncOnQueue:dispatchQueue
+                       block:^{
+                           const auto profilingData = [profiler.state copyProfilingData];
 
-        const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-            hub, profiler, profilingData, transaction, startTimestamp);
+                           const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
+                               hub, profiler, profilingData, transaction, startTimestamp);
 
-        if (!profileEnvelopeItem) {
-            [hub captureTransaction:transaction withScope:hub.scope];
-        } else {
-            [hub captureTransaction:transaction
-                              withScope:hub.scope
-                additionalEnvelopeItems:@[ SENTRY_UNWRAP_NULLABLE(
-                                            SentryEnvelopeItem, profileEnvelopeItem) ]];
-        }
-    });
+                           if (!profileEnvelopeItem) {
+                               [hub captureTransaction:transaction withScope:hub.scope];
+                           } else {
+                               [hub captureTransaction:transaction
+                                                 withScope:hub.scope
+                                   additionalEnvelopeItems:@[ SENTRY_UNWRAP_NULLABLE(
+                                                               SentryEnvelopeItem,
+                                                               profileEnvelopeItem) ]];
+                           }
+                       }];
 }
 
 SentryId *_Nullable sentry_startProfilerForTrace(
@@ -379,7 +386,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
     BOOL profileShouldBeSampled
         = sentry_samplerDecisionEquals(profilesSamplerDecision, kSentrySampleDecisionYes);
 
-    if (sentry_isTracingAppLaunch() || profileShouldBeSampled) {
+    if (SentryProfilerSDKAdapter.shared.isTracingAppLaunch || profileShouldBeSampled) {
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",

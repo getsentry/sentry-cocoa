@@ -73,7 +73,7 @@ internal import _SentryPrivate
         // long as it has a transport. `connection_type` is the device context alias of
         // `network.connection.type`, so `connection_effective_type` mirrors
         // `network.connection.effective_type` the same way.
-        // https://getsentry.github.io/sentry-conventions/attributes/network/
+        // https://conventions.sentry.dev/attributes/network/
         if let connection = reachability.currentConnection {
             extraDeviceContext["connection_type"] = connection.type
             if let effectiveType = connection.effectiveType {

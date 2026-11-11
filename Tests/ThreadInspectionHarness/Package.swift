@@ -2,15 +2,15 @@
 import Foundation
 import PackageDescription
 
-// Use the SDK-compatible upstream release, which includes reserved-thread lookup (#913).
+// Use the SDK's 2.6.1 fork with the C++ terminate fix and reserved-thread lookup (#913).
 // KSCRASH_PATH remains available for upstream-development testing.
 let kscrashDependency: Package.Dependency
 if let kscrashPath = ProcessInfo.processInfo.environment["KSCRASH_PATH"] {
     kscrashDependency = .package(name: "KSCrash", path: kscrashPath)
 } else {
     kscrashDependency = .package(
-        url: "https://github.com/kstenerud/KSCrash.git",
-        exact: "2.6.1-beta.2"
+        url: "https://github.com/getsentry/KSCrash.git",
+        revision: "e41302af9fbcf4d9cc6cc95933cb989a90941d37"
     )
 }
 

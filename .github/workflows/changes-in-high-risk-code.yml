@@ -1,6 +1,15 @@
 name: Changes In High Risk Code
 on:
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple high-risk code analysis runs,
@@ -12,7 +21,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     # Map a step output to a job output

@@ -5,6 +5,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 
@@ -151,11 +152,11 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
         self.systemWrapper = _systemWrapperOverride
             ? _systemWrapperOverride
             : [[SentrySystemWrapper alloc]
-                  initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+                  initWithProcessorCount:SentryProfilerSDKAdapter.shared.processInfoWrapper
                                              .processorCount];
 #    else
         self.systemWrapper = [[SentrySystemWrapper alloc]
-            initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+            initWithProcessorCount:SentryProfilerSDKAdapter.shared.processInfoWrapper
                                        .processorCount];
 #    endif
         _mode = mode;
@@ -232,13 +233,27 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 
 - (NSDictionary<NSString *, NSArray<SentryMetricReading *> *> *)copyMetricProfilerData
 {
-    NSMutableDictionary *copy = [NSMutableDictionary dictionary];
     @synchronized(self) {
-        copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
-        copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
-        copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
+        return [self copyMetricProfilerDataNotThreadSafe];
     }
+}
+
+- (NSDictionary<NSString *, NSArray<SentryMetricReading *> *> *)copyMetricProfilerDataNotThreadSafe
+{
+    NSMutableDictionary *copy = [NSMutableDictionary dictionary];
+    copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
+    copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
+    copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
     return copy;
+}
+
+- (NSDictionary *)copyAndClearMetricProfilerData
+{
+    @synchronized(self) {
+        NSDictionary *snapshot = [self copyMetricProfilerDataNotThreadSafe];
+        [self clearNotThreadSafe];
+        return snapshot;
+    }
 }
 
 - (void)clear
@@ -262,7 +277,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     __weak typeof(self) weakSelf = self;
     NSInteger intervalNs = (NSInteger)1e9 / frequencyHz;
     NSInteger leewayNs = intervalNs / 2;
-    _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
+    _dispatchSource = [SentryProfilerSDKAdapter.shared.dispatchFactory
         sourceWithInterval:intervalNs
                     leeway:leewayNs
                  queueName:"io.sentry.metric-profiler"
@@ -310,22 +325,23 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 - (void)recordEnergyUsageEstimate
 {
     NSError *error;
-    NSNumber *reading = [self.systemWrapper cpuEnergyUsageAndReturnError:&error];
+    @synchronized(self) {
+        NSNumber *reading = [self.systemWrapper cpuEnergyUsageAndReturnError:&error];
+        if (error == nil) {
+            if (previousEnergyReading == nil
+                || reading.unsignedIntegerValue < previousEnergyReading.unsignedIntegerValue) {
+                previousEnergyReading = reading;
+                return;
+            }
+
+            NSUInteger value
+                = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+            previousEnergyReading = reading;
+            [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
+        }
+    }
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
-        return;
-    }
-
-    if (previousEnergyReading == nil) {
-        previousEnergyReading = reading;
-        return;
-    }
-
-    NSUInteger value = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
-    previousEnergyReading = reading;
-
-    @synchronized(self) {
-        [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
 #    endif
@@ -334,8 +350,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 {
     SentryMetricReading *reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    id<SentryCurrentDateProvider> dateProvider
-        = SentryDependencyContainer.sharedInstance.dateProvider;
+    id<SentryCurrentDateProvider> dateProvider = SentryProfilerSDKAdapter.shared.dateProvider;
     reading.absoluteSystemTimestamp = dateProvider.systemTime;
     reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSince1970;
     return reading;

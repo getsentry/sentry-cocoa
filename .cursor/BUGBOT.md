@@ -2,7 +2,7 @@
 
 Instructions for Cursor Bugbot when reviewing pull requests.
 
-**Read [`REVIEWS.md`](REVIEWS.md) first** — it contains review priorities, SDK-specific concerns, conventions to enforce, and what not to flag.
+**Read [`REVIEWS.md`](../REVIEWS.md) first** — it contains review priorities, SDK-specific concerns, conventions to enforce, and what not to flag.
 
 These rules operationalize the Sentry SDK [philosophy](https://develop.sentry.dev/sdk/getting-started/philosophy/) and [principles](https://develop.sentry.dev/sdk/getting-started/principles/).
 
