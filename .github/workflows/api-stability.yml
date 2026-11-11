@@ -59,6 +59,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Test API generation scripts
+        run: python3 scripts/test-update-api.py -v
+
       - name: Generate HEAD SDK
         run: |
           mv sdk_api.json sdk_api_base.json

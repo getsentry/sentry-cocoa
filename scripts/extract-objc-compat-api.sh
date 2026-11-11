@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Extract ObjC-visible API from the SentryObjCCompat Swift wrappers.
 #
-# Builds SentryObjCCompat, then parses the compiler-generated -Swift.h
-# header with clang AST to extract all ObjC declarations. Output format
+# Builds SentryObjCCompat (or uses a supplied compiler-generated -Swift.h),
+# then parses the header with clang AST to extract all ObjC declarations. Output format
 # matches extract-objc-api.sh (flat sorted JSON array) so the two can
 # be compared for drift detection.
 
@@ -16,11 +16,13 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 OUTPUT=""
 CONFIGURATION="Release"
+SWIFT_HEADER=""
 
 usage() {
     log_info "Usage: $0"
     log_info "  --output <path>            Output JSON file path (required)"
     log_info "  --configuration <name>     Xcode build configuration (default: Release)"
+    log_info "  --swift-header <path>      Use an already-built header instead of rebuilding (optional)"
     exit 1
 }
 
@@ -28,6 +30,9 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --output)        OUTPUT="$2";        shift 2 ;;
         --configuration) CONFIGURATION="$2"; shift 2 ;;
+        --swift-header)
+            [[ $# -ge 2 && -n "$2" ]] || usage
+            SWIFT_HEADER="$2"; shift 2 ;;
         *)               usage ;;
     esac
 done
@@ -37,38 +42,43 @@ if [ -z "$OUTPUT" ]; then
     usage
 fi
 
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
-
-BUILD_DIR="$TMP_DIR/build"
-INTERMEDIATES_DIR="$TMP_DIR/intermediates"
-AST_JSON="$TMP_DIR/ast.json"
-
-# Step 1: Build the source package to generate the SentryObjCCompat-Swift.h header.
-SCHEME="SentryObjC"
-SDK_V10=""
-if [ "$CONFIGURATION" = "ReleaseV10" ]; then
-    SDK_V10=1
+if [[ -n "$SWIFT_HEADER" && ! -f "$SWIFT_HEADER" ]]; then
+    log_error "Swift header not found: $SWIFT_HEADER"
+    exit 1
 fi
 
-log_info "Building $SCHEME package (configuration: $CONFIGURATION)"
-SDK_V10="$SDK_V10" xcodebuild build \
-    -workspace "$PROJECT_ROOT" \
-    -scheme "$SCHEME" \
-    -configuration "$CONFIGURATION" \
-    -sdk iphoneos \
-    -destination "generic/platform=iOS" \
-    CODE_SIGNING_ALLOWED=NO \
-    ONLY_ACTIVE_ARCH=YES \
-    SYMROOT="$BUILD_DIR" \
-    OBJROOT="$INTERMEDIATES_DIR" \
-    >/dev/null 2>&1
+TMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TMP_DIR"' EXIT
+AST_JSON="$TMP_DIR/ast.json"
 
-# Step 2: Locate the generated header.
-SWIFT_HEADER=$(find "$INTERMEDIATES_DIR" -name "SentryObjCCompat-Swift.h" -type f -print -quit)
-if [ -z "$SWIFT_HEADER" ]; then
-    log_error "SentryObjCCompat-Swift.h not found under $INTERMEDIATES_DIR"
-    exit 1
+if [[ -z "$SWIFT_HEADER" ]]; then
+    # Preserve the standalone extractor's existing build path when no header is supplied.
+    BUILD_DIR="$TMP_DIR/build"
+    INTERMEDIATES_DIR="$TMP_DIR/intermediates"
+    SCHEME="SentryObjC"
+    SDK_V10=""
+    if [ "$CONFIGURATION" = "ReleaseV10" ]; then
+        SDK_V10=1
+    fi
+
+    log_info "Building $SCHEME package (configuration: $CONFIGURATION)"
+    SDK_V10="$SDK_V10" xcodebuild build \
+        -workspace "$PROJECT_ROOT" \
+        -scheme "$SCHEME" \
+        -configuration "$CONFIGURATION" \
+        -sdk iphoneos \
+        -destination "generic/platform=iOS" \
+        CODE_SIGNING_ALLOWED=NO \
+        ONLY_ACTIVE_ARCH=YES \
+        SYMROOT="$BUILD_DIR" \
+        OBJROOT="$INTERMEDIATES_DIR" \
+        >/dev/null 2>&1
+
+    SWIFT_HEADER=$(find "$INTERMEDIATES_DIR" -name "SentryObjCCompat-Swift.h" -type f -print -quit)
+    if [ -z "$SWIFT_HEADER" ]; then
+        log_error "SentryObjCCompat-Swift.h not found under $INTERMEDIATES_DIR"
+        exit 1
+    fi
 fi
 
 # Step 3: Parse with clang AST dump.

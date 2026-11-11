@@ -152,7 +152,14 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "scripts/assemble-xcframework.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/update-api.sh"
+  - "scripts/test-update-api.py"
+  - "scripts/build-static-library-sentryobjc.sh"
+  - "scripts/build-dynamic-framework-sentryobjc.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/extract-swift-api.sh"
   - "scripts/extract-objc-api.sh"
+  - "scripts/extract-objc-compat-api.sh"
+  - "scripts/generate-objc-compat-api-diff.sh"
   - "scripts/ci-diagnostics.sh"
 
   # API files
@@ -162,6 +169,8 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "sdk_api_v10.json"
   - "sdk_api_objc_v10.json"
   - "sdk_api_objc_v10.diff.json"
+  - "sdk_api*_spm.json"
+  - "sdk_api*_spm.diff.json"
 
   # Build configuration
   - "Makefile"

@@ -2081,7 +2081,7 @@ analyze:
 
 ## Generate public API documentation
 #
-# Updates the public API documentation from source code.
+# Updates V9/V10 framework and SwiftPM API snapshots.
 .PHONY: generate-public-api
 generate-public-api:
 	@echo "[MAKE] $@: Generating public API documentation"
