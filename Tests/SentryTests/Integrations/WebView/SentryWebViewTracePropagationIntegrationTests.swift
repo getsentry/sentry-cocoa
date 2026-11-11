@@ -242,6 +242,24 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         XCTAssertEqual(refresher.trackedHosts(for: controller), ["other.com"])
     }
 
+    func testAddTracePropagation_whenCallFails_shouldKeepAppWideHostsOnLoad() throws {
+        // -- Arrange --
+        try install()
+        let configuration = WKWebViewConfiguration()
+        let controller = configuration.userContentController
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+
+        // -- Act --
+        let added = SentryWebViewTracing.addTracePropagation(to: controller, options: .init(allowedHosts: [""]))
+        webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
+
+        // -- Assert --
+        XCTAssertFalse(added)
+        let refresher = try XCTUnwrap(SentryWebViewTraceRefresherProxy.shared.target)
+        XCTAssertEqual(refresher.trackedHosts(for: webView.configuration.userContentController), ["example.com"])
+        XCTAssertEqual(webView.configuration.userContentController.sentryScripts.count, 1)
+    }
+
     // MARK: - Page loads
 
     // Pages come from a custom scheme handler, so no network is needed. The host is allowed, so the

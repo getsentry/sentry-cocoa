@@ -62,7 +62,7 @@ public struct SentryWebViewTracingOptions {
 ///
 /// To add trace propagation to every WebView and keep its trace current, set
 /// ``Options/webViewTracing`` instead. When it is set, controllers passed here keep the hosts of
-/// this call and are refreshed like the others.
+/// a successful call and are refreshed like the others.
 public enum SentryWebViewTracing {
     /// Adds trace propagation to WebViews that use this user content controller.
     ///
@@ -79,9 +79,13 @@ public enum SentryWebViewTracing {
     ) -> Bool {
         let hub = SentryWebViewTracePropagation.currentHub
         SentryWebViewTracePropagation.recordUsage(in: hub)
+        let installed = SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
         // With automatic propagation, keep this controller's own hosts on later loads and refreshes.
-        SentryWebViewTraceRefresherProxy.shared.target?.track(userContentController, allowedHosts: options.allowedHosts)
-        return SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
+        // A failed call isn't tracked, so the controller keeps the app-wide hosts.
+        if installed {
+            SentryWebViewTraceRefresherProxy.shared.target?.track(userContentController, allowedHosts: options.allowedHosts)
+        }
+        return installed
     }
 
     /// Adds trace propagation to WebViews created with this configuration.
