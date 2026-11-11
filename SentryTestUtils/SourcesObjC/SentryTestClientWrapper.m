@@ -117,7 +117,7 @@
     [self wrapper_saveCrashTransaction:transaction withScope:scope];
 }
 
-- (void)wrapper_saveCrashTransaction:(id)transaction
+- (void)wrapper_saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
                            withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method

@@ -37,7 +37,7 @@
     [super captureTransaction:transaction withScope:scope];
 }
 
-- (void)wrapper_captureTransaction:(id)transaction
+- (void)wrapper_captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
                          withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     // Intentionally empty: Swift TestHub overrides this SwiftPM-compatible bridge method

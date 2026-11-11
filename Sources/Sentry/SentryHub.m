@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
-                      andScope:(nullable id)scope
+                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
@@ -43,7 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSUInteger _pendingTransactionCaptureCount;
 }
 
-- (instancetype)initWithClient:(nullable SentryClientInternal *)client andScope:(nullable id)scope
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self initWithClient:client
                         andScope:scope
@@ -54,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
-                      andScope:(nullable id)scope
+                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
@@ -66,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
-                      andScope:(nullable id)scope
+                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
@@ -277,7 +278,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureFatalEvent:(SentryEvent *)event
 {
-    [self captureFatalEvent:event withScope:(id _Nonnull)self.scope];
+    [self captureFatalEvent:event
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
 /**
@@ -286,13 +288,14 @@ NS_ASSUME_NONNULL_BEGIN
  * currently no way to know which one belongs to the crashed session, so we send the session with
  * the first crash event we receive.
  */
-- (void)captureFatalEvent:(SentryEvent *)event withScope:(id)scope
+- (void)captureFatalEvent:(SentryEvent *)event
+                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     [self captureFatalEventWithResult:event withScope:scope preserveCrashedSessionOnFailure:NO];
 }
 
 - (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
-                                withScope:(id)scope
+                                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
 {
     event.isFatalEvent = YES;
@@ -354,21 +357,24 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
     // this case, we just send the fatal app hang event.
     if (abnormalSession == nil) {
-        [client captureFatalEvent:event withScope:(id _Nonnull)self.scope];
+        [client captureFatalEvent:event
+                        withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
         return;
     }
 
     // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
     // health and session statistics as app hangs.
     abnormalSession.abnormalMechanism = @"anr_foreground";
-    [client captureFatalEvent:event withSession:abnormalSession withScope:(id _Nonnull)self.scope];
+    [client captureFatalEvent:event
+                  withSession:abnormalSession
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
     [fileManager deleteAbnormalSession];
 }
 
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                 withScope:(id)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     [self captureTransaction:(SentryTransaction *)transaction
                       withScope:scope
@@ -376,7 +382,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)captureTransaction:(SentryTransaction *)transaction
-                  withScope:(id)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     SentrySampleDecision decision = ((SentryTracer *)transaction.trace).sampled;
@@ -461,22 +467,25 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryClientInternal *client = self.client;
     if (client != nil) {
-        [client saveCrashTransaction:transaction withScope:(id _Nonnull)self.scope];
+        [client saveCrashTransaction:transaction
+                           withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
     }
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
-    return [self captureEvent:event withScope:(id _Nonnull)self.scope];
+    return [self captureEvent:event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event withScope:(id)scope
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self captureEvent:event withScope:scope additionalEnvelopeItems:@[]];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(id)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     SentryClientInternal *client = self.client;
@@ -495,7 +504,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.client captureReplayEvent:replayEvent
                     replayRecording:replayRecording
                               video:videoURL
-                          withScope:(id _Nonnull)self.scope];
+                          withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
@@ -598,10 +607,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureMessage:(NSString *)message
 {
-    return [self captureMessage:message withScope:(id _Nonnull)self.scope];
+    return [self captureMessage:message
+                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
-- (SentryId *)captureMessage:(NSString *)message withScope:(id)scope
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
@@ -611,7 +622,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(id)scope
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
             attachAllThreads:(NSNumber *_Nullable)attachAllThreads
 {
     SentryClientInternal *client = self.client;
@@ -623,10 +634,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureError:(NSError *)error
 {
-    return [self captureError:error withScope:(id _Nonnull)self.scope];
+    return [self captureError:error
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
-- (SentryId *)captureError:(NSError *)error withScope:(id)scope
+- (SentryId *)captureError:(NSError *)error withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryClientInternal *client = self.client;
 
@@ -637,7 +649,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(id)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           attachAllThreads:(NSNumber *_Nullable)attachAllThreads
 {
     SentryClientInternal *client = self.client;
@@ -649,10 +661,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureException:(NSException *)exception
 {
-    return [self captureException:exception withScope:(id _Nonnull)self.scope];
+    return [self captureException:exception
+                        withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
-- (SentryId *)captureException:(NSException *)exception withScope:(id)scope
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryClientInternal *client = self.client;
 
@@ -663,7 +677,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(id)scope
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
               attachAllThreads:(NSNumber *_Nullable)attachAllThreads
 {
     SentryClientInternal *client = self.client;
@@ -675,7 +689,9 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event withScope:(id)scope hint:(id)hint
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
@@ -684,7 +700,9 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureError:(NSError *)error withScope:(id)scope hint:(id)hint
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
@@ -693,7 +711,9 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureException:(NSException *)exception withScope:(id)scope hint:(id)hint
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                          hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
@@ -702,7 +722,9 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureMessage:(NSString *)message withScope:(id)scope hint:(id)hint
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                        hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
@@ -762,10 +784,11 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
 #endif
-        [client captureSerializedFeedback:serializedFeedback
-                              withEventId:feedbackEventId
-                              attachments:feedbackAttachments
-                                    scope:(id _Nonnull)self.scope];
+        [client
+            captureSerializedFeedback:serializedFeedback
+                          withEventId:feedbackEventId
+                          attachments:feedbackAttachments
+                                scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
     }
 }
 
@@ -813,7 +836,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (id)scope
+- (SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     @synchronized(self) {
         if (_scope == nil) {
@@ -832,7 +855,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)configureScope:(void (^)(id scope))callback
+- (void)configureScope:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))callback
 {
     SentryScope *scope = self.scope;
     SentryClientInternal *client = _client;
@@ -1168,7 +1191,8 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 #endif
-    [client _swiftCaptureLog:log withScope:(id _Nonnull)self.scope];
+    [client _swiftCaptureLog:log
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
 #pragma mark - Protected

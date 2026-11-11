@@ -111,7 +111,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     self.finishStatus = kSentrySpanStatusUndefined;
 
 #if SENTRY_HAS_UIKIT
-    [hub configureScope:^(id scopeObject) {
+    [hub configureScope:^(SENTRY_SWIFT_MIGRATION_ID(SentryScope) scopeObject) {
         SentryScope *scope = scopeObject;
         if (scope.currentScreen != nil) {
             self->viewNames = @[ SENTRY_UNWRAP_NULLABLE(NSString, scope.currentScreen) ];

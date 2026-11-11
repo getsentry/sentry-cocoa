@@ -84,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (nullable instancetype)initWithScope:(id)scope options:(SentryOptions *)options
+- (nullable instancetype)initWithScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                               options:(SentryOptions *)options
 {
     SentryScope *typedScope = scope;
     SentryTracer *tracer = [SentryTracer getTracer:typedScope.span];
@@ -95,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
-                                  scope:(nullable id)scope
+                                  scope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                                 options:(SentryOptions *)options
 {
     SentryScope *typedScope = scope;

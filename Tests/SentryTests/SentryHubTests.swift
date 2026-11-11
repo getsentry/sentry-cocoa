@@ -1547,7 +1547,11 @@ class SentryHubTests: XCTestCase {
                 self.replayEvent = event as? SentryReplayEvent
                 self.replayRecording = recording as? SentryReplayRecording
                 self.videoUrl = videoURL
-                self.scope = scope as? Scope
+                guard let scope = scope as? Scope else {
+                    XCTFail("Expected Scope, got \(type(of: scope))")
+                    return
+                }
+                self.scope = scope
             }
         }
         let mockClient = SentryClientMockReplay(options: fixture.options)

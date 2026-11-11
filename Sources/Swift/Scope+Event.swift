@@ -46,49 +46,49 @@ extension Scope {
 
     private func applyTags(to event: Event) {
         let scopeTags = tags
-        if event.tags == nil {
+        guard let eventTags = event.tags else {
             event.tags = scopeTags
-        } else {
-            var merged = scopeTags
-            if let eventTags = event.tags {
-                merged.merge(eventTags) { _, eventValue in eventValue }
-            }
-            event.tags = merged
+            return
         }
+        var merged = scopeTags
+        merged.merge(eventTags) { _, eventValue in eventValue }
+        event.tags = merged
     }
 
     private func applyExtras(to event: Event) {
         let scopeExtras = extras()
-        if event.extra == nil {
+        guard let eventExtra = event.extra else {
             event.extra = scopeExtras
-        } else {
-            var merged = scopeExtras
-            if let eventExtra = event.extra {
-                merged.merge(eventExtra) { _, eventValue in eventValue }
-            }
-            event.extra = merged
+            return
         }
+        var merged = scopeExtras
+        merged.merge(eventExtra) { _, eventValue in eventValue }
+        event.extra = merged
     }
 
     private func applyFingerprint(to event: Event) {
         let scopeFingerprints = fingerprints()
-        if !scopeFingerprints.isEmpty && event.fingerprint == nil {
-            event.fingerprint = scopeFingerprints
+        guard !scopeFingerprints.isEmpty, event.fingerprint == nil else {
+            return
         }
+        event.fingerprint = scopeFingerprints
     }
 
     private func applyBreadcrumbs(to event: Event, maxBreadcrumbs: UInt) {
-        if event.breadcrumbs == nil {
-            let scopeBreadcrumbs = breadcrumbs()
-            let length = min(max(0, Int(maxBreadcrumbs)), scopeBreadcrumbs.count)
-            event.breadcrumbs = Array(scopeBreadcrumbs.prefix(length))
+        guard event.breadcrumbs == nil else {
+            return
         }
+        let scopeBreadcrumbs = breadcrumbs()
+        // Clamp in UInt. Int(maxBreadcrumbs) traps when the limit is above Int.max.
+        let limit = min(maxBreadcrumbs, UInt(scopeBreadcrumbs.count))
+        event.breadcrumbs = Array(scopeBreadcrumbs.prefix(Int(limit)))
     }
 
     private func applyUser(to event: Event) {
-        if let user = userObject?.copy() as? User {
-            event.user = user
+        guard let user = userObject?.copy() as? User else {
+            return
         }
+        event.user = user
     }
 
     private func applyDistEnvironmentAndLevel(to event: Event) {
@@ -98,9 +98,11 @@ extension Scope {
         if let environment = environmentString, event.environment == nil {
             event.environment = environment
         }
-        if levelEnum != .none {
-            event.level = levelEnum
+        let level = levelEnum
+        guard level != .none else {
+            return
         }
+        event.level = level
     }
 
     private func applyContext(to event: Event) {
@@ -109,13 +111,13 @@ extension Scope {
         if !isRegularEvent {
             newContext.removeValue(forKey: "flags")
         }
-        if let eventContext = event.context {
-            let merged = NSMutableDictionary(dictionary: newContext)
-            mergeEntries(from: eventContext as NSDictionary, into: merged)
-            event.context = merged as? [String: [String: Any]] ?? bridgedContext(merged)
-        } else {
+        guard let eventContext = event.context else {
             event.context = newContext
+            return
         }
+        let merged = NSMutableDictionary(dictionary: newContext)
+        mergeEntries(from: eventContext as NSDictionary, into: merged)
+        event.context = merged as? [String: [String: Any]] ?? bridgedContext(merged)
     }
 
     /// Overlays this scope onto an event that already has data from another scope.
@@ -134,48 +136,51 @@ extension Scope {
 
     private func overlayTags(on event: Event) {
         let overlayTags = tags
-        if !overlayTags.isEmpty {
-            var merged = event.tags ?? [:]
-            merged.merge(overlayTags) { _, overlayValue in overlayValue }
-            event.tags = merged
+        guard !overlayTags.isEmpty else {
+            return
         }
+        var merged = event.tags ?? [:]
+        merged.merge(overlayTags) { _, overlayValue in overlayValue }
+        event.tags = merged
     }
 
     private func overlayExtras(on event: Event) {
         let overlayExtras = extras()
-        if !overlayExtras.isEmpty {
-            var merged = event.extra ?? [:]
-            merged.merge(overlayExtras) { _, overlayValue in overlayValue }
-            event.extra = merged
+        guard !overlayExtras.isEmpty else {
+            return
         }
+        var merged = event.extra ?? [:]
+        merged.merge(overlayExtras) { _, overlayValue in overlayValue }
+        event.extra = merged
     }
 
     private func overlayUser(on event: Event) {
-        if let overlayUser = userObject?.copy() as? User {
-            event.user = overlayUser
+        guard let overlayUser = userObject?.copy() as? User else {
+            return
         }
+        event.user = overlayUser
     }
 
     private func overlayFingerprint(on event: Event) {
         let overlayFingerprint = fingerprints()
-        if !overlayFingerprint.isEmpty {
-            event.fingerprint = overlayFingerprint
+        guard !overlayFingerprint.isEmpty else {
+            return
         }
+        event.fingerprint = overlayFingerprint
     }
 
     private func overlayBreadcrumbs(on event: Event, maxBreadcrumb: UInt) {
         let overlayBreadcrumbs = breadcrumbs()
-        if !overlayBreadcrumbs.isEmpty {
-            var merged = event.breadcrumbs ?? []
-            for crumb in overlayBreadcrumbs where !merged.contains(where: { $0 === crumb }) {
-                merged.append(crumb)
-            }
-            if merged.count > Int(maxBreadcrumb) {
-                event.breadcrumbs = Array(merged.suffix(Int(maxBreadcrumb)))
-            } else {
-                event.breadcrumbs = merged
-            }
+        guard !overlayBreadcrumbs.isEmpty else {
+            return
         }
+        var merged = event.breadcrumbs ?? []
+        for crumb in overlayBreadcrumbs where !merged.contains(where: { $0 === crumb }) {
+            merged.append(crumb)
+        }
+        // Clamp in UInt. Int(maxBreadcrumb) traps when the limit is above Int.max.
+        let limit = min(maxBreadcrumb, UInt(merged.count))
+        event.breadcrumbs = Array(merged.suffix(Int(limit)))
     }
 
     private func overlayDistEnvironmentAndLevel(on event: Event) {
@@ -185,30 +190,34 @@ extension Scope {
         if let overlayEnvironment = environmentString {
             event.environment = overlayEnvironment
         }
-        if levelEnum != .none {
-            event.level = levelEnum
+        let level = levelEnum
+        guard level != .none else {
+            return
         }
+        event.level = level
     }
 
     private func overlayContext(on event: Event) {
         let overlayContext = context()
-        if !overlayContext.isEmpty {
-            var merged = event.context ?? [:]
-            let mergedDictionary = NSMutableDictionary(dictionary: merged)
-            mergeEntries(from: overlayContext as NSDictionary, into: mergedDictionary)
-            merged = mergedDictionary as? [String: [String: Any]] ?? bridgedContext(mergedDictionary)
-            let isRegularEvent = event.type == nil || event.type == SentryEnvelopeItemTypes.event
-            if !isRegularEvent {
-                merged.removeValue(forKey: "flags")
-            }
-            event.context = merged
+        guard !overlayContext.isEmpty else {
+            return
         }
+        var merged = event.context ?? [:]
+        let mergedDictionary = NSMutableDictionary(dictionary: merged)
+        mergeEntries(from: overlayContext as NSDictionary, into: mergedDictionary)
+        merged = mergedDictionary as? [String: [String: Any]] ?? bridgedContext(mergedDictionary)
+        let isRegularEvent = event.type == nil || event.type == SentryEnvelopeItemTypes.event
+        if !isRegularEvent {
+            merged.removeValue(forKey: "flags")
+        }
+        event.context = merged
     }
 
     private func overlaySpan(on event: Event) {
-        if let span, !event.isFatalEvent, event.type != SentryEnvelopeItemTypes.transaction {
-            applySpan(span, to: event)
+        guard let span, !event.isFatalEvent, event.type != SentryEnvelopeItemTypes.transaction else {
+            return
         }
+        applySpan(span, to: event)
     }
 
     #if SDK_V10
@@ -249,8 +258,9 @@ extension Scope {
         if !scopeFingerprints.isEmpty {
             serializedData.setValue(scopeFingerprints, forKey: "fingerprint")
         }
-        if levelEnum != .none {
-            serializedData.setValue(SentryLevelHelper.nameForLevel(levelEnum), forKey: "level")
+        let level = levelEnum
+        if level != .none {
+            serializedData.setValue(SentryLevelHelper.nameForLevel(level), forKey: "level")
         }
         let crumbs = breadcrumbs().map { $0.serialize() }
         if !crumbs.isEmpty {

@@ -101,7 +101,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #if SENTRY_HAS_UIKIT
-- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event withScope:(id)scope
+- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event
+                                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryScope *typedScope = scope;
     [self modifyContext:event

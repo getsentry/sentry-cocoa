@@ -206,9 +206,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return self.options;
 }
 
-- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
-                                              withScope:(id)scope
-                                           currentScope:(nullable id)currentScope
+- (nullable SentryTraceContext *)
+    getTraceStateWithEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+              currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope
 {
     SentryScope *typedScope = scope;
     SentryScope *typedCurrentScope = currentScope;
@@ -247,7 +248,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendEnvelope:envelope];
 }
 
-- (void)captureFeedback:(SentryFeedback *)feedback withScope:(id)scope
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];
     [self captureSerializedFeedback:[feedback serialize]
@@ -298,10 +300,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(id)scope
+                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(id _Nullable)currentScope
+                          currentScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope)_Nullable)currentScope
                                   hint:(SentryHint *)hint
 {
     NSParameterAssert(event);

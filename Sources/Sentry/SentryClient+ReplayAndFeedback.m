@@ -14,18 +14,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryTransportAdapter *)transportAdapter;
 
 - (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
-                             withScope:(id)scope
+                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
 - (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(id)scope
+                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(nullable id)currentScope;
+                          currentScope:
+                              (nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
 
-- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
-                                              withScope:(id)scope
-                                           currentScope:(nullable id)currentScope;
+- (nullable SentryTraceContext *)
+    getTraceStateWithEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+              currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
 
 - (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
                                                 attachments:
@@ -65,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL
-                 withScope:(id)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
                                                 withScope:scope
@@ -114,8 +116,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(id)scope
-                     currentScope:(nullable id)currentScope
+                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                     currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope
 {
     if ([self isDisabled]) {
         [self logDisabledMessage];
@@ -185,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(id)scope
+                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];
     [self captureSerializedFeedback:serializedFeedback

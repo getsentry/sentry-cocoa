@@ -318,7 +318,11 @@ final class TestSDKAdaptersTests: XCTestCase {
             self.event = event as? SentryReplayEvent
             self.recording = recording as? SentryReplayRecording
             self.video = video
-            self.scope = scope as? Scope
+            guard let scope = scope as? Scope else {
+                XCTFail("Expected Scope, got \(type(of: scope))")
+                return
+            }
+            self.scope = scope
         }
     }
 

@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 // attachments the SDK captured for the event, such as crash-time screenshots, are sent with them;
 // the beforeSendWithHint callback can still add more.
 - (void)populateHintAttachments:(SentryHint *)hint
-                          scope:(id)scope
+                          scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           isFromPreviousProcess:(BOOL)isFromPreviousProcess
 {
     SentryScope *typedScope = scope;
