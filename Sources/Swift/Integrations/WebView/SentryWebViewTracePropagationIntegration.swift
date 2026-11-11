@@ -129,6 +129,7 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
     /// rather than touching the controller off the main thread.
     private static func willLoad(_ webView: WKWebView) {
         guard Thread.isMainThread else {
+            SentrySDKLog.warning("Not adding WebView trace propagation to a WKWebView load that runs off the main thread.")
             return
         }
         MainActor.assumeIsolated {
