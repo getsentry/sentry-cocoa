@@ -47,9 +47,10 @@ import Foundation
         fatalError("init() has not been implemented")
     }
 
-    /// Event's designated initializer. Replay events are created with ``init(eventId:replayStartTimestamp:replayType:segmentId:)``.
+    /// Unavailable. Replay events are created with ``init(eventId:replayStartTimestamp:replayType:segmentId:)``.
+    @available(*, unavailable)
     public override init(level: SentryLevel) {
-        fatalError("init(level:) has not been implemented")
+        fatalError("init(level:) is unavailable")
     }
     
     #if SDK_V10
