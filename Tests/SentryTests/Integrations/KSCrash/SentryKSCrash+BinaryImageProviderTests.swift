@@ -80,6 +80,14 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
         // -- Arrange --
         let frameworks = try XCTUnwrap(Bundle(for: Self.self).privateFrameworksURL)
         let library = frameworks.appendingPathComponent("SentryUnloadingImage.framework/SentryUnloadingImage")
+        for index in 0..<_dyld_image_count() {
+            guard let name = _dyld_get_image_name(index) else { continue }
+            guard !String(cString: name).hasSuffix("/SentryUnloadingImage.framework/SentryUnloadingImage") else {
+                XCTFail("Invalid test setup: SentryUnloadingImage must be embedded but not linked or already loaded. dlopen must acquire its only reference")
+                return
+            }
+        }
+        
         let handle = try XCTUnwrap(dlopen(library.path, RTLD_NOW | RTLD_LOCAL), loaderError())
 
         var didClose = false
