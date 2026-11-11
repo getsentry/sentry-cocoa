@@ -1,6 +1,10 @@
 import _SentryPrivate
 #if SWIFT_PACKAGE
+#if !SDK_V10
 @testable import SentrySwift
+#else
+@testable import Sentry
+#endif
 import SentryHeaders
 #else
 @testable import Sentry

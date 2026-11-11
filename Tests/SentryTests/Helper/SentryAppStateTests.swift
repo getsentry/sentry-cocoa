@@ -1,5 +1,9 @@
 #if SWIFT_PACKAGE
+#if !SDK_V10
 @_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 #else
 @_spi(Private) import Sentry
 #endif
@@ -81,6 +85,61 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["is_anr_ongoing"] = "" }
     }
     
+    func testSerialize_whenRunIdIsSet_shouldAddRunId() {
+        // -- Arrange --
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: SentryCurrentRun.ID(rawValue: "run-id"))
+
+        // -- Act --
+        let actual = appState.serialize()
+
+        // -- Assert --
+        XCTAssertEqual(actual["run_id"] as? String, "run-id")
+    }
+
+    func testSerialize_whenRunIdIsNil_shouldNotAddRunId() {
+        // -- Arrange --
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
+
+        // -- Act --
+        let actual = appState.serialize()
+
+        // -- Assert --
+        XCTAssertNil(actual["run_id"])
+    }
+
+    func testInitWithJSON_whenRunIdIsSet_shouldReadRunId() throws {
+        // -- Arrange --
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: SentryCurrentRun.ID(rawValue: "run-id"))
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentryAppState(jsonObject: appState.serialize()))
+
+        // -- Assert --
+        XCTAssertEqual(actual.runId, SentryCurrentRun.ID(rawValue: "run-id"))
+    }
+
+    func testInitWithJSON_whenRunIdIsMissing_shouldKeepAppStateWithoutRunId() throws {
+        // -- Arrange --
+        // App states written by SDK versions without a run ID have no run_id field.
+        var serialized = TestData.appState.serialize()
+        serialized["run_id"] = nil
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentryAppState(jsonObject: serialized))
+
+        // -- Assert --
+        XCTAssertNil(actual.runId)
+    }
+
+    func testInitWithJSON_whenRunIdIsNotAString_shouldReturnNil() {
+        // -- Arrange --
+        var serialized = TestData.appState.serialize()
+        serialized["run_id"] = 7
+
+        // -- Act & Assert --
+        XCTAssertNil(SentryAppState(jsonObject: serialized))
+    }
+
     func testBootTimeRoundedDownToSeconds() {
         
         let date = Date(timeIntervalSince1970: 0.1)

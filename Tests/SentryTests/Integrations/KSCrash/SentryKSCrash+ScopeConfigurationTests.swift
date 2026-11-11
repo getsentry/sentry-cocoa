@@ -1,6 +1,6 @@
 #if SDK_V10
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -37,7 +37,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
 
         // -- Act --
-        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options)
+        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options, currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id")))
 
         // -- Assert --
         let userInfo = try XCTUnwrap(installer.setUserInfoInvocations.first)
@@ -49,6 +49,23 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         XCTAssertNil(userInfo["attributes"])
     }
 
+    func testInit_shouldStoreRunIdInUserInfo() throws {
+        // -- Arrange --
+        setCurrentHub(scope: Scope())
+        let installer = MockKSCrashInstaller()
+
+        // -- Act --
+        _ = SentryKSCrash.Scope.Configuration(
+            installer: installer,
+            options: Options(),
+            currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "current-run-id"))
+        )
+
+        // -- Assert --
+        let userInfo = try XCTUnwrap(installer.setUserInfoInvocations.first)
+        XCTAssertEqual(userInfo[SentryCurrentRun.userInfoKey] as? String, "current-run-id")
+    }
+
     func testInit_whenScopeHasNoEnvironment_shouldUseOptionsEnvironment() throws {
         // -- Arrange --
         setCurrentHub(scope: Scope())
@@ -57,7 +74,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
 
         // -- Act --
-        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options)
+        _ = SentryKSCrash.Scope.Configuration(installer: installer, options: options, currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id")))
 
         // -- Assert --
         let userInfo = try XCTUnwrap(installer.setUserInfoInvocations.first)
@@ -84,7 +101,8 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         // -- Act --
         _ = SentryKSCrash.Scope.Configuration(
             installer: MockKSCrashInstaller(),
-            options: Options()
+            options: Options(),
+            currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
         )
 
         // -- Assert --
@@ -123,7 +141,7 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
 
         // -- Act --
-        let sut = SentryKSCrash.Scope.Configuration(installer: installer, options: Options())
+        let sut = SentryKSCrash.Scope.Configuration(installer: installer, options: Options(), currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id")))
         scope.setDist("updated-dist")
 
         // -- Assert --
@@ -141,7 +159,8 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         // -- Act --
         _ = SentryKSCrash.Scope.Configuration(
             installer: MockKSCrashInstaller(),
-            options: Options()
+            options: Options(),
+            currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
         )
 
         // -- Assert --

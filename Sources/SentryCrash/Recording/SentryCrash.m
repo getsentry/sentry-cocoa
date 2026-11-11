@@ -508,6 +508,11 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         return nil;
     }
 
+    if (![crashReport isKindOfClass:[NSMutableDictionary class]]) {
+        SENTRY_LOG_ERROR(@"Crash report %" PRIx64 " is not a JSON object", reportID);
+        return nil;
+    }
+
     NSArray *attachments = [self getAttachmentPaths:reportID];
     if (attachments.count > 0) {
         crashReport[SentryNativeReportAttachmentsKey] = attachments;

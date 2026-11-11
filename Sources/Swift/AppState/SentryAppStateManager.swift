@@ -12,6 +12,7 @@ import UIKit
         & SysctlProvider
         & DispatchQueueWrapperProvider
         & NotificationCenterProvider
+        & CurrentRunProvider
 
     private let releaseName: String?
     private let debuggerStatusProvider: SentryDebuggerStatusProvider
@@ -35,14 +36,15 @@ import UIKit
         dispatchQueue = dependencies.dispatchQueueWrapper
         notificationCenter = dependencies.notificationCenterWrapper
         let lock = NSRecursiveLock()
-        let buildCurrentAppState = { [debuggerStatusProvider, releaseName, sysctlWrapper] in
+        let currentRun = dependencies.currentRun
+        let buildCurrentAppState = { [debuggerStatusProvider, releaseName, sysctlWrapper, currentRun] in
             // Is the current process being traced or not? If it is a debugger is attached.
             let isDebugging = debuggerStatusProvider.isBeingTraced
 
             let device = UIDevice.current
             let vendorId = device.identifierForVendor?.uuidString
 
-            return SentryAppState(releaseName: releaseName, osVersion: device.systemVersion, vendorId: vendorId, isDebugging: isDebugging, systemBootTimestamp: sysctlWrapper.systemBootTimestamp)
+            return SentryAppState(releaseName: releaseName, osVersion: device.systemVersion, vendorId: vendorId, isDebugging: isDebugging, systemBootTimestamp: sysctlWrapper.systemBootTimestamp, runId: currentRun.id)
         }
         _buildCurrentAppState = buildCurrentAppState
         let updateAppState: (@escaping (SentryAppState) -> Void) -> Void = { [fileManager] block in

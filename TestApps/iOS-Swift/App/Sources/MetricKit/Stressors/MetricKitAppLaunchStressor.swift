@@ -1,6 +1,10 @@
 import Foundation
 import SentrySampleShared
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 import UIKit
 
 /// Slows down every launch while `SentrySDKOverrides.MetricKit.slowLaunch` is on, so MetricKit
