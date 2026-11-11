@@ -1,6 +1,7 @@
 # This is used by the action https://github.com/dorny/paths-filter
 
 high_risk_code: &high_risk_code
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Sentry/SentryNSURLSessionTaskSearch.m"
   - "Sources/Sentry/SentryUIViewControllerSwizzling.m"
   - "Sources/Sentry/SentryNSDataSwizzling.m"
@@ -20,6 +21,7 @@ high_risk_code: &high_risk_code
   - ".github/file-filters.yml"
 
 run_unit_tests_for_prs: &run_unit_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -75,6 +77,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Brewfile*"
 
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Resources/**"
   - "Sources/SentryDistribution/**"
   - "Sources/SentryDistributionTests/**"
@@ -123,6 +126,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sentry.xcodeproj/**"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -172,6 +176,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "Makefile"
 
 run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "**/*.h"
   - "**/*.hpp"
   - "**/*.c"
@@ -200,6 +205,7 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
 
 # Same ObjC/C/C++ source patterns as run_lint_clang_formatting_for_prs; omits clang-format-only paths.
 run_sentrycrash_import_ratchet_for_prs:
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "**/*.h"
   - "**/*.hpp"
   - "**/*.c"
@@ -221,6 +227,7 @@ run_sentrycrash_import_ratchet_for_prs:
   - "Brewfile*"
 
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Utils/SwiftConversion/**"
   - "Makefile"
 
@@ -238,6 +245,7 @@ run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "Brewfile*"
 
 run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - ".github/workflows/auto-update-tools.yml"
   - ".github/file-filters.yml"
 
@@ -263,12 +271,17 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - ".swiftlint.yml"
 
 run_release_for_prs: &run_release_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
   - "Sources/Sentry/**"
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Module/**"
+  - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
@@ -296,12 +309,16 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-variant.sh"
+  - "scripts/build-xcframework-variant-spm.sh"
   - "scripts/validate-xcframework*.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/compress-xcframework.sh"
+  - "scripts/tools.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
-  - "scripts/build-static-library-sentryobjc.sh"
-  - "scripts/build-dynamic-framework-sentryobjc.sh"
+  - "scripts/build-static-library.sh"
+  - "scripts/build-dynamic-framework.sh"
+  - "scripts/prepare-sentry-framework-inputs.sh"
   - "scripts/assemble-xcframework-sentryobjc.sh"
   - "scripts/ci-arrange-xcframework-slices.sh"
   - "scripts/generate_release_matrix.sh"
@@ -325,6 +342,7 @@ run_release_for_prs: &run_release_for_prs
   - "Makefile"
 
 run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "**/*.swift"
 
   # GH Actions
@@ -344,6 +362,7 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
   - "Brewfile*"
 
 run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "**/*.sh"
 
   # GH Actions
@@ -351,6 +370,7 @@ run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs
   - ".github/file-filters.yml"
 
 run_lint_dprint_for_prs: &run_lint_dprint_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "**/*.yml"
   - "**/*.yaml"
   - "**/*.json"
@@ -358,12 +378,15 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
 
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
+  - ".github/actionlint.yaml"
+  - ".pre-commit-config.yaml"
   - ".github/file-filters.yml"
 
   # Formatting
   - "dprint.json"
 
 run_lint_changelog_for_prs: &run_lint_changelog_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "CHANGELOG*.md"
 
   # GH Actions
@@ -381,6 +404,7 @@ run_lint_changelog_for_prs: &run_lint_changelog_for_prs
   - "Brewfile*"
 
 run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -413,6 +437,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Makefile"
 
 run_v10_for_prs: &run_v10_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -456,16 +481,19 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-v10.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
-  - "scripts/build-static-library-sentryobjc.sh"
-  - "scripts/build-dynamic-framework-sentryobjc.sh"
+  - "scripts/build-static-library.sh"
+  - "scripts/build-dynamic-framework.sh"
+  - "scripts/prepare-sentry-framework-inputs.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/compress-xcframework.sh"
+  - "scripts/tools.sh"
   - "scripts/assemble-xcframework-sentryobjc.sh"
   - "scripts/validate-xcframework*.sh"
   - "scripts/generate-testapp-v10.sh"
+  - "scripts/test-v10-development-selection.sh"
   - "scripts/test-spm-crash-backend-selection.swift"
   - "scripts/test-spm-v9-no-ui-framework.swift"
-  - "scripts/test-sentryobjc-archive-architectures.sh"
-  - "scripts/test-spm-framework-packaging.py"
+  - "scripts/test-static-library-archive-architectures.sh"
   - "scripts/test-v10-archive-audit-path.sh"
   - "scripts/set-xcodegen-package-traits.sh"
   - "scripts/set-xcodegen-compiler-flags.sh"
@@ -486,6 +514,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "Makefile"
 
 run_crash_e2e_for_prs:
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -520,6 +549,7 @@ run_crash_e2e_for_prs:
   - "Brewfile*"
 
 run_thread_inspection_harness_for_prs:
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Sentry/SentryThreadSnapshot.c"
   - "Sources/Sentry/SentryThreadSnapshotKSCrash.c"
   - "Sources/Sentry/include/SentryThreadSnapshot.h"
@@ -533,6 +563,7 @@ run_thread_inspection_harness_for_prs:
   - ".github/actions/ci-diagnostics/**"
 
 run_build_for_prs: &run_build_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/**"
   - "TestApps/**"
   - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
@@ -567,6 +598,7 @@ run_build_for_prs: &run_build_for_prs
   - "Brewfile*"
 
 run_testflight_for_prs: &run_testflight_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
   - "TestApps/iOS-Swift/**"
@@ -584,6 +616,7 @@ run_testflight_for_prs: &run_testflight_for_prs
   - "Makefile"
 
 run_testflight_for_pushes: &run_testflight_for_pushes
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -612,6 +645,7 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   - "Makefile"
 
 run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -642,6 +676,7 @@ run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
   - "Makefile"
 
 run_version_bump_util_for_prs: &run_version_bump_util_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - ".github/workflows/version-bump-util.yml"
   - ".github/file-filters.yml"
 
@@ -667,6 +702,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sources/Configuration/SentrySwiftUI.xcconfig"
 
 run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - ".github/workflows/apple-binaries-archive.yml"
   - ".github/file-filters.yml"
   - "scripts/create-apple-binaries-archive.sh"
@@ -674,6 +710,7 @@ run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
   - "distribution/**"
 
 run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - ".github/workflows/3rd-party-integrations-archive.yml"
   - ".github/file-filters.yml"
   - "scripts/create-3rd-party-integration-archive.sh"
@@ -681,6 +718,7 @@ run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_
   - "3rd-party-integrations/**"
 
 run_ui_tests_for_prs: &run_ui_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -728,6 +766,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Brewfile*"
 
 run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -770,6 +809,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "Brewfile*"
 
 run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -811,6 +851,7 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Brewfile*"
 
 run_size_analysis_for_prs: &run_size_analysis_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"
@@ -843,6 +884,7 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Brewfile*"
 
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
+  - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Configuration/**"
   - "Sources/include/**"
   - "Sources/Resources/**"

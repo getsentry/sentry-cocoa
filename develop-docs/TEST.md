@@ -52,12 +52,13 @@ SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@
 ```sh
 swift test --traits _SentryTest
 swift test --traits _SentryTestCI
-# V10: select through the environment or trait.
+# V10: the environment selects the SDK; the test trait enables test helpers.
 SDK_V10=1 swift test --traits _SentryTest
-swift test --traits V10,_SentryTest
 ```
 
-The traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
+The `V10` trait has been removed; use `SDK_V10=1` for all V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
+
+The test traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
 
 | Trait           | Swift definitions | Objective-C/C/C++ definitions            |
 | --------------- | ----------------- | ---------------------------------------- |
@@ -122,7 +123,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
 
 - **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
-- **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
+- **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. The SDK Swift target (`Sentry` with `SDK_V10=1`, otherwise `SentrySwift`) and `SentryObjCCompat` use library evolution and verify their textual interfaces.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.

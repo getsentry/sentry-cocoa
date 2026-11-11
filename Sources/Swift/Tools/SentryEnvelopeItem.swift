@@ -207,5 +207,11 @@ internal import _SentryPrivate
     @objc public func type() -> String {
         header.type
     }
+
+    /// The number of telemetry items batched into this envelope item, such as logs or metrics.
+    /// `nil` when the item type carries a single item.
+    @objc public var itemCount: NSNumber? {
+        header.itemCount
+    }
 }
 // swiftlint:enable missing_docs

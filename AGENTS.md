@@ -20,17 +20,7 @@ Sentry Cocoa SDK for iOS, macOS, tvOS, watchOS, and visionOS.
 
 ## SDK Architecture
 
-```text
-SentrySDK (public API)
-  -> SentrySDKInternal.currentHub
-    -> SentryHub (binds the current SentryClient and Scope)
-      -> SentryClient.prepareEvent (sampling and enrichment)
-        -> SentryScope.applyToEvent (tags, breadcrumbs, user, and context)
-        -> beforeSend callbacks and event processors
-      -> SentryTransportAdapter (builds envelopes and fans out to transports)
-        -> SentryHttpTransport (rate limiting, persistence, and upload)
-          -> SentryFileManager (on-disk envelope storage)
-```
+See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and event flow.
 
 ## Critical References
 
@@ -38,6 +28,7 @@ SentrySDK (public API)
 - Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before changing or reviewing swizzling code
 - Read [`develop-docs/SWIFT.md`](develop-docs/SWIFT.md) before refactoring any Objective-C code to Swift, or when adding new Swift code
 - Follow [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md) when behavior is covered by an SDK specification
+- Follow [`develop-docs/CI.md`](develop-docs/CI.md#background-steps-and-dependency-ordering) when changing CI step ordering or background processes
 
 ## Tooling
 
@@ -92,11 +83,17 @@ SentrySDK (public API)
 - V10-only changes go in `CHANGELOG_V10.md` and require `#skip-changelog` in the pull request description
 - Resolve changelog conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
 - Pull request titles follow the commit subject format
+- Create draft pull requests by default unless explicitly requested otherwise
+- Assign every newly created pull request to its creator. Use `gh pr create --assignee @me` when authenticated as the creator, and verify the assignee after creation
+- Read the complete issue or pull request description and all comments, including review threads and later clarifications, before acting
+- Keep independent fixes in separate pull requests and exclude unrelated commits or generated test artifacts
+- Follow [the pull request template](.github/pull_request_template.md) and check boxes only when supported by the work performed
 - Add `run-full-ci` only when the pull request is ready for comprehensive testing
 - After committing, include any `Agent transcript:` link from `git log main..HEAD` in the pull request description
 
 ## Documentation
 
+- Prefer Mermaid diagrams over ASCII art
 - Keep affected headerdocs, comments, maintainer docs, and specification compliance in sync with behavior changes
 - Append changelog entries to the end of their section
 - Place changelog alerts after `## Version` and before section headings

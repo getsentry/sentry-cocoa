@@ -34,31 +34,33 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 ./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 
-`assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
+[assemble-xcframework.sh](../scripts/assemble-xcframework.sh) combines archives, frameworks, or static libraries. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for wrapper packaging.
 
-### Source-built SDK frameworks
+### SPM-built SDK frameworks
 
-The existing source archive → dynamic framework → XCFramework scripts also support packaging the main SDK from SwiftPM sources. `build-static-library-sentryobjc.sh` uses `--scheme` to select the product/output name and `--architecture-target` to select the compiled target whose architectures must be present. V9 uses scheme `SentrySPM`; V10 uses `Sentry`. Both currently compile target `SentrySwift`. The default scheme and architecture target remain `SentryObjC` and `SentryObjCCompat`.
-
-`build-dynamic-framework-sentryobjc.sh` retains its SentryObjC defaults. For the main SDK, `--framework-name` must match the compiled Swift module and `--swift-archive` supplies its interfaces, generated Objective-C header, and resource bundles. Use the same `SDK_V10` setting as the archive. The packager folds the public Clang headers into the framework's underlying module and adjusts generated interface references, without renaming compiled Swift symbols. Public and private Swift interfaces are retained; producer-specific serialized modules are not distributed. One XCFramework/binary target supports `import SentrySwift` without a companion headers artifact. V10 will use `import Sentry` after the upstream module rename lands.
-
-For example, to package a V9 iOS device slice:
+Build a self-contained `Sentry-Dynamic.xcframework` from SwiftPM sources for either V9 or V10, matching the Xcode-project dynamic artifact name. The inner framework remains `Sentry.framework`. Swift binary consumers always use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
 
 ```bash
-export SDK_V10=0
-./scripts/build-static-library-sentryobjc.sh \
-  --sdk iphoneos --scheme SentrySPM --architecture-target SentrySwift
-./scripts/build-dynamic-framework-sentryobjc.sh \
-  --sdk iphoneos --framework-name SentrySwift \
-  --swift-archive XCFrameworkBuildPath/archive/SentrySPM/iphoneos.xcarchive \
-  --static-lib XCFrameworkBuildPath/lib/SentrySPM/iphoneos/libSentrySPM-Debug.a \
-  --headers Sources/Sentry/Public
-./scripts/assemble-xcframework.sh --sdks iphoneos \
-  --framework-template "$(pwd)/XCFrameworkBuildPath/framework/SentrySwift/SDK_NAME/SentrySwift.framework" \
-  --output "$(pwd)/SentrySwift.xcframework"
+SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
+SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 ```
 
-Run architecture regression tests with `./scripts/test-sentryobjc-archive-architectures.sh`. On macOS with Xcode selected, `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
+The [build script](../scripts/build-xcframework-variant-spm.sh) automatically sets the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`, without changing the implementation or crash backend selected by `SDK_V10`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
+
+Output: `XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework.zip` or `XCFrameworkBuildPath/SPM/v10/Sentry-Dynamic.xcframework.zip`. The generation-specific directories keep intermediates and identically named artifacts separate. When overriding `SPM_XCFRAMEWORK_BUILD_PATH` (or the script’s `--output-dir`), use separate paths for each generation. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
+
+Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
+
+```bash
+SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework" \
+  swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
+SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v10/Sentry-Dynamic.xcframework" \
+  swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
+```
+
+The sample checks dynamic loading, public API, SPI, ordinary Objective-C imports, and the privacy manifest from the loaded SDK bundle without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, it consumes the existing `Sentry-Dynamic` product; use `swift run --build-system xcode --package-path TestApps/SPM-Dynamic SPM-Dynamic` as in the Release workflow.
+
+The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
 ## Public API Generation
 
@@ -111,6 +113,19 @@ Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -
 
 These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
 
+### SwiftPM V10 selection
+
+Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry` source product. The `V10` trait has been removed; V9 defaults and unrelated traits remain unchanged. See [decision 41](DECISIONS.md#41-select-swiftpm-v10-through-the-environment-only).
+
+| Selection      | SDK | Source product / Swift module |
+| -------------- | --- | ----------------------------- |
+| No `SDK_V10=1` | V9  | `SentrySPM` / `SentrySwift`   |
+| `SDK_V10=1`    | V10 | `Sentry` / `Sentry`           |
+
+For ordinary source builds, shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. The packaging-only mode above also selects `Sentry`, using explicit `SENTRY_BUILD_XCFRAMEWORK` compiler conditions for internal imports. Do not use `canImport` to select a version or module name: cached modules can survive mode switches.
+
+`make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
+
 ### 1. Test the verification scripts
 
 Run their regression tests before using the verifiers on your checkout:
@@ -119,7 +134,10 @@ Run their regression tests before using the verifiers on your checkout:
 ./scripts/test-v10-compiler-log.sh
 ./scripts/test-v10-empty-objects.sh
 ./scripts/test-v10-sentryobjc-slice-inventory.sh
+./scripts/test-v10-development-selection.sh
 ```
+
+The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions. Run `./scripts/test-spm-crash-backend-selection.swift` separately for real consumer builds.
 
 ### 2. Check source ownership
 

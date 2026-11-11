@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -771,11 +771,11 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["trace_id"] as? String, span.traceId.sentryIdString)
         XCTAssertEqual(serialization["op"] as? String, span.operation)
         XCTAssertEqual(serialization["description"] as? String, span.spanDescription)
-        XCTAssertEqual(serialization["status"] as? String, nameForSentrySpanStatus(span.status))
+        XCTAssertEqual(serialization["status"] as? String, span.status.name)
         XCTAssertEqual(serialization["sampled"] as? NSNumber, valueForSentrySampleDecision(span.sampled))
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
-        XCTAssertEqual(serialization["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(serialization["type"] as? String, "trace")
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
         
@@ -920,27 +920,6 @@ class SentrySpanTests: XCTestCase {
         
         let threadDataItemCount = 2
         XCTAssertEqual(span.data.count, outerLoop * innerLoop + threadDataItemCount)
-    }
-    
-    func testSpanStatusNames() {
-        XCTAssertEqual(nameForSentrySpanStatus(.undefined), kSentrySpanStatusNameUndefined)
-        XCTAssertEqual(nameForSentrySpanStatus(.ok), kSentrySpanStatusNameOk)
-        XCTAssertEqual(nameForSentrySpanStatus(.deadlineExceeded), kSentrySpanStatusNameDeadlineExceeded)
-        XCTAssertEqual(nameForSentrySpanStatus(.unauthenticated), kSentrySpanStatusNameUnauthenticated)
-        XCTAssertEqual(nameForSentrySpanStatus(.permissionDenied), kSentrySpanStatusNamePermissionDenied)
-        XCTAssertEqual(nameForSentrySpanStatus(.notFound), kSentrySpanStatusNameNotFound)
-        XCTAssertEqual(nameForSentrySpanStatus(.resourceExhausted), kSentrySpanStatusNameResourceExhausted)
-        XCTAssertEqual(nameForSentrySpanStatus(.invalidArgument), kSentrySpanStatusNameInvalidArgument)
-        XCTAssertEqual(nameForSentrySpanStatus(.unimplemented), kSentrySpanStatusNameUnimplemented)
-        XCTAssertEqual(nameForSentrySpanStatus(.unavailable), kSentrySpanStatusNameUnavailable)
-        XCTAssertEqual(nameForSentrySpanStatus(.internalError), kSentrySpanStatusNameInternalError)
-        XCTAssertEqual(nameForSentrySpanStatus(.unknownError), kSentrySpanStatusNameUnknownError)
-        XCTAssertEqual(nameForSentrySpanStatus(.cancelled), kSentrySpanStatusNameCancelled)
-        XCTAssertEqual(nameForSentrySpanStatus(.alreadyExists), kSentrySpanStatusNameAlreadyExists)
-        XCTAssertEqual(nameForSentrySpanStatus(.failedPrecondition), kSentrySpanStatusNameFailedPrecondition)
-        XCTAssertEqual(nameForSentrySpanStatus(.aborted), kSentrySpanStatusNameAborted)
-        XCTAssertEqual(nameForSentrySpanStatus(.outOfRange), kSentrySpanStatusNameOutOfRange)
-        XCTAssertEqual(nameForSentrySpanStatus(.dataLoss), kSentrySpanStatusNameDataLoss)
     }
     
     func testTraceContext() {

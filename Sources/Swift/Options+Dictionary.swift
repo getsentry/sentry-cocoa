@@ -192,6 +192,9 @@ extension Options {
             self.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
         }
 
+        if let enableScopePersistence = boolValue(dictionary["enableScopePersistence"]) {
+            self.enableScopePersistence = enableScopePersistence
+        }
         setBlock(dictionary["initialScope"], forKey: "initialScope")
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
