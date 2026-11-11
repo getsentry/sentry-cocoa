@@ -5,7 +5,15 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,13 +21,14 @@ concurrency:
 
 jobs:
   run-full-ci-gate:
-    name: run-full-ci gate
+    name: CI eligibility
     uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
     needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     outputs:
       run_size_analysis_for_prs: ${{ steps.changes.outputs.run_size_analysis_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
@@ -88,7 +97,7 @@ jobs:
         run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+        uses: ruby/setup-ruby@de492cf36cbab201753d720ce4f4e336cd688c94 # v1.336.0
         with:
           bundler-cache: true
 

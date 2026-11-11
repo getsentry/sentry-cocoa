@@ -1,11 +1,34 @@
 #if SWIFT_PACKAGE
+#if !SDK_V10
 @_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 #else
 @_spi(Private) import Sentry
 #endif
 import XCTest
 
 final class SentryOptionsDictionaryTests: XCTestCase {
+    func testInitWithDictionary_whenUserPersistenceConfigured_shouldUseBooleanValue() throws {
+        // -- Arrange --
+        let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]
+
+        // -- Act --
+        let defaults = try Options(dictionary: base)
+        let enabled = try Options(dictionary: base.merging(["enableScopePersistence": true]) { _, value in value })
+        let disabled = try Options(dictionary: base.merging(["enableScopePersistence": false]) { _, value in value })
+
+        // -- Assert --
+        #if SDK_V10
+        XCTAssertTrue(defaults.enableScopePersistence)
+        #else
+        XCTAssertFalse(defaults.enableScopePersistence)
+        #endif
+        XCTAssertTrue(enabled.enableScopePersistence)
+        XCTAssertFalse(disabled.enableScopePersistence)
+    }
+
     func testInitWithDictionary_whenValidValues_shouldPopulateOptions() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [

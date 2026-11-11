@@ -1,5 +1,5 @@
 // swiftlint:disable file_length missing_docs type_body_length
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -364,6 +364,11 @@ import Foundation
         }
     }
 #endif // os(iOS) || os(macOS)
+
+    @objc public var enableScopePersistence: Bool {
+        get { wrapped.enableScopePersistence }
+        set { wrapped.enableScopePersistence = newValue }
+    }
 
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
         didSet {
