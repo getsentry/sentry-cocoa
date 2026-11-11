@@ -1,7 +1,7 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 #endif
 import _SentryPrivate
 import ObjectiveC
