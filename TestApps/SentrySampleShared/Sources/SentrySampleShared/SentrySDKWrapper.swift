@@ -1,6 +1,10 @@
 // swiftlint:disable file_length function_body_length
 
+#if !SDK_V10
 import SentrySwift
+#else
+import Sentry
+#endif
 #if SDK_V10
 import SentryObjC
 #endif // SDK_V10

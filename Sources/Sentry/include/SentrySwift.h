@@ -7,13 +7,14 @@
 #    endif
 #endif
 
-#if __has_include(<SentryWithoutUIKit/Sentry.h>)
+// Package builds must not pick up a framework header left over from another SDK mode.
+#if !SWIFT_PACKAGE && __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    if __has_include("SentryWithoutUIKit-Swift.h")
 #        import "SentryWithoutUIKit-Swift.h"
 #    else
 #        import <SentryWithoutUIKit/SentryWithoutUIKit-Swift.h>
 #    endif
-#else // !__has_include(<SentryWithoutUIKit/Sentry.h>)
+#else // SwiftPM or a regular Sentry framework
 
 // needed for the check for SENTRY_HAS_UIKIT below
 #    if __has_include(<Sentry/SentryDefines.h>)
@@ -29,14 +30,23 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
-#    if __has_include("Sentry-Swift.h")
+// Select package imports from the SDK configuration, not generated-header availability:
+// dependency scanning can run before header generation, and cached headers can outlive a mode
+// switch.
+#    if SWIFT_PACKAGE
+#        if SDK_V10
+@import Sentry;
+#        else
+@import SentrySwift;
+#        endif
+#    elif __has_include("Sentry-Swift.h")
 #        import "Sentry-Swift.h"
 #    elif __has_include(<Sentry/Sentry-Swift.h>)
 #        import <Sentry/Sentry-Swift.h>
 #    else
 @import SentrySwift;
 #    endif
-#endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
+#endif // Framework-only SentryWithoutUIKit header lookup
 
 // Keep this bridge reporter-neutral. Recorder sources import their Swift adapter directly;
 // importing it here makes core ObjC targets depend on an unscheduled generated header.
