@@ -5,8 +5,9 @@ import XCTest
 /// grow with N². See ``ManyChildViewControllersViewController``.
 ///
 /// Both tests add the same number of children and assert the main thread stays below the app hang
-/// threshold. The first test uses the default configuration and fails while the bug is present.
-/// The second applies the `swizzleClassNameExcludes` workaround for the child class.
+/// threshold with diagnostic logging disabled to isolate tracing overhead from console output.
+/// The first test uses the default tracing configuration. The second applies the
+/// `swizzleClassNameExcludes` workaround for the child class.
 class ManyChildViewControllersUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
 
@@ -22,7 +23,7 @@ class ManyChildViewControllersUITests: BaseUITest {
 
     func testAddManyChildViewControllers_whenTracingEnabled_shouldNotBlockMainThread() throws {
         // -- Arrange --
-        launchApp(env: [
+        launchApp(args: ["--io.sentry.special.disable-debug-mode"], env: [
             "--io.sentry.ui-test.many-child-view-controllers-count": "\(childCount)"
         ])
 
@@ -38,7 +39,7 @@ class ManyChildViewControllersUITests: BaseUITest {
 
     func testAddManyChildViewControllers_whenChildClassExcludedFromSwizzling_shouldNotBlockMainThread() throws {
         // -- Arrange --
-        launchApp(env: [
+        launchApp(args: ["--io.sentry.special.disable-debug-mode"], env: [
             "--io.sentry.ui-test.many-child-view-controllers-count": "\(childCount)",
             "--io.sentry.ui-test.swizzle-class-name-excludes": "ManyChildViewControllersChildViewController"
         ])
