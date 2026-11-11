@@ -1011,7 +1011,7 @@ When the crash handler reported the matching run, a MetricKit crash diagnostic o
 
 The sources report at different times: the crash handler and the watchdog termination integration at launch, and MetricKit afterwards. A crash handler event already has its stack trace and the app's state, so it is sent at launch. A watchdog termination event has no stack trace, so when the MetricKit integration is running on a version that can match diagnostics, the SDK holds it instead of sending it right away:
 
-- The event is built at launch as today, with the previous run's breadcrumbs, scope data and timestamp, and stored to disk with the previous run's run ID and a deadline.
+- The event is built at launch as today, with the previous run's breadcrumbs, scope data and timestamp, and stored to disk with the previous run's run ID, its crashed session and a deadline.
 - When a matching crash or memory exception diagnostic arrives, the SDK enriches the stored event and sends it. MetricKit diagnostics that don't match stay unaffected.
 - When the deadline passes or the app moves to the background, the SDK sends the stored event unchanged. A stored event that's still on disk at the next launch is sent then, so a quick relaunch never loses it.
 - Without a running MetricKit integration, or on older versions, the event is sent right away as today.
@@ -1033,7 +1033,7 @@ A MetricKit crash diagnostic for a background run, which the watchdog terminatio
 
 ### Sessions
 
-The release health status doesn't change. The previous run's session already ends as crashed when the SDK detects a watchdog termination, and it stays on disk until the stored event is sent, because `captureFatalEvent` attaches the crashed session to the first fatal event. When the matching diagnostic shows a missed crash instead of a watchdog termination, the session stays crashed. MetricKit events that don't match a stored watchdog termination are still captured as regular events, so they don't change the current session.
+The release health status doesn't change. The previous run's session already ends as crashed when the SDK detects a watchdog termination. Today it waits in a single location on disk until `captureFatalEvent` attaches it to the first fatal event. A held event can't rely on that location: when the app crashes during the hold, the next launch overwrites the crashed session with the one of the crashed run, and the crash handler's event takes it. The held event would then be sent without its session, and release health would miss a crashed session. So when the SDK holds the event, it moves the crashed session out of that location and stores it with the event. Both are sent together, whether the diagnostic arrives, the deadline passes or the next launch sends the stored event. When the matching diagnostic shows a missed crash instead of a watchdog termination, the session stays crashed. MetricKit events that don't match a stored watchdog termination are still captured as regular events, so they don't change the current session.
 
 ### V9 and V10
 
@@ -1050,7 +1050,6 @@ MetricKit reports why the OS terminated the app, with the termination reason and
 - **Matching by timestamp only.** MetricKit timestamps describe the payload's window, which can hold several runs.
 - **Using KSCrash's run ID.** `kscrash_getRunID` exists in V10 only, is created in `kscrash_install` after the other integrations have started, and KSCrash encodes it into a thread crumb only inside its MetricKit monitor. That monitor would be a second MetricKit subscriber that turns crash diagnostics into KSCrash-format reports without removing duplicates, so the SDK doesn't use it. An SDK-owned run ID works in both versions.
 - **The process ID and the run's lifetime as a fallback, deferred.** MetricKit reports the process ID on iOS 17 and macOS 14 and later, so a diagnostic without a run ID could still be matched by the process ID and the time the run was alive. That is a second identity: the SDK would persist the process ID and start time of every run, track when the next run started and resolve reused process IDs. It only pays off for diagnostics whose thread crumb didn't arrive, so it waits until dogfooding shows how often that happens.
-- **Signpost integration, deferred.** Signposts add low-level span metrics to traces and to MetricKit diagnostics, but every app has to set them up itself, so this isn't part of this decision.
 
 ### To verify during dogfooding
 
