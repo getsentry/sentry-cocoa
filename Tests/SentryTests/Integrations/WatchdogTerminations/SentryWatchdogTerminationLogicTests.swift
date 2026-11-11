@@ -74,7 +74,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             isActive: Bool = true,
             wasTerminated: Bool = false,
             isSDKRunning: Bool = true,
-            runId: String? = nil
+            runId: SentryCurrentRun.ID? = nil
         ) -> SentryAppState {
             let appState = SentryAppState(
                 releaseName: releaseName,
@@ -394,16 +394,16 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
 
     func testTerminatedRunAppState_whenAllConditionsMet_shouldReturnPreviousAppState() throws {
         // -- Arrange --
-        let previousAppState = fixture.createAppState(runId: "terminated-run-id")
+        let previousAppState = fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
         fixture.storePreviousAppState(previousAppState)
-        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState(runId: "current-run-id"))
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "current-run-id")))
 
         // -- Act --
         let result = sut.terminatedRunAppState()
 
         // -- Assert --
         let terminatedRunAppState = try XCTUnwrap(result)
-        XCTAssertEqual(terminatedRunAppState.runId, "terminated-run-id")
+        XCTAssertEqual(terminatedRunAppState.runId, SentryCurrentRun.ID(rawValue: "terminated-run-id"))
         XCTAssertEqual(terminatedRunAppState, previousAppState)
     }
 
@@ -422,7 +422,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
 
     func testTerminatedRunAppState_whenNotAWatchdogTermination_shouldReturnNil() {
         // -- Arrange --
-        let previousAppState = fixture.createAppState(runId: "terminated-run-id")
+        let previousAppState = fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
         previousAppState.wasTerminated = true
         fixture.storePreviousAppState(previousAppState)
         let sut = fixture.getSut(customCurrentAppState: fixture.createAppState())

@@ -255,13 +255,13 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         // -- Arrange --
         let eventSourceSink = TestEventSourceSink()
         // The run that gets terminated persists its app state with its own run ID.
-        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: "terminated-run-id")
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
         sut = try fixture.getSut(fileManager: fixture.fileManager, eventSourceSink: eventSourceSink)
         sut.start()
         goToForeground()
         fixture.fileManager.moveAppStateToPreviousAppState()
         // The next run detects the termination and reports it under the terminated run's ID.
-        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: "next-run-id")
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "next-run-id"))
 
         // -- Act --
         sut.start()
@@ -271,7 +271,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
         XCTAssertEqual(report.source, .watchdogTermination)
         XCTAssertEqual(report.event.exceptions?.first?.type, "WatchdogTermination")
-        XCTAssertEqual(report.runId, "terminated-run-id")
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "terminated-run-id"))
         guard case let .fatal(attachmentPaths, isRetainedOnFailure) = report.kind else {
             return XCTFail("Expected a fatal report")
         }
