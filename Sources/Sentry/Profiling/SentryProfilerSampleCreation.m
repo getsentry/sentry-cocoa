@@ -1,13 +1,12 @@
 #import "SentryProfilerSampleCreation.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryInternalDefines.h"
-#    import "SentrySwift.h"
 
-SentrySample *
+SentryProfilingSample *
 sentry_profilerSampleWithStack(NSArray<NSNumber *> *stack, uint64_t absoluteTimestamp,
     NSTimeInterval absoluteNSDateInterval, uint64_t threadID, SentryProfilerMutableState *state)
 {
-    SentrySample *sample = [[SentrySample alloc] init];
+    SentryProfilingSample *sample = [[SentryProfilingSample alloc] init];
     sample.absoluteTimestamp = absoluteTimestamp;
     sample.absoluteNSDateInterval = absoluteNSDateInterval;
     sample.threadID = threadID;

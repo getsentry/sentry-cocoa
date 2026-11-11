@@ -3,13 +3,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED && defined(DEBUG)
 
-@class SentrySample;
+#    import "SentryProfilingSample.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryProfileDebugLoggerHelper : NSObject
 
-+ (uint64_t)getAbsoluteTimeStampFromSample:(SentrySample *)sample;
++ (uint64_t)getAbsoluteTimeStampFromSample:(SentryProfilingSample *)sample;
 
 @end
 

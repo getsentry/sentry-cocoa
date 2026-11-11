@@ -9,7 +9,7 @@
 #        import "SentryProfilerDefines.h"
 #    endif // SENTRY_HAS_UIKIT
 
-@class SentrySample;
+#    import "SentryProfilingSample.h"
 @class SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,8 +20,8 @@ extern "C" {
 
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
 
-NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
-    NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
+NSArray<SentryProfilingSample *> *_Nullable sentry_slicedProfileSamples(
+    NSArray<SentryProfilingSample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
 
 #    if SENTRY_HAS_UIKIT
 
