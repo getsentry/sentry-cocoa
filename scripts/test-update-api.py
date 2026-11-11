@@ -14,14 +14,11 @@ SNAPSHOTS = {
     "sdk_api.json", "sdk_api_sentryswiftui.json", "sdk_api_objc.json",
     "sdk_api_objccompat.json", "sdk_api_objc.diff.json", "sdk_api_v10.json",
     "sdk_api_objc_v10.json", "sdk_api_objccompat_v10.json", "sdk_api_objc_v10.diff.json",
-    "sdk_api_spm.json", "sdk_api_objc_spm.json", "sdk_api_objccompat_spm.json", "sdk_api_objc_spm.diff.json",
-    "sdk_api_v10_spm.json", "sdk_api_objc_v10_spm.json", "sdk_api_objccompat_v10_spm.json",
-    "sdk_api_objc_v10_spm.diff.json",
+    "sdk_api_spm.json", "sdk_api_v10_spm.json",
 }
 FAKE_TOOL = r'''import json
 import os
 from pathlib import Path
-import shutil
 import sys
 
 args = sys.argv[1:]
@@ -31,6 +28,8 @@ with open(os.environ["TOOL_LOG"], "a") as log:
                          "developerDir": os.environ.get("DEVELOPER_DIR")}) + "\n")
 def argument(name):
     return args[args.index(name) + 1]
+def fail_spm(flag):
+    return os.environ.get(flag) and os.environ.get("FAIL_SPM_GENERATION", "0") == os.environ.get("SDK_V10")
 def write_header(root):
     root.mkdir(parents=True, exist_ok=True)
     if os.environ.get("MISSING_COMPAT_HEADER"):
@@ -51,48 +50,25 @@ elif tool == "xcodebuild":
         sys.exit(0)
     if os.environ.get("FAIL_BUILD"):
         sys.exit(65)
-    # Compatibility extraction already builds SwiftPM; reuse its snapshot later.
     objroot = next((arg.split("=", 1)[1] for arg in args if arg.startswith("OBJROOT=")), None)
-    assert objroot, "Source SDK builds must use the existing archiver"
+    assert objroot, "Only compatibility extraction should invoke xcodebuild directly"
     write_header(Path(objroot))
-elif tool == "build-static-library-sentryobjc.sh":
-    if os.environ.get("FAIL_SPM_BUILD"):
+elif tool == "build-xcframework-variant-spm.sh":
+    if fail_spm("FAIL_SPM_BUILD"):
         sys.exit(65)
     for name in ("Sentry.xcodeproj", "Sentry.xcworkspace", ".swiftpm"):
         assert Path(name).exists()
     for manifest in Path.cwd().glob("Package*.swift"):
         assert "BEGIN:BINARY" in manifest.read_text(), "Do not rewrite package manifests"
-    scheme = argument("--scheme")
-    assert scheme == ("Sentry" if os.environ.get("SDK_V10") == "1" else "SentrySPM")
-    assert argument("--architecture-target") == "SentrySwift"
-    assert argument("--sdk") == "iphoneos"
     root = Path(argument("--output-dir"))
-    library = root / ("lib/" + scheme + "/iphoneos/lib" + scheme + "-Debug.a")
-    library.parent.mkdir(parents=True, exist_ok=True)
-    library.write_text("fixture")
-    module = root / ("archive/" + scheme + "/iphoneos.xcarchive/Products/Swift/SentrySwift.swiftmodule")
-    module.mkdir(parents=True, exist_ok=True)
-    (module / "arm64-apple-ios.swiftinterface").write_text("fixture")
-elif tool == "build-dynamic-framework-sentryobjc.sh":
-    if os.environ.get("FAIL_SPM_PACKAGE"):
-        sys.exit(66)
-    assert Path(argument("--static-lib")).is_file()
-    assert (Path(argument("--swift-archive")) / "Products/Swift/SentrySwift.swiftmodule").is_dir()
-    assert argument("--framework-name") == "SentrySwift"
-    module = Path(argument("--output-dir")) / "framework/SentrySwift/iphoneos/SentrySwift.framework/Modules/SentrySwift.swiftmodule"
+    assert args == ["--sdks", "iphoneos", "--output-dir", str(root)]
+    module = root / "Sentry-Dynamic.xcframework/ios-arm64/Sentry.framework/Modules/Sentry.swiftmodule"
     module.mkdir(parents=True, exist_ok=True)
     for suffix in ("swiftinterface", "private.swiftinterface"):
-        (module / ("arm64-apple-ios." + suffix)).write_text("fixture")
+        (module / ("arm64-apple-ios." + suffix)).write_text("fixture " + os.environ["SDK_V10"])
 elif tool in ("build-xcframework-slice.sh", "assemble-xcframework.sh", "build-xcframework-v10.sh"):
     if os.environ.get("FAIL_BUILD"):
         sys.exit(65)
-    if tool == "assemble-xcframework.sh" and "--framework-template" in args:
-        if os.environ.get("FAIL_SPM_ASSEMBLE"):
-            sys.exit(67)
-        source = Path(argument("--framework-template").replace("SDK_NAME", "iphoneos"))
-        destination = Path(argument("--output")) / "ios-arm64/SentrySwift.framework"
-        shutil.copytree(source, destination, dirs_exist_ok=True)
-        sys.exit(0)
     if tool == "assemble-xcframework.sh":
         name = argument("--scheme") + (argument("--suffix") if "--suffix" in args else "")
     elif tool == "build-xcframework-v10.sh":
@@ -103,14 +79,16 @@ elif tool in ("build-xcframework-slice.sh", "assemble-xcframework.sh", "build-xc
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("private")
 elif "swift-api-digester" in args:
-    spm = argument("-module") == "SentrySwift"
-    if os.environ.get("FAIL_EXTRACT") or (os.environ.get("FAIL_SPM_EXTRACT") and spm):
+    spm = Path(argument("-o")).stem.endswith("_spm")
+    if os.environ.get("FAIL_EXTRACT") or (spm and fail_spm("FAIL_SPM_EXTRACT")):
         sys.exit(70)
     if spm:
-        framework = Path(argument("-iframework")) / "SentrySwift.framework"
-        assert framework.is_dir()
+        assert argument("-module") == "Sentry"
+        framework = Path(argument("-iframework")) / "Sentry.framework"
+        interface = framework / "Modules/Sentry.swiftmodule/arm64-apple-ios.swiftinterface"
+        assert interface.read_text() == "fixture " + os.environ["SDK_V10"]
         assert not list(framework.rglob("*.private.swiftinterface"))
-        assert not list(framework.rglob("*.swiftmodule")) or all(p.is_dir() for p in framework.rglob("*.swiftmodule"))
+        assert all(p.is_dir() for p in framework.rglob("*.swiftmodule"))
         assert "-I" not in args, "Extraction must use only the packaged framework"
         assert "-use-interface-for-module" not in args
     children = [{"kind": "TypeDecl", "name": name, "moduleName": argument("-module")}
@@ -141,7 +119,7 @@ class UpdateApiTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="update api ")
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         self.repo = self.root / "checkout"
         scripts = self.repo / "scripts"
         scripts.mkdir(parents=True)
@@ -149,7 +127,8 @@ class UpdateApiTests(unittest.TestCase):
                      "extract-objc-compat-api.sh", "generate-objc-compat-api-diff.sh", "ci-utils.sh"):
             shutil.copy2(SCRIPTS / name, scripts / name)
         for name in ("build-xcframework-slice.sh", "assemble-xcframework.sh", "build-xcframework-v10.sh",
-                     "build-static-library-sentryobjc.sh", "build-dynamic-framework-sentryobjc.sh"):
+                     "build-xcframework-variant-spm.sh"):
+            self.assertTrue((SCRIPTS / name).is_file(), f"Cannot mock nonexistent repository script: {name}")
             self.fake_tool(scripts / name)
         for name in ("Package.swift", "Package@swift-6.1.swift", "Package@swift-6.2.swift"):
             (self.repo / name).write_text(
@@ -190,19 +169,26 @@ class UpdateApiTests(unittest.TestCase):
     def assert_snapshots(self):
         self.assertEqual({path.name for path in self.repo.glob("*.json")}, SNAPSHOTS)
         for generation in ("", "_v10"):
+            headers = json.loads((self.repo / f"sdk_api_objc{generation}.json").read_text())
+            compat = json.loads((self.repo / f"sdk_api_objccompat{generation}.json").read_text())
+            self.assertEqual(headers, compat)
+            self.assertIn("v10" if generation else "v9", [node["name"] for node in headers])
+            diff = json.loads((self.repo / f"sdk_api_objc{generation}.diff.json").read_text())
+            self.assertEqual(diff, {"only_in_headers": [], "only_in_compat": []})
             for build in ("", "_spm"):
-                suffix = generation + build
-                headers = json.loads((self.repo / f"sdk_api_objc{suffix}.json").read_text())
-                compat = json.loads((self.repo / f"sdk_api_objccompat{suffix}.json").read_text())
-                self.assertEqual(headers, compat)
-                self.assertIn("v10" if generation else "v9", [node["name"] for node in headers])
-                diff = json.loads((self.repo / f"sdk_api_objc{suffix}.diff.json").read_text())
-                self.assertEqual(diff, {"only_in_headers": [], "only_in_compat": []})
-                nodes = json.loads((self.repo / f"sdk_api{suffix}.json").read_text())["ABIRoot"]["children"]
+                nodes = json.loads((self.repo / f"sdk_api{generation}{build}.json").read_text())["ABIRoot"]["children"]
                 sdk = next(node for node in nodes if node["name"] == "SentrySDK")
-                self.assertEqual(sdk["moduleName"], "SentrySwift" if build else "Sentry")
+                self.assertEqual(sdk["moduleName"], "Sentry")
                 parameters = [node["printedName"] for node in next(n for n in nodes if n["name"] == "example")["children"]]
                 self.assertEqual(parameters, ["()", "Swift.Int", "Swift.String"])
+
+    def assert_packaged_interfaces_preserved(self):
+        for call in self.calls("build-xcframework-variant-spm.sh"):
+            args = call["args"]
+            root = Path(args[args.index("--output-dir") + 1])
+            module = root / "Sentry-Dynamic.xcframework/ios-arm64/Sentry.framework/Modules/Sentry.swiftmodule"
+            for suffix in ("swiftinterface", "private.swiftinterface"):
+                self.assertEqual((module / f"arm64-apple-ios.{suffix}").read_text(), "fixture " + call["sdkV10"])
 
     def test_default_runs_framework_and_spm_steps_without_overwriting_snapshots(self):
         before = (self.repo / "Package.swift").read_bytes()
@@ -216,19 +202,17 @@ class UpdateApiTests(unittest.TestCase):
         self.assertEqual(len(self.calls("build-xcframework-v10.sh")), 1)
         builds = self.calls("xcodebuild", "build")
         self.assertEqual(len(builds), 2)  # Compatibility snapshots are already built through SwiftPM.
-        spm_builds = self.calls("build-static-library-sentryobjc.sh")
+        spm_builds = self.calls("build-xcframework-variant-spm.sh")
         self.assertEqual([call["sdkV10"] for call in spm_builds], ["0", "1"])
-        for call in spm_builds:
-            args = call["args"]
-            self.assertEqual(args[args.index("--scheme") + 1], "Sentry" if call["sdkV10"] == "1" else "SentrySPM")
-            self.assertEqual(args[args.index("--architecture-target") + 1], "SentrySwift")
-            self.assertEqual(args[args.index("--configuration") + 1], "ReleaseV10" if call["sdkV10"] == "1" else "Release")
-        self.assertEqual(len(self.calls("build-dynamic-framework-sentryobjc.sh")), 2)
-        self.assertEqual(len(self.calls("assemble-xcframework.sh", "--framework-template")), 2)
+        self.assertEqual([call["args"] for call in spm_builds], [
+            ["--sdks", "iphoneos", "--output-dir", str(self.repo / "DerivedData/API-SPM")],
+            ["--sdks", "iphoneos", "--output-dir", str(self.repo / "DerivedData/API-SPM-V10")],
+        ])
+        self.assert_packaged_interfaces_preserved()
         extractions = self.calls("xcrun", "swift-api-digester")
         self.assertEqual([[call["args"][i + 1] for i, arg in enumerate(call["args"]) if arg == "-module"]
                           for call in extractions], [["Sentry"], ["SentrySwiftUI"], ["Sentry"],
-                                                    ["SentrySwift"], ["SentrySwift"]])
+                                                    ["Sentry"], ["Sentry"]])
         self.assertTrue(all("-iframework" in call["args"] for call in extractions))
         self.assertTrue(all("-I" not in call["args"] for call in extractions))
         for call in extractions[3:]:
@@ -247,9 +231,8 @@ class UpdateApiTests(unittest.TestCase):
 
     def test_xcode_16_discovery_is_shared_by_all_steps(self):
         self.assert_succeeded(self.run_script(XCODE_VERSION="27.0"))
-        builds = (self.calls("xcodebuild", "build") + self.calls("build-static-library-sentryobjc.sh")
-                  + self.calls("build-dynamic-framework-sentryobjc.sh"))
-        self.assertEqual(len(builds), 6)
+        builds = self.calls("xcodebuild", "build") + self.calls("build-xcframework-variant-spm.sh")
+        self.assertEqual(len(builds), 4)
         self.assertTrue(all(call["developerDir"] == "/Applications/Xcode-16.fixture.app/Contents/Developer"
                             for call in builds))
 
@@ -267,23 +250,31 @@ class UpdateApiTests(unittest.TestCase):
                 self.assertEqual(list((self.root / "tmp").iterdir()), [])
 
     def test_spm_failures_propagate_and_preserve_framework_snapshots(self):
-        for flag, status in (("FAIL_SPM_BUILD", 65), ("FAIL_SPM_PACKAGE", 66),
-                             ("FAIL_SPM_ASSEMBLE", 67), ("FAIL_SPM_EXTRACT", 70)):
+        for flag, status in (("FAIL_SPM_BUILD", 65), ("FAIL_SPM_EXTRACT", 70)):
             with self.subTest(flag=flag):
                 result = self.run_script(**{flag: "1"})
                 self.assertEqual(result.returncode, status, result.stdout + result.stderr)
                 self.assertTrue((self.repo / "sdk_api.json").exists())
                 self.assertTrue((self.repo / "sdk_api_v10.json").exists())
+                self.assertFalse((self.repo / "sdk_api_spm.json").exists())
                 self.assertFalse((self.repo / "sdk_api_v10_spm.json").exists())
                 self.assertEqual(list((self.root / "tmp").iterdir()), [])
+
+    def test_v10_spm_extraction_failure_preserves_packaged_interfaces_and_cleans_copies(self):
+        result = self.run_script(FAIL_SPM_EXTRACT="1", FAIL_SPM_GENERATION="1")
+        self.assertEqual(result.returncode, 70, result.stdout + result.stderr)
+        self.assertTrue((self.repo / "sdk_api_spm.json").exists())
+        self.assertFalse((self.repo / "sdk_api_v10_spm.json").exists())
+        self.assert_packaged_interfaces_preserved()
+        self.assertEqual(list((self.root / "tmp").iterdir()), [])
 
     def test_missing_compat_header_fails_before_packaging(self):
         result = self.run_script(MISSING_COMPAT_HEADER="1")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("SentryObjCCompat-Swift.h not found", result.stdout)
         self.assertEqual(len(self.calls("xcodebuild", "build")), 1)
-        self.assertEqual(self.calls("build-static-library-sentryobjc.sh"), [])
-        self.assertFalse((self.repo / "sdk_api_objccompat_spm.json").exists())
+        self.assertEqual(self.calls("build-xcframework-variant-spm.sh"), [])
+        self.assertFalse((self.repo / "sdk_api_spm.json").exists())
 
     def test_make_target_uses_existing_no_argument_entrypoint(self):
         result = subprocess.run(["make", "-n", "generate-public-api"],
@@ -294,15 +285,8 @@ class UpdateApiTests(unittest.TestCase):
     def test_extractor_rejects_empty_module_before_running_tools(self):
         result = subprocess.run(
             ["bash", str(self.repo / "scripts/extract-swift-api.sh"), "--module", "",
-             "--output", str(self.root / "invalid.json"), "--include-path", str(self.root)],
+             "--output", str(self.root / "invalid.json"), "--framework-path", str(self.root)],
             env=self.env, capture_output=True, text=True)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertFalse(self.log.exists())
-
-    def test_compat_extractor_rejects_missing_supplied_header(self):
-        result = subprocess.run(
-            ["bash", str(self.repo / "scripts/extract-objc-compat-api.sh"), "--output", str(self.root / "compat.json"),
-             "--swift-header", str(self.root / "missing.h")], env=self.env, capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(self.log.exists())
 

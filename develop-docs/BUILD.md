@@ -64,33 +64,11 @@ The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packa
 
 ## Public API Generation
 
-Run the existing command without additional options:
+`make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It updates the existing Xcode-framework and ObjC-wrapper snapshots and adds only `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks).
 
-```bash
-make generate-public-api
-```
+Extraction uses disposable copies so packaged SPI interfaces remain intact. Source-backed SentrySwiftUI extraction is deferred; its package target still uses the released binary.
 
-[`update-api.sh`](../scripts/update-api.sh) runs the framework build/extraction steps first, followed by SwiftPM source build/extraction steps. Both paths generate V9 and V10 snapshots in the repository root, using the same Xcode 16 selection, extractors, JSON formatter, and Objective-C compatibility-diff generation.
-
-The existing framework filenames are unchanged. Additional SwiftPM snapshots use an `_spm` suffix so they do not overwrite framework output:
-
-| API surface        | Framework snapshot        | SwiftPM snapshot              |
-| ------------------ | ------------------------- | ----------------------------- |
-| Main SDK           | `sdk_api.json`            | `sdk_api_spm.json`            |
-| Objective-C        | `sdk_api_objc.json`       | `sdk_api_objc_spm.json`       |
-| Swift wrappers     | `sdk_api_objccompat.json` | `sdk_api_objccompat_spm.json` |
-| Compatibility diff | `sdk_api_objc.diff.json`  | `sdk_api_objc_spm.diff.json`  |
-
-V10 uses `_v10` before the build suffix: for example, `sdk_api_v10.json` / `sdk_api_v10_spm.json` and `sdk_api_objc_v10.diff.json` / `sdk_api_objc_v10_spm.diff.json`.
-
-> [!NOTE]
-> SwiftPM SentrySwiftUI extraction is deferred: its package target depends on the released Sentry binary rather than the source-built SDK. The framework workflow still generates `sdk_api_sentryswiftui.json`; no separate SwiftPM snapshot is generated yet.
-
-The SwiftPM steps reuse the [source-built framework pipeline](#source-built-sdk-frameworks), with explicit V9 (`SentrySPM`, `Release`) and V10 (`Sentry`, `ReleaseV10`) calls. Both currently use `SentrySwift` as the compiled target. Build artifacts and logs remain in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`; no checkout copies or manifest rewriting are needed.
-
-API extraction uses only the packaged slices in `Sentry-SPM.xcframework` and `SentryV10-SPM.xcframework`, with the existing framework extraction flags. These are disposable API-generation copies: the extractor removes their private interfaces to exclude SPI, leaving the original packaged frameworks intact. The compatibility snapshots reuse the earlier generation-matched wrapper extraction, which already builds through SwiftPM. The `_spm` snapshots remain separate from the Xcode snapshots.
-
-Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -v`. Packaging regressions are documented [above](#source-built-sdk-frameworks) and run independently in the packaging workflow.
+Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -v`.
 
 ## Platform-Specific Build Notes
 
