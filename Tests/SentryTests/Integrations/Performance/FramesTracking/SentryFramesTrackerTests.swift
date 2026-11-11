@@ -169,7 +169,7 @@ final class SentryFramesTrackerTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
         
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryTraceProfiler.start(withTracer: tracer.traceId)
+        SentryTraceProfiler.start(withTracer: sentry_profilingIdFromSentryId(tracer.traceId))
         
         let sut = fixture.sut
         sut.start()

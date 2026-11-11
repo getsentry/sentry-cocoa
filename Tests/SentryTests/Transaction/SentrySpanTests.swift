@@ -140,7 +140,7 @@ class SentrySpanTests: XCTestCase {
 
         // -- Act --
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         span.finish()
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
 
@@ -166,7 +166,7 @@ class SentrySpanTests: XCTestCase {
 
         // -- Act --
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         try stopContinuousProfiler()
         span.finish()
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
@@ -189,7 +189,7 @@ class SentrySpanTests: XCTestCase {
         // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         let span = fixture.getSut()
 
         // -- Act --
@@ -215,7 +215,7 @@ class SentrySpanTests: XCTestCase {
         // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
 
         // -- Act --
         let span = fixture.getSut()
@@ -246,11 +246,11 @@ class SentrySpanTests: XCTestCase {
         // -- Act --
         SentryContinuousProfiler.start()
         let firstProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
-        let profileId1 = firstProfiler.profilerId.sentryIdString
+        let profileId1 = firstProfiler.profilerId.stringValue
         try stopContinuousProfiler()
         SentryContinuousProfiler.start()
         let secondProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
-        let profileId2 = secondProfiler.profilerId.sentryIdString
+        let profileId2 = secondProfiler.profilerId.stringValue
         try stopContinuousProfiler()
         span.finish()
         let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()

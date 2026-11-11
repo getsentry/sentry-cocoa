@@ -3,6 +3,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryProfilingConfiguration.h"
 #import "SentryProfilingFrameMeasurements.h"
+#import "SentryProfilingId.h"
 #import "SentryProfilingSystemMetrics.h"
 #import "SentryProfilingTimestamp.h"
 #import <Foundation/Foundation.h>
@@ -14,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryProfilerSDKBackend <NSObject>
 
 /** Serializes and captures a detached chunk on the calling serialization queue. */
-- (void)captureProfileChunkWithID:(NSString *)profileID
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
                              data:(NSDictionary<NSString *, id> *)profileData
                           metrics:(NSDictionary<NSString *, id> *)serializedMetrics
 #    if SENTRY_HAS_UIKIT
