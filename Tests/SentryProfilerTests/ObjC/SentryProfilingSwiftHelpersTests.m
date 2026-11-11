@@ -14,26 +14,31 @@
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 
-- (void)testStringFromSentryID
+- (void)testProfilingIdFromSentryId_whenConvertingSDKIdentifier_shouldPreserveUUID
 {
-    SentryId *sentryId = [[SentryId alloc] init];
-    XCTAssertEqualObjects(sentryId.sentryIdString, sentry_stringFromSentryID(sentryId));
+    // -- Arrange --
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:@"01234567-89AB-CDEF-0123-456789ABCDEF"];
+    SentryId *sentryId = [[SentryId alloc] initWithUuid:uuid];
+
+    // -- Act --
+    SentryProfilingId *profilingId = sentry_profilingIdFromSentryId(sentryId);
+
+    // -- Assert --
+    XCTAssertEqualObjects(profilingId.uuid, uuid);
+    XCTAssertEqualObjects(profilingId.stringValue, sentryId.sentryIdString);
+    XCTAssertEqualObjects(profilingId, sentry_profilingIdFromSentryId(sentryId));
 }
 
-- (void)testGetSentryId
+- (void)testProfilingIdFromSentryId_whenSDKIdentifierIsEmpty_shouldPreserveEmptyUUID
 {
-    XCTAssertNotNil(sentry_getSentryId());
-}
+    // -- Arrange --
+    SentryId *sentryId = SentryId.empty;
 
-- (void)testGetTraceID
-{
-    SentryTransactionContext *context =
-        [[SentryTransactionContext alloc] initWithTraceId:[[SentryId alloc] init]
-                                                   spanId:[[SentrySpanId alloc] init]
-                                                 parentId:[[SentrySpanId alloc] init]
-                                                operation:@""
-                                                  sampled:kSentrySampleDecisionNo];
-    XCTAssertEqual(context.traceId, sentry_getTraceID(context));
+    // -- Act --
+    SentryProfilingId *profilingId = sentry_profilingIdFromSentryId(sentryId);
+
+    // -- Assert --
+    XCTAssertEqualObjects(profilingId.stringValue, @"00000000000000000000000000000000");
 }
 
 #endif
