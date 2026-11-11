@@ -1405,10 +1405,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let event = Event(level: .error)
         event.message = fixture.message
 
@@ -1428,10 +1429,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let event = Event(level: .fatal)
         event.message = fixture.message
 
@@ -1449,10 +1451,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let event = Event()
         event.exceptions = [Exception(value: "value", type: "type")]
 
@@ -1468,10 +1471,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let event = Event(level: .warning)
         event.exceptions = [Exception(value: "value", type: "type")]
 
@@ -1488,10 +1492,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let event = Event(level: .error)
         event.isFromPreviousProcess = true
 
@@ -1508,10 +1513,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let event = Event(level: .error)
         event.exceptions = [Exception(value: "App hanging", type: SentryAppHangTypeMapper.getExceptionType(anrType: .fullyBlocking))]
 
@@ -1530,10 +1536,11 @@ final class SentryClientTests: XCTestCase {
             options.beforeSend = { _ in return nil }
         })
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
 
         // -- Act --
         let eventId = sut.capture(event: Event(level: .error), scope: Scope())
@@ -1547,10 +1554,11 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
-        sut.sessionDelegate = SentryTestSessionDelegate {
+        let sessionDelegate = SentryTestSessionDelegate {
             incrementCount += 1
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
         let data = try XCTUnwrap("{}".data(using: .utf8))
         let item = SentryEnvelopeItem(header: SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count)), data: data)
 
