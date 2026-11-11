@@ -36,7 +36,7 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
 
     func testAdd_shouldPersistTheRecordForAnotherStore() throws {
         // -- Arrange --
-        let record = SentryMXRunIdRecord(runId: "run-1", threadCrumbAddresses: [1, 2, 3], date: dateProvider.date())
+        let record = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [1, 2, 3], date: dateProvider.date())
 
         // -- Act --
         sut.add(record)
@@ -48,9 +48,9 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
 
     func testAdd_whenCalledForSeveralRuns_shouldKeepThemOldestFirst() {
         // -- Arrange --
-        let first = SentryMXRunIdRecord(runId: "run-1", threadCrumbAddresses: [1], date: dateProvider.date())
+        let first = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [1], date: dateProvider.date())
         dateProvider.advance(by: 60)
-        let second = SentryMXRunIdRecord(runId: "run-2", threadCrumbAddresses: [2], date: dateProvider.date())
+        let second = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-2"), threadCrumbAddresses: [2], date: dateProvider.date())
 
         // -- Act --
         sut.add(first)
@@ -62,8 +62,8 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
 
     func testAdd_whenRunWasAlreadyRecorded_shouldReplaceItsRecord() {
         // -- Arrange --
-        sut.add(SentryMXRunIdRecord(runId: "run-1", threadCrumbAddresses: [1], date: dateProvider.date()))
-        let replacement = SentryMXRunIdRecord(runId: "run-1", threadCrumbAddresses: [9], date: dateProvider.date())
+        sut.add(SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [1], date: dateProvider.date()))
+        let replacement = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [9], date: dateProvider.date())
 
         // -- Act --
         sut.add(replacement)
@@ -74,10 +74,10 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
 
     func testRecords_whenRecordIsOlderThanRetention_shouldDropIt() {
         // -- Arrange --
-        let old = SentryMXRunIdRecord(runId: "run-old", threadCrumbAddresses: [1], date: dateProvider.date())
+        let old = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-old"), threadCrumbAddresses: [1], date: dateProvider.date())
         sut.add(old)
         dateProvider.advance(by: SentryMXRunIdRecordStore.retention - 1)
-        let recent = SentryMXRunIdRecord(runId: "run-recent", threadCrumbAddresses: [2], date: dateProvider.date())
+        let recent = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-recent"), threadCrumbAddresses: [2], date: dateProvider.date())
         sut.add(recent)
 
         // -- Act --
@@ -89,11 +89,11 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
 
     func testAdd_shouldDropRecordsOlderThanRetentionFromTheFile() throws {
         // -- Arrange --
-        sut.add(SentryMXRunIdRecord(runId: "run-old", threadCrumbAddresses: [1], date: dateProvider.date()))
+        sut.add(SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-old"), threadCrumbAddresses: [1], date: dateProvider.date()))
         dateProvider.advance(by: SentryMXRunIdRecordStore.retention + 1)
 
         // -- Act --
-        sut.add(SentryMXRunIdRecord(runId: "run-new", threadCrumbAddresses: [2], date: dateProvider.date()))
+        sut.add(SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-new"), threadCrumbAddresses: [2], date: dateProvider.date()))
 
         // -- Assert --
         let json = try String(contentsOfFile: sut.filePath, encoding: .utf8)
@@ -112,7 +112,7 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
     func testAdd_whenFileIsCorrupt_shouldStartOver() {
         // -- Arrange --
         fileManager.write(Data("not json".utf8), toPath: sut.filePath)
-        let record = SentryMXRunIdRecord(runId: "run-1", threadCrumbAddresses: [1], date: dateProvider.date())
+        let record = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [1], date: dateProvider.date())
 
         // -- Act --
         sut.add(record)
@@ -123,7 +123,7 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
 
     func testAdd_shouldWriteSnakeCaseKeys() throws {
         // -- Act --
-        sut.add(SentryMXRunIdRecord(runId: "run-1", threadCrumbAddresses: [1], date: dateProvider.date()))
+        sut.add(SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [1], date: dateProvider.date()))
 
         // -- Assert --
         let json = try String(contentsOfFile: sut.filePath, encoding: .utf8)

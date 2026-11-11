@@ -8,7 +8,7 @@ internal import _SentryPrivate
 /// parked once per process, so an SDK restart doesn't park a second one.
 final class SentryMXRunIdThreadCrumb {
     private struct Parked {
-        let runId: String
+        let runId: SentryCurrentRun.ID
         let addresses: [UInt64]
     }
 
@@ -22,12 +22,12 @@ final class SentryMXRunIdThreadCrumb {
     /// - Returns: The addresses of the spelled frames, outermost first, which the decoder matches
     ///   against the call stacks of a diagnostic. `nil` when the crumb couldn't be parked, or when
     ///   this process already parked a crumb for a different run ID.
-    func park(runId: String) -> [UInt64]? {
+    func park(runId: SentryCurrentRun.ID) -> [UInt64]? {
         parked.withLock { parked in
             if let parked {
                 return parked.runId == runId ? parked.addresses : nil
             }
-            guard let addresses = Self.spell(runId) else {
+            guard let addresses = Self.spell(runId.rawValue) else {
                 return nil
             }
             parked = Parked(runId: runId, addresses: addresses)

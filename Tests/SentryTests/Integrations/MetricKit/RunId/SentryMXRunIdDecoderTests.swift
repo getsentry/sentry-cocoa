@@ -36,7 +36,7 @@ final class SentryMXRunIdDecoderTests: XCTestCase {
         let tree = try givenCallStackTree(threads: [[1, 2, 3], [100, 10, 20, 30, 200]])
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.runId(of: tree), "run-1")
+        XCTAssertEqual(sut.runId(of: tree), SentryCurrentRun.ID(rawValue: "run-1"))
     }
 
     func testRunId_whenCrumbIsTheWholeThread_shouldReturnItsRunId() throws {
@@ -45,7 +45,7 @@ final class SentryMXRunIdDecoderTests: XCTestCase {
         let tree = try givenCallStackTree(threads: [[10, 20, 30]])
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.runId(of: tree), "run-1")
+        XCTAssertEqual(sut.runId(of: tree), SentryCurrentRun.ID(rawValue: "run-1"))
     }
 
     func testRunId_whenSeveralRunsAreRecorded_shouldReturnTheOneTheThreadSpells() throws {
@@ -55,7 +55,7 @@ final class SentryMXRunIdDecoderTests: XCTestCase {
         let tree = try givenCallStackTree(threads: [[100, 10, 20, 40, 200]])
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.runId(of: tree), "run-2")
+        XCTAssertEqual(sut.runId(of: tree), SentryCurrentRun.ID(rawValue: "run-2"))
     }
 
     func testRunId_whenThreadSpellsOnlyPartOfTheCrumb_shouldReturnNil() throws {
@@ -100,7 +100,7 @@ final class SentryMXRunIdDecoderTests: XCTestCase {
         let tree = try JSONDecoder().decode(SentryMXCallStackTree.self, from: Data(json.utf8))
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.runId(of: tree), "run-1")
+        XCTAssertEqual(sut.runId(of: tree), SentryCurrentRun.ID(rawValue: "run-1"))
     }
 
     func testRunId_whenSpelledByAParkedThreadCrumb_shouldReturnItsRunId() throws {
@@ -111,13 +111,13 @@ final class SentryMXRunIdDecoderTests: XCTestCase {
         let tree = try givenCallStackTree(threads: [[1] + addresses + [2, 3]])
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.runId(of: tree), "run-1")
+        XCTAssertEqual(sut.runId(of: tree), SentryCurrentRun.ID(rawValue: "run-1"))
     }
 
     // MARK: - Helpers
 
     private func givenRecord(runId: String, addresses: [UInt64]) {
-        store.add(SentryMXRunIdRecord(runId: runId, threadCrumbAddresses: addresses, date: Date()))
+        store.add(SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: runId), threadCrumbAddresses: addresses, date: Date()))
     }
 
     /// Builds a per-thread call stack tree whose threads have the given frames, outermost first.
