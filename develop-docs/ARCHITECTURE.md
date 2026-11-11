@@ -11,6 +11,20 @@ At the highest level, the SDK is composed of a few key components:
 - **SentryScope**: holds metadata that is sent with every event, to assist in querying later
 - **SentryHub** and **SentryClient**: tie together configuration, features and scopes along with lower level machinery needed to store and transmit data
 
+### Event Flow
+
+```mermaid
+flowchart TD
+    SDK["SentrySDK: public API"] --> CurrentHub["SentrySDKInternal.currentHub"]
+    CurrentHub --> Hub["SentryHub: binds the current SentryClient and Scope"]
+    Hub --> Prepare["SentryClient.prepareEvent: sampling and enrichment"]
+    Prepare --> Scope["SentryScope.applyToEvent: tags, breadcrumbs, user, and context"]
+    Prepare --> Callbacks["beforeSend callbacks and event processors"]
+    Hub --> Adapter["SentryTransportAdapter: builds envelopes and fans out to transports"]
+    Adapter --> HTTP["SentryHttpTransport: rate limiting, persistence, and upload"]
+    HTTP --> Files["SentryFileManager: on-disk envelope storage"]
+```
+
 ## Feature Areas
 
 - **Performance Tracking**: `SentryTracer`, `SentrySpan`, `SentryPerformanceTracker` for transaction monitoring
