@@ -10,10 +10,7 @@ final class SentryWebViewTraceRefresher {
 
     /// Maps each tracked controller to its allowed hosts. Keys are weak, so tracking never keeps a
     /// WebView's controller alive. Only accessed on the main thread.
-    private let controllers = NSMapTable<WKUserContentController, NSArray>(
-        keyOptions: .weakMemory,
-        valueOptions: .strongMemory
-    )
+    private let controllers = SentryWeakMap<WKUserContentController, NSArray>()
 
     init(
         allowedHosts: [String],
@@ -59,13 +56,13 @@ final class SentryWebViewTraceRefresher {
     func removeAll() {
         for controller in trackedControllers() {
             SentryWebViewTracePropagation.removeScript(from: controller)
+            controllers.removeObject(forKey: controller)
         }
-        controllers.removeAllObjects()
     }
 
     /// The tracked controllers that are still alive.
     func trackedControllers() -> [WKUserContentController] {
-        controllers.keyEnumerator().allObjects.compactMap { $0 as? WKUserContentController }
+        controllers.allKeys()
     }
 
     func trackedHosts(for controller: WKUserContentController) -> [String]? {
