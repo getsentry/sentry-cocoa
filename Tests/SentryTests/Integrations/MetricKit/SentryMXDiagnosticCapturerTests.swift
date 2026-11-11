@@ -61,7 +61,7 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
     func testCapture_whenRunIdDecoderFindsTheRun_shouldSubmitReportWithItsRunId() throws {
         // -- Arrange --
         let eventSourceSink = TestEventSourceSink()
-        let runIdDecoder = TestRunIdDecoder(runId: "run-1")
+        let runIdDecoder = TestRunIdDecoder(runId: SentryCurrentRun.ID(rawValue: "run-1"))
         let sut = givenSut(attachDiagnosticAsAttachment: false, eventSourceSink: eventSourceSink, runIdDecoder: runIdDecoder)
 
         // -- Act --
@@ -69,14 +69,14 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
 
         // -- Assert --
         let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
-        XCTAssertEqual(report.runId, "run-1")
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "run-1"))
         XCTAssertEqual(runIdDecoder.decodedCallStackTrees.count, 1)
     }
 
     func testCapture_whenCallStackTreeCantBeDecoded_shouldSubmitReportWithoutRunId() throws {
         // -- Arrange --
         let eventSourceSink = TestEventSourceSink()
-        let runIdDecoder = TestRunIdDecoder(runId: "run-1")
+        let runIdDecoder = TestRunIdDecoder(runId: SentryCurrentRun.ID(rawValue: "run-1"))
         let sut = givenSut(attachDiagnosticAsAttachment: true, eventSourceSink: eventSourceSink, runIdDecoder: runIdDecoder)
         let diagnostic = SentryMXDiagnostic(
             report: .crash,
@@ -128,14 +128,14 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
     }
 
     private final class TestRunIdDecoder: SentryMXRunIdDecoding {
-        let runId: String?
+        let runId: SentryCurrentRun.ID?
         private(set) var decodedCallStackTrees: [SentryMXCallStackTree] = []
 
-        init(runId: String?) {
+        init(runId: SentryCurrentRun.ID?) {
             self.runId = runId
         }
 
-        func runId(of callStackTree: SentryMXCallStackTree) -> String? {
+        func runId(of callStackTree: SentryMXCallStackTree) -> SentryCurrentRun.ID? {
             decodedCallStackTrees.append(callStackTree)
             return runId
         }

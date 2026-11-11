@@ -97,7 +97,7 @@ final class SentryMXDiagnosticCapturer {
         of diagnostic: SentryMXDiagnostic,
         to event: inout Event,
         isHandled: Bool
-    ) -> (flamegraph: Attachment?, runId: String?)? {
+    ) -> (flamegraph: Attachment?, runId: SentryCurrentRun.ID?)? {
         do {
             let callStackTree = try diagnostic.callStackTree()
             let flamegraph = apply(

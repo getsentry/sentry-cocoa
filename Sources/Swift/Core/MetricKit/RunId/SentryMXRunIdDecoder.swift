@@ -4,7 +4,7 @@
 protocol SentryMXRunIdDecoding {
     /// - Returns: The run ID of the run whose thread crumb the call stacks contain, or `nil` when
     ///   they contain none the SDK recorded.
-    func runId(of callStackTree: SentryMXCallStackTree) -> String?
+    func runId(of callStackTree: SentryMXCallStackTree) -> SentryCurrentRun.ID?
 }
 
 /// Finds the run ID by the thread crumb: a thread whose frames spell a run ID the SDK recorded.
@@ -15,7 +15,7 @@ protocol SentryMXRunIdDecoding {
 struct SentryMXRunIdDecoder: SentryMXRunIdDecoding {
     let store: SentryMXRunIdRecordStore
 
-    func runId(of callStackTree: SentryMXCallStackTree) -> String? {
+    func runId(of callStackTree: SentryMXCallStackTree) -> SentryCurrentRun.ID? {
         var recordsByFirstAddress: [UInt64: [SentryMXRunIdRecord]] = [:]
         for record in store.records() {
             guard let first = record.threadCrumbAddresses.first else {
@@ -37,7 +37,7 @@ struct SentryMXRunIdDecoder: SentryMXRunIdDecoding {
         return nil
     }
 
-    private func runId(startingAt frame: SentryMXFrame, recordsByFirstAddress: [UInt64: [SentryMXRunIdRecord]]) -> String? {
+    private func runId(startingAt frame: SentryMXFrame, recordsByFirstAddress: [UInt64: [SentryMXRunIdRecord]]) -> SentryCurrentRun.ID? {
         if let candidates = recordsByFirstAddress[frame.address] {
             for candidate in candidates where spells(candidate.threadCrumbAddresses, from: frame, index: 0) {
                 return candidate.runId

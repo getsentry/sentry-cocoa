@@ -78,8 +78,8 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
         let sut = SentryMXRunIdThreadCrumb()
 
         // -- Act --
-        let first = try XCTUnwrap(sut.park(runId: "ABC"))
-        let second = sut.park(runId: "ABC")
+        let first = try XCTUnwrap(sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")))
+        let second = sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC"))
 
         // -- Assert --
         XCTAssertEqual(first, second)
@@ -88,10 +88,10 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
     func testPark_whenCalledWithAnotherRunId_shouldReturnNil() throws {
         // -- Arrange --
         let sut = SentryMXRunIdThreadCrumb()
-        _ = try XCTUnwrap(sut.park(runId: "ABC"))
+        _ = try XCTUnwrap(sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")))
 
         // -- Act & Assert --
-        XCTAssertNil(sut.park(runId: "DEF"))
+        XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "DEF")))
     }
 }
 
