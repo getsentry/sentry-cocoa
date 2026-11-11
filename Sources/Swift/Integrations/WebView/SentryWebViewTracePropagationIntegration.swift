@@ -72,64 +72,73 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
     /// Process-lifetime swizzles. They forward to the refresher of the current SDK lifecycle and do
     /// nothing once it is gone.
     private static func swizzleLoadMethods() {
-        let interceptor: (WKWebView, @escaping () -> AnyObject?) -> AnyObject? = { webView, original in
-            willLoad(webView)
-            return original()
-        }
-
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadRequest(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadRequest,
-            interceptor: interceptor
-        )
+            key: SentryWebViewSwizzleKeys.loadRequest
+        ) { webView, request, original in
+            willLoad(webView)
+            return original(request)
+        }
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadHTMLString(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadHTMLString,
-            interceptor: interceptor
-        )
+            key: SentryWebViewSwizzleKeys.loadHTMLString
+        ) { webView, string, baseURL, original in
+            willLoad(webView)
+            return original(string, baseURL)
+        }
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadData(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadData,
-            interceptor: interceptor
-        )
-        swizzleFileAndSimulatedLoadMethods(interceptor: interceptor)
+            key: SentryWebViewSwizzleKeys.loadData
+        ) { webView, data, mimeType, characterEncodingName, baseURL, original in
+            willLoad(webView)
+            return original(data, mimeType, characterEncodingName, baseURL)
+        }
+        swizzleFileAndSimulatedLoadMethods()
     }
 
-    private static func swizzleFileAndSimulatedLoadMethods(interceptor: @escaping (WKWebView, @escaping () -> AnyObject?) -> AnyObject?) {
+    private static func swizzleFileAndSimulatedLoadMethods() {
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadFileURL(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadFileURL,
-            interceptor: interceptor
-        )
+            key: SentryWebViewSwizzleKeys.loadFileURL
+        ) { webView, url, readAccessURL, original in
+            willLoad(webView)
+            return original(url, readAccessURL)
+        }
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadFileRequest(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadFileRequest,
-            interceptor: interceptor
-        )
+            key: SentryWebViewSwizzleKeys.loadFileRequest
+        ) { webView, request, readAccessURL, original in
+            willLoad(webView)
+            return original(request, readAccessURL)
+        }
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadSimulatedRequestHTML(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadSimulatedRequestHTML,
-            interceptor: interceptor
-        )
+            key: SentryWebViewSwizzleKeys.loadSimulatedRequestHTML
+        ) { webView, request, html, original in
+            willLoad(webView)
+            return original(request, html)
+        }
         SentryTypedSwizzle.instanceMethod(
             in: WKWebView.self,
             method: .webViewLoadSimulatedRequestData(WKWebView.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryWebViewSwizzleKeys.loadSimulatedRequestData,
-            interceptor: interceptor
-        )
+            key: SentryWebViewSwizzleKeys.loadSimulatedRequestData
+        ) { webView, request, response, data, original in
+            willLoad(webView)
+            return original(request, response, data)
+        }
     }
 
     /// WebKit requires the main thread for loads. A load from another thread is left to WebKit
