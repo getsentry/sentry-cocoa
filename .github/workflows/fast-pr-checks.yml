@@ -72,7 +72,6 @@ jobs:
       should_skip: false
       xcode: "16"
       platform: iOS
-      make-target: test-ios
 
   sentrycrash-import-ratchet:
     name: SentryCrash Import Ratchet

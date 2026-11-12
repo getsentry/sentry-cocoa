@@ -49,11 +49,6 @@ on:
         default: ""
         type: string
 
-      make-target:
-        description: the platform Make target to test
-        required: true
-        type: string
-
       platform:
         description: the platform to test on
         required: true
@@ -176,12 +171,31 @@ jobs:
           ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
           bundle install
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          case "$PLATFORM" in
+            iOS) target=test-ios ;;
+            macOS) target=test-macos ;;
+            Catalyst) target=test-catalyst ;;
+            tvOS) target=test-tvos ;;
+            visionOS) target=test-visionos ;;
+            watchOS) target=test-watchos ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
         env:
-          MAKE_TARGET: ${{ inputs.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
@@ -217,7 +231,7 @@ jobs:
       - name: Run Flaky Tests
         id: run_flaky_tests
         env:
-          MAKE_TARGET: ${{ inputs.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
@@ -242,7 +256,7 @@ jobs:
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         env:
-          MAKE_TARGET: ${{ inputs.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
