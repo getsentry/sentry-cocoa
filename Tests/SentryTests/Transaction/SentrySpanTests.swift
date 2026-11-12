@@ -633,7 +633,7 @@ class SentrySpanTests: XCTestCase {
 
     func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() throws {
         // -- Arrange --
-        let span: Span = SentryNoOpSpan.shared()
+        let span: Span = sentrySpan(from: SentryNoOpSpan.shared())
 
         // -- Act --
         span.addFeatureFlag(name: "checkout", result: true)
@@ -871,10 +871,10 @@ class SentrySpanTests: XCTestCase {
         let sutGenerator: () -> Span = {
 #if os(iOS) || os(tvOS) || os(visionOS)
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
-            return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
+            return sentrySpan(from: SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil))
 #else
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
-            return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""))
+            return sentrySpan(from: SentrySpanInternal(tracer: tracer, context: SpanContext(operation: "")))
 #endif
         }
         

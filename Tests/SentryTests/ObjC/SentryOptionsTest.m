@@ -1,6 +1,7 @@
 #import "SentryError.h"
 #import "SentryOptions+Tests.h"
 #import "SentrySDKInternal.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySpanInternal.h"
 #if SWIFT_PACKAGE
 @import SentryTestUtils;

@@ -40,7 +40,7 @@ class SentryTraceContextTests: XCTestCase {
 
             scope = Scope()
             scope.setUser(User(userId: userId))
-            scope.span = tracer
+            scope.span = sentrySpan(from: tracer)
             scope.replayId = replayId
             
             traceId = tracer.traceId

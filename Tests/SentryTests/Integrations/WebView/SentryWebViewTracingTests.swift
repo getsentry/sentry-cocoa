@@ -99,7 +99,7 @@ final class SentryWebViewTracingTests: XCTestCase {
             transactionContext: TransactionContext(name: "/user/jane@example.com", operation: "ui.load", sampled: .yes, sampleRate: nil, sampleRand: nil),
             hub: sentryHub
         )
-        scope.span = tracer
+        scope.span = sentrySpan(from: tracer)
         let hub = makeHub(scope: scope)
 
         // -- Act --
