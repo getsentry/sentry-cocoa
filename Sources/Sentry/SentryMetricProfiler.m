@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryFormatter.h"
-#    import "SentryLogC.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryTime.h"
 
