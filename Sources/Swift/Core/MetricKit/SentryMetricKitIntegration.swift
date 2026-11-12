@@ -73,13 +73,17 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
         }
         let store = SentryMXRunIdRecordStore(fileManager: fileManager, dateProvider: dependencies.dateProvider)
         let runId = dependencies.currentRun.id
-        // The crumb is parked once per process. On an SDK restart it returns nil and the record of
-        // the first start still holds this run.
-        if let addresses = SentryMXRunIdThreadCrumb.shared.park(runId: runId) {
-            let date = dependencies.dateProvider.date()
-            dependencies.dispatchQueueWrapper.dispatchAsync {
-                store.add(SentryMXRunIdRecord(runId: runId, threadCrumbAddresses: addresses, date: date))
+        let date = dependencies.dateProvider.date()
+        // Parking waits for the crumb's thread to spell the run ID, so it happens off the calling
+        // thread, which is the main thread when the SDK starts there. A crash before the crumb is
+        // parked has no run ID in its diagnostic, which is then sent as its own event.
+        dependencies.dispatchQueueWrapper.dispatchAsync {
+            // The crumb is parked once per process. On an SDK restart with the same run ID it
+            // returns the frames again, and the record is written once more.
+            guard let addresses = SentryMXRunIdThreadCrumb.shared.park(runId: runId) else {
+                return
             }
+            store.add(SentryMXRunIdRecord(runId: runId, threadCrumbAddresses: addresses, date: date))
         }
         return SentryMXRunIdDecoder(store: store)
     }

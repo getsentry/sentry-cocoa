@@ -46,6 +46,22 @@ final class SentryMXRunIdRecordStoreTests: XCTestCase {
         XCTAssertEqual(otherStore.records(), [record])
     }
 
+    func testAdd_whenTwoStoresWriteTheSameFileConcurrently_shouldKeepEveryRecord() {
+        // -- Arrange --
+        // Every SDK start creates its own store for the same file.
+        let stores = [sut, SentryMXRunIdRecordStore(fileManager: fileManager, dateProvider: dateProvider)]
+        let date = dateProvider.date()
+        let runCount = 100
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: runCount) { index in
+            stores[index % stores.count]?.add(SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-\(index)"), threadCrumbAddresses: [UInt64(index)], date: date))
+        }
+
+        // -- Assert --
+        XCTAssertEqual(Set(sut.records().map(\.runId.rawValue)), Set((0..<runCount).map { "run-\($0)" }))
+    }
+
     func testAdd_whenCalledForSeveralRuns_shouldKeepThemOldestFirst() {
         // -- Arrange --
         let first = SentryMXRunIdRecord(runId: SentryCurrentRun.ID(rawValue: "run-1"), threadCrumbAddresses: [1], date: dateProvider.date())

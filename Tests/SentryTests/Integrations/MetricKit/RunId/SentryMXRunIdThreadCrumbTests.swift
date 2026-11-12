@@ -93,6 +93,17 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
         // -- Act & Assert --
         XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "DEF")))
     }
+
+    func testPark_whenAnEarlierAttemptFailed_shouldNotTryAgain() {
+        // -- Arrange --
+        let sut = SentryMXRunIdThreadCrumb()
+        // A run ID without a hexadecimal digit can't be spelled, which stands in for a crumb whose
+        // thread didn't spell in time and may still be parked.
+        XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "xyz-")))
+
+        // -- Act & Assert --
+        XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")), "A failed attempt must not lead to a second thread")
+    }
 }
 
 #endif // os(iOS) || os(macOS) || os(visionOS)
