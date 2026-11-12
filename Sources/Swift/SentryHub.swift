@@ -55,7 +55,7 @@ import Foundation
     ///   - operation: Short code identifying the type of operation the span is measuring.
     /// - Returns: The created transaction.
     @discardableResult @objc public func startTransaction(name: String, operation: String) -> Span {
-        helper.startTransaction(name: name, operation: operation)
+        sentrySpan(from: helper.startTransaction(name: name, operation: operation))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -65,14 +65,14 @@ import Foundation
     ///   - bindToScope: Indicates whether the SDK should bind the new transaction to the scope.
     /// - Returns: The created transaction.
     @discardableResult @objc public func startTransaction(name: String, operation: String, bindToScope: Bool) -> Span {
-        helper.startTransaction(name: name, operation: operation, bindToScope: bindToScope)
+        sentrySpan(from: helper.startTransaction(name: name, operation: operation, bindToScope: bindToScope))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
     /// - Parameter transactionContext: The transaction context.
     /// - Returns: The created transaction.
     @discardableResult @objc(startTransactionWithContext:) public func startTransaction(transactionContext: TransactionContext) -> Span {
-        helper.startTransaction(transactionContext: transactionContext)
+        sentrySpan(from: helper.startTransaction(transactionContext: transactionContext))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -81,7 +81,7 @@ import Foundation
     ///   - bindToScope: Indicates whether the SDK should bind the new transaction to the scope.
     /// - Returns: The created transaction.
     @discardableResult @objc(startTransactionWithContext:bindToScope:) public func startTransaction(transactionContext: TransactionContext, bindToScope: Bool) -> Span {
-        return helper.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope)
+        sentrySpan(from: helper.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -95,11 +95,11 @@ import Foundation
         bindToScope: Bool,
         customSamplingContext: [String: Any]
     ) -> Span {
-        return helper.startTransaction(
+        return sentrySpan(from: helper.startTransaction(
             transactionContext: transactionContext,
             bindToScope: bindToScope,
             customSamplingContext: customSamplingContext
-        )
+        ))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -301,4 +301,56 @@ import Foundation
         helper.getSessionReplayId()
     }
     #endif
+}
+
+extension SentryHubInternal {
+    @nonobjc @discardableResult
+    func startTransaction(name: String, operation: String) -> Span {
+        sentrySpan(from: startTransactionObject(name: name, operation: operation))
+    }
+
+    @nonobjc @discardableResult
+    func startTransaction(name: String, operation: String, bindToScope: Bool) -> Span {
+        sentrySpan(from: startTransactionObject(name: name, operation: operation, bindToScope: bindToScope))
+    }
+
+    @nonobjc @discardableResult
+    func startTransaction(transactionContext: TransactionContext) -> Span {
+        sentrySpan(from: startTransactionObject(transactionContext: transactionContext))
+    }
+
+    @nonobjc @discardableResult
+    func startTransaction(transactionContext: TransactionContext, bindToScope: Bool) -> Span {
+        sentrySpan(
+            from: startTransactionObject(transactionContext: transactionContext, bindToScope: bindToScope)
+        )
+    }
+
+    @nonobjc @discardableResult
+    func startTransaction(
+        transactionContext: TransactionContext,
+        bindToScope: Bool,
+        customSamplingContext: [String: Any]
+    ) -> Span {
+        sentrySpan(
+            from: startTransactionObject(
+                transactionContext: transactionContext,
+                bindToScope: bindToScope,
+                customSamplingContext: customSamplingContext
+            )
+        )
+    }
+
+    @nonobjc @discardableResult
+    func startTransaction(
+        transactionContext: TransactionContext,
+        customSamplingContext: [String: Any]
+    ) -> Span {
+        sentrySpan(
+            from: startTransactionObject(
+                transactionContext: transactionContext,
+                customSamplingContext: customSamplingContext
+            )
+        )
+    }
 }

@@ -192,7 +192,7 @@ import Foundation
         let span = SentrySpanInternal(tracer: tracer, context: context, framesTracker: nil)
         span.startTimestamp = startTimestamp
         span.timestamp = timestamp
-        return span
+        return sentrySpan(from: span)
     }
 }
 

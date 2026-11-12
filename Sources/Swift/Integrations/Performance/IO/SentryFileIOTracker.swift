@@ -74,11 +74,22 @@ internal import _SentryPrivate
     }
 
     func span(forPath path: String, origin: String, operation: String) -> (any Span)? {
-        helper.span(forPath: path, origin: origin, operation: operation, processDirectoryPath: processInfoWrapper.processDirectoryPath)
+        optionalSentrySpan(from: helper.span(
+            forPath: path,
+            origin: origin,
+            operation: operation,
+            processDirectoryPath: processInfoWrapper.processDirectoryPath
+        ))
     }
 
     func span(forPath path: String, origin: String, operation: String, size: UInt) -> (any Span)? {
-        helper.span(forPath: path, origin: origin, operation: operation, processDirectoryPath: processInfoWrapper.processDirectoryPath, size: size)
+        optionalSentrySpan(from: helper.span(
+            forPath: path,
+            origin: origin,
+            operation: operation,
+            processDirectoryPath: processInfoWrapper.processDirectoryPath,
+            size: size
+        ))
     }
 }
 // swiftlint:enable missing_docs

@@ -21,7 +21,7 @@ extension SentrySDK {
     @objc
     #endif
     public static var span: Span? {
-        return SentrySDKInternal.span
+        optionalSentrySpan(from: SentrySDKInternal.span)
     }
 
     /// Indicates whether the Sentry SDK is enabled.
@@ -236,7 +236,7 @@ extension SentrySDK {
     @objc
     #endif
     @discardableResult public static func startTransaction(name: String, operation: String) -> Span {
-        return SentrySDKInternal.startTransaction(name: name, operation: operation)
+        sentrySpan(from: SentrySDKInternal.startTransaction(name: name, operation: operation))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -248,7 +248,7 @@ extension SentrySDK {
     @objc
     #endif
     @discardableResult public static func startTransaction(name: String, operation: String, bindToScope: Bool) -> Span {
-        return SentrySDKInternal.startTransaction(name: name, operation: operation, bindToScope: bindToScope)
+        sentrySpan(from: SentrySDKInternal.startTransaction(name: name, operation: operation, bindToScope: bindToScope))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -258,7 +258,7 @@ extension SentrySDK {
     @objc(startTransactionWithContext:)
     #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext) -> Span {
-        return SentrySDKInternal.startTransaction(transactionContext: transactionContext)
+        sentrySpan(from: SentrySDKInternal.startTransaction(transactionContext: transactionContext))
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -269,7 +269,9 @@ extension SentrySDK {
     @objc(startTransactionWithContext:bindToScope:)
     #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool) -> Span {
-        return SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope)
+        sentrySpan(
+            from: SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope)
+        )
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -281,7 +283,13 @@ extension SentrySDK {
     @objc(startTransactionWithContext:bindToScope:customSamplingContext:)
     #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool, customSamplingContext: [String: Any]) -> Span {
-        return SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope, customSamplingContext: customSamplingContext)
+        sentrySpan(
+            from: SentrySDKInternal.startTransaction(
+                transactionContext: transactionContext,
+                bindToScope: bindToScope,
+                customSamplingContext: customSamplingContext
+            )
+        )
     }
 
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -292,7 +300,12 @@ extension SentrySDK {
     @objc(startTransactionWithContext:customSamplingContext:)
     #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext, customSamplingContext: [String: Any]) -> Span {
-        return SentrySDKInternal.startTransaction(transactionContext: transactionContext, customSamplingContext: customSamplingContext)
+        sentrySpan(
+            from: SentrySDKInternal.startTransaction(
+                transactionContext: transactionContext,
+                customSamplingContext: customSamplingContext
+            )
+        )
     }
 
     // MARK: - Error Capture

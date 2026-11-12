@@ -8,7 +8,6 @@
 #import "SentrySpanDataKey.h"
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
-#import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -160,10 +159,10 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     return result;
 }
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                                origin:(NSString *)origin
-                             operation:(NSString *)operation
-                  processDirectoryPath:(NSString *)processDirectoryPath
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySpan))spanForPath:(NSString *)path
+                                                       origin:(NSString *)origin
+                                                    operation:(NSString *)operation
+                                         processDirectoryPath:(NSString *)processDirectoryPath
 {
     return [self spanForPath:path
                       origin:origin
@@ -172,11 +171,11 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                         size:0];
 }
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                                origin:(NSString *)origin
-                             operation:(NSString *)operation
-                  processDirectoryPath:(NSString *)processDirectoryPath
-                                  size:(NSUInteger)size
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySpan))spanForPath:(NSString *)path
+                                                       origin:(NSString *)origin
+                                                    operation:(NSString *)operation
+                                         processDirectoryPath:(NSString *)processDirectoryPath
+                                                         size:(NSUInteger)size
 {
     @synchronized(self) {
         if (!self.isEnabled) {
