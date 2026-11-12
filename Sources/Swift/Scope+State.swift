@@ -159,9 +159,7 @@ extension Scope {
     }
 
     func storeAttachment(_ attachment: Attachment) {
-        synchronized(attachmentArray) {
-            attachmentArray.add(attachment)
-        }
+        attachmentStorage.withLock { $0.add(attachment) }
     }
 
     func storeAttribute(value: Any, key: String) {
@@ -185,9 +183,7 @@ extension Scope {
     }
 
     func deleteAttachments() {
-        synchronized(attachmentArray) {
-            attachmentArray.removeAllObjects()
-        }
+        attachmentStorage.withLock { $0.removeAllObjects() }
     }
 
     func resetScope() {
@@ -217,12 +213,12 @@ extension Scope {
 
     /// Attachments currently stored on the scope.
     @_spi(Private) @objc public var attachments: [Attachment] {
-        synchronized(attachmentArray) { objects(of: Attachment.self, in: attachmentArray) }
+        attachmentStorage.withLock { objects(of: Attachment.self, in: $0) }
     }
 
     /// Attachments captured for a fatal event, such as a screenshot or the view hierarchy.
     @_spi(Private) @objc public var crashReportAttachments: [Attachment] {
-        synchronized(crashReportAttachmentArray) { objects(of: Attachment.self, in: crashReportAttachmentArray) }
+        crashReportAttachmentStorage.withLock { objects(of: Attachment.self, in: $0) }
     }
 
     /// Adds an attachment captured at crash time so it is sent with that fatal event.
@@ -240,9 +236,7 @@ extension Scope {
         } else {
             attachment = Attachment(path: filePath)
         }
-        synchronized(crashReportAttachmentArray) {
-            crashReportAttachmentArray.add(attachment)
-        }
+        crashReportAttachmentStorage.withLock { $0.add(attachment) }
     }
 
     /// Breadcrumbs in chronological order.

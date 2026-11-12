@@ -68,7 +68,7 @@ extension Scope {
     }
 
     func observerSnapshot() -> [AnyObject] {
-        synchronized(observersLock) { observers }
+        observerStorage.withLock { $0 }
     }
 
     func notifyObservers(_ body: (SentryScopeObserver) -> Void) {

@@ -12,9 +12,7 @@ extension Scope {
     @_spi(Private)
     @objc(addScopeObserver:)
     public func add(_ observer: AnyObject) {
-        synchronized(observersLock) {
-            observers.append(observer)
-        }
+        observerStorage.withLock { $0.append(observer) }
     }
 
     /// Replaces the propagation context and notifies observers.

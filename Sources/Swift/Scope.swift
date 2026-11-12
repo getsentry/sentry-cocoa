@@ -8,16 +8,27 @@ import Foundation
 @objc(SentryScope)
 open class Scope: NSObject {
     let spanLock = NSObject()
-    let observersLock = NSObject()
     private let propagationContextLock = NSObject()
-    /// Guards dist, environment, and level. These were atomic properties, so readers and writers
-    /// share one lock. `userObject` stays on `synchronized(self)` with `setUser`.
-    private let metadataLock = NSObject()
+
+    /// Dist, environment, and level. Accessors do not re-enter this lock.
+    private struct Metadata {
+        var dist: String?
+        var environment: String?
+        var level: SentryLevel = .none
+    }
+
+    private let metadata = SentryMutex(Metadata())
+
+    /// Append or copy only. Observer callbacks run after this lock is released.
+    let observerStorage = SentryMutex<[AnyObject]>([])
+
+    /// Add, copy, or empty only. No callbacks, so these locks are not re-entered.
+    let attachmentStorage = SentryMutex(NSMutableArray())
+    let crashReportAttachmentStorage = SentryMutex(NSMutableArray())
 
     var spanStorage: Span?
     private var propagationContextStorage: SentryPropagationContext
     private var currentScreenStorage: String?
-    var observers: [AnyObject] = []
 
     /// Maximum number of breadcrumbs retained by this scope.
     /// Internal storage. The test category redeclares it; production code uses the initializer.
@@ -52,36 +63,30 @@ open class Scope: NSObject {
 
     /// Distribution stored on the scope.
     @_spi(Private) @objc public var distString: String? {
-        get { synchronized(metadataLock) { distStringStorage } }
-        set { synchronized(metadataLock) { distStringStorage = newValue } }
+        get { metadata.withLock { $0.dist } }
+        set { metadata.withLock { $0.dist = newValue } }
     }
-
-    private var distStringStorage: String?
 
     /// Environment stored on the scope.
     @_spi(Private) @objc public var environmentString: String? {
-        get { synchronized(metadataLock) { environmentStringStorage } }
-        set { synchronized(metadataLock) { environmentStringStorage = newValue } }
+        get { metadata.withLock { $0.environment } }
+        set { metadata.withLock { $0.environment = newValue } }
     }
-
-    private var environmentStringStorage: String?
 
     /// Fingerprints stored on the scope. Mutators lock this array.
     @_spi(Private) @objc public var fingerprintArray: NSMutableArray
 
     /// Level stored on the scope.
     @_spi(Private) @objc public var levelEnum: SentryLevel {
-        get { synchronized(metadataLock) { levelEnumStorage } }
-        set { synchronized(metadataLock) { levelEnumStorage = newValue } }
+        get { metadata.withLock { $0.level } }
+        set { metadata.withLock { $0.level = newValue } }
     }
 
-    private var levelEnumStorage: SentryLevel = .none
-
-    /// Attachments stored on the scope. Mutators lock this array.
-    /// The array object is the lock. Do not replace it after the scope is shared.
-    @objc var attachmentArray: NSMutableArray
-
-    var crashReportAttachmentArray: NSMutableArray
+    /// Live attachment array for tests and equality. Do not read it from inside `attachmentStorage`.
+    @objc var attachmentArray: NSMutableArray {
+        get { attachmentStorage.withLock { $0 } }
+        set { attachmentStorage.withLock { $0 = newValue } }
+    }
     var attributesDictionary: NSMutableDictionary
 
     /// Feature-flag buffer owned by this scope.
@@ -138,8 +143,6 @@ open class Scope: NSObject {
         extraDictionary = NSMutableDictionary()
         contextDictionary = NSMutableDictionary()
         fingerprintArray = NSMutableArray()
-        attachmentArray = NSMutableArray()
-        crashReportAttachmentArray = NSMutableArray()
         attributesDictionary = NSMutableDictionary()
         featureFlagBuffer = SentryFeatureFlagBufferWrapper.scopeBuffer()
         propagationContextStorage = SentryPropagationContext()
@@ -176,8 +179,12 @@ open class Scope: NSObject {
         currentBreadcrumbIndex = crumbs.count
         breadcrumbArray.addObjects(from: crumbs)
         fingerprintArray.addObjects(from: scope.fingerprints())
-        attachmentArray.addObjects(from: scope.attachments)
-        crashReportAttachmentArray.addObjects(from: scope.crashReportAttachments)
+        // Read the source attachments before taking this scope's mutex. Holding both mutexes
+        // deadlocks when two scopes are copied from each other.
+        let copiedAttachments = scope.attachments
+        let copiedCrashReportAttachments = scope.crashReportAttachments
+        attachmentStorage.withLock { $0.addObjects(from: copiedAttachments) }
+        crashReportAttachmentStorage.withLock { $0.addObjects(from: copiedCrashReportAttachments) }
         attributesDictionary.addEntries(from: scope.attributes)
 
         propagationContext = scope.propagationContext
@@ -192,9 +199,15 @@ open class Scope: NSObject {
         }
         userObjectStorage = copiedUser
         userWasSet = copiedUserWasSet
-        distStringStorage = scope.distString
-        environmentStringStorage = scope.environmentString
-        levelEnumStorage = scope.levelEnum
+        // Same rule as the attachment copy: read the source first, then lock this scope.
+        let copiedDist = scope.distString
+        let copiedEnvironment = scope.environmentString
+        let copiedLevel = scope.levelEnum
+        metadata.withLock {
+            $0.dist = copiedDist
+            $0.environment = copiedEnvironment
+            $0.level = copiedLevel
+        }
         span = scope.span
         replayId = scope.replayId
     }
