@@ -16,6 +16,7 @@ protocol SentryCrashV9IntegrationDependencies {
     var crashWrapper: SentryCrashReporter { get }
     var dateProvider: SentryCurrentDateProvider { get }
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+    var currentRun: SentryCurrentRun { get }
 
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
     func finalizePreviousRunSession(

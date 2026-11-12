@@ -21,6 +21,7 @@ private final class SentryCrashV9Dependencies: SentryCrashV9IntegrationDependenc
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper {
         container.notificationCenterWrapper
     }
+    var currentRun: SentryCurrentRun { container.currentRun }
 
     var crashReporter: SentryCrashSwift {
         // Read container state before taking the store lock. The container's crashWrapper getter
