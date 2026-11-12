@@ -64,11 +64,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
-- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (SentryTracer *)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                 configuration:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTracerConfiguration))configuration;
+                                                  SentryTracerConfiguration))configuration
+    NS_SWIFT_NAME(startTransaction(with:bindToScope:customSamplingContext:configuration:));
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

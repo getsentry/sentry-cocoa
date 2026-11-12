@@ -63,6 +63,7 @@
 #    import "SentryCrashReportSink.h"
 #    import "SentryCrashScopeObserver.h"
 #endif
+#import "SentryCurrentThreadInfo.h"
 #import "SentryDateUtils.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
@@ -96,7 +97,6 @@
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"
-#import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryURLRequestWrapper.h"
 #import "SentryUncaughtNSExceptions.h"

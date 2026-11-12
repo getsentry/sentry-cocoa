@@ -36,15 +36,22 @@ import Foundation
             newSpan = activeSpan.startChild(operation: operation, description: name)
             newSpan?.origin = origin
         } else {
+            let source = SentryTransactionNameSource(rawValue: nameSource) ?? .custom
             let context: TransactionContext
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             if let appStartTraceId = SentryAppStartMeasurementProvider.consumeAppStartTraceId() {
-                context = TransactionContext(name: name, rawNameSource: nameSource, operation: operation, origin: origin, trace: appStartTraceId)
+                context = TransactionContext(
+                    name: name,
+                    nameSource: source,
+                    operation: operation,
+                    origin: origin,
+                    trace: appStartTraceId
+                )
             } else {
-                context = TransactionContext(name: name, rawNameSource: nameSource, operation: operation, origin: origin)
+                context = TransactionContext(name: name, nameSource: source, operation: operation, origin: origin)
             }
 #else
-            context = TransactionContext(name: name, rawNameSource: nameSource, operation: operation, origin: origin)
+            context = TransactionContext(name: name, nameSource: source, operation: operation, origin: origin)
 #endif
             let span = SentrySDKInternal.currentHub().scope.span
             var bindToScope = false

@@ -5,7 +5,7 @@
 @_spi(Private) @testable import Sentry
 #endif
 #else
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 #endif
 @_spi(Private) import SentryTestUtils
 import _SentryPrivate

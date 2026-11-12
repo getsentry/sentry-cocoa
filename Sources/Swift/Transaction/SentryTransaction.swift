@@ -134,8 +134,7 @@ public class Transaction: Event {
             serializedData["measurements"] = measurements.mapValues { $0.serialize() }
         }
 
-        let rawNameSource = trace.transactionContext.value(forKey: "nameSource") as? Int ?? 0
-        let nameSource = SentryTransactionNameSource(rawValue: rawNameSource) ?? .custom
+        let nameSource = trace.transactionContext.nameSource
         serializedData["transaction"] = trace.transactionContext.name
         serializedData["transaction_info"] = [
             "source": string(for: nameSource)

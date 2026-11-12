@@ -12,7 +12,6 @@
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
-#import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -521,12 +520,14 @@ NS_ASSUME_NONNULL_BEGIN
                                  bindToScope:bindToScope];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
 {
     return [self startTransactionWithContext:transactionContext customSamplingContext:@{ }];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:transactionContext
@@ -534,7 +535,8 @@ NS_ASSUME_NONNULL_BEGIN
                        customSamplingContext:@{ }];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
@@ -542,7 +544,8 @@ NS_ASSUME_NONNULL_BEGIN
                        customSamplingContext:customSamplingContext];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
@@ -572,23 +575,25 @@ NS_ASSUME_NONNULL_BEGIN
                                          parentSampleRand:context.parentSampleRand];
 }
 
-- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (SentryTracer *)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                 configuration:(SentryTracerConfiguration *)configuration
 {
+    SentryTransactionContext *context = transactionContext;
     SentrySamplingContext *samplingContext =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
+        [[SentrySamplingContext alloc] initWithTransactionContext:context
                                             customSamplingContext:customSamplingContext];
 
     SentrySamplerDecision *tracesSamplerDecision = [SentrySampling sampleTrace:samplingContext
                                                                        options:self.client.options];
-    transactionContext = [self transactionContext:transactionContext
-                                      withSampled:tracesSamplerDecision.decision
-                                       sampleRate:tracesSamplerDecision.sampleRate
-                                       sampleRand:tracesSamplerDecision.sampleRand];
+    context = [self transactionContext:context
+                           withSampled:tracesSamplerDecision.decision
+                            sampleRate:tracesSamplerDecision.sampleRate
+                            sampleRand:tracesSamplerDecision.sampleRand];
 
-    SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+    SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                         hub:self
                                                               configuration:configuration];
 

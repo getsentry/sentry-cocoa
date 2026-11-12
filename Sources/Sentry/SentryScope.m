@@ -16,7 +16,6 @@
 #import "SentryTracer.h"
 #if SDK_V10
 #endif // SDK_V10
-#import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -887,7 +886,8 @@ static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        event.transaction = tracer.transactionContext.name;
+        SentryTransactionContext *transactionContext = tracer.transactionContext;
+        event.transaction = transactionContext.name;
     } else if (span != nil && previousTraceId != nil
         && ![previousTraceId isEqual:context[@"trace"][@"trace_id"]]) {
         // A name from another trace must not survive when the new span has no tracer.
