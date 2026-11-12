@@ -60,10 +60,6 @@ on:
         default: ""
         type: string
 
-      scheme:
-        description: the scheme to test
-        required: true
-        type: string
     secrets:
       GIT_SSH_PRIVATE_KEY_BASE64:
         required: false
@@ -175,6 +171,12 @@ jobs:
           ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
           bundle install
 
+      - name: Verify package test runner
+        run: bash scripts/test-package-workspace.sh
+
+      - name: Prepare test packages
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
+
       # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
@@ -184,7 +186,6 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          SCHEME: ${{ inputs.scheme }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
@@ -193,15 +194,15 @@ jobs:
             --command build-for-testing \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME"
+            --package-tests
 
       - name: Collect SentryTests Metadata
         id: collect_sentrytests_metadata
-        if: ${{ steps.build_tests.outcome == 'success' && inputs.scheme == 'Sentry' }}
+        if: ${{ steps.build_tests.outcome == 'success' }}
         continue-on-error: true
         run: |
           ./scripts/ci-collect-sentrytests-metadata.sh \
-            --derived-data-root "$HOME/Library/Developer/Xcode/DerivedData" \
+            --derived-data-root "$RUNNER_TEMP/sentry-package-derived-data" \
             --output-dir sentrytests-metadata
 
       # === Run tests ===
@@ -214,14 +215,11 @@ jobs:
       # xcodebuild fails if a result bundle already exists at the target path.
       - name: Run Flaky Tests
         id: run_flaky_tests
-        # Only the Sentry Scheme has the Flaky TestPlan.
-        if: ${{ inputs.scheme == 'Sentry' }}
         env:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          SCHEME: ${{ inputs.scheme }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
@@ -230,8 +228,8 @@ jobs:
             --command test-without-building \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME" \
-            --test-plan Sentry_Flaky \
+            --package-tests \
+            --test-plan SentrySPM_Flaky \
             --result-bundle flaky-results.xcresult
 
       - name: Run tests
@@ -245,7 +243,6 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          SCHEME: ${{ inputs.scheme }}
           TEST_RUNNER_GITHUB_TOKEN: ${{ github.token }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -255,7 +252,7 @@ jobs:
             --command test-without-building \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME" \
+            --package-tests \
             --result-bundle results.xcresult
 
       # === Reports and failure artifacts ===
@@ -306,14 +303,14 @@ jobs:
         with:
           name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
-            results.xcresult
-            flaky-results.xcresult
+            ${{ runner.temp }}/results.xcresult
+            ${{ runner.temp }}/flaky-results.xcresult
 
       - name: Archiving SentryTests Metadata
         id: upload-test-metadata
         background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
+        if: ${{ (failure() || cancelled()) && steps.collect_sentrytests_metadata.outcome == 'success' }}
         with:
           name: sentrytests-metadata-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           if-no-files-found: error
@@ -326,7 +323,7 @@ jobs:
         with:
           name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+            ${{ runner.temp }}/sentry-package-derived-data/Logs/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

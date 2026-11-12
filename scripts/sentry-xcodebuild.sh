@@ -28,6 +28,7 @@ WORKSPACE="Sentry.xcworkspace"
 SDK=""
 RAW_DESTINATION=""
 OVERRIDE_XCCONFIG=""
+PACKAGE_TESTS=false
 FOR_AGENTS="${FOR_AGENTS:-false}"
 
 usage() {
@@ -54,6 +55,8 @@ OPTIONS:
     --destination <dest>             Raw xcodebuild destination string (bypasses
                                       --platform resolution)
     --xcconfig <path>                Build settings override file
+    --package-tests                 Use the source package scheme, test settings and plans
+                                      Prepare manifests with prepare-package.sh first.
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
@@ -125,6 +128,10 @@ while [[ $# -gt 0 ]]; do
             RAW_DESTINATION="$2"
             shift 2
             ;;
+        --package-tests)
+            PACKAGE_TESTS=true
+            shift
+            ;;
         --xcconfig)
             OVERRIDE_XCCONFIG="$2"
             shift 2
@@ -135,6 +142,23 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [ "$PACKAGE_TESTS" = true ]; then
+    WORKSPACE="."
+    TEST_SCHEME="SentrySPM"
+    OVERRIDE_XCCONFIG="Tests/Configuration/SwiftPM.xcconfig"
+    if [ -z "$TEST_PLAN" ]; then
+        TEST_PLAN="SentrySPM_Base"
+        if [ "${SDK_V10:-0}" = 1 ]; then
+            TEST_PLAN="SentrySPM_Base_v10"
+        fi
+    fi
+    DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sentry-package-derived-data}"
+    # Updating a result bundle inside the package can trigger graph reloads mid-test.
+    if [[ "$RESULT_BUNDLE_PATH" != /* ]]; then
+        RESULT_BUNDLE_PATH="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/$RESULT_BUNDLE_PATH"
+    fi
+fi
 
 if [ -n "$OVERRIDE_XCCONFIG" ] && [ ! -f "$OVERRIDE_XCCONFIG" ]; then
     log_error "--xcconfig file does not exist: $OVERRIDE_XCCONFIG"
@@ -227,6 +251,22 @@ else
         CONFIGURATION="Test"
         ;;
     esac
+fi
+
+TEST_SETTINGS=()
+if [ "$PACKAGE_TESTS" = true ]; then
+    # Xcode cannot select root-package traits. Keep definitions identical for the
+    # build-for-testing and test-without-building invocations, including Clang imports.
+    TEST_SETTINGS=(-parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO)
+    if [ "$CONFIGURATION" = TestCI ]; then
+        # shellcheck disable=SC2016
+        TEST_SETTINGS+=('SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI'
+            'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1')
+    else
+        # shellcheck disable=SC2016
+        TEST_SETTINGS+=('SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST'
+            'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1')
+    fi
 fi
 
 case $COMMAND in
@@ -343,7 +383,9 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     )
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
+    [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    BFT_ARGS+=("${TEST_SETTINGS[@]+${TEST_SETTINGS[@]}}")
 
     run_build raw-build-for-testing-output.log "${BFT_ARGS[@]}" build-for-testing
 fi
@@ -366,7 +408,9 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
     TWB_ARGS+=(-destination "$DESTINATION")
     TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
+    [[ -n "$DERIVED_DATA_PATH" ]] && TWB_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    TWB_ARGS+=("${TEST_SETTINGS[@]+${TEST_SETTINGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${TWB_ARGS[@]}" \

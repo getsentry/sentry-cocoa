@@ -41,6 +41,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
   - ".github/workflows/unit-test-common.yml"
+  - ".github/workflows/fast-pr-checks.yml"
+  - ".github/workflows/nightly-test.yml"
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
@@ -56,6 +58,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-collect-sentrytests-metadata.sh"
+  - "scripts/test-package-workspace.sh"
   - "scripts/prepare-package.sh"
 
   # Test infrastructure
@@ -443,6 +446,7 @@ run_v10_for_prs: &run_v10_for_prs
   # GH Actions
   - ".github/workflows/build-v10.yml"
   - ".github/workflows/test-v10.yml"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
   - ".github/file-filters.yml"
 
   # Scripts & actions
@@ -459,6 +463,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/verify-v10-empty-objects.swift"
   - "scripts/read-v10-compiler-evidence.swift"
   - "scripts/test-v10-compiler-log.sh"
+  - "scripts/test-package-workspace.sh"
   - "scripts/test-v10-empty-objects.sh"
   - "scripts/test-v10-sentryobjc-slice-inventory.sh"
   - "scripts/build-xcframework-slice.sh"
