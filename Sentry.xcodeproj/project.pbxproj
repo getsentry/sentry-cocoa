@@ -492,6 +492,10 @@
 		879900020000000000000022 /* SentryMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000022 /* SentryMemory.h */; };
 		879900020000000000000031 /* SentryMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000021 /* SentryMemory.c */; };
 		879900020000000000000032 /* SentryMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000022 /* SentryMemory.h */; };
+		879900020000000000000041 /* SentryThreadCrumb.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000041 /* SentryThreadCrumb.c */; };
+		879900020000000000000042 /* SentryThreadCrumb.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000042 /* SentryThreadCrumb.h */; };
+		879900020000000000000051 /* SentryThreadCrumb.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000041 /* SentryThreadCrumb.c */; };
+		879900020000000000000052 /* SentryThreadCrumb.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000042 /* SentryThreadCrumb.h */; };
 		87FF3FC05644DE556004D3F0 /* SentrySpanContext+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 622C08D929E554B9002571D4 /* SentrySpanContext+Private.h */; };
 		8851DE04843B4094C1324DF6 /* SentryProfilerSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */; };
 		8987E911C2EC39A7BB6A7EA8 /* SentryThreadHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 03F84D1727DD414C008FE43F /* SentryThreadHandle.hpp */; };
@@ -1534,6 +1538,8 @@
 		879900010000000000000003 /* SentryThreadSnapshot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryThreadSnapshot.h; path = include/SentryThreadSnapshot.h; sourceTree = "<group>"; };
 		879900010000000000000021 /* SentryMemory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryMemory.c; sourceTree = "<group>"; };
 		879900010000000000000022 /* SentryMemory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryMemory.h; path = include/SentryMemory.h; sourceTree = "<group>"; };
+		879900010000000000000041 /* SentryThreadCrumb.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryThreadCrumb.c; sourceTree = "<group>"; };
+		879900010000000000000042 /* SentryThreadCrumb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryThreadCrumb.h; path = include/SentryThreadCrumb.h; sourceTree = "<group>"; };
 		8A6D033C024728C84FA8E42C /* SentryObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E4A037725F6F52100000D77 /* SentrySampleDecision.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySampleDecision.h; path = Public/SentrySampleDecision.h; sourceTree = "<group>"; };
 		8E4E7C6C25DAAAFE006AB9E2 /* SentrySpanInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySpanInternal.h; path = include/SentrySpanInternal.h; sourceTree = "<group>"; };
@@ -2356,6 +2362,8 @@
 				879900010000000000000003 /* SentryThreadSnapshot.h */,
 				879900010000000000000021 /* SentryMemory.c */,
 				879900010000000000000022 /* SentryMemory.h */,
+				879900010000000000000041 /* SentryThreadCrumb.c */,
+				879900010000000000000042 /* SentryThreadCrumb.h */,
 				7B7D872B2486480B00D2ECFF /* SentryStacktraceBuilder.h */,
 				7B7D872D2486482600D2ECFF /* SentryStacktraceBuilder.m */,
 				7B14089524878F090035403D /* SentryCrashStackEntryMapper.h */,
@@ -3412,6 +3420,7 @@
 				7BA61CC8247D125400C130A8 /* SentryDefaultThreadInspector.h in Headers */,
 				879900020000000000000003 /* SentryThreadSnapshot.h in Headers */,
 				879900020000000000000022 /* SentryMemory.h in Headers */,
+				879900020000000000000042 /* SentryThreadCrumb.h in Headers */,
 				63FE713320DA4C1100CDBAE8 /* SentryCrashCPU.h in Headers */,
 				6271ADF32BA06D9B0098D2E9 /* SentryInternalSerializable.h in Headers */,
 				63FE715B20DA4C1100CDBAE8 /* SentryCrashSignalInfo.h in Headers */,
@@ -3646,6 +3655,7 @@
 				2F6D0BFEC4980798559B1A7D /* SentryDefaultThreadInspector.h in Headers */,
 				879900020000000000000013 /* SentryThreadSnapshot.h in Headers */,
 				879900020000000000000032 /* SentryMemory.h in Headers */,
+				879900020000000000000052 /* SentryThreadCrumb.h in Headers */,
 				5FD453C8920A9A949807E56E /* SentryInternalSerializable.h in Headers */,
 				CFE872CFAD1A1E4630CD8102 /* SentryAttachment.h in Headers */,
 				E6C8D0A8A0DE911C2F35E45A /* SentryFrame.h in Headers */,
@@ -4523,6 +4533,7 @@
 				879900020000000000000001 /* SentryThreadSnapshot.c in Sources */,
 				879900020000000000000002 /* SentryThreadSnapshotKSCrash.c in Sources */,
 				879900020000000000000021 /* SentryMemory.c in Sources */,
+				879900020000000000000041 /* SentryThreadCrumb.c in Sources */,
 				63FE718D20DA4C1100CDBAE8 /* SentryCrashReportStore.c in Sources */,
 				ACC82C7ED1B5414FAD0BB26C /* SentryDefaultTelemetryProcessorTransport.m in Sources */,
 				63FE712920DA4C1000CDBAE8 /* SentryCrashCPU_arm.c in Sources */,
@@ -4753,6 +4764,7 @@
 				879900020000000000000011 /* SentryThreadSnapshot.c in Sources */,
 				879900020000000000000012 /* SentryThreadSnapshotKSCrash.c in Sources */,
 				879900020000000000000031 /* SentryMemory.c in Sources */,
+				879900020000000000000051 /* SentryThreadCrumb.c in Sources */,
 				4694776C9EFEB40B24B09929 /* SentryDefaultTelemetryProcessorTransport.m in Sources */,
 				4A361E7C99DDE6DDC2FC31B5 /* SentryThreadMetadataCache.cpp in Sources */,
 				C4136D9ECDEF63AB104D73B2 /* SentryDelayedFrame.m in Sources */,
