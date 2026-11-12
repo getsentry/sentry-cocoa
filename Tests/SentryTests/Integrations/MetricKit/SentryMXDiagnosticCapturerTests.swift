@@ -23,7 +23,7 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
         let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
         XCTAssertEqual(report.source, .metricKit)
         XCTAssertEqual(report.event.exceptions?.first?.type, "MXCrashDiagnostic")
-        guard case .diagnostic(let attachments) = report.kind else {
+        guard case .diagnostic(let attachments, _) = report.kind else {
             return XCTFail("Expected a diagnostic report")
         }
         XCTAssertEqual(attachments.map(\.filename), ["MXDiagnosticPayload.json"])
@@ -39,10 +39,58 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
 
         // -- Assert --
         let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
-        guard case .diagnostic(let attachments) = report.kind else {
+        guard case .diagnostic(let attachments, _) = report.kind else {
             return XCTFail("Expected a diagnostic report")
         }
         XCTAssertEqual(attachments.count, 0)
+    }
+
+    func testCapture_whenDiagnosticIsACrash_shouldSubmitReportThatEndsTheRunWithACrash() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = givenSut(attachDiagnosticAsAttachment: false, eventSourceSink: eventSourceSink)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(report: .crash))
+
+        // -- Assert --
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        guard case .diagnostic(_, let runEnd) = report.kind else {
+            return XCTFail("Expected a diagnostic report")
+        }
+        XCTAssertEqual(runEnd, .crash)
+    }
+
+    func testCapture_whenDiagnosticIsAMemoryException_shouldSubmitReportThatEndsTheRunWithAMemoryTermination() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = givenSut(attachDiagnosticAsAttachment: false, eventSourceSink: eventSourceSink, enabledDiagnostics: [.memoryException])
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(report: .memoryException))
+
+        // -- Assert --
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        guard case .diagnostic(_, let runEnd) = report.kind else {
+            return XCTFail("Expected a diagnostic report")
+        }
+        XCTAssertEqual(runEnd, .memoryTermination)
+    }
+
+    func testCapture_whenDiagnosticIsAHang_shouldSubmitReportThatDoesNotEndTheRun() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = givenSut(attachDiagnosticAsAttachment: false, eventSourceSink: eventSourceSink, enabledDiagnostics: [.hang])
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(report: .hang))
+
+        // -- Assert --
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        guard case .diagnostic(_, let runEnd) = report.kind else {
+            return XCTFail("Expected a diagnostic report")
+        }
+        XCTAssertNil(runEnd)
     }
 
     func testCapture_whenThereIsNoRunIdDecoder_shouldSubmitReportWithoutRunId() throws {
@@ -114,12 +162,13 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
     private func givenSut(
         attachDiagnosticAsAttachment: Bool,
         eventSourceSink: SentryEventSourceSink,
-        runIdDecoder: SentryMXRunIdDecoding? = nil
+        runIdDecoder: SentryMXRunIdDecoding? = nil,
+        enabledDiagnostics: Set<SentryMetricKit.DiagnosticReport> = [.crash]
     ) -> SentryMXDiagnosticCapturer {
         SentryMXDiagnosticCapturer(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: attachDiagnosticAsAttachment,
-            enabledDiagnostics: [.crash],
+            enabledDiagnostics: enabledDiagnostics,
             // Every diagnostic counts as recorded by this process.
             processStartDate: .distantPast,
             eventSourceSink: eventSourceSink,
