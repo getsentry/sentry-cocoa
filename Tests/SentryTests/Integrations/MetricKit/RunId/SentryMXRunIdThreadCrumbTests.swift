@@ -12,7 +12,7 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
 
     func testSpell_whenMessageHasHexDigits_shouldReturnOneAddressPerDigit() throws {
         // -- Act --
-        let addresses = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell("0a1B"))
+        let addresses = try SentryMXRunIdThreadCrumb.spell("0a1B")
 
         // -- Assert --
         XCTAssertEqual(addresses.count, 4)
@@ -21,7 +21,7 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
 
     func testSpell_whenMessageRepeatsADigit_shouldReturnTheSameFrameForIt() throws {
         // -- Act --
-        let addresses = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell("AABA"))
+        let addresses = try SentryMXRunIdThreadCrumb.spell("AABA")
 
         // -- Assert --
         // Each digit is its own function with one call site, so the same digit returns to the
@@ -35,7 +35,7 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
 
     func testSpell_whenMessageMixesCase_shouldSpellCaseInsensitively() throws {
         // -- Act --
-        let addresses = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell("aA"))
+        let addresses = try SentryMXRunIdThreadCrumb.spell("aA")
 
         // -- Assert --
         XCTAssertEqual(try XCTUnwrap(addresses.element(at: 0)), try XCTUnwrap(addresses.element(at: 1)))
@@ -43,8 +43,8 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
 
     func testSpell_whenMessageHasOtherCharacters_shouldSkipThem() throws {
         // -- Act --
-        let withHyphens = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell("1-2-3"))
-        let plain = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell("123"))
+        let withHyphens = try SentryMXRunIdThreadCrumb.spell("1-2-3")
+        let plain = try SentryMXRunIdThreadCrumb.spell("123")
 
         // -- Assert --
         XCTAssertEqual(withHyphens, plain)
@@ -52,13 +52,17 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
 
     func testSpell_whenMessageHasNoHexDigits_shouldReturnNil() {
         // -- Act & Assert --
-        XCTAssertNil(SentryMXRunIdThreadCrumb.spell("xyz-"))
-        XCTAssertNil(SentryMXRunIdThreadCrumb.spell(""))
+        XCTAssertThrowsError(try SentryMXRunIdThreadCrumb.spell("xyz-")) { error in
+            XCTAssertEqual(error as? SentryMXRunIdThreadCrumb.ParkError, .notSpelled)
+        }
+        XCTAssertThrowsError(try SentryMXRunIdThreadCrumb.spell("")) { error in
+            XCTAssertEqual(error as? SentryMXRunIdThreadCrumb.ParkError, .notSpelled)
+        }
     }
 
     func testSpell_whenMessageIsARunId_shouldReturnOneAddressPerHexDigit() throws {
         // -- Act --
-        let addresses = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell(UUID().uuidString))
+        let addresses = try SentryMXRunIdThreadCrumb.spell(UUID().uuidString)
 
         // -- Assert --
         XCTAssertEqual(addresses.count, 32)
@@ -66,7 +70,7 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
 
     func testSpell_whenMessageIsLongerThanTheMaximum_shouldSpellTheMaximum() throws {
         // -- Act --
-        let addresses = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell(String(repeating: "F", count: 100)))
+        let addresses = try SentryMXRunIdThreadCrumb.spell(String(repeating: "F", count: 100))
 
         // -- Assert --
         // SENTRY_THREADCRUMB_MAX_LENGTH
@@ -78,20 +82,25 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
         let sut = SentryMXRunIdThreadCrumb()
 
         // -- Act --
-        let first = try XCTUnwrap(sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")))
-        let second = sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC"))
+        let first = try sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC"))
+        let second = try sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC"))
 
         // -- Assert --
         XCTAssertEqual(first, second)
     }
 
-    func testPark_whenCalledWithAnotherRunId_shouldReturnNil() throws {
+    func testPark_whenCalledWithAnotherRunId_shouldThrowParkedForAnotherRun() throws {
         // -- Arrange --
         let sut = SentryMXRunIdThreadCrumb()
-        _ = try XCTUnwrap(sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")))
+        _ = try sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC"))
 
         // -- Act & Assert --
-        XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "DEF")))
+        XCTAssertThrowsError(try sut.park(runId: SentryCurrentRun.ID(rawValue: "DEF"))) { error in
+            XCTAssertEqual(
+                error as? SentryMXRunIdThreadCrumb.ParkError,
+                .parkedForAnotherRun(SentryCurrentRun.ID(rawValue: "ABC"))
+            )
+        }
     }
 
     func testPark_whenAnEarlierAttemptFailed_shouldNotTryAgain() {
@@ -99,10 +108,17 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
         let sut = SentryMXRunIdThreadCrumb()
         // A run ID without a hexadecimal digit can't be spelled, which stands in for a crumb whose
         // thread didn't spell in time and may still be parked.
-        XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "xyz-")))
+        XCTAssertThrowsError(try sut.park(runId: SentryCurrentRun.ID(rawValue: "xyz-"))) { error in
+            XCTAssertEqual(error as? SentryMXRunIdThreadCrumb.ParkError, .notSpelled)
+        }
 
         // -- Act & Assert --
-        XCTAssertNil(sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")), "A failed attempt must not lead to a second thread")
+        XCTAssertThrowsError(
+            try sut.park(runId: SentryCurrentRun.ID(rawValue: "ABC")),
+            "A failed attempt must not lead to a second thread"
+        ) { error in
+            XCTAssertEqual(error as? SentryMXRunIdThreadCrumb.ParkError, .earlierAttemptFailed)
+        }
     }
 }
 

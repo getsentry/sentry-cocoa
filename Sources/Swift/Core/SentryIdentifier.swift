@@ -27,3 +27,20 @@ import Foundation
         String(describing: rawValue)
     }
 }
+
+/// An ID is stored as its raw value alone, so a store that kept the raw value before reads the
+/// same data, and a type that holds an ID gets its `Codable` conformance synthesized.
+extension SentryIdentifier: Decodable where RawValue: Decodable {
+    /// Reads the ID from its raw value.
+    public init(from decoder: Decoder) throws {
+        self.init(rawValue: try decoder.singleValueContainer().decode(RawValue.self))
+    }
+}
+
+extension SentryIdentifier: Encodable where RawValue: Encodable {
+    /// Writes the ID as its raw value.
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
