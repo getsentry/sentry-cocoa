@@ -2,17 +2,14 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryTime.h"
-#    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import <UIKit/UIKit.h>
@@ -36,27 +33,6 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 @implementation SentryProfiler {
     std::unique_ptr<SamplingProfiler> _samplingProfiler;
-}
-
-+ (void)load
-{
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-    // we want to allow starting a launch profile from here for UI tests, but not unit tests
-    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
-        return;
-    }
-
-    // the samples apps may want to wipe the data like before UI test case runs, or manually during
-    // development, to remove any launch config files that might be present before launching the app
-    // initially, however we need to make sure to remove stale versions of the file before it gets
-    // used to potentially start a launch profile that shouldn't have started, so we check here for
-    // this. This is runtime-gated and safe to compile in unconditionally.
-    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
-        removeSentryStaticBasePath();
-    }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-
-    sentry_startLaunchProfile();
 }
 
 - (instancetype)initWithMode:(SentryProfilerMode)mode
