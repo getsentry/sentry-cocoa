@@ -1,4 +1,4 @@
-* @getsentry/team-mobile-apple-sdk @noahsmartin
+* @getsentry/team-mobile-apple-sdk @noahsmartin @donnywals
 
 # Public API surface — also request Android and cross-platform SDK team reviews on API changes
 /sdk_api*.json @getsentry/team-mobile-apple-sdk @noahsmartin @getsentry/team-mobile-android-sdk @getsentry/team-mobile-cross-platform-sdks
