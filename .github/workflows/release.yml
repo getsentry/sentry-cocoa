@@ -88,6 +88,9 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
@@ -131,6 +134,9 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-sentryobjc-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       release-version: ${{ github.event.inputs.version }}
       sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
@@ -141,6 +147,8 @@ jobs:
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
     secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
       MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -156,6 +164,8 @@ jobs:
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
     secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
       MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -187,6 +197,11 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -258,6 +273,11 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -318,6 +338,11 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -378,6 +403,11 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -437,6 +467,11 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -480,6 +515,9 @@ jobs:
   duplication-tests:
     name: Test Sentry Duplication V4
     uses: ./.github/workflows/ui-tests-common.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
