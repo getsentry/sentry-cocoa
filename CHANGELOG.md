@@ -12,6 +12,7 @@
 - Spell the run ID into the call stack of a parked thread while MetricKit diagnostics are enabled, so the SDK can match a MetricKit crash, hang or memory diagnostic to the run it describes. The thread is named `io.sentry.threadcrumb` and stays idle; the run ID stays on the device (#9582)
 - Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
 - Stop sending a MetricKit crash diagnostic for a crash the crash handler already reported in the same run, so enabling `.crash` in `enabledDiagnosticReports` no longer shows the same crash twice (#9584)
+- Hold a watchdog termination event for up to 30 seconds while MetricKit `.crash` or `.memoryException` diagnostics are enabled, and merge it with the MetricKit diagnostic of the same run, so the event gets a stack trace and the termination reason. Without a matching diagnostic the event is sent unchanged (#9599)
 
 ### Fixes
 
