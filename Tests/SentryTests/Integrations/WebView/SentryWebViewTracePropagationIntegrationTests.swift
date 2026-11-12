@@ -26,7 +26,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
 
     private var originalHub: SentryHubInternal!
     private var scope: Scope!
-    private var sut: SentryWebViewTracePropagationIntegration?
+    private var sut: SentryWebViewTracePropagationIntegration<SentryDependencyContainer>?
 
     override func setUp() {
         super.setUp()
@@ -80,7 +80,23 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
     }
 
     func testName_shouldMatchManualUsageName() {
-        XCTAssertEqual(SentryWebViewTracePropagationIntegration.name, "SentryWebViewTracePropagationIntegration")
+        XCTAssertEqual(SentryWebViewTracePropagationIntegration<SentryDependencyContainer>.name, "SentryWebViewTracePropagationIntegration")
+    }
+
+    func testInit_shouldObserveScopeOfInjectedHub() throws {
+        // -- Arrange --
+        let injectedScope = Scope()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncOnMainQueueExecutesBlock = false
+        let dependencies = WebViewTestDependencies(hub: WebViewTestHub(scope: injectedScope), dispatchQueueWrapper: dispatchQueue)
+        let integration = try XCTUnwrap(SentryWebViewTracePropagationIntegration(with: options, dependencies: dependencies))
+        defer { integration.uninstall() }
+
+        // -- Act --
+        injectedScope.propagationContext = SentryPropagationContext(traceId: SentryId(), spanId: SpanId())
+
+        // -- Assert --
+        XCTAssertEqual(dispatchQueue.dispatchAsyncOnMainQueueInvocations.count, 1)
     }
 
     func testUninstall_shouldStopInstallingOnLoad() throws {
@@ -340,7 +356,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
     // MARK: - Helpers
 
     @discardableResult
-    private func install() throws -> SentryWebViewTracePropagationIntegration {
+    private func install() throws -> SentryWebViewTracePropagationIntegration<SentryDependencyContainer> {
         let integration = try XCTUnwrap(SentryWebViewTracePropagationIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         sut = integration
         return integration
@@ -480,5 +496,37 @@ private final class PageSchemeHandler: NSObject, WKURLSchemeHandler {
     }
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
+}
+
+private struct WebViewTestDependencies: SentryWebViewTracePropagationIntegrationDependencies {
+    let hub: Hub
+    let dispatchQueueWrapper: SentryDispatchQueueWrapper
+}
+
+private final class WebViewTestHub: Hub {
+    let scope: Scope
+
+    init(scope: Scope) {
+        self.scope = scope
+    }
+
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        callback(scope)
+    }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {}
+    func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
+    func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
+    func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String? { nil }
+#endif
+
+    var currentOptions: Options? { nil }
+    var options: Options { Options() }
 }
 #endif
