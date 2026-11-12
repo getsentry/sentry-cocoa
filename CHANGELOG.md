@@ -17,6 +17,7 @@
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
 - Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
+- Count error events captured with `captureEvent` in the current session's error count, as the Java and Native SDKs do, so hybrid SDKs such as Godot and Unreal report errored sessions. App hangs and events from a previous process still don't count (#9597)
 
 ### Improvements
 
