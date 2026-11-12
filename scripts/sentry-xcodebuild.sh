@@ -24,7 +24,7 @@ TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
 ONLY_TESTING=""
-WORKSPACE="Sentry.xcworkspace"
+WORKSPACE=""
 SDK=""
 RAW_DESTINATION=""
 OVERRIDE_XCCONFIG=""
@@ -144,9 +144,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$PACKAGE_TESTS" = true ]; then
-    WORKSPACE="."
+    WORKSPACE="${WORKSPACE:-.}"
     TEST_SCHEME="SentrySPM"
-    OVERRIDE_XCCONFIG="Tests/Configuration/SwiftPM.xcconfig"
+    if [ "$WORKSPACE" = . ]; then
+        OVERRIDE_XCCONFIG="Tests/Configuration/SwiftPM.xcconfig"
+    else
+        OVERRIDE_XCCONFIG="$WORKSPACE/Tests/Configuration/SwiftPM.xcconfig"
+    fi
     if [ -z "$TEST_PLAN" ]; then
         TEST_PLAN="SentrySPM_Base"
         if [ "${SDK_V10:-0}" = 1 ]; then
@@ -159,6 +163,8 @@ if [ "$PACKAGE_TESTS" = true ]; then
         RESULT_BUNDLE_PATH="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/$RESULT_BUNDLE_PATH"
     fi
 fi
+
+WORKSPACE="${WORKSPACE:-Sentry.xcworkspace}"
 
 if [ -n "$OVERRIDE_XCCONFIG" ] && [ ! -f "$OVERRIDE_XCCONFIG" ]; then
     log_error "--xcconfig file does not exist: $OVERRIDE_XCCONFIG"

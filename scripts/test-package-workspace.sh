@@ -37,6 +37,8 @@ cat > "$WORK_DIR/tools/xcodebuild" <<'SH'
 #!/bin/bash
 set -euo pipefail
 printf '%s\n' "$@" > "$RECORD"
+printf '%s\n' "$*" >> "$RECORD.calls"
+printf '%s\n' "${SDK_V10:-unset}" > "$RECORD.env"
 exit "${BUILD_STATUS:-0}"
 SH
 cat > "$WORK_DIR/tools/xcbeautify" <<'SH'
@@ -116,4 +118,91 @@ status=0
 BUILD_STATUS=65 bash "$REPO_ROOT/scripts/sentry-xcodebuild.sh" --package-tests \
     --platform macOS --configuration TestCI --command test > "$RECORD.log" 2>&1 || status=$?
 [[ "$status" = 65 ]] || { log_error "Build failure was not propagated: $status"; exit 1; }
-log_info "All package-workspace runner checks passed"
+# Make owns preparation and phase selection. Use a disposable source fixture so
+# these checks also prove local test commands leave the original manifest intact.
+GIT_DIR="$(git -C "$REPO_ROOT" rev-parse --absolute-git-dir)"
+export GIT_DIR
+export GIT_WORK_TREE="$REPO_ROOT"
+fixture="$WORK_DIR/make-fixture"
+mkdir -p "$fixture/Tests/Configuration" "$fixture/Sources" "$fixture/Plans" \
+    "$fixture/SentryTestUtils" "$fixture/SentryTestUtilsDynamic" "$fixture/SentryTestUtilsTests" \
+    "$fixture/.swiftpm/xcode/xcshareddata/xcschemes"
+fixture="$(cd "$fixture" && pwd -P)"
+ln -s "$REPO_ROOT/scripts" "$fixture/scripts"
+cp "$REPO_ROOT/Tests/Configuration/SwiftPM.xcconfig" "$fixture/Tests/Configuration/"
+cp "$REPO_ROOT/.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme" \
+    "$fixture/.swiftpm/xcode/xcshareddata/xcschemes/"
+printf '%s\n' '// swift-tools-version:6.0' '// BEGIN:BINARY_TARGETS' \
+    'binary fixture' '// END:BINARY_TARGETS' > "$fixture/Package.swift"
+cp "$fixture/Package.swift" "$fixture/Package@swift-6.2.swift"
+cp "$fixture/Package.swift" "$WORK_DIR/original-manifest"
+cat > "$WORK_DIR/tools/xcrun" <<'SH'
+#!/bin/bash
+printf '%s\n' 'iOS 26.5 (26.5 - fixture)' 'tvOS 26.5 (26.5 - fixture)' \
+    'visionOS 26.5 (26.5 - fixture)' 'watchOS 26.5 (26.5 - fixture)'
+SH
+chmod +x "$WORK_DIR/tools/xcrun"
+
+for platform in ios macos catalyst tvos visionos watchos; do
+    for suffix in '' -v10; do
+        export RECORD="$WORK_DIR/make-$platform$suffix.args"
+        make --no-print-directory -C "$fixture" -f "$REPO_ROOT/Makefile" \
+            "test-$platform$suffix" FOR_AGENTS=true \
+            IOS_SIMULATOR_OS=26.5 TVOS_SIMULATOR_OS=26.5 \
+            VISIONOS_SIMULATOR_OS=26.5 WATCHOS_SIMULATOR_OS=26.5 \
+            ONLY_TESTING=SentryTests/Example/testExample > "$RECORD.log" 2>&1
+        assert_arg "$fixture/.build/package-tests"
+        assert_arg SentrySPM
+        assert_arg Test
+        case "$platform" in
+            ios) assert_arg 'platform=iOS Simulator,OS=26.5,name=iPhone 16 Pro' ;;
+            macos) assert_arg 'platform=macOS' ;;
+            catalyst) assert_arg 'platform=macOS,variant=Mac Catalyst' ;;
+            tvos) assert_arg 'platform=tvOS Simulator,OS=26.5,name=Apple TV' ;;
+            visionos) assert_arg 'platform=visionOS Simulator,OS=26.5,name=Apple Vision Pro' ;;
+            watchos) assert_arg 'platform=watchOS Simulator,OS=26.5,name=Apple Watch SE 3 (44mm)' ;;
+        esac
+        assert_arg -only-testing:SentryTests/Example/testExample
+        expected_sdk=0
+        [[ "$suffix" = -v10 ]] && expected_sdk=1
+        [[ "$(< "$RECORD.env")" = "$expected_sdk" ]]
+        cmp "$fixture/Package.swift" "$WORK_DIR/original-manifest"
+        if grep -q 'binary fixture' "$fixture/.build/package-tests/Package.swift" \
+            "$fixture/.build/package-tests/Package@swift-6.2.swift"; then
+            log_error "Make did not prepare every copied manifest"
+            exit 1
+        fi
+    done
+done
+
+for aggregate in test test-v10; do
+    export RECORD="$WORK_DIR/make-$aggregate.args"
+    make --no-print-directory -C "$fixture" -f "$REPO_ROOT/Makefile" "$aggregate" \
+        FOR_AGENTS=true IOS_SIMULATOR_OS=26.5 TVOS_SIMULATOR_OS=26.5 \
+        VISIONOS_SIMULATOR_OS=26.5 WATCHOS_SIMULATOR_OS=26.5 > "$RECORD.log" 2>&1
+    [[ "$(grep -c ' build-for-testing$' "$RECORD.calls")" = 6 ]]
+    [[ "$(grep -c ' test-without-building$' "$RECORD.calls")" = 6 ]]
+done
+
+# The execution-only phase must not prepare or rewrite the package after compilation.
+export RECORD="$WORK_DIR/make-execution.args"
+printf '%s\n' '// retain compiled package' >> "$fixture/.build/package-tests/Package.swift"
+make --no-print-directory -C "$fixture" -f "$REPO_ROOT/Makefile" test-unit \
+    FOR_AGENTS=true TEST_PLATFORM=macOS TEST_COMMAND=test-without-building \
+    TEST_CONFIGURATION=TestCI TEST_PLAN=SentrySPM_Flaky \
+    TEST_RESULT_BUNDLE=flaky-results.xcresult > "$RECORD.log" 2>&1
+assert_arg TestCI
+assert_arg SentrySPM_Flaky
+assert_arg test-without-building
+assert_arg "$RUNNER_TEMP/flaky-results.xcresult"
+grep -q 'retain compiled package' "$fixture/.build/package-tests/Package.swift"
+
+export RECORD="$WORK_DIR/make-build.args"
+make --no-print-directory -C "$fixture" -f "$REPO_ROOT/Makefile" test-unit-v10 \
+    FOR_AGENTS=true TEST_PLATFORM=Catalyst TEST_COMMAND=build-for-testing \
+    TEST_CONFIGURATION=TestCI TEST_PLAN=SentrySPM_TestServer_v10 > "$RECORD.log" 2>&1
+assert_arg build-for-testing
+assert_arg SentrySPM_TestServer_v10
+assert_arg 'platform=macOS,variant=Mac Catalyst'
+[[ "$(< "$RECORD.env")" = 1 ]]
+log_info "All package-workspace runner and Make checks passed"

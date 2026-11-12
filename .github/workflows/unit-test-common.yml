@@ -165,9 +165,6 @@ jobs:
       - name: Verify package test runner
         run: bash scripts/test-package-workspace.sh
 
-      - name: Prepare test packages
-        run: ./scripts/prepare-package.sh --remove-binary-targets true
-
       # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
@@ -178,14 +175,13 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform "$PLATFORM" \
-            --os "$OS_VERSION" \
-            --ref "$REF_NAME" \
-            --command build-for-testing \
-            --device "$DEVICE_NAME" \
-            --configuration TestCI \
-            --package-tests
+          make test-unit \
+            TEST_PLATFORM="$PLATFORM" \
+            TEST_OS="$OS_VERSION" \
+            TEST_DEVICE="$DEVICE_NAME" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=build-for-testing \
+            TEST_CONFIGURATION=TestCI
 
       - name: Collect SentryTests Metadata
         id: collect_sentrytests_metadata
@@ -212,20 +208,19 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform "$PLATFORM" \
-            --os "$OS_VERSION" \
-            --ref "$REF_NAME" \
-            --command test-without-building \
-            --device "$DEVICE_NAME" \
-            --configuration TestCI \
-            --package-tests \
-            --test-plan SentrySPM_Flaky \
-            --result-bundle flaky-results.xcresult
+          make test-unit \
+            TEST_PLATFORM="$PLATFORM" \
+            TEST_OS="$OS_VERSION" \
+            TEST_DEVICE="$DEVICE_NAME" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=test-without-building \
+            TEST_CONFIGURATION=TestCI \
+            TEST_PLAN=SentrySPM_Flaky \
+            TEST_RESULT_BUNDLE=flaky-results.xcresult
 
       - name: Run tests
         id: run_tests
-        # We call a script with the platform so the destination
+        # Pass the platform to Make so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
@@ -236,15 +231,14 @@ jobs:
           DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
           TEST_RUNNER_GITHUB_TOKEN: ${{ github.token }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform "$PLATFORM" \
-            --os "$OS_VERSION" \
-            --ref "$REF_NAME" \
-            --command test-without-building \
-            --device "$DEVICE_NAME" \
-            --configuration TestCI \
-            --package-tests \
-            --result-bundle results.xcresult
+          make test-unit \
+            TEST_PLATFORM="$PLATFORM" \
+            TEST_OS="$OS_VERSION" \
+            TEST_DEVICE="$DEVICE_NAME" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=test-without-building \
+            TEST_CONFIGURATION=TestCI \
+            TEST_RESULT_BUNDLE=results.xcresult
 
       # === Reports and failure artifacts ===
       - name: Publish Test Report
@@ -282,6 +276,7 @@ jobs:
         with:
           name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
+            raw-prepare-package-output.log
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
