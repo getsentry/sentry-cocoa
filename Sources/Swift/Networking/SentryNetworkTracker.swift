@@ -783,6 +783,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         for urlString: String,
         task: URLSessionTask
     ) -> Bool {
+        guard networkDetailConfiguration.hasAllowUrls else {
+            return false
+        }
 
         let cacheKey = "\(networkDetailConfiguration.configurationID)||\(urlString)"
 
@@ -790,10 +793,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             $0.networkDetailCaptureDecisions[cacheKey]
         }) {
             return cached
-        }
-
-        guard networkDetailConfiguration.hasAllowUrls else {
-            return false
         }
 
         // Perform pattern matching outside the task-state lock.
