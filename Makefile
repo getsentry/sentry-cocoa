@@ -1376,305 +1376,85 @@ build-testapp-SDK-Size:
 # TESTING
 # ============================================================================
 
-## Run all platform tests
-#
-# Convenience target that invokes all platform test targets.
-# See test-ios, test-macos, test-catalyst, test-tvos, test-visionos, test-watchos for more details.
+# Package test entry points shared by local development and CI.
+# TEST_COMMAND supports test, build-for-testing, and test-without-building.
+# Split phases must use the same TEST_WORKSPACE and TEST_CONFIGURATION.
+TEST_COMMAND ?= test
+TEST_CONFIGURATION ?= Test
+TEST_RESULT_BUNDLE ?= results.xcresult
+TEST_DERIVED_DATA ?=
+TEST_WORKSPACE ?= $(CURDIR)/.build/package-tests
+TEST_PLATFORM ?= macOS
+TEST_OS ?= latest
+TEST_DEVICE ?=
+
+UNIT_TEST_TARGETS := test-unit test-ios test-macos test-catalyst test-tvos test-visionos test-watchos
+UNIT_TEST_V10_TARGETS := test-unit-v10 test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visionos-v10 test-watchos-v10
+
+## Run all platform package tests
 .PHONY: test
 test: test-ios test-macos test-catalyst test-tvos test-visionos test-watchos
 
-## Run iOS tests
-#
-# Runs unit tests for iOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
-# Examples:
-#   make test-ios
-#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests
-#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet
-#   make test-ios TEST_SCHEME=SentryObjCTests
-#   make test-ios TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-ios
-test-ios:
-	@echo "[MAKE] $@: Running iOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform iOS \
-		--os $(IOS_SIMULATOR_OS) \
-		--device "$(IOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--configuration Test \
-		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run macOS tests
-#
-# Runs unit tests for macOS.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
-# Examples:
-#   make test-macos
-#   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-macos TEST_SCHEME=SentryObjCTests
-#   make test-macos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-macos
-test-macos:
-	@echo "[MAKE] $@: Running macOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform macOS \
-		--os latest \
-		--ref $(GIT-REF) \
-		--command test \
-		--configuration Test \
-		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run Catalyst tests
-#
-# Runs unit tests for Mac Catalyst.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
-# Examples:
-#   make test-catalyst
-#   make test-catalyst ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-catalyst TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-catalyst
-test-catalyst:
-	@echo "[MAKE] $@: Running Catalyst tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform Catalyst \
-		--os latest \
-		--ref $(GIT-REF) \
-		--command test \
-		--configuration Test \
-		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run tvOS tests
-#
-# Runs unit tests for tvOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
-# Examples:
-#   make test-tvos
-#   make test-tvos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-tvos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-tvos
-test-tvos:
-	@echo "[MAKE] $@: Running tvOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform tvOS \
-		--os $(TVOS_SIMULATOR_OS) \
-		--device "$(TVOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--configuration Test \
-		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run visionOS tests
-#
-# Runs unit tests for visionOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
-# Examples:
-#   make test-visionos
-#   make test-visionos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-visionos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-visionos
-test-visionos:
-	@echo "[MAKE] $@: Running visionOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform visionOS \
-		--os $(VISIONOS_SIMULATOR_OS) \
-		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--configuration Test \
-		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run watchOS tests
-#
-# Runs unit tests for watchOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
-# Examples:
-#   make test-watchos
-#   make test-watchos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-watchos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-watchos
-test-watchos:
-	@echo "[MAKE] $@: Running watchOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform watchOS \
-		--os $(WATCHOS_SIMULATOR_OS) \
-		--device "$(WATCHOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--configuration Test \
-		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run all platform tests with SDK_V10 flag
-#
-# Convenience target that invokes all V10 platform test targets.
+## Run all platform package tests with SDK_V10=1
 .PHONY: test-v10
 test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visionos-v10 test-watchos-v10
 
-## Run iOS tests with SDK_V10 flag
-#
-# Runs unit tests for iOS Simulator using the SentryV10 scheme.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Examples:
-#   make test-ios-v10
-#   make test-ios-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
-#   make test-ios-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-ios-v10
-test-ios-v10:
-	@echo "[MAKE] $@: Running V10 iOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform iOS \
-		--os $(IOS_SIMULATOR_OS) \
-		--device "$(IOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--scheme SentryV10 \
-		--configuration TestV10 \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
+## Prepare a source-only package without modifying checked-in manifests
+.PHONY: prepare-test-package
+prepare-test-package:
+	@echo "[MAKE] $@: Preparing $(TEST_WORKSPACE)"
+	mkdir -p "$(TEST_WORKSPACE)/.swiftpm/xcode/xcshareddata/xcschemes"
+	rsync -a --delete Package*.swift Sources SentryTestUtils SentryTestUtilsDynamic SentryTestUtilsTests Tests Plans "$(TEST_WORKSPACE)/"
+	cp .swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme "$(TEST_WORKSPACE)/.swiftpm/xcode/xcshareddata/xcschemes/"
+	@for manifest in "$(TEST_WORKSPACE)"/Package*.swift; do \
+		./scripts/prepare-package.sh --package-file "$$manifest" --remove-binary-targets true || exit $$?; \
+	done > raw-prepare-package-output.log
 
-## Run macOS tests with SDK_V10 flag
-#
-# Runs unit tests for macOS using the SentryV10 scheme.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Examples:
-#   make test-macos-v10
-#   make test-macos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
-#   make test-macos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-macos-v10
-test-macos-v10:
-	@echo "[MAKE] $@: Running V10 macOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform macOS \
-		--os latest \
-		--ref $(GIT-REF) \
-		--command test \
-		--scheme SentryV10 \
-		--configuration TestV10 \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
+test-ios test-ios-v10: TEST_PLATFORM = iOS
+test-ios test-ios-v10: TEST_OS = $(IOS_SIMULATOR_OS)
+test-ios test-ios-v10: TEST_DEVICE = $(IOS_DEVICE_NAME)
+test-macos test-macos-v10: TEST_PLATFORM = macOS
+test-catalyst test-catalyst-v10: TEST_PLATFORM = Catalyst
+test-tvos test-tvos-v10: TEST_PLATFORM = tvOS
+test-tvos test-tvos-v10: TEST_OS = $(TVOS_SIMULATOR_OS)
+test-tvos test-tvos-v10: TEST_DEVICE = $(TVOS_DEVICE_NAME)
+test-visionos test-visionos-v10: TEST_PLATFORM = visionOS
+test-visionos test-visionos-v10: TEST_OS = $(VISIONOS_SIMULATOR_OS)
+test-visionos test-visionos-v10: TEST_DEVICE = $(VISIONOS_DEVICE_NAME)
+test-watchos test-watchos-v10: TEST_PLATFORM = watchOS
+test-watchos test-watchos-v10: TEST_OS = $(WATCHOS_SIMULATOR_OS)
+test-watchos test-watchos-v10: TEST_DEVICE = $(WATCHOS_DEVICE_NAME)
 
-## Run Catalyst tests with SDK_V10 flag
-#
-# Runs unit tests for Mac Catalyst using the SentryV10 scheme.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Examples:
-#   make test-catalyst-v10
-#   make test-catalyst-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
-#   make test-catalyst-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-catalyst-v10
-test-catalyst-v10:
-	@echo "[MAKE] $@: Running V10 Catalyst tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform Catalyst \
-		--os latest \
-		--ref $(GIT-REF) \
-		--command test \
-		--scheme SentryV10 \
-		--configuration TestV10 \
-		--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
+$(UNIT_TEST_TARGETS): export SDK_V10 = 0
+$(UNIT_TEST_V10_TARGETS): export SDK_V10 = 1
 
-## Run tvOS tests with SDK_V10 flag
+## Run package unit tests for a platform
 #
-# Runs unit tests for tvOS Simulator using the SentryV10 scheme.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
-#   make test-tvos-v10
-#   make test-tvos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
-#   make test-tvos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-tvos-v10
-test-tvos-v10:
-	@echo "[MAKE] $@: Running V10 tvOS tests"
+#   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-ios-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-macos TEST_PLAN=SentrySPM_TestServer
+#   make test-unit TEST_PLATFORM=iOS TEST_OS=26.5 TEST_DEVICE="iPhone 17 Pro"
+#   make test-ios TEST_COMMAND=build-for-testing TEST_CONFIGURATION=TestCI
+#   make test-ios TEST_COMMAND=test-without-building TEST_CONFIGURATION=TestCI
+#   make test-ios TEST_COMMAND=test-without-building TEST_PLAN=SentrySPM_Flaky TEST_RESULT_BUNDLE=flaky-results.xcresult
+#
+# TestServer plans require a running test server. Use ONLY_TESTING for target/class/method
+# selection. Package targets have the same names in V9 and V10.
+.PHONY: test-unit test-unit-v10 test-ios test-ios-v10 test-macos test-macos-v10 test-catalyst test-catalyst-v10 test-tvos test-tvos-v10 test-visionos test-visionos-v10 test-watchos test-watchos-v10
+$(UNIT_TEST_TARGETS) $(UNIT_TEST_V10_TARGETS): $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+	@echo "[MAKE] $@: Running $(TEST_PLATFORM) package tests ($(TEST_COMMAND))"
 	./scripts/sentry-xcodebuild.sh \
-		--platform tvOS \
-		--os $(TVOS_SIMULATOR_OS) \
-		--device "$(TVOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--scheme SentryV10 \
-		--configuration TestV10 \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run visionOS tests with SDK_V10 flag
-#
-# Runs unit tests for visionOS Simulator using the SentryV10 scheme.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Examples:
-#   make test-visionos-v10
-#   make test-visionos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
-#   make test-visionos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-visionos-v10
-test-visionos-v10:
-	@echo "[MAKE] $@: Running V10 visionOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform visionOS \
-		--os $(VISIONOS_SIMULATOR_OS) \
-		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--scheme SentryV10 \
-		--configuration TestV10 \
-		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
-		--only-testing "$(ONLY_TESTING)"
-
-## Run watchOS tests with SDK_V10 flag
-#
-# Runs unit tests for watchOS Simulator using the SentryV10 scheme.
-#
-# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
-# Examples:
-#   make test-watchos-v10
-#   make test-watchos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
-#   make test-watchos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-watchos-v10
-test-watchos-v10:
-	@echo "[MAKE] $@: Running V10 watchOS tests"
-	./scripts/sentry-xcodebuild.sh \
-		--platform watchOS \
-		--os $(WATCHOS_SIMULATOR_OS) \
-		--device "$(WATCHOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
-		--command test \
-		--scheme SentryV10 \
-		--configuration TestV10 \
+		--package-tests \
+		--workspace "$(TEST_WORKSPACE)" \
+		--platform "$(TEST_PLATFORM)" \
+		--os "$(TEST_OS)" \
+		--device "$(TEST_DEVICE)" \
+		--ref "$(GIT-REF)" \
+		--command "$(TEST_COMMAND)" \
+		--configuration "$(TEST_CONFIGURATION)" \
+		--result-bundle "$(TEST_RESULT_BUNDLE)" \
+		$(if $(TEST_DERIVED_DATA),--derived-data "$(TEST_DERIVED_DATA)") \
 		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
