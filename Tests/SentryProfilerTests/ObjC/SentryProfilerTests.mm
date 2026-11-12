@@ -65,6 +65,76 @@ using namespace sentry::profiling;
     XCTAssertEqualObjects(state.stacks, (@[ stack, @[ @2 ] ]));
 }
 
+- (void)testTraceSerialization_whenSamplesAreValid_shouldReturnOnlyProfilingFields
+{
+    // -- Arrange --
+    SentryProfilingSample *first = [[SentryProfilingSample alloc] init];
+    first.absoluteTimestamp = 100;
+    first.threadID = 1;
+    SentryProfilingSample *last = [[SentryProfilingSample alloc] init];
+    last.absoluteTimestamp = 200;
+    last.threadID = 1;
+    NSDictionary *profileData = @{ @"profile" : @ { @"samples" : @[ first, last ] } };
+    NSDictionary *metrics = @{ @"cpu_usage" : @ { @"unit" : @"percent", @"values" : @[] } };
+    NSArray *images = @[ @{ @"type" : @"macho" } ];
+
+    // -- Act --
+    NSDictionary *payload
+        = sentry_serializedTraceProfileData(profileData, 100, 200, @"normal", metrics, images
+#    if SENTRY_HAS_UIKIT
+            ,
+            nil
+#    endif
+        );
+
+    // -- Assert --
+    XCTAssertEqualObjects([NSSet setWithArray:payload.allKeys], ([NSSet setWithArray:@[
+        @"profile", @"version", @"truncation_reason", @"measurements", @"debug_meta"
+    ]]));
+    XCTAssertEqualObjects(payload[@"version"], @"1");
+    XCTAssertEqualObjects(payload[@"truncation_reason"], @"normal");
+    XCTAssertEqualObjects(payload[@"measurements"], metrics);
+    XCTAssertEqualObjects(payload[@"debug_meta"], (@{ @"images" : images }));
+    NSArray *samples = payload[@"profile"][@"samples"];
+    XCTAssertEqual(samples.count, 2U);
+    XCTAssertEqualObjects(samples.firstObject[@"elapsed_since_start_ns"], @"0");
+    XCTAssertEqualObjects(samples.lastObject[@"thread_id"], @"1");
+}
+
+- (void)testContinuousSerialization_whenChunkHasZeroOrOneSample_shouldReturnOnlyProfilingFields
+{
+    for (NSUInteger sampleCount = 0; sampleCount <= 1; sampleCount++) {
+        // -- Arrange --
+        NSMutableArray *samples = [NSMutableArray array];
+        if (sampleCount == 1) {
+            SentryProfilingSample *sample = [[SentryProfilingSample alloc] init];
+            sample.absoluteNSDateInterval = 12.5;
+            sample.threadID = 2;
+            [samples addObject:sample];
+        }
+        NSDictionary *profileData = @{ @"profile" : @ { @"samples" : samples } };
+
+        // -- Act --
+        NSDictionary *payload = sentry_serializedContinuousProfileChunk(profileData, @{ }, @[]
+#    if SENTRY_HAS_UIKIT
+            ,
+            nil
+#    endif
+        );
+
+        // -- Assert --
+        XCTAssertEqualObjects([NSSet setWithArray:payload.allKeys],
+            ([NSSet setWithArray:@[ @"profile", @"version" ]]));
+        XCTAssertEqualObjects(payload[@"version"], @"2");
+        NSArray *serializedSamples = payload[@"profile"][@"samples"];
+        XCTAssertEqual(serializedSamples.count, sampleCount);
+        if (sampleCount == 1) {
+            XCTAssertEqualObjects(serializedSamples.firstObject[@"timestamp"], @12.5);
+            XCTAssertEqualObjects(serializedSamples.firstObject[@"thread_id"], @"2");
+        }
+    }
+}
+
 - (void)testParseFunctionNameWithFixedInput
 {
     const auto functionName = parseBacktraceSymbolsFunctionName(
@@ -221,8 +291,7 @@ using namespace sentry::profiling;
     const auto profileData = [state copyProfilingData];
 
     const auto serialization = sentry_serializedTraceProfileData(profileData, 1, 2,
-        sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{ }, @[],
-        [[SentryHubInternal alloc] initWithClient:nil andScope:nil]
+        sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{ }, @[]
 #    if SENTRY_HAS_UIKIT
         ,
         [[SentryProfilingFrameMeasurements alloc] initWithSlowFrameTimestamps:@[]

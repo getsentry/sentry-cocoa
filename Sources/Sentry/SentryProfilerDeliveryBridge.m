@@ -2,7 +2,9 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
+#    import "SentryDevice.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -16,6 +18,8 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
+#    import "SentryScope+Private.h"
+#    import "SentryScope+PrivateSwift.h"
 #    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
@@ -23,6 +27,58 @@
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
 #    endif
+
+static NSMutableDictionary<NSString *, id> *_Nullable _sentry_enrichedTraceProfileData(
+    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
+    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
+#    if SENTRY_HAS_UIKIT
+    ,
+    SentryProfilingFrameMeasurements *_Nullable gpuData
+#    endif
+)
+{
+    NSMutableDictionary<NSString *, id> *payload = sentry_serializedTraceProfileData(profileData,
+        startSystemTime, endSystemTime, truncationReason, serializedMetrics, debugImages
+#    if SENTRY_HAS_UIKIT
+        ,
+        gpuData
+#    endif
+    );
+    if (payload == nil) {
+        [hub.getClient recordLostEvent:SentryDataCategoryProfile
+                                reason:SentryDiscardReasonEventProcessor];
+        return nil;
+    }
+
+    payload[SENTRY_CONTEXT_OS_KEY] = @ {
+        @"name" : sentry_getOSName(),
+        @"version" : sentry_getOSVersion(),
+        @"build_number" : sentry_getOSBuildNumber()
+    };
+
+    bool isEmulated = sentry_isSimulatorBuild();
+    NSMutableDictionary *deviceDict = [[NSMutableDictionary alloc] initWithDictionary:@{
+        @"architecture" : sentry_getCPUArchitecture(),
+        @"is_emulator" : @(isEmulated),
+        @"manufacturer" : @"Apple",
+    }];
+#    if !SDK_V10
+    deviceDict[@"locale"] = NSLocale.currentLocale.localeIdentifier;
+#    endif
+    NSString *_Nullable deviceModel
+        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    if (deviceModel != nil) {
+        deviceDict[@"model"] = SENTRY_UNWRAP_NULLABLE(NSString, deviceModel);
+    }
+    payload[SENTRY_CONTEXT_DEVICE_KEY] = deviceDict;
+
+    payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
+    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"release"] = hub.getClient.options.releaseName;
+
+    return payload;
+}
 
 void
 sentry_finishProfiledTransaction(SentryHubInternal *hub, SentryProfilingDispatch dispatchAsync,
@@ -139,18 +195,29 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 )
 {
     SentryId *chunkID = [[SentryId alloc] init];
-    NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
-        profileID, chunkID, profileState, metricProfilerState, debugImages, hub
+    NSMutableDictionary<NSString *, id> *payload
+        = sentry_serializedContinuousProfileChunk(profileState, metricProfilerState, debugImages
 #    if SENTRY_HAS_UIKIT
-        ,
-        gpuData
+            ,
+            gpuData
 #    endif // SENTRY_HAS_UIKIT
-    );
+        );
 
     if (payload == nil) {
         SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
         return nil;
     }
+
+    payload[@"chunk_id"] = [chunkID sentryIdString];
+    payload[@"profiler_id"] = profileID.sentryIdString;
+    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"release"] = hub.getClient.options.releaseName;
+    payload[@"platform"] = SentryPlatformName;
+
+    NSMutableDictionary *clientInfo = [NSMutableDictionary dictionary];
+    clientInfo[@"name"] = SentryMeta.sdkName;
+    clientInfo[@"version"] = SentryMeta.versionString;
+    payload[@"client_sdk"] = clientInfo;
 
     NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
@@ -186,7 +253,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
 {
     NSArray<NSDictionary<NSString *, id> *> *images =
         [SentryProfilerSDKAdapter.shared serializedDebugImages];
-    NSMutableDictionary<NSString *, id> *payload = sentry_serializedTraceProfileData(
+    NSMutableDictionary<NSString *, id> *payload = _sentry_enrichedTraceProfileData(
         profilingData, transaction.startSystemTime, transaction.endSystemTime,
         sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:transaction.startSystemTime
@@ -246,7 +313,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSD
         return nil;
     }
 
-    return sentry_serializedTraceProfileData([profiler.state copyProfilingData], startSystemTime,
+    return _sentry_enrichedTraceProfileData([profiler.state copyProfilingData], startSystemTime,
         endSystemTime, sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:startSystemTime
                                                                  and:endSystemTime],
