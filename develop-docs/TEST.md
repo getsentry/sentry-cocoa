@@ -226,6 +226,22 @@ func testColdStart_shouldSetMeasurement() {
 }
 ```
 
+### Binary Image Unload Regression Test
+
+`SentryKSCrashBinaryImageProviderTests` covers an image that really unloads while the provider reads it. `SentryTestsV10` builds and embeds the pure-C `SentryUnloadingImage.framework` fixture without linking it at launch. The test is the sole owner of the only `dlopen` reference and closes it between image-address acquisition and metadata extraction, then asserts that the header became unreadable. This fixture must stay free of Swift or Objective-C metadata and _must not_ link it into the test bundle because either could keep the image mapped, and the regression would no longer unload anything.
+
+The regression runs in the Xcode project tests on macOS and simulators. Package tests skip it because SwiftPM has no phase that embeds the fixture; they run the other provider tests.
+
+Note: `SentryTestsV10` is **tool-hosted, and Xcode doesn't support tool-hosted tests on physical devices**, so `xcodebuild test` fails on a device with
+
+```
+Tool-hosted testing is unavailable on device destinations
+```
+
+Signing alone doesn't fix this. To run on a device, one must build with `build-for-testing` and run the test bundle in a separate app that hosts it, with the host app, test bundle, and embedded frameworks all dev-signed.
+
+The repository doesn't currently include such a host app and adding one is not strictly necessary for regression testing, since the simulator behavior is equivalent in that regard.
+
 ## Performance benchmarking
 
 Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`iOS-Benchmarking` target) using the iOS-Swift test app, under the `iOS-Benchmarking` scheme. [`PerformanceViewController`](../TestApps/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.

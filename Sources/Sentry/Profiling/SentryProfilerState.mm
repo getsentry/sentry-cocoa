@@ -2,11 +2,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryProfileDebugLoggerHelper.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSampleCreation.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import <mach/mach_types.h>
@@ -73,9 +73,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        sentry_dispatchAsyncOnMainIfNotMainThread(
-            SentryDependencyContainerSwiftHelper.dispatchQueueWrapper,
-            ^{ [self cacheMainThreadID]; });
+        [SentryProfilerSDKAdapter.shared
+            dispatchAsyncOnMainIfNotMainThread:^{ [self cacheMainThreadID]; }];
     }
     return self;
 }
@@ -164,7 +163,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
         const auto sample = sentry_profilerSampleWithStack(stack, backtrace.absoluteTimestamp,
-            sentry_getDate().timeIntervalSince1970, backtrace.threadMetadata.threadID, state);
+            SentryProfilerSDKAdapter.shared.date.timeIntervalSince1970,
+            backtrace.threadMetadata.threadID, state);
 
 #    if defined(DEBUG)
         if (backtraceFunctionNames.count > 0) {

@@ -1,15 +1,17 @@
 # Changelog
 
-## Unreleased
+## 9.34.0
 
 ### Features
 
 - Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+- Give every run of the app an ID and store it in crash reports and the app state, so the SDK can match events from the crash handler, the watchdog termination integration and MetricKit that describe the same run. The ID is only used on the device and is not sent to Sentry (#9578)
 
 ### Fixes
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
 - Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
+- Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
 
 ## 9.33.0
 
