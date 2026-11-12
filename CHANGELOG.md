@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
+
 ## 9.34.0
 
 ### Features
@@ -10,7 +16,6 @@
 ### Fixes
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
-- Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
 - Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
 
 ## 9.33.0
