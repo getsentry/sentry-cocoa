@@ -1,4 +1,5 @@
 #import "SentryProfilerState.h"
+#import "SentryProfilingLog.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
@@ -32,7 +33,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     });
     NSString *_Nullable const symbolNSStr = [NSString stringWithUTF8String:symbol];
     if (symbolNSStr == nil) {
-        SENTRY_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
+        SENTRY_PROFILING_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
         return @"<unknown>";
     }
     NSTextCheckingResult *_Nullable match =
