@@ -27,13 +27,40 @@ struct SentryEventSourceReport {
 
     /// How a diagnostic says the run ended. Another source may have reported the same end as its
     /// fatal event, which the sink tells by the run ID.
-    enum RunEnd {
+    enum RunEnd: Equatable {
         /// The run ended with a crash, which the crash handler reports as its fatal event when it
         /// recorded it.
-        case crash
+        ///
+        /// - Parameter terminationReason: Why the OS ended the process, as MetricKit words it, such
+        ///   as `Namespace SPRINGBOARD, Code 0x8badf00d` for a watchdog termination, or `nil` when
+        ///   the diagnostic doesn't say.
+        case crash(terminationReason: String?)
         /// The OS ended the run for its memory use, which the watchdog termination integration
         /// reports as its fatal event when it detected it.
         case memoryTermination
+
+        /// Whether the run end is one the watchdog termination integration reports as a
+        /// `WatchdogTermination`: a termination by the watchdog itself or for memory use.
+        var isWatchdogTermination: Bool {
+            switch self {
+            case let .crash(terminationReason):
+                // The watchdog's exception code, which the termination reason spells in either
+                // case.
+                return terminationReason?.lowercased().contains("0x8badf00d") == true
+            case .memoryTermination:
+                return true
+            }
+        }
+    }
+
+    /// Where the crashed session a fatal report is sent with comes from.
+    enum CrashedSession {
+        /// The session the SDK stored for the previous run, which the first fatal event takes.
+        case storedForPreviousRun
+        /// The session the report carries itself, or none. A report that was held carries the
+        /// session of its run, because the stored session can belong to a later run by the time
+        /// the report is sent.
+        case carried(SentrySession?)
     }
 
     /// The pipeline the report came through. The sink processes the report the way this pipeline
@@ -49,4 +76,6 @@ struct SentryEventSourceReport {
     /// run ID describe the same run, whichever pipeline they came through.
     let runId: SentryCurrentRun.ID?
     let event: Event
+    /// Only fatal reports are sent with a crashed session.
+    var crashedSession: CrashedSession = .storedForPreviousRun
 }

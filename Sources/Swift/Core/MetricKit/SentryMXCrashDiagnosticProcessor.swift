@@ -14,6 +14,7 @@ enum SentryMXCrashDiagnosticProcessor: SentryMXDiagnosticProcessor {
         return SentryMXDiagnostic(
             report: report,
             exceptionValue: exceptionValue(exceptionType: exceptionType, code: code, signal: signal),
+            terminationReason: diagnostic.terminationReason,
             payloadTimeStampBegin: timestamp,
             diagnostic: diagnostic
         )
@@ -35,6 +36,7 @@ extension SentryMXCrashDiagnosticProcessor {
                 code: crash.exceptionCode.map { String($0) } ?? "nil",
                 signal: crash.signal.map { String($0) } ?? "nil"
             ),
+            terminationReason: crash.terminationReason,
             callStackTree: crash.callStackTree,
             in: report
         )

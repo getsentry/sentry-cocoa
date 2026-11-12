@@ -142,6 +142,7 @@ extension SentryMXDiagnostic {
     init(
         _ diagnosticReport: SentryMetricKit.DiagnosticReport,
         exceptionValue: @autoclosure @escaping () -> String,
+        terminationReason: String? = nil,
         level: SentryLevel? = nil,
         callStackTree: MetricKit.CallStackTree,
         in report: MetricKit.DiagnosticReport
@@ -149,6 +150,7 @@ extension SentryMXDiagnostic {
         self.init(
             report: diagnosticReport,
             exceptionValue: exceptionValue,
+            terminationReason: terminationReason,
             level: level,
             timestamp: report.timeRange.start,
             metadata: Metadata(report.environment),

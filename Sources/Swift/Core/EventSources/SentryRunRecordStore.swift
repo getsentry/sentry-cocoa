@@ -22,7 +22,7 @@ final class SentryRunRecordStore<Record: SentryRunRecord> {
     let fileName: String
     private let fileManager: SentryFileManager
     private let dateProvider: SentryCurrentDateProvider
-    private let lock = NSLock()
+    private let lock = SentryMutex(())
 
     init(fileName: String, fileManager: SentryFileManager, dateProvider: SentryCurrentDateProvider) {
         self.fileName = fileName
@@ -37,7 +37,7 @@ final class SentryRunRecordStore<Record: SentryRunRecord> {
     /// Adds the record, replacing the record of the same run, and drops the records older than
     /// the retention.
     func add(_ record: Record) {
-        lock.synchronized {
+        lock.withLock { _ in
             var records = readRecords().filter { $0.runId != record.runId }
             records.append(record)
             writeRecords(records)
@@ -46,12 +46,12 @@ final class SentryRunRecordStore<Record: SentryRunRecord> {
 
     /// The records within the retention, oldest first.
     func records() -> [Record] {
-        lock.synchronized { readRecords() }
+        lock.withLock { _ in readRecords() }
     }
 
     /// The record of the run, or `nil` when the run has none within the retention.
     func record(forRunId runId: SentryCurrentRun.ID) -> Record? {
-        lock.synchronized { readRecords().first { $0.runId == runId } }
+        lock.withLock { _ in readRecords().first { $0.runId == runId } }
     }
 
     private func readRecords() -> [Record] {

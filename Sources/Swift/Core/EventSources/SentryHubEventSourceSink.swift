@@ -31,7 +31,13 @@ struct SentryHubEventSourceSink: SentryEventSourceSink {
             guard beforeAccepting() else {
                 return .withdrawn
             }
-            let eventId = hub.captureFatalEvent(report.event, scope: scope, preserveCrashedSessionOnFailure: isRetainedOnFailure)
+            let eventId: SentryId
+            switch report.crashedSession {
+            case .storedForPreviousRun:
+                eventId = hub.captureFatalEvent(report.event, scope: scope, preserveCrashedSessionOnFailure: isRetainedOnFailure)
+            case let .carried(session):
+                eventId = hub.captureFatalEvent(report.event, scope: scope, crashedSession: session)
+            }
             // An empty event ID is still final when the client dropped the event on purpose. It
             // only means the report wasn't taken when the client went away during the capture.
             return hub.isFatalEventCaptureResultTerminal(eventId, client: client) ? .accepted : .unavailable

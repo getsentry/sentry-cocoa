@@ -22,6 +22,9 @@ struct SentryMXDiagnostic {
     let report: SentryMetricKit.DiagnosticReport
     /// Formats the exception value, which is only needed when the report is enabled.
     let exceptionValue: () -> String
+    /// Why the OS ended the process, which only crash diagnostics report, or `nil` when the
+    /// diagnostic doesn't say.
+    let terminationReason: String?
     let level: SentryLevel?
     /// The start of the time range MetricKit reports the diagnostic in.
     let timestamp: Date
@@ -36,6 +39,7 @@ struct SentryMXDiagnostic {
     init(
         report: SentryMetricKit.DiagnosticReport,
         exceptionValue: @escaping () -> String,
+        terminationReason: String? = nil,
         level: SentryLevel? = nil,
         timestamp: Date,
         metadata: Metadata,
@@ -45,6 +49,7 @@ struct SentryMXDiagnostic {
     ) {
         self.report = report
         self.exceptionValue = exceptionValue
+        self.terminationReason = terminationReason
         self.level = level
         self.timestamp = timestamp
         self.metadata = metadata
@@ -70,6 +75,7 @@ extension SentryMXDiagnostic {
     init(
         report: SentryMetricKit.DiagnosticReport,
         exceptionValue: @autoclosure @escaping () -> String,
+        terminationReason: String? = nil,
         level: SentryLevel? = nil,
         payloadTimeStampBegin: Date,
         diagnostic: MXDiagnostic & SentryMetricKit.CallStackTreeProviding
@@ -77,6 +83,7 @@ extension SentryMXDiagnostic {
         self.init(
             report: report,
             exceptionValue: exceptionValue,
+            terminationReason: terminationReason,
             level: level,
             timestamp: payloadTimeStampBegin,
             metadata: Metadata(diagnostic),
