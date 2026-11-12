@@ -78,6 +78,76 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         #endif
     }
 
+    func testInitWithDictionary_whenAttachAllThreadsIsBridgedValue_shouldApplyValueOrKeepDefault() throws {
+        // -- Arrange --
+        let cases: [(value: Any, expected: Bool)] = [
+            (NSNumber(value: 1), true),
+            (NSNumber(value: 0), false),
+            ("true", true),
+            ("false", false),
+            (NSNull(), false)
+        ]
+
+        for testCase in cases {
+            // -- Act --
+            let options = try Options(dictionary: [
+                "dsn": "https://username:password@sentry.io/1",
+                "attachAllThreads": testCase.value
+            ])
+
+            // -- Assert --
+            XCTAssertEqual(options.attachAllThreads, testCase.expected, "Value: \(testCase.value)")
+        }
+    }
+
+    func testInitWithDictionary_whenDataSwizzlingIsBridgedValue_shouldApplyValueOrKeepDefault() throws {
+        // -- Arrange --
+        let cases: [(value: Any, expected: Bool)] = [
+            (NSNumber(value: 1), true),
+            (NSNumber(value: 0), false),
+            ("true", true),
+            ("false", false),
+            (NSNull(), true)
+        ]
+
+        for testCase in cases {
+            // -- Act --
+            let options = try Options(dictionary: [
+                "dsn": "https://username:password@sentry.io/1",
+                "enableDataSwizzling": testCase.value
+            ])
+
+            // -- Assert --
+            XCTAssertEqual(options.enableDataSwizzling, testCase.expected, "Value: \(testCase.value)")
+        }
+    }
+
+    func testInitWithDictionary_whenStandaloneAppStartTracingIsBridgedValue_shouldApplyValueOrKeepDefault() throws {
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
+        // -- Arrange --
+        let cases: [(value: Any, expected: Bool)] = [
+            (NSNumber(value: 1), true),
+            (NSNumber(value: 0), false),
+            ("true", true),
+            ("false", false),
+            (NSNull(), false)
+        ]
+
+        for testCase in cases {
+            // -- Act --
+            let options = try Options(dictionary: [
+                "dsn": "https://username:password@sentry.io/1",
+                "enableStandaloneAppStartTracing": testCase.value
+            ])
+
+            // -- Assert --
+            XCTAssertEqual(options.enableStandaloneAppStartTracing, testCase.expected, "Value: \(testCase.value)")
+        }
+        #else
+        throw XCTSkip("Standalone app start tracing is not available on this platform or SDK version")
+        #endif
+    }
+
     func testInitWithDictionary_whenValidValues_shouldPopulateOptions() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [
