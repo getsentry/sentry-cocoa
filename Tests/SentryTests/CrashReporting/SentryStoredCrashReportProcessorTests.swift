@@ -144,7 +144,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let result = SentryDependencyContainer.sharedInstance().eventSourceCoordinator.submit(
             SentryEventSourceReport(
                 source: .metricKit,
-                kind: .diagnostic(attachments: [], runEnd: .crash),
+                kind: .diagnostic(attachments: [], runEnd: .crash(terminationReason: nil)),
                 runId: SentryCurrentRun.ID(rawValue: "crashed-run-id"),
                 event: Event(level: .error)
             )

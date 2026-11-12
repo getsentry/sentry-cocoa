@@ -58,7 +58,7 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
         guard case .diagnostic(_, let runEnd) = report.kind else {
             return XCTFail("Expected a diagnostic report")
         }
-        XCTAssertEqual(runEnd, .crash)
+        XCTAssertEqual(runEnd, .crash(terminationReason: nil))
     }
 
     func testCapture_whenDiagnosticIsAMemoryException_shouldSubmitReportThatEndsTheRunWithAMemoryTermination() throws {

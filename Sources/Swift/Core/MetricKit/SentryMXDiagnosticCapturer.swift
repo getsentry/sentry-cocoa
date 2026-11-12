@@ -84,7 +84,7 @@ final class SentryMXDiagnosticCapturer {
                 source: .metricKit,
                 kind: .diagnostic(
                     attachments: attachments(of: diagnostic, flamegraph: callStacks.flamegraph),
-                    runEnd: diagnosticReport.runEnd
+                    runEnd: diagnostic.runEnd
                 ),
                 runId: callStacks.runId,
                 event: event
