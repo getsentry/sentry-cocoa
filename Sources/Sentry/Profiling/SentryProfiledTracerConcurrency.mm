@@ -4,9 +4,9 @@
 
 #    import "SentryContinuousProfiler.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilingLog.h"
 #    include <mutex>
 
 #    import "SentryInternalDefines.h"
@@ -48,7 +48,8 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, SentryProfilingId *tracer
     _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
     const auto remainingTracers = [_gProfilersToTracers[profilerKey] unsignedIntValue];
     if (remainingTracers > 0) {
-        SENTRY_LOG_DEBUG(@"Waiting on %lu tracers to finish.", remainingTracers);
+        SENTRY_PROFILING_LOG_DEBUG(
+            @"Waiting on %lu tracers to finish.", (unsigned long)remainingTracers);
         return;
     }
 
@@ -70,10 +71,11 @@ _unsafe_cleanUpContinuousProfilerV2(SentryProfilingId *profilerReferenceId)
     [_gInFlightRootSpanIds removeObject:tracerKey];
 
     if (_gInFlightRootSpanIds.count == 0) {
-        SENTRY_LOG_DEBUG(@"Last root span ended, stopping profiler.");
+        SENTRY_PROFILING_LOG_DEBUG(@"Last root span ended, stopping profiler.");
         [SentryContinuousProfiler stop];
     } else {
-        SENTRY_LOG_DEBUG(@"Waiting for remaining root spans to finish before stopping profiler.");
+        SENTRY_PROFILING_LOG_DEBUG(
+            @"Waiting for remaining root spans to finish before stopping profiler.");
     }
 }
 
@@ -114,12 +116,13 @@ sentry_trackTransactionProfilerForTrace(
     const auto profilerKey = profiler.profilerId;
     const auto tracerKey = internalTraceId;
 
-    SENTRY_LOG_DEBUG(
+    SENTRY_PROFILING_LOG_DEBUG(
         @"Tracking relationship between profiler id %@ and tracer id %@", profilerKey, tracerKey);
 
-    SENTRY_CASSERT((_gProfilersToTracers == nil && _gTracersToProfilers == nil)
-            || (_gProfilersToTracers != nil && _gTracersToProfilers != nil),
-        @"Both structures must be initialized simultaneously.");
+    if ((_gProfilersToTracers == nil) != (_gTracersToProfilers == nil)) {
+        SENTRY_PROFILING_LOG_WARN(@"Both structures must be initialized simultaneously.");
+        NSCAssert(NO, @"Both structures must be initialized simultaneously.");
+    }
 
     if (_gProfilersToTracers == nil) {
         _gProfilersToTracers =
@@ -143,14 +146,15 @@ sentry_discardProfilerCorrelatedToTrace(SentryProfilingId *internalTraceId)
 
     // Root ownership survives background cleanup even when the sampler is stopped.
     if (internalTraceId != nil && [_gInFlightRootSpanIds containsObject:internalTraceId]) {
-        SENTRY_LOG_DEBUG(
+        SENTRY_PROFILING_LOG_DEBUG(
             @"Stopping tracking discarded tracer with profileReferenceId %@", internalTraceId);
         _unsafe_cleanUpContinuousProfilerV2(internalTraceId);
     } else if (internalTraceId != nil) {
 
         if (_gTracersToProfilers == nil) {
-            SENTRY_LOG_ERROR(@"Tracer to profiler should have already been initialized by the "
-                             @"time they are being queried");
+            SENTRY_PROFILING_LOG_ERROR(
+                @"Tracer to profiler should have already been initialized by the "
+                @"time they are being queried");
         }
 
         const auto tracerKey = internalTraceId;
@@ -164,8 +168,8 @@ sentry_discardProfilerCorrelatedToTrace(SentryProfilingId *internalTraceId)
 
 #    if SENTRY_HAS_UIKIT
         if (_gProfilersToTracers == nil) {
-            SENTRY_LOG_ERROR(@"Profiler to tracer structure should have already been "
-                             @"initialized by the time they are being queried");
+            SENTRY_PROFILING_LOG_ERROR(@"Profiler to tracer structure should have already been "
+                                       @"initialized by the time they are being queried");
         }
         if (_gProfilersToTracers.count == 0) {
             [SentryProfilerSDKAdapter.shared resetProfilingTimestamps];
@@ -179,7 +183,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryProfilingId *in
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if (_gTracersToProfilers == nil || _gProfilersToTracers == nil) {
-        SENTRY_LOG_ERROR(
+        SENTRY_PROFILING_LOG_ERROR(
             @"Structures should have already been initialized by the time they are being queried");
         return nil;
     }
@@ -188,7 +192,8 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryProfilingId *in
     const auto profiler = _gTracersToProfilers[tracerKey];
 
     if (profiler == nil) {
-        SENTRY_LOG_ERROR(@"Expected a profiler to be associated with tracer id %@.", tracerKey);
+        SENTRY_PROFILING_LOG_ERROR(
+            @"Expected a profiler to be associated with tracer id %@.", tracerKey);
         return nil;
     }
 
@@ -196,7 +201,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryProfilingId *in
 
 #    if SENTRY_HAS_UIKIT
     profiler.screenFrameData = [SentryProfilerSDKAdapter.shared copyFrameMeasurements];
-    SENTRY_LOG_DEBUG(
+    SENTRY_PROFILING_LOG_DEBUG(
         @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
         profiler.screenFrameData);
     if (_gProfilersToTracers.count == 0) {
@@ -212,7 +217,7 @@ SentryProfilingId *_Nullable sentry_startProfilerForTrace(
 {
     if (decision == SentryProfilingTraceDecisionContinuous) {
         SentryProfilingId *profilerReferenceId = [[SentryProfilingId alloc] init];
-        SENTRY_LOG_DEBUG(
+        SENTRY_PROFILING_LOG_DEBUG(
             @"Starting continuous profiler for root span tracer with profilerReferenceId %@",
             profilerReferenceId);
         sentry_trackRootSpanForContinuousProfilerV2(profilerReferenceId);
@@ -221,7 +226,7 @@ SentryProfilingId *_Nullable sentry_startProfilerForTrace(
     if (decision == SentryProfilingTraceDecisionTransaction) {
         SentryProfilingId *internalID = [[SentryProfilingId alloc] init];
         if ([SentryTraceProfiler startWithTracer:internalID]) {
-            SENTRY_LOG_DEBUG(
+            SENTRY_PROFILING_LOG_DEBUG(
                 @"Started profiler for trace %@ with internal id %@", traceID, internalID);
             return internalID;
         }
