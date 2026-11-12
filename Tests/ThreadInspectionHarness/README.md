@@ -87,10 +87,11 @@ Depth 512 reaches the 512-frame capacity and reports truncation. Serial unwindin
 
 ## Capture Contract
 
-The implementation is split into four layers:
+The implementation is split into five layers:
 
 - `SentryThreadSnapshot.h` defines backend-neutral records and callback contracts.
-- `SentryThreadSnapshot.c` owns allocation, process-wide admission, and capture phases.
+- `SentryThreadSuspension.c` owns the process-wide admission flag shared with profiling.
+- `SentryThreadSnapshot.c` owns allocation and capture phases and acquires shared admission.
 - `SentryThreadSnapshotKSCrash.c` provides task enumeration, Mach suspension, KSCrash unwind, names, and right cleanup.
 - `SentryDefaultThreadInspector+V10.swift` maps completed records to event models after all resume attempts.
 

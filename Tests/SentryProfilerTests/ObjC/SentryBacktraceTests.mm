@@ -6,7 +6,7 @@
 
 #    import "SentryBacktrace.hpp"
 #    import "SentryThreadHandle.hpp"
-#    import "SentryThreadSnapshot.h"
+#    import "SentryThreadSuspension.h"
 
 #    import <atomic>
 #    import <cmath>

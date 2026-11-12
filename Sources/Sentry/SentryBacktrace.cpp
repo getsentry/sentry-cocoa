@@ -10,8 +10,8 @@
 #    include "SentryStackFrame.hpp"
 #    include "SentryThreadHandle.hpp"
 #    include "SentryThreadMetadataCache.hpp"
-#    include "SentryThreadSnapshot.h"
 #    include "SentryThreadState.hpp"
+#    include "SentryThreadSuspension.h"
 #    include "SentryTime.h"
 #    include <cassert>
 #    include <cstring>

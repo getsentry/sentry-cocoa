@@ -2,6 +2,7 @@
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 
+#    import "SentryCompiler.h"
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub.h"
@@ -12,6 +13,7 @@
 #    import "SentryProfilerSampleCreation.h"
 #    import "SentryProfilerSerialization+Private.h"
 #    import "SentryProfilerState+ObjCpp.h"
+#    import "SentryProfilingRuntime.h"
 #    import "SentryProfilingSample.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"
@@ -27,6 +29,19 @@ using namespace sentry::profiling;
 @end
 
 @implementation SentryProfilerTests
+
+- (void)testRuntime_whenCheckingThreadSanitizer_shouldMatchCompilerInstrumentation
+{
+    // -- Act --
+    BOOL sanitizerPresent = sentry_threadSanitizerIsPresent();
+
+    // -- Assert --
+#    if COMPILER_HAS_CLANG_FEATURE(thread_sanitizer)
+    XCTAssertTrue(sanitizerPresent);
+#    else
+    XCTAssertFalse(sanitizerPresent);
+#    endif
+}
 
 - (void)testProfilingSample_whenInitialized_shouldPreserveSampleDefaults
 {
