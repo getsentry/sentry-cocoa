@@ -38,6 +38,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var enableInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling
         enableInitSwizzling.boolValue = true
 
+        // Lets UI tests try the `swizzleClassNameExcludes` workaround, e.g. for GH-9536.
+        if let excludes = env["--io.sentry.ui-test.swizzle-class-name-excludes"] {
+            SentrySDKWrapper.swizzleClassNameExcludes.formUnion(excludes.split(separator: ",").map(String.init))
+        }
+
         SentrySDKWrapper.shared.startSentry()
 
         MetricKitAppLaunchStressor.runIfEnabled()

@@ -312,7 +312,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     if (self.delegate) {
         @synchronized(_children) {
             span = [self.delegate getActiveSpan];
-            if (span == nil || ![_children containsObject:span]) {
+            // The root is never in _children. Avoid scanning the growing array for every
+            // sibling span when the delegate keeps the root active.
+            if (span == nil || span == self || ![_children containsObject:span]) {
                 span = self;
             }
         }

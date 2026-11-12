@@ -188,6 +188,11 @@ class ExtraViewController: UIViewController {
         navigationController?.pushViewController(SubClassFinderRegressionViewController(), animated: true)
     }
 
+    @IBAction func showManyChildViewControllers(_ sender: UIButton) {
+        highlightButton(sender)
+        navigationController?.pushViewController(ManyChildViewControllersViewController(), animated: true)
+    }
+
     @IBAction func showConvenienceInitRegression(_ sender: UIButton) {
         highlightButton(sender)
         navigationController?.pushViewController(ConvenienceInitViewController(), animated: true)

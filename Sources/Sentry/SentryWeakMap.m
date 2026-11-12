@@ -1,8 +1,16 @@
 #import "SentryWeakMap.h"
 
+// Visit more entries than one insertion appends so cleanup can catch the tail and revisit older
+// entries even during sustained insertion.
+static const NSUInteger SentryWeakMapCleanupBudget = 2;
+
 @interface SentryWeakBox : NSObject <NSCopying>
 
 @property (nonatomic, weak, readonly) id key;
+@property (nonatomic, strong) id value;
+// The dictionary owns every entry. Weak links avoid cycles and recursive list destruction.
+@property (nonatomic, weak) SentryWeakBox *previous;
+@property (nonatomic, weak) SentryWeakBox *next;
 
 - (instancetype)initWithKey:(id)key;
 
@@ -36,6 +44,10 @@
 
 - (BOOL)isEqual:(id)object
 {
+    // Cleanup must be able to remove the stored box after its key has been deallocated.
+    if (self == object) {
+        return YES;
+    }
     if (![object isKindOfClass:[SentryWeakBox class]]) {
         return NO;
     }
@@ -46,13 +58,17 @@
 
 - (nonnull id)copyWithZone:(nullable NSZone *)zone
 {
-    return [[[SentryWeakBox class] allocWithZone:zone] initWithKey:self.key];
+    // Keep the dictionary key identical to the list entry, including after the weak key dies.
+    return self;
 }
 
 @end
 
 @interface SentryWeakMap <KeyType, ObjectType>()
-@property (nonatomic, strong) NSMutableDictionary<SentryWeakBox *, id> *storage;
+@property (nonatomic, strong) NSMutableDictionary<SentryWeakBox *, SentryWeakBox *> *storage;
+@property (nonatomic, strong) SentryWeakBox *head;
+@property (nonatomic, strong) SentryWeakBox *tail;
+@property (nonatomic, strong) SentryWeakBox *pruneCursor;
 @end
 
 @implementation SentryWeakMap
@@ -74,10 +90,23 @@
         return;
     }
 
-    [self prune];
+    [self pruneNextEntries:SentryWeakMapCleanupBudget];
 
     SentryWeakBox *box = [[SentryWeakBox alloc] initWithKey:aKey];
-    self.storage[box] = anObject;
+    SentryWeakBox *entry = self.storage[box];
+    if (entry != nil) {
+        entry.value = anObject;
+        return;
+    }
+
+    box.value = anObject;
+    box.previous = self.tail;
+    self.tail.next = box;
+    self.tail = box;
+    if (self.head == nil) {
+        self.head = box;
+    }
+    self.storage[box] = box;
 }
 
 - (nullable id)objectForKey:(nullable id)aKey
@@ -86,10 +115,10 @@
         return nil;
     }
 
-    [self prune];
+    [self pruneNextEntries:SentryWeakMapCleanupBudget];
 
     SentryWeakBox *box = [[SentryWeakBox alloc] initWithKey:aKey];
-    return self.storage[box];
+    return self.storage[box].value;
 }
 
 - (void)removeObjectForKey:(nullable id)aKey
@@ -98,10 +127,31 @@
         return;
     }
 
-    [self prune];
+    [self pruneNextEntries:SentryWeakMapCleanupBudget];
 
     SentryWeakBox *box = [[SentryWeakBox alloc] initWithKey:aKey];
-    [self.storage removeObjectForKey:box];
+    SentryWeakBox *entry = self.storage[box];
+    if (entry != nil) {
+        [self removeEntry:entry];
+    }
+}
+
+- (void)removeEntry:(SentryWeakBox *)entry
+{
+    SentryWeakBox *previous = entry.previous;
+    SentryWeakBox *next = entry.next;
+    previous.next = next;
+    next.previous = previous;
+    if (self.head == entry) {
+        self.head = next;
+    }
+    if (self.tail == entry) {
+        self.tail = previous;
+    }
+    if (self.pruneCursor == entry) {
+        self.pruneCursor = next;
+    }
+    [self.storage removeObjectForKey:entry];
 }
 
 - (NSUInteger)count
@@ -110,15 +160,23 @@
     return self.storage.count;
 }
 
-- (void)prune
+- (void)pruneNextEntries:(NSUInteger)limit
 {
-    NSMutableArray *keysToRemove = [NSMutableArray array];
-    for (SentryWeakBox *box in self.storage.keyEnumerator) {
-        if (box.key == nil) {
-            [keysToRemove addObject:box];
+    // The doubly linked list provides a stable cursor across dictionary mutations. Inspect a fixed
+    // number of entries on ordinary accesses, rather than occasionally blocking on a full-map scan.
+    NSUInteger entriesToVisit = MIN(limit, self.storage.count);
+    for (NSUInteger i = 0; i < entriesToVisit; i++) {
+        SentryWeakBox *entry = self.pruneCursor ?: self.head;
+        self.pruneCursor = entry.next;
+        if (entry.key == nil) {
+            [self removeEntry:entry];
         }
     }
-    [self.storage removeObjectsForKeys:keysToRemove];
+}
+
+- (void)prune
+{
+    [self pruneNextEntries:self.storage.count];
 }
 
 @end
