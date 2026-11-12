@@ -48,8 +48,6 @@ jobs:
         with:
           pattern: sentryobjc-slice-*
           path: sentryobjc-slices
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode

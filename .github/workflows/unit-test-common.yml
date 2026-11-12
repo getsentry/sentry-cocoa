@@ -80,8 +80,6 @@ jobs:
         continue-on-error: true
         run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       - name: Resolve macOS build
         id: macos-build

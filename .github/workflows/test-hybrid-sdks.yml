@@ -15,8 +15,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -68,8 +66,6 @@ jobs:
         with:
           name: xcframework-for-hybrid-sdk-tests
           path: sentry-cocoa
-      - name: Setup Git access
-        uses: ./sentry-cocoa/.github/actions/setup-git-access
       - name: Clone sentry-dart
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -187,8 +183,6 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: xcframework-for-hybrid-sdk-tests
-      - name: Setup Git access
-        uses: ./sentry-cocoa/.github/actions/setup-git-access
       - name: Clone sentry-react-native
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

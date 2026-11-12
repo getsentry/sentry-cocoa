@@ -61,8 +61,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # test app projects. The Package.swift references binary targets, which in release branch commits points
       # to non-existent download URLs. This creates chicken-egg failures when building these test apps for
@@ -138,8 +136,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       # Some test app projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
@@ -206,8 +202,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -275,8 +269,6 @@ jobs:
         run: xcrun simctl list runtimes -j > /dev/null
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
@@ -314,8 +306,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -365,8 +355,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -410,8 +398,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -514,8 +500,6 @@ jobs:
         continue-on-error: true
         run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
@@ -582,8 +566,6 @@ jobs:
         continue-on-error: true
         run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h

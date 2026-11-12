@@ -86,8 +86,6 @@ jobs:
         continue-on-error: true
         run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
@@ -152,8 +150,6 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -191,8 +187,6 @@ jobs:
         mode: [environment, base-manifest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -260,8 +254,6 @@ jobs:
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -361,8 +353,6 @@ jobs:
         continue-on-error: true
         run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
@@ -413,8 +403,6 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Setup Xcode

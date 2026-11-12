@@ -187,8 +187,6 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -260,8 +258,6 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -322,8 +318,6 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -384,8 +378,6 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -445,8 +437,6 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
       - name: Prepare Package.swift
         shell: bash
         run: |

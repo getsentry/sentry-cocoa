@@ -84,8 +84,6 @@ jobs:
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
 
       - name: Resolve macOS build
         id: macos-build
