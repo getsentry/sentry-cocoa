@@ -227,6 +227,45 @@ final class SentryHubEventSourceSinkTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(client.captureEventWithScopeAndHintInvocations.count, 0)
     }
 
+    // MARK: - Fatal reports that carry their session
+
+    func testSubmit_whenFatalReportCarriesSession_shouldCaptureWithItAndKeepStoredSession() throws {
+        // -- Arrange --
+        let client = try currentTestClient()
+        let storedSession = givenCrashedSession(storedBy: client)
+        let carriedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
+        carriedSession.endCrashed(withTimestamp: Date())
+        var report = givenFatalReport()
+        report.crashedSession = .carried(carriedSession)
+
+        // -- Act --
+        let result = sut.submit(report)
+
+        // -- Assert --
+        XCTAssertEqual(result, .accepted)
+        XCTAssertEqual(client.captureFatalEventWithSessionInvocations.count, 1)
+        XCTAssertEqual(client.captureFatalEventWithSessionInvocations.first?.session.sessionId, carriedSession.sessionId)
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
+        XCTAssertEqual(client.fileManager.readCrashedSession()?.sessionId, storedSession.sessionId)
+    }
+
+    func testSubmit_whenFatalReportCarriesNoSession_shouldCaptureWithoutSessionAndKeepStoredSession() throws {
+        // -- Arrange --
+        let client = try currentTestClient()
+        let storedSession = givenCrashedSession(storedBy: client)
+        var report = givenFatalReport()
+        report.crashedSession = .carried(nil)
+
+        // -- Act --
+        let result = sut.submit(report)
+
+        // -- Assert --
+        XCTAssertEqual(result, .accepted)
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
+        XCTAssertEqual(client.captureFatalEventWithSessionInvocations.count, 0)
+        XCTAssertEqual(client.fileManager.readCrashedSession()?.sessionId, storedSession.sessionId)
+    }
+
     // MARK: - Helpers
 
     private func currentTestClient() throws -> TestClient {

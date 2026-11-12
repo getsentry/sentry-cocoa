@@ -53,6 +53,17 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(captureFatalEvent(_:scope:preserveCrashedSessionOnFailure:));
 
 /**
+ * Captures a fatal event with the crashed session the caller kept for it, or without a session
+ * when there is none, and returns its ID, or @c SentryId.empty when no event was accepted. The
+ * crashed session stored for the previous run stays where it is, for the fatal event of that run.
+ */
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+                                withScope:(SentryScope *)scope
+                           crashedSession:
+                               (SENTRY_SWIFT_MIGRATION_ID(SentrySession)_Nullable)crashedSession
+    NS_SWIFT_NAME(captureFatalEvent(_:scope:crashedSession:));
+
+/**
  * Returns YES when a fatal-event capture was accepted or intentionally discarded. Returns NO when
  * the snapshotted client became unavailable, making the capture retryable.
  */

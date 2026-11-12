@@ -91,6 +91,13 @@ private struct AnyIntegration {
             .init(SentryFileIOTrackingIntegration.self)
         ])
 
+        // SentryMetricKitIntegration before SentryWatchdogTerminationTrackingIntegration, so the
+        // event source coordinator knows whether to hold a watchdog termination for MetricKit
+        // before the watchdog termination integration reports one.
+        #if os(iOS) || os(macOS) || os(visionOS)
+        integrations.append(.init(SentryMetricKitIntegration.self))
+        #endif
+
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryAppStartTrackingIntegration.self))
         integrations.append(.init(SentryPerformanceTrackingIntegration.self))
@@ -109,10 +116,6 @@ private struct AnyIntegration {
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryViewHierarchyIntegration.self))
-        #endif
-
-        #if os(iOS) || os(macOS) || os(visionOS)
-        integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
 
         #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
