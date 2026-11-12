@@ -309,6 +309,15 @@ public class SentryReplayOptions: NSObject {
      */
     public var enableFastViewRendering: Bool
 
+    private struct NetworkDetailState {
+        var allowUrls: [SentryUrlMatchable] = []
+        var allowMatchers: [SentryUrlMatcher] = []
+        var denyUrls: [SentryUrlMatchable] = []
+        var denyMatchers: [SentryUrlMatcher] = []
+    }
+
+    private let networkDetailState: SentryMutex<NetworkDetailState>
+
     /**
      * A list of URL patterns to capture request and response details for during session replay.
      *
@@ -345,14 +354,18 @@ public class SentryReplayOptions: NSObject {
      * - Note: Request and response bodies are truncated to 150KB maximum.
      * - Note: See ``SentryReplayOptions.DefaultValues.networkDetailAllowUrls`` for the default value.
      */
-    private struct NetworkDetailState {
-        var allowUrls: [SentryUrlMatchable] = []
-        var allowMatchers: [SentryUrlMatcher] = []
-        var denyUrls: [SentryUrlMatchable] = []
-        var denyMatchers: [SentryUrlMatcher] = []
+    public var networkDetailAllowUrls: [SentryUrlMatchable] {
+        get {
+            networkDetailState.withLock { $0.allowUrls }
+        }
+        set {
+            let matchers = newValue.map { $0.asSentryUrlMatcher }
+            networkDetailState.withLock { state in
+                state.allowUrls = newValue
+                state.allowMatchers = matchers
+            }
+        }
     }
-
-    private let networkDetailState: SentryMutex<NetworkDetailState>
 
     /**
      * A list of URL patterns to exclude from network detail capture during session replay.
@@ -371,21 +384,7 @@ public class SentryReplayOptions: NSObject {
      * - String patterns: "/auth/", "/payment/", "password", ".internal."
      * - NSRegularExpression patterns: Use try NSRegularExpression(pattern:) to create regex objects
      * - Mixed arrays are supported with both types
-     *
      */
-    public var networkDetailAllowUrls: [SentryUrlMatchable] {
-        get {
-            networkDetailState.withLock { $0.allowUrls }
-        }
-        set {
-            let matchers = newValue.map { $0.asSentryUrlMatcher }
-            networkDetailState.withLock { state in
-                state.allowUrls = newValue
-                state.allowMatchers = matchers
-            }
-        }
-    }
-
     public var networkDetailDenyUrls: [SentryUrlMatchable] {
         get {
             networkDetailState.withLock { $0.denyUrls }

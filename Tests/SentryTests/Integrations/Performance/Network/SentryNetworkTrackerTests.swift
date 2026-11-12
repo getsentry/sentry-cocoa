@@ -1010,7 +1010,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let decisions = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions }
         XCTAssertEqual(decisions.count, 1, "The same URL should have only one cached decision")
-        let decision = try XCTUnwrap(decisions[testURL.absoluteString])
+        let decision = try XCTUnwrap(decisions.values.first)
         XCTAssertTrue(decision)
 
         let details = try XCTUnwrap(task.networkDetails)
@@ -1040,8 +1040,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let decisions = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions }
         XCTAssertEqual(decisions.count, 2, "Each distinct URL should have its own cached decision")
-        XCTAssertEqual(decisions[allowedURL.absoluteString], true)
-        XCTAssertEqual(decisions[deniedURL.absoluteString], false)
+        XCTAssertTrue(decisions.values.contains(true), "Allowed URL must have a cached true decision")
+        XCTAssertTrue(decisions.values.contains(false), "Denied URL must have a cached false decision")
         XCTAssertNil(task.networkDetails?.serialize()["statusCode"],
                      "A denied URL must not contribute response details")
     }
@@ -1068,18 +1068,16 @@ class SentryNetworkTrackerTests: XCTestCase {
         tracker.captureResponseDetails(Data(), response: response1, request: testURL, task: task1)
 
         // -- Assert --
-        let decision1 = try XCTUnwrap(task1.withNetworkTrackerState {
-            $0.networkDetailCaptureDecisions[testURL.absoluteString]
-        })
+        let captured1 = task1.withNetworkTrackerState { !$0.networkDetailCaptureDecisions.isEmpty }
+        XCTAssertTrue(captured1, "Tracker must cache a decision for the initially-allowed URL")
+        let decision1 = try XCTUnwrap(task1.withNetworkTrackerState { $0.networkDetailCaptureDecisions.values.first })
         XCTAssertTrue(decision1, "URL allowed at initialization time must be captured even if options change later")
         XCTAssertNotNil(task1.networkDetails?.serialize()["statusCode"])
 
         // The URL added after initialization must not be captured by this tracker
         let task2 = URLSessionDataTaskMock(request: URLRequest(url: laterURL))
         tracker.urlSessionTask(task2, setState: .running)
-        let decision2 = try XCTUnwrap(task2.withNetworkTrackerState {
-            $0.networkDetailCaptureDecisions[laterURL.absoluteString]
-        })
+        let decision2 = try XCTUnwrap(task2.withNetworkTrackerState { $0.networkDetailCaptureDecisions.values.first })
         XCTAssertFalse(decision2, "URL added after tracker initialization must not be captured")
     }
 
@@ -1102,7 +1100,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         // -- Assert --
         let decision = try XCTUnwrap(task.withNetworkTrackerState {
-            $0.networkDetailCaptureDecisions[testURL.absoluteString]
+            $0.networkDetailCaptureDecisions.values.first
         })
         XCTAssertFalse(decision, "URL matching both allow and deny must be denied")
         XCTAssertNil(task.networkDetails)
@@ -1149,8 +1147,114 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         // -- Assert --
         wait(for: [expectation], timeout: 5)
-        let decision = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions[testURL.absoluteString] }
+        let decision = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions.values.first }
         XCTAssertEqual(decision, true)
+    }
+
+    func testNetworkDetailCaptureDecision_isNotReusedAcrossTrackerInstances_allowThenDeny() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://api.example.com/users"))
+        let task = URLSessionDataTaskMock(request: URLRequest(url: url))
+
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkDetailDenyUrls = []
+        let trackerA = fixture.getSut()
+        trackerA.urlSessionTask(task, setState: .running)
+        let decisionA = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions.values.first }
+        XCTAssertEqual(decisionA, true, "Tracker A must allow the URL")
+
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkDetailDenyUrls = ["/users"]
+        let trackerB = fixture.getSut()
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: "1.1",
+            headerFields: ["Content-Type": "application/json"]
+        ))
+
+        // -- Act --
+        trackerB.urlSessionTask(task, setState: .running)
+        trackerB.captureResponseDetails(Data(), response: response, request: url, task: task)
+
+        // -- Assert --
+        let decisions = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions }
+        XCTAssertEqual(decisions.count, 2,
+                       "Each tracker must store its own decision, not overwrite the other's")
+        XCTAssertTrue(decisions.values.contains(true),
+                      "Tracker A's cached allow decision must be preserved")
+        XCTAssertTrue(decisions.values.contains(false),
+                      "Tracker B must deny the URL and not reuse Tracker A's cached true")
+        XCTAssertNil(task.networkDetails?.serialize()["statusCode"],
+                     "Tracker B must not capture response details for a denied URL")
+    }
+
+    func testNetworkDetailCaptureDecision_isNotReusedAcrossTrackerInstances_denyThenAllow() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://api.example.com/users/private"))
+        let task = URLSessionDataTaskMock(request: URLRequest(url: url))
+
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkDetailDenyUrls = ["/private"]
+        let trackerA = fixture.getSut()
+        trackerA.urlSessionTask(task, setState: .running)
+        let decisionA = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions.values.first }
+        XCTAssertEqual(decisionA, false, "Tracker A must deny the URL")
+        XCTAssertNil(task.networkDetails, "Tracker A must not capture details for a denied URL")
+
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkDetailDenyUrls = []
+        let trackerB = fixture.getSut()
+
+        // -- Act --
+        trackerB.urlSessionTask(task, setState: .running)
+
+        // -- Assert --
+        let decisions = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions }
+        XCTAssertEqual(decisions.count, 2,
+                       "Each tracker must store its own decision, not overwrite the other's")
+        XCTAssertTrue(decisions.values.contains(true),
+                      "Tracker B must allow the URL and not reuse Tracker A's cached false")
+        XCTAssertNotNil(task.networkDetails, "Tracker B must capture details for an allowed URL")
+    }
+
+    func testNetworkDetailCaptureDecision_isNotReusedAcrossTrackerInstances_enabledThenDisabled() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://api.example.com/users"))
+        let task = URLSessionDataTaskMock(request: URLRequest(url: url))
+
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkDetailDenyUrls = []
+        let trackerA = fixture.getSut()
+        trackerA.urlSessionTask(task, setState: .running)
+        let decisionA = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions.values.first }
+        XCTAssertEqual(decisionA, true, "Tracker A must allow the URL")
+        XCTAssertNotNil(task.networkDetails, "Tracker A must have captured request details")
+
+        fixture.options.sessionReplay.networkDetailAllowUrls = []
+        let trackerB = fixture.getSut()
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: "1.1",
+            headerFields: ["Content-Type": "application/json"]
+        ))
+
+        // -- Act --
+        trackerB.captureResponseDetails(Data(), response: response, request: url, task: task)
+
+        // -- Assert --
+        let decisions = task.withNetworkTrackerState { $0.networkDetailCaptureDecisions }
+        XCTAssertEqual(decisions.count, 1,
+                       "Tracker B must not write a decision when capture is disabled")
+        XCTAssertNil(task.networkDetails?.serialize()["statusCode"],
+                     "Tracker B must not capture response details when capture is disabled")
     }
 
     func testCaptureResponseDetails_whenNewLoaderDisabled_shouldNotInitializeRequestDetails() throws {

@@ -55,6 +55,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private struct NetworkDetailConfiguration {
+        let configurationID: UUID = UUID()
         let allowUrls: [SentryUrlMatcher]
         let denyUrls: [SentryUrlMatcher]
         let hasAllowUrls: Bool
@@ -354,8 +355,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         if let urlString = SentryURLRequestWrapper(originalRequestOf: sessionTask)?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(
                for: urlString,
-               task: sessionTask,
-               options: options
+               task: sessionTask
            ) {
             captureRequestDetails(
                 for: sessionTask,
@@ -434,8 +434,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         guard let options = hub.currentOptions,
               isNetworkDetailCaptureEnabled(
                   for: urlString,
-                  task: task,
-                  options: options
+                  task: task
               ) else {
             return
         }
@@ -782,13 +781,13 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private func isNetworkDetailCaptureEnabled(
         for urlString: String,
-        task: URLSessionTask,
-        options: Options? = nil
+        task: URLSessionTask
     ) -> Bool {
-        _ = options
+
+        let cacheKey = "\(networkDetailConfiguration.configurationID)||\(urlString)"
 
         if let cached = task.withNetworkTrackerState({
-            $0.networkDetailCaptureDecisions[urlString]
+            $0.networkDetailCaptureDecisions[cacheKey]
         }) {
             return cached
         }
@@ -801,10 +800,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         let result = networkDetailConfiguration.isCaptureEnabled(for: urlString)
 
         return task.withNetworkTrackerState { state in
-            if let cached = state.networkDetailCaptureDecisions[urlString] {
+            if let cached = state.networkDetailCaptureDecisions[cacheKey] {
                 return cached
             }
-            state.networkDetailCaptureDecisions[urlString] = result
+            state.networkDetailCaptureDecisions[cacheKey] = result
             return result
         }
     }
