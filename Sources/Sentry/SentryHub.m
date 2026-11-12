@@ -772,7 +772,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                      attachments:(NSArray *)feedbackAttachments
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {

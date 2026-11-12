@@ -1,6 +1,5 @@
 #import "SentryClient.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryAttachment.h"
 #import "SentryClient+Attachments.h"
 #import "SentryClient+ErrorEvents.h"
 #import "SentryClient+EventCapture.h"

@@ -16,7 +16,6 @@
 @class SentryFeedbackAPI;
 @class SentryId;
 @class SentryUser;
-@class SentryAttachment;
 @class SentryLogger;
 @class UIView;
 
@@ -292,10 +291,6 @@ SENTRY_NO_INIT
                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                         hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
-
-+ (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

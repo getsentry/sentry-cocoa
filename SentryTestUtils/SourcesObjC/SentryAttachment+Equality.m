@@ -1,5 +1,4 @@
 #import "SentryAttachment+Equality.h"
-#import "SentryAttachment+Private.h"
 
 @implementation SentryAttachment (Equality)
 

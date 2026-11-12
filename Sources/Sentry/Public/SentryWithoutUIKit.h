@@ -8,7 +8,6 @@ FOUNDATION_EXPORT double SentryVersionNumber;
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #    import <SentryWithoutUIKit/Sentry.h>
-#    import <SentryWithoutUIKit/SentryAttachment.h>
 #    import <SentryWithoutUIKit/SentryBaggage.h>
 #    import <SentryWithoutUIKit/SentryBreadcrumb.h>
 #    import <SentryWithoutUIKit/SentryCrashExceptionApplication.h>
