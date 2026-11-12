@@ -24,11 +24,11 @@ TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
 ONLY_TESTING=""
-WORKSPACE=""
+WORKSPACE="Sentry.xcworkspace"
 SDK=""
 RAW_DESTINATION=""
 OVERRIDE_XCCONFIG=""
-PACKAGE_TESTS=false
+XCODEBUILD_ARGS=()
 FOR_AGENTS="${FOR_AGENTS:-false}"
 
 usage() {
@@ -48,15 +48,14 @@ OPTIONS:
     -s, --scheme <scheme>            Test scheme (default: Sentry)
     -t, --test-plan <plan>           Test plan name (default: empty)
     --only-testing <tests>           Comma-separated test selectors.
-                                      Each selector must be Target/Class or Target/Class/testMethod.
+                                      Each selector must be Target, Target/Class, or Target/Class/testMethod.
     -R, --result-bundle <path>       Result bundle path (default: results.xcresult)
     -w, --workspace <path>           Workspace path (default: Sentry.xcworkspace)
     --sdk <sdk>                      SDK override (e.g. iphoneos, watchos)
     --destination <dest>             Raw xcodebuild destination string (bypasses
                                       --platform resolution)
     --xcconfig <path>                Build settings override file
-    --package-tests                 Use the source package scheme, test settings and plans
-                                      Prepare manifests with prepare-package.sh first.
+    -- <arguments...>                Forward remaining arguments directly to xcodebuild
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
@@ -128,9 +127,10 @@ while [[ $# -gt 0 ]]; do
             RAW_DESTINATION="$2"
             shift 2
             ;;
-        --package-tests)
-            PACKAGE_TESTS=true
+        --)
             shift
+            XCODEBUILD_ARGS=("$@")
+            break
             ;;
         --xcconfig)
             OVERRIDE_XCCONFIG="$2"
@@ -142,29 +142,6 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-
-if [ "$PACKAGE_TESTS" = true ]; then
-    WORKSPACE="${WORKSPACE:-.}"
-    TEST_SCHEME="SentrySPM"
-    if [ "$WORKSPACE" = . ]; then
-        OVERRIDE_XCCONFIG="Tests/Configuration/SwiftPM.xcconfig"
-    else
-        OVERRIDE_XCCONFIG="$WORKSPACE/Tests/Configuration/SwiftPM.xcconfig"
-    fi
-    if [ -z "$TEST_PLAN" ]; then
-        TEST_PLAN="SentrySPM_Base"
-        if [ "${SDK_V10:-0}" = 1 ]; then
-            TEST_PLAN="SentrySPM_Base_v10"
-        fi
-    fi
-    DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sentry-package-derived-data}"
-    # Updating a result bundle inside the package can trigger graph reloads mid-test.
-    if [[ "$RESULT_BUNDLE_PATH" != /* ]]; then
-        RESULT_BUNDLE_PATH="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/$RESULT_BUNDLE_PATH"
-    fi
-fi
-
-WORKSPACE="${WORKSPACE:-Sentry.xcworkspace}"
 
 if [ -n "$OVERRIDE_XCCONFIG" ] && [ ! -f "$OVERRIDE_XCCONFIG" ]; then
     log_error "--xcconfig file does not exist: $OVERRIDE_XCCONFIG"
@@ -259,22 +236,6 @@ else
     esac
 fi
 
-TEST_SETTINGS=()
-if [ "$PACKAGE_TESTS" = true ]; then
-    # Xcode cannot select root-package traits. Keep definitions identical for the
-    # build-for-testing and test-without-building invocations, including Clang imports.
-    TEST_SETTINGS=(-parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO)
-    if [ "$CONFIGURATION" = TestCI ]; then
-        # shellcheck disable=SC2016
-        TEST_SETTINGS+=('SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI'
-            'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1')
-    else
-        # shellcheck disable=SC2016
-        TEST_SETTINGS+=('SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST'
-            'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1')
-    fi
-fi
-
 case $COMMAND in
 "build")
     RUN_BUILD=true
@@ -354,6 +315,7 @@ if [ $RUN_BUILD == true ]; then
     BUILD_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BUILD_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     BUILD_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    BUILD_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     run_build raw-build-output.log "${BUILD_ARGS[@]}" build
 fi
@@ -367,9 +329,9 @@ ONLY_TESTING_ARGS=()
 if [ -n "$ONLY_TESTING" ]; then
     IFS=',' read -ra TEST_ARRAY <<< "$ONLY_TESTING"
     for test in "${TEST_ARRAY[@]}"; do
-        if [[ ! "$test" =~ ^[^/[:space:]]+/[^/[:space:]]+(/[^/[:space:]]+)?$ ]]; then
+        if [[ ! "$test" =~ ^[^/[:space:]]+(/[^/[:space:]]+){0,2}$ ]]; then
             log_error "Invalid --only-testing value: $test"
-            log_error "Use Target/Class or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
+            log_error "Use Target, Target/Class, or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
             exit 1
         fi
 
@@ -391,7 +353,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     BFT_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
-    BFT_ARGS+=("${TEST_SETTINGS[@]+${TEST_SETTINGS[@]}}")
+    BFT_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     run_build raw-build-for-testing-output.log "${BFT_ARGS[@]}" build-for-testing
 fi
@@ -416,7 +378,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
     [[ -n "$DERIVED_DATA_PATH" ]] && TWB_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
-    TWB_ARGS+=("${TEST_SETTINGS[@]+${TEST_SETTINGS[@]}}")
+    TWB_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${TWB_ARGS[@]}" \

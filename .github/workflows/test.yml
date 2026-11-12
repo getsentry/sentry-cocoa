@@ -105,10 +105,12 @@ jobs:
       matrix:
         include:
           - mode: V9
+            make-target: test-ios
             sdk-v10: "0"
             runs-on: macos-26
             test-plan: SentrySPM_Base
           - mode: V10
+            make-target: test-ios-v10
             sdk-v10: "1"
             runs-on: ["bitrise_pool_name:tahoe"]
             test-plan: SentrySPM_Base_v10
@@ -144,14 +146,12 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
         env:
-          TEST_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
-          TEST_DEVICE: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          MAKE_TARGET: ${{ matrix.make-target }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           # Native Base plans include distribution tests; see develop-docs/TEST.md.
-          make ${{ matrix.sdk-v10 == '1' && 'test-unit-v10' || 'test-unit' }} \
-            TEST_PLATFORM=iOS \
-            TEST_OS="$TEST_OS" \
-            TEST_DEVICE="$TEST_DEVICE" \
+          make "$MAKE_TARGET" \
             TEST_CONFIGURATION=TestCI \
             TEST_PLAN="$TEST_PLAN" \
             TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" \
@@ -213,10 +213,12 @@ jobs:
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
             platform: "macOS"
+            make-target: test-macos
             xcode: "16"
 
           - name: Catalyst 15
             platform: "Catalyst"
+            make-target: test-catalyst
             xcode: "16"
 
     steps:
@@ -261,12 +263,10 @@ jobs:
       - name: Build tests
         id: build_tests
         env:
+          MAKE_TARGET: ${{ matrix.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          make test-unit \
-            TEST_PLATFORM=${{matrix.platform}} \
-            TEST_OS="$OS_VERSION" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=build-for-testing \
             TEST_CONFIGURATION=TestCI \
@@ -287,12 +287,10 @@ jobs:
 
       - name: Run tests
         env:
+          MAKE_TARGET: ${{ matrix.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          make test-unit \
-            TEST_PLATFORM=${{matrix.platform}} \
-            TEST_OS="$OS_VERSION" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=test-without-building \
             TEST_CONFIGURATION=TestCI \
@@ -371,6 +369,7 @@ jobs:
       should_skip: ${{ github.event_name == 'pull_request' && (needs.files-changed.outputs.run_unit_tests_for_prs != 'true' || matrix.push_only == true) }}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
+      make-target: ${{ matrix.make-target }}
       device: ${{matrix.device || ''}}
     strategy:
       fail-fast: false
@@ -382,18 +381,21 @@ jobs:
             runs-on: sequoia
             xcode: "16"
             platform: "iOS"
+            make-target: test-ios
 
           # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
+            make-target: test-ios
 
           # iOS 27
           - name: iOS 27 Sentry
             runs-on: tahoe-27
             xcode: "27"
             platform: "iOS"
+            make-target: test-ios
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 15 is minimal.
@@ -404,24 +406,28 @@ jobs:
             runs-on: sonoma
             xcode: "16"
             platform: "macOS"
+            make-target: test-macos
 
           # macOS 15
           - name: macOS 15 Sentry
             runs-on: sequoia
             xcode: "16"
             platform: "macOS"
+            make-target: test-macos
 
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "macOS"
+            make-target: test-macos
 
           # macOS 27
           - name: macOS 27 Sentry
             runs-on: xcode-beta # golden gate
             xcode: "27"
             platform: "macOS"
+            make-target: test-macos
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
@@ -431,24 +437,28 @@ jobs:
             runs-on: sonoma
             xcode: "16"
             platform: "Catalyst"
+            make-target: test-catalyst
 
           # Catalyst 15
           - name: Catalyst 15 Sentry
             runs-on: sequoia
             xcode: "16"
             platform: "Catalyst"
+            make-target: test-catalyst
 
           # Catalyst 26
           - name: Catalyst 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "Catalyst"
+            make-target: test-catalyst
 
           # Catalyst 27
           - name: Catalyst 27 Sentry
             runs-on: xcode-beta
             xcode: "27"
             platform: "Catalyst"
+            make-target: test-catalyst
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -457,12 +467,14 @@ jobs:
             runs-on: sequoia
             xcode: "16"
             platform: "tvOS"
+            make-target: test-tvos
 
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "tvOS"
+            make-target: test-tvos
             device: "Apple TV"
 
           # tvOS 27
@@ -470,12 +482,14 @@ jobs:
             runs-on: tahoe-27
             xcode: "27"
             platform: "tvOS"
+            make-target: test-tvos
 
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "visionOS"
+            make-target: test-visionos
             timeout: 30
 
           # visionOS 27
@@ -490,6 +504,7 @@ jobs:
             runs-on: tahoe-xl
             xcode: "27"
             platform: "visionOS"
+            make-target: test-visionos
             timeout: 60
             push_only: true
 

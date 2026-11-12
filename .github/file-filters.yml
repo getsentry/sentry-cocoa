@@ -58,7 +58,6 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-collect-sentrytests-metadata.sh"
-  - "scripts/test-package-workspace.sh"
   - "scripts/prepare-package.sh"
 
   # Test infrastructure
@@ -463,7 +462,6 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/verify-v10-empty-objects.swift"
   - "scripts/read-v10-compiler-evidence.swift"
   - "scripts/test-v10-compiler-log.sh"
-  - "scripts/test-package-workspace.sh"
   - "scripts/test-v10-empty-objects.sh"
   - "scripts/test-v10-sentryobjc-slice-inventory.sh"
   - "scripts/build-xcframework-slice.sh"

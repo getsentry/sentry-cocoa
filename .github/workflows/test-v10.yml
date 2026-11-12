@@ -93,10 +93,15 @@ jobs:
       matrix:
         include:
           - platform: iOS
+            make-target: test-ios-v10
           - platform: macOS
+            make-target: test-macos-v10
           - platform: Catalyst
+            make-target: test-catalyst-v10
           - platform: tvOS
+            make-target: test-tvos-v10
           - platform: visionOS
+            make-target: test-visionos-v10
 
     steps:
       # === Checkout and independent preparation ===
@@ -137,14 +142,15 @@ jobs:
 
       - name: Run V10 tests
         env:
-          PLATFORM: ${{ matrix.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          MAKE_TARGET: ${{ matrix.make-target }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          make test-unit-v10 \
-            TEST_PLATFORM="$PLATFORM" \
-            TEST_OS="$OS_VERSION" \
-            TEST_DEVICE="$DEVICE_NAME" \
+          make "$MAKE_TARGET" \
             TEST_CONFIGURATION=TestCI
 
       # === Artifacts and diagnostics ===
@@ -246,7 +252,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macOS, Catalyst]
+        include:
+          - platform: macOS
+            make-target: test-macos-v10
+          - platform: Catalyst
+            make-target: test-catalyst-v10
 
     steps:
       # === Checkout and independent preparation ===
@@ -290,12 +300,10 @@ jobs:
       - name: Build tests
         id: build_tests
         env:
+          MAKE_TARGET: ${{ matrix.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          make test-unit-v10 \
-            TEST_PLATFORM=${{ matrix.platform }} \
-            TEST_OS="$OS_VERSION" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=build-for-testing \
             TEST_CONFIGURATION=TestCI \
@@ -316,12 +324,10 @@ jobs:
 
       - name: Run tests
         env:
+          MAKE_TARGET: ${{ matrix.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          make test-unit-v10 \
-            TEST_PLATFORM=${{ matrix.platform }} \
-            TEST_OS="$OS_VERSION" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=test-without-building \
             TEST_CONFIGURATION=TestCI \

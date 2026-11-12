@@ -49,6 +49,11 @@ on:
         default: ""
         type: string
 
+      make-target:
+        description: the platform Make target to test
+        required: true
+        type: string
+
       platform:
         description: the platform to test on
         required: true
@@ -171,23 +176,23 @@ jobs:
           ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
           bundle install
 
-      - name: Verify package test runner
-        run: bash scripts/test-package-workspace.sh
-
       # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
         env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ inputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          make test-unit \
-            TEST_PLATFORM="$PLATFORM" \
-            TEST_OS="$OS_VERSION" \
-            TEST_DEVICE="$DEVICE_NAME" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=build-for-testing \
             TEST_CONFIGURATION=TestCI
@@ -212,15 +217,18 @@ jobs:
       - name: Run Flaky Tests
         id: run_flaky_tests
         env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ inputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          make test-unit \
-            TEST_PLATFORM="$PLATFORM" \
-            TEST_OS="$OS_VERSION" \
-            TEST_DEVICE="$DEVICE_NAME" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=test-without-building \
             TEST_CONFIGURATION=TestCI \
@@ -229,21 +237,24 @@ jobs:
 
       - name: Run tests
         id: run_tests
-        # Pass the platform to Make so the destination
+        # Select the platform Make target so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ inputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
           TEST_RUNNER_GITHUB_TOKEN: ${{ github.token }}
         run: |
-          make test-unit \
-            TEST_PLATFORM="$PLATFORM" \
-            TEST_OS="$OS_VERSION" \
-            TEST_DEVICE="$DEVICE_NAME" \
+          make "$MAKE_TARGET" \
             GIT-REF="$REF_NAME" \
             TEST_COMMAND=test-without-building \
             TEST_CONFIGURATION=TestCI \

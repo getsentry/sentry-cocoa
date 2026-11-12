@@ -48,7 +48,7 @@ make -C test-server stop
 - For SwiftPM, follow the [package test instructions](../develop-docs/TEST.md#package-tests-with-xcodebuild) and select `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests` with `-only-testing:`
 - Use `xcodebuild`, not `swift test`, to execute the Objective-C package tests
 - Make test targets use the package workspace and preserve checked-in manifests
-- Target a public wrapper test class with `ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
+- Select a whole wrapper suite with `ONLY_TESTING=SentryObjCTests` or a class with `ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
 - V9 and V10 package targets use the same test identifiers, without a `V10` suffix
 - Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md)
 

@@ -31,6 +31,7 @@ jobs:
       xcode: ${{matrix.xcode}}
       allow_prerelease: ${{matrix.allow_prerelease || false}}
       platform: ${{matrix.platform}}
+      make-target: ${{ matrix.make-target }}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device}}
     strategy:
@@ -42,12 +43,14 @@ jobs:
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
+            make-target: test-ios
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "watchOS"
+            make-target: test-watchos
             timeout: 30
 
           - name: watchOS 27 Sentry
@@ -55,12 +58,14 @@ jobs:
             xcode: "27"
             allow_prerelease: true
             platform: "watchOS"
+            make-target: test-watchos
             timeout: 30
 
           - name: visionOS 2.5 Sentry
             runs-on: sequoia
             xcode: "16"
             platform: "visionOS"
+            make-target: test-visionos
             timeout: 30
 
           # visionOS 27 is slow because of a backboardd deadlock in the simulator, so test.yml
@@ -70,6 +75,7 @@ jobs:
             runs-on: tahoe-xl
             xcode: "27"
             platform: "visionOS"
+            make-target: test-visionos
             timeout: 60
 
   hybrid-sdks:
