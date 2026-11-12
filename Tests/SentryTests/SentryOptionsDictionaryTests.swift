@@ -29,6 +29,55 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertFalse(disabled.enableScopePersistence)
     }
 
+    func testInitWithDictionary_whenAttachAllThreadsConfigured_shouldUseBooleanValue() throws {
+        // -- Arrange --
+        let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]
+
+        // -- Act --
+        let defaults = try Options(dictionary: base)
+        let enabled = try Options(dictionary: base.merging(["attachAllThreads": true]) { _, value in value })
+        let disabled = try Options(dictionary: base.merging(["attachAllThreads": false]) { _, value in value })
+
+        // -- Assert --
+        XCTAssertFalse(defaults.attachAllThreads)
+        XCTAssertTrue(enabled.attachAllThreads)
+        XCTAssertFalse(disabled.attachAllThreads)
+    }
+
+    func testInitWithDictionary_whenDataSwizzlingConfigured_shouldUseBooleanValue() throws {
+        // -- Arrange --
+        let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]
+
+        // -- Act --
+        let defaults = try Options(dictionary: base)
+        let enabled = try Options(dictionary: base.merging(["enableDataSwizzling": true]) { _, value in value })
+        let disabled = try Options(dictionary: base.merging(["enableDataSwizzling": false]) { _, value in value })
+
+        // -- Assert --
+        XCTAssertTrue(defaults.enableDataSwizzling)
+        XCTAssertTrue(enabled.enableDataSwizzling)
+        XCTAssertFalse(disabled.enableDataSwizzling)
+    }
+
+    func testInitWithDictionary_whenStandaloneAppStartTracingConfigured_shouldUseBooleanValue() throws {
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
+        // -- Arrange --
+        let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]
+
+        // -- Act --
+        let defaults = try Options(dictionary: base)
+        let enabled = try Options(dictionary: base.merging(["enableStandaloneAppStartTracing": true]) { _, value in value })
+        let disabled = try Options(dictionary: base.merging(["enableStandaloneAppStartTracing": false]) { _, value in value })
+
+        // -- Assert --
+        XCTAssertFalse(defaults.enableStandaloneAppStartTracing)
+        XCTAssertTrue(enabled.enableStandaloneAppStartTracing)
+        XCTAssertFalse(disabled.enableStandaloneAppStartTracing)
+        #else
+        throw XCTSkip("Standalone app start tracing is not available on this platform or SDK version")
+        #endif
+    }
+
     func testInitWithDictionary_whenValidValues_shouldPopulateOptions() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [
