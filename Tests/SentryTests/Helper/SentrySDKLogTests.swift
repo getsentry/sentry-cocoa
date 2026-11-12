@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 class SentrySDKLogTests: XCTestCase {
@@ -33,6 +34,67 @@ class SentrySDKLogTests: XCTestCase {
         SentrySDKLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
     
+#if os(iOS) || os(macOS)
+    func testProfilingLogger_whenSDKConfiguresOutput_shouldPreserveLevelsAndSourceLocation() throws {
+        // -- Arrange --
+        let previousLogger = SentryProfilingLog.logger
+        let previousBackend = SentryProfilerSDKAdapter.shared.target
+        defer {
+            if let previousBackend { SentryProfilerSDKAdapter.shared.setTarget(previousBackend) }
+            SentryProfilingLog.logger = previousLogger
+        }
+        SentryProfilingLog.logger = nil
+        let logOutput = TestLogOutput(thread: Thread.current)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let backend = SentryDefaultProfilerSDKBackend()
+
+        // -- Act --
+        backend.activate()
+        try withExtendedLifetime(backend) {
+            let logger = try XCTUnwrap(SentryProfilingLog.logger)
+            logger.log(.debug, message: "sample", file: "/tmp/Profile.m", line: 42)
+            logger.log(.warning, message: "sample", file: "/tmp/Profile.m", line: 42)
+            logger.log(.error, message: "sample", file: "/tmp/Profile.m", line: 42)
+        }
+
+        // -- Assert --
+        XCTAssertEqual(logOutput.loggedMessages, [
+            "[Sentry] [debug] [\(timeIntervalSince1970)] [Profile:42] sample",
+            "[Sentry] [warning] [\(timeIntervalSince1970)] [Profile:42] sample",
+            "[Sentry] [error] [\(timeIntervalSince1970)] [Profile:42] sample"
+        ])
+    }
+
+    func testProfilingLogger_whenSDKChangesConfiguration_shouldUseCurrentDiagnosticLevel() throws {
+        // -- Arrange --
+        let previousLogger = SentryProfilingLog.logger
+        let previousBackend = SentryProfilerSDKAdapter.shared.target
+        defer {
+            if let previousBackend { SentryProfilerSDKAdapter.shared.setTarget(previousBackend) }
+            SentryProfilingLog.logger = previousLogger
+        }
+        let backend = SentryDefaultProfilerSDKBackend()
+        backend.activate()
+        try withExtendedLifetime(backend) {
+            let logger = try XCTUnwrap(SentryProfilingLog.logger)
+
+            // -- Act --
+            SentrySDKLogSupport.configure(true, diagnosticLevel: .warning)
+
+            // -- Assert --
+            XCTAssertFalse(logger.shouldLog(.debug))
+            XCTAssertTrue(logger.shouldLog(.warning))
+            XCTAssertTrue(logger.shouldLog(.error))
+
+            SentrySDKLogSupport.configure(false, diagnosticLevel: .debug)
+            XCTAssertFalse(logger.shouldLog(.debug))
+            XCTAssertFalse(logger.shouldLog(.warning))
+            XCTAssertFalse(logger.shouldLog(.error))
+        }
+    }
+#endif
+
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput(thread: Thread.current)
         SentrySDKLog.setLogOutput(logOutput)

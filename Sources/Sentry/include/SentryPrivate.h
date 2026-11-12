@@ -81,6 +81,7 @@
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
 #import "SentryProfilerConfigurationBridge.h"
+#import "SentryProfilingLog.h"
 #import "SentryProfilingSwiftHelpers.h"
 #import "SentrySDKInternal.h"
 #import "SentrySanitizerUtils.h"
