@@ -25,7 +25,9 @@ extern "C" {
  * first, which is the order of the characters in the message.
  * @param addressesCount The capacity of `addresses`.
  * @return The number of addresses written, which is the number of spelled characters, or 0 when
- * nothing was spelled, the thread couldn't be created, or `addresses` is too small.
+ * nothing was spelled, the thread couldn't be created, `addresses` is too small, or the thread
+ * didn't spell the message within five seconds. In the last case the thread still parks, so the
+ * caller must not park another crumb.
  */
 size_t sentry_threadcrumb_park(
     const char *_Nonnull message, uint64_t *_Nonnull addresses, size_t addressesCount);

@@ -38,6 +38,13 @@ extension SentryMXRunIdRecord: Codable {
     }
 }
 
+/// Serializes every read and write of the records file.
+///
+/// The lock belongs to the file and not to a store, because every SDK start creates its own store
+/// for the same file, and a store's own lock wouldn't keep two of them from overwriting each
+/// other's records.
+private let sentryMXRunIdRecordFileLock = SentryMutex(())
+
 /// Persists the records of the runs that MetricKit may still deliver diagnostics for.
 ///
 /// MetricKit delivers diagnostics up to a day after they occur, and the app can stay closed for
@@ -49,7 +56,6 @@ final class SentryMXRunIdRecordStore {
 
     private let fileManager: SentryFileManager
     private let dateProvider: SentryCurrentDateProvider
-    private let lock = NSLock()
 
     init(fileManager: SentryFileManager, dateProvider: SentryCurrentDateProvider) {
         self.fileManager = fileManager
@@ -62,7 +68,7 @@ final class SentryMXRunIdRecordStore {
 
     /// Appends the record and drops the records older than the retention.
     func add(_ record: SentryMXRunIdRecord) {
-        lock.synchronized {
+        sentryMXRunIdRecordFileLock.withLock { _ in
             var records = readRecords().filter { $0.runId != record.runId }
             records.append(record)
             writeRecords(records)
@@ -71,7 +77,7 @@ final class SentryMXRunIdRecordStore {
 
     /// The records within the retention, oldest first.
     func records() -> [SentryMXRunIdRecord] {
-        lock.synchronized { readRecords() }
+        sentryMXRunIdRecordFileLock.withLock { _ in readRecords() }
     }
 
     private func readRecords() -> [SentryMXRunIdRecord] {
