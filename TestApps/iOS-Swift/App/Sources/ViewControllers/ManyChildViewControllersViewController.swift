@@ -1,15 +1,17 @@
 import SentrySampleShared
 import UIKit
 
-// Repro for GH-9536: with UIViewController tracing enabled, adding many child view controllers in
-// one run loop turn freezes the main thread. Each finished span rescans all child spans in
-// `SentryTracer.hasUnfinishedChildSpansToWaitFor`, and each `SentryWeakMap` access prunes the whole
-// map, so the cost grows with N².
+// Manual performance reproducer for GH-9536: add many child view controllers in one run-loop turn
+// to investigate UIViewController tracing overhead.
+//
+// UIKit insertion and layout performance depends heavily on the machine and simulator. The elapsed
+// time also includes display-link scheduling delay, so a fixed wall-clock threshold cannot reliably
+// isolate SDK regressions across CI machines. Use this screen for controlled comparisons instead.
 //
 // Ported from https://github.com/ig-sentry/sentry-cocoa-vc-tracing-hang. The reporter saw a 6.5–8 s
 // app hang with 2,000 children on an iPhone SE (2nd gen), versus ~0.3 s without Sentry.
 //
-// Workaround: exclude the child class from swizzling, see `ManyChildViewControllersUITests`.
+// Compare tracing with the child class excluded through `swizzleClassNameExcludes`.
 
 /// The child added in bulk. Kept top-level with a stable name so `swizzleClassNameExcludes` can
 /// match it without also matching the parent screen.
@@ -38,8 +40,8 @@ final class ManyChildViewControllersViewController: UIViewController {
         return label.forAutoLayout()
     }()
 
-    /// Seconds the main thread was blocked by the last burst, e.g. `0.42`, or `pending` before the
-    /// first burst. Read by UI tests.
+    /// Elapsed seconds until the display-link callback after the last burst, or `pending` before
+    /// the first burst. Includes insertion, layout, and display-link scheduling delay.
     private let blockedSecondsLabel: UILabel = {
         let label = UILabel()
         label.text = "pending"
@@ -92,7 +94,7 @@ final class ManyChildViewControllersViewController: UIViewController {
         // following layout pass.
         view.layoutIfNeeded()
 
-        // The first frame after the burst marks the end of the freeze, including the layout pass.
+        // Measure through the next display-link callback, including layout and scheduling delay.
         displayLink?.invalidate()
         let link = CADisplayLink(target: self, selector: #selector(firstFrameAfterBurst))
         link.add(to: .main, forMode: .common)
@@ -105,7 +107,7 @@ final class ManyChildViewControllersViewController: UIViewController {
 
         let blockedSeconds = CACurrentMediaTime() - burstStart
         let text = String(format: "%.2f", blockedSeconds)
-        statusLabel.text = "Added \(childCount) children (\(children.count) total). Main thread blocked for:"
+        statusLabel.text = "Added \(childCount) children (\(children.count) total). Elapsed time to display-link callback:"
         blockedSecondsLabel.text = text
     }
 }
