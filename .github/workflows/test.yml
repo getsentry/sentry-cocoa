@@ -105,12 +105,10 @@ jobs:
       matrix:
         include:
           - mode: V9
-            make-target: test-ios
             sdk-v10: "0"
             runs-on: macos-26
             test-plan: SentrySPM_Base
           - mode: V10
-            make-target: test-ios-v10
             sdk-v10: "1"
             runs-on: ["bitrise_pool_name:tahoe"]
             test-plan: SentrySPM_Base_v10
@@ -144,9 +142,24 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          SDK_V10: ${{ matrix.sdk-v10 }}
+        run: |
+          case "$SDK_V10" in
+            0) target=test-ios ;;
+            1) target=test-ios-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test SDK generation: $SDK_V10"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       - name: Run package tests
         env:
-          MAKE_TARGET: ${{ matrix.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
@@ -213,12 +226,10 @@ jobs:
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
             platform: "macOS"
-            make-target: test-macos
             xcode: "16"
 
           - name: Catalyst 15
             platform: "Catalyst"
-            make-target: test-catalyst
             xcode: "16"
 
     steps:
@@ -259,11 +270,26 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            macOS) target=test-macos ;;
+            Catalyst) target=test-catalyst ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
         env:
-          MAKE_TARGET: ${{ matrix.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           make "$MAKE_TARGET" \
@@ -287,7 +313,7 @@ jobs:
 
       - name: Run tests
         env:
-          MAKE_TARGET: ${{ matrix.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           make "$MAKE_TARGET" \

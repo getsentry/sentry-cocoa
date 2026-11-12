@@ -91,17 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: iOS
-            make-target: test-ios-v10
-          - platform: macOS
-            make-target: test-macos-v10
-          - platform: Catalyst
-            make-target: test-catalyst-v10
-          - platform: tvOS
-            make-target: test-tvos-v10
-          - platform: visionOS
-            make-target: test-visionos-v10
+        platform: [iOS, macOS, Catalyst, tvOS, visionOS]
 
     steps:
       # === Checkout and independent preparation ===
@@ -140,9 +130,27 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            iOS) target=test-ios-v10 ;;
+            macOS) target=test-macos-v10 ;;
+            Catalyst) target=test-catalyst-v10 ;;
+            tvOS) target=test-tvos-v10 ;;
+            visionOS) target=test-visionos-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       - name: Run V10 tests
         env:
-          MAKE_TARGET: ${{ matrix.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
           TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
@@ -252,11 +260,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: macOS
-            make-target: test-macos-v10
-          - platform: Catalyst
-            make-target: test-catalyst-v10
+        platform: [macOS, Catalyst]
 
     steps:
       # === Checkout and independent preparation ===
@@ -297,10 +301,25 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            macOS) target=test-macos-v10 ;;
+            Catalyst) target=test-catalyst-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       - name: Build tests
         id: build_tests
         env:
-          MAKE_TARGET: ${{ matrix.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           make "$MAKE_TARGET" \
@@ -324,7 +343,7 @@ jobs:
 
       - name: Run tests
         env:
-          MAKE_TARGET: ${{ matrix.make-target }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           make "$MAKE_TARGET" \
