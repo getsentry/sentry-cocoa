@@ -12,6 +12,10 @@
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
 - Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
 
+### Improvements
+
+- Speed up resolving class names for UIViewController breadcrumbs and performance tracking, which could take several milliseconds per new view controller type on the main thread in apps with many protocol conformances, especially on simulators (#9544)
+
 ## 9.33.0
 
 ### Breaking Changes
