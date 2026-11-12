@@ -1,12 +1,17 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- Report MetricKit watchdog terminations as fatal hangs with structured termination metadata. Flame graph mode attaches the recorded watchdog stack trees, omitting threads without stacks. Preserve diagnostic-time environment and state context on iOS, macOS and visionOS 27 and later (#9425)
+
 ## 9.34.0
 
 ### Features
 
 - Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
 - Give every run of the app an ID and store it in crash reports and the app state, so the SDK can match events from the crash handler, the watchdog termination integration and MetricKit that describe the same run. The ID is only used on the device and is not sent to Sentry (#9578)
-- Report MetricKit watchdog terminations as fatal hangs with structured termination metadata. Flame graph mode attaches the recorded watchdog stack trees, omitting threads without stacks. Preserve diagnostic-time environment and state context on iOS, macOS and visionOS 27 and later (#9425)
 
 ### Fixes
 
