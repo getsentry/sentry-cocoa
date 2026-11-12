@@ -6,20 +6,6 @@
 #    import "SentryInternalDefines.h"
 #    import "SentrySerialization.h"
 
-BOOL
-sentry_threadSanitizerIsPresent(void)
-{
-#    if defined(__has_feature)
-#        if __has_feature(thread_sanitizer)
-    return YES;
-#            pragma clang diagnostic push
-#            pragma clang diagnostic ignored "-Wunreachable-code"
-#        endif // __has_feature(thread_sanitizer)
-#    endif // defined(__has_feature)
-
-    return NO;
-}
-
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)                          \
         || defined(SENTRY_UI_TEST_SUPPORT)
 
