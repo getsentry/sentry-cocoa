@@ -8,6 +8,7 @@
 - Give every run of the app an ID and store it in crash reports and the app state, so the SDK can match events from the crash handler, the watchdog termination integration and MetricKit that describe the same run. The ID is only used on the device and is not sent to Sentry (#9578)
 - Spell the run ID into the call stack of a parked thread while MetricKit diagnostics are enabled, so the SDK can match a MetricKit crash, hang or memory diagnostic to the run it describes. The thread is named `io.sentry.threadcrumb` and stays idle; the run ID stays on the device (#9582)
 - Stop sending a MetricKit crash diagnostic for a crash the crash handler already reported in the same run, so enabling `.crash` in `enabledDiagnosticReports` no longer shows the same crash twice (#9584)
+- Hold a watchdog termination event for up to 30 seconds while MetricKit `.crash` or `.memoryException` diagnostics are enabled, and merge it with the MetricKit diagnostic of the same run, so the event gets a stack trace and the termination reason. Without a matching diagnostic the event is sent unchanged (#9599)
 
 ### Fixes
 
