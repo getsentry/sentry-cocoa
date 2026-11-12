@@ -21,6 +21,17 @@ final class SentryMXRunIdThreadCrumb {
 
     private let state = SentryMutex<State>(.notAttempted)
 
+    /// Why a crumb couldn't be parked.
+    enum ParkError: Error, Equatable {
+        /// The thread didn't spell the message, because the message has no hexadecimal digit, the
+        /// thread couldn't be created or it didn't spell in time.
+        case notSpelled
+        /// An earlier attempt of this crumb failed, and its thread may still be parked.
+        case earlierAttemptFailed
+        /// This process already parked the crumb for the given, different run ID.
+        case parkedForAnotherRun(SentryCurrentRun.ID)
+    }
+
     /// Parks the thread crumb spelling `runId`, or returns the crumb already parked for it.
     ///
     /// Parking is tried once per instance, so a failed attempt, whose thread may still be parked,
@@ -31,30 +42,36 @@ final class SentryMXRunIdThreadCrumb {
     /// main thread.
     ///
     /// - Returns: The addresses of the spelled frames, outermost first, which the decoder matches
-    ///   against the call stacks of a diagnostic. `nil` when the crumb couldn't be parked, now or
-    ///   in an earlier attempt, or when this process already parked a crumb for a different run
-    ///   ID.
-    func park(runId: SentryCurrentRun.ID) -> [UInt64]? {
-        state.withLock { state in
+    ///   against the call stacks of a diagnostic.
+    /// - Throws: A ``ParkError`` when the crumb couldn't be parked, now or in an earlier attempt,
+    ///   or when this process already parked a crumb for a different run ID.
+    func park(runId: SentryCurrentRun.ID) throws -> [UInt64] {
+        try state.withLock { state in
             switch state {
             case let .parked(parkedRunId, addresses):
-                return parkedRunId == runId ? addresses : nil
-            case .failed:
-                return nil
-            case .notAttempted:
-                guard let addresses = Self.spell(runId.rawValue) else {
-                    SentrySDKLog.warning("Could not park the thread crumb for the run ID, so MetricKit diagnostics of this run can't be matched to it.")
-                    state = .failed
-                    return nil
+                guard parkedRunId == runId else {
+                    throw ParkError.parkedForAnotherRun(parkedRunId)
                 }
-                state = .parked(runId: runId, addresses: addresses)
                 return addresses
+            case .failed:
+                throw ParkError.earlierAttemptFailed
+            case .notAttempted:
+                do {
+                    let addresses = try Self.spell(runId.rawValue)
+                    state = .parked(runId: runId, addresses: addresses)
+                    return addresses
+                } catch {
+                    state = .failed
+                    throw error
+                }
             }
         }
     }
 
     /// Parks a new thread spelling `message`, without the once-per-process guard.
-    static func spell(_ message: String) -> [UInt64]? {
+    ///
+    /// - Throws: ``ParkError/notSpelled`` when the thread didn't spell the message.
+    static func spell(_ message: String) throws -> [UInt64] {
         var addresses = [UInt64](repeating: 0, count: Int(SENTRY_THREADCRUMB_MAX_LENGTH))
         let count = addresses.withUnsafeMutableBufferPointer { buffer -> Int in
             guard let baseAddress = buffer.baseAddress else {
@@ -63,7 +80,7 @@ final class SentryMXRunIdThreadCrumb {
             return sentry_threadcrumb_park(message, baseAddress, buffer.count)
         }
         guard count > 0 else {
-            return nil
+            throw ParkError.notSpelled
         }
         return Array(addresses.prefix(count))
     }

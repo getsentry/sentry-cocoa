@@ -3,7 +3,7 @@ internal import _SentryPrivate
 import Foundation
 
 /// What a run left behind so that a MetricKit diagnostic about it can be matched to its run ID.
-struct SentryMXRunIdRecord: Equatable {
+struct SentryMXRunIdRecord: Codable, Equatable {
     let runId: SentryCurrentRun.ID
     /// The addresses of the frames the thread crumb spelled in that run, outermost first. They
     /// are the addresses of that process, which is what MetricKit reports for it.
@@ -11,39 +11,6 @@ struct SentryMXRunIdRecord: Equatable {
     /// When the run recorded itself.
     let date: Date
 }
-
-/// The store is where the run ID is kept as a string, so the record turns it into one when it is
-/// written and back into an ID when it is read.
-extension SentryMXRunIdRecord: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case runId
-        case threadCrumbAddresses
-        case date
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.init(
-            runId: SentryCurrentRun.ID(rawValue: try container.decode(String.self, forKey: .runId)),
-            threadCrumbAddresses: try container.decode([UInt64].self, forKey: .threadCrumbAddresses),
-            date: try container.decode(Date.self, forKey: .date)
-        )
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(runId.rawValue, forKey: .runId)
-        try container.encode(threadCrumbAddresses, forKey: .threadCrumbAddresses)
-        try container.encode(date, forKey: .date)
-    }
-}
-
-/// Serializes every read and write of the records file.
-///
-/// The lock belongs to the file and not to a store, because every SDK start creates its own store
-/// for the same file, and a store's own lock wouldn't keep two of them from overwriting each
-/// other's records.
-private let sentryMXRunIdRecordFileLock = SentryMutex(())
 
 /// Persists the records of the runs that MetricKit may still deliver diagnostics for.
 ///
@@ -53,6 +20,13 @@ private let sentryMXRunIdRecordFileLock = SentryMutex(())
 final class SentryMXRunIdRecordStore {
     static let retention: TimeInterval = 7 * 24 * 60 * 60
     static let fileName = "metrickit-run-ids.json"
+
+    /// Serializes every read and write of the records file.
+    ///
+    /// The lock belongs to the file and not to a store, because every SDK start creates its own
+    /// store for the same file, and a store's own lock wouldn't keep two of them from overwriting
+    /// each other's records.
+    private static let fileLock = SentryLock()
 
     private let fileManager: SentryFileManager
     private let dateProvider: SentryCurrentDateProvider
@@ -68,7 +42,7 @@ final class SentryMXRunIdRecordStore {
 
     /// Appends the record and drops the records older than the retention.
     func add(_ record: SentryMXRunIdRecord) {
-        sentryMXRunIdRecordFileLock.withLock { _ in
+        Self.fileLock.withLock {
             var records = readRecords().filter { $0.runId != record.runId }
             records.append(record)
             writeRecords(records)
@@ -77,7 +51,7 @@ final class SentryMXRunIdRecordStore {
 
     /// The records within the retention, oldest first.
     func records() -> [SentryMXRunIdRecord] {
-        sentryMXRunIdRecordFileLock.withLock { _ in readRecords() }
+        Self.fileLock.withLock { readRecords() }
     }
 
     private func readRecords() -> [SentryMXRunIdRecord] {

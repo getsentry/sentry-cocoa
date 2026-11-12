@@ -80,10 +80,12 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
         dependencies.dispatchQueueWrapper.dispatchAsync {
             // The crumb is parked once per process. On an SDK restart with the same run ID it
             // returns the frames again, and the record is written once more.
-            guard let addresses = SentryMXRunIdThreadCrumb.shared.park(runId: runId) else {
-                return
+            do {
+                let addresses = try SentryMXRunIdThreadCrumb.shared.park(runId: runId)
+                store.add(SentryMXRunIdRecord(runId: runId, threadCrumbAddresses: addresses, date: date))
+            } catch {
+                SentrySDKLog.warning("Could not park the thread crumb for the run ID, so MetricKit diagnostics of this run can't be matched to it: \(error)")
             }
-            store.add(SentryMXRunIdRecord(runId: runId, threadCrumbAddresses: addresses, date: date))
         }
         return SentryMXRunIdDecoder(store: store)
     }

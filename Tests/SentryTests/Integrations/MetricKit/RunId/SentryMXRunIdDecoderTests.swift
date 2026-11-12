@@ -106,7 +106,7 @@ final class SentryMXRunIdDecoderTests: XCTestCase {
     func testRunId_whenSpelledByAParkedThreadCrumb_shouldReturnItsRunId() throws {
         // The addresses a crumb returns are the frames MetricKit would report for that thread.
         // -- Arrange --
-        let addresses = try XCTUnwrap(SentryMXRunIdThreadCrumb.spell("ABC123"))
+        let addresses = try SentryMXRunIdThreadCrumb.spell("ABC123")
         givenRecord(runId: "run-1", addresses: addresses)
         let tree = try givenCallStackTree(threads: [[1] + addresses + [2, 3]])
 
