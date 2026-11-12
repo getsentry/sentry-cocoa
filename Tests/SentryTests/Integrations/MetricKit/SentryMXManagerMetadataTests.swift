@@ -450,7 +450,8 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
                     "CFBundleVersion": "20"
                 ],
                 processIdentifier: Self.currentPid,
-                processStartDate: Self.processStartDate
+                processStartDate: Self.processStartDate,
+                eventSourceSink: SentryDependencyContainer.sharedInstance().eventSourceCoordinator
             )
         )
     }

@@ -38660,6 +38660,298 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryEventSourceSubmissionResult?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$sSo33SentryEventSourceSubmissionResultV8rawValueABSgSi_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:So33SentryEventSourceSubmissionResultV8rawValueABSgSi_tcfc"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "implicit": true,
+            "kind": "TypeAlias",
+            "mangledName": "$sSo33SentryEventSourceSubmissionResultV8RawValuea",
+            "moduleName": "Sentry",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:So33SentryEventSourceSubmissionResultV8RawValuea"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryEventSourceSubmissionResult",
+                        "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryEventSourceSubmissionResult.Type) -> Sentry.SentryEventSourceSubmissionResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "accepted",
+            "printedName": "accepted",
+            "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult@SentryEventSourceSubmissionResultAccepted"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo33SentryEventSourceSubmissionResultV8rawValueSivg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So33SentryEventSourceSubmissionResultV8rawValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "implicit": true,
+            "kind": "Var",
+            "mangledName": "$sSo33SentryEventSourceSubmissionResultV8rawValueSivp",
+            "moduleName": "Sentry",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:So33SentryEventSourceSubmissionResultV8rawValueSivp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryEventSourceSubmissionResult",
+                        "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryEventSourceSubmissionResult.Type) -> Sentry.SentryEventSourceSubmissionResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "unavailable",
+            "printedName": "unavailable",
+            "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult@SentryEventSourceSubmissionResultUnavailable"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryEventSourceSubmissionResult",
+                        "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryEventSourceSubmissionResult.Type) -> Sentry.SentryEventSourceSubmissionResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "withdrawn",
+            "printedName": "withdrawn",
+            "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult@SentryEventSourceSubmissionResultWithdrawn"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declAttributes": [
+          "Dynamic",
+          "ObjC",
+          "Sendable",
+          "SynthesizedProtocol",
+          "SynthesizedProtocol"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "Int",
+        "kind": "TypeDecl",
+        "moduleName": "Sentry",
+        "name": "SentryEventSourceSubmissionResult",
+        "objc_name": "SentryEventSourceSubmissionResult",
+        "printedName": "SentryEventSourceSubmissionResult",
+        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "SentryExperimentalOptions",
                 "printedName": "Sentry.SentryExperimentalOptions",
                 "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions"

@@ -52,7 +52,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         sut = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: []),
-                currentHubProvider: { SentrySDKInternal.currentHub() },
+                crashHandlerEventSource: SentryDependencyContainer.sharedInstance().crashHandlerEventSource,
                 preserveCrashedSessionOnCaptureFailure: true
             ),
             dispatchQueue: dispatchQueue,
@@ -347,7 +347,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let replacementCore = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: []),
-                currentHubProvider: { SentrySDKInternal.currentHub() },
+                crashHandlerEventSource: SentryDependencyContainer.sharedInstance().crashHandlerEventSource,
                 preserveCrashedSessionOnCaptureFailure: true
             ),
             dispatchQueue: TestSentryDispatchQueueWrapper(),

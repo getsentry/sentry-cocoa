@@ -194,6 +194,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var threadInspector: SentryThreadInspector = getLazyVar(\._threadInspector) {
         SentryThreadInspector(options: self.startOptions)
     }
+    private var _eventSourceCoordinator: SentryEventSourceCoordinator?
+    lazy var eventSourceCoordinator: SentryEventSourceCoordinator = getLazyVar(\._eventSourceCoordinator) {
+        SentryEventSourceCoordinator(downstream: SentryHubEventSourceSink(currentHub: { SentrySDKInternal.currentHub() }))
+    }
+    private var _crashHandlerEventSource: SentryCrashHandlerEventSource?
+    @objc public lazy var crashHandlerEventSource: SentryCrashHandlerEventSource = getLazyVar(\._crashHandlerEventSource) {
+        SentryCrashHandlerEventSource(sink: eventSourceCoordinator)
+    }
     var nsDataSwizzling = SentryNSDataSwizzling()
     var nsFileManagerSwizzling = SentryNSFileManagerSwizzling()
     @objc public var rateLimits: RateLimits = DefaultRateLimits(
@@ -412,7 +420,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueueWrapper,
                 fileManager: fileManager,
-                scopePersistentStore: scopeStore)
+                scopePersistentStore: scopeStore,
+                eventSourceSink: eventSourceSink)
         }
     }
 
@@ -956,6 +965,20 @@ protocol CrashReporterStateProvider {
     var activeCrashReporterState: SentryCrashReporterState { get }
 }
 extension SentryDependencyContainer: CrashReporterStateProvider {}
+
+protocol EventSourceSinkProvider {
+    var eventSourceSink: SentryEventSourceSink { get }
+}
+extension SentryDependencyContainer: EventSourceSinkProvider {
+    var eventSourceSink: SentryEventSourceSink { eventSourceCoordinator }
+}
+
+/// Provides the crash handler's side of the event source protocol, because its Objective-C report
+/// processor can't use `SentryEventSourceSink`. Swift event sources use `EventSourceSinkProvider`.
+protocol CrashHandlerEventSourceProvider {
+    var crashHandlerEventSource: SentryCrashHandlerEventSource { get }
+}
+extension SentryDependencyContainer: CrashHandlerEventSourceProvider {}
 
 protocol GlobalEventProcessorProvider {
     var globalEventProcessor: SentryGlobalEventProcessor { get }
