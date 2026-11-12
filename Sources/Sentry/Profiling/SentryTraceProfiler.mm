@@ -2,12 +2,12 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    include <mutex>
 
@@ -87,20 +87,20 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
  */
 + (void)scheduleTimeoutTimerForProfiler:(SentryProfiler *)profiler
 {
-    sentry_dispatchAsyncOnMainIfNotMainThread(
-        SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
-            std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
-            if (_threadUnsafe_gTraceProfiler != profiler || !profiler.isRunning) {
-                return;
-            }
-            if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
-                return;
-            }
+    [SentryProfilerSDKAdapter.shared dispatchAsyncOnMainIfNotMainThread:^{
+        std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
+        if (_threadUnsafe_gTraceProfiler != profiler || !profiler.isRunning) {
+            return;
+        }
+        if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
+            return;
+        }
 
-            _sentry_threadUnsafe_traceProfileTimeoutTimer
-                = sentry_scheduledTimer(kSentryProfilerTimeoutInterval, NO,
-                    ^{ [self timeoutTimerExpiredForProfiler:profiler]; });
-        });
+        _sentry_threadUnsafe_traceProfileTimeoutTimer = [SentryProfilerSDKAdapter.shared
+            scheduledTimerWithInterval:kSentryProfilerTimeoutInterval
+                               repeats:NO
+                                 block:^{ [self timeoutTimerExpiredForProfiler:profiler]; }];
+    }];
 }
 
 + (void)timeoutTimerExpiredForProfiler:(SentryProfiler *)profiler

@@ -5,6 +5,10 @@ GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) 
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) SDK_V10
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
 
+// Deliver V10-only headers without requiring consumer-side compiler definitions.
+COPY_HEADERS_RUN_UNIFDEF = YES
+COPY_HEADERS_UNIFDEF_FLAGS = $(inherited) -DSDK_V10=1
+
 // The KSCrash variant must still build Sentry.framework because Clang framework
 // module lookup and the public umbrella header both expect the Sentry bundle name.
 PRODUCT_NAME = $(PRODUCT_MODULE_NAME)

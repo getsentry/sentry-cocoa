@@ -49,6 +49,15 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithName:name attributes:attributes];
 }
 
+- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            block();
+        }
+    });
+}
+
 - (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
 {
     if ([NSThread isMainThread]) {
