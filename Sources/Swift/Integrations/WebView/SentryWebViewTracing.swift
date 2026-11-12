@@ -62,7 +62,7 @@ public struct SentryWebViewTracingOptions {
 ///
 /// To add trace propagation to every WebView and keep its trace current, set
 /// ``Options/webViewTracing`` instead. When it is set, controllers passed here keep the hosts of
-/// this call and are refreshed like the others.
+/// a successful call and are refreshed like the others.
 public enum SentryWebViewTracing {
     /// Adds trace propagation to WebViews that use this user content controller.
     ///
@@ -79,9 +79,13 @@ public enum SentryWebViewTracing {
     ) -> Bool {
         let hub = SentryWebViewTracePropagation.currentHub
         SentryWebViewTracePropagation.recordUsage(in: hub)
+        let installed = SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
         // With automatic propagation, keep this controller's own hosts on later loads and refreshes.
-        SentryWebViewTraceRefresherProxy.shared.target?.track(userContentController, allowedHosts: options.allowedHosts)
-        return SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
+        // A failed call isn't tracked, so the controller keeps the app-wide hosts.
+        if installed {
+            SentryWebViewTraceRefresherProxy.shared.target?.track(userContentController, allowedHosts: options.allowedHosts)
+        }
+        return installed
     }
 
     /// Adds trace propagation to WebViews created with this configuration.
@@ -161,7 +165,6 @@ enum SentryWebViewTracePropagation {
 
     /// Records feature adoption once per hub. Recorded on use rather than on success, like the
     /// other SDKs, so apps that wired the feature up count even when a call can't install.
-    @MainActor
     static func recordUsage(in hub: SentryHubInternal?) {
         guard let hub = hub, !hub.hasIntegration(integrationName) else {
             return
@@ -169,9 +172,18 @@ enum SentryWebViewTracePropagation {
         hub.addInstalledIntegration(SentryWebViewTracePropagationUsage(), name: integrationName)
     }
 
+    /// Removes Sentry's script and keeps the app's own scripts.
+    static func removeScript(from controller: WKUserContentController) {
+        let appScripts = controller.userScripts.filter { !$0.source.hasPrefix(scriptMarker) }
+        guard appScripts.count != controller.userScripts.count else {
+            return
+        }
+        controller.removeAllUserScripts()
+        appScripts.forEach { controller.addUserScript($0) }
+    }
+
     /// Removes any previous Sentry script so a stale trace is never injected, then adds a fresh one
     /// before the app's own scripts.
-    @MainActor
     @discardableResult
     static func install(allowedHosts: [String], on controller: WKUserContentController, hub: SentryHubInternal?) -> Bool {
         let source = makeScriptSource(allowedHosts: allowedHosts, hub: hub)

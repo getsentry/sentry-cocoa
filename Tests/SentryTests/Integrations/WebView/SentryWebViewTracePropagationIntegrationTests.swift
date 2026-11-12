@@ -1,6 +1,6 @@
 #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -97,6 +97,23 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         XCTAssertTrue(webView.configuration.userContentController.userScripts.isEmpty)
     }
 
+    func testUninstall_shouldRemoveScriptFromTrackedControllers() throws {
+        // -- Arrange --
+        let integration = try install()
+        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        let controller = webView.configuration.userContentController
+        controller.addUserScript(WKUserScript(source: "window.app = 1;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
+        XCTAssertEqual(controller.sentryScripts.count, 1)
+
+        // -- Act --
+        integration.uninstall()
+
+        // -- Assert --
+        XCTAssertTrue(controller.sentryScripts.isEmpty)
+        XCTAssertEqual(controller.userScripts.map(\.source), ["window.app = 1;"])
+    }
+
     // MARK: - Swizzled load methods
 
     func testLoadRequest_shouldInstallScriptBeforeLoad() throws {
@@ -160,7 +177,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
 
         // -- Assert --
-        XCTAssertEqual(sentryScripts(in: webView.configuration.userContentController).count, 1)
+        XCTAssertEqual(webView.configuration.userContentController.sentryScripts.count, 1)
     }
 
 #if compiler(>=6.2)
@@ -178,7 +195,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         _ = page.load(html: "", baseURL: try XCTUnwrap(URL(string: "https://example.com/")))
 
         // -- Assert --
-        XCTAssertEqual(sentryScripts(in: configuration.userContentController).count, 1)
+        XCTAssertEqual(configuration.userContentController.sentryScripts.count, 1)
     }
 
     func testLoad_whenSwiftUIWebViewWithURL_shouldTrackItsController() throws {
@@ -206,98 +223,9 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
 
         // -- Assert --
         let controller = try XCTUnwrap(refresher.trackedControllers().first, "The WebView didn't load through a swizzled method.")
-        XCTAssertEqual(sentryScripts(in: controller).count, 1)
+        XCTAssertEqual(controller.sentryScripts.count, 1)
     }
 #endif
-
-    // MARK: - Refresher
-
-    func testWillLoad_whenControllerTrackedByManualCall_shouldKeepItsHosts() throws {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
-        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
-        let controller = webView.configuration.userContentController
-        refresher.track(controller, allowedHosts: ["other.com"])
-
-        // -- Act --
-        refresher.willLoad(webView)
-
-        // -- Assert --
-        XCTAssertEqual(refresher.trackedHosts(for: controller), ["other.com"])
-        let source = try XCTUnwrap(sentryScripts(in: controller).first?.source)
-        XCTAssertTrue(source.contains("[\"other.com\"]"))
-    }
-
-    func testRefreshAll_whenTraceChanged_shouldInstallNewTrace() throws {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
-        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
-        refresher.willLoad(webView)
-        let newTraceId = SentryId()
-        scope.propagationContext = SentryPropagationContext(traceId: newTraceId, spanId: SpanId())
-
-        // -- Act --
-        refresher.refreshAll()
-
-        // -- Assert --
-        let scripts = sentryScripts(in: webView.configuration.userContentController)
-        XCTAssertEqual(scripts.count, 1)
-        XCTAssertEqual(scripts.first?.source.contains(newTraceId.sentryIdString), true)
-    }
-
-    func testTrack_shouldNotRetainController() {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { nil })
-        weak var weakController: WKUserContentController?
-
-        // -- Act --
-        autoreleasepool {
-            let controller = WKUserContentController()
-            weakController = controller
-            refresher.track(controller, allowedHosts: ["example.com"])
-        }
-
-        // -- Assert --
-        XCTAssertNil(weakController)
-    }
-
-    // MARK: - Scope observer
-
-    func testScopeObserver_whenTraceChangesTwiceBeforeRefresh_shouldRefreshOnce() throws {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { SentrySDKInternal.currentHub() })
-        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
-        refresher.willLoad(webView)
-        var scheduled: [() -> Void] = []
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, scheduleOnMain: { scheduled.append($0) })
-        scope.add(observer)
-        let newTraceId = SentryId()
-
-        // -- Act --
-        scope.propagationContext = SentryPropagationContext(traceId: SentryId(), spanId: SpanId())
-        scope.propagationContext = SentryPropagationContext(traceId: newTraceId, spanId: SpanId())
-        XCTAssertEqual(scheduled.count, 1)
-        scheduled.forEach { $0() }
-
-        // -- Assert --
-        let source = try XCTUnwrap(sentryScripts(in: webView.configuration.userContentController).first?.source)
-        XCTAssertTrue(source.contains(newTraceId.sentryIdString))
-    }
-
-    func testScopeObserver_whenTraceChangesAfterRefresh_shouldScheduleAgain() {
-        // -- Arrange --
-        let refresher = SentryWebViewTraceRefresher(allowedHosts: ["example.com"], hubProvider: { nil })
-        var scheduled: [() -> Void] = []
-        let observer = SentryWebViewTraceScopeObserver(refresher: refresher, scheduleOnMain: { scheduled.append($0) })
-
-        // -- Act --
-        observer.setTraceContext(nil)
-        scheduled.removeFirst()()
-        observer.setTraceContext(nil)
-
-        // -- Assert --
-        XCTAssertEqual(scheduled.count, 1)
-    }
 
     // MARK: - Manual API
 
@@ -312,6 +240,24 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         // -- Assert --
         let refresher = try XCTUnwrap(SentryWebViewTraceRefresherProxy.shared.target)
         XCTAssertEqual(refresher.trackedHosts(for: controller), ["other.com"])
+    }
+
+    func testAddTracePropagation_whenCallFails_shouldKeepAppWideHostsOnLoad() throws {
+        // -- Arrange --
+        try install()
+        let configuration = WKWebViewConfiguration()
+        let controller = configuration.userContentController
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+
+        // -- Act --
+        let added = SentryWebViewTracing.addTracePropagation(to: controller, options: .init(allowedHosts: [""]))
+        webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
+
+        // -- Assert --
+        XCTAssertFalse(added)
+        let refresher = try XCTUnwrap(SentryWebViewTraceRefresherProxy.shared.target)
+        XCTAssertEqual(refresher.trackedHosts(for: webView.configuration.userContentController), ["example.com"])
+        XCTAssertEqual(webView.configuration.userContentController.sentryScripts.count, 1)
     }
 
     // MARK: - Page loads
@@ -347,6 +293,27 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(try page.seenTraceId(), newTraceId)
+    }
+
+    /// The refresh runs on the next main-queue turn, but its script update still reaches the web
+    /// content process before the reloaded document is created, so a reload in the same turn as the
+    /// trace change gets the new trace. Repeated because the outcome depends on WebKit's ordering.
+    func testNavigation_whenTraceChangesInSameTurnAsReload_shouldInjectNewTrace() throws {
+        // -- Arrange --
+        try install()
+        let page = PageLoader()
+        try page.load { try $0.load(URLRequest(url: XCTUnwrap(URL(string: "sentry-test://app.example.com/a")))) }
+
+        for _ in 0..<10 {
+            let traceId = SentryId()
+
+            // -- Act --
+            scope.propagationContext = SentryPropagationContext(traceId: traceId, spanId: SpanId())
+            try page.load { $0.reload() }
+
+            // -- Assert --
+            XCTAssertEqual(try page.seenTraceId(), traceId.sentryIdString)
+        }
     }
 
     /// WebKit restores the previous page from its back/forward cache without running any script, so
@@ -392,7 +359,7 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         try load(webView)
 
         // -- Assert --
-        XCTAssertEqual(sentryScripts(in: controller).count, 1, file: file, line: line)
+        XCTAssertEqual(controller.sentryScripts.count, 1, file: file, line: line)
         XCTAssertEqual(controller.userScripts.last?.source, "window.app = 1;", file: file, line: line)
         let refresher = try XCTUnwrap(SentryWebViewTraceRefresherProxy.shared.target, file: file, line: line)
         XCTAssertEqual(refresher.trackedHosts(for: controller), ["example.com"], file: file, line: line)
@@ -426,10 +393,6 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
 #endif
     }
 #endif
-
-    private func sentryScripts(in controller: WKUserContentController) -> [WKUserScript] {
-        controller.userScripts.filter { $0.source.hasPrefix(SentryWebViewTracePropagation.scriptMarker) }
-    }
 }
 
 private final class WebViewSubclass: WKWebView {}

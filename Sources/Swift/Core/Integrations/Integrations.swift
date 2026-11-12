@@ -54,6 +54,7 @@ private struct AnyIntegration {
 
 // Bridges to ObjC code to trigger installing the integrations
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
+    // swiftlint:disable:next function_body_length
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
@@ -114,21 +115,15 @@ private struct AnyIntegration {
         integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
 
-        integrations.append(contentsOf: webViewIntegrations)
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        integrations.append(.init(SentryWebViewTracePropagationIntegration.self))
+        #endif
 
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
             SentrySDKInternal.currentHub().addInstalledIntegration(integration, name: anyIntegration.name)
         }
-    }
-
-    private static var webViewIntegrations: [AnyIntegration] {
-        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        return [.init(SentryWebViewTracePropagationIntegration.self)]
-        #else
-        return []
-        #endif
     }
 }
 // swiftlint:enable missing_docs
