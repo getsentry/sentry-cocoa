@@ -6,16 +6,16 @@
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
 
+### Improvements
+
+- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
+
 ## 9.34.0
 
 ### Features
 
 - Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
 - Give every run of the app an ID and store it in crash reports and the app state, so the SDK can match events from the crash handler, the watchdog termination integration and MetricKit that describe the same run. The ID is only used on the device and is not sent to Sentry (#9578)
-
-### Improvements
-
-- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
 
 ### Fixes
 
