@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -18,6 +18,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         let sysctlWrapper: SentrySysctl
         let dispatchQueueWrapper: SentryDispatchQueueWrapper
         let notificationCenterWrapper: SentryNSNotificationCenterWrapper
+        let currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
 
         init(
             debuggerStatusProvider: SentryDebuggerStatusProvider,
@@ -101,6 +102,23 @@ final class SentryAppStateManagerTests: XCTestCase {
         XCTAssertTrue(appState.isDebugging)
     }
 
+    func testBuildCurrentAppState_shouldCarryRunIdOfCurrentRun() {
+        // -- Act --
+        let appState = sut.buildCurrentAppState()
+
+        // -- Assert --
+        XCTAssertEqual(appState.runId, fixture.dependencies.currentRun.id)
+    }
+
+    func testStart_shouldStoreAppStateWithRunIdOfCurrentRun() throws {
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        let storedAppState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertEqual(storedAppState.runId, fixture.dependencies.currentRun.id)
+    }
+
     func testStartOnlyRunsLogicWhenStartCountBecomesOne() {
         XCTAssertNil(fixture.fileManager.readAppState())
 
@@ -133,6 +151,38 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         let stateAfterStop = fixture.fileManager.readAppState()
         XCTAssertFalse(stateAfterStop!.isSDKRunning)
+    }
+
+    func testStopWithForce_whenStartCountAlreadyZero_shouldMarkSDKAsNotRunning() throws {
+        // -- Arrange --
+        // Mirrors SentrySDK.close() when only the watchdog termination tracker started the
+        // manager: uninstalling the integration stops it before close() forces the stop.
+        sut.start()
+        sut.stop()
+        XCTAssertEqual(sut.startCount, 0)
+        XCTAssertTrue(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+
+        // -- Act --
+        sut.stop(withForce: true)
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+        XCTAssertEqual(sut.startCount, 0)
+    }
+
+    func testStopWithForce_shouldMarkSDKAsNotRunningSynchronously() throws {
+        // -- Arrange --
+        // SentrySDK.start() can store a fresh app state right after close(). A pending async
+        // write would then mark the new session as not running.
+        fixture.dispatchQueue.dispatchAsyncExecutesBlock = false
+        sut.start()
+
+        // -- Act --
+        sut.stop(withForce: true)
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+        XCTAssertEqual(fixture.dispatchQueue.dispatchAsyncCalled, 0)
     }
 
     func testDidBecomeActiveUpdatesAppState() {

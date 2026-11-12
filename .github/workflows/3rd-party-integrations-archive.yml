@@ -6,13 +6,28 @@ on:
       - main
 
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
@@ -85,6 +100,7 @@ jobs:
   third-party-integrations-archive-required-check:
     needs:
       [
+        run-full-ci-gate,
         files-changed,
         test-3rd-party-integrations-archive,
       ]

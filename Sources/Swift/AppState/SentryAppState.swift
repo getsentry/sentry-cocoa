@@ -18,16 +18,23 @@ import Foundation
     /// app though. For more information see
     /// https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api#4278394.
     public private(set) var systemBootTimestamp: Date
+
+    /// The ID of the run this app state describes, see `SentryCurrentRun`. It links a watchdog
+    /// termination detected from this app state to the reports of other event sources, such as
+    /// MetricKit, that describe the same run. `nil` for app states written before the SDK had a
+    /// run ID.
+    @nonobjc public private(set) var runId: SentryCurrentRun.ID?
     public var isActive: Bool
     public var wasTerminated: Bool
     public var isANROngoing: Bool
     public var isSDKRunning: Bool
-    
-    public init(releaseName: String?, osVersion: String, vendorId: String?, isDebugging: Bool, systemBootTimestamp: Date) {
+
+    public init(releaseName: String?, osVersion: String, vendorId: String?, isDebugging: Bool, systemBootTimestamp: Date, runId: SentryCurrentRun.ID? = nil) {
         self.releaseName = releaseName
         self.osVersion = osVersion
         self.vendorId = vendorId
         self.isDebugging = isDebugging
+        self.runId = runId
         
         // Round down to seconds as the precision of the serialization of the date is only
         // milliseconds. With this we avoid getting different dates before and after serialization.
@@ -81,7 +88,13 @@ import Foundation
             return nil
         }
         self.systemBootTimestamp = systemBootTimestamp
-        
+
+        // The run ID was added later, so app states without one are still valid.
+        if let runId = jsonObject["run_id"] {
+            guard let rawValue = runId as? String else { return nil }
+            self.runId = SentryCurrentRun.ID(rawValue: rawValue)
+        }
+
         // Validate and extract isActive
         guard let isActive = jsonObject["is_active"] as? Bool else {
             return nil
@@ -125,6 +138,9 @@ import Foundation
         }
         data["is_debugging"] = NSNumber(value: self.isDebugging)
         data["system_boot_timestamp"] = sentry_toIso8601String(self.systemBootTimestamp)
+        if let runId = self.runId {
+            data["run_id"] = runId.rawValue
+        }
         data["is_active"] = NSNumber(value: self.isActive)
         data["was_terminated"] = NSNumber(value: self.wasTerminated)
         data["is_anr_ongoing"] = NSNumber(value: self.isANROngoing)

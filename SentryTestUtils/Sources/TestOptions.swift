@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -33,7 +33,11 @@ public extension Options {
         #endif // !SDK_V10
         beforeSendMetric = { metric in metric }
         #if canImport(MetricKit) && !os(tvOS)
+        #if SDK_V10
+        experimental.metrickit.enabledDiagnosticReports = []
+        #else
         enableMetricKit = false
+        #endif // SDK_V10
         #endif
     }
 

@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -107,7 +107,9 @@ final class SentryClientTests: XCTestCase {
 
             debugImageProvider.debugImages = [TestData.debugImage]
 
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
+            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper, hingeObserver: TestSentryHingeObserver(), reachability: TestSentryReachability())
+#elseif os(iOS)
             extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper, reachability: TestSentryReachability())
             #else
             extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, reachability: TestSentryReachability())
@@ -700,7 +702,8 @@ final class SentryClientTests: XCTestCase {
     func testCaptureEvent_whenHangDecodingFails_shouldSendRawDiagnosticWithoutCurrentStacktrace() throws {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
-            options.enableMetricKit = true
+            // A configured report set enables the integration in every SDK version.
+            options.experimental.metrickit.enabledDiagnosticReports = [.hang]
             options.enableMetricKitRawPayload = true
             options.attachStacktrace = true
         })
@@ -716,7 +719,7 @@ final class SentryClientTests: XCTestCase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        integration.mxManager.didReceive([payload])
+        try integration.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
@@ -839,17 +842,19 @@ final class SentryClientTests: XCTestCase {
 
     private func givenMetricKitManager(releaseName: String?) -> SentryMXManager {
         SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            releaseName: releaseName,
-            bundleInfo: [
-                "CFBundleIdentifier": "io.sentry.app",
-                "CFBundleShortVersionString": "2.0.0",
-                "CFBundleVersion": "20"
-            ],
-            processIdentifier: Self.metricKitProcessIdentifier,
-            processStartDate: Self.metricKitProcessStartDate
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.hang],
+                releaseName: releaseName,
+                bundleInfo: [
+                    "CFBundleIdentifier": "io.sentry.app",
+                    "CFBundleShortVersionString": "2.0.0",
+                    "CFBundleVersion": "20"
+                ],
+                processIdentifier: Self.metricKitProcessIdentifier,
+                processStartDate: Self.metricKitProcessStartDate
+            )
         )
     }
 
@@ -875,7 +880,7 @@ final class SentryClientTests: XCTestCase {
             options.attachAllThreads = true
         })
 
-        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic"] {
+        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic", "mx_app_launch_diagnostic", "mx_memory_exception"] {
             let event = Event(level: .warning)
             let exception = Exception(value: "Diagnostic without a decoded call stack", type: "MetricKit")
             exception.mechanism = Mechanism(type: mechanism)
@@ -1515,6 +1520,7 @@ final class SentryClientTests: XCTestCase {
                                     "charging": true,
                                     "battery_level": 60,
                                     "thermal_state": "nominal",
+                                    "hinge_status": "closed",
                                     "something": "else"
                                 ],
                             "app": [

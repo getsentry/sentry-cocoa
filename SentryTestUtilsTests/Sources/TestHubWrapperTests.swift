@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -28,6 +28,19 @@ final class TestHubWrapperTests: XCTestCase {
         XCTAssertIdentical(invocation.event, event)
         XCTAssertIdentical(invocation.scope, scope)
         XCTAssertTrue(invocation.additionalEnvelopeItems.isEmpty)
+    }
+
+    func testCaptureTransaction_whenBridgeReceivesWrongType_shouldReportFailure() {
+        // -- Arrange --
+        let hub = TestHub(testClient: nil, scope: Scope())
+
+        // -- Act --
+        XCTExpectFailure("Invalid transactions must fail the test") {
+            hub.wrapper_capture(transaction: NSObject(), with: Scope())
+        }
+
+        // -- Assert --
+        XCTAssertEqual(hub.capturedTransactionsWithScope.count, 0)
     }
 
     func testCaptureEvent_whenBridgeReceivesWrongItemType_shouldReportFailure() {

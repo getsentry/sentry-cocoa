@@ -127,6 +127,12 @@ SENTRY_NO_INIT
  */
 - (void)close;
 
+/**
+ * Disables the client and calls flush with the specified timeout.
+ * @param timeout The time to wait for the SDK to complete the flush.
+ */
+- (void)closeWithTimeout:(NSTimeInterval)timeout NS_SWIFT_NAME(close(timeout:));
+
 @end
 
 NS_ASSUME_NONNULL_END

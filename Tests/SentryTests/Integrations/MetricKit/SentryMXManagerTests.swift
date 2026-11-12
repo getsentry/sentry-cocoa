@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -18,13 +18,10 @@ final class SentryMXManagerTests: XCTestCase {
         clearTestState()
     }
     
-    func testReceiveReports_whenSwiftAPIUnavailable_shouldSubscribeToMXManager() throws {
-        #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
-        if #available(iOS 27.0, *) { throw XCTSkip("Uses MetricKit's Swift API instead") }
-        #endif
+    func testReceiveReports_shouldSubscribeToMXManager() throws {
         // -- Arrange --
         let manager = RecordingMetricManager()
-        let sut = SentryMXManager(metricManager: manager, inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, processStartDate: .distantPast)
+        let sut = SentryMXManager(metricManager: manager)
 
         // -- Act --
         sut.receiveReports()
@@ -35,31 +32,16 @@ final class SentryMXManagerTests: XCTestCase {
         XCTAssertEqual(manager.removals, 1)
     }
 
-    #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
-    func testReceiveReports_whenSwiftAPIAvailable_shouldNotSubscribeToMXManager() throws {
-        guard #available(iOS 27.0, *) else { throw XCTSkip("Requires MetricKit's Swift API") }
-        // -- Arrange --
-        let manager = RecordingMetricManager()
-        let sut = SentryMXManager(metricManager: manager, inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, processStartDate: .distantPast)
-
-        // -- Act --
-        sut.receiveReports()
-        sut.pauseReports()
-
-        // -- Assert --
-        XCTAssertEqual(manager.subscriptions, 0)
-        XCTAssertEqual(manager.removals, 0)
-    }
-    #endif
-
     private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: SentryMXManager.Diagnostic.all
-                .subtracting(disableCrashDiagnostics ? [.crash] : []),
-            // Every payload counts as recorded by this process.
-            processStartDate: .distantPast
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: SentryMXManager.Diagnostic.all
+                    .subtracting(disableCrashDiagnostics ? [.crash] : []),
+                // Every payload counts as recorded by this process.
+                processStartDate: .distantPast
+            )
         )
 
         return sut
@@ -94,7 +76,7 @@ final class SentryMXManagerTests: XCTestCase {
     }
 }
 
-private final class RecordingMetricManager: SentryMetricManager {
+private final class RecordingMetricManager: SentryMXMetricManager {
     var subscriptions = 0
     var removals = 0
 
@@ -113,6 +95,8 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         var cpuDiagnostic: [MXCPUExceptionDiagnostic]?
         var diskWriteDiagnostic: [MXDiskWriteExceptionDiagnostic]?
         var hangDiagnostic: [MXHangDiagnostic]?
+        // MXAppLaunchDiagnostic needs iOS 16, which is newer than the test deployment target.
+        var appLaunchDiagnostics: [MXDiagnostic]?
         
         var timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date()
     }
@@ -134,6 +118,13 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
     override var hangDiagnostics: [MXHangDiagnostic]? {
         return overrides.hangDiagnostic
     }
+
+#if os(iOS) || os(visionOS)
+    @available(iOS 16.0, *)
+    override var appLaunchDiagnostics: [MXAppLaunchDiagnostic]? {
+        return overrides.appLaunchDiagnostics as? [MXAppLaunchDiagnostic]
+    }
+#endif // os(iOS) || os(visionOS)
     
     override var timeStampBegin: Date {
         return overrides.timeStampBegin

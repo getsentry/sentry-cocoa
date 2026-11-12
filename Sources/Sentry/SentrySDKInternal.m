@@ -6,8 +6,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryReplayApi.h"
-#import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -91,16 +89,6 @@ static BOOL sdkStarted;
 {
     return SentryDependencyContainer.sharedInstance.startOptions;
 }
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (SentryReplayApi *)replay
-{
-    static SentryReplayApi *replay;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
-    return replay;
-}
-#endif
 
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHubInternal *)hub
@@ -329,6 +317,14 @@ static BOOL sdkStarted;
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchAsyncOnMainQueueIfNotMainThread:^{
             SENTRY_LOG_DEBUG(@"SDK main thread init started...");
+
+            // Earlier background starts may still have a pending hub installation. Detach the
+            // scope being replaced here, rather than the hub visible when start was called.
+            [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
+            if (options.enableScopePersistence) {
+                [SentryDependencyContainer.sharedInstance.scopePersistentStore
+                    startPersistingUserInScope:scope];
+            }
 
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
@@ -690,6 +686,7 @@ static BOOL sdkStarted;
         startTimestamp = nil;
 
         SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        [hub.scope configureUserPersistence:nil];
         [hub removeAllIntegrations];
 
         SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");

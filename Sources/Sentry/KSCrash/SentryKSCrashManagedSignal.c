@@ -35,7 +35,7 @@
 #    include <stdlib.h>
 
 // Signal-monitor synchronization baseline:
-// KSCrashMonitor_Signal.c at 18a633dec20c265f03386294f9d82d208bb13094.
+// KSCrashMonitor_Signal.c at c3882b4db5e810a8ed4148b79cab29a173d4c5c5 (2.6.1).
 // See develop-docs/KSCrash_MANAGED_SIGNAL_PLUGIN_MAINTENANCE.md before changing the KSCrash pin.
 
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: downstream build policy, not a KSCrash global mode.

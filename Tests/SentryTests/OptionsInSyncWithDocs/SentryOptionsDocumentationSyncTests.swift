@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -22,6 +22,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var options: Set<String> = [
             "parsedDsn",
             "experimental",
+            "enableScopePersistence", // Docs update pending for user persistence across launches.
             "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
 

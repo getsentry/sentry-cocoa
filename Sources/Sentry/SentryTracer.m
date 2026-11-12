@@ -1,4 +1,5 @@
 #import "SentryClient.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
@@ -19,7 +20,6 @@
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
 
@@ -465,7 +465,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     SENTRY_LOG_DEBUG(@"Finished trace with tracer profilerReferenceId: %@ and status: %@",
-        self.profilerReferenceID.sentryIdString, nameForSentrySpanStatus(status));
+        self.profilerReferenceID.sentryIdString, sentry_spanStatusName(status));
     @synchronized(self) {
         self.wasFinishCalled = YES;
     }
@@ -667,7 +667,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         }
 
         for (id<SentrySpan> span in _children) {
+#if SDK_V10
+            // Crash snapshots still finalize children. For normal captures, Relay fills in
+            // missing end timestamps without the SDK changing unfinished spans.
+            if (!span.isFinished && !shouldCleanUp) {
+#else
             if (!span.isFinished) {
+#endif
                 [span finishWithStatus:unfinishedSpansFinishStatus];
 
                 // Unfinished children should have the same
@@ -690,6 +696,12 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
     @synchronized(_children) {
         for (id<SentrySpan> childSpan in _children) {
+#if SDK_V10
+            // Relay uses the transaction's end timestamp for unfinished children.
+            if (!childSpan.isFinished) {
+                return;
+            }
+#endif
             if (childSpan.timestamp &&
                 [oldest compare:SENTRY_UNWRAP_NULLABLE(NSDate, childSpan.timestamp)]
                     == NSOrderedAscending) {

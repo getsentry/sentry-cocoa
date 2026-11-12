@@ -360,6 +360,21 @@
     /// @note The default is @c false.
     @objc public var enablePersistingTracesWhenCrashing: Bool = false
 
+    /// Enables scope persistence across app launches. Only explicitly set user information is retained.
+    /// Other scope fields are not restored. This option is independent of watchdog tracking.
+    /// Restoration and storage run asynchronously. Events captured before restoration completes may
+    /// not contain the persisted user. Explicit user changes, including in `initialScope`, take precedence.
+    /// Call `SentrySDK.setUser(nil)` on logout to remove the persisted identity.
+    /// This option is independent of `dataCollection.userInfo`, which controls automatic collection.
+    /// @note The default is @c true in V10 and @c false in V9. Configure this option before starting the SDK.
+    @objc public var enableScopePersistence: Bool = {
+        #if SDK_V10
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     /// A block that configures the initial scope when starting the SDK.
     /// @discussion The block receives a suggested default scope. You can either configure and return
     /// this, or create your own scope instead.
@@ -737,17 +752,7 @@
 
     #if canImport(MetricKit) && !os(tvOS)
 
-    #if SDK_V10
-    /// Use this feature to enable the Sentry MetricKit integration.
-    ///
-    /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
-    /// and
-    /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
-    /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
-    /// allows the Sentry SDK to apply the current data from the scope.
-    /// @note Default value is @c true.
-    @objc public var enableMetricKit: Bool = true
-    #else
+    #if !SDK_V10
     /// Use this feature to enable the Sentry MetricKit integration.
     ///
     /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
@@ -756,11 +761,14 @@
     /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
     /// allows the Sentry SDK to apply the current data from the scope.
     /// @note Default value is @c false.
+    /// @note Use ``SentryMetricKitOptions/enabledDiagnosticReports`` on ``experimental`` to choose which
+    /// diagnostic reports the SDK captures. A non-empty set of reports there enables the
+    /// integration regardless of this option.
     @objc public var enableMetricKit: Bool = false
-    #endif // SDK_V10
+    #endif // !SDK_V10
 
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
-    /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+    /// SentryEvent. The MetricKit integration must be enabled for this flag to work.
     ///
     /// @note Default value is @c false.
     @objc public var enableMetricKitRawPayload = false

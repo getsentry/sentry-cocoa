@@ -1,6 +1,6 @@
 #if SDK_V10
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -181,6 +181,25 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installCall = try XCTUnwrap(installer.installCalls.first)
         XCTAssertTrue(installCall.enableSwapCxaThrow)
         XCTAssertTrue(installCall.monitors.contains(.cppException))
+    }
+
+    func testInstall_shouldStoreRunIdOfDependenciesInUserInfo() throws {
+        // -- Arrange --
+        // The scope is only configured on a hub with a client.
+        let originalHub = SentrySDKInternal.currentHub()
+        defer { SentrySDKInternal.setCurrentHub(originalHub) }
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: TestClient(options: Options()), andScope: Scope()))
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer, currentRun: SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "current-run-id")))
+
+        // -- Act --
+        let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
+
+        // -- Assert --
+        withExtendedLifetime(sut) {
+            let userInfo = installer.setUserInfoInvocations.first
+            XCTAssertEqual(userInfo?[SentryCurrentRun.userInfoKey] as? String, "current-run-id")
+        }
     }
 
     func testInstall_whenMemoryIntrospectionEnabled_shouldEnableMemoryIntrospection() throws {

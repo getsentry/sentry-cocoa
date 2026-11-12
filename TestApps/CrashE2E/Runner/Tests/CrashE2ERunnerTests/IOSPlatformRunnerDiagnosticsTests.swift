@@ -51,7 +51,7 @@ final class IOSPlatformRunnerDiagnosticsTests: XCTestCase {
         }
     }
 
-    func testWaitForAppToStop_whenSamplerTimesOut_shouldRetainAppTimeoutAndBeforeAfterEvidence() throws {
+    func testWaitForAppToStop_whenCollectorFails_shouldRetainAppTimeoutAndBeforeAfterEvidence() throws {
         // -- Arrange --
         let process = try startProcess()
         defer { stopProcess(process) }
@@ -63,10 +63,10 @@ final class IOSPlatformRunnerDiagnosticsTests: XCTestCase {
 
         let defaultHandler = fixture.commands.handler
         fixture.commands.handler = { call in
-            if call.isCommand("sample") {
+            if call.isCommand("sudo") {
                 return ProcessResult(tool: call.tool, arguments: call.arguments, terminationStatus: 15,
-                                     terminationReason: .uncaughtSignal, stdout: "Sampling completed, processing symbols...",
-                                     stderr: "", timedOut: true, timeout: call.timeout)
+                                     terminationReason: .uncaughtSignal, stdout: "",
+                                     stderr: "Collection time limit reached", timedOut: false, timeout: call.timeout)
             }
             return try defaultHandler(call)
         }
@@ -79,17 +79,18 @@ final class IOSPlatformRunnerDiagnosticsTests: XCTestCase {
         XCTAssertTrue(process.isRunning)
         XCTAssertEqual(fixture.runner.launchCount, 1)
         let directory = try XCTUnwrap(fixture.runner.launchArtifacts)
-        let sample = try String(contentsOf: directory.appendingPathComponent("sample-command.log"), encoding: .utf8)
-        XCTAssertTrue(sample.contains("Phase: diagnostics"))
-        XCTAssertTrue(sample.contains("Result: timeout after 8s"))
-        XCTAssertTrue(sample.contains("Termination: signal 15"))
-        XCTAssertTrue(sample.contains("Sampling completed, processing symbols..."))
+        let capture = try String(contentsOf: directory.appendingPathComponent("stackshot-command.log"), encoding: .utf8)
+        XCTAssertTrue(capture.contains("Phase: diagnostics"))
+        XCTAssertTrue(capture.contains("Result: signal 15"))
+        XCTAssertTrue(capture.contains("Termination: signal 15"))
+        XCTAssertTrue(capture.contains("Collection time limit reached"))
+        XCTAssertTrue(capture.contains("-timelimit 60"))
 
-        for name in ["timeout.log", "process.log", "process-after-sample.log", "host-load.log", "host-memory.log"] {
+        for name in ["timeout.log", "process.log", "process-after-stackshot.log", "host-load.log", "host-memory.log"] {
             XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent(name).path))
         }
 
-        XCTAssertEqual(fixture.commands.calls.filter { $0.isCommand("sample") }.count, 1)
+        XCTAssertEqual(fixture.commands.calls.filter { $0.isCommand("sudo") }.count, 1)
         XCTAssertEqual(fixture.commands.calls.filter { $0.isCommand("ps") }.count, 2)
     }
 
@@ -105,7 +106,7 @@ final class IOSPlatformRunnerDiagnosticsTests: XCTestCase {
 
         let defaultHandler = fixture.commands.handler
         fixture.commands.handler = { call in
-            if call.isCommand("sample") {
+            if call.isCommand("sudo") {
                 process.terminate()
                 process.waitUntilExit()
             }
@@ -121,7 +122,7 @@ final class IOSPlatformRunnerDiagnosticsTests: XCTestCase {
         XCTAssertNil(fixture.runner.appProcess)
         XCTAssertFalse(fixture.commands.calls.contains { $0.isCommand("xcrun", ["simctl", "terminate"]) })
         let directory = try XCTUnwrap(fixture.runner.launchArtifacts)
-        let after = try String(contentsOf: directory.appendingPathComponent("process-after-sample.log"), encoding: .utf8)
+        let after = try String(contentsOf: directory.appendingPathComponent("process-after-stackshot.log"), encoding: .utf8)
         XCTAssertTrue(after.contains("Exit confirmed during diagnostics"))
     }
 

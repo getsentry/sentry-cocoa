@@ -2,15 +2,15 @@
 import Foundation
 import PackageDescription
 
-// Use the published SDK-compatible backport by default, not the incompatible develop line where
-// #913 was merged. KSCRASH_PATH remains available for upstream-development testing.
+// Use the SDK's 2.6.1 fork with the C++ terminate fix and reserved-thread lookup (#913).
+// KSCRASH_PATH remains available for upstream-development testing.
 let kscrashDependency: Package.Dependency
 if let kscrashPath = ProcessInfo.processInfo.environment["KSCRASH_PATH"] {
     kscrashDependency = .package(name: "KSCrash", path: kscrashPath)
 } else {
     kscrashDependency = .package(
         url: "https://github.com/getsentry/KSCrash.git",
-        revision: "18a633dec20c265f03386294f9d82d208bb13094"
+        revision: "e41302af9fbcf4d9cc6cc95933cb989a90941d37"
     )
 }
 

@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -121,6 +121,19 @@ final class TestClientWrapperTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(client.captureFeedbackInvocations.count, 0)
+    }
+
+    func testSaveCrashTransaction_whenBridgeReceivesWrongType_shouldReportFailure() throws {
+        // -- Arrange --
+        let client = try XCTUnwrap(TestClient(options: Options.noIntegrations()))
+
+        // -- Act --
+        XCTExpectFailure("Invalid crash transactions must fail the test") {
+            client.wrapper_saveCrashTransaction(transaction: NSObject(), scope: Scope())
+        }
+
+        // -- Assert --
+        XCTAssertEqual(client.saveCrashTransactionInvocations.count, 0)
     }
 
     func testCaptureEnvelope_whenBridgeReceivesWrongType_shouldReportFailure() throws {

@@ -24,7 +24,7 @@ class LaunchUITests: BaseUITest {
 
         // -- Assert --
         alert.waitForNonExistence("Fatal hang warning did not dismiss.")
-        XCTAssertTrue(app.buttons["Non-Fatal Hang Diagnostic"].isHittable)
+        XCTAssertTrue(app.buttons["Hang: Catalog Refresh (~4 s)"].isHittable)
         XCTAssertTrue(app.buttons["Fatal Hang Diagnostic"].isHittable)
     }
 

@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -45,7 +45,11 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableSwizzling = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
+        #if SDK_V10
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        #else
         options.enableMetricKit = false
+        #endif // SDK_V10
         #endif
         #if !SDK_V10
         // Metrics stays installed even when enableMetrics is false so manual APIs keep working.
@@ -88,7 +92,11 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableSwizzling = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
+        #if SDK_V10
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        #else
         options.enableMetricKit = false
+        #endif // SDK_V10
         #endif
         #if !SDK_V10
         // Metrics remains installed regardless of enableMetrics.

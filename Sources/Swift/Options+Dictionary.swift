@@ -192,6 +192,9 @@ extension Options {
             self.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
         }
 
+        if let enableScopePersistence = boolValue(dictionary["enableScopePersistence"]) {
+            self.enableScopePersistence = enableScopePersistence
+        }
         setBlock(dictionary["initialScope"], forKey: "initialScope")
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -318,17 +321,17 @@ extension Options {
         }
 
         #if canImport(MetricKit) && !os(tvOS)
+        #if !SDK_V10
         if let enableMetricKit = boolValue(dictionary["enableMetricKit"]) {
             self.enableMetricKit = enableMetricKit
         }
+        #endif // !SDK_V10
 
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
 
-        if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(dictionary["metricKitHangReportingMode"] as? String) {
-            self.experimental.metrickit.hangReportingMode = hangReportingMode
-        }
+        self.experimental.metrickit.apply(optionsDictionary: dictionary)
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {

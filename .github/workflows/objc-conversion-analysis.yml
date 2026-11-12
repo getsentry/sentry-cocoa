@@ -7,6 +7,15 @@ on:
       - v8.x
 
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
@@ -20,7 +29,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
@@ -46,7 +61,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Ruby
-        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+        uses: ruby/setup-ruby@de492cf36cbab201753d720ce4f4e336cd688c94 # v1.336.0
         with:
           bundler-cache: true
       - name: Install Graphviz
@@ -74,7 +89,7 @@ jobs:
   # So, we don't have to run analysis, for example, for Changelog or ReadMe changes.
 
   objc_conversion_analysis-required-check:
-    needs: [files-changed, analyze-objc-conversion]
+    needs: [run-full-ci-gate, files-changed, analyze-objc-conversion]
     name: Objective-C Conversion Analysis
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

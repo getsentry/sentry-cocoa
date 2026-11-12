@@ -10,13 +10,12 @@
 #    import SENTRY_HEADER(SentrySerializable)
 #endif // !SDK_V10
 #import SENTRY_HEADER(SentrySpanStatus)
+#import SENTRY_HEADER(SentryDeprecated)
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryId;
 @class SentrySpanId;
-
-static NSString const *SENTRY_TRACE_TYPE = @"trace";
 
 NS_SWIFT_NAME(SpanContext)
 #if SDK_V10

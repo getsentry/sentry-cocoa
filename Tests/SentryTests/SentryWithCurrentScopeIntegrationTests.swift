@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -388,9 +388,9 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
 
         // -- Act --
         SentrySDK.internal.scope.withCurrentScope(currentScope) {
-            SentrySDK.metrics.count(key: "scoped.counter", value: 1)
-            SentrySDK.metrics.gauge(key: "scoped.gauge", value: 2)
-            SentrySDK.metrics.distribution(key: "scoped.distribution", value: 3)
+            SentrySDK.metrics.count("scoped.counter", value: 1)
+            SentrySDK.metrics.gauge("scoped.gauge", value: 2)
+            SentrySDK.metrics.distribution("scoped.distribution", value: 3)
         }
 
         // -- Assert --

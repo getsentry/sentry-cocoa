@@ -79,8 +79,16 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download ${{inputs.variant-id}} Slices
+        id: download-slices
+        background: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: xcframework-${{inputs.variant-id}}-slice-*
+          path: xcframework-slices
+
       - name: Setup Ruby
-        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+        uses: ruby/setup-ruby@de492cf36cbab201753d720ce4f4e336cd688c94 # v1.336.0
         if: ${{ inputs.signed }}
         with:
           bundler-cache: true
@@ -119,11 +127,8 @@ jobs:
             echo "XCFRAMEWORK_NAME=$SCHEME$SUFFIX" >> "$GITHUB_ENV"
           fi
 
-      - name: Download ${{inputs.variant-id}} Slices
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          pattern: xcframework-${{inputs.variant-id}}-slice-*
-          path: xcframework-slices
+      - name: Wait for framework slices
+        wait: download-slices
 
       - name: Unzip slice artifact ZIP archives
         run: |

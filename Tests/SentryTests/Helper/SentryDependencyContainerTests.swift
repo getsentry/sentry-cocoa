@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -192,6 +192,9 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dateProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().notificationCenterWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().extraContextProvider)
+#if os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().hingeObserver)
+#endif // os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().memoryMetricsProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextEnricher)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)

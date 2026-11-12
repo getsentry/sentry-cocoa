@@ -3,6 +3,27 @@ import Foundation
 import XCTest
 
 final class KnownFailuresTests: XCTestCase {
+    func testRunAllowingKnownFailure_whenHarnessTimeoutFails_shouldNeverExemptEitherReporter() {
+        // -- Arrange --
+        let failures: [Error] = [
+            CrashE2EFailure(message: "iOS app did not terminate for scenario: harness-timeout"),
+            ReportAssertionFailure(message: "Unexpected report validation")
+        ]
+
+        // -- Act & Assert --
+        for reporter in Reporter.allCases {
+            XCTAssertNil(Scenario.harnessTimeout.knownFailureReason(for: reporter))
+
+            for failure in failures {
+                XCTAssertThrowsError(try runAllowingKnownFailure(.harnessTimeout, reporter: reporter, platform: "ios") {
+                    throw failure
+                }) { error in
+                    XCTAssertEqual(String(describing: error), String(describing: failure))
+                }
+            }
+        }
+    }
+
     func testRunAllowingKnownFailure_whenHarnessFails_shouldThrow() {
         // -- Arrange --
         let failure = CrashE2EFailure(message: "simctl launch failed")

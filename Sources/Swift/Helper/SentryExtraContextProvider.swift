@@ -14,13 +14,24 @@ internal import _SentryPrivate
     
     #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let deviceWrapper: SentryUIDeviceWrapper
+    #if !targetEnvironment(macCatalyst)
+    private let hingeObserver: SentryHingeObserving
 
+    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper, hingeObserver: SentryHingeObserving, reachability: SentryReachability) {
+        self.memoryMetricsProvider = memoryMetricsProvider
+        self.processInfoWrapper = processInfoWrapper
+        self.deviceWrapper = deviceWrapper
+        self.hingeObserver = hingeObserver
+        self.reachability = reachability
+    }
+    #else
     init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper, reachability: SentryReachability) {
         self.memoryMetricsProvider = memoryMetricsProvider
         self.processInfoWrapper = processInfoWrapper
         self.deviceWrapper = deviceWrapper
         self.reachability = reachability
     }
+    #endif // !targetEnvironment(macCatalyst)
     #else
     init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, reachability: SentryReachability) {
         self.memoryMetricsProvider = memoryMetricsProvider
@@ -62,7 +73,7 @@ internal import _SentryPrivate
         // long as it has a transport. `connection_type` is the device context alias of
         // `network.connection.type`, so `connection_effective_type` mirrors
         // `network.connection.effective_type` the same way.
-        // https://getsentry.github.io/sentry-conventions/attributes/network/
+        // https://conventions.sentry.dev/attributes/network/
         if let connection = reachability.currentConnection {
             extraDeviceContext["connection_type"] = connection.type
             if let effectiveType = connection.effectiveType {
@@ -80,6 +91,15 @@ internal import _SentryPrivate
             extraDeviceContext["charging"] = NSNumber(value: deviceWrapper.batteryState == .charging)
             extraDeviceContext["battery_level"] = NSNumber(value: Int(deviceWrapper.batteryLevel * 100))
         }
+
+        #if !targetEnvironment(macCatalyst)
+        // The hinge of foldable devices, such as iPhone Duo, is only known once UIKit reported it,
+        // which requires iOS 27.1 and a device with a hinge. The value mirrors the status of the
+        // hinge breadcrumbs: closed, partially_open, or fully_open.
+        if let hingeState = hingeObserver.currentState, hingeState.status != .unknown {
+            extraDeviceContext["hinge_status"] = hingeState.status.breadcrumbValue
+        }
+        #endif // !targetEnvironment(macCatalyst)
         #endif
         return extraDeviceContext
     }

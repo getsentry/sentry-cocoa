@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -16,7 +16,9 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
@@ -26,7 +28,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in
@@ -69,11 +71,13 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            hangReportingMode: .flamegraphAttachment,
-            processStartDate: .distantPast
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.hang],
+                hangReportingMode: .flamegraphAttachment,
+                processStartDate: .distantPast
+            )
         )
         let diagnostic = TestMXCrashDiagnostic()
         diagnostic.overrides.terminationReason = "Namespace FRONTBOARD, Code 0x8badf00d"
@@ -108,17 +112,19 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    #if os(iOS) && compiler(>=6.4) && canImport(StateReporting)
+    #if compiler(>=6.4)
     func testProcess_whenSwiftWatchdogHasEmptyThreads_shouldAttachFatalFlamegraph() throws {
-        guard #available(iOS 27.0, *) else { throw XCTSkip("Requires MetricKit's Swift diagnostic API") }
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { throw XCTSkip("Requires MetricKit's Swift diagnostic API") }
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let sut = SentryMXManager(
-            inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.hang],
-            hangReportingMode: .flamegraphAttachment,
-            processStartDate: .distantPast
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: [.hang],
+                hangReportingMode: .flamegraphAttachment,
+                processStartDate: .distantPast
+            )
         )
         // This uses the Codable shape of a device-delivered DiagnosticReport, reduced to one
         // watchdog stack and one empty thread. No temporal sample history is invented.
@@ -149,12 +155,16 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         let report = try JSONDecoder().decode(DiagnosticReport.self, from: data)
 
         // -- Act --
-        sut.process(modernReport: report)
+        SentryMetricManager(diagnosticCapturer: sut.diagnosticCapturer, metricRecorder: nil).process(diagnosticReport: report)
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertEqual(event?.level, .fatal)
             XCTAssertEqual(event?.tags?["metrickit.api"], "swift")
+            XCTAssertEqual(event?.isFromPreviousProcess, false)
+            XCTAssertEqual(event?.context?["app"]?["app_identifier"] as? String, "io.sentry.test")
+            XCTAssertEqual(event?.context?["device"]?["model"] as? String, "iPhone13,2")
+            XCTAssertEqual(event?.context?["metrickit"]?["states"] as? [String], [])
             XCTAssertEqual(event?.exceptions?.first?.value, "App terminated while the main thread was unresponsive.")
             XCTAssertEqual(event?.exceptions?.first?.mechanism?.data?["termination_category"] as? String, "watchdog")
             XCTAssertEqual(event?.exceptions?.first?.mechanism?.data?["termination_reason"] as? String, "Code 0x8BADF00D")
@@ -172,7 +182,9 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
@@ -184,7 +196,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in
@@ -205,7 +217,9 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
         let diagnostic = TestMXHangDiagnostic()
@@ -214,7 +228,7 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         payload.overrides.hangDiagnostic = [diagnostic]
 
         // -- Act --
-        sut.mxManager.didReceive([payload])
+        try sut.receiveLegacyDiagnosticPayloads([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { capturedEvent, _, _ in

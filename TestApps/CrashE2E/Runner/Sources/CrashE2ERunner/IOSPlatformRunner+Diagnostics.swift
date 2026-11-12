@@ -89,15 +89,15 @@ extension IOSPlatformRunner {
         // Host diagnostics remain available even when CoreSimulator is unresponsive.
         do {
             if try !process.wait(timeout: 0) {
-                captureProcessSample(process.processIdentifier, in: directory)
+                captureProcessStackshot(process.processIdentifier, in: directory)
             }
 
             if try process.wait(timeout: 0) {
                 confirmAppStopped(pid: process.processIdentifier)
                 saveDiagnostic("Exit confirmed during diagnostics; the original timeout still fails the scenario.\n",
-                               to: directory.appendingPathComponent("process-after-sample.log"))
+                               to: directory.appendingPathComponent("process-after-stackshot.log"))
             } else {
-                captureProcessState(process.processIdentifier, in: directory, filename: "process-after-sample.log")
+                captureProcessState(process.processIdentifier, in: directory, filename: "process-after-stackshot.log")
             }
         } catch {
             log("Could not recheck iOS process during diagnostics: \(error)")
@@ -117,11 +117,36 @@ extension IOSPlatformRunner {
                           to: directory.appendingPathComponent(filename), timeout: 5)
     }
 
-    private func captureProcessSample(_ pid: Int32, in directory: URL) {
-        // Sampling by PID has an exit/reuse race after the observer check, so samples
-        // are diagnostic evidence, never a liveness or scenario-success signal.
-        captureDiagnostic("sample", [String(pid), "2", "-file", directory.appendingPathComponent("sample.txt").path],
-                          to: directory.appendingPathComponent("sample-command.log"), timeout: 8)
+    private func captureProcessStackshot(_ pid: Int32, in directory: URL) {
+        let output = directory.appendingPathComponent("stackshot.spindump")
+        let budgetSeconds = 60
+
+        // Kernel stackshots do not leave us responsible for resuming the target.
+        // Request time for collection AND symbolication rather than killing its sudo
+        // wrapper on a short deadline.
+        // 
+        // This is not an independent hard watchdog: the enclosing CI job remains the outer limit.
+        //
+        // A PID-reuse race is still possible: stacks are evidence, never a liveness signal.
+        log("Collecting iOS kernel stacks (requested collection/symbolication budget: \(budgetSeconds)s).")
+        do {
+            let result = try runLoggedCommand(
+                "sudo", ["-n", "/usr/sbin/spindump", String(pid), "2", "10", "-onlyTarget",
+                         "-o", output.path, "-timelimit", String(budgetSeconds)],
+                operation: "stackshot-command.log", artifact: directory.appendingPathComponent("stackshot-command.log")
+            )
+            let fileSize = (try? output.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
+            if !result.succeeded || fileSize == 0 {
+                let evidence = fileSize == 0 ? "no nonempty stackshot was saved" : "retaining the report despite collector failure"
+                let message = "Stackshot collection: \(result.summary); \(evidence).\n\(result.stderr)"
+                log(message)
+                saveDiagnostic(message, to: directory.appendingPathComponent("stackshot-unavailable.log"))
+            }
+        } catch {
+            let message = "Could not start stackshot collection: \(error)"
+            log(message)
+            saveDiagnostic(message, to: directory.appendingPathComponent("stackshot-unavailable.log"))
+        }
     }
 
     private func captureSimulatorLaunchdState(in directory: URL) {

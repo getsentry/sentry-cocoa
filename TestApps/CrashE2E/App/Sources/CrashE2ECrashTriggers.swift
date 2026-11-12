@@ -41,7 +41,7 @@ enum CrashE2ECrashTriggers {
              .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
              .ksCrashRetryReportB,
-             .idle, .drain, .managedRuntimePreSDKSignal, .sigterm:
+             .idle, .drain, .managedRuntimePreSDKSignal, .sigterm, .harnessTimeout:
             triggerExceptionScenario(scenario)
         }
     }
@@ -90,8 +90,8 @@ enum CrashE2ECrashTriggers {
             // Objective-C object must replace that cursor rather than report the stale C++ stack.
             CrashE2ETriggerObjCObjectAfterCaughtCPPException()
             abortBecauseScenarioReturned(scenario)
-        case .idle, .drain, .managedRuntimePreSDKSignal, .sigterm:
-            // SIGTERM is delivered by the runner, never triggered from inside the app.
+        case .idle, .drain, .managedRuntimePreSDKSignal, .sigterm, .harnessTimeout:
+            // These scenarios never trigger a crash from inside the app.
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
              .closedSignal, .reinitSignal, .managedRuntimeSignalChain,

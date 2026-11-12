@@ -52,12 +52,13 @@ SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@
 ```sh
 swift test --traits _SentryTest
 swift test --traits _SentryTestCI
-# V10: select through the environment or trait.
+# V10: the environment selects the SDK; the test trait enables test helpers.
 SDK_V10=1 swift test --traits _SentryTest
-swift test --traits V10,_SentryTest
 ```
 
-The traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
+The `V10` trait has been removed; use `SDK_V10=1` for all V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
+
+The test traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
 
 | Trait           | Swift definitions | Objective-C/C/C++ definitions            |
 | --------------- | ----------------- | ---------------------------------------- |
@@ -122,7 +123,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
 
 - **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
-- **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
+- **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. The SDK Swift target (`Sentry` with `SDK_V10=1`, otherwise `SentrySwift`) and `SentryObjCCompat` use library evolution and verify their textual interfaces.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
@@ -224,6 +225,22 @@ func testColdStart_shouldSetMeasurement() {
     // ...
 }
 ```
+
+### Binary Image Unload Regression Test
+
+`SentryKSCrashBinaryImageProviderTests` covers an image that really unloads while the provider reads it. `SentryTestsV10` builds and embeds the pure-C `SentryUnloadingImage.framework` fixture without linking it at launch. The test is the sole owner of the only `dlopen` reference and closes it between image-address acquisition and metadata extraction, then asserts that the header became unreadable. This fixture must stay free of Swift or Objective-C metadata and _must not_ link it into the test bundle because either could keep the image mapped, and the regression would no longer unload anything.
+
+The regression runs in the Xcode project tests on macOS and simulators. Package tests skip it because SwiftPM has no phase that embeds the fixture; they run the other provider tests.
+
+Note: `SentryTestsV10` is **tool-hosted, and Xcode doesn't support tool-hosted tests on physical devices**, so `xcodebuild test` fails on a device with
+
+```
+Tool-hosted testing is unavailable on device destinations
+```
+
+Signing alone doesn't fix this. To run on a device, one must build with `build-for-testing` and run the test bundle in a separate app that hosts it, with the host app, test bundle, and embedded frameworks all dev-signed.
+
+The repository doesn't currently include such a host app and adding one is not strictly necessary for regression testing, since the simulator behavior is equivalent in that regard.
 
 ## Performance benchmarking
 

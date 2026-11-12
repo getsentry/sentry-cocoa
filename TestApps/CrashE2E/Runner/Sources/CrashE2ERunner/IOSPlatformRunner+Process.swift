@@ -39,8 +39,8 @@ extension IOSPlatformRunner {
 
     func waitForAppToStop(timeout: TimeInterval) throws -> Bool {
         phase = .waitingForExit
-        if case .stopped(let pid?) = appState {
-            log("iOS PID \(pid) exit already confirmed.")
+        if case .stopped = appState {
+            log("iOS app stop already confirmed: \(appState).")
             return true
         }
         guard let observer = appProcess else {

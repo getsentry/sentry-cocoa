@@ -36,7 +36,17 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     // MARK: Private
 
     private static let instanceLock = NSRecursiveLock()
-    private static var instance = SentryDependencyContainer()
+    private static var instance: SentryDependencyContainer = {
+        let container = SentryDependencyContainer()
+#if os(iOS) || os(macOS)
+        container.profilingSDKBackend.activate()
+#endif
+        return container
+    }()
+
+#if os(iOS) || os(macOS)
+    private let profilingSDKBackend = SentryDefaultProfilerSDKBackend()
+#endif
     private let paramLock = NSRecursiveLock()
 
     private func getLazyVar<T>(_ keyPath: ReferenceWritableKeyPath<SentryDependencyContainer, T?>, builder: () -> T) -> T {
@@ -89,8 +99,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             instance._framesTracker?.stop()
 #endif
-            instance = SentryDependencyContainer()
-            instance._startOptions = currentOptions
+            let newInstance = SentryDependencyContainer()
+            newInstance._startOptions = currentOptions
+#if os(iOS) || os(macOS)
+            newInstance.profilingSDKBackend.activate()
+#endif
+            instance = newInstance
         }
     }
 
@@ -126,6 +140,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var threadWrapper = Dependencies.threadWrapper
     @objc public var binaryImageCache = Dependencies.binaryImageCache
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
+    public var currentRun = Dependencies.currentRun
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
     private static var isSimulatorBuild: Bool {
@@ -274,10 +289,30 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if !targetEnvironment(macCatalyst)
+    private var _hingeObserver: SentryHingeObserver?
+    /// Shared between the hinge breadcrumbs, which start it, and the extra device context, which
+    /// reads its current state.
+    var hingeObserver: SentryHingeObserver {
+        getLazyVar(\._hingeObserver) {
+            SentryHingeObserver(
+                applicationProvider: { [weak self] in self?.application() },
+                notificationCenterWrapper: self.notificationCenterWrapper,
+                dispatchQueueWrapper: self.dispatchQueueWrapper
+            )
+        }
+    }
+
+    private var _extraContextProvider: SentryExtraContextProvider?
+    @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
+        SentryExtraContextProvider(memoryMetricsProvider: self.memoryMetricsProvider, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper, hingeObserver: self.hingeObserver, reachability: self.reachability)
+    }
+#else
     private var _extraContextProvider: SentryExtraContextProvider?
     @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
         SentryExtraContextProvider(memoryMetricsProvider: self.memoryMetricsProvider, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper, reachability: self.reachability)
     }
+#endif // !targetEnvironment(macCatalyst)
 #else
     private var _extraContextProvider: SentryExtraContextProvider?
     @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
@@ -544,7 +579,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _scopePersistentStore: SentryScopePersistentStore?
     @objc public lazy var scopePersistentStore = getOptionalLazyVar(\._scopePersistentStore) {
-        SentryScopePersistentStore(fileManager: fileManager)
+        SentryScopePersistentStore(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
     }
     private var _globalEventProcessor: SentryGlobalEventProcessor?
     @objc public lazy var globalEventProcessor = getLazyVar(\._globalEventProcessor) {
@@ -724,6 +759,11 @@ protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }
 extension SentryDependencyContainer: DateProviderProvider {}
+
+protocol CurrentRunProvider {
+    var currentRun: SentryCurrentRun { get }
+}
+extension SentryDependencyContainer: CurrentRunProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
@@ -934,6 +974,13 @@ protocol ApplicationProvider {
     func application() -> SentryApplication?
 }
 extension SentryDependencyContainer: ApplicationProvider {}
+
+#if os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
+protocol HingeObserverProvider {
+    var hingeObserver: SentryHingeObserver { get }
+}
+extension SentryDependencyContainer: HingeObserverProvider {}
+#endif // os(iOS) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol DispatchFactoryProvider {
     var dispatchFactory: SentryDispatchFactory { get }

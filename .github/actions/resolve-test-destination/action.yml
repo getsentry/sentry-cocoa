@@ -7,7 +7,9 @@ description: >-
   the device defaults to the newest "iPhone N Pro" in the resolved runtime.
   If that runtime has none, it falls back to the newest lower minor runtime
   of the same major that has one (e.g. 27.1 -> 27.0) and updates TEST_OS,
-  so callers must use TEST_OS together with TEST_DEVICE.
+  so callers must use TEST_OS together with TEST_DEVICE. For tvOS, the device
+  defaults to "Apple TV", or the newest "Apple TV 4K (Nth generation)" when the
+  resolved runtime has no "Apple TV".
 inputs:
   test-destination-os:
     description: >-
@@ -18,7 +20,7 @@ inputs:
   device:
     description: >-
       Explicit device name (e.g. "iPhone 15 Pro"). Leave empty to auto-detect
-      per platform (newest iPhone Pro for iOS, Apple TV for tvOS, etc.).
+      per platform (newest iPhone Pro for iOS, an Apple TV for tvOS, etc.).
     required: false
     default: ""
   platform:

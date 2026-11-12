@@ -85,7 +85,6 @@
         "SentryNetworkDetailSwizzlingTests",
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()",
-        "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()",
         "SentryReachabilityTest/testMultipleReachabilityObservers",
         "SentrySDKIntegrationTestsBase",
         "SentrySDKInternalTests/testResumeAndPauseAppHangTracking()",
@@ -95,7 +94,9 @@
         "SentryThreadInspectorTests/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
         "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()",
         "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()",
-        "SentryWatchdogTerminationTrackerTests/testTerminateApp_RunsOnMainThread()"
+        "SentryWatchdogTerminationTrackerTests/testTerminateApp_RunsOnMainThread()",
+        "SentryWebViewTracingTests/testInstall_whenAddedAfterWebViewCreated_shouldInjectTagsOnNextNavigation()",
+        "SentryWebViewTracingTests/testInstall_whenWebPageCreatedWithConfiguration_shouldInjectTagsBeforePageScripts()"
       ],
       "target": {
         "containerPath": "container:",

@@ -7,6 +7,15 @@ on:
       - v8.x
 
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
@@ -20,7 +29,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
@@ -58,7 +73,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # v0.19.0
+      - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # v0.19.1
         with:
           module-root: linters/SwiftLintCustomRules
           bazelisk-cache: true
@@ -80,6 +95,7 @@ jobs:
   lint_swiftlint-required-check:
     needs:
       [
+        run-full-ci-gate,
         files-changed,
         lint,
         check-objc-extensions,

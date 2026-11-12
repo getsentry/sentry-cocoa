@@ -34,7 +34,8 @@ public struct SentryInternalAppStartApi {
             "start_timestamp_ms": moduleInitializationTimestampMs,
             "end_timestamp_ms": sdkStartTimestampMs
         ]
-        let spans: [[String: Any]] = measurement.isPreWarmed ? [
+        // Prewarmed starts begin at module initialization, so the phases before it are excluded.
+        let spans: [[String: Any]] = measurement.isPreWarmed ? [uiKitInitSpan] : [
             [
                 "description": "Pre Runtime Init",
                 "start_timestamp_ms": appStartTimestampMs,
@@ -46,7 +47,7 @@ public struct SentryInternalAppStartApi {
                 "end_timestamp_ms": moduleInitializationTimestampMs
             ],
             uiKitInitSpan
-        ] : [uiKitInitSpan]
+        ]
 
         // Hybrid SDKs miss the launch notifications, so didFinishLaunchingTimestamp is unavailable.
         return [
