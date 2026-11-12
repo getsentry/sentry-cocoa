@@ -62,12 +62,10 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
-    #if SDK_V10
     @objc public var enableUnhandledCPPExceptionsV2: Bool {
         get { wrapped.enableUnhandledCPPExceptionsV2 }
         set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
     }
-    #endif // SDK_V10
 
     @objc public var enableMemoryIntrospection: Bool {
         get { wrapped.enableMemoryIntrospection }
@@ -80,14 +78,6 @@ import Foundation
         set { wrapped.enableUncaughtNSExceptionReporting = newValue }
     }
     #endif
-
-    #if !os(watchOS) && !SDK_V10
-    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
-    @objc public var enableSigtermReporting: Bool {
-        get { wrapped.enableSigtermReporting }
-        set { wrapped.enableSigtermReporting = newValue }
-    }
-    #endif // !os(watchOS) && !SDK_V10
 
     @objc public var maxBreadcrumbs: UInt {
         get { wrapped.maxBreadcrumbs }

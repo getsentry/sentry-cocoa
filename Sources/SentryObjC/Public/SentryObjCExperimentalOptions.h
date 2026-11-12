@@ -13,18 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Experimental MetricKit diagnostic reporting options.
 @property (nonatomic, readonly, strong) SentryObjCMetricKitOptions *metrickit;
 
-#if !SDK_V10
-/**
- * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
- * Hooking @c __cxa_throw has unresolved safety and symbolication concerns. When @c NO, unhandled
- * C++ exceptions are still captured through @c std::terminate when crash handling is enabled, but
- * stacks may not identify the throw site.
- * @warning Disabled by default. Use and monitor this experimental implementation with care.
- * @see https://github.com/getsentry/sentry-cocoa/issues/5309
- */
-@property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
-#endif // !SDK_V10
-
 /**
  * Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
  * Requires @c enableSwizzling and an enabled network tracking feature.

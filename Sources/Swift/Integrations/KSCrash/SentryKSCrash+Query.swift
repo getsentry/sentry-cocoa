@@ -1,5 +1,3 @@
-#if SDK_V10
-
 extension SentryKSCrash {
     protocol QueryProvider {
         associatedtype Querying: SentryKSCrashQuerying
@@ -38,4 +36,3 @@ public final class SentryKSCrashQuery: NSObject, SentryKSCrashQuerying {
     @objc public var crashedLastLaunch: Bool { _crashedLastLaunch() }
     // swiftlint:enable missing_docs
 }
-#endif

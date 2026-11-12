@@ -1,8 +1,6 @@
-#if SDK_V10
-
-#    include <dlfcn.h>
-#    include <exception>
-#    include <typeinfo>
+#include <dlfcn.h>
+#include <exception>
+#include <typeinfo>
 
 namespace {
 using CxaThrow = void (*)(void *, std::type_info *, void (*)(void *));
@@ -55,5 +53,3 @@ sentry_cxa_throw_compatibility_linker_anchor()
     return &functions;
 }
 }
-
-#endif // SDK_V10

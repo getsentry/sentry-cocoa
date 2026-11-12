@@ -13,7 +13,6 @@ final class HarnessTimeoutIntegrationTests: XCTestCase {
 
         let derivedData = try XCTUnwrap(environment["CRASH_E2E_TEST_DERIVED_DATA"])
         let artifacts = absoluteURL(try XCTUnwrap(environment["CRASH_E2E_TEST_ARTIFACTS"]))
-        let reporter = try XCTUnwrap(Reporter(caseInsensitive: environment["CRASH_E2E_TEST_REPORTER"] ?? "SentryCrash"))
         guard !FileManager.default.fileExists(atPath: artifacts.path) else {
             XCTFail("Use a fresh artifact directory: \(artifacts.path)")
             return
@@ -23,7 +22,7 @@ final class HarnessTimeoutIntegrationTests: XCTestCase {
         let outputFile = artifacts.appendingPathComponent("runner-output.log")
         let executable = Bundle(for: Self.self).bundleURL.deletingLastPathComponent()
             .appendingPathComponent("CrashE2ERunner")
-        var arguments = ["--platform", "ios", "--reporter", reporter.rawValue,
+        var arguments = ["--platform", "ios",
                          "--scenarios", "harness-timeout,signal", "--keep-going", "--keep-artifacts",
                          "--skip-build", "--derived-data-path", derivedData, "--artifacts-dir", runnerArtifacts.path]
 
@@ -53,7 +52,7 @@ final class HarnessTimeoutIntegrationTests: XCTestCase {
 
         let launch = runnerArtifacts.appendingPathComponent("ios-harness-timeout-launch-1")
         let launchLog = try read("launch.log", in: launch)
-        let pid = try ProcessExitObserver.launchedProcessIdentifier(stdout: launchLog, bundleID: reporter.iOSBundleID)
+        let pid = try ProcessExitObserver.launchedProcessIdentifier(stdout: launchLog, bundleID: CrashE2EApp.iOSBundleID)
 
         try assertTimeoutAndReadiness(in: launch, pid: pid)
         try assertCleanupAndProgress(in: runnerArtifacts, output: output, pid: pid)

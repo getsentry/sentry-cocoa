@@ -21,13 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-#if !SDK_V10
-- (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry
-{
-    return [self mapAddress:stackEntry.address];
-}
-#endif
-
 - (SentryFrame *)mapAddress:(uintptr_t)address
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
@@ -49,13 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     return frame;
 }
-
-#if !SDK_V10
-- (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
-{
-    return [self sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry];
-}
-#endif
 
 @end
 

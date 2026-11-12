@@ -1,4 +1,4 @@
-#if SDK_V10 && SENTRY_CRASH_E2E
+#if SENTRY_CRASH_E2E
 internal import _SentryPrivate
 import Foundation
 

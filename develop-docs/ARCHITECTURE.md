@@ -31,7 +31,13 @@ flowchart TD
 - **App Start Tracking**: `SentryTimeToDisplayTracker` measures TTID/TTFD for UI performance; `SentryLaunchProfiling` manages profiling specifically for app launches
 - **Session Replay**: Recording and transmission of user sessions
 - **User Feedback**: Both code-based API to send feedback from users, and managed UI to gather it from users
-- **Crash Reporting**: Originally forked from KSCrash and independently evolved since then
+- **Crash Reporting**: KSCrash records native crashes. SDK-side integration code handles scope synchronization, attachments, report conversion and delivery. The once bundled SentryCrash recorder has been removed but historically named SDK compatibility APIs (starting with `SentryCrash*`) remain.
+
+### Crash Handling
+
+Crash callbacks can run in signal context. Keep report-writing work async-signal-safe: no heap allocation, locks, Objective-C messages or `NSLog`; SDK-side callbacks use `SENTRY_ASYNC_SAFE_LOG_*`. Running on a Mach exception thread is not a reason to weaken a callback shared with the signal path.
+
+[`SentryKSCrashReportWriterCallbacks.c`](../Sources/Sentry/KSCrash/SentryKSCrashReportWriterCallbacks.c) owns scope writing and post-report work. Replay recovery, attachments and trace persistence run after the report is written and are best-effort, not a guarantee of async-signal-safety. Preserve that ordering. For managed-runtime handler ordering, one-shot signal suppression and close/reinitialize behavior, see [KSCrash Managed Signal Plugin Maintenance](KSCrash_MANAGED_SIGNAL_PLUGIN_MAINTENANCE.md).
 
 ### Integrations
 
@@ -40,7 +46,7 @@ The SDK packages most feature areas in "integrations" that implement the `SwiftI
 **Core Integrations** (all platforms):
 
 - **SentrySessionReplayIntegration**: Session recording and replay (iOS 16+)
-- **SentryCrashIntegration**: Crash detection and reporting
+- **SentryKSCrashIntegration**: Crash detection and reporting
 - **SentryANRTrackingIntegration**: Application Not Responding detection
 - **SentryAutoBreadcrumbTrackingIntegration**: Automatic breadcrumb collection
 - **SentryAutoSessionTrackingIntegration**: Session tracking and release health
@@ -130,8 +136,8 @@ To make a header public follow these steps:
 
 ## Logging
 
-We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock, and aren't suitable for SentryCrash.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock, and aren't suitable for crash-time callbacks.
 
-### SentryCrash Logging
+### Async-Safe SDK Logging
 
-In SentryCrash we have to use SentryAsyncSafeLog and we can't use NSLog, as it's not async-safe. Therefore, logging to the console is disabled for log messages from SentryAsyncSafeLog. You can enable it by setting `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1`, but you MUST NEVER commit this change. SentryAsyncSafeLog writes its messages to the file `/Caches/io.sentry/async.log`. The default log level is error. To see all log messages set `SENTRY_ASYNC_SAFE_LOG_LEVEL` in `SentryAsyncSafeLog.h` to `SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE`.
+SDK-side crash-time code uses SentryAsyncSafeLog rather than NSLog, which is not async-safe. KSCrash has its own internal logging. Therefore, logging to the console is disabled for log messages from SentryAsyncSafeLog. You can enable it by setting `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1`, but you MUST NEVER commit this change. SentryAsyncSafeLog writes its messages to the file `/Caches/io.sentry/async.log`. The default log level is error. To see all log messages set `SENTRY_ASYNC_SAFE_LOG_LEVEL` in `SentryAsyncSafeLog.h` to `SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE`.

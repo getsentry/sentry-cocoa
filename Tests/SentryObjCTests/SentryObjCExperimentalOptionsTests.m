@@ -50,44 +50,17 @@
     XCTAssertNotNil(options);
 }
 
-#if !SDK_V10
-#    pragma mark - enableUnhandledCPPExceptionsV2
-
-- (void)testEnableUnhandledCPPExceptionsV2_whenDefault_shouldBeFalse
+- (void)testCPPExceptionOption_whenKSCrashOnly_shouldNotExistOnExperimentalOptions
 {
     // -- Arrange --
     SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
 
     // -- Assert --
-    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
+    XCTAssertFalse(
+        [options respondsToSelector:NSSelectorFromString(@"enableUnhandledCPPExceptionsV2")]);
+    XCTAssertFalse(
+        [options respondsToSelector:NSSelectorFromString(@"setEnableUnhandledCPPExceptionsV2:")]);
 }
-
-- (void)testEnableUnhandledCPPExceptionsV2_whenSetToYes_shouldReturnTrue
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-    // -- Act --
-    options.enableUnhandledCPPExceptionsV2 = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableUnhandledCPPExceptionsV2);
-}
-
-- (void)testEnableUnhandledCPPExceptionsV2_whenSetToNo_shouldReturnFalse
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-    options.enableUnhandledCPPExceptionsV2 = YES;
-
-    // -- Act --
-    options.enableUnhandledCPPExceptionsV2 = NO;
-
-    // -- Assert --
-    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
-}
-
-#endif // !SDK_V10
 
 #pragma mark - enableNewURLLoaderSwizzling
 

@@ -6,18 +6,6 @@ public final class SentryExperimentalOptions: NSObject {
     /// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
     @nonobjc public let metrickit = SentryMetricKitOptions()
 
-    #if !SDK_V10
-    /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
-    ///
-    /// Hooking `__cxa_throw` has unresolved safety and symbolication concerns. When `false`,
-    /// unhandled C++ exceptions are still captured through `std::terminate` when crash handling
-    /// is enabled, but stacks may not identify the throw site.
-    ///
-    /// - Experiment: Disabled by default. Use and monitor this implementation with care.
-    ///   See https://github.com/getsentry/sentry-cocoa/issues/5309.
-    public var enableUnhandledCPPExceptionsV2 = false
-    #endif // !SDK_V10
-
     /// Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
     /// Requires `Options.enableSwizzling` and an enabled network tracking feature.
     /// Classic-loader instrumentation is unaffected by this option.

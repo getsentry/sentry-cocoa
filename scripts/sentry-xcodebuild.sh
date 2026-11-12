@@ -352,6 +352,10 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+    # Xcode can synthesize a dynamic KSCrash package product for the shared test graph.
+    # Its objects are coverage-instrumented, but its generated link command can omit the
+    # profile runtime. Link it explicitly for test builds without disabling coverage.
+    BFT_ARGS+=("OTHER_LDFLAGS=\$(inherited) -fprofile-instr-generate")
     BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
     BFT_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 

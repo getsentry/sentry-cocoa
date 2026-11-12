@@ -1,23 +1,22 @@
-#if SDK_V10
 
-#    import <XCTest/XCTest.h>
+#import <XCTest/XCTest.h>
 
-#    include "KSMachineContext.h"
-#    include "SentryInternalCDefines.h"
-#    include "Unwind/KSStackCursor_Unwind.h"
-#    include <errno.h>
-#    include <signal.h>
-#    include <stdatomic.h>
-#    include <stdlib.h>
-#    include <string.h>
+#include "KSMachineContext.h"
+#include "SentryInternalCDefines.h"
+#include "Unwind/KSStackCursor_Unwind.h"
+#include <errno.h>
+#include <signal.h>
+#include <stdatomic.h>
+#include <stdlib.h>
+#include <string.h>
 
-#    if SENTRY_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
 
 static int testSigaction(int signal, const struct sigaction *action, struct sigaction *previous);
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 static int testSigaltstack(const stack_t *stack, stack_t *previous);
 static void *testMalloc(size_t size);
-#        endif
+#    endif
 static int testRaise(int signal);
 static void *testCalloc(size_t count, size_t size);
 static void testFree(void *pointer);
@@ -29,43 +28,43 @@ static void testBeforeAtomicStore(const volatile void *object);
 // Compile an isolated copy of the real monitor with fake syscalls. This lets a test deliver a
 // signal at an exact installation boundary without replacing XCTest's handlers, exporting test
 // hooks, or maintaining a second implementation of the installation algorithm.
-#        define sigaction(...) testSigaction(__VA_ARGS__)
-#        define sigaltstack(...) testSigaltstack(__VA_ARGS__)
-#        define raise(...) testRaise(__VA_ARGS__)
-#        define malloc(...) testMalloc(__VA_ARGS__)
-#        define calloc(...) testCalloc(__VA_ARGS__)
-#        define free(...) testFree(__VA_ARGS__)
+#    define sigaction(...) testSigaction(__VA_ARGS__)
+#    define sigaltstack(...) testSigaltstack(__VA_ARGS__)
+#    define raise(...) testRaise(__VA_ARGS__)
+#    define malloc(...) testMalloc(__VA_ARGS__)
+#    define calloc(...) testCalloc(__VA_ARGS__)
+#    define free(...) testFree(__VA_ARGS__)
 // The mock callbacks inspect report fields without reading a real signal's machine context.
-#        define ksmc_getContextForSignal(...) testGetContextForSignal(__VA_ARGS__)
-#        define kssc_initWithUnwind(...) testInitWithUnwind(__VA_ARGS__)
+#    define ksmc_getContextForSignal(...) testGetContextForSignal(__VA_ARGS__)
+#    define kssc_initWithUnwind(...) testInitWithUnwind(__VA_ARGS__)
 // Pause immediately before publication, without adding a hook to production. Use Clang's C11
 // primitive for the actual store so the real memory ordering remains intact in this test copy.
-#        pragma push_macro("atomic_store_explicit")
-#        undef atomic_store_explicit
-#        define atomic_store_explicit(object, value, order)                                        \
-            do {                                                                                   \
-                testBeforeAtomicStore(object);                                                     \
-                __c11_atomic_store(object, value, order);                                          \
-            } while (0)
-#        define sentrykscrash_isManagedRuntimeBuild test_isManagedRuntimeBuild
-#        define sentrykscrash_managedSignal_getAPI test_managedSignal_getAPI
-#        define sentrykscrash_ignoreNextSignal test_ignoreNextSignal
-#        pragma push_macro("SENTRY_CRASH_MANAGED_RUNTIME")
-#        undef SENTRY_CRASH_MANAGED_RUNTIME
-#        include "../../../../../Sources/Sentry/KSCrash/SentryKSCrashManagedSignal.c"
-#        pragma pop_macro("SENTRY_CRASH_MANAGED_RUNTIME")
-#        undef sigaction
-#        undef sigaltstack
-#        undef raise
-#        undef malloc
-#        undef calloc
-#        undef free
-#        undef ksmc_getContextForSignal
-#        undef kssc_initWithUnwind
-#        pragma pop_macro("atomic_store_explicit")
-#        undef sentrykscrash_isManagedRuntimeBuild
-#        undef sentrykscrash_managedSignal_getAPI
-#        undef sentrykscrash_ignoreNextSignal
+#    pragma push_macro("atomic_store_explicit")
+#    undef atomic_store_explicit
+#    define atomic_store_explicit(object, value, order)                                            \
+        do {                                                                                       \
+            testBeforeAtomicStore(object);                                                         \
+            __c11_atomic_store(object, value, order);                                              \
+        } while (0)
+#    define sentrykscrash_isManagedRuntimeBuild test_isManagedRuntimeBuild
+#    define sentrykscrash_managedSignal_getAPI test_managedSignal_getAPI
+#    define sentrykscrash_ignoreNextSignal test_ignoreNextSignal
+#    pragma push_macro("SENTRY_CRASH_MANAGED_RUNTIME")
+#    undef SENTRY_CRASH_MANAGED_RUNTIME
+#    include "../../../../../Sources/Sentry/KSCrash/SentryKSCrashManagedSignal.c"
+#    pragma pop_macro("SENTRY_CRASH_MANAGED_RUNTIME")
+#    undef sigaction
+#    undef sigaltstack
+#    undef raise
+#    undef malloc
+#    undef calloc
+#    undef free
+#    undef ksmc_getContextForSignal
+#    undef kssc_initWithUnwind
+#    pragma pop_macro("atomic_store_explicit")
+#    undef sentrykscrash_isManagedRuntimeBuild
+#    undef sentrykscrash_managedSignal_getAPI
+#    undef sentrykscrash_ignoreNextSignal
 
 static struct {
     struct sigaction actions[NSIG];
@@ -102,7 +101,7 @@ static struct {
     int freesInHandler;
 } g_testAllocations;
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 static unsigned char g_hostStack[SIGSTKSZ];
 static unsigned char g_replacementStack[SIGSTKSZ];
 static struct {
@@ -116,7 +115,7 @@ static struct {
     bool replaceOnHandlerQueryFailure;
     bool useSystemStack;
 } g_testStack;
-#        endif
+#    endif
 
 static void *
 recordAllocation(void *pointer)
@@ -133,13 +132,13 @@ recordAllocation(void *pointer)
     return pointer;
 }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 static void *
 testMalloc(size_t size)
 {
     return g_testAllocations.failMalloc ? NULL : recordAllocation(malloc(size));
 }
-#        endif
+#    endif
 
 static void *
 testCalloc(size_t count, size_t size)
@@ -165,7 +164,7 @@ testFree(void *pointer)
     g_testAllocations.invalidFrees++;
 }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 static size_t
 liveAllocations(void)
 {
@@ -175,23 +174,23 @@ liveAllocations(void)
     }
     return count;
 }
-#        endif
+#    endif
 
 static void
 testDeliverSignal(int signal)
 {
     g_testSignals.handlingSignal = true;
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     const int previousFlags = g_testStack.current.ss_flags;
     if (!(previousFlags & SS_DISABLE)) {
         g_testStack.current.ss_flags |= SS_ONSTACK;
     }
-#        endif
+#    endif
     siginfo_t info = { .si_signo = signal };
     sentrykscrash_managedSignal_handleSignal(signal, &info, NULL);
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     g_testStack.current.ss_flags = previousFlags;
-#        endif
+#    endif
     g_testSignals.handlingSignal = false;
 }
 
@@ -349,12 +348,12 @@ testSigaction(int signal, const struct sigaction *action, struct sigaction *prev
 {
     if (previous != NULL) {
         if (signal == g_testSignals.queryFailureSignal) {
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
             if (g_testStack.replaceOnHandlerQueryFailure) {
                 g_testStack.current = (stack_t) { .ss_sp = g_replacementStack,
                     .ss_size = sizeof(g_replacementStack) };
             }
-#        endif
+#    endif
             errno = EINVAL;
             return -1;
         }
@@ -400,7 +399,7 @@ testSigaction(int signal, const struct sigaction *action, struct sigaction *prev
     return 0;
 }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 static int
 testSigaltstack(const stack_t *stack, stack_t *previous)
 {
@@ -432,7 +431,7 @@ testSigaltstack(const stack_t *stack, stack_t *previous)
     }
     return 0;
 }
-#        endif
+#    endif
 
 static int
 testRaise(int signal)
@@ -449,7 +448,7 @@ testRaise(int signal)
     return 0;
 }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 typedef struct {
     bool borrowHostStack;
     bool enabled;
@@ -491,7 +490,7 @@ probeRealStack(void *value)
     probe->restoreResult = sigaltstack(&restore, NULL);
     return NULL;
 }
-#        endif
+#    endif
 
 typedef struct {
     int signalToRegister;
@@ -532,10 +531,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     memset(&g_testSignals, 0, sizeof(g_testSignals));
     memset(&g_testAllocations, 0, sizeof(g_testAllocations));
     memset(&g_testCallbacks, 0, sizeof(g_testCallbacks));
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     memset(&g_testStack, 0, sizeof(g_testStack));
     g_testStack.current.ss_flags = SS_DISABLE;
-#        endif
+#    endif
     for (int i = 0; i < kssignal_numFatalSignals(); i++) {
         const int signal = kssignal_fatalSignals()[i];
         struct sigaction action = { 0 };
@@ -556,9 +555,9 @@ exerciseIgnoredSignalOnWorker(void *value)
         XCTAssertEqual(pthread_setspecific(g_ignoredSignalKey, NULL), 0);
     }
     atomic_store_explicit(&g_ignoredSignals, NULL, memory_order_release);
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     XCTAssertEqual(g_testStack.writesInHandler, 0);
-#        endif
+#    endif
     // All syscalls are fake and synchronous. Reclaim even intentionally retained allocations so
     // each test starts with isolated state, without relying on production's ownership bookkeeping.
     for (size_t i = 0; i < g_testAllocations.count; i++) {
@@ -757,7 +756,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(g_testSignals.writeCalls, writeCalls);
 }
 
-#        pragma mark - Build and plugin policy
+#    pragma mark - Build and plugin policy
 
 - (void)testBuildPolicy_whenCompiledWithoutManagedRuntimeFlag_shouldUseOrdinaryKSCrashPath
 {
@@ -782,7 +781,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(flags, KSCrashMonitorFlagAsyncSafe | KSCrashMonitorFlagPlugin);
 }
 
-#        pragma mark - One-shot signal suppression
+#    pragma mark - One-shot signal suppression
 
 - (void)testIgnoreNextSignal_whenSignalMatches_shouldConsumeOnlyOnce
 {
@@ -884,7 +883,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertFalse(laterWorker.consumed);
 }
 
-#        pragma mark - Callback publication
+#    pragma mark - Callback publication
 
 - (void)testInit_whenNull_shouldRemainUnpublished
 {
@@ -1215,7 +1214,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(g_testSignals.raisedSignal, SIGTERM);
 }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 
 - (void)exerciseRealStack:(RealStackProbe *)probe
 {
@@ -1540,9 +1539,8 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(liveAllocations(), 0u);
 }
 
-#        endif // SENTRY_HAS_SIGNAL_STACK
+#    endif // SENTRY_HAS_SIGNAL_STACK
 
 @end
 
-#    endif // SENTRY_HAS_SIGNAL
-#endif // SDK_V10
+#endif // SENTRY_HAS_SIGNAL

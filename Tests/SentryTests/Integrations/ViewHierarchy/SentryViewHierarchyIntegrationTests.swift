@@ -37,9 +37,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         fixture = Fixture()
 
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = fixture.viewHierarchyProvider
-#if SDK_V10
         sentrykscrash_attachments_setViewHierarchyWriter(nil)
-#endif
     }
 
     override func tearDown() {
@@ -58,9 +56,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
-#if !SDK_V10
-        XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
-#endif
+        XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
     }
 
     func test_attachViewHierarchy_enabled() {
@@ -73,9 +69,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
-#if !SDK_V10
-        XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
-#endif
+        XCTAssertTrue(sentrykscrash_attachments_hasViewHierarchyWriter())
     }
 
     func test_uninstall() {
@@ -85,51 +79,6 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         SentrySDK.close()
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
-#if !SDK_V10
-        XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
-#endif
-    }
-
-#if SDK_V10
-    func testInstall_whenAttachViewHierarchyDisabled_shouldNotRegisterCrashWriter() {
-        // -- Arrange --
-        SentrySDK.start {
-            $0.removeAllIntegrations()
-            $0.attachViewHierarchy = false
-        }
-        defer {
-            SentrySDK.close()
-        }
-
-        // -- Assert --
-        XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
-    }
-
-    func testInstall_whenAttachViewHierarchyEnabled_shouldRegisterCrashWriter() {
-        // -- Arrange --
-        SentrySDK.start {
-            $0.removeAllIntegrations()
-            $0.attachViewHierarchy = true
-        }
-        defer {
-            SentrySDK.close()
-        }
-
-        // -- Assert --
-        XCTAssertTrue(sentrykscrash_attachments_hasViewHierarchyWriter())
-    }
-
-    func testUninstall_whenSDKCloses_shouldClearCrashWriter() {
-        // -- Arrange --
-        SentrySDK.start {
-            $0.removeAllIntegrations()
-            $0.attachViewHierarchy = true
-        }
-
-        // -- Act --
-        SentrySDK.close()
-
-        // -- Assert --
         XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
     }
 
@@ -149,7 +98,6 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchyProvider.saveFilePathUsed)
     }
-#endif
 
     func test_integrationAddFileName() {
         SentrySDK.start {

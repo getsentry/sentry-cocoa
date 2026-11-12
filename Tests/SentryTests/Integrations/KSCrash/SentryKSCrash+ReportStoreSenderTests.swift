@@ -1,4 +1,3 @@
-#if SDK_V10
 #if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
@@ -326,4 +325,3 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         XCTAssertEqual(cleanupInvocationCount, 1)
     }
 }
-#endif

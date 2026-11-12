@@ -70,11 +70,7 @@ extension Options {
         }
 
         if let enableUnhandledCPPExceptionsV2 = boolValue(dictionary["enableUnhandledCPPExceptionsV2"]) {
-            #if SDK_V10
             self.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
-            #else
-            self.experimental.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
-            #endif // SDK_V10
         }
 
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
@@ -83,13 +79,8 @@ extension Options {
         }
         #endif
 
-        // V10 intentionally ignores the "enableSigtermReporting" key: KSCrash treats SIGTERM as a
-        // clean exit and never reports it as a crash, so there is nothing to configure.
-        #if !os(watchOS) && !SDK_V10
-        if let enableSigtermReporting = boolValue(dictionary["enableSigtermReporting"]) {
-            self._enableSigtermReporting = enableSigtermReporting
-        }
-        #endif // !os(watchOS) && !SDK_V10
+        // Intentionally ignore the legacy "enableSigtermReporting" key: KSCrash treats SIGTERM
+        // as a clean exit and never reports it as a crash, so there is nothing to configure.
 
         if let maxBreadcrumbs = dictionary["maxBreadcrumbs"] as? NSNumber {
             self.maxBreadcrumbs = maxBreadcrumbs.uintValue

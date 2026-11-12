@@ -1,8 +1,6 @@
-#if SDK_V10
+#import <XCTest/XCTest.h>
 
-#    import <XCTest/XCTest.h>
-
-#    include "SentryKSCrashReportWriterCallbacks.h"
+#include "SentryKSCrashReportWriterCallbacks.h"
 
 @interface SentryKSCrashReportWriterCallbacksTests : XCTestCase
 @end
@@ -94,19 +92,17 @@
     // KSCrash's callback contract is nonnull, which Swift requires for exact function-pointer
     // assignment. This test exercises the implementation's defensive behavior outside that
     // contract.
-#    ifndef __clang_analyzer__
+#ifndef __clang_analyzer__
     KSCrash_MonitorContext context = { 0 };
     void (*callback)(KSCrash_ExceptionHandlingPlan *_Nullable,
         const KSCrash_MonitorContext *_Nonnull) = sentrykscrash_willWriteReport;
 
     // -- Act --
     callback(NULL, &context);
-#    endif
+#endif
 
     // -- Assert --
     XCTAssertFalse(sentrykscrash_isReportPersistenceEnabled());
 }
 
 @end
-
-#endif // SDK_V10

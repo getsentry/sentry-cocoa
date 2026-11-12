@@ -15,11 +15,9 @@
 
 @class SentryAppStartMeasurement;
 
-#if SDK_V10
 // Keep the dlsym-only Unity C++ ABI compatibility symbols in static links.
 extern const void *_Nonnull sentry_cxa_throw_compatibility_linker_anchor(void)
     __attribute__((visibility("hidden")));
-#endif
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -260,9 +258,7 @@ static BOOL sdkStarted;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-#if SDK_V10
     (void)sentry_cxa_throw_compatibility_linker_anchor();
-#endif
 
     BOOL alreadyStarted = NO;
     @synchronized(currentHubLock) {

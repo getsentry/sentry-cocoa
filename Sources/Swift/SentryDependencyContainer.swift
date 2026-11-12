@@ -150,25 +150,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         false
 #endif
     }
-#if !SDK_V10
-    private var _crashWrapperOverride: SentryCrashReporter?
-    @objc public var crashWrapper: SentryCrashReporter {
-        get {
-            paramLock.synchronized {
-                _crashWrapperOverride ?? SentryCrashV9Backend.crashWrapper(for: self)
-            }
-        }
-        set {
-            paramLock.synchronized {
-                _crashWrapperOverride = newValue
-            }
-        }
-    }
-
-    @objc public func captureUnhandledException(_ exception: NSException) {
-        SentryCrashV9Backend.capture(exception: exception, dependencies: self)
-    }
-#endif // !SDK_V10
 #if SENTRY_TEST || SENTRY_TEST_CI
     var activeCrashReporterStateOverride: SentryCrashReporterState?
 #endif
@@ -178,11 +159,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             return activeCrashReporterStateOverride
         }
 #endif
-#if SDK_V10
         return kscrashQuery
-#else
-        return crashWrapper
-#endif
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
@@ -619,7 +596,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SentryCoreDataTracker(threadInspector: threadInspector)
     }
 
-#if SDK_V10
     private var kscrashInstaller: SentryKSCrash.Installer?
     func getKSCrashInstaller() -> SentryKSCrash.Installer {
         getLazyVar(\.kscrashInstaller) {
@@ -633,8 +609,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var kscrashQuery: SentryKSCrash.Query = getLazyVar(\._kscrashQuery) {
         SentryKSCrash.Query(installer: getKSCrashInstaller())
     }
-
-#endif
 }
 // swiftlint:enable type_body_length
 
@@ -767,10 +741,8 @@ extension SentryDependencyContainer: CurrentRunProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
-#if SDK_V10
 extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {}
 extension SentryDependencyContainer: SentryKSCrash.QueryProvider {}
-#endif
 
 protocol FileIOTrackerProvider {
     var fileIOTracker: SentryFileIOTracker { get }

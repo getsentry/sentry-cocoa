@@ -1,13 +1,11 @@
-#if SDK_V10
+#import <XCTest/XCTest.h>
 
-#    import <XCTest/XCTest.h>
-
-#    include <cstring>
-#    include <cxxabi.h>
-#    include <dlfcn.h>
-#    include <new>
-#    include <stdexcept>
-#    include <typeinfo>
+#include <cstring>
+#include <cxxabi.h>
+#include <dlfcn.h>
+#include <new>
+#include <stdexcept>
+#include <typeinfo>
 
 namespace {
 using CxaThrow = void (*)(void *, std::type_info *, void (*)(void *));
@@ -78,5 +76,3 @@ destroyRuntimeError(void *exception)
 }
 
 @end
-
-#endif // SDK_V10

@@ -1413,10 +1413,10 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scopeCrumbs?.count ?? 0)
     }
     
-#if !SDK_V10
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100) as Any)
+        scope.add(SentryKSCrash.Scope.Observer(maxBreadcrumbs: 100))
+        defer { sentrycrash_scopesync_reset() }
 
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
@@ -1424,7 +1424,6 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setUser(user)
         })
     }
-#endif
 
     func testRemoveContextForKey_keyNotFound_shouldNotChangeContext() {
         // -- Arrange --

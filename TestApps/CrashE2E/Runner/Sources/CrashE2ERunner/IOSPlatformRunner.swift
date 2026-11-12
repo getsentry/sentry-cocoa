@@ -46,12 +46,12 @@ final class IOSPlatformRunner {
 
     private func reinstallApp(derivedDataPath: URL) throws {
         let appPath = derivedDataPath
-            .appendingPathComponent("Build/Products/Debug-iphonesimulator/\(config.reporter.iOSAppName)", isDirectory: true)
+            .appendingPathComponent("Build/Products/Debug-iphonesimulator/\(CrashE2EApp.iOSAppName)", isDirectory: true)
         guard fileManager.fileExists(atPath: appPath.path) else {
             try fail("iOS app not found: \(appPath.path)")
         }
 
-        log("Installing \(config.reporter.iOSScheme) on \(deviceID).")
+        log("Installing \(CrashE2EApp.iOSScheme) on \(deviceID).")
 
         try terminateApp()
         try uninstallApp()
@@ -80,9 +80,7 @@ final class IOSPlatformRunner {
                                      "Scenarios not executed: \(remaining.isEmpty ? "none" : remaining)"]).joined(separator: "\n"))
             }
             do {
-                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "ios") {
-                    try outcome.get()
-                }
+                try outcome.get()
             } catch {
                 if config.keepGoing {
                     let message = "iOS/\(scenario.rawValue): \(error)"
@@ -328,7 +326,7 @@ final class IOSPlatformRunner {
     }
 
     var bundleID: String {
-        config.reporter.iOSBundleID
+        CrashE2EApp.iOSBundleID
     }
 
 }

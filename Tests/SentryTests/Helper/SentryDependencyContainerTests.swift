@@ -86,16 +86,15 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertIdentical(container.debuggerStatusProvider, container.sysctlWrapper)
     }
 
-#if !SDK_V10
-    func testCrashWrapper_whenFirstAccessIsConcurrent_shouldReturnSameInstance() throws {
+    func testActiveCrashReporterState_whenFirstAccessIsConcurrent_shouldReturnSameInstance() throws {
         // -- Arrange --
         SentryDependencyContainer.reset()
         let container = SentryDependencyContainer.sharedInstance()
-        let wrappers = SentryMutex<[SentryCrashReporter]>([])
+        let wrappers = SentryMutex<[SentryCrashReporterState]>([])
 
         // -- Act --
         DispatchQueue.concurrentPerform(iterations: 16) { _ in
-            let wrapper = container.crashWrapper
+            let wrapper = container.activeCrashReporterState
             wrappers.withLock { $0.append(wrapper) }
         }
 
@@ -106,14 +105,14 @@ final class SentryDependencyContainerTests: XCTestCase {
         for wrapper in results {
             XCTAssertIdentical(wrapper, expected)
         }
-        XCTAssertIdentical(container.crashWrapper, expected)
+        XCTAssertIdentical(container.activeCrashReporterState, expected)
     }
 
-    func testCrashReporter_whenFirstAccessIsConcurrent_shouldReturnSameInstance() {
+    func testKSCrashQuery_whenFirstAccessIsConcurrent_shouldReturnSameInstance() {
         // -- Arrange --
         let accessCount = 16
         let accessQueue = DispatchQueue(
-            label: "SentryDependencyContainerTests.crashReporter",
+            label: "SentryDependencyContainerTests.kscrashQuery",
             attributes: .concurrent
         )
         let ready = expectation(description: "All crash reporter accesses are ready")
@@ -123,7 +122,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         finished.expectedFulfillmentCount = accessCount
         finished.assertForOverFulfill = true
         let start = DispatchSemaphore(value: 0)
-        let reporters = SentryMutex<[SentryCrashSwift]>([])
+        let reporters = SentryMutex<[SentryKSCrash.Query]>([])
 
         SentryDependencyContainer.reset()
         let container = SentryDependencyContainer.sharedInstance()
@@ -134,7 +133,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                 start.wait()
 
                 // -- Act --
-                let reporter = container.crashReporter
+                let reporter = container.kscrashQuery
                 reporters.withLock { $0.append(reporter) }
                 finished.fulfill()
             }
@@ -152,7 +151,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         }
         XCTAssertEqual(reporterIdentities.count, 1)
     }
-#endif
+
 
     /**
      * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases
@@ -196,9 +195,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().memoryMetricsProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextEnricher)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)
-#if !SDK_V10
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
-#endif
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().activeCrashReporterState)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().sysctlWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debuggerStatusProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().applicationStateProvider)
@@ -214,9 +211,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().appStateManager)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
-#if !SDK_V10
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
-#endif
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().kscrashQuery)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopePersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
 

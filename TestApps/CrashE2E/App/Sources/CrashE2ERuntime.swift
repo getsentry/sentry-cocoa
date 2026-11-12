@@ -218,7 +218,7 @@ enum CrashE2ERuntime {
                 }
             }
 
-            // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
+            // Keep cpp-exception-v1 in the public option-off configuration.
             // KSCrash has no "V1" implementation, but its standard terminate monitor must preserve
             // uncaught C++ reporting when throw-site swapping is disabled. unity-cxa-throw matches
             // Sentry Unity's option-off behavior; unity-cxa-throw-v2 is the KSCrash-only companion.
@@ -229,11 +229,7 @@ enum CrashE2ERuntime {
                 || configuration.scenario == .objcObjectAfterCaughtCPP
                 || configuration.scenario == .swiftAsyncCPPExceptionV2Off
                 || configuration.scenario == .swiftAsyncCPPExceptionV2On {
-                #if SDK_V10
                 options.enableUnhandledCPPExceptionsV2 = true
-                #else
-                options.experimental.enableUnhandledCPPExceptionsV2 = true
-                #endif // SDK_V10
             }
 
             if configuration.scenario == .swiftAsyncCPPExceptionV2Off {

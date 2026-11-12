@@ -13,11 +13,7 @@ class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
 
     private func currentThreadID() -> UInt {
-#if SDK_V10
         sentryThreadInspectionCurrentThread()
-#else
-        sentrycrashthread_self()
-#endif
     }
     private var fixture: Fixture!
     

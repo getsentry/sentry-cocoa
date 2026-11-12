@@ -1,6 +1,5 @@
-import _SentryPrivate
-#if SDK_V10
 @_spi(Private) import SentryTestUtils
+import _SentryPrivate
 #if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
@@ -150,4 +149,3 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
         onSendAllReports?()
     }
 }
-#endif

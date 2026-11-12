@@ -1,14 +1,12 @@
 #ifndef SentryKSCrashManagedSignal_h
 #define SentryKSCrashManagedSignal_h
 
-#if SDK_V10
+#include "KSCrashMonitorAPI.h"
+#include <stdbool.h>
 
-#    include "KSCrashMonitorAPI.h"
-#    include <stdbool.h>
-
-#    ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#    endif
+#endif
 
 /** Whether this binary was compiled for managed-runtime signal interop. */
 bool sentrykscrash_isManagedRuntimeBuild(void);
@@ -19,10 +17,8 @@ KSCrashMonitorAPI *_Nonnull sentrykscrash_managedSignal_getAPI(void);
 /** Consume the next delivery's token on this thread, suppressing its report only if it matches. */
 void sentrykscrash_ignoreNextSignal(int signal);
 
-#    ifdef __cplusplus
+#ifdef __cplusplus
 }
-#    endif
-
-#endif // SDK_V10
+#endif
 
 #endif /* SentryKSCrashManagedSignal_h */
