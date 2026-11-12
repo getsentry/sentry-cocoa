@@ -5,6 +5,7 @@
 ### Features
 
 - Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
+  - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
 
 ## 9.34.0
 
