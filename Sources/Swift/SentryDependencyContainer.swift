@@ -140,6 +140,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var threadWrapper = Dependencies.threadWrapper
     @objc public var binaryImageCache = Dependencies.binaryImageCache
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
+    public var currentRun = Dependencies.currentRun
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
     private static var isSimulatorBuild: Bool {
@@ -758,6 +759,11 @@ protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }
 extension SentryDependencyContainer: DateProviderProvider {}
+
+protocol CurrentRunProvider {
+    var currentRun: SentryCurrentRun { get }
+}
+extension SentryDependencyContainer: CurrentRunProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
