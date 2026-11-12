@@ -209,7 +209,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         reportFrame()
 
-        lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, tracer)
+        lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, sentrySpan(from: tracer))
 
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(tracer.isFinished)

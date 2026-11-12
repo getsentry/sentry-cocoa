@@ -45,11 +45,13 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         )
 
         let hub = SentrySDKInternal.currentHub()
-        return hub.startTransaction(
-            with: context,
-            bindToScope: false,
-            customSamplingContext: [:],
-            configuration: configuration
+        return sentrySpan(
+            from: hub.startTransaction(
+                with: context,
+                bindToScope: false,
+                customSamplingContext: [:],
+                configuration: configuration
+            )
         )
     }
 

@@ -32,7 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Default is nil.
  */
-@property (nonatomic, strong, nullable) id<SentrySpan> extendedAppStartSpan;
+@property (nonatomic, strong, nullable) SENTRY_SWIFT_MIGRATION_ID(SentrySpan)
+    extendedAppStartSpan NS_SWIFT_NAME(extendedAppStartSpanObject);
 
 /**
  * Returns the effective app start duration in seconds.

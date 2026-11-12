@@ -1,3 +1,4 @@
+#import "SentrySpanInternal+Private.h"
 #import "SentryTracer+Test.h"
 #import <Foundation/Foundation.h>
 

@@ -17,7 +17,7 @@ class SentryTracerTests: XCTestCase {
 
         var activeSpan: Span?
 
-        func getActiveSpan() -> (any Span)? {
+        func getActiveSpan() -> Any? {
             return activeSpan
         }
 
@@ -541,7 +541,7 @@ class SentryTracerTests: XCTestCase {
     func testIdleTimeout_NoChildren_SpanOnScopeUnset() {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
-        fixture.hub.scope.span = sut
+        fixture.hub.scope.span = sentrySpan(from: sut)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -768,7 +768,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.delegate = delegate
 
-        delegate.activeSpan = SentryTracer(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), hub: nil)
+        delegate.activeSpan = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), hub: nil))
 
         let child = sut.startChild(operation: fixture.transactionOperation)
 
@@ -784,7 +784,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.delegate = delegate
 
-        delegate.activeSpan = sut
+        delegate.activeSpan = sentrySpan(from: sut)
 
         let child = sut.startChild(operation: fixture.transactionOperation)
 
@@ -1548,7 +1548,7 @@ class SentryTracerTests: XCTestCase {
     
     func testFinish_SetScopeSpanToNil() {
         let sut = fixture.getSut()
-        fixture.hub.scope.span = sut
+        fixture.hub.scope.span = sentrySpan(from: sut)
         
         sut.finish()
         
@@ -1558,7 +1558,7 @@ class SentryTracerTests: XCTestCase {
     func testFinish_DifferentSpanOnScope_DoesNotSetScopeSpanToNil() {
         let sut = fixture.getSut()
         let sutOnScope = fixture.getSut()
-        fixture.hub.scope.span = sutOnScope
+        fixture.hub.scope.span = sentrySpan(from: sutOnScope)
         
         sut.finish()
         
@@ -1879,7 +1879,7 @@ class SentryTracerTests: XCTestCase {
         
         let sut = fixture.getSut()
         
-        fixture.hub.scope.span = sut
+        fixture.hub.scope.span = sentrySpan(from: sut)
         
         sut.finishForCrash()
         

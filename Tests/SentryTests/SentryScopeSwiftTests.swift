@@ -74,7 +74,7 @@ class SentryScopeSwiftTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: "message")
             
-            transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
+            transaction = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil))
         }
         
         var observer: TestScopeObserver {
@@ -650,7 +650,7 @@ class SentryScopeSwiftTests: XCTestCase {
         
         testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 10, writeWork: { _ in
             
-            scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
+            scope.span = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil))
             
         }, readWork: {
             XCTAssertNotNil(scope.span)
@@ -713,7 +713,7 @@ class SentryScopeSwiftTests: XCTestCase {
         tracer.finish(status: .cancelled)
         let transaction = Transaction(trace: tracer, children: [])
         transaction.context = ["custom": ["key": "value"]]
-        scope.span = tracer
+        scope.span = sentrySpan(from: tracer)
         scope.span = nil
 
         // -- Act --
@@ -737,7 +737,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope = Scope()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
         let transaction = Transaction(trace: tracer, children: [])
-        scope.span = SentryTracer(transactionContext: TransactionContext(name: "Other", operation: "other.operation"), hub: nil)
+        scope.span = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: "Other", operation: "other.operation"), hub: nil))
 
         // -- Act --
         let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
@@ -914,7 +914,7 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.clearAttachments()
             scope.addAttachment(TestData.fileAttachment)
             
-            scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
+            scope.span = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil))
             
             for _ in 0...10 {
                 scope.addBreadcrumb(self.fixture.breadcrumb)
@@ -1608,7 +1608,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope = Scope()
         let span = SentrySpanInternal(context: SpanContext(operation: "TEST"))
 
-        scope.span = span
+        scope.span = sentrySpan(from: span)
 
         // -- Act --
         let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
@@ -1623,7 +1623,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope = Scope()
         let span = SubClassOfSentrySpanInternal(context: SpanContext(operation: "TEST"))
 
-        scope.span = span
+        scope.span = sentrySpan(from: span)
 
         // -- Act --
         let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())

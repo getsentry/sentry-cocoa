@@ -13,8 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryTracerConfiguration;
 @class SentryTransactionContext;
 
-@protocol SentrySpan;
-
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
@@ -25,7 +23,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  * Return the active span.
  * This function is used to determine which span will be used to create a new child.
  */
-- (nullable id<SentrySpan>)getActiveSpan;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySpan))getActiveSpan;
 
 /**
  * Report that the tracer has finished.
@@ -40,12 +38,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
-@property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
+@property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(
+    SENTRY_SWIFT_MIGRATION_ID(SentrySpan)) NS_SWIFT_NAME(shouldIgnoreWaitForChildrenCallbackObject);
 
 /**
  * All the spans that where created with this tracer but rootSpan.
  */
-@property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+@property (nonatomic, readonly) NSArray *children NS_SWIFT_NAME(childrenObject);
 
 /**
  * A delegate that provides extra information for the transaction.
@@ -76,20 +75,20 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
                              configuration:(SENTRY_SWIFT_MIGRATION_ID(
                                                SentryTracerConfiguration))configuration;
 
-- (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
-                               operation:(NSString *)operation
-                             description:(nullable NSString *)description
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startChildWithParentId:(SentrySpanId *)parentId
+                                                      operation:(NSString *)operation
+                                                    description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
 /**
  * A method to inform the tracer that a span finished.
  */
-- (void)spanFinished:(id<SentrySpan>)finishedSpan;
+- (void)spanFinished:(SENTRY_SWIFT_MIGRATION_ID(SentrySpan))finishedSpan;
 
 /**
  * Get the tracer from a span.
  */
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan> _Nullable)span;
++ (nullable SentryTracer *)getTracer:(SENTRY_SWIFT_MIGRATION_ID(SentrySpan)_Nullable)span;
 
 - (void)startIdleTimeout;
 

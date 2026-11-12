@@ -7,6 +7,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
@@ -507,7 +508,8 @@ NS_ASSUME_NONNULL_BEGIN
                           withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithName:(NSString *)name
+                                                        operation:(NSString *)operation
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
@@ -516,9 +518,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                        origin:SentryTraceOriginManual]];
 }
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithName:(NSString *)name
+                                                        operation:(NSString *)operation
+                                                      bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
@@ -528,30 +530,34 @@ NS_ASSUME_NONNULL_BEGIN
                                  bindToScope:bindToScope];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [self startTransactionWithContext:transactionContext customSamplingContext:@{ }];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
+- (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
                        customSamplingContext:@{ }];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+- (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:NO
                        customSamplingContext:customSamplingContext];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+- (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                bindToScope:(BOOL)bindToScope
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
