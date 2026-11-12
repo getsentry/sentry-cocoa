@@ -110,7 +110,9 @@ extern NSString *const DropSessionLogMessage;
 {
     BOOL isFromPreviousProcess = isFatalEvent || event.isFromPreviousProcess;
     [self populateHintAttachments:hint scope:scope isFromPreviousProcess:isFromPreviousProcess];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
+    hint.attachments
+        = (NSArray<SentryAttachment *> *)[self processAttachmentsForEvent:event
+                                                              attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
@@ -142,7 +144,9 @@ extern NSString *const DropSessionLogMessage;
     [self populateHintAttachments:hint
                             scope:scope
             isFromPreviousProcess:event.isFatalEvent || event.isFromPreviousProcess];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
+    hint.attachments
+        = (NSArray<SentryAttachment *> *)[self processAttachmentsForEvent:event
+                                                              attachments:hint.attachments];
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
 

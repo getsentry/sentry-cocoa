@@ -22,6 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 - (void)unregisterSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments;
+
 @end
 
 NS_ASSUME_NONNULL_END

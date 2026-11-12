@@ -133,3 +133,14 @@ import Foundation
     }
 
 }
+
+/// Processes the attachment list for an event before the SDK sends it.
+///
+/// Each processor sees the list produced by the previous processor.
+@_spi(Private)
+@objc(SentryClientAttachmentProcessor)
+public protocol SentryClientAttachmentProcessor: NSObjectProtocol {
+    /// Returns the attachment list to send for `event`.
+    @objc(processAttachments:forEvent:)
+    func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment]
+}

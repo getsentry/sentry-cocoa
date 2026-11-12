@@ -277,7 +277,7 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureSerializedFeedbackInvocations = Invocations<(String, Scope)>()
-    public override func captureSerializedFeedback(_ serializedFeedback: [AnyHashable: Any], withEventId feedbackEventId: String, attachments: [Attachment], scope: Any) {
+    public override func captureSerializedFeedback(_ serializedFeedback: [AnyHashable: Any], withEventId feedbackEventId: String, attachments: [Any], scope: Any) {
         guard let scope = scope as? Scope else {
             XCTFail("Expected Scope, got \(type(of: scope))")
             return

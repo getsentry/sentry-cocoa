@@ -5,6 +5,7 @@
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "SentryClient+Private.h"
+#import "SentryClient+SwiftPrivate.h"
 #if !SDK_V10
 #    import "SentryCrashAsync.h"
 #    import "SentryCrashBinaryImageCache.h"
@@ -46,7 +47,6 @@
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAppStartTrackerHelper.h"
 #import "SentryAsyncLog.h"
-#import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryContinuousProfiler.h"
 #if !SDK_V10
@@ -81,6 +81,7 @@
 #import "SentryProfileConfiguration.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
+#import "SentrySDKInternal+SwiftPrivate.h"
 #import "SentrySDKInternal.h"
 #import "SentrySanitizerUtils.h"
 #import "SentrySerialization.h"
