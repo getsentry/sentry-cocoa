@@ -29,6 +29,7 @@ extern const void *_Nonnull sentry_cxa_throw_compatibility_linker_anchor(void)
 #    import "SentryContinuousProfiler.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerConfigurationBridge.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentrySDKInternal ()

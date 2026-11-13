@@ -45,7 +45,6 @@ typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
 
 #    if SENTRY_HAS_UIKIT
 - (void)startFramesTracker;
-- (void)stopFramesTracker;
 - (void)stopFramesTrackerIfUnused;
 - (void)resetProfilingTimestamps;
 - (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements;
