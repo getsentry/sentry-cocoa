@@ -86,6 +86,19 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         }
     }
 
+    func testProcessReport_whenReportIsValid_shouldMarkEventAsCrash() throws {
+        // -- Arrange --
+        let report = try getCrashReport(resource: "Resources/crash-report-1")
+
+        // -- Act --
+        try sut.process(report: report)
+
+        // -- Assert --
+        try assertFatalEventWithScope { event, _ in
+            XCTAssertTrue(try XCTUnwrap(event).isCrashEvent)
+        }
+    }
+
     func testProcessReport_whenLegacyCompatibleReportContainsAttachments_shouldLoadAttachmentsForCapture() throws {
         // -- Arrange --
         var report = try getCrashReport(resource: "Resources/crash-report-1")

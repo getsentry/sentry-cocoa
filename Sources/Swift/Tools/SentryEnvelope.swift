@@ -25,9 +25,14 @@ internal import _SentryPrivate
         self.init(header: SentryEnvelopeHeader(id: nil), items: items)
     }
     
-    @objc(initWithHeader:items:) public init(header: SentryEnvelopeHeader, items: [SentryEnvelopeItem]) {
+    @objc(initWithHeader:items:) public convenience init(header: SentryEnvelopeHeader, items: [SentryEnvelopeItem]) {
+        self.init(header: header, items: items, containsCrashEvent: false)
+    }
+
+    init(header: SentryEnvelopeHeader, items: [SentryEnvelopeItem], containsCrashEvent: Bool) {
         self.header = header
         self.items = items
+        self.containsCrashEvent = containsCrashEvent
     }
 
     convenience init(event: Event) {
@@ -37,5 +42,9 @@ internal import _SentryPrivate
     
     @objc public let header: SentryEnvelopeHeader
     @objc public let items: [SentryEnvelopeItem]
+
+    /// Whether the envelope contains a crash event, so the transport sends it before older cached
+    /// envelopes. Only kept in memory; it isn't serialized.
+    @objc public let containsCrashEvent: Bool
 }
 // swiftlint:enable missing_docs

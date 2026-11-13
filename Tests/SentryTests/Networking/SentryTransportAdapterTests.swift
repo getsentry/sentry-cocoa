@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 class SentryTransportAdapterTests: XCTestCase {
@@ -65,6 +66,47 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
     
+    func testSendEvent_whenEventIsCrash_shouldMarkEnvelopeAsContainingCrashEvent() throws {
+        // -- Arrange --
+        let event = Event(level: .fatal)
+        event.isCrashEvent = true
+
+        // -- Act --
+        sut.send(event: event, traceContext: nil, attachments: [])
+
+        // -- Assert --
+        let envelope = try XCTUnwrap(fixture.transport1.sentEnvelopes.first)
+        XCTAssertTrue(envelope.containsCrashEvent)
+    }
+
+    func testSendEventWithSession_whenEventIsCrash_shouldMarkEnvelopeAsContainingCrashEvent() throws {
+        // -- Arrange --
+        let event = Event(level: .fatal)
+        event.isCrashEvent = true
+        let session = SentrySession(releaseName: "1.0.1", distinctId: "some-id")
+
+        // -- Act --
+        sut.send(event, session: session, attachments: [])
+
+        // -- Assert --
+        let envelope = try XCTUnwrap(fixture.transport1.sentEnvelopes.first)
+        XCTAssertTrue(envelope.containsCrashEvent)
+    }
+
+    func testSendEvent_whenFatalEventIsNotCrash_shouldNotMarkEnvelopeAsContainingCrashEvent() throws {
+        // -- Arrange --
+        // For example, a watchdog termination or a fatal app hang.
+        let event = Event(level: .fatal)
+        event.isFatalEvent = true
+
+        // -- Act --
+        sut.send(event: event, traceContext: nil, attachments: [])
+
+        // -- Assert --
+        let envelope = try XCTUnwrap(fixture.transport1.sentEnvelopes.first)
+        XCTAssertFalse(envelope.containsCrashEvent)
+    }
+
     func testStoreEvent_StoresCorrectEnvelope() throws {
         let event = TestData.event
         sut.store(event, traceContext: nil)

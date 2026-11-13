@@ -37,6 +37,15 @@
 @property (nonatomic, strong) NSMutableArray<SentryEnvelope *> *notStoredEnvelopes;
 
 /**
+ * Paths of stored envelopes with a crash event that are sent before the oldest cached envelope.
+ * Crash events are created on the launch after the crash, so they are always the newest envelopes
+ * and would otherwise be sent last. This is only kept in memory and doesn't change the
+ * eviction order. If the app terminates before sending them, the next launch sends them in the
+ * regular oldest-first order.
+ */
+@property (nonatomic, strong) NSMutableArray<NSString *> *crashEnvelopePaths;
+
+/**
  * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
  * 30% slower than using atomic here.
  */
@@ -77,6 +86,7 @@
         _isFlushing = NO;
         self.discardedEvents = [[NSMutableDictionary alloc] init];
         self.notStoredEnvelopes = [[NSMutableArray alloc] init];
+        self.crashEnvelopePaths = [[NSMutableArray alloc] init];
         [self.envelopeRateLimit setDelegate:self];
         typeof(self) __weak weakSelf = self;
         [self.fileManager
@@ -109,6 +119,9 @@
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
+    // Read this before removing rate-limited items or adding a client report, because both
+    // create a new envelope.
+    BOOL containsCrashEvent = envelope.containsCrashEvent;
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
@@ -128,6 +141,11 @@
             SENTRY_LOG_DEBUG(@"Could not store envelope. Schedule for sending.");
             @synchronized(weakSelf.notStoredEnvelopes) {
                 [weakSelf.notStoredEnvelopes addObject:envelopeToStore];
+            }
+        } else if (containsCrashEvent) {
+            SENTRY_LOG_DEBUG(@"Stored envelope with crash event. Schedule for sending first.");
+            @synchronized(weakSelf.crashEnvelopePaths) {
+                [weakSelf.crashEnvelopePaths addObject:SENTRY_UNWRAP_NULLABLE(NSString, path)];
             }
         }
         [weakSelf sendAllCachedEnvelopes];
@@ -323,7 +341,10 @@
     }
 
     if (envelope == nil) {
-        SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
+        SentryFileContents *envelopeFileContents = [self getNextCrashEnvelope];
+        if (nil == envelopeFileContents) {
+            envelopeFileContents = [self.fileManager getOldestEnvelope];
+        }
         if (nil == envelopeFileContents) {
             SENTRY_LOG_DEBUG(@"No envelopes left to send.");
             [self finishedSending];
@@ -367,11 +388,45 @@
     }
 }
 
+/**
+ * Returns the oldest stored envelope with a crash event that still exists. Paths of envelopes that
+ * were deleted in the meantime, for example to stay within @c maxCacheItems, are dropped.
+ */
+- (nullable SentryFileContents *)getNextCrashEnvelope
+{
+    while (YES) {
+        NSString *_Nullable nullablePath;
+        @synchronized(self.crashEnvelopePaths) {
+            nullablePath = self.crashEnvelopePaths.firstObject;
+        }
+        if (nullablePath == nil) {
+            return nil;
+        }
+        NSString *path = SENTRY_UNWRAP_NULLABLE(NSString, nullablePath);
+
+        NSError *_Nullable error = nil;
+        NSData *_Nullable contents = [self.fileManager readDataFromPath:path error:&error];
+        if (contents != nil) {
+            return
+                [[SentryFileContents alloc] initWithPath:path
+                                                contents:SENTRY_UNWRAP_NULLABLE(NSData, contents)];
+        }
+
+        SENTRY_LOG_DEBUG(@"Could not read envelope with crash event at %@: %@", path, error);
+        @synchronized(self.crashEnvelopePaths) {
+            [self.crashEnvelopePaths removeObject:path];
+        }
+    }
+}
+
 - (void)deleteEnvelopeAndSendNext:(nullable NSString *)envelopePath
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     if (envelopePath != nil) {
         [self.fileManager removeFileAtPath:SENTRY_UNWRAP_NULLABLE(NSString, envelopePath)];
+        @synchronized(self.crashEnvelopePaths) {
+            [self.crashEnvelopePaths removeObject:SENTRY_UNWRAP_NULLABLE(NSString, envelopePath)];
+        }
     }
     @synchronized(self) {
         self.isSending = NO;
