@@ -10,20 +10,22 @@ private enum SentryWebViewSwizzleKeys {
     static let loadFileRequest = SentryTypedSwizzle.Key()
     static let loadSimulatedRequestHTML = SentryTypedSwizzle.Key()
     static let loadSimulatedRequestData = SentryTypedSwizzle.Key()
+    static let reload = SentryTypedSwizzle.Key()
+    static let reloadFromOrigin = SentryTypedSwizzle.Key()
 }
+
+typealias SentryWebViewTracePropagationIntegrationDependencies = HubProvider & DispatchQueueWrapperProvider
 
 /// Adds trace propagation to every `WKWebView` when ``Options/webViewTracing`` is set.
 ///
 /// Two mechanisms work together:
-/// - The `WKWebView` load methods are swizzled to install a fresh script right before each load.
-///   Every WebView that shows content goes through one of them, including the one backing a
-///   SwiftUI `WebPage`, so this is also how WebViews are discovered. Installing synchronously
-///   covers a transaction that starts in the same main-thread pass as the load.
+/// - The `WKWebView` load and reload methods are swizzled to install a fresh script right before
+///   each load. Every WebView that shows content goes through a load method, including the one
+///   backing a SwiftUI `WebPage`, so this is also how WebViews are discovered. Installing
+///   synchronously covers a trace change in the same main-thread pass as the load or reload.
 /// - A scope observer re-installs the script on every tracked controller when the trace changes,
-///   so navigations that don't go through the load methods, like links, redirects, and reloads,
-///   receive the current trace too.
-typealias SentryWebViewTracePropagationIntegrationDependencies = HubProvider & DispatchQueueWrapperProvider
-
+///   so navigations that don't go through these methods, like links and redirects, receive the
+///   current trace too.
 final class SentryWebViewTracePropagationIntegration<Dependencies: SentryWebViewTracePropagationIntegrationDependencies>: NSObject, SwiftIntegration {
     private let refresher: SentryWebViewTraceRefresher
     private let dispatchQueue: SentryDispatchQueueWrapper
@@ -102,6 +104,7 @@ final class SentryWebViewTracePropagationIntegration<Dependencies: SentryWebView
             return original(data, mimeType, characterEncodingName, baseURL)
         }
         swizzleFileAndSimulatedLoadMethods()
+        swizzleReloadMethods()
     }
 
     private static func swizzleFileAndSimulatedLoadMethods() {
@@ -140,6 +143,29 @@ final class SentryWebViewTracePropagationIntegration<Dependencies: SentryWebView
         ) { webView, request, response, data, original in
             willLoad(webView)
             return original(request, response, data)
+        }
+    }
+
+    /// A reload doesn't go through a load method. Installing synchronously covers a trace change in
+    /// the same main-thread pass as the reload, which the scope observer's refresh can be too late for.
+    private static func swizzleReloadMethods() {
+        SentryTypedSwizzle.instanceMethod(
+            in: WKWebView.self,
+            method: .webViewReload(WKWebView.self),
+            mode: .oncePerClassAndSuperclasses,
+            key: SentryWebViewSwizzleKeys.reload
+        ) { webView, original in
+            willLoad(webView)
+            return original()
+        }
+        SentryTypedSwizzle.instanceMethod(
+            in: WKWebView.self,
+            method: .webViewReloadFromOrigin(WKWebView.self),
+            mode: .oncePerClassAndSuperclasses,
+            key: SentryWebViewSwizzleKeys.reloadFromOrigin
+        ) { webView, original in
+            willLoad(webView)
+            return original()
         }
     }
 
