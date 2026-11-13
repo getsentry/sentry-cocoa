@@ -10,6 +10,7 @@ extension SentryMXMetricRecorder {
         recordUsageMetrics(of: payload, context)
         recordResourceMetrics(of: payload, context)
         recordExitMetrics(of: payload, context)
+        recordHistogramMetrics(of: payload, context)
     }
 
     // MARK: - Metric Groups
@@ -102,6 +103,39 @@ extension SentryMXMetricRecorder {
             recordCount(.exitBackgroundWatchdog, background.cumulativeAppWatchdogExitCount, context)
             recordCount(.exitBackgroundSuspendedWithLockedFile, background.cumulativeSuspendedWithLockedFileExitCount, context)
             recordCount(.exitBackgroundTaskTimeout, background.cumulativeBackgroundTaskAssertionTimeoutExitCount, context)
+        }
+    }
+
+    /// Records the launch times, hang times and cellular conditions MetricKit reports as histograms.
+    private func recordHistogramMetrics(of payload: MXMetricPayload, _ context: Context) {
+        if let launch = payload.applicationLaunchMetrics {
+            recordHistogram(.launchTimeToFirstDraw, Self.buckets(of: launch.histogrammedTimeToFirstDraw, in: .seconds), unit: .second, context)
+            recordHistogram(.launchResumeTime, Self.buckets(of: launch.histogrammedApplicationResumeTime, in: .seconds), unit: .second, context)
+            if #available(iOS 15.2, macOS 12.2, *) {
+                recordHistogram(.launchOptimizedTimeToFirstDraw, Self.buckets(of: launch.histogrammedOptimizedTimeToFirstDraw, in: .seconds), unit: .second, context)
+            }
+            if #available(iOS 16.0, macOS 13.0, *) {
+                recordHistogram(.launchExtended, Self.buckets(of: launch.histogrammedExtendedLaunch, in: .seconds), unit: .second, context)
+            }
+        }
+        if let responsiveness = payload.applicationResponsivenessMetrics {
+            recordHistogram(.responsivenessHangTime, Self.buckets(of: responsiveness.histogrammedApplicationHangTime, in: .seconds), unit: .second, context)
+        }
+        if let cellular = payload.cellularConditionMetrics {
+            recordHistogram(.cellularConditionTime, Self.buckets(of: cellular.histogrammedCellularConditionTime, in: .bars), unit: .generic("bars"), context)
+        }
+    }
+
+    private static func buckets<UnitType: Dimension>(of histogram: MXHistogram<UnitType>, in unit: UnitType) -> [HistogramBucket] {
+        histogram.bucketEnumerator.allObjects.compactMap { object in
+            guard let bucket = object as? MXHistogramBucket<UnitType> else {
+                return nil
+            }
+            return HistogramBucket(
+                lowerBound: bucket.bucketStart.converted(to: unit).value,
+                upperBound: bucket.bucketEnd.converted(to: unit).value,
+                count: bucket.bucketCount
+            )
         }
     }
 
