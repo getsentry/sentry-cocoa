@@ -24,7 +24,7 @@ Depending on how you interact with building the SDK, it's likely that you'll typ
 - `@objc` signatures in Swift cannot use generics, structs, Swift enums, tuples, or non-`@objc` protocols. Using these features is fine on internal Swift and on public API that is already Swift-only.
 - This migration keeps `@objc` on converted public types and does not change the API they expose. Declare classes `open`. Do not use `final`. Nothing here is gated on `SDK_V10`.
 - Members from a `+Private.h` that `.m` files call become `@_spi(Private) @objc public`. Leave public API unmarked. Hybrid SPI is described in [`Sources/AGENTS.md`](../Sources/AGENTS.md).
-- Tests find `_SentryPrivate` through `HEADER_SEARCH_PATHS` in `Tests/Configuration/SentryTests.xcconfig`. Leave that path off `SentrySwiftUI`.
+- Package test targets declare `_SentryPrivate` as a dependency in the manifests. Keep private SDK imports out of `SentrySwiftUI`.
 
 ## Converting a public type
 
