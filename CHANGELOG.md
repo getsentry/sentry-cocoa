@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
+  - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
+
 ### Fixes
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)

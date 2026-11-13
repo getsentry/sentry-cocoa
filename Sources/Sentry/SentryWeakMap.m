@@ -110,6 +110,19 @@
     return self.storage.count;
 }
 
+- (NSArray *)allKeys
+{
+    [self prune];
+    NSMutableArray *keys = [NSMutableArray arrayWithCapacity:self.storage.count];
+    for (SentryWeakBox *box in self.storage.keyEnumerator) {
+        id key = box.key;
+        if (key != nil) {
+            [keys addObject:key];
+        }
+    }
+    return keys;
+}
+
 - (void)prune
 {
     NSMutableArray *keysToRemove = [NSMutableArray array];
