@@ -54,6 +54,7 @@ private struct AnyIntegration {
 
 // Bridges to ObjC code to trigger installing the integrations
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
+    // swiftlint:disable:next function_body_length
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
@@ -112,6 +113,10 @@ private struct AnyIntegration {
 
         #if os(iOS) || os(macOS) || os(visionOS)
         integrations.append(.init(SentryMetricKitIntegration.self))
+        #endif
+
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        integrations.append(.init(SentryWebViewTracePropagationIntegration.self))
         #endif
 
         integrations.forEach { anyIntegration in

@@ -131,6 +131,50 @@ static NSString *const kTestDSN = @"https://key@sentry.io/123";
     XCTAssertEqual(controller.userScripts.count, 0);
 }
 
+- (void)testWebViewTracingOption_whenDefault_shouldBeNil
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertNil(options.webViewTracing);
+}
+
+- (void)testWebViewTracingOption_whenSet_shouldReturnItsHosts
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.webViewTracing = [self options];
+
+    // -- Assert --
+    XCTAssertEqualObjects(options.webViewTracing.allowedHosts, @[ @"example.com" ]);
+    options.webViewTracing = nil;
+    XCTAssertNil(options.webViewTracing);
+}
+
+- (void)testWebViewTracingOption_whenSDKStarted_shouldAddScriptBeforeLoad
+{
+    // -- Arrange --
+    [SentryObjCSDK close];
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
+        options.dsn = kTestDSN;
+        options.enableCrashHandler = NO;
+        options.webViewTracing = [self options];
+    }];
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero
+                                            configuration:[[WKWebViewConfiguration alloc] init]];
+
+    // -- Act --
+    [webView loadHTMLString:@"" baseURL:[NSURL URLWithString:@"https://example.com/"]];
+
+    // -- Assert --
+    NSArray<WKUserScript *> *scripts = webView.configuration.userContentController.userScripts;
+    XCTAssertEqual(scripts.count, 1);
+    XCTAssertTrue([scripts.firstObject.source containsString:@"example.com"]);
+}
+
 @end
 
 #endif

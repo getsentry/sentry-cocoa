@@ -17,6 +17,9 @@ public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
     public static var spanCaptureHandler: ((Span) -> Void)?
 
+    /// The host the sample WebView pages are served under, so they receive the injected trace.
+    public static let webViewHost = "webview.sentry-sample.local"
+
     /// Forwarded to `Options.swizzleClassNameExcludes`. Set before `startSentry()`.
     public static var swizzleClassNameExcludes: Set<String> = []
 
@@ -320,6 +323,11 @@ public struct SentrySDKWrapper {
         options.enableCoreDataTracing = !SentrySDKOverrides.CoreData.disableTracing.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Swizzling.disable.boolValue
         options.swizzleClassNameExcludes = SentrySDKWrapper.swizzleClassNameExcludes
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS))
+        if SentrySDKOverrides.WebView.enableAutomaticTracing.boolValue {
+            options.webViewTracing = SentryWebViewTracingOptions(allowedHosts: [SentrySDKWrapper.webViewHost])
+        }
+        #endif
         options.enableCrashHandler = !SentrySDKOverrides.Crash.disableHandler.boolValue
         // Stitch the calls to Swift async functions into one consecutive stack trace.
         options.swiftAsyncStacktraces = !SentrySDKOverrides.SwiftAsync.disable.boolValue

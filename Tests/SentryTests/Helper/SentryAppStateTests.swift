@@ -23,7 +23,11 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(sentry_toIso8601String(appState.systemBootTimestamp), actual["system_boot_timestamp"] as? String)
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
+        #if SDK_V10
+        XCTAssertNil(actual["is_anr_ongoing"])
+        #else
         XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
+        #endif
         XCTAssertEqual(appState.isSDKRunning, actual["is_sdk_running"] as? Bool)
     }
     
@@ -47,7 +51,7 @@ class SentryAppStateTests: XCTestCase {
         let appState = TestData.appState
         
         let releaseName = try XCTUnwrap(appState.releaseName)
-        let dict = [
+        var dict = [
             "release_name": releaseName,
             "os_version": appState.osVersion,
             "vendor_id": appState.vendorId ?? "",
@@ -55,10 +59,13 @@ class SentryAppStateTests: XCTestCase {
             "system_boot_timestamp": sentry_toIso8601String(appState.systemBootTimestamp),
             "is_active": appState.isActive,
             "was_terminated": appState.wasTerminated,
-            "is_anr_ongoing": appState.isANROngoing,
             "is_sdk_running": appState.isSDKRunning
         ] as [String: Any]
         
+        #if !SDK_V10
+        dict["is_anr_ongoing"] = appState.isANROngoing
+        #endif
+
         let actual = SentryAppState(jsonObject: dict)
         
         XCTAssertEqual(appState, actual)
@@ -71,7 +78,9 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["system_boot_timestamp"] = nil }
         withValue { $0["is_active"] = nil }
         withValue { $0["was_terminated"] = nil }
+        #if !SDK_V10
         withValue { $0["is_anr_ongoing"] = nil }
+        #endif
     }
 
     func testInitWithJSON_IfJsonContainsWrongField_AppStateIsNil() {
@@ -82,9 +91,39 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["system_boot_timestamp"] = "" }
         withValue { $0["is_active"] = "" }
         withValue { $0["was_terminated"] = "" }
+        #if !SDK_V10
         withValue { $0["is_anr_ongoing"] = "" }
+        #endif
     }
     
+    #if SDK_V10
+    func testInitWithJSON_whenANRFlagMissing_shouldLoadAppState() throws {
+        // -- Arrange --
+        var serialized = TestData.appState.serialize()
+        serialized.removeValue(forKey: "is_anr_ongoing")
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentryAppState(jsonObject: serialized))
+
+        // -- Assert --
+        XCTAssertEqual(actual.serialize() as NSDictionary, serialized as NSDictionary)
+    }
+
+    func testInitWithJSON_whenLegacyANRFlagPresent_shouldIgnoreFlag() throws {
+        // -- Arrange --
+        let expected = TestData.appState.serialize()
+        var serialized = expected
+        serialized["is_anr_ongoing"] = true
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentryAppState(jsonObject: serialized))
+
+        // -- Assert --
+        XCTAssertEqual(actual.serialize() as NSDictionary, expected as NSDictionary)
+        XCTAssertNil(actual.serialize()["is_anr_ongoing"])
+    }
+    #endif
+
     func testSerialize_whenRunIdIsSet_shouldAddRunId() {
         // -- Arrange --
         let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp, runId: SentryCurrentRun.ID(rawValue: "run-id"))

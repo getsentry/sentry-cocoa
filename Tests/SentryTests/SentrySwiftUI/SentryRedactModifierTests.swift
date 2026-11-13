@@ -23,9 +23,14 @@ class SentryRedactModifierTests: XCTestCase {
 
         // As the actual type is part of SwiftUI and somewhat unpredictable, we need to have multiple assertions.
         // Eventually this can be replaced with a more stable solution.
+        #if SWIFT_PACKAGE && !SDK_V10
+        let sdkModule = "SentrySwift"
+        #else
+        let sdkModule = "Sentry"
+        #endif
         let candidates = [
             "ModifiedContent<Text, SentryReplayModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryReplayModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, \(sdkModule).SentryReplayModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeOfRedactedText.contains($0) }),
@@ -43,9 +48,14 @@ class SentryRedactModifierTests: XCTestCase {
         let typeOfRedactedText = String(describing: redactedText)
         // As the actual type is part of SwiftUI and somewhat unpredictable, we need to have multiple assertions.
         // Eventually this can be replaced with a more stable solution.
+        #if SWIFT_PACKAGE && !SDK_V10
+        let sdkModule = "SentrySwift"
+        #else
+        let sdkModule = "Sentry"
+        #endif
         let candidates = [
             "ModifiedContent<Text, SentryReplayModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryReplayModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, \(sdkModule).SentryReplayModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeOfRedactedText.contains($0) }),

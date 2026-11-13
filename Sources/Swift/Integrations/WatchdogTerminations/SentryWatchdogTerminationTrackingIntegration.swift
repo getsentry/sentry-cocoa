@@ -8,7 +8,7 @@ import Foundation
 typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
 typealias WatchdogTerminationTrackingIntegrationANRSupport = SentryANRTrackerDelegate
 #else
-typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
+typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
 protocol WatchdogTerminationTrackingIntegrationANRSupport { }
 #endif
 
@@ -17,13 +17,12 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     private let tracker: SentryWatchdogTerminationTracker
     #if !SDK_V10
     private let anrTracker: SentryANRTracker?
-    #endif
     private let appHangTracker: SentryAppHangTracker?
     private let appStateManager: SentryAppStateManager
-    private let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
-
     private var hasStartedHang: Bool = false
     private var appHangTrackerObserverToken: SentryAppHangTrackerObserverToken?
+    #endif
+    private let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
 
     // swiftlint:disable:next function_body_length
     init?(with options: Options, dependencies: Dependencies) {
@@ -61,15 +60,14 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
             appHangTracker = nil
         }
-        #else
-        appHangTracker = dependencies.appHangTracker
-        #endif
         appStateManager = dependencies.appStateManager
+        #endif
         self.breadcrumbProcessor = breadcrumbProcessor
 
         super.init()
 
         tracker.start()
+        #if !SDK_V10
         appHangTrackerObserverToken = appHangTracker?.addObserver(threshold: options.appHangTimeoutInterval) { [weak self] hang in
             guard let self else { return }
 
@@ -80,7 +78,6 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
                 hangStopped()
             }
         }
-        #if !SDK_V10
         anrTracker?.add(listener: self)
         #endif
 
@@ -122,12 +119,15 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         #endif
         breadcrumbProcessor.flushAndClose()
 
+        #if !SDK_V10
         guard let appHangTrackerObserverToken else {
             return
         }
         appHangTracker?.removeObserver(token: appHangTrackerObserverToken)
+        #endif
     }
 
+    #if !SDK_V10
     func hangStarted() {
         guard !hasStartedHang else { return }
 
@@ -144,7 +144,6 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         }
     }
 
-    #if !SDK_V10
     func anrDetected(type: SentryANRType) {
         appStateManager.updateAppState { appState in
             appState.isANROngoing = true

@@ -37,6 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
     NS_SWIFT_NAME(dispatchAsyncOnMainQueueIfNotMainThread(block:));
 
+/**
+ * Dispatches the block asynchronously to the main queue, also when called on the main thread.
+ */
+- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
+    NS_SWIFT_NAME(dispatchAsyncOnMainQueue(block:));
+
 @end
 
 NS_ASSUME_NONNULL_END

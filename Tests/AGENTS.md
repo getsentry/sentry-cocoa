@@ -28,9 +28,9 @@ make test-ui-critical
 
 ```bash
 make -C test-server start-debug
-./scripts/sentry-xcodebuild.sh --platform iOS --command test --test-plan Sentry_TestServer
-make test-macos FOR_AGENTS=true TEST_PLAN=Sentry_TestServer
-make test-macos-v10 FOR_AGENTS=true TEST_PLAN=Sentry_TestServer
+make test-ios FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer
+make test-macos FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer
+make test-macos-v10 FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer_v10
 make -C test-server stop
 ```
 
@@ -47,8 +47,9 @@ make -C test-server stop
 - Do not create implementation tests against header-only `SentryHeaders`
 - For SwiftPM, follow the [package test instructions](../develop-docs/TEST.md#package-tests-with-xcodebuild) and select `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests` with `-only-testing:`
 - Use `xcodebuild`, not `swift test`, to execute the Objective-C package tests
-- The existing Xcode targets remain supported: `make test-macos FOR_AGENTS=true TEST_SCHEME=SentryObjCTests` tests the project, not the package
-- Target a project test class with `ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
+- Make test targets use the package workspace and preserve checked-in manifests
+- Select a whole wrapper suite with `ONLY_TESTING=SentryObjCTests` or a class with `ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
+- V9 and V10 package targets use the same test identifiers, without a `V10` suffix
 - Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md)
 
 ## Untestable Paths

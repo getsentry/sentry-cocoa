@@ -88,6 +88,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       # === Toolchain and simulator preparation ===
       - name: Wait for CoreSimulator warmup
@@ -154,6 +157,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -193,6 +199,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -262,6 +271,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -363,6 +375,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
@@ -415,6 +430,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Setup Xcode
