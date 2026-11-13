@@ -13,7 +13,7 @@ final class SentryUIEventTrackerTransactionEventProcessor {
         self.idleTimeout = idleTimeout
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     var activeTransactions: [SentryTracer] {
         activeTransactionsStorage.withLock { $0 }
     }

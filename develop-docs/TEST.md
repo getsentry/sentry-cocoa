@@ -51,28 +51,17 @@ Open the repository's `Package.swift` in Xcode, select the `SentrySPM` scheme an
 
 Use `SentrySPM`, not the aggregate `Sentry-Package` scheme. The aggregate scheme includes mutually exclusive binary distributions that produce overlapping framework outputs. Test JSON fixtures live under `Tests/Fixtures` so the package resource bundle does not contain a top-level `Resources` directory that codesign rejects.
 
-The Make/CI test targets continue to pass Test/TestCI and the test xcconfig explicitly for project-equivalent compilation. Those named configurations use `SENTRY_TEST` or `SENTRY_TEST_CI`, while local Debug builds use `DEBUG`. For explicit trait-based macOS tests with Xcode 26 or newer, run from the repository root:
+The Make/CI test targets also use Debug, with the test xcconfig adding SDK ABI and diagnostic checks. Debug defines `DEBUG` for Swift and `DEBUG=1` for Objective-C/C/C++, including Swift's Clang importer. For local macOS tests with Xcode 26 or newer, run from the repository root:
 
 ```sh
-swift test --traits _SentryTest
-swift test --traits _SentryTestCI
-# V10: the environment selects the SDK; the test trait enables test helpers.
-SDK_V10=1 swift test --traits _SentryTest
+swift test
+SDK_V10=1 swift test
 ```
 
-The `V10` trait has been removed; use `SDK_V10=1` for all V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
-
-The test traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
-
-| Trait           | Swift definitions | Objective-C/C/C++ definitions            |
-| --------------- | ----------------- | ---------------------------------------- |
-| `_SentryTest`   | `SENTRY_TEST`     | `DEBUG=1 SENTRY_TEST=1`                  |
-| `_SentryTestCI` | `SENTRY_TEST_CI`  | `DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1` |
-
-`_SentryTestCI` does not enable `_SentryTest`. Neither trait changes prebuilt binaries.
+Use `SDK_V10=1` for V10 package builds. See [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection).
 
 > [!WARNING]
-> Debug builds include the SDK's test hooks and debug/test behavior, including in source-based consumer builds. This includes synchronous V9 binary-image cache initialization and suppressing the original macOS `_crashOnException:` abort path. Release builds exclude these branches unless a test trait or test flag is explicitly enabled. Do not enable test traits or flags for production builds. The underscore does not make traits private.
+> Debug builds include the SDK's test hooks and debug/test behavior, including in source-based consumer builds. This includes synchronous V9 binary-image cache initialization and suppressing the original macOS `_crashOnException:` abort path. Release builds exclude these branches. Do not explicitly enable `DEBUG` for production builds.
 
 To run a specific suite, append `--filter <test-target>`, for example `--filter SentryObjCCompatTests`.
 
@@ -82,7 +71,7 @@ Use `xcodebuild`, not `swift test`, to include Objective-C/Objective-C++ package
 
 For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These plans include the main SDK suite, with profiler tests only in V9. V9 crash tests remain in the main suite and use guarded imports of `SentryCrashV9Swift`. `swift test` does not apply Xcode test plans.
 
-`xcodebuild` cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
+For CI-equivalent ABI and diagnostic checks, apply the package test xcconfig to a Debug build. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
 ```sh
 package_dir="$(mktemp -d)"
@@ -103,12 +92,10 @@ fi
 
 status=0
 xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
-  -configuration Test -parallel-testing-enabled NO \
+  -configuration Debug -parallel-testing-enabled NO \
   -testPlan "$test_plan" \
   -destination 'platform=macOS' \
   -xcconfig "$package_test_config" \
-  'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
-  'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
   CODE_SIGNING_ALLOWED=NO \
   > "$package_dir/package-tests.log" 2>&1 || status=$?
 grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests.log"
@@ -119,7 +106,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`. Make accepts target, class, and method selectors in `ONLY_TESTING`, including comma-separated combinations. For example, `make test-macos ONLY_TESTING=SentryObjCTests` runs the public Objective-C wrapper suite. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
 - Local and CI unit tests share the Make targets: `make test-macos`, `make test-ios`, and the corresponding `-v10` targets use the `SentrySPM` package workspace. Make copies sources, test plans, schemes, and manifests into `TEST_WORKSPACE` (default: `.build/package-tests`) and strips binary targets from the copied manifests. Prepared SDK Base plans omit `SentryDistributionTests`. The dedicated iOS distribution job opts in with `TEST_INCLUDE_DISTRIBUTION=true`, preserving its existing coverage. Checked-in manifests and plans remain unchanged. Use package test identifiers for `ONLY_TESTING`, without a `V10` suffix.
-- CI invokes the explicit platform targets with `TEST_CONFIGURATION=TestCI`. The shared unit-test workflow derives the Make target from its `platform` input. Simulator targets use their platform-specific variables, such as `IOS_SIMULATOR_OS` and `IOS_DEVICE_NAME`. These targets select the SDK generation and Base plan, pass the existing package test xcconfig and explicit test definitions, and disable signing. `TEST_PLAN` selects a package Flaky or TestServer plan. `TEST_RESULT_BUNDLE` and `TEST_DERIVED_DATA` override the result bundle name and DerivedData path. Defaults for DerivedData and result bundles are under `RUNNER_TEMP` in CI and the temporary directory locally.
+- CI invokes the explicit platform targets with `TEST_CONFIGURATION=Debug`. The shared unit-test workflow derives the Make target from its `platform` input. Simulator targets use their platform-specific variables, such as `IOS_SIMULATOR_OS` and `IOS_DEVICE_NAME`. These targets select the SDK generation and Base plan, pass the package test xcconfig, and disable signing. `TEST_PLAN` selects a package Flaky or TestServer plan. `TEST_RESULT_BUNDLE` and `TEST_DERIVED_DATA` override the result bundle name and DerivedData path. Defaults for DerivedData and result bundles are under `RUNNER_TEMP` in CI and the temporary directory locally.
 - Set `TEST_COMMAND=build-for-testing` to prepare the package and compile tests. The corresponding `TEST_COMMAND=test-without-building` invocation reuses that package without preparation. Both phases must use the same `TEST_WORKSPACE`, configuration, platform, and destination. Regular, fast-PR, nightly, V10, and distribution jobs use these Make entry points.
 - Base-plan exclusions use the owning Swift, Objective-C, or Objective-C++ package test target.
 - Use `SentrySPM_Flaky` for V9 flaky tests.
@@ -129,7 +116,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 
 Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
 
-- **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
+- **Test compilation:** Local Xcode and Make/CI tests use `Debug`, which supplies `DEBUG`, testability, and unoptimized compilation while preserving manifest definitions.
 - **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. The SDK Swift target (`Sentry` with `SDK_V10=1`, otherwise `SentrySwift`) and `SentryObjCCompat` use library evolution and verify their textual interfaces.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 

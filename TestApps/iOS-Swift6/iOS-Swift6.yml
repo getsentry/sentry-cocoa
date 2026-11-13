@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -59,8 +57,6 @@ targets:
     configFiles:
       Debug: App/Configurations/iOS-Swift6.xcconfig
       Release: App/Configurations/iOS-Swift6.xcconfig
-      Test: App/Configurations/iOS-Swift6.xcconfig
-      TestCI: App/Configurations/iOS-Swift6.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -147,8 +143,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/iOS-Swift6-UITests.xcconfig
       Release: UITests/Configurations/iOS-Swift6-UITests.xcconfig
-      Test: UITests/Configurations/iOS-Swift6-UITests.xcconfig
-      TestCI: UITests/Configurations/iOS-Swift6-UITests.xcconfig
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
@@ -161,6 +155,6 @@ schemes:
         iOS-Swift6: all
         iOS-Swift6-UITests: test
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/iOS-Swift6_Base.xctestplan

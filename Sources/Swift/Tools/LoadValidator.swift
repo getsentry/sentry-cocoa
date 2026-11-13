@@ -8,7 +8,7 @@ import MachO
 @_spi(Private) public final class LoadValidator: NSObject {
     // Any class should be fine, ObjC classes are better
     static let targetClassName = NSStringFromClass(SentryDependencyContainerSwiftHelper.self)
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     static var checkForDuplicatedSDKCallback: ((String, UInt64, UInt64) -> Void)?
 #endif
     
@@ -20,7 +20,7 @@ import MachO
                                                            imageSize: NSNumber,
                                                            objcRuntimeWrapper: SentryObjCRuntimeWrapper,
                                                            dispatchQueueWrapper: SentryDispatchQueueWrapper) {
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
         checkForDuplicatedSDKCallback?(imageName, imageAddress.uint64Value, imageSize.uint64Value)
 #endif
         internalCheckForDuplicatedSDK(imageName, imageAddress.uint64Value, imageSize.uint64Value,

@@ -13,7 +13,7 @@ id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeo
 
 @interface SentryTraceProfiler ()
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 
 + (SentryProfiler *_Nullable)getCurrentProfiler;
 
@@ -31,7 +31,7 @@ id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeo
  */
 + (NSUInteger)currentProfiledTracers;
 
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 @end
 

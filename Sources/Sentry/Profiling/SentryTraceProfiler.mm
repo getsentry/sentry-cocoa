@@ -122,7 +122,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
 #    pragma mark - Testing helpers
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 + (SentryProfiler *_Nullable)getCurrentProfiler
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
@@ -138,7 +138,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 {
     return sentry_currentProfiledTracers();
 }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 @end
 

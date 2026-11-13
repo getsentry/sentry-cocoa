@@ -164,7 +164,7 @@ jobs:
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           make "$MAKE_TARGET" \
-            TEST_CONFIGURATION=TestCI \
+            TEST_CONFIGURATION=Debug \
             TEST_INCLUDE_DISTRIBUTION=true \
             TEST_PLAN="$TEST_PLAN" \
             TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" 2>&1 | tee raw-test-output-distribution.log
@@ -289,12 +289,10 @@ jobs:
         id: build_tests
         env:
           MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
-          REF_NAME: ${{ github.ref_name }}
         run: |
           make "$MAKE_TARGET" \
-            GIT-REF="$REF_NAME" \
             TEST_COMMAND=build-for-testing \
-            TEST_CONFIGURATION=TestCI \
+            TEST_CONFIGURATION=Debug \
             TEST_PLAN=SentrySPM_TestServer
 
       # A wait control step would wait for server exit, not HTTP readiness.
@@ -313,12 +311,10 @@ jobs:
       - name: Run tests
         env:
           MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
-          REF_NAME: ${{ github.ref_name }}
         run: |
           make "$MAKE_TARGET" \
-            GIT-REF="$REF_NAME" \
             TEST_COMMAND=test-without-building \
-            TEST_CONFIGURATION=TestCI \
+            TEST_CONFIGURATION=Debug \
             TEST_PLAN=SentrySPM_TestServer
 
       # Control steps run even after a failure, so the server cannot hold up cleanup.
