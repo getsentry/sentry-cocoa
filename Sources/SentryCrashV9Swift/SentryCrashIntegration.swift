@@ -171,7 +171,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 
     /// Sends all pending crash reports. Called internally during initialization.
-    func sendAllSentryCrashReports() {
+    private func sendAllSentryCrashReports() {
         installation?.sendAllReports(completion: nil)
     }
 
