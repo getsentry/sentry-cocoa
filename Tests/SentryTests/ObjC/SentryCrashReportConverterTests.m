@@ -41,7 +41,7 @@
 
 - (void)testConvertReport
 {
-    NSDictionary *report = [self getCrashReport:@"Resources/crash-report-1"];
+    NSDictionary *report = [self getCrashReport:@"Fixtures/crash-report-1"];
 
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
@@ -117,7 +117,7 @@
  */
 - (void)testRecrashReport_WithThreadIsStringInsteadOfDict
 {
-    NSDictionary *report = [self getCrashReport:@"Resources/recrash-report"];
+    NSDictionary *report = [self getCrashReport:@"Fixtures/recrash-report"];
 
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
@@ -180,13 +180,13 @@
 
 - (void)testRawWithCrashReport
 {
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/raw-crash"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/raw-crash"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     NSDictionary *serializedEvent = [event serialize];
 
-    NSDictionary *eventJson = [self getCrashReport:@"Resources/converted-event"];
+    NSDictionary *eventJson = [self getCrashReport:@"Fixtures/converted-event"];
 
     __block NSArray *serializedDebugImages
         = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
@@ -223,7 +223,7 @@
 
 - (void)testWithFaultyReport
 {
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/Crash-faulty-report"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/Crash-faulty-report"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -234,39 +234,39 @@
 
 - (void)testAbort
 {
-    [self isValidReport:@"Resources/Abort"];
+    [self isValidReport:@"Fixtures/Abort"];
 }
 
 - (void)testMissingBinary
 {
-    [self isValidReport:@"Resources/Crash-missing-binary-images"];
+    [self isValidReport:@"Fixtures/Crash-missing-binary-images"];
 }
 
 - (void)testMissingCrashError
 {
-    [self isValidReport:@"Resources/Crash-missing-crash-error"];
+    [self isValidReport:@"Fixtures/Crash-missing-crash-error"];
 }
 
 - (void)testMissingThreads
 {
-    [self isValidReport:@"Resources/Crash-missing-crash-threads"];
+    [self isValidReport:@"Fixtures/Crash-missing-crash-threads"];
 }
 
 - (void)testMissingCrash
 {
-    [self isValidReport:@"Resources/Crash-missing-crash"];
+    [self isValidReport:@"Fixtures/Crash-missing-crash"];
 }
 
 - (void)testMissingUser
 {
-    [self isValidReport:@"Resources/Crash-missing-user"];
+    [self isValidReport:@"Fixtures/Crash-missing-user"];
 }
 
 - (void)testNSException
 {
-    [self isValidReport:@"Resources/NSException"];
+    [self isValidReport:@"Fixtures/NSException"];
 
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSException"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/NSException"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -279,14 +279,14 @@
 
 - (void)testUnknownTypeException
 {
-    [self isValidReport:@"Resources/UnknownTypeException"];
+    [self isValidReport:@"Fixtures/UnknownTypeException"];
 }
 
 - (void)testNSExceptionWithoutReason
 {
-    [self isValidReport:@"Resources/NSExceptionWithoutReason"];
+    [self isValidReport:@"Fixtures/NSExceptionWithoutReason"];
 
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSExceptionWithoutReason"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/NSExceptionWithoutReason"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -301,7 +301,7 @@
 
 - (void)testStackoverflow
 {
-    [self isValidReport:@"Resources/StackOverflow"];
+    [self isValidReport:@"Fixtures/StackOverflow"];
 }
 
 - (void)testConvertExceptions_whenStackOverflow_shouldIgnoreNotableAddressStrings
@@ -360,9 +360,9 @@
 
 - (void)testCPPException
 {
-    [self isValidReport:@"Resources/CPPException"];
+    [self isValidReport:@"Fixtures/CPPException"];
 
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/CPPException"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/CPPException"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -375,8 +375,8 @@
 
 - (void)testNXPage
 {
-    [self isValidReport:@"Resources/NX-Page"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NX-Page"];
+    [self isValidReport:@"Fixtures/NX-Page"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/NX-Page"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -386,26 +386,26 @@
 
 - (void)testReactNative
 {
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/ReactNative"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/ReactNative"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     //    Error: SentryClient: Test throw error
     XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
     XCTAssertEqualObjects(event.exceptions.firstObject.value, @"SentryClient: Test throw error");
-    [self isValidReport:@"Resources/ReactNative"];
+    [self isValidReport:@"Fixtures/ReactNative"];
 }
 
 - (void)testIncomplete
 {
-    [self isValidReport:@"Resources/incomplete"];
+    [self isValidReport:@"Fixtures/incomplete"];
 }
 
 - (void)testDuplicateFrame
 {
     // There are 23 frames in the report but it should remove the duplicate
-    [self isValidReport:@"Resources/dup-frame"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/dup-frame"];
+    [self isValidReport:@"Fixtures/dup-frame"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/dup-frame"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -418,9 +418,9 @@
 
 - (void)testNewNSException
 {
-    [self isValidReport:@"Resources/sentry-ios-cocoapods-report-0000000053800000"];
+    [self isValidReport:@"Fixtures/sentry-ios-cocoapods-report-0000000053800000"];
     NSDictionary *rawCrash =
-        [self getCrashReport:@"Resources/sentry-ios-cocoapods-report-0000000053800000"];
+        [self getCrashReport:@"Fixtures/sentry-ios-cocoapods-report-0000000053800000"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -430,8 +430,8 @@
 
 - (void)testFatalError
 {
-    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
+    [self isValidReport:@"Fixtures/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -441,25 +441,25 @@
 
 - (void)testFatalErrorBinaryiPhone
 {
-    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-iphone"
+    [self testFatalErrorBinary:@"Fixtures/fatal-error-binary-images-iphone"
                  expectedValue:@"iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"];
 }
 
 - (void)testFatalErrorBinaryMac
 {
-    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-mac"
+    [self testFatalErrorBinary:@"Fixtures/fatal-error-binary-images-mac"
                  expectedValue:@"macOS_Swift/ViewController.swift:14: Assertion failed: hello\n"];
 }
 
 - (void)testFatalErrorBinarySimulator
 {
-    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-simulator"
+    [self testFatalErrorBinary:@"Fixtures/fatal-error-binary-images-simulator"
                  expectedValue:@"iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"];
 }
 
 - (void)testFatalErrorBinaryMessage2
 {
-    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-message2"
+    [self testFatalErrorBinary:@"Fixtures/fatal-error-binary-images-message2"
                  expectedValue:@"iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"];
 }
 
@@ -475,8 +475,8 @@
 
 - (void)testUserInfo
 {
-    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
+    [self isValidReport:@"Fixtures/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     reportConverter.userContext = @{
@@ -503,8 +503,8 @@
 
 - (void)testTraceContext
 {
-    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
+    [self isValidReport:@"Fixtures/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     reportConverter.userContext = @{
@@ -523,8 +523,8 @@
 
 - (void)testAppContextInForegroundTrue_IsTrue
 {
-    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
+    [self isValidReport:@"Fixtures/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
 
@@ -537,7 +537,7 @@
 - (void)testAppContextInForegroundFalse_IsFalse
 {
     NSMutableDictionary *rawCrash =
-        [self getCrashReport:@"Resources/fatal-error-binary-images-simulator"].mutableCopy;
+        [self getCrashReport:@"Fixtures/fatal-error-binary-images-simulator"].mutableCopy;
 
     NSMutableDictionary *systemDict =
         [[NSMutableDictionary alloc] initWithDictionary:rawCrash[@"system"]];
@@ -557,9 +557,9 @@
 
 - (void)testAppContextInForegroundNil_IsNil
 {
-    [self isValidReport:@"Resources/fatal-error-binary-images-simulator"];
+    [self isValidReport:@"Fixtures/fatal-error-binary-images-simulator"];
     NSMutableDictionary *rawCrash =
-        [self getCrashReport:@"Resources/fatal-error-binary-images-simulator"].mutableCopy;
+        [self getCrashReport:@"Fixtures/fatal-error-binary-images-simulator"].mutableCopy;
 
     NSMutableDictionary *systemDict =
         [[NSMutableDictionary alloc] initWithDictionary:rawCrash[@"system"]];
@@ -579,8 +579,8 @@
 
 - (void)testAppContextIsActiveTrue_IsTrue
 {
-    [self isValidReport:@"Resources/fatal-error-binary-images-simulator"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-binary-images-simulator"];
+    [self isValidReport:@"Fixtures/fatal-error-binary-images-simulator"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/fatal-error-binary-images-simulator"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
 
@@ -592,8 +592,8 @@
 
 - (void)testAppContextIsActiveFalse_FromCrashReport
 {
-    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
+    [self isValidReport:@"Fixtures/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Fixtures/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
 
@@ -606,7 +606,7 @@
 - (void)testAppContextIsActiveFalse_IsFalse
 {
     NSMutableDictionary *rawCrash =
-        [self getCrashReport:@"Resources/fatal-error-binary-images-simulator"].mutableCopy;
+        [self getCrashReport:@"Fixtures/fatal-error-binary-images-simulator"].mutableCopy;
 
     NSMutableDictionary *systemDict =
         [[NSMutableDictionary alloc] initWithDictionary:rawCrash[@"system"]];
@@ -626,9 +626,9 @@
 
 - (void)testAppContextIsActiveNil_IsNil
 {
-    [self isValidReport:@"Resources/fatal-error-binary-images-simulator"];
+    [self isValidReport:@"Fixtures/fatal-error-binary-images-simulator"];
     NSMutableDictionary *rawCrash =
-        [self getCrashReport:@"Resources/fatal-error-binary-images-simulator"].mutableCopy;
+        [self getCrashReport:@"Fixtures/fatal-error-binary-images-simulator"].mutableCopy;
 
     NSMutableDictionary *systemDict =
         [[NSMutableDictionary alloc] initWithDictionary:rawCrash[@"system"]];
@@ -651,11 +651,11 @@
  */
 - (void)testScopeSync_V1_VS_V2
 {
-    [self isValidReport:@"Resources/crash-report-user-info-scope-v1"];
-    [self isValidReport:@"Resources/crash-report-user-info-scope-v2"];
+    [self isValidReport:@"Fixtures/crash-report-user-info-scope-v1"];
+    [self isValidReport:@"Fixtures/crash-report-user-info-scope-v2"];
 
-    NSDictionary *rawCrashV1 = [self getCrashReport:@"Resources/crash-report-user-info-scope-v1"];
-    NSDictionary *rawCrashV2 = [self getCrashReport:@"Resources/crash-report-user-info-scope-v2"];
+    NSDictionary *rawCrashV1 = [self getCrashReport:@"Fixtures/crash-report-user-info-scope-v1"];
+    NSDictionary *rawCrashV2 = [self getCrashReport:@"Fixtures/crash-report-user-info-scope-v2"];
 
     SentryCrashReportConverter *reportConverterV1 =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrashV1 inAppLogic:self.inAppLogic];
@@ -668,12 +668,12 @@
 
 - (void)testBreadcrumb_FromUserInfo
 {
-    [self testBreadcrumb:@"Resources/breadcrumb"];
+    [self testBreadcrumb:@"Fixtures/breadcrumb"];
 }
 
 - (void)testBreadcrumb_FromSDKScope
 {
-    [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
+    [self testBreadcrumb:@"Fixtures/breadcrumb_sdk_scope"];
 }
 
 - (void)testConvertReport_whenSentrySdkScopeIsNestedInUser_shouldLiftScopeFields
@@ -1527,7 +1527,7 @@
 - (void)testMachException_shouldBeSynthetic
 {
     // -- Act --
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/crash-report-1"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/crash-report-1"];
 
     // -- Assert --
     XCTAssertEqualObjects(exception.mechanism.type, @"mach");
@@ -1537,7 +1537,7 @@
 - (void)testSignalException_shouldBeSynthetic
 {
     // -- Act --
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/Abort"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/Abort"];
 
     // -- Assert --
     XCTAssertEqualObjects(exception.mechanism.type, @"signal");
@@ -1547,7 +1547,7 @@
 - (void)testNSException_shouldNotBeSynthetic
 {
     // -- Act --
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/NSException"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/NSException"];
 
     // -- Assert --
     // An NSException was really thrown, so its type is genuine identity.
@@ -1558,7 +1558,7 @@
 - (void)testCPPException_shouldNotBeSynthetic
 {
     // -- Act --
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/CPPException"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/CPPException"];
 
     // -- Assert --
     XCTAssertEqualObjects(exception.mechanism.type, @"cpp_exception");
@@ -1568,7 +1568,7 @@
 - (void)testUserReportedException_shouldNotBeSynthetic
 {
     // -- Act --
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/ReactNative"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/ReactNative"];
 
     // -- Assert --
     // The type of a user-reported exception is supplied by the caller and is genuine.
@@ -1580,7 +1580,7 @@
 {
     // -- Act --
     // crash-sigterm has no mach context, which used to leave both flags unset.
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/crash-sigterm"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/crash-sigterm"];
 
     // -- Assert --
     XCTAssertEqualObjects(exception.mechanism.type, @"signal");
@@ -1593,7 +1593,7 @@
 {
     // -- Act --
     // Dropping the type from grouping must not drop the underlying detail.
-    SentryException *exception = [self firstExceptionOfReport:@"Resources/crash-report-1"];
+    SentryException *exception = [self firstExceptionOfReport:@"Fixtures/crash-report-1"];
 
     // -- Assert --
     XCTAssertEqualObjects(exception.mechanism.synthetic, @(YES));

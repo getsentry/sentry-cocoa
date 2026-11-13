@@ -10,7 +10,7 @@
   },
   "excludes": [
     ".github/labeler.yml",
-    "Tests/Resources/**/*garbage*.json",
+    "Tests/Fixtures/**/*garbage*.json",
     "sdk_api*.json",
     "**/*.docc/**"
   ],

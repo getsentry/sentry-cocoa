@@ -2,12 +2,12 @@ import SentryTestUtilsObjC
 import XCTest
 
 final class SentryTestResourceBundleTests: XCTestCase {
-    func testFixtureBundle_whenLoadingJSON_shouldPreserveResourcesDirectory() throws {
+    func testFixtureBundle_whenLoadingJSON_shouldPreserveFixturesDirectory() throws {
         // -- Arrange --
         let bundle = sentryTestResourceBundle(for: Self.self)
 
         // -- Act --
-        let url = try XCTUnwrap(bundle.url(forResource: "Resources/crash-report-1", withExtension: "json"))
+        let url = try XCTUnwrap(bundle.url(forResource: "Fixtures/crash-report-1", withExtension: "json"))
         let data = try Data(contentsOf: url)
         let report = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
 
@@ -20,7 +20,7 @@ final class SentryTestResourceBundleTests: XCTestCase {
         let bundle = sentryTestResourceBundle(for: Self.self)
 
         // -- Act --
-        let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Resources/NetworkEnvelopeSnapshots"))
+        let urls = try XCTUnwrap(bundle.urls(forResourcesWithExtension: "json", subdirectory: "Fixtures/NetworkEnvelopeSnapshots"))
 
         // -- Assert --
         XCTAssertFalse(urls.isEmpty)

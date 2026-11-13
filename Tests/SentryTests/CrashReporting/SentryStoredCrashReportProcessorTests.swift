@@ -77,7 +77,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     }
 
     func testProcessReport_whenReportIsValid_shouldCaptureFatalEvent() throws {
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         try sut.process(report: report)
 
@@ -88,7 +88,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
 
     func testProcessReport_whenLegacyCompatibleReportContainsAttachments_shouldLoadAttachmentsForCapture() throws {
         // -- Arrange --
-        var report = try getCrashReport(resource: "Resources/crash-report-1")
+        var report = try getCrashReport(resource: "Fixtures/crash-report-1")
         let attachmentPath = "/tmp/legacy-native-report-attachment.png"
         report["attachments"] = [attachmentPath]
 
@@ -105,7 +105,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
 
     func testProcessReport_whenCaptureGateDeclines_shouldReturnGateErrorWithoutCapturing() throws {
         // -- Arrange --
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         let captureGateError = NSError(domain: "test.capture-gate", code: 1)
         var captureGateInvocationCount = 0
@@ -131,7 +131,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let oldClient = try XCTUnwrap(oldHub.getClient() as? TestClient)
         let replacementClient = try XCTUnwrap(TestClient(options: makeEnabledOptions()))
         let replacementHub = SentryHubInternal(client: replacementClient, andScope: nil)
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         // -- Act --
         try sut.process(report: report) {
@@ -149,7 +149,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         // -- Arrange --
         let oldHub = SentrySDKInternal.currentHub()
         let oldClient = try XCTUnwrap(oldHub.getClient() as? TestClient)
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         // -- Act --
         XCTAssertThrowsError(
@@ -172,7 +172,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
         crashedSession.endCrashed(withTimestamp: Date())
         client.fileManager.storeCrashedSession(crashedSession)
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         try sut.process(report: report)
 
@@ -196,7 +196,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     func testProcessReport_whenClientIsClearedDuringCaptureWithoutCrashedSession_shouldThrow() throws {
         let client = try XCTUnwrap(ClientClearedDuringCapture(options: makeEnabledOptions()))
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
@@ -213,7 +213,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
         crashedSession.endCrashed(withTimestamp: Date())
         client.fileManager.storeCrashedSession(crashedSession)
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
@@ -228,7 +228,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     func testProcessReport_whenClientClosesDuringCapture_shouldThrow() throws {
         let client = try XCTUnwrap(ClientClosedDuringCapture(options: makeEnabledOptions()))
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
@@ -247,7 +247,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
         crashedSession.endCrashed(withTimestamp: Date())
         client.fileManager.storeCrashedSession(crashedSession)
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
         let processor = SentryStoredCrashReportProcessor(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             currentHubProvider: { SentrySDKInternal.currentHub() },
@@ -266,7 +266,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
         crashedSession.endCrashed(withTimestamp: Date())
         client.fileManager.storeCrashedSession(crashedSession)
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
@@ -280,7 +280,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     func testProcessReport_whenClientHasNoDsn_shouldThrow() throws {
         let client = try XCTUnwrap(EmptyCaptureClient(options: Options()))
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
@@ -293,14 +293,14 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     func testProcessReport_whenClientIntentionallyDiscardsEvent_shouldSucceed() throws {
         let client = try XCTUnwrap(EmptyCaptureClient(options: makeEnabledOptions()))
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
-        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let report = try getCrashReport(resource: "Fixtures/crash-report-1")
 
         XCTAssertNoThrow(try sut.process(report: report))
         XCTAssertFalse(client.isDisabled)
     }
 
     func testProcessReport_whenConversionFails_shouldThrow() throws {
-        let report = try getCrashReport(resource: "Resources/Crash-faulty-report")
+        let report = try getCrashReport(resource: "Fixtures/Crash-faulty-report")
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
@@ -310,7 +310,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     }
 
     func testProcessReport_whenConverterRaisesException_shouldTranslateExceptionAndRemainOperational() throws {
-        var malformedReport = try getCrashReport(resource: "Resources/crash-report-1")
+        var malformedReport = try getCrashReport(resource: "Fixtures/crash-report-1")
         malformedReport["user"] = "not a dictionary"
 
         XCTAssertThrowsError(try sut.process(report: malformedReport)) { error in
@@ -319,7 +319,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.conversionFailed.rawValue)
         }
 
-        let validReport = try getCrashReport(resource: "Resources/crash-report-1")
+        let validReport = try getCrashReport(resource: "Fixtures/crash-report-1")
         XCTAssertNoThrow(try sut.process(report: validReport))
     }
 

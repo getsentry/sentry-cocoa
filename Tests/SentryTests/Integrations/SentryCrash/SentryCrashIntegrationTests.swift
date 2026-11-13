@@ -688,7 +688,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Manually simulate a crash
         sentrycrashstate_notifyAppCrash()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-1")
 
         // Force reloading of crash state
         sentrycrashstate_initialize(sentrycrashstate_filePath())
