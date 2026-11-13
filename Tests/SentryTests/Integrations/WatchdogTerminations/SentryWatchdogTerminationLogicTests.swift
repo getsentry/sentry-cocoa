@@ -73,14 +73,16 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             isDebugging: Bool = false,
             isActive: Bool = true,
             wasTerminated: Bool = false,
-            isSDKRunning: Bool = true
+            isSDKRunning: Bool = true,
+            runId: SentryCurrentRun.ID? = nil
         ) -> SentryAppState {
             let appState = SentryAppState(
                 releaseName: releaseName,
                 osVersion: osVersion,
                 vendorId: vendorId,
                 isDebugging: isDebugging,
-                systemBootTimestamp: sysctl.systemBootTimestamp
+                systemBootTimestamp: sysctl.systemBootTimestamp,
+                runId: runId
             )
             appState.isActive = isActive
             appState.wasTerminated = wasTerminated
@@ -386,6 +388,50 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
         
         // -- Assert --
         XCTAssertTrue(result)
+    }
+
+    // MARK: - Terminated Run App State
+
+    func testTerminatedRunAppState_whenAllConditionsMet_shouldReturnPreviousAppState() throws {
+        // -- Arrange --
+        let previousAppState = fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        fixture.storePreviousAppState(previousAppState)
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "current-run-id")))
+
+        // -- Act --
+        let result = sut.terminatedRunAppState()
+
+        // -- Assert --
+        let terminatedRunAppState = try XCTUnwrap(result)
+        XCTAssertEqual(terminatedRunAppState.runId, SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        XCTAssertEqual(terminatedRunAppState, previousAppState)
+    }
+
+    func testTerminatedRunAppState_whenPreviousAppStateHasNoRunId_shouldStillReturnIt() throws {
+        // -- Arrange --
+        fixture.storePreviousAppState(fixture.createAppState())
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState())
+
+        // -- Act --
+        let result = sut.terminatedRunAppState()
+
+        // -- Assert --
+        let terminatedRunAppState = try XCTUnwrap(result)
+        XCTAssertNil(terminatedRunAppState.runId)
+    }
+
+    func testTerminatedRunAppState_whenNotAWatchdogTermination_shouldReturnNil() {
+        // -- Arrange --
+        let previousAppState = fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        previousAppState.wasTerminated = true
+        fixture.storePreviousAppState(previousAppState)
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState())
+
+        // -- Act --
+        let result = sut.terminatedRunAppState()
+
+        // -- Assert --
+        XCTAssertNil(result)
     }
 }
 

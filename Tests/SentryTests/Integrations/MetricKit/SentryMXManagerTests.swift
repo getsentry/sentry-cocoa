@@ -26,7 +26,8 @@ final class SentryMXManagerTests: XCTestCase {
                 enabledDiagnostics: SentryMXManager.Diagnostic.all
                     .subtracting(disableCrashDiagnostics ? [.crash] : []),
                 // Every payload counts as recorded by this process.
-                processStartDate: .distantPast
+                processStartDate: .distantPast,
+                eventSourceSink: TestEventSources.hubSink()
             )
         )
 
