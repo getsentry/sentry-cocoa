@@ -1384,6 +1384,7 @@ TEST_CONFIGURATION ?= Test
 TEST_RESULT_BUNDLE ?= results.xcresult
 TEST_DERIVED_DATA ?= $(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/sentry-package-derived-data
 TEST_WORKSPACE ?= $(CURDIR)/.build/package-tests
+TEST_INCLUDE_DISTRIBUTION ?= false
 
 ## Run all platform tests
 #
@@ -1399,6 +1400,13 @@ prepare-test-package:
 	mkdir -p "$(TEST_WORKSPACE)/.swiftpm/xcode/xcshareddata/xcschemes"
 	rsync -a --delete Package*.swift Sources SentryTestUtils SentryTestUtilsDynamic SentryTestUtilsTests Tests Plans "$(TEST_WORKSPACE)/"
 	cp .swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme "$(TEST_WORKSPACE)/.swiftpm/xcode/xcshareddata/xcschemes/"
+	@printf 'module SentryHeaders {\n    umbrella "."\n    export *\n}\n' > "$(TEST_WORKSPACE)/Sources/Sentry/Public/module.modulemap"
+	@if [ "$(TEST_INCLUDE_DISTRIBUTION)" != true ]; then \
+		for plan in "$(TEST_WORKSPACE)"/Plans/SentrySPM_Base*.xctestplan; do \
+			jq '.testTargets |= map(select(.target.identifier != "SentryDistributionTests"))' "$$plan" > "$$plan.tmp" && \
+				mv "$$plan.tmp" "$$plan" || exit $$?; \
+		done; \
+	fi
 	@for manifest in "$(TEST_WORKSPACE)"/Package*.swift; do \
 		./scripts/prepare-package.sh --package-file "$$manifest" --remove-binary-targets true || exit $$?; \
 	done > raw-prepare-package-output.log
@@ -1655,7 +1663,7 @@ test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
 		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
 
 ## Run macOS tests with SDK_V10 flag
@@ -1689,7 +1697,7 @@ test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-te
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
 		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
 
 ## Run Catalyst tests with SDK_V10 flag
@@ -1721,8 +1729,8 @@ test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO ENABLE_CODE_COVERAGE=NO \
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
 		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
 
 ## Run tvOS tests with SDK_V10 flag
@@ -1756,7 +1764,7 @@ test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
 		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
 
 ## Run visionOS tests with SDK_V10 flag
@@ -1790,7 +1798,7 @@ test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
 		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
 
 ## Run watchOS tests with SDK_V10 flag
@@ -1824,7 +1832,7 @@ test-watchos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
 		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
 
 ## Run critical UI tests

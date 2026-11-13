@@ -356,6 +356,14 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     BFT_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     run_build raw-build-for-testing-output.log "${BFT_ARGS[@]}" build-for-testing
+
+    if [[ "$TEST_SCHEME" == SentrySPM && "${SDK_V10:-0}" == 1 ]]; then
+        bash "$(dirname "$0")/build-package-test-fixture.sh" \
+            --workspace "$WORKSPACE" \
+            --derived-data "$DERIVED_DATA_PATH" \
+            --configuration "$CONFIGURATION" \
+            --platform "$PLATFORM"
+    fi
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then

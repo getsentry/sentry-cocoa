@@ -87,6 +87,7 @@ rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsDynamic SentryTes
 package_schemes=.swiftpm/xcode/xcshareddata/xcschemes
 mkdir -p "$package_dir/$package_schemes"
 cp "$package_schemes/SentrySPM.xcscheme" "$package_dir/$package_schemes/"
+printf 'module SentryHeaders { umbrella "." export * }\n' > "$package_dir/Sources/Sentry/Public/module.modulemap"
 for manifest in "$package_dir"/Package*.swift; do
   ./scripts/prepare-package.sh --package-file "$manifest" --remove-binary-targets true
 done
@@ -113,7 +114,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - For V10, run `export SDK_V10=1` before the commands above.
 - Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`. Make accepts target, class, and method selectors in `ONLY_TESTING`, including comma-separated combinations. For example, `make test-macos ONLY_TESTING=SentryObjCTests` runs the public Objective-C wrapper suite. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
-- Local and CI unit tests share the Make targets: `make test-macos`, `make test-ios`, and the corresponding `-v10` targets use the `SentrySPM` package workspace. Make copies sources, test plans, schemes, and manifests into `TEST_WORKSPACE` (default: `.build/package-tests`) and strips binary targets from the copied manifests. Checked-in manifests remain unchanged. Use package test identifiers for `ONLY_TESTING`, without a `V10` suffix.
+- Local and CI unit tests share the Make targets: `make test-macos`, `make test-ios`, and the corresponding `-v10` targets use the `SentrySPM` package workspace. Make copies sources, test plans, schemes, and manifests into `TEST_WORKSPACE` (default: `.build/package-tests`) and strips binary targets from the copied manifests. Prepared SDK Base plans omit `SentryDistributionTests`. The dedicated iOS distribution job opts in with `TEST_INCLUDE_DISTRIBUTION=true`, preserving its existing coverage. Checked-in manifests and plans remain unchanged. Use package test identifiers for `ONLY_TESTING`, without a `V10` suffix.
 - CI invokes the explicit platform targets with `TEST_CONFIGURATION=TestCI`. The shared unit-test workflow derives the Make target from its `platform` input. Simulator targets use their platform-specific variables, such as `IOS_SIMULATOR_OS` and `IOS_DEVICE_NAME`. These targets select the SDK generation and Base plan, pass the existing package test xcconfig and explicit test definitions, and disable signing. `TEST_PLAN` selects a package Flaky or TestServer plan. `TEST_RESULT_BUNDLE` and `TEST_DERIVED_DATA` override the result bundle name and DerivedData path. Defaults for DerivedData and result bundles are under `RUNNER_TEMP` in CI and the temporary directory locally.
 - Set `TEST_COMMAND=build-for-testing` to prepare the package and compile tests. The corresponding `TEST_COMMAND=test-without-building` invocation reuses that package without preparation. Both phases must use the same `TEST_WORKSPACE`, configuration, platform, and destination. Regular, fast-PR, nightly, V10, and distribution jobs use these Make entry points.
 - Keep shared Base exclusions consistent between project and package plans, mapping tests to their Swift, Objective-C, or Objective-C++ target.
@@ -232,7 +233,7 @@ func testColdStart_shouldSetMeasurement() {
 
 `SentryKSCrashBinaryImageProviderTests` covers an image that really unloads while the provider reads it. `SentryTestsV10` builds and embeds the pure-C `SentryUnloadingImage.framework` fixture without linking it at launch. The test is the sole owner of the only `dlopen` reference and closes it between image-address acquisition and metadata extraction, then asserts that the header became unreadable. This fixture must stay free of Swift or Objective-C metadata and _must not_ link it into the test bundle because either could keep the image mapped, and the regression would no longer unload anything.
 
-The regression runs in the Xcode project tests on macOS and simulators. Package tests skip it because SwiftPM has no phase that embeds the fixture; they run the other provider tests.
+The regression runs in the Xcode project and Make-driven package tests on macOS and simulators. V10 Make targets enable `SENTRY_PACKAGE_TEST_FIXTURES`. After the package build, `scripts/build-package-test-fixture.sh` compiles and embeds the fixture in the main test bundle without linking it. Split build and execution phases reuse the embedded fixture. Use the Make targets for this regression, since a bare `swift test` or `xcodebuild` invocation does not embed it.
 
 Note: `SentryTestsV10` is **tool-hosted, and Xcode doesn't support tool-hosted tests on physical devices**, so `xcodebuild test` fails on a device with
 

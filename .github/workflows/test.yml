@@ -163,12 +163,11 @@ jobs:
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          # Native Base plans include distribution tests; see develop-docs/TEST.md.
           make "$MAKE_TARGET" \
             TEST_CONFIGURATION=TestCI \
+            TEST_INCLUDE_DISTRIBUTION=true \
             TEST_PLAN="$TEST_PLAN" \
-            TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" \
-            > raw-test-output-distribution.log 2>&1
+            TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" 2>&1 | tee raw-test-output-distribution.log
       - name: Verify V9 resource ownership
         if: matrix.mode == 'V9'
         shell: bash
