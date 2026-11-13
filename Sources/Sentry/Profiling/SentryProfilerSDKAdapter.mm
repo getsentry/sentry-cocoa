@@ -38,7 +38,7 @@
     }
 }
 
-- (void)captureProfileChunkWithID:(NSString *)profileID
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
                              data:(NSDictionary<NSString *, id> *)profileData
                           metrics:(NSDictionary<NSString *, id> *)serializedMetrics
 #    if SENTRY_HAS_UIKIT

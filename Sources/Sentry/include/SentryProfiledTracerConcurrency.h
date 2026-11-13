@@ -1,13 +1,11 @@
 #import "SentryCompiler.h"
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingId.h"
 #import "SentryProfilingTraceDecision.h"
 #import <Foundation/Foundation.h>
 
 @class SentryProfiler;
-
-@class SentryId;
-@class SentryTransactionContext;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -19,22 +17,23 @@ SENTRY_EXTERN_C_BEGIN
  * @Returns An ID to use as a unique, unchanging ID for the tracer that started the profiler. It's
  * different from the profiler's internal ID.
  */
-SentryId *_Nullable sentry_startProfilerForTrace(
-    SentryProfilingTraceDecision decision, SentryTransactionContext *transactionContext);
+SentryProfilingId *_Nullable sentry_startProfilerForTrace(
+    SentryProfilingTraceDecision decision, SentryProfilingId *traceID);
 
 /**
  * Associate the provided profiler and tracer so that profiling data may be retrieved by the tracer
  * when it is ready to transmit its envelope.
  */
-void sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *internalTraceId);
+void sentry_trackTransactionProfilerForTrace(
+    SentryProfiler *profiler, SentryProfilingId *internalTraceId);
 
-SENTRY_EXTERN void sentry_finishContinuousProfileForTrace(SentryId *profilerReferenceId);
+SENTRY_EXTERN void sentry_finishContinuousProfileForTrace(SentryProfilingId *profilerReferenceId);
 
 /**
  * For transactions that will be discarded, clean up the bookkeeping state associated with them to
  * reclaim the memory they're using.
  */
-void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId);
+void sentry_discardProfilerCorrelatedToTrace(SentryProfilingId *internalTraceId);
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the
@@ -42,7 +41,7 @@ void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId);
  * data into the profiler instance, and if this is the last profiler being tracked, reset the
  * @c SentryFramesTracker data.
  */
-SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryProfilingId *internalTraceId);
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void sentry_resetConcurrencyTracking(void);

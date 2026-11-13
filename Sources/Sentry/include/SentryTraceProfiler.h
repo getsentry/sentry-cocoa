@@ -2,18 +2,17 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryProfilingId.h"
 #    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class SentryId;
 
 @interface SentryTraceProfiler : NSObject
 
 /**
  * Start a profiler, if one isn't already running.
  */
-+ (BOOL)startWithTracer:(SentryId *)traceId;
++ (BOOL)startWithTracer:(SentryProfilingId *)traceId;
 
 /**
  * Whether there is any profiler that is currently running. A convenience method to query for this

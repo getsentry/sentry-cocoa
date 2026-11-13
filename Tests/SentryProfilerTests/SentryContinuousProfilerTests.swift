@@ -247,7 +247,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         let firstEnvelope = try XCTUnwrap(fixture.client?.captureEnvelopeInvocations.first)
         let firstItem = try XCTUnwrap(firstEnvelope.items.first)
         let firstChunk = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(firstItem.data)) as? [String: Any])
-        XCTAssertEqual(firstChunk["profiler_id"] as? String, initialProfiler.profilerId.sentryIdString)
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, initialProfiler.profilerId.stringValue)
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -397,8 +397,8 @@ extension SentryContinuousProfilerTests {
         XCTAssertNotEqual(firstID, secondID)
         XCTAssertNotEqual(SentryId(uuidString: firstID), SentryId.empty)
         XCTAssertNotEqual(SentryId(uuidString: secondID), SentryId.empty)
-        XCTAssertEqual(firstChunk["profiler_id"] as? String, profiler.profilerId.sentryIdString)
-        XCTAssertEqual(secondChunk["profiler_id"] as? String, profiler.profilerId.sentryIdString)
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, profiler.profilerId.stringValue)
+        XCTAssertEqual(secondChunk["profiler_id"] as? String, profiler.profilerId.stringValue)
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 2)
     }
 
@@ -422,8 +422,12 @@ extension SentryContinuousProfilerTests {
 
         // -- Assert --
         XCTAssertFalse(firstProfiler === nextProfiler)
-        XCTAssertEqual(firstChunk["profiler_id"] as? String, firstProfiler.profilerId.sentryIdString)
-        XCTAssertEqual(nextChunk["profiler_id"] as? String, firstProfiler.profilerId.sentryIdString)
+        let profileID = try XCTUnwrap(SentryContinuousProfiler.currentProfilerID())
+        XCTAssertEqual(profileID.stringValue, firstProfiler.profilerId.stringValue)
+        XCTAssertEqual(profileID.stringValue.count, 32)
+        XCTAssertTrue(profileID.stringValue.allSatisfy { "0123456789abcdef".contains($0) })
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, firstProfiler.profilerId.stringValue)
+        XCTAssertEqual(nextChunk["profiler_id"] as? String, firstProfiler.profilerId.stringValue)
         XCTAssertNotEqual(firstChunk["chunk_id"] as? String, nextChunk["chunk_id"] as? String)
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 3)
     }

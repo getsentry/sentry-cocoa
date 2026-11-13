@@ -2,9 +2,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryProfilingId.h"
 #    import <Foundation/Foundation.h>
-
-@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +22,7 @@ FOUNDATION_EXPORT NSString *const kSentryNotificationContinuousProfileStarted;
 /** Stop a continuous profiling session if there is one ongoing. */
 + (void)stop;
 
-+ (nullable SentryId *)currentProfilerID;
++ (nullable SentryProfilingId *)currentProfilerID;
 
 @end
 
