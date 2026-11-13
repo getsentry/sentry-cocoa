@@ -1,27 +1,19 @@
+@_spi(Private) import Sentry
 import Foundation
-import Sentry
+import ObjCConsumer
 
-SentrySDK.start { options in
-    options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
-    options.debug = true
+// Exercise either producer's binary without starting integrations or sending network requests.
+precondition(SentryId().sentryIdString.count == 32)
+precondition(SentrySDKLog.willLog(atLevel: .fatal))
+precondition(sentryObjCConsumer())
+// Inspect the bundle containing the loaded SDK code, not an unused framework copy.
+let framework = Bundle(for: SentrySDKLog.self)
+guard framework.bundleURL.lastPathComponent == "Sentry.framework" else {
+    fatalError("Sentry must be dynamically loaded from Sentry.framework")
 }
-
-/**
- Some func to build a stacktrace.
- */
-private func captureMessage() {
-    let eventId = SentrySDK.capture(message: "Yeah captured a message")
-
-    // Some Delay to wait for sending the message
-    let group = DispatchGroup()
-    group.enter()
-    let queue = DispatchQueue(label: "delay", qos: .background, attributes: [])
-    queue.asyncAfter(deadline: .now() + 2) {
-        group.leave()
-    }
-    group.wait()
-    
-    print("\(String(describing: eventId))")
+guard let privacyManifest = framework.url(forResource: "PrivacyInfo", withExtension: "xcprivacy") else {
+    fatalError("The packaged framework is missing its privacy manifest")
 }
-
-captureMessage()
+let manifest = try Data(contentsOf: privacyManifest)
+_ = try PropertyListSerialization.propertyList(from: manifest, format: nil)
+print("Dynamic SDK: public API, SPI, Objective-C and loaded framework resources passed")

@@ -1,6 +1,10 @@
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE
+#if SENTRY_BUILD_XCFRAMEWORK
+@_spi(Private) import Sentry
+#else
 @_spi(Private) import SentrySwift
+#endif
 #endif
 internal import _SentryPrivate
 import Foundation

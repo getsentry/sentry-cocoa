@@ -63,8 +63,6 @@ if [ -n "$HEADERS_DIR" ] && [ ! -d "$HEADERS_DIR" ]; then
 fi
 
 xcframework_path="$OUTPUT_NAME.xcframework"
-rm -rf "$xcframework_path"
-
 assemble_args=(--sdks "$SDKS" --output "$xcframework_path")
 if [ -n "$LIB_PATH_TEMPLATE" ]; then
     assemble_args+=(--library-template "$LIB_PATH_TEMPLATE" --headers "$HEADERS_DIR")

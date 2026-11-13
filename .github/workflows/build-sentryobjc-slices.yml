@@ -80,8 +80,12 @@ jobs:
         env:
           SDK: ${{ matrix.sdk }}
         run: |
-          ./scripts/build-static-library-sentryobjc.sh \
+          ./scripts/build-static-library.sh \
             --sdk "$SDK" \
+            --scheme SentryObjC \
+            --architecture-target SentryObjCCompat \
+            --package-path "$GITHUB_WORKSPACE" \
+            --configuration Release \
             --output-dir XCFrameworkBuildPath
 
       # === Publish slices while building and packaging ===
@@ -101,18 +105,15 @@ jobs:
       - name: Build SentryObjC dynamic framework for ${{ matrix.sdk }}
         env:
           SDK: ${{ matrix.sdk }}
-          RELEASE_VERSION: ${{ inputs.release-version }}
+          VERSION: ${{ env.VERSION }}
         run: |
-          version_args=()
-          if [ -n "$RELEASE_VERSION" ]; then
-            version_args=(--version "$RELEASE_VERSION")
-          fi
-          ./scripts/build-dynamic-framework-sentryobjc.sh \
+          ./scripts/build-dynamic-framework.sh \
+            --framework-name SentryObjC \
+            --version "$VERSION" \
             --sdk "$SDK" \
             --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
             --headers "Sources/SentryObjC/Public" \
-            --output-dir XCFrameworkBuildPath \
-            "${version_args[@]}"
+            --output-dir XCFrameworkBuildPath
 
       # Tar preserves macOS framework symlinks that actions/upload-artifact
       # would otherwise flatten.

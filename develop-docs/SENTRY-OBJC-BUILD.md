@@ -24,7 +24,7 @@ Calls `scripts/build-xcframework-sentryobjc.sh`, which loops over SDKs sequentia
 
 ```
 for each SDK:
-  scripts/build-static-library-sentryobjc.sh --sdk <sdk>
+  scripts/build-static-library.sh
     → xcodebuild archive (via SPM, resolves full dependency chain)
     → find .o files in xcarchive
     → libtool -static → libSentryObjC.a
@@ -40,8 +40,8 @@ Same scripts, but the per-SDK builds run as **parallel GitHub Actions jobs**:
 
 ```
 build-sentryobjc-slices (parallel per SDK)
-  ├─ iphoneos:        build-static-library-sentryobjc.sh → upload libSentryObjC.a
-  │                   build-dynamic-framework-sentryobjc.sh → upload SentryObjC.framework + dSYM
+  ├─ iphoneos:        build-static-library.sh → upload libSentryObjC.a
+  │                   build-dynamic-framework.sh → upload SentryObjC.framework + dSYM
   ├─ iphonesimulator: (same)
   ├─ macosx:          (same)
   ├─ maccatalyst:     (same)
@@ -62,12 +62,12 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## Scripts
 
-| Script                                  | Purpose                                                                                    |
-| --------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `build-static-library-sentryobjc.sh`    | Build one SDK slice: SPM archive → collect `.o` → `libtool -static` → `libSentryObjC.a`    |
-| `build-dynamic-framework-sentryobjc.sh` | Build one SDK slice: `.a` → `swiftc -emit-library` → `.framework` bundle                   |
-| `assemble-xcframework-sentryobjc.sh`    | Forward SentryObjC slice paths and headers to the shared `assemble-xcframework.sh` command |
-| `build-xcframework-sentryobjc.sh`       | Local orchestrator: loops over SDKs, calls the above scripts sequentially                  |
+| Script                               | Purpose                                                                                    |
+| ------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `build-static-library.sh`            | Build one SDK slice: SPM archive → collect `.o` → `libtool -static` → `libSentryObjC.a`    |
+| `build-dynamic-framework.sh`         | Build one SDK slice: `.a` → `swiftc -emit-library` → `.framework` bundle                   |
+| `assemble-xcframework-sentryobjc.sh` | Forward SentryObjC slice paths and headers to the shared `assemble-xcframework.sh` command |
+| `build-xcframework-sentryobjc.sh`    | Local orchestrator: loops over SDKs, calls the above scripts sequentially                  |
 
 ## Workflows
 
