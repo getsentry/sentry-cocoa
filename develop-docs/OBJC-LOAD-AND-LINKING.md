@@ -37,7 +37,7 @@ Defined in `Package.swift` as a `.binaryTarget` pointing to a release asset:
 )
 ```
 
-This XCFramework is compiled in **Release mode**. The preprocessor macros `DEBUG`, `SENTRY_TEST`, and `SENTRY_TEST_CI` are **not defined**. All `+load` methods execute their full code paths unconditionally.
+This XCFramework is compiled in **Release mode**, without `DEBUG` or internal UI-test support. The launch-profiling `+load` method calls `sentry_startLaunchProfile()` without the test-environment guard.
 
 ### Source-built SPM (`SentrySPM` product)
 
@@ -58,12 +58,12 @@ This target is compiled from source by SPM as part of the consumer's build. The 
 
 ## The Test Guard in SentryProfiler +load
 
-The `SentryProfiler` `+load` method contains a compile-time guard that limits launch profiling to the SDK's own UI tests:
+In Debug builds or builds with internal UI-test support, `SentryProfiler`'s `+load` method starts launch profiling only when the SDK UI-test environment marker is present:
 
 ```objc
 + (void)load
 {
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;  // Early return: launch profiling is skipped in unit tests
     }
@@ -74,15 +74,15 @@ The `SentryProfiler` `+load` method contains a compile-time guard that limits la
 }
 ```
 
-The guard uses only `SENTRY_TEST` and `SENTRY_TEST_CI`, which are scoped to the SDK's test targets. When neither is defined (any consumer app), `sentry_startLaunchProfile()` always runs. This ensures launch profiling behaves consistently across debug and release builds for SPM consumers:
+The guard applies to source-based consumers' Debug builds as well as SDK tests. A Release build without internal UI-test support calls `sentry_startLaunchProfile()` without checking the UI-test marker.
 
-| Scenario                                                             | Launch profiling runs? |
-| -------------------------------------------------------------------- | ---------------------- |
-| Pre-built XCFramework (`Sentry` product), any build config           | Yes                    |
-| `SentrySPM`, consumer debug build (default)                          | Yes                    |
-| `SentrySPM`, consumer release build / archive                        | Yes                    |
-| `SentrySPM`, SDK unit tests (SENTRY_TEST or SENTRY_TEST_CI defined)  | No                     |
-| `SentrySPM`, SDK UI tests (with `--io.sentry.ui-test.test-name` env) | Yes                    |
+| Scenario                                                              | Launch profiling runs? |
+| --------------------------------------------------------------------- | ---------------------- |
+| Pre-built XCFramework (`Sentry` product), any build config            | Yes                    |
+| `SentrySPM`, consumer Debug build without the UI-test marker          | No                     |
+| `SentrySPM`, consumer Release build / archive without UI-test support | Yes                    |
+| `SentrySPM`, SDK unit tests                                           | No                     |
+| `SentrySPM`, SDK UI tests (with `--io.sentry.ui-test.test-name` env)  | Yes                    |
 
 ## Verifying +load Behavior
 
@@ -113,23 +113,23 @@ objc[10982]: LOAD: +[SentrySysctlObjC load]
 
 ### Comparing compiled code paths
 
-In consumer builds (where `SENTRY_TEST` and `SENTRY_TEST_CI` are not defined), the guard block is compiled out entirely. Both debug and release builds compile to a single branch:
+In Release builds without internal UI-test support, the guard block is compiled out entirely and the method can compile to a single branch:
 
 ```bash
-$ objdump -d --disassemble-symbols="+[SentryProfiler load]" .build/debug/cli-with-spm
+$ objdump -d --disassemble-symbols="+[SentryProfiler load]" .build/release/cli-with-spm
 
-.build/debug/cli-with-spm:      file format mach-o arm64
+.build/release/cli-with-spm:      file format mach-o arm64
 
 00000001009e2ec0 <+[SentryProfiler load]>:
 1009e2ec0: 17ff481e     b       0x1004a0c44 <_sentry_startLaunchProfile>
 ```
 
-In SDK test builds (SENTRY_TEST or SENTRY_TEST_CI defined), the method includes the environment variable lookup and early return logic.
+In Debug builds and builds with internal UI-test support, the method includes the environment variable lookup and early return logic.
 
 ## Implications for Issue Investigation
 
 When investigating bugs related to app launch behavior, keep in mind:
 
-1. Both the pre-built XCFramework (`Sentry` product) and the source-built SPM target (`SentrySPM` product) run launch profiling code in `+load` for all consumer builds (debug and release).
+1. Pre-built Release XCFrameworks and source-built Debug SDKs have different launch-profiling paths. Debug builds require the UI-test marker to reach launch profiling from `+load`. Check the SDK's compilation configuration, not just the consuming application's configuration.
 2. The `+load` methods run before `SentrySDK.start`, so `SentryOptions.debug` and `SentryOptions.diagnosticLevel` have no effect on log output from these early code paths. Error messages printed during `+load` cannot be suppressed by SDK configuration.
 3. The `DYLD_PRINT_INITIALIZERS` environment variable shows C/C++ initializers but does not cover Objective-C `+load` calls. Use `OBJC_PRINT_LOAD_METHODS` instead.

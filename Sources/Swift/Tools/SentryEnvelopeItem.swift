@@ -94,7 +94,7 @@ internal import _SentryPrivate
                 return nil
             }
             
-            #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+            #if DEBUG // Test support.
             if ProcessInfo.processInfo.arguments.contains("--io.sentry.attachments.base64-data") {
                 data = attachmentData.base64EncodedString().data(using: .utf8)
             } else {
@@ -102,7 +102,7 @@ internal import _SentryPrivate
             }
             #else
             data = attachmentData
-            #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+            #endif // DEBUG
         } else if let attachmentPath = attachment.path {
             do {
                 let fileManager = FileManager.default
@@ -113,7 +113,7 @@ internal import _SentryPrivate
                     return nil
                 }
                 
-                #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+                #if DEBUG // Test support.
                 if ProcessInfo.processInfo.arguments.contains("--io.sentry.attachments.base64-data") {
                     let fileData = fileManager.contents(atPath: attachmentPath)
                     data = fileData?.base64EncodedString().data(using: .utf8)
@@ -122,7 +122,7 @@ internal import _SentryPrivate
                 }
                 #else
                 data = fileManager.contents(atPath: attachmentPath)
-                #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+                #endif // DEBUG
             } catch {
                 SentrySDKLog.error("Couldn't check file size of attachment with path: \(attachmentPath). Error: \(error.localizedDescription)")
                 return nil

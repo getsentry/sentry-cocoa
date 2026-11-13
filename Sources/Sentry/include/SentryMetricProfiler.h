@@ -70,7 +70,7 @@ SENTRY_NO_INIT
 /** Readings recorded after the snapshot remain available for the next chunk. */
 - (NSDictionary *)copyAndClearMetricProfilerData;
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 + (void)setSystemWrapperOverride:(nullable SENTRY_SWIFT_MIGRATION_ID(SentrySystemWrapper))value;
 #    endif
 

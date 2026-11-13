@@ -3,7 +3,7 @@ internal import _SentryPrivate
 import Foundation
 import MetricKit
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryMXMetricManager {
     func add(_ subscriber: MXMetricManagerSubscriber)
     func remove(_ subscriber: MXMetricManagerSubscriber)

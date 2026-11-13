@@ -5,8 +5,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 projectReferences:
   Sentry:
@@ -46,8 +44,6 @@ targets:
     configFiles:
       Debug: App/Configurations/SwiftUITestSample.xcconfig
       Release: App/Configurations/SwiftUITestSample.xcconfig
-      Test: App/Configurations/SwiftUITestSample.xcconfig
-      TestCI: App/Configurations/SwiftUITestSample.xcconfig
   SwiftUITestSampleUITests:
     type: bundle.ui-testing
     platform: auto
@@ -68,8 +64,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
       Release: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
-      Test: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
-      TestCI: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
   SwiftUITestSampleUITestsEnvelopeOnly:
     type: bundle.ui-testing
     platform: auto
@@ -90,8 +84,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
       Release: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
-      Test: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
-      TestCI: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
 schemes:
   SwiftUITestSampleEnvelope:
     build:
@@ -99,7 +91,7 @@ schemes:
         SwiftUITestSample: all
         SwiftUITestSampleUITestsEnvelopeOnly: test
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/SwiftUITestSample_Envelope.xctestplan
       preActions:
@@ -112,6 +104,6 @@ schemes:
         SwiftUITestSample: all
         SwiftUITestSampleUITests: test
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/SwiftUITestSample_Base.xctestplan

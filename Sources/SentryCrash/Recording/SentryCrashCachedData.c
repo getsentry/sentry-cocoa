@@ -355,7 +355,7 @@ sentrycrashccd_hasThreadStarted(void)
 
 // MARK: - Testing
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 
 void
 sentrycrashccd_test_clearActiveCache(void)
@@ -366,6 +366,6 @@ sentrycrashccd_test_clearActiveCache(void)
     atomic_store(&g_cacheEverCreated, false);
 }
 
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 #endif // !SDK_V10

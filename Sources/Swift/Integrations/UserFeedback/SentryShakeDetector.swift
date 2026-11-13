@@ -104,7 +104,7 @@ public final class SentryShakeDetector: NSObject {
         SentrySDKLog.debug("Shake detector: disabled")
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     static func resetCooldown() {
         swizzleState.withLock { $0.lastShakeTimestamp = 0 }
     }

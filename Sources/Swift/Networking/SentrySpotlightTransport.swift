@@ -68,10 +68,10 @@ import Foundation
         // Empty on purpose
     }
 
-    #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+    #if DEBUG // Test support.
     public func setStartFlushCallback(_ callback: @escaping () -> Void) {
         // Empty on purpose
     }
-    #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+    #endif // DEBUG
 }
 // swiftlint:enable missing_docs

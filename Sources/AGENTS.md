@@ -67,7 +67,7 @@
 ### Conditional Service Protocol Stripping
 
 - Follow [`SentryNetworkTracker.swift`](Swift/Networking/SentryNetworkTracker.swift) when a service needs protocol-based mocking without retaining the abstraction in release builds
-- Under `#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG`, define the service protocol, conform the concrete service, and narrow its dependency protocols for mock injection
+- Under `#if DEBUG`, define the service protocol, conform the concrete service, and narrow its dependency protocols for mock injection
 - Under `#else`, typealias the service protocol name to the concrete generic implementation and its dependency protocol name to `SentryDependencyContainer`
 - This strips the protocol abstraction from release builds while preserving the same dependency-facing names in every configuration
 - Keep consumers typed against those shared names so test, debug, and release builds use the same call sites

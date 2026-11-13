@@ -398,7 +398,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
     return nil;
 }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 void
 sentry_resetConcurrencyTracking()
 {
@@ -414,6 +414,6 @@ sentry_currentProfiledTracers()
     std::lock_guard<std::mutex> l(_gStateLock);
     return [_gTracersToProfilers count];
 }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

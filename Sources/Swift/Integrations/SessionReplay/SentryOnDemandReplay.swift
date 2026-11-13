@@ -33,13 +33,13 @@ func removeReplayFile(at fileURL: URL) {
     /// `processingQueue`; the lock only exists because `deinit` can run on any thread.
     private let retainedFrame = SentryMutex<SentryReplayFrame?>(nil)
 
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+    #if DEBUG // Test support.
     //This is exposed only for tests, no need to make it thread safe.
     var frames: [SentryReplayFrame] {
         get { _frames }
         set { _frames = newValue }
     }
-    #endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+    #endif // DEBUG
     public var videoScale: Float = 1
     public var bitRate = 20_000
     public var frameRate = 1

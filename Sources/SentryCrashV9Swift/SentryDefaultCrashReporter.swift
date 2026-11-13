@@ -10,7 +10,7 @@ import Foundation
 /**
  * A wrapper around SentryCrash for testability.
  */
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
 @objc @_spi(Private)
 public class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     private let bridge: SentryCrashBridge

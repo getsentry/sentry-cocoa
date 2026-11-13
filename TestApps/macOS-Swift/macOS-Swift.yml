@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -63,8 +61,6 @@ targets:
     configFiles:
       Debug: App/Configurations/macOS-Swift.xcconfig
       Release: App/Configurations/macOS-Swift.xcconfig
-      Test: App/Configurations/macOS-Swift.xcconfig
-      TestCI: App/Configurations/macOS-Swift.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -130,8 +126,6 @@ targets:
     configFiles:
       Debug: App/Configurations/macOS-Swift-UITests.xcconfig
       Release: App/Configurations/macOS-Swift-UITests.xcconfig
-      Test: App/Configurations/macOS-Swift-UITests.xcconfig
-      TestCI: App/Configurations/macOS-Swift-UITests.xcconfig
     info:
       path: App/Configurations/macOS-Swift-UITests-Info.plist
       properties: {}
@@ -177,8 +171,6 @@ targets:
     configFiles:
       Debug: App/Configurations/macOS-Swift-Other.xcconfig
       Release: App/Configurations/macOS-Swift-Other.xcconfig
-      Test: App/Configurations/macOS-Swift-Other.xcconfig
-      TestCI: App/Configurations/macOS-Swift-Other.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -256,8 +248,6 @@ targets:
     configFiles:
       Debug: App/Configurations/macOS-Swift-Sandboxed.xcconfig
       Release: App/Configurations/macOS-Swift-Sandboxed.xcconfig
-      Test: App/Configurations/macOS-Swift-Sandboxed.xcconfig
-      TestCI: App/Configurations/macOS-Swift-Sandboxed.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -336,8 +326,6 @@ targets:
     configFiles:
       Debug: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
       Release: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
-      Test: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
-      TestCI: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -386,7 +374,7 @@ schemes:
       targets:
         macOS-Swift: all
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/macOS-Swift_Base.xctestplan
   macOS-Swift-Other:

@@ -11,9 +11,6 @@ OTHER_LDFLAGS_DebugWithoutUIKit = -framework SentryWithoutUIKit
 OTHER_LDFLAGS_ReleaseWithoutUIKit = -framework SentryWithoutUIKit
 OTHER_LDFLAGS_Debug = -framework Sentry
 OTHER_LDFLAGS_DebugV10 = -framework Sentry
-OTHER_LDFLAGS_Test = -framework Sentry
-OTHER_LDFLAGS_TestCI = -framework Sentry
-OTHER_LDFLAGS_TestV10 = -framework Sentry
 OTHER_LDFLAGS_Release = -framework Sentry
 OTHER_LDFLAGS_ReleaseV10 = -framework Sentry
 SENTRY_SWIFTUI_LDFLAGS_SentrySwiftUI = $(OTHER_LDFLAGS_$(CONFIGURATION))
@@ -27,5 +24,4 @@ ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
 SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_YES =
 SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_NO = arm64e
 ARCHS[sdk=macosx*][config=DebugV10] = arm64 x86_64 $(SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
-ARCHS[sdk=macosx*][config=TestV10] = arm64 x86_64 $(SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
 ARCHS[sdk=macosx*][config=ReleaseV10] = arm64 x86_64 $(SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))

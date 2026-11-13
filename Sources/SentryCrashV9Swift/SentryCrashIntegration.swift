@@ -170,7 +170,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     /// Sends all pending crash reports. Called internally during initialization,
     /// and exposed for testing purposes.
     func sendAllSentryCrashReports() {

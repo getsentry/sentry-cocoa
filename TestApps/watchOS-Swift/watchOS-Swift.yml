@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -54,8 +52,6 @@ targets:
     configFiles:
       Debug: WatchApp/Configurations/watchOS-Swift-App.xcconfig
       Release: WatchApp/Configurations/watchOS-Swift-App.xcconfig
-      Test: WatchApp/Configurations/watchOS-Swift-App.xcconfig
-      TestCI: WatchApp/Configurations/watchOS-Swift-App.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -124,8 +120,6 @@ targets:
     configFiles:
       Debug: Extension/Configurations/watchOS-Swift-Extension.xcconfig
       Release: Extension/Configurations/watchOS-Swift-Extension.xcconfig
-      Test: Extension/Configurations/watchOS-Swift-Extension.xcconfig
-      TestCI: Extension/Configurations/watchOS-Swift-Extension.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

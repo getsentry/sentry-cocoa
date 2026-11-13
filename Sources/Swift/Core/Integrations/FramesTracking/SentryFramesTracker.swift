@@ -272,7 +272,7 @@ public class SentryFramesTracker: NSObject {
 
     // MARK: - Internal Methods
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     @objc func setDisplayLinkWrapper(_ displayLinkWrapper: SentryDisplayLinkWrapper) {
         self.displayLinkWrapper = displayLinkWrapper
     }
@@ -445,7 +445,7 @@ public class SentryFramesTracker: NSObject {
 #if os(iOS)
     private func recordTimestamp(_ timestamp: NSNumber, value: NSNumber, array: inout SentryFrameInfoTimeSeries) {
         var shouldRecord = SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling()
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
         shouldRecord = true
 #endif
         if shouldRecord {
@@ -481,7 +481,7 @@ public class SentryFramesTracker: NSObject {
     }
     
     // MARK: - Test Utils
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+    #if DEBUG // Test support.
     func manualReportNewFrame() {
         reportNewFrame()
     }
