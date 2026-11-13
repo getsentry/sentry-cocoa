@@ -35,7 +35,7 @@
 #    import <Foundation/Foundation.h>
 #    include <limits.h>
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 bool
 #    else
 static bool

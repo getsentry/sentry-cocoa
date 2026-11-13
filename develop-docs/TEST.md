@@ -47,7 +47,11 @@ Same-named forwarding headers exist only where an original SDK header needs to r
 
 ### SwiftPM SDK Tests
 
-SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Xcode 26 or newer, run from the repository root:
+Open the repository's `Package.swift` in Xcode, select the `SentrySPM` scheme and an available simulator, then press CMD+U. Use the `SentrySPM_Base` test plan for V9. The scheme's Test action uses Debug, which enables testability and exposes the SDK's test hooks through `DEBUG`. Breakpoints and test diamonds operate on the original checkout.
+
+Use `SentrySPM`, not the aggregate `Sentry-Package` scheme. The aggregate scheme includes mutually exclusive binary distributions that produce overlapping framework outputs. Test JSON fixtures live under `Tests/Fixtures` so the package resource bundle does not contain a top-level `Resources` directory that codesign rejects.
+
+The Make/CI test targets continue to pass Test/TestCI and the test xcconfig explicitly for project-equivalent compilation. Those named configurations use `SENTRY_TEST` or `SENTRY_TEST_CI`, while local Debug builds use `DEBUG`. For explicit trait-based macOS tests with Xcode 26 or newer, run from the repository root:
 
 ```sh
 swift test --traits _SentryTest
@@ -68,7 +72,7 @@ The test traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), inc
 `_SentryTestCI` does not enable `_SentryTest`. Neither trait changes prebuilt binaries.
 
 > [!WARNING]
-> Test traits and flags change SDK behavior. Enable them only for SDK tests, never unconditionally in manifests or consumer builds. The underscore does not make traits private.
+> Debug builds include the SDK's test hooks and debug/test behavior, including in source-based consumer builds. This includes synchronous V9 binary-image cache initialization and suppressing the original macOS `_crashOnException:` abort path. Release builds exclude these branches unless a test trait or test flag is explicitly enabled. Do not enable test traits or flags for production builds. The underscore does not make traits private.
 
 To run a specific suite, append `--filter <test-target>`, for example `--filter SentryObjCCompatTests`.
 

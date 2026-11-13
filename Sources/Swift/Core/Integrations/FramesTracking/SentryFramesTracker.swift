@@ -273,7 +273,7 @@ public class SentryFramesTracker: NSObject {
 
     // MARK: - Internal Methods
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     func setFrameSource(_ frameSource: SentryFrameSource) {
         self.frameSource.stop()
         self.frameSource = frameSource
@@ -402,7 +402,7 @@ public class SentryFramesTracker: NSObject {
 
     private func recordTimestamp(_ timestamp: NSNumber, value: NSNumber, array: inout SentryFrameInfoTimeSeries) {
         var shouldRecord = SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling()
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         shouldRecord = true
 #endif
         if shouldRecord {
@@ -438,7 +438,7 @@ public class SentryFramesTracker: NSObject {
     }
     
     // MARK: - Test Utils
-    #if SENTRY_TEST || SENTRY_TEST_CI
+    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     func manualReportNewFrame() {
         reportNewFrame()
     }
