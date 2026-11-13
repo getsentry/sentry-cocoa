@@ -166,20 +166,12 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // just not call sendAllReports as it doesn't make sense to call it twice as described
         // above.
         if canSendReports {
-            sendAllSentryCrashReportsInternal()
+            sendAllSentryCrashReports()
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
-    /// Sends all pending crash reports. Called internally during initialization,
-    /// and exposed for testing purposes.
-    func sendAllSentryCrashReports() {
-        sendAllSentryCrashReportsInternal()
-    }
-#endif
-
     /// Sends all pending crash reports. Called internally during initialization.
-    private func sendAllSentryCrashReportsInternal() {
+    func sendAllSentryCrashReports() {
         installation?.sendAllReports(completion: nil)
     }
 
