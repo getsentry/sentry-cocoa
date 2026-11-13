@@ -8,7 +8,6 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfilingSwiftHelpers.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -32,7 +31,7 @@ SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 id<SentryProfilingCancellation> _Nullable _chunkTimer;
 
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
-SentryId *_profileSessionID;
+SentryProfilingId *_profileSessionID;
 
 /**
  * To avoid sending small chunks at the end of profiles, we let the current chunk run to the full
@@ -76,7 +75,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     const auto profilerID = profiler.profilerId;
     NSDictionary *_Nonnull serializedMetrics
         = serializeContinuousProfileMetrics(metricProfilerState);
-    [SentryProfilerSDKAdapter.shared captureProfileChunkWithID:sentry_stringFromSentryID(profilerID)
+    [SentryProfilerSDKAdapter.shared captureProfileChunkWithID:profilerID
                                                           data:profilerState
                                                        metrics:serializedMetrics
 #    if SENTRY_HAS_UIKIT
@@ -125,7 +124,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
+        dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryProfilingId alloc] init]; });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
         profiler = _threadUnsafe_gContinuousCurrentProfiler;
 #    if SENTRY_HAS_UIKIT
@@ -181,7 +180,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     _stopCalled = YES;
 }
 
-+ (nullable SentryId *)currentProfilerID
++ (nullable SentryProfilingId *)currentProfilerID
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler.profilerId;

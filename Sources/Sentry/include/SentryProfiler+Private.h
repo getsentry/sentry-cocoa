@@ -4,10 +4,10 @@
 
 #    import "SentryDefines.h"
 #    import "SentryProfilerDefines.h"
+#    import "SentryProfilingId.h"
 
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
-@class SentryId;
 @class SentryMetricProfiler;
 @class SentryProfilerState;
 @class SentryTransaction;
@@ -28,7 +28,7 @@ SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
  */
 @interface SentryProfiler : NSObject
 
-@property (strong, nonatomic) SentryId *profilerId;
+@property (strong, nonatomic) SentryProfilingId *profilerId;
 @property (strong, nonatomic) SentryProfilerState *state;
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;

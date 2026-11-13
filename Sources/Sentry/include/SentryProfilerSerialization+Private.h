@@ -6,6 +6,7 @@
 #    import "SentryProfiler+Private.h"
 
 @class SentryHubInternal;
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
