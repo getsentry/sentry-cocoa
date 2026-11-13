@@ -166,7 +166,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private func addAppState(to event: Event) {
         var context = event.context ?? [:]
-        var appContext = context["app"] ?? [:]
+        var appContext = (context["app"] as? [String: Any]) ?? [:]
         appContext["in_foreground"] = true
         appContext["is_active"] = true
         context["app"] = appContext

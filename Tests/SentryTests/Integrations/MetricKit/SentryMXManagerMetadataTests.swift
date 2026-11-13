@@ -172,20 +172,20 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         try assertEventWithScopeCaptured { event, _, _ in
             // The client doesn't apply the scope to the event, so the contexts live on the event,
             // reduced to what is known for the diagnostic.
-            XCTAssertEqual(event?.context?["app"] as NSDictionary?, [
+            XCTAssertEqual(event?.context?["app"] as? NSDictionary, [
                 "app_identifier": "io.sentry.app",
                 "app_version": "1.2.3",
                 "app_build": "45"
             ])
-            XCTAssertEqual(event?.context?["os"] as NSDictionary?, [
+            XCTAssertEqual(event?.context?["os"] as? NSDictionary, [
                 "name": "iOS",
                 "version": "18.6.2",
                 "build": "22G100"
             ])
         }
         let hubScope = SentrySDKInternal.currentHub().scope
-        XCTAssertEqual(hubScope.getContextForKey("app") as NSDictionary?, Self.runningAppContext as NSDictionary)
-        XCTAssertEqual(hubScope.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
+        XCTAssertEqual(hubScope.getContextForKey("app") as? NSDictionary, Self.runningAppContext as NSDictionary)
+        XCTAssertEqual(hubScope.getContextForKey("os") as? NSDictionary, Self.runningOSContext as NSDictionary)
     }
 
     func testDidReceive_whenDiagnosticHasOnlyAppVersion_shouldSetAppContextWithoutBuild() throws {
@@ -199,7 +199,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["app"] as NSDictionary?, [
+            XCTAssertEqual(event?.context?["app"] as? NSDictionary, [
                 "app_identifier": "io.sentry.app",
                 "app_version": "1.2.3"
             ])
@@ -218,7 +218,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["app"] as NSDictionary?, ["app_version": "1.2.3", "app_build": "45"])
+            XCTAssertEqual(event?.context?["app"] as? NSDictionary, ["app_version": "1.2.3", "app_build": "45"])
         }
     }
 
@@ -233,7 +233,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["os"] as NSDictionary?, ["name": "iOS", "version": "14.1"])
+            XCTAssertEqual(event?.context?["os"] as? NSDictionary, ["name": "iOS", "version": "14.1"])
         }
     }
 
@@ -249,7 +249,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["os"] as NSDictionary?, ["version": "18.6.2", "build": "22G100"])
+            XCTAssertEqual(event?.context?["os"] as? NSDictionary, ["version": "18.6.2", "build": "22G100"])
         }
     }
 
@@ -265,7 +265,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         // The running OS version isn't known to apply to the diagnostic, so it stays out.
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["os"] as NSDictionary?, ["name": "iOS"])
+            XCTAssertEqual(event?.context?["os"] as? NSDictionary, ["name": "iOS"])
         }
     }
 
@@ -288,8 +288,8 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
             XCTAssertNil(event?.releaseName)
             XCTAssertNil(event?.dist)
             // Only the attributes that don't depend on the app version or the OS remain.
-            XCTAssertEqual(event?.context?["app"] as NSDictionary?, ["app_identifier": "io.sentry.app"])
-            XCTAssertEqual(event?.context?["os"] as NSDictionary?, ["name": "iOS"])
+            XCTAssertEqual(event?.context?["app"] as? NSDictionary, ["app_identifier": "io.sentry.app"])
+            XCTAssertEqual(event?.context?["os"] as? NSDictionary, ["name": "iOS"])
         }
     }
 
@@ -326,7 +326,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["device"] as NSDictionary?, [
+            XCTAssertEqual(event?.context?["device"] as? NSDictionary, [
                 "arch": "arm64e",
                 "family": "iOS",
                 "model": "iPhone17,1",

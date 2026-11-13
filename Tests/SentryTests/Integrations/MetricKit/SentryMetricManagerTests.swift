@@ -229,10 +229,10 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(event.isFromPreviousProcess, true)
             XCTAssertEqual(event.releaseName, "io.sentry.app@1.0.0+10")
             XCTAssertEqual(event.dist, "10")
-            let appContext = try XCTUnwrap(event.context?["app"])
+            let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
             XCTAssertEqual(appContext["app_version"] as? String, "1.0.0")
             XCTAssertEqual(appContext["app_build"] as? String, "10")
-            let osContext = try XCTUnwrap(event.context?["os"])
+            let osContext = try XCTUnwrap(event.context?["os"] as? [String: Any])
             XCTAssertEqual(osContext["version"] as? String, "27.0")
             XCTAssertEqual(osContext["build"] as? String, "24A100")
         }

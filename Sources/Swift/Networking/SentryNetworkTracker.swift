@@ -537,7 +537,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             responseContext["body_size"] = sessionTask.countOfBytesReceived
         }
 
-        var context: [String: [String: Any]] = ["response": responseContext]
+        var context: [String: Any] = ["response": responseContext]
         if featureState.isGraphQLOperationTrackingEnabled,
            let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: sessionTask) {
             context["graphql"] = ["operation_name": operationName]

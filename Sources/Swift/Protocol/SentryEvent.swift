@@ -95,7 +95,10 @@ open class Event: NSObject {
     public var user: User?
 
     /// Meta information. Maintained automatically.
-    public var context: [String: [String: Any]]?
+    ///
+    /// Entries are usually one dictionary per context type. Crash reports also store other JSON
+    /// values, so this is a dictionary of arbitrary values rather than nested dictionaries.
+    public var context: [String: Any]?
 
     /// Threads captured for a crash or a user-reported exception.
     public var threads: [SentryThread]?
@@ -299,9 +302,5 @@ private func serializedObjects(_ objects: [AnyObject]?) -> [Any] {
 }
 
 private func sanitized(_ dictionary: [String: Any]?) -> Any? {
-    sentry_sanitize_dictionary(dictionary as NSDictionary?)
-}
-
-private func sanitized(_ dictionary: [String: [String: Any]]?) -> Any? {
     sentry_sanitize_dictionary(dictionary as NSDictionary?)
 }
