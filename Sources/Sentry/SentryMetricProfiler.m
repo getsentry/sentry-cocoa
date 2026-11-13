@@ -155,12 +155,15 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 
 - (void)recordMetrics
 {
-    SentryProfilingSystemMetrics *metrics = [SentryProfilerSDKAdapter.shared systemMetrics];
-    [self recordCPUsage:metrics.cpuUsage];
-    [self recordMemoryFootprint:metrics.memoryFootprintBytes];
+    // Keep cumulative energy reads ordered with their baseline updates.
+    @synchronized(self) {
+        SentryProfilingSystemMetrics *metrics = [SentryProfilerSDKAdapter.shared systemMetrics];
+        [self recordCPUsage:metrics.cpuUsage];
+        [self recordMemoryFootprint:metrics.memoryFootprintBytes];
 #    if defined(__arm__) || defined(__arm64__)
-    [self recordEnergyUsageEstimate:metrics.cpuEnergyUsage];
+        [self recordEnergyUsageEstimate:metrics.cpuEnergyUsage];
 #    endif
+    }
 }
 
 - (void)stop

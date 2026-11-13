@@ -128,6 +128,42 @@ final class SentryMetricProfilerEnergyTests: XCTestCase {
                          timestamps: Array(repeating: 1_000, count: 199))
     }
 
+    func testRecordEnergy_whenRecordingsOverlap_shouldPreserveCounterOrder() throws {
+        // -- Arrange --
+        let system = PausedEnergySystemWrapper(processorCount: 1)
+        let backend = try XCTUnwrap(SentryProfilerSDKAdapter.shared.target as? SentryDefaultProfilerSDKBackend)
+        backend.systemWrapper = system
+        let profiler = SentryMetricProfiler(mode: .continuous)
+        let recordings = expectation(description: "Both metric recordings finish")
+        recordings.expectedFulfillmentCount = 2
+        let secondRecordingStarted = DispatchSemaphore(value: 0)
+        let secondRecordingFinished = DispatchSemaphore(value: 0)
+
+        // -- Act --
+        DispatchQueue.global().async {
+            profiler.recordMetrics()
+            recordings.fulfill()
+        }
+        XCTAssertEqual(system.firstReadingTaken.wait(timeout: .now() + 5), .success)
+        DispatchQueue.global().async {
+            secondRecordingStarted.signal()
+            profiler.recordMetrics()
+            secondRecordingFinished.signal()
+            recordings.fulfill()
+        }
+        XCTAssertEqual(secondRecordingStarted.wait(timeout: .now() + 5), .success)
+
+        // A later recording must not consume a newer counter while the earlier read is pending.
+        let secondFinishedWhileFirstWasPaused = secondRecordingFinished.wait(timeout: .now() + 0.1)
+        system.resumeFirstReading.signal()
+        wait(for: [recordings], timeout: 5)
+        profiler.recordMetrics()
+
+        // -- Assert --
+        XCTAssertEqual(secondFinishedWhileFirstWasPaused, .timedOut)
+        try assertEnergy(profiler, values: [100, 100], timestamps: [1_000, 1_000])
+    }
+
     private func assertEnergy(_ profiler: SentryMetricProfiler, values: [Double], timestamps: [TimeInterval], file: StaticString = #filePath, line: UInt = #line) throws {
         let metrics = serializeContinuousProfileMetrics(profiler.copyData())
         let metric = try XCTUnwrap(metrics["cpu_energy_usage"] as? [String: Any], file: file, line: line)
@@ -136,6 +172,32 @@ final class SentryMetricProfilerEnergyTests: XCTestCase {
         XCTAssertEqual(readings.count, values.count, file: file, line: line)
         XCTAssertEqual(readings.compactMap { $0["value"] as? Double }, values, file: file, line: line)
         XCTAssertEqual(readings.compactMap { $0["timestamp"] as? TimeInterval }, timestamps, file: file, line: line)
+    }
+}
+
+private final class PausedEnergySystemWrapper: SentrySystemWrapper {
+    let firstReadingTaken = DispatchSemaphore(value: 0)
+    let resumeFirstReading = DispatchSemaphore(value: 0)
+    private let readingCount = SentryMutex(0)
+
+    override func cpuUsage() throws -> NSNumber {
+        10
+    }
+
+    override func memoryFootprintBytes() throws -> NSNumber {
+        100
+    }
+
+    override func cpuEnergyUsage() throws -> NSNumber {
+        let reading = readingCount.withLock {
+            $0 += 1
+            return $0 * 100
+        }
+        if reading == 100 {
+            firstReadingTaken.signal()
+            XCTAssertEqual(resumeFirstReading.wait(timeout: .now() + 5), .success)
+        }
+        return NSNumber(value: reading)
     }
 }
 #endif
