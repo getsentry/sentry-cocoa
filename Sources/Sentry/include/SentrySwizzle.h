@@ -83,12 +83,12 @@
         _SentrySWWrapArg(SentrySWArguments), _SentrySWWrapArg(SentrySWReplacement),                \
         SentrySwizzleMode, key)
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 /**
  * Unswizzles the instance method of the class.
  *
  * @warning To reduce the risk of breaking functionality with unswizzling, this method is not
- * considered safe-to-use in production and only available in test targets.
+ * considered safe-to-use in production and only available in Debug and test builds.
  *
  * @param classToUnswizzle The class with the method that should be unswizzled.
  * @param selector Selector of the method that should be unswizzled.
@@ -176,7 +176,7 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
  */
 @property (nonatomic, readonly) SEL selector;
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 /**
  * A flag to check whether the original implementation was called.
  */
@@ -319,12 +319,12 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 /**
  * Unswizzles the instance method of the class.
  *
  * @warning To reduce the risk of breaking functionality with unswizzling, this method is not
- * considered safe-to-use in production and only available in test targets.
+ * considered safe-to-use in production and only available in Debug and test builds.
  *
  * @param selector Selector of the method that should be unswizzled.
  * @param classToUnswizzle The class with the method that should be unswizzled.
@@ -401,7 +401,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 #    define _SentrySWReplacement(code...)                                                          \
         @try {                                                                                     \
             code                                                                                   \
@@ -430,12 +430,12 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:SentrySwizzleMode                                                    \
                           key:KEY];
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 /**
  * Macro to unswizzle an instance method.
  *
  * @warning To reduce the risk of breaking functionality with unswizzling, this macro is not
- * considered safe-to-use in production and only available in test targets.
+ * considered safe-to-use in production and only available in Debug and test builds.
  *
  * @param classToUnswizzle The class to unswizzle the method from.
  * @param selector The selector of the method to unswizzle.

@@ -217,7 +217,7 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
     }
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 void
 sentrykscrash_test_invokeDidWriteReport(
     bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID)
@@ -292,7 +292,7 @@ sentrykscrash_attachments_setViewHierarchyWriter(SentryKSCrashAttachmentsViewHie
     atomic_store_explicit(&g_viewHierarchyWriter, writer, memory_order_release);
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 bool
 sentrykscrash_attachments_hasScreenshotWriter(void)
 {

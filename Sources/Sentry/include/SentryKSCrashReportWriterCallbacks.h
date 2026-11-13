@@ -46,7 +46,7 @@ void sentrykscrash_attachments_setViewHierarchyWriter(
 void sentrykscrash_attachments_setSidecarPathProvider(
     KSCrashReportSidecarPathProviderFunc _Nullable provider);
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 /** For testing. True when a screenshot writer is registered. */
 bool sentrykscrash_attachments_hasScreenshotWriter(void);
 

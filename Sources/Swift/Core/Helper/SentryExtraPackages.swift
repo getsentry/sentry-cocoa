@@ -19,7 +19,7 @@ import Foundation
         extraPackages.withLock { Set($0) }
     }
 
-    #if SENTRY_TEST || SENTRY_TEST_CI
+    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     static func clear() {
         extraPackages.withLock { $0.removeAll() }
     }
