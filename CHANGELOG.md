@@ -4,12 +4,31 @@
 
 ### Features
 
-- Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+- Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
+  - Expose `options.webViewTracing` through the SentryObjC SDK as `SentryObjCOptions.webViewTracing` (#9539)
+  - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
 - Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
 
 ### Fixes
 
+- Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
+
+## 9.34.0
+
+### Features
+
+- Add opt-in `options.enableScopePersistence` to retain explicitly supplied user information across app launches. Storage and restoration are asynchronous, and independent of watchdog tracking and automatic user collection settings (#9470)
+- Give every run of the app an ID and store it in crash reports and the app state, so the SDK can match events from the crash handler, the watchdog termination integration and MetricKit that describe the same run. The ID is only used on the device and is not sent to Sentry (#9578)
+
+### Fixes
+
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
+- Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
+- Count error events captured with `captureEvent` in the current session's error count, as the Java and Native SDKs do, so hybrid SDKs such as Godot and Unreal report errored sessions. App hangs and events from a previous process still don't count (#9597)
+
+### Improvements
+
+- Speed up resolving class names for UIViewController breadcrumbs and performance tracking, which could take several milliseconds per new view controller type on the main thread in apps with many protocol conformances, especially on simulators (#9544)
 
 ## 9.33.0
 

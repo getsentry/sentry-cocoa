@@ -27,6 +27,10 @@ FOUNDATION_EXPORT void sentry_test_sdkInitProfilerTasks(NSObject *options, Sentr
 FOUNDATION_EXPORT void sentry_test_configureContinuousProfiling(NSObject *options)
     NS_SWIFT_NAME(sentry_configureContinuousProfiling(_:));
 
+// Keep Swift-defined return types inside Objective-C when constructing this test backend.
+FOUNDATION_EXPORT id<SentryProfilerSDKBackend> sentry_test_createProfilerBackendWithoutEnrichment(
+    void);
+
 NS_ASSUME_NONNULL_END
 #endif
 
