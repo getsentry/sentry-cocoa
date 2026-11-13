@@ -9,7 +9,7 @@
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryId;
-@class SentryScreenFrames;
+@class SentryProfilingFrameMeasurements;
 @class SentryTransaction;
 @class SentryProfiler;
 
@@ -25,10 +25,10 @@ SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(Sent
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState,
-    NSArray<SentryDebugMeta *> *debugImages, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *_Nullable gpuData
+    SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 );
 

@@ -9,13 +9,13 @@
 @end
 
 @implementation SentryTestUnavailableEnrichmentProfilerBackend
-- (SentryDebugImageProvider *_Nullable)debugImageProvider
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization
 {
     return nil;
 }
 
 #    if SENTRY_HAS_UIKIT
-- (SentryScreenFrames *_Nullable)copyCurrentFrames
+- (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements
 {
     return nil;
 }
