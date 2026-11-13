@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 @interface SentryOptions (Tests)
 
 - (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary

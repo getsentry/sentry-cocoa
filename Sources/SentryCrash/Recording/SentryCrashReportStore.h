@@ -123,11 +123,11 @@ void sentrycrashcrs_deleteReportWithID(int64_t reportID);
  */
 void sentrycrashcrs_setMaxReportCount(int maxReportCount);
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 struct tm;
 /** Initialize the report ID generator with UTC time fields for tests. */
 void sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime);
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #ifdef __cplusplus
 }

@@ -127,7 +127,7 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 
 @end
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 static SentrySystemWrapper *_systemWrapperOverride = nil;
 #    endif
 
@@ -148,7 +148,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     if (self = [super init]) {
         // It doesn't make sense to acquire a lock in the init.
         [self clearNotThreadSafe];
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
         self.systemWrapper = _systemWrapperOverride
             ? _systemWrapperOverride
             : [[SentrySystemWrapper alloc]
@@ -164,7 +164,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     return self;
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 + (void)setSystemWrapperOverride:(SentrySystemWrapper *)value
 {
     _systemWrapperOverride = value;

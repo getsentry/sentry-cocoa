@@ -11,7 +11,7 @@ extension SentrySDKLog {
     }
     
     static func setLogOutput(_ output: TestLogOutput) {
-        #if SENTRY_TEST || SENTRY_TEST_CI
+        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         SentrySDKLog.setOutput { string in
             output.log(string)
         }
@@ -19,7 +19,7 @@ extension SentrySDKLog {
     }
     
     static func getLogOutput() -> SentryLogOutput {
-        #if SENTRY_TEST || SENTRY_TEST_CI
+        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         return SentrySDKLog.getOutput()
         #else
         { print($0) }
@@ -27,7 +27,7 @@ extension SentrySDKLog {
     }
     
     static func setCurrentDateProvider(_ dateProvider: SentryCurrentDateProvider) {
-        #if SENTRY_TEST || SENTRY_TEST_CI
+        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         SentrySDKLog.setDateProvider(dateProvider)
         #endif
     }

@@ -7,7 +7,7 @@
 @implementation SentryNSDataSwizzlingHelper
 
 static __weak SentryFileIOTracker *_tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 static BOOL swizzlingIsActive = FALSE;
 #endif
 
@@ -18,7 +18,7 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)swizzleWithTracker:(SentryFileIOTracker *)tracker
 {
     _tracker = tracker;
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
     swizzlingIsActive = TRUE;
 #endif
 
@@ -119,12 +119,12 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)stop
 {
     _tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
     [self unswizzle];
 #endif
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 + (void)unswizzle
 {
     swizzlingIsActive = FALSE;
