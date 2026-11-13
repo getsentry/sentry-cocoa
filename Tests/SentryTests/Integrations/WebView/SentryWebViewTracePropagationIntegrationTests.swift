@@ -170,6 +170,24 @@ final class SentryWebViewTracePropagationIntegrationTests: XCTestCase {
         }
     }
 
+    /// The scope observer refreshes on a later main queue turn, so only the reload swizzle can give
+    /// a reload in the same turn as the trace change the new trace.
+    func testReload_whenTraceChangesInSameTurn_shouldInstallNewTraceBeforeReload() throws {
+        // -- Arrange --
+        try install()
+        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        webView.loadHTMLString("", baseURL: URL(string: "https://example.com/"))
+        let traceId = SentryId()
+
+        // -- Act --
+        scope.propagationContext = SentryPropagationContext(traceId: traceId, spanId: SpanId())
+        webView.reload()
+
+        // -- Assert --
+        let script = try XCTUnwrap(webView.configuration.userContentController.sentryScripts.first)
+        XCTAssertTrue(script.source.contains(traceId.sentryIdString))
+    }
+
     func testLoadSimulatedRequestHTML_shouldInstallScriptBeforeLoad() throws {
         try assertInstallsScript { webView in
             webView.loadSimulatedRequest(URLRequest(url: try XCTUnwrap(URL(string: "https://example.com/"))), responseHTML: "")
