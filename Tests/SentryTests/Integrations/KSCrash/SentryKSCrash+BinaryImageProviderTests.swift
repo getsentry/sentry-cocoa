@@ -4,7 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
-#if !SWIFT_PACKAGE
+#if !SWIFT_PACKAGE || SENTRY_PACKAGE_TEST_FIXTURES
 internal import KSCrashRecordingCore
 #endif
 import Darwin
@@ -70,9 +70,8 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
         XCTAssertEqual(result?.address, image.address)
     }
 
-#if !SWIFT_PACKAGE
-    // The Xcode V10 test target embeds this framework without linking it at launch. SwiftPM's
-    // test bundle has no corresponding embed phase; the other provider tests run on both routes.
+#if !SWIFT_PACKAGE || SENTRY_PACKAGE_TEST_FIXTURES
+    // Both test routes embed this pure-C framework without linking it at launch.
     // A real dyld unload between header acquisition and metadata extraction must not crash.
     // publish() consults the registry after taking the header pointer and before extracting, so the
     // registry closes the last reference there: the unload is real, only its timing is controlled.
@@ -170,7 +169,7 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
     private func loaderError() -> String {
         dlerror().map { String(cString: $0) } ?? "No dyld error"
     }
-#endif // !SWIFT_PACKAGE
+#endif // !SWIFT_PACKAGE || SENTRY_PACKAGE_TEST_FIXTURES
 
 #if os(iOS) && !targetEnvironment(macCatalyst)
     func testImageByAddress_shouldRefreshAfterDynamicImageLoad() throws {

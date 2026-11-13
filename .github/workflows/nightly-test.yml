@@ -33,7 +33,6 @@ jobs:
       platform: ${{matrix.platform}}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device}}
-      scheme: "Sentry"
     strategy:
       fail-fast: false
       matrix:
