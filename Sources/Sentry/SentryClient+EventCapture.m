@@ -9,6 +9,32 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryClientEventCaptureLinker
 @end
 
+/**
+ * Whether a captured event counts as an error of the current session, like errors captured through
+ * the event-capture API of the Java and Native SDKs.
+ *
+ * App hangs and MetricKit diagnostics from a previous process are captured through this path too,
+ * but they don't describe an error of the running session, so they don't count.
+ */
+static BOOL
+shouldIncrementSessionErrors(SentryEvent *event)
+{
+    if (event.isFromPreviousProcess) {
+        return NO;
+    }
+#if !SDK_V10
+    if (event.isAppHangEvent) {
+        return NO;
+    }
+#endif // !SDK_V10
+
+    if (event.level >= kSentryLevelError) {
+        return YES;
+    }
+    // Events without a level default to error in Sentry.
+    return event.level == kSentryLevelNone && event.exceptions.count > 0;
+}
+
 @implementation SentryClientInternal (EventCapture)
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -91,6 +117,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
+    // Only transactions pass additional envelope items, and the session path can't send them.
+    if (additionalEnvelopeItems.count == 0 && shouldIncrementSessionErrors(event)) {
+        return [self captureEventIncrementingSessionErrorCount:event
+                                                     withScope:scope
+                                        alwaysAttachStacktrace:NO
+                                                          hint:hint];
+    }
     return [self sendEvent:event
                       withScope:scope
          alwaysAttachStacktrace:NO
@@ -105,6 +138,12 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryEvent *event = untypedEvent;
     SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+    if (shouldIncrementSessionErrors(event)) {
+        return [self captureEventIncrementingSessionErrorCount:event
+                                                     withScope:scope
+                                        alwaysAttachStacktrace:NO
+                                                          hint:resolvedHint];
+    }
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO hint:resolvedHint];
 }
 

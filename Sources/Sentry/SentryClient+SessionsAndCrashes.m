@@ -90,13 +90,26 @@ extern NSString *const DropSessionLogMessage;
                                                    hint:(SentryHint *)hint
 {
     SentryEvent *event = untypedEvent;
+    return [self captureEventIncrementingSessionErrorCount:event
+                                                 withScope:scope
+                                    alwaysAttachStacktrace:YES
+                                                      hint:hint];
+}
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
+                                                            SentryEvent))untypedEvent
+                                              withScope:(SentryScope *)scope
+                                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                                   hint:(SentryHint *)hint
+{
+    SentryEvent *event = untypedEvent;
     [self populateHintAttachments:hint
                             scope:scope
             isFromPreviousProcess:event.isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
-                             alwaysAttachStacktrace:YES
+                             alwaysAttachStacktrace:alwaysAttachStacktrace
                                        isFatalEvent:NO
                                                hint:hint];
 
