@@ -124,14 +124,17 @@ extension SentryMXDiagnostic.Metadata {
             lowPowerModeEnabled = diagnostic.metaData.lowPowerModeEnabled
             isTestFlightApp = diagnostic.metaData.isTestFlightApp
         }
-        var bundleIdentifier: String?
         // MXMetaData.bundleIdentifier only exists in the SDKs of Xcode 26 and later.
         #if compiler(>=6.2)
+        var bundleIdentifier: String?
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             // Declared nonnull, but bridges to an empty string when missing.
             let diagnosticBundleIdentifier = diagnostic.metaData.bundleIdentifier
             bundleIdentifier = diagnosticBundleIdentifier.isEmpty ? nil : diagnosticBundleIdentifier
         }
+        #else
+        // A `var` without the assignment above fails the build with a never-mutated warning.
+        let bundleIdentifier: String? = nil
         #endif // compiler(>=6.2)
         let osVersion = Self.parseOSVersion(diagnostic.metaData.osVersion)
         // MetricKit declares the versions as nonnull, but they bridge to empty strings when missing.
