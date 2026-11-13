@@ -49,6 +49,11 @@
     return [self.target serializedDebugImages];
 }
 
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization
+{
+    return [self.target debugImageSerialization];
+}
+
 - (SentryProfilingSystemMetrics *_Nullable)systemMetrics
 {
     return [self.target systemMetrics];

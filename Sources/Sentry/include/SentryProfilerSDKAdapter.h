@@ -10,10 +10,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
+    ^SentryProfilingDebugImageSerialization)(void);
+
 @protocol SentryProfilerSDKBackend <NSObject>
 
 - (SentryProfilingTimestamp)timestamp;
 - (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages;
+// Bind to the current provider without reading or serializing images until invoked.
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization;
 - (SentryProfilingSystemMetrics *_Nullable)systemMetrics;
 - (id<SentryProfilingCancellation> _Nullable)
     scheduleMetricSamplingWithInterval:(uint64_t)intervalNanoseconds

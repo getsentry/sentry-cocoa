@@ -9,7 +9,7 @@
 @end
 
 @implementation SentryTestUnavailableEnrichmentProfilerBackend
-- (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization
 {
     return nil;
 }
