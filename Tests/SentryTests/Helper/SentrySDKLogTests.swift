@@ -1,5 +1,6 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentryCrashV9Swift
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -190,8 +191,7 @@ class SentrySDKLogTests: XCTestCase {
         ], logOutput.loggedMessages)
     }
 
-    // Deferred to the V9 crash SwiftPM test target; keep the Xcode-project coverage.
-    #if !SDK_V10 && !SWIFT_PACKAGE
+    #if !SDK_V10
     func testV9ConvenienceLogs_whenMessagesAreFiltered_shouldOnlyEvaluateEnabledMessages() {
         let cases: [(Bool, SentryLevel, [SentryLevel])] = [
             (false, .debug, []),
