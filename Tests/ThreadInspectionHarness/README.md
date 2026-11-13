@@ -1,6 +1,6 @@
 # Thread Inspection Harness
 
-This macOS Swift package tests the C capture path used by the V10 `SentryDefaultThreadInspector`. It compiles the production sources through relative symlinks into `Sources/Sentry`; it does not contain a copy of the implementation and is not part of an SDK release target.
+This macOS Swift package tests the C capture path used by the V10 `SentryDefaultThreadInspector`. It compiles the production sources through relative symlinks into `Sources/Sentry` and `Sources/SentryNativeUtils`; it does not contain a copy of the implementation and is not part of an SDK release target.
 
 This is a nonfatal inspection path. Fatal reports use KSCrash's own thread capture pipeline.
 

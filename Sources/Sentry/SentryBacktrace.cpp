@@ -5,7 +5,6 @@
 #    include "SentryAsyncSafeLog.h"
 #    include "SentryCompiler.h"
 #    include "SentryMachLogging.hpp"
-#    include "SentryMemory.h"
 #    include "SentryStackBounds.hpp"
 #    include "SentryStackFrame.hpp"
 #    include "SentryThreadHandle.hpp"
@@ -63,7 +62,7 @@ namespace profiling {
     NOT_TAIL_CALLED NEVER_INLINE std::size_t
     backtrace(const ThreadHandle &targetThread, const ThreadHandle &callingThread,
         std::uintptr_t *addresses, const StackBounds &bounds, bool *reachedEndOfStackPtr,
-        std::size_t maxDepth, std::size_t skip) noexcept
+        std::size_t maxDepth, SentryProfilingMemoryReader memoryReader, std::size_t skip) noexcept
     {
         assert(addresses != nullptr);
         if (UNLIKELY(maxDepth == 0 || !bounds.isValid())) {
@@ -109,7 +108,7 @@ namespace profiling {
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
-            if (!sentryMemoryIsReadable(frame, sizeof(StackFrame))) {
+            if (!memoryReader(frame, sizeof(StackFrame))) {
                 break;
             }
             if (LIKELY(skip == 0)) {
@@ -133,8 +132,8 @@ namespace profiling {
     }
 
     void
-    enumerateBacktracesForAllThreads(
-        const std::function<void(const Backtrace &)> &f, ThreadMetadataCache *cache)
+    enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
+        ThreadMetadataCache *cache, SentryProfilingMemoryReader memoryReader)
     {
         const auto pair = ThreadHandle::allExcludingCurrent();
         for (const auto &thread : pair.first) {
@@ -189,7 +188,7 @@ namespace profiling {
                 }
 
                 depth = backtrace(*thread, *pair.second, addresses, stackBounds, &reachedEndOfStack,
-                    kMaxBacktraceDepth, 0);
+                    kMaxBacktraceDepth, memoryReader, 0);
 
                 thread->resume();
             }

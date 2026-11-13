@@ -1,5 +1,6 @@
 #if !SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 internal import _SentryPrivate
+internal import SentryNativeUtils
 import Foundation
 
 /// Detects fully and non-fully blocking app hangs from frame delays on a dedicated watchdog thread.

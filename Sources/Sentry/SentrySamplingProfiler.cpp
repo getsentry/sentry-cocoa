@@ -23,6 +23,7 @@ namespace profiling {
             mach_timespec_t delaySpec;
             ThreadMetadataCache *cache;
             std::function<void(const Backtrace &)> callback;
+            SentryProfilingMemoryReader memoryReader;
             std::atomic_uint64_t &numSamples;
             std::function<void()> onThreadStart;
         };
@@ -65,7 +66,8 @@ namespace profiling {
                 }
 
                 params->numSamples.fetch_add(1, std::memory_order_relaxed);
-                enumerateBacktracesForAllThreads(params->callback, params->cache);
+                enumerateBacktracesForAllThreads(
+                    params->callback, params->cache, params->memoryReader);
             }
             pthread_cleanup_pop(1);
             pthread_cleanup_pop(1);
@@ -74,9 +76,10 @@ namespace profiling {
 
     } // namespace
 
-    SamplingProfiler::SamplingProfiler(
-        std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz)
+    SamplingProfiler::SamplingProfiler(std::function<void(const Backtrace &)> callback,
+        std::uint32_t samplingRateHz, SentryProfilingMemoryReader memoryReader)
         : callback_(std::move(callback))
+        , memoryReader_(memoryReader)
         , cache_(std::make_unique<ThreadMetadataCache>())
         , isInitialized_(false)
         , isSampling_(false)
@@ -140,7 +143,7 @@ namespace profiling {
         }
 
         const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_.get(),
-            callback_, std::ref(numSamples_), std::move(onThreadStart) };
+            callback_, memoryReader_, std::ref(numSamples_), std::move(onThreadStart) };
         if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(
                 pthread_create(&thread_, &attr, samplingThreadMain, params))
             != 0) {

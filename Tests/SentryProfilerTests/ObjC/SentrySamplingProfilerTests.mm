@@ -5,6 +5,7 @@
 #    import <XCTest/XCTest.h>
 
 #    import "SentryBacktrace.hpp"
+#    import "SentryMemory.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryThreadMetadataCache.hpp"
 #    import "SentryTime.h"
@@ -38,7 +39,7 @@ using namespace sentry::profiling;
                 numIdleSamples++;
             }
         },
-        samplingRateHz);
+        samplingRateHz, sentryMemoryIsReadable);
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;

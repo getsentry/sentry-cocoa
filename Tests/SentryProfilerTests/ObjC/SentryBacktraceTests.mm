@@ -5,6 +5,8 @@
 #    import <XCTest/XCTest.h>
 
 #    import "SentryBacktrace.hpp"
+#    import "SentryMemory.h"
+#    import "SentryStackFrame.hpp"
 #    import "SentryThreadHandle.hpp"
 #    import "SentryThreadSuspension.h"
 
@@ -25,7 +27,7 @@ c(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, s
 {
     auto current = ThreadHandle::current();
     return backtrace(*current, *current, addresses, current->stackBounds(), reachedEndOfStackPtr,
-        maxDepth, skip);
+        maxDepth, sentryMemoryIsReadable, skip);
 }
 
 NOT_TAIL_CALLED NEVER_INLINE std::size_t
@@ -80,6 +82,17 @@ bc_a(void)
 }
 
 namespace {
+std::atomic_size_t readabilityChecks { 0 };
+std::atomic_size_t readabilityByteCount { 0 };
+
+bool
+rejectMemoryRead(const void *, std::size_t byteCount)
+{
+    readabilityChecks.fetch_add(1, std::memory_order_relaxed);
+    readabilityByteCount.store(byteCount, std::memory_order_relaxed);
+    return false;
+}
+
 std::string
 symbolicate(std::uintptr_t address) noexcept
 {
@@ -165,6 +178,25 @@ countof(Array &)
 
 @implementation SentryBacktraceTests
 
+- (void)testBacktrace_whenMemoryReaderRejectsFrame_shouldStopBeforeReadingIt
+{
+    // -- Arrange --
+    auto current = ThreadHandle::current();
+    std::uintptr_t addresses[16] = { };
+    bool reachedEndOfStack = false;
+    readabilityChecks.store(0, std::memory_order_relaxed);
+    readabilityByteCount.store(0, std::memory_order_relaxed);
+
+    // -- Act --
+    backtrace(*current, *current, addresses, current->stackBounds(), &reachedEndOfStack,
+        countof(addresses), rejectMemoryRead);
+
+    // -- Assert --
+    XCTAssertEqual(readabilityChecks.load(std::memory_order_relaxed), 1U);
+    XCTAssertEqual(readabilityByteCount.load(std::memory_order_relaxed), sizeof(StackFrame));
+    XCTAssertFalse(reachedEndOfStack);
+}
+
 - (void)testBacktrace
 {
     std::uintptr_t addresses[128];
@@ -244,7 +276,7 @@ countof(Array &)
             [&](auto &backtrace) {
                 foundThread |= backtrace.threadMetadata.threadID == pthread_mach_thread_np(thread);
             },
-            &cache);
+            &cache, sentryMemoryIsReadable);
     }
     sentryThreadSuspensionRelease();
     XCTAssertEqual(pthread_cancel(thread), 0);
@@ -293,7 +325,7 @@ countof(Array &)
                     }
                 }
             },
-            &cache);
+            &cache, sentryMemoryIsReadable);
         if (foundThread1 && foundThread2) {
             break;
         }

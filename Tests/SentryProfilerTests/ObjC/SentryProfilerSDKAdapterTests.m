@@ -1,6 +1,7 @@
 @import XCTest;
 #import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryFileManagerHelper.h"
+#import "SentryMemory.h"
 #import "SentryProfiler+Private.h"
 #import "SentryProfilerDeliveryBridge.h"
 #import "SentryProfilerSDKAdapter.h"
@@ -209,6 +210,31 @@
     XCTAssertEqualObjects(payload[@"measurements"], metrics);
 }
 
+- (void)testProfilingAdapter_whenBackendReleased_shouldKeepSnapshottedMemoryReaderCallable
+{
+    // -- Arrange --
+    SentryProfilerSDKAdapter *adapter = [[SentryProfilerSDKAdapter alloc] init];
+    SentryProfilingMemoryReader reader = NULL;
+    __weak SentryDefaultProfilerSDKBackend *weakBackend;
+    @autoreleasepool {
+        SentryDefaultProfilerSDKBackend *backend = [[SentryDefaultProfilerSDKBackend alloc] init];
+        weakBackend = backend;
+        [adapter setTarget:backend];
+        reader = [adapter memoryReader];
+    }
+    int value = 123;
+
+    // -- Act --
+    BOOL readable = reader != NULL && reader(&value, sizeof(value));
+
+    // -- Assert --
+    XCTAssertNil(weakBackend);
+    XCTAssertNil(adapter.target);
+    XCTAssertTrue(reader == sentryMemoryIsReadable);
+    XCTAssertTrue(readable);
+    XCTAssertTrue([adapter memoryReader] == NULL);
+}
+
 - (void)testProfilingAdapter_whenNoTarget_shouldNotScheduleWork
 {
     // -- Arrange --
@@ -227,6 +253,7 @@
     XCTAssertNil(timer);
     XCTAssertNil([adapter date]);
     XCTAssertEqual([adapter systemTime], 0ULL);
+    XCTAssertTrue([adapter memoryReader] == NULL);
 }
 
 - (void)testProfilingAdapter_whenTargetReplaced_shouldIgnoreOldTargetRemoval
