@@ -19,7 +19,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         var sut: SentryCrashReportSink {
-            return getSut(crashHandlerEventSource: SentryDependencyContainer.sharedInstance().crashHandlerEventSource)
+            return getSut(crashHandlerEventSource: TestEventSources.crashHandlerEventSource())
         }
 
         func getSut(crashHandlerEventSource: SentryCrashHandlerEventSource) -> SentryCrashReportSink {

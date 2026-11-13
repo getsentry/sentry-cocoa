@@ -451,7 +451,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
                 ],
                 processIdentifier: Self.currentPid,
                 processStartDate: Self.processStartDate,
-                eventSourceSink: SentryDependencyContainer.sharedInstance().eventSourceCoordinator
+                eventSourceSink: TestEventSources.hubSink()
             )
         )
     }

@@ -60,7 +60,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         func getSut(
             fileManager: SentryFileManager,
-            eventSourceSink: SentryEventSourceSink = SentryDependencyContainer.sharedInstance().eventSourceCoordinator
+            eventSourceSink: SentryEventSourceSink = TestEventSources.hubSink()
         ) throws -> SentryWatchdogTerminationTracker {
             let dependencies = SentryDependencyContainer.sharedInstance()
             dependencies.fileManager = fileManager

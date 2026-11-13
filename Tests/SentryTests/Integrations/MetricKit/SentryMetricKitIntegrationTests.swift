@@ -755,7 +755,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             attachDiagnosticAsAttachment: attachDiagnosticAsAttachment,
             enabledDiagnostics: enabledDiagnostics,
             processStartDate: .distantPast,
-            eventSourceSink: SentryDependencyContainer.sharedInstance().eventSourceCoordinator
+            eventSourceSink: TestEventSources.hubSink()
         )
     }
 

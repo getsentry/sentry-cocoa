@@ -106,7 +106,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
-            crashHandlerEventSource: SentryDependencyContainer.sharedInstance().crashHandlerEventSource
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource()
         )
         let container = SentryDependencyContainer.sharedInstance()
         sut.setBridgeObject(SentryCrashBridge(
