@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -1399,6 +1399,175 @@ final class SentryClientTests: XCTestCase {
         wait(for: [sessionBlockExpectation], timeout: 0.2)
 
         eventId.assertIsEmpty()
+    }
+
+    func testCaptureEvent_whenLevelIsError_shouldIncrementSessionErrors() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let event = Event(level: .error)
+        event.message = fixture.message
+
+        // -- Act --
+        let eventId = sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        XCTAssertEqual(incrementCount, 1)
+        let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
+        XCTAssertEqual(args.event.eventId, event.eventId)
+        XCTAssertEqual(args.session, fixture.session)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 0)
+    }
+
+    func testCaptureEventWithHint_whenLevelIsFatal_shouldIncrementSessionErrors() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let event = Event(level: .fatal)
+        event.message = fixture.message
+
+        // -- Act --
+        let eventId = sut.capture(event: event, scope: Scope(), hint: Hint())
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        XCTAssertEqual(incrementCount, 1)
+        let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
+        XCTAssertEqual(args.event.eventId, event.eventId)
+    }
+
+    func testCaptureEvent_whenNoLevelAndHasException_shouldIncrementSessionErrors() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let event = Event()
+        event.exceptions = [Exception(value: "value", type: "type")]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        XCTAssertEqual(incrementCount, 1)
+        XCTAssertEqual(fixture.transportAdapter.sentEventsWithSessionTraceState.count, 1)
+    }
+
+    func testCaptureEvent_whenLevelIsWarning_shouldNotIncrementSessionErrors() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let event = Event(level: .warning)
+        event.exceptions = [Exception(value: "value", type: "type")]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        XCTAssertEqual(incrementCount, 0)
+        XCTAssertEqual(fixture.transportAdapter.sentEventsWithSessionTraceState.count, 0)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+    }
+
+    func testCaptureEvent_whenEventIsFromPreviousProcess_shouldNotIncrementSessionErrors() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let event = Event(level: .error)
+        event.isFromPreviousProcess = true
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        XCTAssertEqual(incrementCount, 0)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+    }
+
+#if !SDK_V10
+    func testCaptureEvent_whenEventIsAppHang_shouldNotIncrementSessionErrors() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let event = Event(level: .error)
+        event.exceptions = [Exception(value: "App hanging", type: SentryAppHangTypeMapper.getExceptionType(anrType: .fullyBlocking))]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        XCTAssertEqual(incrementCount, 0)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+    }
+#endif // !SDK_V10
+
+    func testCaptureEvent_whenBeforeSendReturnsNil_shouldNotIncrementSessionErrors() {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in return nil }
+        })
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+
+        // -- Act --
+        let eventId = sut.capture(event: Event(level: .error), scope: Scope())
+
+        // -- Assert --
+        eventId.assertIsEmpty()
+        XCTAssertEqual(incrementCount, 0)
+    }
+
+    func testCaptureEvent_whenErrorEventHasAdditionalEnvelopeItems_shouldKeepItems() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        var incrementCount = 0
+        let sessionDelegate = SentryTestSessionDelegate {
+            incrementCount += 1
+            return self.fixture.session
+        }
+        sut.sessionDelegate = sessionDelegate
+        let data = Data("{}".utf8)
+        let item = SentryEnvelopeItem(header: SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count)), data: data)
+
+        // -- Act --
+        sut.capture(event: Event(level: .error), scope: Scope(), additionalEnvelopeItems: [item])
+
+        // -- Assert --
+        XCTAssertEqual(incrementCount, 0)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first, item)
     }
 
     func testCaptureFatalEventWithSession() throws {

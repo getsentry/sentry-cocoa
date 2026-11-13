@@ -12,6 +12,8 @@ internal import _SentryPrivate
     @objc public static let debugImageProvider = SentryDebugImageProvider()
     @objc public static let sysctlWrapper = SentrySysctl()
     @objc public static let dateProvider = SentryDefaultCurrentDateProvider()
+    /// Created once per process, so the run ID stays the same when the SDK is started again.
+    public static let currentRun = SentryCurrentRun()
     public static let objcRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
 #if !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public static let uiDeviceWrapper = SentryDefaultUIDeviceWrapper(queueWrapper: Dependencies.dispatchQueueWrapper)

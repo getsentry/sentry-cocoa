@@ -32,6 +32,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private var crashReporter: SentryCrashSwift
     private var installation: SentryCrashInstallationReporter?
     private var bridge: SentryCrashBridge
+    private let currentRun: SentryCurrentRun
 
     // MARK: - Initialization
 
@@ -43,6 +44,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         self.options = options
         self.crashReporter = dependencies.crashReporter
+        self.currentRun = dependencies.currentRun
 
         // Create facade before installing crash handler to ensure services are available
         self.bridge = SentryCrashBridge(
@@ -206,6 +208,10 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             // Crashes don't use the attributes field, we remove them to avoid uploading them
             // unnecessarily.
             userInfo.removeValue(forKey: "attributes")
+
+            // The run ID links the crash report to the reports of other event sources, such as
+            // MetricKit, that describe the same run.
+            userInfo[SentryCurrentRun.userInfoKey] = self.currentRun.id.rawValue
 
             crashReporter.userInfo = userInfo
 

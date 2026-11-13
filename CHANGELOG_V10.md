@@ -84,3 +84,4 @@
 - Propagate the selected V10 API configuration to SwiftPM consumer headers without requiring client compiler defines (#9182)
 - Prevent V10 SentryObjC static XCFrameworks from advertising incomplete architectures supplied only by dependencies (#9182)
 - Report eligible watchdog terminations during ongoing app hangs instead of suppressing them in V10 (#9469)
+- Restore `import Sentry` for V10 SwiftPM source consumers while preserving default V9 imports (#9459)
