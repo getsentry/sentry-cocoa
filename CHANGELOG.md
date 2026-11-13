@@ -12,6 +12,11 @@
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
 
+### Improvements
+
+- Raise the default of `options.maxCacheItems` from 30 to 100 envelopes, so devices that are offline for a while drop fewer envelopes (#9617)
+- Send crash envelopes captured in the current launch before older cached envelopes, so they reach Sentry before the startup crash flush times out. The SDK still deletes the oldest envelopes first when the cache is full (#9617)
+
 ## 9.34.0
 
 ### Features

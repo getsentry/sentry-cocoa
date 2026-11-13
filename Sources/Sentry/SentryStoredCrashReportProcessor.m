@@ -2,6 +2,7 @@
 
 #import "SentryClient+Private.h"
 #import "SentryCrashReportConverter.h"
+#import "SentryEvent+Private.h"
 #import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
@@ -71,6 +72,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
                                code:SentryStoredCrashReportProcessorErrorConversionFailed
                         description:@"The crash report could not be converted to a Sentry event."];
         }
+        event.isCrashEvent = YES;
 
         // Snapshot the hub and client again after conversion because asynchronous report processing
         // can race with SDK close. The capture result below distinguishes an accepted event from a

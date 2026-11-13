@@ -1,4 +1,5 @@
 // swiftlint:disable missing_docs
+internal import _SentryPrivate
 import Foundation
 
 @_spi(Private)
@@ -37,7 +38,8 @@ open class SentryTransportAdapter: NSObject {
 
         let envelope = SentryEnvelope(
             header: SentryEnvelopeHeader(id: event.eventId, traceContext: traceContext),
-            items: items
+            items: items,
+            containsCrashEvent: event.isCrashEvent
         )
         send(envelope: envelope)
     }
@@ -54,7 +56,8 @@ open class SentryTransportAdapter: NSObject {
 
         let envelope = SentryEnvelope(
             header: SentryEnvelopeHeader(id: event.eventId, traceContext: traceContext),
-            items: items
+            items: items,
+            containsCrashEvent: event.isCrashEvent
         )
         send(envelope: envelope)
     }

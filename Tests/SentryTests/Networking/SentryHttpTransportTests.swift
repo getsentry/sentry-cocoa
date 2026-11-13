@@ -141,6 +141,15 @@ class SentryHttpTransportTests: XCTestCase {
             return SentryEnvelope(id: nil, singleItem: metricItem)
         }
 
+        func getCrashEventEnvelope() -> SentryEnvelope {
+            let event = Event(level: .fatal)
+            return SentryEnvelope(
+                header: SentryEnvelopeHeader(id: event.eventId),
+                items: [SentryEnvelopeItem(event: event)],
+                containsCrashEvent: true
+            )
+        }
+
         func getTransactionEnvelope() -> SentryEnvelope {
             let tracer = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
             
@@ -573,6 +582,99 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
     
+    func testSendEnvelope_whenEnvelopeContainsCrashEvent_shouldSendItBeforeOlderCachedEnvelopes() throws {
+        // -- Arrange --
+        let olderEnvelope1 = SentryEnvelope(event: Event())
+        let olderEnvelope2 = SentryEnvelope(event: Event())
+        let crashEnvelope = fixture.getCrashEventEnvelope()
+
+        givenNoInternetConnection()
+        sendEnvelope(envelope: olderEnvelope1)
+        sendEnvelope(envelope: olderEnvelope2)
+
+        // -- Act --
+        sendEnvelope(envelope: crashEnvelope)
+        givenOkResponse()
+        XCTAssertEqual(.success, sut.flush(fixture.flushTimeout))
+        waitForAllRequests()
+
+        // -- Assert --
+        let expectedEventIds = [
+            olderEnvelope1.header.eventId,
+            olderEnvelope1.header.eventId,
+            // The crash envelope is sent first while offline and when retrying.
+            crashEnvelope.header.eventId,
+            crashEnvelope.header.eventId,
+            olderEnvelope1.header.eventId,
+            olderEnvelope2.header.eventId
+        ]
+        XCTAssertEqual(expectedEventIds, try sentEnvelopeEventIds())
+        assertEnvelopesStored(envelopeCount: 0)
+    }
+
+    func testSendEnvelope_whenCrashEnvelopeFileWasDeleted_shouldSendOldestCachedEnvelope() throws {
+        // -- Arrange --
+        let olderEnvelope = SentryEnvelope(event: Event())
+        let crashEnvelope = fixture.getCrashEventEnvelope()
+
+        givenNoInternetConnection()
+        sendEnvelope(envelope: olderEnvelope)
+        sendEnvelope(envelope: crashEnvelope)
+
+        let crashEnvelopePath = try XCTUnwrap(fixture.fileManager.getAllEnvelopes().last).path
+        fixture.fileManager.removeFile(atPath: crashEnvelopePath)
+
+        // -- Act --
+        givenOkResponse()
+        XCTAssertEqual(.success, sut.flush(fixture.flushTimeout))
+        waitForAllRequests()
+
+        // -- Assert --
+        let expectedEventIds = [
+            olderEnvelope.header.eventId,
+            crashEnvelope.header.eventId,
+            olderEnvelope.header.eventId
+        ]
+        XCTAssertEqual(expectedEventIds, try sentEnvelopeEventIds())
+        assertEnvelopesStored(envelopeCount: 0)
+    }
+
+    func testSendEnvelope_whenCacheIsFull_shouldEvictCrashEnvelopeInWriteOrder() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryHttpTransportTests.dsnAsString
+        options.maxCacheItems = 2
+        let fileManager = try TestFileManager(options: options, dateProvider: fixture.currentDateProvider, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = try fixture.getSut(fileManager: fileManager)
+
+        let crashEnvelope = fixture.getCrashEventEnvelope()
+        let newerEnvelope1 = SentryEnvelope(event: Event())
+        let newerEnvelope2 = SentryEnvelope(event: Event())
+
+        givenNoInternetConnection()
+
+        // -- Act --
+        sut.send(envelope: crashEnvelope)
+        waitForAllRequests()
+        sut.send(envelope: newerEnvelope1)
+        waitForAllRequests()
+        sut.send(envelope: newerEnvelope2)
+        waitForAllRequests()
+
+        // -- Assert --
+        let storedEventIds = fileManager.getAllEnvelopes().map {
+            SentrySerializationSwift.envelope(with: $0.contents)?.header.eventId
+        }
+        XCTAssertEqual([newerEnvelope1.header.eventId, newerEnvelope2.header.eventId], storedEventIds)
+
+        let expectedEventIds = [
+            crashEnvelope.header.eventId,
+            crashEnvelope.header.eventId,
+            newerEnvelope1.header.eventId
+        ]
+        XCTAssertEqual(expectedEventIds, try sentEnvelopeEventIds())
+    }
+
     func testRecordLostEvent_SendingEvent_AttachesClientReport() throws {
         try givenRecordedLostEvents()
         
@@ -1536,6 +1638,14 @@ class SentryHttpTransportTests: XCTestCase {
     private func assertEventAndSessionAreSentInOneEnvelope() throws {
         let actualEventRequest = fixture.requestManager.requests.last
         try compareEnvelopes(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, message: "Request for event with session is faulty.")
+    }
+
+    private func sentEnvelopeEventIds() throws -> [SentryId?] {
+        try fixture.requestManager.requests.invocations.map { request in
+            let body = try XCTUnwrap(request.httpBody)
+            let envelopeData = try XCTUnwrap(sentry_unzippedData(body))
+            return try XCTUnwrap(SentrySerializationSwift.envelope(with: envelopeData)).header.eventId
+        }
     }
 
     private func assertEnvelopesStored(envelopeCount: Int) {
