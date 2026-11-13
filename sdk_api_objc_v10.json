@@ -8768,6 +8768,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setWebViewTracing:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "severityNumber",
     "parent": "SentryObjCLog",
     "returnType": "NSNumber * _Nullable",
@@ -9814,6 +9821,13 @@
     "name": "warn:attributes:",
     "parent": "SentryObjCLogger",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "webViewTracing",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCWebViewTracingOptions * _Nullable",
     "instance": true
   },
   {
@@ -12650,6 +12664,12 @@
     "name": "viewHierarchy",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalViewHierarchyApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "webViewTracing",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCWebViewTracingOptions * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
