@@ -28768,6 +28768,104 @@
             "ownership": 1,
             "printedName": "urlSessionDelegate",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)urlSessionDelegate"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryWebViewTracingOptions",
+                        "printedName": "Sentry.SentryWebViewTracingOptions",
+                        "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SentryWebViewTracingOptions?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC14webViewTracingAA0a3WebdeB0VSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry7OptionsC14webViewTracingAA0a3WebdeB0VSgvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryWebViewTracingOptions",
+                        "printedName": "Sentry.SentryWebViewTracingOptions",
+                        "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SentryWebViewTracingOptions?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC14webViewTracingAA0a3WebdeB0VSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry7OptionsC14webViewTracingAA0a3WebdeB0VSgvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryWebViewTracingOptions",
+                    "printedName": "Sentry.SentryWebViewTracingOptions",
+                    "usr": "s:6Sentry0A21WebViewTracingOptionsV"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryWebViewTracingOptions?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC14webViewTracingAA0a3WebdeB0VSgvp",
+            "moduleName": "Sentry",
+            "name": "webViewTracing",
+            "printedName": "webViewTracing",
+            "usr": "s:6Sentry7OptionsC14webViewTracingAA0a3WebdeB0VSgvp"
           }
         ],
         "conformances": [

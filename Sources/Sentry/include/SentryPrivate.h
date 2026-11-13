@@ -101,3 +101,4 @@
 #import "SentryURLRequestWrapper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryUser+Private.h"
+#import "SentryWeakMap.h"

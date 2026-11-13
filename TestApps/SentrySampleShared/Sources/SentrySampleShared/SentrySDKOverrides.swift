@@ -65,6 +65,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .attachments: return SentrySDKOverrides.Attachments.allCases
         case .spans: return SentrySDKOverrides.Spans.allCases
         case .scope: return SentrySDKOverrides.Scope.allCases
+        case .webView: return SentrySDKOverrides.WebView.allCases
         }
     }
 
@@ -262,6 +263,11 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disable = "--io.sentry.swizzling.disable"
     }
     case swizzling = "Swizzling"
+
+    public enum WebView: String, SentrySDKOverride {
+        case enableAutomaticTracing = "--io.sentry.webview.enable-automatic-tracing"
+    }
+    case webView = "WebView"
 
     public enum SwiftAsync: String, SentrySDKOverride {
         case disable = "--io.sentry.swift-async-stacktraces.disable"
@@ -609,6 +615,14 @@ extension SentrySDKOverrides.Swizzling {
     }
 }
 
+extension SentrySDKOverrides.WebView {
+    public var overrideType: OverrideType {
+        switch self {
+        case .enableAutomaticTracing: return .boolean
+        }
+    }
+}
+
 extension SentrySDKOverrides.SwiftAsync {
     public var overrideType: OverrideType {
         switch self {
@@ -830,6 +844,11 @@ extension SentrySDKOverrides.Spotlight {
 
 extension SentrySDKOverrides.Swizzling {
     public var ignoresDisableEverything: Bool { return false }
+}
+
+extension SentrySDKOverrides.WebView {
+    // Disabled by default, like the SDK option; only its own flag turns it on.
+    public var ignoresDisableEverything: Bool { return true }
 }
 
 extension SentrySDKOverrides.SwiftAsync {

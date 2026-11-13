@@ -104,6 +104,11 @@
         "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()",
         "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()",
         "SentryWatchdogTerminationTrackerTests/testTerminateApp_RunsOnMainThread()",
+        "SentryWebViewTracePropagationIntegrationTests/testLoad_whenSwiftUIWebViewWithURL_shouldTrackItsController()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenGoingBackToCachedPage_shouldKeepItsOriginalTrace()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenTraceChangesBeforeInPageNavigation_shouldInjectNewTrace()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenTraceChangesBeforeReload_shouldInjectNewTrace()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenTraceChangesInSameTurnAsReload_shouldInjectNewTrace()",
         "SentryWebViewTracingTests/testInstall_whenAddedAfterWebViewCreated_shouldInjectTagsOnNextNavigation()",
         "SentryWebViewTracingTests/testInstall_whenWebPageCreatedWithConfiguration_shouldInjectTagsBeforePageScripts()"
       ],
