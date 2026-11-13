@@ -152,7 +152,6 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertEqual(reporterIdentities.count, 1)
     }
 
-
     /**
      * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases
      * only happen if you run this 1000 times in a row or increase the test iterations to 100k.
