@@ -4,6 +4,7 @@
 #import "SentryProfilingConfiguration.h"
 #import "SentryProfilingFrameMeasurements.h"
 #import "SentryProfilingId.h"
+#import "SentryProfilingMemory.h"
 #import "SentryProfilingSystemMetrics.h"
 #import "SentryProfilingTimestamp.h"
 #import <Foundation/Foundation.h>
@@ -32,6 +33,8 @@ typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
 // Bind to the current provider without reading or serializing images until invoked.
 - (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization;
 - (SentryProfilingSystemMetrics *_Nullable)systemMetrics;
+/** Snapshotted before sampling starts, never messaged while threads are suspended. */
+- (SentryProfilingMemoryReader _Nullable)memoryReader;
 - (id<SentryProfilingCancellation> _Nullable)
     scheduleMetricSamplingWithInterval:(uint64_t)intervalNanoseconds
                                 leeway:(uint64_t)leewayNanoseconds

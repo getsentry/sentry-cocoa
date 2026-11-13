@@ -1,5 +1,8 @@
 #include "DeploymentTargets.xcconfig"
 
+SENTRY_SDK_MACH_O_TYPE = mh_dylib
+MACH_O_TYPE = $(SENTRY_SDK_MACH_O_TYPE)
+
 INFOPLIST_FILE = Sources/Resources/Info.plist
 
 SENTRY_MODULE_NAME = Sentry
@@ -7,7 +10,7 @@ SENTRY_WITHOUT_UIKIT_MODULE_NAME = SentryWithoutUIKit
 
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
 // leads to an error: no such module '_SentryPrivate' when including the XCFramework
-HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/** $(SRCROOT)/Sources/SentryNativeUtils/include
 
 PRODUCT_MODULE_NAME_Debug = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_DebugV10 = $(SENTRY_MODULE_NAME)
@@ -32,6 +35,11 @@ DYLIB_INSTALL_NAME_BASE = @rpath
 LD_DYLIB_INSTALL_NAME = $(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
 USE_HEADERMAP = YES
+
+// Keep shared C entry points exported even on platforms where the SDK has no internal caller.
+// Do not force-load the archive: Xcode also places static package dependencies in it.
+SENTRY_NATIVE_UTILS_EXPORTS_mh_dylib = -u _sentry_asyncLogC -u _sentryThreadSuspensionTryAcquire -u _timeIntervalToNanoseconds
+OTHER_LDFLAGS = $(inherited) $(SENTRY_NATIVE_UTILS_EXPORTS_$(MACH_O_TYPE))
 
 CODE_SIGN_STYLE = Manual
 DEVELOPMENT_TEAM =

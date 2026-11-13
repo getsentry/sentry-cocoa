@@ -4,7 +4,6 @@
 
 // Load the owning module before categories so Swift retains the base types' module identity.
 @import _SentryPrivate;
-#import "../../../Sources/Sentry/SentryAsyncSafeLog.h"
 #import "../../../Sources/Sentry/SentryFileIO.h"
 #import "../../../Sources/Sentry/SentryJSONStreamWriter.h"
 #import "../../../Sources/Sentry/include/NSMutableDictionary+Sentry.h"
@@ -16,6 +15,7 @@
 #import "../../../Sources/Sentry/include/SentryTracer+Private.h"
 #import "../../../Sources/Sentry/include/SentryTransportFactory.h"
 #import "../../../Sources/Sentry/include/SentryWeakMap.h"
+#import "../../../Sources/SentryNativeUtils/include/SentryAsyncSafeLog.h"
 // File-manager tests also need these declarations without the V9 profiler wrapper's guards.
 #import "SentryFileManager+Test.h"
 #if !SDK_V10

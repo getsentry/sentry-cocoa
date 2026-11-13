@@ -4,6 +4,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
+#import "SentryMemory.h"
 #import "SentryProfilerCancellation.h"
 #import "SentryProfilerConfigurationBridge.h"
 #import "SentryProfilerDeliveryBridge.h"
@@ -52,6 +53,11 @@
     SentrySystemWrapper *_systemWrapper;
     SentrySDKProfilingLogger *_profilingLogger;
 }
+- (SentryProfilingMemoryReader)memoryReader
+{
+    return sentryMemoryIsReadable;
+}
+
 - (void)activate
 {
     _profilingLogger = [[SentrySDKProfilingLogger alloc] init];

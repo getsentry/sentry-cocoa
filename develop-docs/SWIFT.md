@@ -6,7 +6,8 @@ Rules for the mixed-language SDK, and for converting a public type in `Sources/S
 
 - **`Sentry`** — The framework users import. The Xcode target `Sentry` in `Sentry.xcodeproj` builds `Sentry.framework` from source.
 - **`SentrySwift`** — SwiftPM target for `Sources/Swift`. Compiled into `Sentry`.
-- **`SentryObjCInternal`** — SwiftPM target for the Objective-C and C implementation under `Sources/Sentry`.
+- **`SentryObjCInternal`** — SwiftPM target for the Objective-C and C SDK implementation under `Sources/Sentry`.
+- **`SentryNativeUtils`** — Shared C, C++, and Objective-C utilities under `Sources/SentryNativeUtils`. Both SDK generations consume it. It has no SDK or `_SentryPrivate` dependency.
 - **`SentryHeaders`** — Public Objective-C headers in `Sources/Sentry/Public`. Umbrella: `Sentry.h` in `Sources/Resources/Sentry.modulemap`.
 - **`_SentryPrivate`** — Private Objective-C headers for SDK Swift. List: `Sources/Sentry/include/SentryPrivate.h`. Users do not import this module.
 - **`SentrySwift.h`** — Shim at `Sources/Sentry/include/SentrySwift.h`. Objective-C imports this to call Swift.

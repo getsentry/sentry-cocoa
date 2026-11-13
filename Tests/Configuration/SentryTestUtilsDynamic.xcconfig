@@ -1,6 +1,6 @@
 #include "../../Sources/Configuration/DeploymentTargets.xcconfig"
 
-HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/** $(SRCROOT)/Sources/SentryNativeUtils/include
 
 PRODUCT_MODULE_NAME = SentryTestUtilsDynamic
 PRODUCT_NAME = $(PRODUCT_MODULE_NAME)

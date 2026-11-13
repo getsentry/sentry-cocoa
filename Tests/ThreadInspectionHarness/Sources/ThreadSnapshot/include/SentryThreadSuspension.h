@@ -1,1 +1,1 @@
-../../../../../Sources/Sentry/include/SentryThreadSuspension.h
+../../../../../Sources/SentryNativeUtils/include/SentryThreadSuspension.h

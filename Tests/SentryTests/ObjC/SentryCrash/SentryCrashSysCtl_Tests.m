@@ -31,6 +31,7 @@
 #    include <sys/sysctl.h>
 
 #    import "FileBasedTestCase.h"
+#    import "SentryAsyncSafeLog.h"
 @import SentryTestUtilsObjC;
 
 @interface SentryCrashSysCtl_Tests : FileBasedTestCase

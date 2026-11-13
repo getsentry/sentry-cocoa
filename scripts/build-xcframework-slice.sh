@@ -75,7 +75,7 @@ fi
 
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$product_name.framework"
-OTHER_LDFLAGS=""
+OTHER_LDFLAGS="\$(inherited)"
 
 log_info "  Configuration:        $resolved_configuration"
 log_info "  Resolved product:     $resolved_product_name"
@@ -86,12 +86,10 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
 fi
 
-# When MACH_O_TYPE is 'inherit', the target's xcconfig controls the product type
-# and we must NOT pass MACH_O_TYPE on the command line, as that would propagate
-# to every sub-target in the build (including SPM package targets) and break their link.
+# Override only the SDK product type. Native utility and package dependencies keep their own types.
 mach_o_type_override=()
 if [ "$MACH_O_TYPE" != "inherit" ]; then
-    mach_o_type_override=( MACH_O_TYPE="$MACH_O_TYPE" )
+    mach_o_type_override=( SENTRY_SDK_MACH_O_TYPE="$MACH_O_TYPE" )
 fi
 
 # Each slice uses the same derived-data directory, so clear it before building.

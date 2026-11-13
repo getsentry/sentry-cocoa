@@ -42,6 +42,7 @@
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 - [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
 - [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
+- [42. Share native utilities below SDK features](#42-share-native-utilities-below-sdk-features)
 
 ---
 
@@ -943,3 +944,17 @@ Related links:
 
 - [V10 selection PR](https://github.com/getsentry/sentry-cocoa/pull/9458)
 - [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection)
+
+## 42. Share native utilities below SDK features
+
+Date: November 13, 2026
+Contributors: @philprime
+
+Use `SentryNativeUtils` for native utilities shared by the SDK and profiling. The SDK and the extracted profiling target depend on this library, which must not depend on SDK implementation, `_SentryPrivate`, or Swift. Shared mutable state, including suspension admission and async-safe logging output, has one implementation rather than a copy in each consumer.
+
+The library supports C, C++, and Objective-C. A future shared Swift utility layer can be named `SentryUtils` and depend on `SentryNativeUtils`, never the reverse. Add that layer only when a concrete shared Swift consumer requires it.
+
+Related links:
+
+- [Native boundary extraction](https://github.com/getsentry/sentry-cocoa/pull/9608)
+- [Native utility builds](BUILD.md#native-utility-library)

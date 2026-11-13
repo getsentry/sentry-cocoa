@@ -57,9 +57,9 @@
 - Use compile-time gates for code that cannot compile or link on a target, not for ordinary runtime behavior
 - In Swift, use `os(...)`, `targetEnvironment(...)`, and `canImport(...)` for platform and module capabilities
 - Gate UI code by both supported platforms and `!SENTRY_NO_UI_FRAMEWORK`
-- In Objective-C and C/C++, prefer capability macros from [`SentryDefines.h`](Sentry/Public/SentryDefines.h) and [`SentryProfilingConditionals.h`](Sentry/Public/SentryProfilingConditionals.h), including `SENTRY_HAS_UIKIT`, `SENTRY_TARGET_REPLAY_SUPPORTED`, and `SENTRY_TARGET_PROFILING_SUPPORTED`
+- In Objective-C and C/C++, prefer capability macros from [`SentryDefines.h`](Sentry/Public/SentryDefines.h) and [`SentryProfilingConditionals.h`](SentryNativeUtils/include/SentryProfilingConditionals.h), including `SENTRY_HAS_UIKIT`, `SENTRY_TARGET_REPLAY_SUPPORTED`, and `SENTRY_TARGET_PROFILING_SUPPORTED`
 - Keep Swift, Objective-C, and `SentryObjC` declaration and implementation gates aligned
-- Preserve older Xcode compatibility with `#if swift(>=...)`, compiler feature probes from [`SentryCompiler.h`](Sentry/include/SentryCompiler.h), and `canImport` or `__has_include` checks
+- Preserve older Xcode compatibility with `#if swift(>=...)`, compiler feature probes from [`SentryCompiler.h`](SentryNativeUtils/include/SentryCompiler.h), and `canImport` or `__has_include` checks
 - Use `#available` or `@available` for runtime OS availability only after the code can compile with the oldest supported Xcode
 - When newer SDK symbols are absent from older Xcode headers, combine runtime availability with a compile-time gate or dynamic lookup instead of referencing the symbol directly
 
