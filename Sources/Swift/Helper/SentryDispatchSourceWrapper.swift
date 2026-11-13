@@ -29,7 +29,7 @@ internal import _SentryPrivate
         source.cancel()
     }
 
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+    #if DEBUG // Test support.
     public var dispatchSource: DispatchSourceTimer {
         return source
     }
@@ -37,6 +37,6 @@ internal import _SentryPrivate
     public var queue: SentryDispatchQueueWrapper {
         return queueWrapper
     }
-    #endif // SENTRY_TEST || SENTRY_TEST_CI
+    #endif // DEBUG
 }
 // swiftlint:enable missing_docs

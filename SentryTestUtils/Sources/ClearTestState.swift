@@ -79,7 +79,7 @@ class TestCleanup: NSObject {
 
         sentrycrash_scopesync_reset()
 
-        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+        #if DEBUG // Test support.
         SentrySdkPackage.resetPackageManager()
         SentryExtraPackages.clear()
         #endif

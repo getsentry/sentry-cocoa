@@ -627,7 +627,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     }
     
     // MARK: - Test only
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     func replayDirectory() -> URL? { replayFileManager.replayDirectory() }
     
     func moveCurrentReplay() { replayFileManager.moveCurrentReplay() }

@@ -15,14 +15,13 @@ platform :ios do
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, app_identifier: nil)
-    configuration = if is_ci then 'TestCI' else 'Test' end
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
 
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: scheme,
-      configuration: configuration,
+      configuration: 'Debug',
       xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}",
@@ -249,7 +248,7 @@ platform :ios do
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify --preserve-unbeautified"
+    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Debug build-for-testing 2>&1 | xcbeautify --preserve-unbeautified"
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
   end

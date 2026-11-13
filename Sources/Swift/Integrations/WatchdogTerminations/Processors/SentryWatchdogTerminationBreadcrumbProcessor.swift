@@ -4,7 +4,7 @@ import Foundation
 
 typealias SerializedBreadcrumb = [AnyHashable: Any]
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryWatchdogTerminationBreadcrumbProcessor {
     func addSerializedBreadcrumb(_ crumb: SerializedBreadcrumb)
     func clear()

@@ -13,7 +13,7 @@ struct SentryCapturedThread {
     var isTruncated = false
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryThreadSnapshotProviding {
     func capture(stacks: Bool) -> [SentryCapturedThread]
     func name(for thread: UInt) -> String?
@@ -77,7 +77,7 @@ final class SentrySystemThreadSnapshotProvider {
     }
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 extension SentrySystemThreadSnapshotProvider: SentryThreadSnapshotProviding { }
 #endif
 

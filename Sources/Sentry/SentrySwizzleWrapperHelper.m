@@ -35,12 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
     // some tests need to swizzle multiple times, once for each test case. but since they're in the
     // same process, if they set something other than "always", subsequent swizzles fail. override
     // it here for tests
     mode = SentrySwizzleModeAlways;
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(DEBUG)
 
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({

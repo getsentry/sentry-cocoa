@@ -342,14 +342,14 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 
     SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
         SENTRY_LOG_DEBUG(
             @"Writing profile to test file (profile ID %@, chunk ID %@", profileID, chunkID);
         sentry_writeProfileFile(JSONData, true /*continuous*/);
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
     SentryEnvelopeItem *envelopeItem =
         [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
@@ -408,12 +408,12 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
         return nil;
     }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
         sentry_writeProfileFile(JSONData, false /*continuous*/);
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
     return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
                                                data:JSONData

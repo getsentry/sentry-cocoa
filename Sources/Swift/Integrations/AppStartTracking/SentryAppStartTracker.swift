@@ -174,7 +174,7 @@ public final class SentryAppStartTracker: NSObject {
         }
         #endif
 
-        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+        #if DEBUG // Test support.
         isRunning = false
         #endif
     }
@@ -192,7 +192,7 @@ public final class SentryAppStartTracker: NSObject {
     // MARK: - Private Methods
     private func buildAppStartMeasurement(_ appStartEnd: Date) {
         // Tests and debug builds can measure repeated app starts within the same process.
-        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+        #if DEBUG // Test support.
         buildAppStartMeasurementWithoutDeduplication(appStartEnd)
         #else
         buildAppStartMeasurementOnce((self, appStartEnd))

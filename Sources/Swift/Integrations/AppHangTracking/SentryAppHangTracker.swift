@@ -3,7 +3,7 @@ typealias SentryAppHangTrackerObserverToken = UUID
 
 // In test/debug builds we use a protocol so that the tracker can be replaced with a mock.
 // In release builds the protocol indirection is eliminated via a typealias.
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryAppHangTracker {
     func addObserver(threshold: TimeInterval, handler: @escaping SentryAppHangTrackerHandler) -> SentryAppHangTrackerObserverToken
     func removeObserver(token: SentryAppHangTrackerObserverToken)

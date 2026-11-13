@@ -29,9 +29,9 @@ public protocol Transport: NSObjectProtocol {
     @objc(flush:)
     func flush(_ timeout: TimeInterval) -> SentryFlushResult
 
-    #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+    #if DEBUG // Test support.
     @objc(setStartFlushCallback:)
     func setStartFlushCallback(_ callback: @escaping () -> Void)
-    #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+    #endif // DEBUG
 }
 // swiftlint:enable missing_docs

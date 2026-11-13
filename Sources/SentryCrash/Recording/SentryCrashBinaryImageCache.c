@@ -65,7 +65,7 @@ static inline void
 callBeforeAddImageCallback(SentryCrashBinaryImageCacheState *cache)
 {
     // we need this callback only for test verification, it is a noop in prod
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
     void (*cb)(void) = cache->beforeAddImageCallback;
     if (cb != NULL) {
         cb();
@@ -251,7 +251,7 @@ sentrycrashbic_startCache(void)
     // recorded all the load addresses of images yet. We think this is an acceptable tradeoff to not
     // block app launch, since it's always possible to crash early in app launch before Sentry can
     // capture the crash.
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
     startCacheImpl();
 #    else
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ startCacheImpl(); });
@@ -265,7 +265,7 @@ sentrycrashbic_stopCache(void)
     // images so crashes can still be symbolicated even if higher-level consumers temporarily stop.
 }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 void
 sentrycrashbic_setActiveCacheState(SentryCrashBinaryImageCacheState *cache)
 {

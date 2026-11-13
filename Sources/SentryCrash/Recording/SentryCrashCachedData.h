@@ -97,7 +97,7 @@ void sentrycrashccd_close(void);
 
 // MARK: - Testing
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 
 /** Atomically set the active cache to NULL, simulating a failed createCache()
  *  during init. Frees the existing cache if present.
@@ -107,6 +107,6 @@ void sentrycrashccd_close(void);
  */
 void sentrycrashccd_test_clearActiveCache(void);
 
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(DEBUG)
 
 #endif /* SentryCrashCachedData_h */

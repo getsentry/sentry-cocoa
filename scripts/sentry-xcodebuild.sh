@@ -15,7 +15,6 @@ source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 # Parse named arguments
 PLATFORM=""
 OS="latest"
-REF_NAME="HEAD"
 COMMAND="test"
 DEVICE=""
 CONFIGURATION_OVERRIDE=""
@@ -40,7 +39,6 @@ Run xcodebuild commands (build, test, etc.) with the correct destination for CI.
 OPTIONS:
     -p, --platform <platform>        Platform (macOS/Catalyst/iOS/tvOS/visionOS/watchOS)
     -o, --os <os>                    OS version (default: latest)
-    -r, --ref <ref>                  Reference name (default: HEAD)
     -c, --command <command>          Command (build/build-for-testing/test-without-building/test)
     -d, --device <device>            Device name (default: platform-specific)
     -C, --configuration <config>     Configuration override
@@ -76,10 +74,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -o|--os)
             OS="$2"
-            shift 2
-            ;;
-        -r|--ref)
-            REF_NAME="$2"
             shift 2
             ;;
         -c|--command)
@@ -220,21 +214,7 @@ esac
 
 fi # RAW_DESTINATION check
 
-if [ -n "$CONFIGURATION_OVERRIDE" ]; then
-    CONFIGURATION="$CONFIGURATION_OVERRIDE"
-elif [ -n "$RAW_DESTINATION" ]; then
-    CONFIGURATION=""
-else
-    case $REF_NAME in
-    "main")
-        CONFIGURATION="TestCI"
-        ;;
-
-    *)
-        CONFIGURATION="Test"
-        ;;
-    esac
-fi
+CONFIGURATION="${CONFIGURATION_OVERRIDE:-Debug}"
 
 case $COMMAND in
 "build")

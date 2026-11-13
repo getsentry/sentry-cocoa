@@ -283,9 +283,9 @@ static BOOL sdkStarted;
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
-#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(DEBUG) // Test support.
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
-#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#endif // defined(DEBUG)
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
@@ -819,7 +819,7 @@ static BOOL sdkStarted;
 
 #if SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
@@ -827,7 +827,7 @@ static BOOL sdkStarted;
 }
 #endif // SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (NSArray<NSString *> *)trimmedInstalledIntegrationNames
 {

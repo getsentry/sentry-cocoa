@@ -1,15 +1,8 @@
-// Opt in with xcodebuild test -configuration Test (or TestCI) -xcconfig <path>.
+// Opt in with xcodebuild test -configuration Debug -xcconfig <path>.
 // Never include this in consumer builds. Package schemes do not inherit SDK.xcconfig.
-// Named test configurations omit SwiftPM's automatic Swift DEBUG without replacing manifest
-// definitions. Xcode otherwise gives them release defaults, so restore the project's test settings
-// for the Sentry package only. Dependencies retain their own optimization and testability settings.
-SENTRY_PACKAGE_TEST_SWIFT_OPTIMIZATION_Sentry = -Onone
-SENTRY_PACKAGE_TEST_C_OPTIMIZATION_Sentry = 0
-SENTRY_PACKAGE_TEST_ENABLE_TESTABILITY_Sentry = YES
+// Debug supplies testability, unoptimized compilation, and DEBUG definitions.
+// Apply SDK-specific ABI and diagnostic checks without changing dependency settings.
 SENTRY_PACKAGE_TEST_COMPILATION_MODE_Sentry = singlefile
-SWIFT_OPTIMIZATION_LEVEL = $(SENTRY_PACKAGE_TEST_SWIFT_OPTIMIZATION_$(PROJECT_NAME):default=$(inherited))
-GCC_OPTIMIZATION_LEVEL = $(SENTRY_PACKAGE_TEST_C_OPTIMIZATION_$(PROJECT_NAME):default=$(inherited))
-ENABLE_TESTABILITY = $(SENTRY_PACKAGE_TEST_ENABLE_TESTABILITY_$(PROJECT_NAME):default=$(inherited))
 
 SENTRY_PACKAGE_TEST_COMPILATION_MODE_SentryObjCCompat = wholemodule
 SENTRY_PACKAGE_TEST_COMPILATION_MODE_SentryObjCCompatTests = wholemodule
