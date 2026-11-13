@@ -39,6 +39,147 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
         XCTAssertEqual(snapshot.frozenFrameTimestamps, frozen)
         XCTAssertEqual(snapshot.frameRateTimestamps, rates)
     }
+    func testStopFramesTrackerIfUnused_whenPerformanceTracingEnabled_shouldKeepTracking() {
+        // -- Arrange --
+        let options = Options()
+        options.enableAutoPerformanceTracing = true
+#if !SDK_V10
+        options.enableAppHangTracking = false
+#endif
+        let fixture = FrameTrackingFixture(options: options)
+        defer { fixture.restore() }
+        XCTAssertTrue(fixture.tracker.isRunning)
+
+        // -- Act --
+        fixture.backend.stopFramesTrackerIfUnused()
+
+        // -- Assert --
+        XCTAssertTrue(fixture.tracker.isRunning)
+    }
+
+    func testStopFramesTrackerIfUnused_whenNoFeatureNeedsFrames_shouldStopTracking() {
+        // -- Arrange --
+        let options = Options()
+        options.enableAutoPerformanceTracing = false
+#if !SDK_V10
+        options.enableAppHangTracking = false
+#endif
+        let fixture = FrameTrackingFixture(options: options)
+        defer { fixture.restore() }
+        XCTAssertTrue(fixture.tracker.isRunning)
+
+        // -- Act --
+        fixture.backend.stopFramesTrackerIfUnused()
+
+        // -- Assert --
+        XCTAssertFalse(fixture.tracker.isRunning)
+    }
+
+    func testStopFramesTrackerIfUnused_whenOptionsChange_shouldUseCurrentPolicy() {
+        // -- Arrange --
+        let options = Options()
+        options.enableAutoPerformanceTracing = true
+#if !SDK_V10
+        options.enableAppHangTracking = false
+#endif
+        let fixture = FrameTrackingFixture(options: options)
+        defer { fixture.restore() }
+        fixture.backend.stopFramesTrackerIfUnused()
+        XCTAssertTrue(fixture.tracker.isRunning)
+
+        // -- Act --
+        options.enableAutoPerformanceTracing = false
+        fixture.backend.stopFramesTrackerIfUnused()
+
+        // -- Assert --
+        XCTAssertFalse(fixture.tracker.isRunning)
+    }
+
+    func testStopFramesTrackerIfUnused_whenClientMissing_shouldPreserveVersionPolicy() {
+        // -- Arrange --
+        let fixture = FrameTrackingFixture(options: nil)
+        defer { fixture.restore() }
+        XCTAssertTrue(fixture.tracker.isRunning)
+
+        // -- Act --
+        fixture.backend.stopFramesTrackerIfUnused()
+
+        // -- Assert --
+#if SDK_V10
+        XCTAssertFalse(fixture.tracker.isRunning)
+#else
+        XCTAssertTrue(fixture.tracker.isRunning)
+#endif
+    }
+
+#if !SDK_V10
+    func testStopFramesTrackerIfUnused_whenAppHangTrackingEnabled_shouldKeepTracking() {
+        // -- Arrange --
+        let options = Options()
+        options.enableAutoPerformanceTracing = false
+        options.enableAppHangTracking = true
+        let fixture = FrameTrackingFixture(options: options)
+        defer { fixture.restore() }
+        XCTAssertTrue(fixture.tracker.isRunning)
+
+        // -- Act --
+        fixture.backend.stopFramesTrackerIfUnused()
+
+        // -- Assert --
+        XCTAssertTrue(fixture.tracker.isRunning)
+    }
+
+    func testStopFramesTrackerIfUnused_whenAppHangTrackingDisabledAfterStart_shouldStopTracking() {
+        // -- Arrange --
+        let options = Options()
+        options.enableAutoPerformanceTracing = false
+        options.enableAppHangTracking = true
+        let fixture = FrameTrackingFixture(options: options)
+        defer { fixture.restore() }
+        fixture.backend.stopFramesTrackerIfUnused()
+        XCTAssertTrue(fixture.tracker.isRunning)
+
+        // -- Act --
+        options.enableAppHangTracking = false
+        fixture.backend.stopFramesTrackerIfUnused()
+
+        // -- Assert --
+        XCTAssertFalse(fixture.tracker.isRunning)
+    }
+#endif
+
+    private struct FrameTrackingFixture {
+        let backend = SentryDefaultProfilerSDKBackend()
+        let tracker: TestFramesTracker
+        private let previousTracker: SentryFramesTracker
+        private let previousHub: SentryHubInternal
+
+        init(options: Options?) {
+            let container = SentryDependencyContainer.sharedInstance()
+            previousTracker = container.framesTracker
+            previousHub = SentrySDKInternal.currentHub()
+            let clock = TestCurrentDateProvider()
+            tracker = TestFramesTracker(
+                displayLinkWrapper: TestDisplayLinkWrapper(dateProvider: clock),
+                dateProvider: clock,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                notificationCenter: TestNSNotificationCenterWrapper(),
+                delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: clock)
+            )
+            container.framesTracker = tracker
+            options?.dsn = TestConstants.dsnForTestCase(type: SentryProfilerSDKBackendValueTests.self)
+            let client = options.flatMap { SentryClientInternal(options: $0) }
+            XCTAssertTrue(options == nil || client != nil)
+            SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+            tracker.start()
+        }
+
+        func restore() {
+            tracker.stop()
+            SentrySDKInternal.setCurrentHub(previousHub)
+            SentryDependencyContainer.sharedInstance().framesTracker = previousTracker
+        }
+    }
 #endif
 
     func testTimestamp_whenClockInjected_shouldReturnPairedValues() {
