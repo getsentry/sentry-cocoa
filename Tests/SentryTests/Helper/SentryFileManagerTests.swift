@@ -39,6 +39,8 @@ class SentryFileManagerTests: XCTestCase {
             
             options = Options()
             options.dsn = TestConstants.dsnForTestCase(type: SentryFileManagerTests.self)
+            // Many tests depend on the exact cache size, so they must not depend on the default.
+            options.maxCacheItems = UInt(maxCacheItems)
 
             sessionEnvelope = SentryEnvelope(session: session)
             
@@ -400,13 +402,22 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(logOutput.loggedMessages.contains(where: { $0.contains("[error]") }))
     }
     
-    func testDefaultMaxEnvelopes() {
-        for _ in 0...(fixture.maxCacheItems + 1) {
+    func testDefaultMaxEnvelopes() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: SentryFileManagerTests.self)
+        let defaultMaxCacheItems = options.maxCacheItems
+        let sut = try SentryFileManager(options: options, dateProvider: fixture.currentDateProvider, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
+        // -- Act --
+        for _ in 0...(defaultMaxCacheItems + 1) {
             sut.store(TestConstants.envelope)
         }
         
+        // -- Assert --
         let events = sut.getAllEnvelopes()
-        XCTAssertEqual(fixture.maxCacheItems, events.count)
+        XCTAssertEqual(100, defaultMaxCacheItems)
+        XCTAssertEqual(Int(defaultMaxCacheItems), events.count)
     }
     
     func testDefaultMaxEnvelopes_CallsEnvelopeItemDeleted() {
