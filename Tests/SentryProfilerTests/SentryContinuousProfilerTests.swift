@@ -169,10 +169,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     
     /**
-     Given a running profiler whose serialization queue is paused,
-     when a chunk boundary is reached,
-     then serialization is queued and no envelope is captured until that work executes.
-     Executing the queued work captures one profile chunk without stopping sampling.
+     Deferred serialization must not read images or capture envelopes until queued work runs.
      This checks deferred dispatch, not which thread executes the work in production.
      */
     func testTransmitChunk_whenSerializationIsDeferred_shouldQueueSerialization() throws {
