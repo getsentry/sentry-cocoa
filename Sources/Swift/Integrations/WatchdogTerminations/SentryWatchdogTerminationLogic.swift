@@ -118,9 +118,12 @@ public final class SentryWatchdogTerminationLogic: NSObject {
             return nil
         }
 
+        #if !SDK_V10
+        // V9 reports a stored fatal app hang instead. V10 has no separate fatal app-hang path.
         if previousAppState.isANROngoing {
             return nil
         }
+        #endif // !SDK_V10
 
         // When calling SentrySDK.start twice we would wrongly report a Watchdog Termination. We can
         // only report a Watchdog Termination when the SDK is started the first time.

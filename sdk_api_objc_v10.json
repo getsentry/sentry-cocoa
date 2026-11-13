@@ -291,6 +291,11 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportCellularConditionTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportDiskIOLogicalWrites",
     "parent": "SentryObjCMetricKitMetricReport"
   },
@@ -426,6 +431,26 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchExtended",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchOptimizedTimeToFirstDraw",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchResumeTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchTimeToFirstDraw",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportLocationBestAccuracyForNavigationTime",
     "parent": "SentryObjCMetricKitMetricReport"
   },
@@ -502,6 +527,11 @@
   {
     "kind": "EnumConstantDecl",
     "name": "SentryObjCMetricKitMetricReportNone",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportResponsivenessHangTime",
     "parent": "SentryObjCMetricKitMetricReport"
   },
   {
@@ -8768,6 +8798,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setWebViewTracing:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "severityNumber",
     "parent": "SentryObjCLog",
     "returnType": "NSNumber * _Nullable",
@@ -9814,6 +9851,13 @@
     "name": "warn:attributes:",
     "parent": "SentryObjCLogger",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "webViewTracing",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCWebViewTracingOptions * _Nullable",
     "instance": true
   },
   {
@@ -12650,6 +12694,12 @@
     "name": "viewHierarchy",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalViewHierarchyApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "webViewTracing",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCWebViewTracingOptions * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",

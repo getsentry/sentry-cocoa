@@ -969,29 +969,4 @@ class TestMXAppLaunchDiagnostic: MXAppLaunchDiagnostic {
 }
 #endif // os(iOS) || os(visionOS)
 
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-class TestMXMetaData: MXMetaData {
-    struct Override {
-        var osVersion = ""
-        var applicationBuildVersion = ""
-        var pid: pid_t = 0
-    }
-
-    public var overrides = Override()
-
-    override var osVersion: String {
-        return overrides.osVersion
-    }
-
-    @available(iOS 17.0, macOS 14.0, *)
-    override var pid: pid_t {
-        return overrides.pid
-    }
-
-    override var applicationBuildVersion: String {
-        return overrides.applicationBuildVersion
-    }
-}
-
 #endif // os(iOS) || os(macOS)

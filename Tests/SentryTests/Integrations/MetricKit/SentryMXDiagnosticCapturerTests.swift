@@ -89,7 +89,16 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
             report: report,
             exceptionValue: { "MachException Type:nil Code:nil Signal:nil" },
             timestamp: Date(),
-            metadata: SentryMXDiagnostic.Metadata(pid: nil, appVersion: "1.0.0", appBuild: "1", osVersion: nil, osBuild: nil),
+            metadata: SentryMXDiagnostic.Metadata(
+                pid: nil,
+                appVersion: "1.0.0",
+                appBuild: "1",
+                osVersion: nil,
+                osBuild: nil,
+                bundleIdentifier: nil,
+                lowPowerModeEnabled: nil,
+                isTestFlightApp: nil
+            ),
             callStackTree: { try JSONDecoder().decode(SentryMXCallStackTree.self, from: callStackTreeJSON) },
             rawJSON: { Data("{}".utf8) },
             rawFilename: "MXDiagnosticPayload.json"

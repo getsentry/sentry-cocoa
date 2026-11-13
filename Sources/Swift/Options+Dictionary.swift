@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 import ObjectiveC
 
@@ -166,6 +167,10 @@ extension Options {
             self.attachStacktrace = attachStacktrace
         }
 
+        if let attachAllThreads = boolValue(dictionary["attachAllThreads"]) {
+            self.attachAllThreads = attachAllThreads
+        }
+
         if let maxAttachmentSize = dictionary["maxAttachmentSize"] as? NSNumber {
             self.maxAttachmentSize = maxAttachmentSize.uintValue
         }
@@ -230,6 +235,10 @@ extension Options {
         if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
             self.enableReportNonFullyBlockingAppHangsValue = enableReportNonFullyBlockingAppHangs
         }
+
+        if let enableStandaloneAppStartTracing = boolValue(dictionary["enableStandaloneAppStartTracing"]) {
+            self.enableStandaloneAppStartTracing = enableStandaloneAppStartTracing
+        }
         #endif // !SDK_V10
         #endif
 
@@ -257,9 +266,16 @@ extension Options {
         if let enableNetworkTracking = boolValue(dictionary["enableNetworkTracking"]) {
             self.enableNetworkTracking = enableNetworkTracking
         }
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.webViewTracing = SentryWebViewTracingOptions(dictionary: dictionary["webViewTracing"])
+        #endif
 
         if let enableFileIOTracing = boolValue(dictionary["enableFileIOTracing"]) {
             self.enableFileIOTracing = enableFileIOTracing
+        }
+
+        if let enableDataSwizzling = boolValue(dictionary["enableDataSwizzling"]) {
+            self.enableDataSwizzling = enableDataSwizzling
         }
 
         if let enableFileManagerSwizzling = boolValue(dictionary["enableFileManagerSwizzling"]) {
@@ -398,3 +414,4 @@ private let blockClass: AnyClass = {
     }
     return candidate
 }()
+// swiftlint:enable file_length

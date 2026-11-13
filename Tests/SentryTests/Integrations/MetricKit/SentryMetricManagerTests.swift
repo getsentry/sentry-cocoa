@@ -238,6 +238,92 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    func testProcess_whenReportFromPreviousProcess_shouldApplyEnvironmentState() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        givenSdkWithHub()
+        let scope = SentrySDKInternal.currentHub().scope
+        scope.setContext(value: ["app_identifier": "io.sentry.app", "build_type": "app store"], key: "app")
+        scope.setContext(value: ["model": "iPhone18,1", "low_power_mode": false], key: "device")
+        let sut = givenSut(enabledDiagnostics: [.hang], releaseName: "io.sentry.app@2.0.0+20")
+        let report = try givenHangReport(
+            pid: Self.previousProcessPid,
+            appVersion: "1.0.0",
+            appBuild: "10",
+            bundleIdentifier: "io.sentry.app.extension",
+            lowPowerModeEnabled: true,
+            isTestFlightApp: true
+        )
+
+        // -- Act --
+        sut.process(diagnosticReport: report)
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let event = try XCTUnwrap(event)
+            XCTAssertEqual(event.context?["app"] as NSDictionary?, [
+                "app_identifier": "io.sentry.app.extension",
+                "app_version": "1.0.0",
+                "app_build": "10",
+                "build_type": "test"
+            ])
+            XCTAssertEqual(event.context?["device"] as NSDictionary?, ["model": "iPhone18,1", "low_power_mode": true])
+        }
+    }
+
+    func testProcess_whenReportFromPreviousProcessIsNotTestFlightApp_shouldNotSetBuildType() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        givenSdkWithHub()
+        SentrySDKInternal.currentHub().scope.setContext(value: ["build_type": "test"], key: "app")
+        let sut = givenSut(enabledDiagnostics: [.hang], releaseName: "io.sentry.app@2.0.0+20")
+        let report = try givenHangReport(pid: Self.previousProcessPid, appVersion: "1.0.0", appBuild: "10", isTestFlightApp: false)
+
+        // -- Act --
+        sut.process(diagnosticReport: report)
+
+        // -- Assert --
+        // MetricKit doesn't tell which build type a non-TestFlight build had.
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNil(event?.context?["app"]?["build_type"])
+        }
+    }
+
+    func testProcess_whenReportFromPreviousProcess_shouldCaptureSameEventAsLegacyDiagnostic() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        let metaData = TestMXMetaData()
+        metaData.overrides.pid = Self.previousProcessPid
+        metaData.overrides.applicationBuildVersion = "10"
+        metaData.overrides.osVersion = "iPhone OS 27.0 (24A100)"
+        metaData.overrides.bundleIdentifier = "io.sentry.app.extension"
+        metaData.overrides.lowPowerModeEnabled = true
+        metaData.overrides.isTestFlightApp = true
+        let legacyDiagnostic = TestMXHangDiagnostic()
+        legacyDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        legacyDiagnostic.overrides.metaData = metaData
+        legacyDiagnostic.overrides.applicationVersion = "1.0.0"
+        let legacyPayload = TestMXDiagnosticPayload()
+        legacyPayload.overrides.hangDiagnostic = [legacyDiagnostic]
+        let report = try givenReport(
+            result: "hangDiagnostic",
+            diagnostic: [
+                "callStackTree": try callStackTree(fromLegacyResource: "MetricKitCallstacks/per-thread"),
+                "hangDuration": encoded(legacyDiagnostic.hangDuration)
+            ],
+            pid: Self.previousProcessPid,
+            appVersion: "1.0.0",
+            appBuild: "10",
+            osVersion: ["platform": "iOS", "number": "27.0", "buildNumber": "24A100"],
+            bundleIdentifier: "io.sentry.app.extension",
+            lowPowerModeEnabled: true,
+            isTestFlightApp: true
+        )
+
+        // -- Act & Assert --
+        try assertSameEvent(legacyPayload: legacyPayload, report: report, exceptionType: "MXHangDiagnostic")
+    }
+
     func testProcess_whenReportFromRunningProcess_shouldKeepEventInCurrentAppRun() throws {
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
         // -- Arrange --
@@ -368,7 +454,10 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         pid: pid_t? = nil,
         appVersion: String = "",
         appBuild: String = "",
-        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""]
+        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""],
+        bundleIdentifier: String = "io.sentry.app",
+        lowPowerModeEnabled: Bool = false,
+        isTestFlightApp: Bool = false
     ) throws -> MetricKit.DiagnosticReport {
         try givenReport(
             result: "hangDiagnostic",
@@ -379,7 +468,10 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             pid: pid,
             appVersion: appVersion,
             appBuild: appBuild,
-            osVersion: osVersion
+            osVersion: osVersion,
+            bundleIdentifier: bundleIdentifier,
+            lowPowerModeEnabled: lowPowerModeEnabled,
+            isTestFlightApp: isTestFlightApp
         )
     }
 
@@ -392,18 +484,21 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         pid: pid_t? = nil,
         appVersion: String = "",
         appBuild: String = "",
-        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""]
+        osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""],
+        bundleIdentifier: String = "io.sentry.app",
+        lowPowerModeEnabled: Bool = false,
+        isTestFlightApp: Bool = false
     ) throws -> MetricKit.DiagnosticReport {
         var environment: [String: Any] = [
             "regionFormat": "US",
             "osVersion": osVersion,
             "deviceType": "iPhone18,1",
             "platformArchitecture": "arm64e",
-            "lowPowerModeEnabled": false,
-            "isTestFlightApp": false,
+            "lowPowerModeEnabled": lowPowerModeEnabled,
+            "isTestFlightApp": isTestFlightApp,
             "applicationVersion": appVersion,
             "applicationBuildVersion": appBuild,
-            "bundleIdentifier": "io.sentry.app",
+            "bundleIdentifier": bundleIdentifier,
             "signpostData": [],
             "states": []
         ]

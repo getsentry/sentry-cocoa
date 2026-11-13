@@ -74,7 +74,6 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             isActive: Bool = true,
             wasTerminated: Bool = false,
             isSDKRunning: Bool = true,
-            isANROngoing: Bool = false,
             runId: SentryCurrentRun.ID? = nil
         ) -> SentryAppState {
             let appState = SentryAppState(
@@ -88,7 +87,6 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             appState.isActive = isActive
             appState.wasTerminated = wasTerminated
             appState.isSDKRunning = isSDKRunning
-            appState.isANROngoing = isANROngoing
             return appState
         }
         
@@ -344,9 +342,12 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     // MARK: - ANR Ongoing
     
+    #if !SDK_V10
     func testIsWatchdogTermination_whenANROngoing_shouldReturnFalse() {
         // -- Arrange --
-        fixture.storePreviousAppState(fixture.createAppState(isANROngoing: true))
+        let previousAppState = fixture.createAppState()
+        previousAppState.isANROngoing = true
+        fixture.storePreviousAppState(previousAppState)
         let currentAppState = fixture.createAppState()
         let sut = fixture.getSut(customCurrentAppState: currentAppState)
         
@@ -356,6 +357,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(result)
     }
+    #endif // !SDK_V10
     
     // MARK: - SDK Started Multiple Times
     
