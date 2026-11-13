@@ -98,18 +98,19 @@ The test apps are configured by default to use UI Profiling with trace lifecycle
 
 Key files:
 
+- `Sources/Sentry/SentrySDKInternal.m`: Pre-main launch profiling hook
 - `Sources/Swift/Profiling/SentryLaunchProfiling.swift`: Main launch profiling logic
 - `Sources/Sentry/SentryTimeToDisplayTracker.m`: TTID/TTFD tracking with profiling integration
 - `Sources/Sentry/Profiling/SentryProfiledTracerConcurrency.mm`: Profiler/tracer lifecycle management
 
 Order of operations:
 
-- `sentry_startLaunchProfile()` called early in app lifecycle from `SentryTracer.load`
+- `SentrySDKInternal.load` calls `SentryLaunchProfiling.startLaunchProfile` before `main`
   - for transaction profiling and trace lifecycle UI profiling, a tracer is created to manage profiling session
-- Configuration written to disk via `sentry_configureLaunchProfiling` during SentrySDK.start
+- Configuration written to disk via `SentryLaunchProfiling.configureLaunchProfilingForNextLaunch` during SentrySDK.start
 - Before SentrySDK.start completes, it checks to see if it should stop any running launch profiler
   - if TTID/TTFD tracking is enabled and the launch profile is a transaction profile or UI profile with trace lifecycle, stopping profiles is deferred until TTID/TTFD
-  - otherwise for transaction/trace profiles, `sentry_stopAndDiscardLaunchProfileTracer()` is called
+  - otherwise for transaction/trace profiles, `SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer` is called
   - otherwise, the profile continues until SentrySDK.stopProfiler is called in consumer code
 
 ### Testing

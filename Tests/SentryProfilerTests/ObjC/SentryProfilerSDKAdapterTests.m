@@ -51,8 +51,8 @@
 
     @try {
         // -- Act --
-        [SentryProfiler load];
-        sentry_startLaunchProfile();
+        [SentrySDKInternal load];
+        [SentryLaunchProfiling startLaunchProfile];
 
         // -- Assert --
         XCTAssertEqual(dependencyAccesses, 0U);

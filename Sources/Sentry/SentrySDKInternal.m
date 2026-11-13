@@ -27,6 +27,7 @@ extern const void *_Nonnull sentry_cxa_throw_compatibility_linker_anchor(void)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryFileManagerHelper.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerConfigurationBridge.h"
@@ -64,6 +65,31 @@ static BOOL _detectedStartUpCrash;
 static NSUInteger startInvocations;
 static NSDate *_Nullable startTimestamp = nil;
 static BOOL sdkStarted;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+// Keep the early hook in the SDK entry-point object so static links retain it.
++ (void)load
+{
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+    // we want to allow starting a launch profile from here for UI tests, but not unit tests
+    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
+        return;
+    }
+
+    // the samples apps may want to wipe the data like before UI test case runs, or manually during
+    // development, to remove any launch config files that might be present before launching the app
+    // initially, however we need to make sure to remove stale versions of the file before it gets
+    // used to potentially start a launch profile that shouldn't have started, so we check here for
+    // this. This is runtime-gated and safe to compile in unconditionally.
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
+        removeSentryStaticBasePath();
+    }
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+
+    [SentryLaunchProfiling startLaunchProfile];
+}
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 + (void)initialize
 {
