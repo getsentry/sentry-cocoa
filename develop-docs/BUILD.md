@@ -6,6 +6,14 @@ This document covers the build system and configuration details for the Sentry C
 
 - XCConfig files in `Sources/Configuration/` for SDK settings; settings should not be modified in pbxproj files
 
+## Native Utility Library
+
+`SentryNativeUtils` is a static dependency of the SDK, not an additional framework consumers must embed. Shared source files compile only in this library. SDK framework headers retain their existing declarations, while source-built Swift callers import the native module explicitly.
+
+The Xcode schemes `SentryNativeUtils` and `SentryNativeUtilsV10` build the utility library independently. Their configuration files, [V9](../Sources/Configuration/SentryNativeUtils.xcconfig) and [V10](../Sources/Configuration/SentryNativeUtilsV10.xcconfig), match the corresponding SDK's architectures and recorder selection. The V10 variant depends on KSCrash's `RecordingCore` product.
+
+For SwiftPM, build the `SentryNativeUtils` target with the same `SDK_V10` environment selection used for the SDK. It has no SDK or `_SentryPrivate` target dependency.
+
 ## SDK Test Configurations
 
 SDK tests use `Debug`, or `DebugV10` for V10 Xcode project builds. SwiftPM V10 tests also use `Debug`, with `SDK_V10=1` selecting the SDK implementation. Debug builds enable testability and SDK test helpers through `DEBUG`; no test traits or separate test configurations are required. Make/CI adds the [package test xcconfig](../Tests/Configuration/SwiftPM.xcconfig) for ABI and diagnostic checks. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Release builds exclude debug/test helpers. Do not explicitly enable `DEBUG` in production builds.

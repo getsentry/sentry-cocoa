@@ -158,6 +158,8 @@ if !envSelectsV10 {
     )
 }
 
+sentrySwiftTarget.dependencies.append("SentryNativeUtils")
+
 let sentryObjCInternalExcludes = [
     "Sentry/SentryDummyPublicEmptyClass.m",
     "Sentry/SentryDummyPrivateEmptyClass.m",
@@ -177,7 +179,8 @@ let sentryObjCInternalExcludes = [
     "SentryDistribution",
     "SentryDistributionTests",
     "SentryObjC",
-    "SentryObjCCompat"
+    "SentryObjCCompat",
+    "SentryNativeUtils"
 ]
 
 let sentryObjCInternalCSettings: [CSetting] = [
@@ -194,10 +197,18 @@ if !envSelectsV10 {
 }
 
 targets += [
+    .target(
+        name: "SentryNativeUtils",
+        path: "Sources/SentryNativeUtils",
+        publicHeadersPath: "include",
+        cSettings: cSettings,
+        cxxSettings: cxxSettings,
+        linkerSettings: [.linkedLibrary("c++")]
+    ),
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
         name: "SentryHeaders",
-        dependencies: envSelectsV10 ? [.target(name: "_SentryV10Configuration")] : [],
+        dependencies: envSelectsV10 ? ["_SentryV10Configuration", "SentryNativeUtils"] : ["SentryNativeUtils"],
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
@@ -210,12 +221,13 @@ targets += [
     ),
     .target(
         name: "_SentryCrashV9Headers",
+        dependencies: ["SentryNativeUtils"],
         path: "Sources/SentryCrashV9Headers",
         publicHeadersPath: "include"
     ),
     .target(
         name: "_SentryPrivate",
-        dependencies: sentryPrivateDependencies,
+        dependencies: sentryPrivateDependencies + ["SentryNativeUtils"],
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include",
@@ -225,7 +237,7 @@ targets += [
     sentrySwiftTarget
 ]
 
-var sentryObjCInternalDependencies: [Target.Dependency] = [.target(name: sentrySwiftTargetName)] + kscrashDependencies
+var sentryObjCInternalDependencies: [Target.Dependency] = [.target(name: sentrySwiftTargetName), "SentryNativeUtils"] + kscrashDependencies
 if !envSelectsV10 {
     sentryObjCInternalDependencies += [
         .target(name: "SentryCrashV9"),
@@ -248,7 +260,7 @@ if !envSelectsV10 {
         ),
         .target(
             name: "SentryCrashV9",
-            dependencies: ["SentryCrashV9Swift", .target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
+            dependencies: ["SentryCrashV9Swift", .target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders", "SentryNativeUtils"],
             path: "Sources",
             // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
             exclude: ["Resources"],
@@ -392,7 +404,7 @@ targets += [
     .testTarget(
         name: "SentryTests",
         dependencies: [
-            .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
+            .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryNativeUtils", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
             .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .visionOS]))
         ] + (envSelectsV10 ? [.product(name: "RecordingCore", package: "KSCrash")] : [.target(name: "SentryCrashV9Swift")]),
         path: "Tests/SentryTests",

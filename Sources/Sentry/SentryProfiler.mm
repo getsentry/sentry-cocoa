@@ -116,6 +116,12 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         return;
     }
 
+    SentryProfilingMemoryReader memoryReader = [SentryProfilerSDKAdapter.shared memoryReader];
+    if (memoryReader == nullptr) {
+        SENTRY_PROFILING_LOG_WARN(@"Cannot start profiling without a memory reader.");
+        return;
+    }
+
     SENTRY_PROFILING_LOG_DEBUG(@"Starting profiler.");
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
@@ -128,7 +134,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
                 [state appendBacktrace:backtraceCopy];
             }
         },
-        kSentryProfilerFrequencyHz);
+        kSentryProfilerFrequencyHz, memoryReader);
     _samplingProfiler->startSampling();
 }
 

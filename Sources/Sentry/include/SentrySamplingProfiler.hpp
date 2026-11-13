@@ -4,6 +4,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    include "SentryProfilingMemory.h"
+
 #    include <atomic>
 #    include <cstdint>
 #    include <functional>
@@ -29,9 +31,10 @@ namespace profiling {
          * backtrace for a particular thread. The timestamp of the entry will be set to the
          * timestamp that the sample was collected at.
          * @param samplingRateHz The sampling rate, in Hz, to sample at.
+         * @param memoryReader The async-safe C function used to validate sampled memory.
          */
-        SamplingProfiler(
-            std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz);
+        SamplingProfiler(std::function<void(const Backtrace &)> callback,
+            std::uint32_t samplingRateHz, SentryProfilingMemoryReader memoryReader);
 
         ~SamplingProfiler();
 
@@ -56,6 +59,7 @@ namespace profiling {
     private:
         mach_timespec_t delaySpec_;
         std::function<void(const Backtrace &)> callback_;
+        const SentryProfilingMemoryReader memoryReader_;
         std::unique_ptr<ThreadMetadataCache> cache_;
         bool isInitialized_;
         std::mutex isSamplingLock_;

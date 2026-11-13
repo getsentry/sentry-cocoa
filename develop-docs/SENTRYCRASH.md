@@ -186,7 +186,7 @@ Code that runs during crash handling must respect **async-signal-safety** when t
 
 **What SentryCrash uses**
 
-- **Logging** — `SENTRY_ASYNC_SAFE_LOG_*` macros only (no NSLog). See [SentryAsyncSafeLog](Sources/Sentry/SentryAsyncSafeLog.h).
+- **Logging** — `SENTRY_ASYNC_SAFE_LOG_*` macros only (no NSLog). See [SentryAsyncSafeLog](../Sources/SentryNativeUtils/include/SentryAsyncSafeLog.h).
 - **Report writing** — `sentrycrashreport_writeStandardReport()` and the code path it uses in [SentryCrashReport.c](Sources/SentryCrash/Recording/SentryCrashReport.c) are designed to be signal-safe (no heap allocation in the critical path; JSON written via async-safe primitives).
 - **Best-effort callbacks** — Screenshots, view hierarchy, and transaction save run **after** the report is written to disk. They are explicitly non–signal-safe and may crash; that is acceptable because the process is already terminating. See comment in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c) around the `g_saveScreenShot` / `g_saveViewHierarchy` / `g_saveTransaction` calls.
 

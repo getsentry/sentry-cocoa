@@ -1,1 +1,1 @@
-../../../../Sources/Sentry/SentryThreadSuspension.c
+../../../../Sources/SentryNativeUtils/SentryThreadSuspension.c

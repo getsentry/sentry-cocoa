@@ -5,6 +5,7 @@
 @_spi(Private) @testable import Sentry
 #endif
 import _SentryPrivate
+import SentryNativeUtils
 import XCTest
 
 // swiftlint:disable file_length
