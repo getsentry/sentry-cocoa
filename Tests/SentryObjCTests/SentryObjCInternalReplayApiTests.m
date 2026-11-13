@@ -33,6 +33,8 @@
     [replay startBuffering];
     [replay pause];
     [replay resume];
+    [replay pauseTouchTracking];
+    [replay resumeTouchTracking];
     [replay flush];
     [replay stop];
 

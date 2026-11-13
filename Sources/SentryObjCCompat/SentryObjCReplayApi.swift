@@ -32,6 +32,14 @@ import UIKit
         wrapped.resume()
     }
 
+    @objc public func pauseTouchTracking() {
+        wrapped.pauseTouchTracking()
+    }
+
+    @objc public func resumeTouchTracking() {
+        wrapped.resumeTouchTracking()
+    }
+
     @objc public func start() {
         wrapped.start()
     }

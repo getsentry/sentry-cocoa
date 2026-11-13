@@ -44624,6 +44624,23 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV18pauseTouchTrackingyyF",
+            "moduleName": "Sentry",
+            "name": "pauseTouchTracking",
+            "printedName": "pauseTouchTracking()",
+            "usr": "s:6Sentry0A17InternalReplayApiV18pauseTouchTrackingyyF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "SentryId",
                 "printedName": "Sentry.SentryId",
                 "usr": "c:objc(cs)SentryId"
@@ -44659,6 +44676,23 @@
             "name": "resume",
             "printedName": "resume()",
             "usr": "s:6Sentry0A17InternalReplayApiV6resumeyyF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV19resumeTouchTrackingyyF",
+            "moduleName": "Sentry",
+            "name": "resumeTouchTracking",
+            "printedName": "resumeTouchTracking()",
+            "usr": "s:6Sentry0A17InternalReplayApiV19resumeTouchTrackingyyF"
           },
           {
             "children": [
@@ -57746,11 +57780,53 @@
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry0A9ReplayApiC18pauseTouchTrackingyyF",
+            "moduleName": "Sentry",
+            "name": "pauseTouchTracking",
+            "printedName": "pauseTouchTracking()",
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)pauseTouchTracking"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
             "mangledName": "$s6Sentry0A9ReplayApiC6resumeyyF",
             "moduleName": "Sentry",
             "name": "resume",
             "printedName": "resume()",
             "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)resume"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A9ReplayApiC19resumeTouchTrackingyyF",
+            "moduleName": "Sentry",
+            "name": "resumeTouchTracking",
+            "printedName": "resumeTouchTracking()",
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)resumeTouchTracking"
           },
           {
             "children": [

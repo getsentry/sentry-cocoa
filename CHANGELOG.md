@@ -7,6 +7,7 @@
 - Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
   - Expose `options.webViewTracing` through the SentryObjC SDK as `SentryObjCOptions.webViewTracing` (#9539)
   - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
+- Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
 
 ### Fixes
 
