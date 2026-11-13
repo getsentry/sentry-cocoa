@@ -15,6 +15,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         let queue = TestSentryDispatchQueueWrapper()
         let notifications = TestNSNotificationCenterWrapper()
         let timerFactory: TestSentryNSTimerFactory
+        let options: Options
         let client: TestClient
         let hub: SentryHubInternal
 
@@ -26,7 +27,7 @@ final class SentryTraceProfilerTests: XCTestCase {
             container.notificationCenterWrapper = notifications
             timerFactory = TestSentryNSTimerFactory(currentDateProvider: dateProvider)
             container.timerFactory = timerFactory
-            let options = Options()
+            options = Options()
             options.dsn = TestConstants.dsnForTestCase(type: SentryTraceProfilerTests.self)
             options.tracesSampleRate = 1
             client = try XCTUnwrap(TestClient(options: options))
@@ -349,6 +350,42 @@ final class SentryTraceProfilerTests: XCTestCase {
         XCTAssertEqual(fixture.client.recordLostEvents.count, 1)
         XCTAssertEqual(fixture.client.recordLostEvents.first?.category, .profile)
         XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 0)
+    }
+
+    func testCollect_whenSDKContextIsSet_shouldEnrichProfileAndPreferScopeEnvironment() throws {
+        // -- Arrange --
+        fixture.options.environment = "options-environment"
+        fixture.options.releaseName = "profiling-release"
+        fixture.hub.scope.setEnvironment("scope-environment")
+        let traceID = try startTrace()
+        let state = SentryProfilerState()
+        try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).state = state
+        appendSample(to: state, address: 0x1)
+        fixture.dateProvider.advance(by: 1)
+        appendSample(to: state, address: 0x2)
+
+        // -- Act --
+        let payload = try XCTUnwrap(SentrySDK.internal.profiling.collect(between: 0, and: 1_000_000_000, for: traceID))
+
+        // -- Assert --
+        XCTAssertEqual(payload["environment"] as? String, "scope-environment")
+        XCTAssertEqual(payload["release"] as? String, "profiling-release")
+        let profileID = try XCTUnwrap(payload["profile_id"] as? String)
+        XCTAssertNotEqual(SentryId(uuidString: profileID), SentryId.empty)
+        let os = try XCTUnwrap(payload["os"] as? [String: Any])
+        XCTAssertNotNil(os["name"])
+        XCTAssertNotNil(os["version"])
+        XCTAssertNotNil(os["build_number"])
+        let device = try XCTUnwrap(payload["device"] as? [String: Any])
+        XCTAssertEqual(device["manufacturer"] as? String, "Apple")
+        XCTAssertNotNil(device["architecture"])
+        XCTAssertNotNil(device["is_emulator"])
+#if SDK_V10
+        XCTAssertNil(device["locale"])
+#else
+        XCTAssertEqual(device["locale"] as? String, Locale.current.identifier)
+#endif
+        XCTAssertTrue(fixture.client.recordLostEvents.isEmpty)
     }
 
     func testFinish_whenProfileHasTwoBoundarySamples_shouldCaptureProfileWithTransactionOnce() throws {
