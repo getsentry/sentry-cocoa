@@ -35,7 +35,7 @@ make -C test-server stop
 ```
 
 - Run only the relevant test commands between start and stop
-- Envelope snapshots in `Tests/Resources/NetworkEnvelopeSnapshots` compare all keys strictly
+- Envelope snapshots in `Tests/Fixtures/NetworkEnvelopeSnapshots` compare all keys strictly
 - On mismatch, use the printed actual envelope JSON to update the snapshot
 - Payload changes usually require updating both standard and `-v10` snapshots
 

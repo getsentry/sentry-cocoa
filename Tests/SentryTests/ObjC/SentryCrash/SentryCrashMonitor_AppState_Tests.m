@@ -153,7 +153,7 @@
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
     NSString *jsonPath =
-        [SentryTestResourceBundle(self.class) pathForResource:@"Resources/CrashState_wrong"
+        [SentryTestResourceBundle(self.class) pathForResource:@"Fixtures/CrashState_wrong"
                                                        ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
@@ -178,7 +178,7 @@
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
     NSString *jsonPath = [SentryTestResourceBundle(self.class)
-        pathForResource:@"Resources/CrashState_unsupported_fields"
+        pathForResource:@"Fixtures/CrashState_unsupported_fields"
                  ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
@@ -192,7 +192,7 @@
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
     NSString *jsonPath =
-        [SentryTestResourceBundle(self.class) pathForResource:@"Resources/CrashState_legacy_1"
+        [SentryTestResourceBundle(self.class) pathForResource:@"Fixtures/CrashState_legacy_1"
                                                        ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];

@@ -5,7 +5,7 @@ import XCTest
 final class SentryCrashDoctorTests: XCTestCase {
 
     func testBadAccess() throws {
-        let report = try getCrashReport(resource: "Resources/crash-bad-access")
+        let report = try getCrashReport(resource: "Fixtures/crash-bad-access")
         
         let diagnose = SentryCrashDoctor().diagnoseCrash(report)
         
@@ -13,7 +13,7 @@ final class SentryCrashDoctorTests: XCTestCase {
     }
     
     func testBadAccess_NoSubcode() throws {
-        let report = try getCrashReport(resource: "Resources/crash-bad-access-no-subcode")
+        let report = try getCrashReport(resource: "Fixtures/crash-bad-access-no-subcode")
         
         let diagnose = SentryCrashDoctor().diagnoseCrash(report)
         
@@ -22,7 +22,7 @@ final class SentryCrashDoctorTests: XCTestCase {
     
     // Testing support for SIGTERM sent by the OS
     func testGracefulTerminationRequest() throws {
-        let report = try getCrashReport(resource: "Resources/crash-sigterm")
+        let report = try getCrashReport(resource: "Fixtures/crash-sigterm")
         
         let diagnose = SentryCrashDoctor().diagnoseCrash(report)
         

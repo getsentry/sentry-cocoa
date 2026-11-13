@@ -4,7 +4,7 @@ import XCTest
 
 extension XCTest {
     func contentsOfResource(_ resource: String, ofType: String = "json") throws -> Data {
-        let path = sentryTestResourceBundle(for: type(of: self)).path(forResource: "Resources/\(resource)", ofType: "json")
+        let path = sentryTestResourceBundle(for: type(of: self)).path(forResource: "Fixtures/\(resource)", ofType: "json")
         return try Data(contentsOf: URL(fileURLWithPath: path ?? ""))
     }
 }
