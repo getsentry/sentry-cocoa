@@ -5,7 +5,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryProfilerSerialization.h"
+#    import "SentryProfilerDeliveryBridge.h"
 
 @implementation SentryProfileCollector
 

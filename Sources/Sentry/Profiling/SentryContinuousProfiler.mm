@@ -2,16 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryHub+SwiftPrivate.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySDK+Private.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -77,32 +74,15 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
-    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
-    NSArray<NSDictionary<NSString *, id> *> *const debugImages =
-        [SentryProfilerSDKAdapter.shared serializedDebugImages];
-
-    // Move the serialization work to a background queue to avoid potentially
-    // blocking the main thread. The serialization can take several milliseconds.
-    [SentryProfilerSDKAdapter.shared dispatchAsync:^{
-        // Closing the originating SDK must not redirect a pending chunk to a later client.
-        if (hub.getClient == nil) {
-            return;
-        }
-        NSDictionary *_Nonnull serializedMetrics
-            = serializeContinuousProfileMetrics(metricProfilerState);
-        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
-            profilerID, profilerState, serializedMetrics, debugImages, hub
+    NSDictionary *_Nonnull serializedMetrics
+        = serializeContinuousProfileMetrics(metricProfilerState);
+    [SentryProfilerSDKAdapter.shared captureProfileChunkWithID:sentry_stringFromSentryID(profilerID)
+                                                          data:profilerState
+                                                       metrics:serializedMetrics
 #    if SENTRY_HAS_UIKIT
-            ,
-            screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-        );
-        if (envelope == nil) {
-            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
-            return;
-        }
-        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
-    }];
+                                                        frames:screenFrameData
+#    endif
+    ];
 }
 
 void

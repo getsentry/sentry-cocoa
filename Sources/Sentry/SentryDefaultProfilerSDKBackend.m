@@ -6,7 +6,7 @@
 #import "SentryLogC.h"
 #import "SentryProfilerCancellation.h"
 #import "SentryProfilerConfigurationBridge.h"
-#import "SentryProfilerSerialization.h"
+#import "SentryProfilerDeliveryBridge.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
