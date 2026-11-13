@@ -6,11 +6,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Redeclare existing SDK selectors with module-safe types; implementations remain in the SDK.
 @interface SentryTraceContext (TestAccess)
-- (nullable instancetype)initWithScope:(SentryScope *)scope
+- (nullable instancetype)initWithScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                                options:(SENTRY_SWIFT_MIGRATION_ID(SentryOptions))options
     NS_SWIFT_NAME(init(scope:options:));
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
-                                  scope:(nullable SentryScope *)scope
+                                  scope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                                 options:(SENTRY_SWIFT_MIGRATION_ID(SentryOptions))options
     NS_SWIFT_NAME(init(tracer:scope:options:));
 - (instancetype)initWithTraceId:(SentryId *)traceId

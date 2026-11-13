@@ -314,16 +314,20 @@ final class TestSDKAdaptersTests: XCTestCase {
         var video: URL?
         var scope: Scope?
 
-        override func capture(_ event: Any, replayRecording recording: Any, video: URL, with scope: Scope) {
+        override func capture(_ event: Any, replayRecording recording: Any, video: URL, with scope: Any) {
             self.event = event as? SentryReplayEvent
             self.recording = recording as? SentryReplayRecording
             self.video = video
+            guard let scope = scope as? Scope else {
+                XCTFail("Expected Scope, got \(type(of: scope))")
+                return
+            }
             self.scope = scope
         }
     }
 
     private final class SessionCaptureClient: TestClient {
-        override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Scope) -> SentryId {
+        override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Any) -> SentryId {
             _ = super.wrapper_captureFatalEvent(event, session: session, scope: scope)
             return event.eventId
         }

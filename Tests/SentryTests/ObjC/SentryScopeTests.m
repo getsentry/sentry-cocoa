@@ -1,13 +1,18 @@
 #import "SentryBreadcrumb.h"
 #import "SentryInternalSerializable.h"
-#import "SentryScope+Private.h"
-#import "SentryScope.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
 #if SWIFT_PACKAGE
 #    import "SentrySwift.h"
 #else
 @import Sentry;
+#endif
+
+// V10 keeps serialize off the public interface. The method is still @objc, so tests can call it.
+#if SDK_V10
+@interface SentryScope (V10InternalSerialize)
+- (NSDictionary<NSString *, id> *)serialize;
+@end
 #endif
 
 @interface SentryScopeTests : XCTestCase

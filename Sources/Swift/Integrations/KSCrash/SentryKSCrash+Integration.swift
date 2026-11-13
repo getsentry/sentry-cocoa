@@ -5,8 +5,8 @@ import Foundation
 
 /// Best-effort crash-time persistence of the span bound to the current scope.
 private let persistTraceWhenCrashing: @convention(c) () -> Void = {
-    let scope = SentrySDKInternal.currentHub().scope as Scope
-    guard let span = scope.getCastedInternalSpan() else {
+    let scope = SentrySDKInternal.currentHub().scope
+    guard let span = scope.span as? SentrySpanInternal else {
         SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
         return
     }

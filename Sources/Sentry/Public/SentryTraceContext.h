@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryBaggage;
 @class SentryId;
 @class SentryOptions;
-@class SentryScope;
 @class SentryTracer;
 @class SentryUser;
 
