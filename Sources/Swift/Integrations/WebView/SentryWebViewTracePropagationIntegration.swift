@@ -22,11 +22,13 @@ private enum SentryWebViewSwizzleKeys {
 /// - A scope observer re-installs the script on every tracked controller when the trace changes,
 ///   so navigations that don't go through the load methods, like links, redirects, and reloads,
 ///   receive the current trace too.
-final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration {
+typealias SentryWebViewTracePropagationIntegrationDependencies = HubProvider & DispatchQueueWrapperProvider
+
+final class SentryWebViewTracePropagationIntegration<Dependencies: SentryWebViewTracePropagationIntegrationDependencies>: NSObject, SwiftIntegration {
     private let refresher: SentryWebViewTraceRefresher
     private let dispatchQueue: SentryDispatchQueueWrapper
 
-    init?(with options: Options, dependencies: SentryDependencyContainer) {
+    init?(with options: Options, dependencies: Dependencies) {
         guard let webViewTracing = options.webViewTracing else {
             return nil
         }
@@ -51,7 +53,7 @@ final class SentryWebViewTracePropagationIntegration: NSObject, SwiftIntegration
         Self.swizzleLoadMethods()
 
         let observer = SentryWebViewTraceScopeObserver(refresher: refresher, dispatchQueue: dispatchQueue)
-        SentrySDKInternal.currentHub().configureScope { scope in
+        dependencies.hub.configureScope { scope in
             scope.add(observer)
         }
     }
