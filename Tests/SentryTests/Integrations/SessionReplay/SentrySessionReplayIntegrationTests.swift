@@ -237,8 +237,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(replay.isFullSession)
-        XCTAssertEqual(capturedEvent?.context?["feedback"]?["replay_id"] as? String, replayId)
-        XCTAssertEqual(capturedEvent?.context?["replay"]?["replay_id"] as? String, replayId)
+        XCTAssertEqual((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"] as? String, replayId)
+        XCTAssertEqual((capturedEvent?.context?["replay"] as? [String: Any])?["replay_id"] as? String, replayId)
     }
 
     func testCaptureFeedback_whenCalledOnClient_shouldNotCaptureGlobalReplay() throws {
@@ -261,7 +261,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(capturedEvent)
         XCTAssertFalse(replay.isFullSession)
-        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+        XCTAssertNil((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"])
     }
 
     func testCaptureFeedback_whenHubHasNoReplayIntegration_shouldNotCaptureOtherHubsReplay() throws {
@@ -284,7 +284,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(capturedEvent)
         XCTAssertFalse(replay.isFullSession)
-        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+        XCTAssertNil((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"])
     }
 
     func testCaptureFeedback_whenReplayDisabled_shouldNotAssociateReplay() {
@@ -302,7 +302,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(capturedEvent)
-        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+        XCTAssertNil((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"])
         XCTAssertNil(capturedEvent?.context?["replay"])
     }
 
@@ -323,7 +323,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(try XCTUnwrap(getSut().sessionReplay).isFullSession)
         XCTAssertNotNil(capturedEvent)
-        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+        XCTAssertNil((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"])
         XCTAssertNil(capturedEvent?.context?["replay"])
     }
 
@@ -379,8 +379,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         form.submitFeedback()
 
         // -- Assert --
-        XCTAssertEqual(capturedEvent?.context?["feedback"]?["replay_id"] as? String, replayId)
-        XCTAssertEqual(capturedEvent?.context?["replay"]?["replay_id"] as? String, replayId)
+        XCTAssertEqual((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"] as? String, replayId)
+        XCTAssertEqual((capturedEvent?.context?["replay"] as? [String: Any])?["replay_id"] as? String, replayId)
         XCTAssertFalse(try XCTUnwrap(getSut().sessionReplay).isFullSession)
     }
     func testFeedbackForm_whenOpeningSampleRejected_shouldKeepBufferIdWithoutResampling() throws {
@@ -408,8 +408,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(try XCTUnwrap(getSut().sessionReplay).isFullSession)
-        XCTAssertEqual(capturedEvent?.context?["feedback"]?["replay_id"] as? String, replayId)
-        XCTAssertEqual(capturedEvent?.context?["replay"]?["replay_id"] as? String, replayId)
+        XCTAssertEqual((capturedEvent?.context?["feedback"] as? [String: Any])?["replay_id"] as? String, replayId)
+        XCTAssertEqual((capturedEvent?.context?["replay"] as? [String: Any])?["replay_id"] as? String, replayId)
     }
 
     func testFeedbackForm_whenReopenedAfterRejection_shouldSampleAgain() throws {

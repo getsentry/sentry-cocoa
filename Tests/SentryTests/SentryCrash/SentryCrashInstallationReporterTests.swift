@@ -55,9 +55,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
 
         let event = self.testClient.captureFatalEventInvocations.last?.event
-        XCTAssertEqual(event?.context?["device"]?["free_storage"] as? Int, 278_914_420_736)
+        XCTAssertEqual((event?.context?["device"] as? [String: Any])?["free_storage"] as? Int, 278_914_420_736)
         // total_storage got converted to storage_size
-        XCTAssertEqual(event?.context?["device"]?["storage_size"] as? Int, 994_662_584_320)
+        XCTAssertEqual((event?.context?["device"] as? [String: Any])?["storage_size"] as? Int, 994_662_584_320)
     }
     
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
@@ -74,7 +74,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
 
         let event = self.testClient.captureFatalEventInvocations.last?.event
         XCTAssertNil(event?.context?["device"])
-        XCTAssertEqual(event?.context?["app"]?["app_name"] as? String, "iOS-Swift")
+        XCTAssertEqual((event?.context?["app"] as? [String: Any])?["app_name"] as? String, "iOS-Swift")
     }
     
     func testFaultyReportIsNotSentAndDeleted() throws {

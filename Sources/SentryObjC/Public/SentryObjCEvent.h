@@ -98,9 +98,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * This object contains meta information.
  * @warning This is maintained automatically, and shouldn't normally need to be modified.
+ * Values are usually dictionaries. Crash reports can also store other JSON values.
  */
-@property (nonatomic, strong, nullable)
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *context;
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *context;
 
 /// Contains thread information if a crash occurred or for a user reported exception.
 @property (nonatomic, strong, nullable) NSArray<SentryObjCThread *> *threads;

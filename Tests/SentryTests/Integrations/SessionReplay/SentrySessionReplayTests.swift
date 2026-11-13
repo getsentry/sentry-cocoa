@@ -460,7 +460,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         sut.captureReplayFor(event: event)
         XCTAssertEqual(fixture.lastReplayId, sut.sessionReplayId)
-        XCTAssertEqual(event.context?["replay"]?["replay_id"] as? String, sut.sessionReplayId?.sentryIdString)
+        XCTAssertEqual((event.context?["replay"] as? [String: Any])?["replay_id"] as? String, sut.sessionReplayId?.sentryIdString)
         assertFullSession(sut, expected: true)
     }
 

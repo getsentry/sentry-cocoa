@@ -91,7 +91,7 @@ extension SentryEventDecodable {
         self.user = try container.decodeIfPresent(UserDecodable.self, forKey: .user)
         
         self.context = decodeArbitraryData {
-            try container.decodeIfPresent([String: [String: ArbitraryData]].self, forKey: .context)
+            try container.decodeIfPresent([String: ArbitraryData].self, forKey: .context)
         }
 
         if let rawThreads = try container.decodeIfPresent([String: [SentryThreadDecodable]].self, forKey: .threads) {

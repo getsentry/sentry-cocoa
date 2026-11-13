@@ -131,7 +131,7 @@ import Foundation
         set { wrapped.user = newValue?.wrapped }
     }
 
-    @objc public var context: [String: [String: Any]]? {
+    @objc public var context: [String: Any]? {
         get { wrapped.context }
         set { wrapped.context = newValue }
     }

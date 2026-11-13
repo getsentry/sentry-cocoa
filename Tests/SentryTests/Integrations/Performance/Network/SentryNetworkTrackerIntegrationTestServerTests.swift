@@ -412,7 +412,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertNotNil(sentryEvent)
         XCTAssertNotNil(sentryEvent?.request)
 
-        let sentryResponse = try XCTUnwrap(sentryEvent?.context?["response"], "Expected context.response, but was nil")
+        let sentryResponse = try XCTUnwrap(sentryEvent?.context?["response"] as? [String: Any], "Expected context.response, but was nil")
         let statusCode = try XCTUnwrap(sentryResponse["status_code"] as? NSNumber, "Expected context.response.status_code, but was nil")
 
         XCTAssertEqual(statusCode, 400)

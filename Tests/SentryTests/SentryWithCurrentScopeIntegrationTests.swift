@@ -139,7 +139,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
             SentrySDK.capture(event: Event())
         }
 
-        let custom = lastSentEvent()?.context?["custom"]
+        let custom = lastSentEvent()?.context?["custom"] as? [String: Any]
         XCTAssertEqual(custom?["a"] as? String, "1")
         XCTAssertEqual(custom?["b"] as? String, "2")
     }
@@ -245,7 +245,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         // -- Assert --
         let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
         XCTAssertEqual(captured.event.tags?["scope"], "current")
-        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        let trace = try XCTUnwrap(captured.event.context?["trace"] as? [String: Any])
         XCTAssertEqual(trace["trace_id"] as? String, child.traceId.sentryIdString)
         XCTAssertEqual(trace["span_id"] as? String, child.spanId.sentrySpanIdString)
         let envelopeTrace = try XCTUnwrap(captured.traceContext)
@@ -275,7 +275,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
 
         // -- Assert --
         let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
-        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        let trace = try XCTUnwrap(captured.event.context?["trace"] as? [String: Any])
         XCTAssertEqual(trace["trace_id"] as? String, span.traceId.sentryIdString)
         XCTAssertEqual(trace["span_id"] as? String, span.spanId.sentrySpanIdString)
         let envelopeTrace = try XCTUnwrap(captured.traceContext)
@@ -308,7 +308,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
 
         // -- Assert --
         let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
-        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        let trace = try XCTUnwrap(captured.event.context?["trace"] as? [String: Any])
         XCTAssertEqual(trace["trace_id"] as? String, span.traceId.sentryIdString)
         XCTAssertEqual(trace["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertNil(captured.event.transaction)
