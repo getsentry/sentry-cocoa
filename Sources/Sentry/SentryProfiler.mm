@@ -3,11 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
+#    import "SentryProfilingLog.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryTime.h"
 
@@ -41,7 +41,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
@@ -70,11 +70,11 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 - (void)backgroundAbort
 {
     if (![self isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running.");
+        SENTRY_PROFILING_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to app moving to background.", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Stopping profiler %@ due to app moving to background.", self);
     [self stopForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 
@@ -84,7 +84,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     [self.metricProfiler stop];
 
     if (![self isRunning]) {
-        SENTRY_LOG_DEBUG(@"Profiler is not currently running.");
+        SENTRY_PROFILING_LOG_DEBUG(@"Profiler is not currently running.");
         return;
     }
 
@@ -95,13 +95,13 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 #    endif // SENTRY_HAS_UIKIT
 
     _samplingProfiler->stopSampling();
-    SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
 - (void)start
 {
     if (sentry_threadSanitizerIsPresent()) {
-        SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
+        SENTRY_PROFILING_LOG_DEBUG(@"Disabling profiling when running with TSAN");
         return;
     }
 
@@ -111,7 +111,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         // we'll just bail and let the current one continue to do whatever it's already doing:
         // either currently sampling, or waiting to be queried and provide profile data to
         // SentryTracer for upload with transaction envelopes, so as not to lose that data.
-        SENTRY_LOG_WARN(
+        SENTRY_PROFILING_LOG_WARN(
             @"There is already a private profiler instance present, will not start a new one.");
         return;
     }
@@ -123,7 +123,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 #        endif // __has_feature(thread_sanitizer)
 #    endif // defined(__has_feature)
 
-    SENTRY_LOG_DEBUG(@"Starting profiler.");
+    SENTRY_PROFILING_LOG_DEBUG(@"Starting profiler.");
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self.state = state;
