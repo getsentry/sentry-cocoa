@@ -53,12 +53,53 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     private let state = SentryMutex(NetworkTrackerState())
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private struct NetworkDetailConfiguration {
+        let configurationID: UUID = UUID()
+        let allowUrls: [SentryUrlMatcher]
+        let denyUrls: [SentryUrlMatcher]
+        let hasAllowUrls: Bool
+
+        init(options: Options?) {
+            if let options {
+                let snapshot = options.sessionReplay.networkDetailUrlPatternsSnapshot()
+                self.allowUrls = snapshot.allowUrls
+                self.denyUrls = snapshot.denyUrls
+                self.hasAllowUrls = !snapshot.allowUrls.isEmpty
+            } else {
+                self.allowUrls = []
+                self.denyUrls = []
+                self.hasAllowUrls = false
+            }
+        }
+
+        func isCaptureEnabled(for urlString: String) -> Bool {
+            guard hasAllowUrls else {
+                return false
+            }
+            if matches(url: urlString, against: denyUrls) {
+                return false
+            }
+            return matches(url: urlString, against: allowUrls)
+        }
+
+        private func matches(url: String, against matchers: [SentryUrlMatcher]) -> Bool {
+            matchers.contains { $0.matches(url: url) }
+        }
+    }
+
+    private let networkDetailConfiguration: NetworkDetailConfiguration
+#endif
+
     // MARK: - Initializers
 
     init(options: Options?, dependencies: Dependencies) {
         self.dateProvider = dependencies.dateProvider
         self.hub = dependencies.hub
         self.threadInspector = dependencies.threadInspector
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.networkDetailConfiguration = NetworkDetailConfiguration(options: options)
+#endif
     }
 
     // MARK: - Public API
@@ -312,7 +353,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let urlString = SentryURLRequestWrapper(originalRequestOf: sessionTask)?.url?.absoluteString,
-           isNetworkDetailCaptureEnabled(for: urlString, options: options) {
+           isNetworkDetailCaptureEnabled(
+               for: urlString,
+               task: sessionTask
+           ) {
             captureRequestDetails(
                 for: sessionTask,
                 networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
@@ -388,7 +432,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {
         let urlString = requestURL.absoluteString
         guard let options = hub.currentOptions,
-              isNetworkDetailCaptureEnabled(for: urlString, options: options) else {
+              isNetworkDetailCaptureEnabled(
+                  for: urlString,
+                  task: task
+              ) else {
             return
         }
 
@@ -732,8 +779,32 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // MARK: - Session Replay network details
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private func isNetworkDetailCaptureEnabled(for urlString: String, options: Options) -> Bool {
-        options.sessionReplay.isNetworkDetailCaptureEnabled(for: urlString)
+    private func isNetworkDetailCaptureEnabled(
+        for urlString: String,
+        task: URLSessionTask
+    ) -> Bool {
+        guard networkDetailConfiguration.hasAllowUrls else {
+            return false
+        }
+
+        let cacheKey = "\(networkDetailConfiguration.configurationID)||\(urlString)"
+
+        if let cached = task.withNetworkTrackerState({
+            $0.networkDetailCaptureDecisions[cacheKey]
+        }) {
+            return cached
+        }
+
+        // Perform pattern matching outside the task-state lock.
+        let result = networkDetailConfiguration.isCaptureEnabled(for: urlString)
+
+        return task.withNetworkTrackerState { state in
+            if let cached = state.networkDetailCaptureDecisions[cacheKey] {
+                return cached
+            }
+            state.networkDetailCaptureDecisions[cacheKey] = result
+            return result
+        }
     }
 
     private func captureRequestDetails(
