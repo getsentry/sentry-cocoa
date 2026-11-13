@@ -446,7 +446,6 @@ run_v10_for_prs: &run_v10_for_prs
   # GH Actions
   - ".github/workflows/build-v10.yml"
   - ".github/workflows/test-v10.yml"
-  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
   - ".github/file-filters.yml"
 
   # Scripts & actions
@@ -494,6 +493,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
   - "Package*.swift"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # Build configuration
   - "Makefile"
