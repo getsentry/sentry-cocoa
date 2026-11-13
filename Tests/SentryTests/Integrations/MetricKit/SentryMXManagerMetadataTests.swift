@@ -325,22 +325,102 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         sut.didReceive([payload])
 
         // -- Assert --
+        var expectedDeviceContext: [String: Any] = [
+            "arch": "arm64e",
+            "family": "iOS",
+            "model": "iPhone17,1",
+            "model_id": "D93AP",
+            "simulator": false,
+            "memory_size": 8_000_000_000,
+            "screen_height_pixels": 2_622,
+            "screen_width_pixels": 1_206,
+            "ios_app_on_macos": true,
+            "mac_catalyst_app": false,
+            "ios_app_on_visionos": false
+        ]
+        if #available(iOS 17.0, macOS 14.0, *) {
+            // The running low power mode is replaced by the one MetricKit reports for the diagnostic.
+            expectedDeviceContext["low_power_mode"] = false
+        }
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["device"] as NSDictionary?, [
-                "arch": "arm64e",
-                "family": "iOS",
-                "model": "iPhone17,1",
-                "model_id": "D93AP",
-                "simulator": false,
-                "memory_size": 8_000_000_000,
-                "screen_height_pixels": 2_622,
-                "screen_width_pixels": 1_206,
-                "ios_app_on_macos": true,
-                "mac_catalyst_app": false,
-                "ios_app_on_visionos": false
+            XCTAssertEqual(event?.context?["device"] as NSDictionary?, expectedDeviceContext as NSDictionary)
+        }
+    }
+
+    func testDidReceive_whenDiagnosticFromPreviousProcessHasLowPowerMode_shouldSetLowPowerModeOfDiagnostic() throws {
+        try requirePidSupport()
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        SentrySDKInternal.currentHub().scope.setContext(value: ["model": "iPhone17,1", "low_power_mode": false], key: "device")
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", lowPowerModeEnabled: true)
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.context?["device"] as NSDictionary?, ["model": "iPhone17,1", "low_power_mode": true])
+        }
+    }
+
+    func testDidReceive_whenScopeHasNoDeviceContext_shouldSetLowPowerModeOfDiagnostic() throws {
+        try requirePidSupport()
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        SentrySDKInternal.currentHub().scope.removeContext(key: "device")
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", lowPowerModeEnabled: true)
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.context?["device"] as NSDictionary?, ["low_power_mode": true])
+        }
+    }
+
+    func testDidReceive_whenDiagnosticFromPreviousProcessIsTestFlightApp_shouldSetTestBuildType() throws {
+        try requirePidSupport()
+        // -- Arrange --
+        givenSDKWithHubWithScope(appContext: Self.runningAppContext)
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", isTestFlightApp: true)
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.context?["app"] as NSDictionary?, [
+                "app_identifier": "io.sentry.app",
+                "app_version": "1.2.3",
+                "app_build": "45",
+                "build_type": "test"
             ])
         }
     }
+
+    #if compiler(>=6.2)
+    func testDidReceive_whenDiagnosticHasBundleIdentifier_shouldSetAppIdentifierOfDiagnostic() throws {
+        guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) else {
+            throw XCTSkip("MXMetaData.bundleIdentifier requires iOS 26, macOS 26 or visionOS 26")
+        }
+        // -- Arrange --
+        givenSDKWithHubWithScope(appContext: Self.runningAppContext)
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", bundleIdentifier: "io.sentry.app.extension")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.context?["app"]?["app_identifier"] as? String, "io.sentry.app.extension")
+        }
+    }
+    #endif // compiler(>=6.2)
 
     func testDidReceive_whenDiagnosticFromPreviousProcessAndScopeHasRuntimeContext_shouldKeepRuntimeContext() throws {
         // -- Arrange --
@@ -462,12 +542,18 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         appBuild: String,
         osVersion: String = "iPhone OS 18.6.2 (22G100)",
         pid: pid_t = SentryMXManagerMetadataTests.previousProcessPid,
-        timeStampBegin: Date = SentryMXManagerMetadataTests.processStartDate.addingTimeInterval(-3_600)
+        timeStampBegin: Date = SentryMXManagerMetadataTests.processStartDate.addingTimeInterval(-3_600),
+        lowPowerModeEnabled: Bool = false,
+        isTestFlightApp: Bool = false,
+        bundleIdentifier: String = ""
     ) throws -> TestMXDiagnosticPayload {
         let metaData = TestMXMetaData()
         metaData.overrides.applicationBuildVersion = appBuild
         metaData.overrides.osVersion = osVersion
         metaData.overrides.pid = pid
+        metaData.overrides.lowPowerModeEnabled = lowPowerModeEnabled
+        metaData.overrides.isTestFlightApp = isTestFlightApp
+        metaData.overrides.bundleIdentifier = bundleIdentifier
 
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
