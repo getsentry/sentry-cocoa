@@ -359,14 +359,16 @@ sentry_stopProfilerDueToFinishedTransaction(
 
 SentryId *_Nullable sentry_startProfilerForTrace(
     SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext)
+    SentryHubInternal *_Nullable hub,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext)
 {
+    SentryTransactionContext *context = transactionContext;
     SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
     if (profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
         // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
-            profileConfiguration.profileOptions, transactionContext);
+            profileConfiguration.profileOptions, context);
     }
     SentryClientInternal *_Nullable client = hub.getClient;
     if (client != nil
@@ -379,7 +381,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
             SENTRY_LOG_DEBUG(@"No profiling options found, will not start profiler.");
             return nil;
         }
-        return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, transactionContext);
+        return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, context);
     }
     SentrySamplerDecision *profilesSamplerDecision =
         [(NSObject *)configuration valueForKey:@"profilesSamplerDecision"];
@@ -390,7 +392,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
-                sentry_stringFromSentryID(sentry_getTraceID(transactionContext)),
+                sentry_stringFromSentryID(sentry_getTraceID(context)),
                 sentry_stringFromSentryID(internalID));
             return internalID;
         }
