@@ -28,16 +28,24 @@
 
 - (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages
 {
+    SentryProfilingDebugImageSerialization serialize = [self debugImageSerialization];
+    return serialize == nil ? nil : serialize();
+}
+
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization
+{
     SentryDebugImageProvider *provider
         = SentryDependencyContainer.sharedInstance.debugImageProvider;
     if (provider == nil) {
         return nil;
     }
-    NSMutableArray<NSDictionary<NSString *, id> *> *images = [NSMutableArray array];
-    for (SentryDebugMeta *image in [provider getDebugImagesFromCache]) {
-        [images addObject:[image serialize]];
-    }
-    return [images copy];
+    return ^{
+        NSMutableArray<NSDictionary<NSString *, id> *> *images = [NSMutableArray array];
+        for (SentryDebugMeta *image in [provider getDebugImagesFromCache]) {
+            [images addObject:[image serialize]];
+        }
+        return [images copy];
+    };
 }
 
 - (SentrySystemWrapper *)systemWrapper

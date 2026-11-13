@@ -91,6 +91,7 @@
 
     // -- Act & Assert --
     XCTAssertNil([adapter serializedDebugImages]);
+    XCTAssertNil([adapter debugImageSerialization]);
     XCTAssertNil([adapter systemMetrics]);
     SentryProfilingTimestamp timestamp = [adapter timestamp];
     XCTAssertEqual(timestamp.systemTime, 0ULL);

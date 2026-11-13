@@ -78,8 +78,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
     SentryHubInternal *const hub = SentrySDKInternal.currentHub;
-    NSArray<NSDictionary<NSString *, id> *> *const debugImages =
-        [SentryProfilerSDKAdapter.shared serializedDebugImages];
+    SentryProfilingDebugImageSerialization const serializeDebugImages =
+        [SentryProfilerSDKAdapter.shared debugImageSerialization];
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
@@ -88,6 +88,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         if (hub.getClient == nil) {
             return;
         }
+        NSArray<NSDictionary<NSString *, id> *> *debugImages
+            = serializeDebugImages == nil ? nil : serializeDebugImages();
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
         SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
