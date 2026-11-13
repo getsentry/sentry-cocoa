@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #    if SENTRY_HAS_UIKIT
 - (void)startFramesTracker;
-- (void)stopFramesTracker;
 - (void)stopFramesTrackerIfUnused;
 - (void)resetProfilingTimestamps;
 - (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements;

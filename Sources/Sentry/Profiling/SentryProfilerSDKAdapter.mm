@@ -142,11 +142,6 @@
     [self.target stopFramesTrackerIfUnused];
 }
 
-- (void)stopFramesTracker
-{
-    [self.target stopFramesTracker];
-}
-
 - (void)resetProfilingTimestamps
 {
     [self.target resetProfilingTimestamps];
