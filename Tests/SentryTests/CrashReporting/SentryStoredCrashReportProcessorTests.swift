@@ -71,7 +71,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         givenSdkWithHub()
         sut = SentryStoredCrashReportProcessor(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            crashHandlerEventSource: SentryDependencyContainer.sharedInstance().crashHandlerEventSource,
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource(),
             preserveCrashedSessionOnCaptureFailure: true
         )
     }
@@ -277,7 +277,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         let report = try getCrashReport(resource: "Resources/crash-report-1")
         let processor = SentryStoredCrashReportProcessor(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
-            crashHandlerEventSource: SentryDependencyContainer.sharedInstance().crashHandlerEventSource,
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource(),
             preserveCrashedSessionOnCaptureFailure: false
         )
 

@@ -37,7 +37,7 @@ final class SentryHubEventSourceSinkTests: SentrySDKIntegrationTestsBase {
         super.setUp()
         givenSdkWithHub()
         fileManager = SentrySDKInternal.currentHub().getClient()?.fileManager
-        sut = SentryHubEventSourceSink(currentHub: { SentrySDKInternal.currentHub() })
+        sut = SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider())
     }
 
     override func tearDown() {

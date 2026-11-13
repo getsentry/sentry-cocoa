@@ -4,12 +4,14 @@ internal import _SentryPrivate
 ///
 /// This is the only place where a report of an event source reaches the core SDK.
 struct SentryHubEventSourceSink: SentryEventSourceSink {
+    typealias Dependencies = CurrentHubProvider
+
     /// Resolves the current hub for every report, so the sink doesn't retain a hub across SDK
     /// restarts.
-    let currentHub: () -> SentryHubInternal
+    let dependencies: Dependencies
 
     var isAvailable: Bool {
-        currentHub().getClient() != nil
+        dependencies.currentHub.getClient() != nil
     }
 
     func submit(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult {
@@ -17,7 +19,7 @@ struct SentryHubEventSourceSink: SentryEventSourceSink {
         // can submit from a background queue while the SDK closes or restarts. `beforeAccepting`
         // runs after that, so a hub that is replaced in the meantime doesn't receive a report it
         // wasn't prepared for.
-        let hub = currentHub()
+        let hub = dependencies.currentHub
         guard let client = hub.getClient() else {
             return .unavailable
         }

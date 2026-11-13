@@ -17,7 +17,7 @@ final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
     let dateProvider: SentryCurrentDateProvider
     let currentRun: SentryCurrentRun
     var dispatchQueueWrapper: SentryDispatchQueueWrapper { testDispatchQueueWrapper }
-    var crashHandlerEventSource: SentryCrashHandlerEventSource { SentryDependencyContainer.sharedInstance().crashHandlerEventSource }
+    let crashHandlerEventSource = TestEventSources.crashHandlerEventSource()
 
     init(
         installer: MockKSCrashInstaller = .init(),

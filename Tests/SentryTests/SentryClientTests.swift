@@ -854,7 +854,7 @@ final class SentryClientTests: XCTestCase {
                 ],
                 processIdentifier: Self.metricKitProcessIdentifier,
                 processStartDate: Self.metricKitProcessStartDate,
-                eventSourceSink: SentryDependencyContainer.sharedInstance().eventSourceCoordinator
+                eventSourceSink: TestEventSources.hubSink()
             )
         )
     }

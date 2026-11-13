@@ -397,7 +397,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             ],
             processIdentifier: Self.currentPid,
             processStartDate: .distantPast,
-            eventSourceSink: SentryDependencyContainer.sharedInstance().eventSourceCoordinator
+            eventSourceSink: TestEventSources.hubSink()
         )
     }
 
