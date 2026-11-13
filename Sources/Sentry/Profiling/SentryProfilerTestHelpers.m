@@ -5,7 +5,6 @@
 #    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentrySerialization.h"
-#    import "SentrySwift.h"
 
 BOOL
 sentry_threadSanitizerIsPresent(void)
