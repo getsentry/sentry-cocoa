@@ -60,6 +60,11 @@ on:
         required: false
         default: false
         type: boolean
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64:
+        required: false
+      GIT_SSH_KEY_PASSPHRASE:
+        required: false
 jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
@@ -86,6 +91,9 @@ jobs:
           path: XCFrameworkBuildPath/
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       - name: Resolve macOS build
         id: macos-build
