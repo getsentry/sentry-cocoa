@@ -278,16 +278,26 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         try assertOOMEventSent()
     }
 
-    func testANR_NoOOM() {
+    func testStart_whenPreviousLaunchEndedDuringHang_shouldRespectSDKVersion() throws {
+        // -- Arrange --
         sut.start()
         goToForeground()
-        
-        update(appState: { appState in
-            appState.isANROngoing = true
-        })
+        var previousAppState = try XCTUnwrap(fixture.fileManager.readAppState()).serialize()
+        previousAppState["is_anr_ongoing"] = true
+        givenPreviousAppState(appState: try XCTUnwrap(SentryAppState(jsonObject: previousAppState)))
+        sut.stop()
+        sut = try fixture.getSut()
 
+        // -- Act --
         sut.start()
+
+        // -- Assert --
+        #if SDK_V10
+        try assertOOMEventSent()
+        XCTAssertTrue(SentrySDKInternal.fatalDetected)
+        #else
         assertNoOOMSent()
+        #endif
     }
 
     func testAppOOM_WithBreadcrumbs() throws {
@@ -437,13 +447,6 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
         fixture.fileManager.moveAppStateToPreviousAppState()
-    }
-    
-    private func update(appState: (SentryAppState) -> Void) {
-        if let currentAppState = fixture.fileManager.readAppState() {
-            appState(currentAppState)
-            fixture.fileManager.store(currentAppState)
-        }
     }
     
     private func assertOOMEventSent(expectedBreadcrumbs: Int = 0) throws {
