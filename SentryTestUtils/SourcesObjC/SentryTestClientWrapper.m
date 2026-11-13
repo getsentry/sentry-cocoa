@@ -1,7 +1,6 @@
 #import "SentryTestClientWrapper.h"
 
 #import "SentryClient+Private.h"
-#import "SentryEvent.h"
 #import "SentrySwift.h"
 
 #import "Wrappers/SentryClient+PrivateWrapper.h"
@@ -46,49 +45,55 @@
     // to record the invocation without capturing a real session.
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     return [self wrapper_captureEvent:event
                             withScope:scope
               additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
-- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                          withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     // Return only the event ID: Swift TestClient overrides this SwiftPM-compatible bridge method
     // to record the invocation without capturing a real event.
     return event.eventId;
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SentryScope *)scope
                       hint:(SentryHint *_Nullable)hint
 {
+    SentryEvent *event = untypedEvent;
     return [self wrapper_captureEvent:event withScope:scope hint:hint];
 }
 
-- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                          withScope:(SentryScope *)scope
                               hint:(id _Nullable)hint
 {
+    SentryEvent *event = untypedEvent;
     return event.eventId;
 }
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
+- (SentryId *)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     return [self wrapper_captureFatalEvent:event withSession:session withScope:scope];
 }
 
-- (SentryId *)wrapper_captureFatalEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                             withSession:(id)session
                               withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     // Return only the event ID: Swift TestClient overrides this SwiftPM-compatible bridge method
     // to record the invocation without capturing a real fatal event or session.
     return event.eventId;

@@ -1,5 +1,4 @@
 #import "SentryClient+EventPreparation.h"
-#import "SentryEvent+Private.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 
@@ -24,21 +23,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClientInternal (EventPreparation)
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))untypedEvent
+                                                      withScope:(SentryScope *)scope
+                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
+    SentryEvent *event = untypedEvent;
     return [self prepareEvent:event
                      withScope:scope
         alwaysAttachStacktrace:alwaysAttachStacktrace
                   isFatalEvent:NO];
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))untypedEvent
+                                                      withScope:(SentryScope *)scope
+                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                                   isFatalEvent:(BOOL)isFatalEvent
 {
+    SentryEvent *_Nullable event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self prepareEvent:event
                      withScope:scope
@@ -47,12 +50,14 @@ NS_ASSUME_NONNULL_BEGIN
                           hint:hint];
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                                  hint:(SentryHint *)hint
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))untypedEvent
+                                                      withScope:(SentryScope *)scope
+                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                                   isFatalEvent:(BOOL)isFatalEvent
+                                                           hint:(SentryHint *)hint
 {
+    SentryEvent *_Nullable event = untypedEvent;
     SentryScope *cs = [self.currentScopeStorage scope];
     return [self prepareEvent:event
                      withScope:scope
@@ -62,12 +67,14 @@ NS_ASSUME_NONNULL_BEGIN
                           hint:hint];
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(SentryScope *_Nullable)currentScope
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))untypedEvent
+                                                      withScope:(SentryScope *)scope
+                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                                   isFatalEvent:(BOOL)isFatalEvent
+                                                   currentScope:(SentryScope *_Nullable)currentScope
 {
+    SentryEvent *_Nullable event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self prepareEvent:event
                      withScope:scope
@@ -99,8 +106,10 @@ NS_ASSUME_NONNULL_BEGIN
     return [self.random nextNumber] <= sampleRate.doubleValue ? NO : YES;
 }
 
-- (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))callEventProcessors:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                           SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     SentryGlobalEventProcessor *globalEventProcessor
         = SentryDependencyContainer.sharedInstance.globalEventProcessor;
 

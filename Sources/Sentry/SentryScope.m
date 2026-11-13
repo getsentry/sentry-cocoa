@@ -4,7 +4,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
 #import "SentryDeprecated+Private.h"
-#import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLevel.h"
@@ -683,9 +682,12 @@ static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
     }
 }
 
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *_Nullable)event
-                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))applyToEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
+                                                                    SentryEvent))untypedEvent
+                                                  maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
+    SentryEvent *_Nullable event = untypedEvent;
+
     // We changed the parameter to be nullable, so this method can be called with a potential null
     // value
     if (!event) {
@@ -775,8 +777,10 @@ static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
     return event;
 }
 
-- (void)overlayOnEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+- (void)overlayOnEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+         maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
+    SentryEvent *event = untypedEvent;
     if (!event) {
         return;
     }

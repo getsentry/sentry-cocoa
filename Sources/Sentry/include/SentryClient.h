@@ -7,7 +7,6 @@
 #endif
 #import "SentryOptionsObjC.h"
 
-@class SentryEvent;
 @class SentryFeedback;
 @class SentryOptions;
 @class SentryScope;
@@ -43,7 +42,8 @@ SENTRY_NO_INIT
  * @param event The event to send to Sentry.
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
-- (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+    NS_SWIFT_NAME(capture(event:));
 
 /**
  * Captures a manually created event and sends it to Sentry.
@@ -51,7 +51,7 @@ SENTRY_NO_INIT
  * @param scope The scope containing event metadata.
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**

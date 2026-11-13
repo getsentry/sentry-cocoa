@@ -360,39 +360,48 @@ static BOOL sdkStarted;
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 }
 
-+ (void)captureFatalEvent:(SentryEvent *)event
++ (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     [SentrySDKInternal.currentHub captureFatalEvent:event];
 }
 
-+ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     [SentrySDKInternal.currentHub captureFatalEvent:event withScope:scope];
 }
 
 #if SENTRY_HAS_UIKIT && !SDK_V10
 
-+ (void)captureFatalAppHangEvent:(SentryEvent *)event
++ (void)captureFatalAppHangEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     [SentrySDKInternal.currentHub captureFatalAppHangEvent:event];
 }
 
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 
-+ (SentryId *)captureEvent:(SentryEvent *)event
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     return [SentrySDKInternal captureEvent:event withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+            withScopeBlock:(void (^)(SentryScope *))block
 {
+    SentryEvent *event = untypedEvent;
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureEvent:event withScope:scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                 withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     return [SentrySDKInternal.currentHub captureEvent:event withScope:scope];
 }
 
@@ -491,8 +500,11 @@ static BOOL sdkStarted;
     return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
++ (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                 withScope:(SentryScope *)scope
+                      hint:(id)hint
 {
+    SentryEvent *event = untypedEvent;
     return [SentrySDKInternal.currentHub captureEvent:event withScope:scope hint:hint];
 }
 

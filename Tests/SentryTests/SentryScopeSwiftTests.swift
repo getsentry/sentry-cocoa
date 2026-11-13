@@ -104,7 +104,7 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 
     private func featureFlagValues(from event: Event) throws -> [[String: Any]] {
-        let flags = try XCTUnwrap(event.context?["flags"])
+        let flags = try XCTUnwrap(event.context?["flags"] as? [String: Any])
         return try XCTUnwrap(flags["values"] as? [[String: Any]])
     }
     
@@ -161,10 +161,7 @@ class SentryScopeSwiftTests: XCTestCase {
         event2.eventId = event1.eventId
         scope.applyTo(event: event1, maxBreadcrumbs: 10)
         cloned.applyTo(event: event2, maxBreadcrumbs: 10)
-        XCTAssertEqual(
-            try XCTUnwrap(event1.serialize() as? [String: AnyHashable]),
-            try XCTUnwrap(event2.serialize() as? [String: AnyHashable])
-        )
+        XCTAssertEqual(event1.serialize() as NSDictionary, event2.serialize() as NSDictionary)
 
         cloned.setExtras(["aa": "b"])
         cloned.setTags(["ab": "c"])
@@ -538,7 +535,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.span = fixture.transaction
         
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        let trace = try XCTUnwrap(fixture.event.context?["trace"])
+        let trace = try XCTUnwrap(fixture.event.context?["trace"] as? [String: Any])
 
         XCTAssertEqual(actual?.transaction, fixture.transactionName)
         XCTAssertEqual(trace["op"] as? String, fixture.transactionOperation)
@@ -621,7 +618,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
                                                        "trace": fixture.scope.propagationContext.traceContextForEvent() ])
         let event = fixture.event
-        event.context = context as? [String: [String: String]]
+        event.context = context as? [String: Any]
         
         let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
         
@@ -647,12 +644,12 @@ class SentryScopeSwiftTests: XCTestCase {
         let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
 
         // -- Assert --
-        let trace = try XCTUnwrap(actual?.context?["trace"])
+        let trace = try XCTUnwrap(actual?.context?["trace"] as? [String: Any])
         XCTAssertEqual(trace["op"] as? String, "ui.action.click")
         XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
         XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
         XCTAssertEqual(trace["status"] as? String, "cancelled")
-        XCTAssertEqual(actual?.context?["custom"]?["key"] as? String, "value")
+        XCTAssertEqual((actual?.context?["custom"] as? [String: Any])?["key"] as? String, "value")
 #endif // !SDK_V10
     }
 
@@ -670,7 +667,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
 
         // -- Assert --
-        let trace = try XCTUnwrap(actual?.context?["trace"])
+        let trace = try XCTUnwrap(actual?.context?["trace"] as? [String: Any])
         XCTAssertEqual(trace["op"] as? String, "ui.action.click")
         XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
         XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
@@ -690,7 +687,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let context = NSMutableDictionary(dictionary: [
             "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceContextForEvent()])
         let event = fixture.event
-        event.context = context as? [String: [String: String]]
+        event.context = context as? [String: Any]
         
         let expectedAppContext = [
             "first": [ "a": "b", "c": "d", "e": "f"],
@@ -1169,7 +1166,7 @@ class SentryScopeSwiftTests: XCTestCase {
 
         sut.addFeatureFlag(name: "checkout", result: true)
 
-        let flags = try XCTUnwrap(observer.context?["flags"])
+        let flags = try XCTUnwrap(observer.context?["flags"] as? [String: Any])
         let values = try XCTUnwrap(flags["values"] as? [[String: Any]])
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")

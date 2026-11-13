@@ -1,5 +1,4 @@
 #import "SentryClient+SessionsAndCrashes.h"
-#import "SentryEvent+Private.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
@@ -23,8 +22,10 @@ extern NSString *const DropSessionLogMessage;
 
 @implementation SentryClientInternal (SessionsAndCrashes)
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (SentryId *)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                      withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self sendEvent:event
                      withScope:scope
@@ -33,10 +34,11 @@ extern NSString *const DropSessionLogMessage;
                           hint:hint];
 }
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
+- (SentryId *)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint scope:scope isFromPreviousProcess:YES];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
@@ -73,28 +75,34 @@ extern NSString *const DropSessionLogMessage;
     [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
+                                                            SentryEvent))untypedEvent
                                               withScope:(SentryScope *)scope
 {
+    SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
+                                                            SentryEvent))untypedEvent
                                               withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint
 {
+    SentryEvent *event = untypedEvent;
     return [self captureEventIncrementingSessionErrorCount:event
                                                  withScope:scope
                                     alwaysAttachStacktrace:YES
                                                       hint:hint];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
+                                                            SentryEvent))untypedEvent
                                               withScope:(SentryScope *)scope
                                  alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                                                    hint:(SentryHint *)hint
 {
+    SentryEvent *event = untypedEvent;
     [self populateHintAttachments:hint
                             scope:scope
             isFromPreviousProcess:event.isFromPreviousProcess];

@@ -2074,7 +2074,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let capturedErrorEvent = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
 
         let graphQLContext = try XCTUnwrap(
-            capturedErrorEvent.context?["graphql"],
+            capturedErrorEvent.context?["graphql"] as? [String: Any],
             "Expected 'graphql' object in context"
         )
 
@@ -2171,7 +2171,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
 
-        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
+        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"] as? [String: Any])
 
         XCTAssertEqual(sentryResponse["status_code"] as? NSNumber, 500)
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["test": "test"])
@@ -2192,7 +2192,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.getSut().urlSessionTask(task, setState: .completed)
 
         // -- Assert --
-        let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
+        let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"] as? [String: Any])
         XCTAssertEqual(response["headers"] as? [String: String], [:])
     }
 
@@ -2220,7 +2220,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
         XCTAssertEqual(event.request?.headers, [:])
         XCTAssertEqual(event.request?.cookies, ["theme": "dark"])
-        let response = try XCTUnwrap(event.context?["response"])
+        let response = try XCTUnwrap(event.context?["response"] as? [String: Any])
         XCTAssertEqual(response["headers"] as? [String: String], [:])
         XCTAssertEqual(response["cookies"] as? [String: String], ["locale": "en"])
 #endif // SDK_V10
@@ -2242,7 +2242,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
         let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
 
-        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
+        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"] as? [String: Any])
 
 #if SDK_V10
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], [
@@ -2316,7 +2316,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.getSut().urlSessionTask(task, setState: .completed)
 
         // -- Assert --
-        let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
+        let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"] as? [String: Any])
 #if SDK_V10
         XCTAssertNil(response["headers"])
         XCTAssertEqual(response["cookies"] as? [String: String], ["theme": "dark"])
@@ -2349,7 +2349,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
         let request = try XCTUnwrap(event.request)
-        let response = try XCTUnwrap(event.context?["response"])
+        let response = try XCTUnwrap(event.context?["response"] as? [String: Any])
 #if SDK_V10
         XCTAssertEqual(request.headers, ["X-Forwarded-For": "[Filtered]"])
         XCTAssertEqual(response["headers"] as? [String: String], ["X-Forwarded-For": "192.0.2.2"])
@@ -2385,7 +2385,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
         let request = try XCTUnwrap(event.request)
-        let response = try XCTUnwrap(event.context?["response"])
+        let response = try XCTUnwrap(event.context?["response"] as? [String: Any])
 #if SDK_V10
         XCTAssertEqual(request.headers, ["X-Request-Id": "request-id"])
         XCTAssertEqual(response["headers"] as? [String: String], [

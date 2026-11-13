@@ -104,7 +104,10 @@ final class SentryWatchdogTerminationTracker: NSObject {
     private func addContext(to event: Event) {
         // Load the previous context from disk, or create an empty one if it doesn't exist
         let previousContext = scopePersistentStore.readPreviousContextFromDisk() ?? [:]
-        var context = previousContext
+        var context: [String: Any] = [:]
+        for (key, value) in previousContext {
+            context[key] = value
+        }
 
         // We only report watchdog terminations if the app was in the foreground. So, we can
         // already set it. We can't set it in the client because the client uses the current

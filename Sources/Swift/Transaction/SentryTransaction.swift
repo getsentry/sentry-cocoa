@@ -4,7 +4,7 @@ import Foundation
 /// An event containing a trace and its child spans.
 @objc(SentryTransaction)
 public class Transaction: Event {
-    internal var trace: SentryTracer
+    @nonobjc internal var trace: SentryTracer
 
     /// The child spans belonging to this transaction.
     @objc public var spans: [any Span] = []
@@ -24,7 +24,7 @@ public class Transaction: Event {
         }
     }
 
-    internal init(trace: SentryTracer, children: [any Span]) {
+    @nonobjc internal init(trace: SentryTracer, children: [any Span]) {
         self.trace = trace
         self.spans = children
         super.init()
@@ -83,7 +83,7 @@ public class Transaction: Event {
     }
 
 #if SDK_V10
-    @objc override func serialize() -> [String: Any] {
+    @_spi(Private) @objc public override func serialize() -> [String: Any] {
         serializeTransaction()
     }
 #else

@@ -1,6 +1,5 @@
 #import "SentryTestHubWrapper.h"
 
-#import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentrySwift.h"
 
@@ -12,19 +11,21 @@
     return [super initWithClient:client andScope:scope];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     return [self wrapper_captureEvent:event
                             withScope:scope
               additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
-- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+- (SentryId *)wrapper_captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                          withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     // Return only the event ID: Swift TestHub overrides this SwiftPM-compatible bridge method
     // to record the invocation without capturing a real event.
     return event.eventId;

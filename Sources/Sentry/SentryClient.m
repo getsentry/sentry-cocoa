@@ -15,7 +15,6 @@
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
@@ -584,15 +583,25 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         NSMutableDictionary *context;
         if (event.context == nil) {
             context = [[NSMutableDictionary alloc] init];
-            event.context = context;
         } else {
             context = [event.context mutableCopy];
         }
 
+        // Event.context is a Swift dictionary, so mutating the local copy is not visible
+        // until it is assigned back onto the property.
         [context setValue:sentry_sanitize_dictionary(userInfo) forKey:@"user info"];
+        event.context = context;
     }
 }
 
+@end
+
+// Event is a Swift class. The internal serializable conformance stays in Objective-C so the
+// public Swift interface does not expose the private protocol.
+@interface SentryEvent (SentryInternalSerializableConformance) <SentryInternalSerializable>
+@end
+
+@implementation SentryEvent (SentryInternalSerializableConformance)
 @end
 
 NS_ASSUME_NONNULL_END

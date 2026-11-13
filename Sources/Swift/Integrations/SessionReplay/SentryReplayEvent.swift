@@ -41,13 +41,20 @@ import Foundation
         self.eventId = eventId
         self.type = "replay_video"
     }
-    
-    required convenience init() {
+
+    /// Event's designated initializer. Replay events are created with ``init(eventId:replayStartTimestamp:replayType:segmentId:)``.
+    public required init() {
         fatalError("init() has not been implemented")
+    }
+
+    /// Unavailable. Replay events are created with ``init(eventId:replayStartTimestamp:replayType:segmentId:)``.
+    @available(*, unavailable)
+    public override init(level: SentryLevel) {
+        fatalError("init(level:) is unavailable")
     }
     
     #if SDK_V10
-    override func serialize() -> [String: Any] {
+    @_spi(Private) @objc public override func serialize() -> [String: Any] {
         serializeReplayEvent()
     }
     #else

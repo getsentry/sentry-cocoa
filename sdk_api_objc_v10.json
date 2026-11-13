@@ -2267,7 +2267,7 @@
     "kind": "ObjCMethodDecl",
     "name": "context",
     "parent": "SentryObjCEvent",
-    "returnType": "NSDictionary<NSString *,NSDictionary<NSString *,id> *> * _Nullable",
+    "returnType": "NSDictionary<NSString *,id> * _Nullable",
     "instance": true
   },
   {
@@ -10159,7 +10159,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "context",
     "parent": "SentryObjCEvent",
-    "type": "NSDictionary<NSString *,NSDictionary<NSString *,id> *> * _Nullable"
+    "type": "NSDictionary<NSString *,id> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
