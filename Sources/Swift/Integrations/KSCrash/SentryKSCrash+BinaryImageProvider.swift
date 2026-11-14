@@ -1,4 +1,3 @@
-#if SDK_V10
 internal import KSCrashRecordingCore
 
 private final class SentryKSCrashWeakBinaryImageRegistry {
@@ -106,4 +105,3 @@ extension SentryKSCrash {
         }
     }
 }
-#endif // SDK_V10

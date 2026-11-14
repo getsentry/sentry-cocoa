@@ -6,7 +6,6 @@ internal import _SentryPrivate
 // nor we want to continue using the DependencyContainer
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
-#if SDK_V10
 private let crashTimeScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
     sentrykscrash_attachments_log("screenshot writer: enter")
     guard let source = globalScreenshotSource else {
@@ -16,7 +15,6 @@ private let crashTimeScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> 
     source.saveScreenShots(String(cString: path))
     sentrykscrash_attachments_log("screenshot writer: returned")
 }
-#endif
 
 final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
@@ -45,26 +43,14 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
-#if SDK_V10
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
             crashTimeScreenshotWriter
         )
-#else
-        sentrycrash_setSaveScreenshots { path in
-            guard let path = path else { return }
-            let reportPath = String(cString: path)
-            globalScreenshotSource?.saveScreenShots(reportPath)
-        }
-#endif
     }
 
     func uninstall() {
         globalScreenshotSource = nil
-#if SDK_V10
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(nil)
-#else
-        sentrycrash_setSaveScreenshots(nil)
-#endif
         client?.removeAttachmentProcessor(self)
     }
 
@@ -77,8 +63,7 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
     func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
         // We don't take screenshots if there is no exception/error.
         // We don't take screenshots if the event is a metric kit event.
-        // Screenshots are added via an alternate codepath for crashes, see
-        // sentrycrash_setSaveScreenshots in SentryCrashC.c
+        // Crash-time screenshots are written by the KSCrash attachments monitor.
         if (event.exceptions == nil && event.error == nil) || event.isFatalEvent {
             return attachments
         }

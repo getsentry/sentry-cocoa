@@ -7,7 +7,7 @@ SENTRY_WITHOUT_UIKIT_MODULE_NAME = SentryWithoutUIKit
 
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
 // leads to an error: no such module '_SentryPrivate' when including the XCFramework
-HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/** $(SRCROOT)/Sources/Sentry/Public
 
 PRODUCT_MODULE_NAME_Debug = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_DebugV10 = $(SENTRY_MODULE_NAME)
@@ -51,8 +51,8 @@ GCC_WARN_SHADOW = YES
 SWIFT_VERSION = 5.0
 CLANG_WARN_ASSIGN_ENUM = NO
 
-// The plain target always builds the V9 implementation. V10 builds use SentryV10,
-// which adds SDK_V10 back in SentryV10.xcconfig.
+// Keep unrelated V10 development behavior selected by SentryV10.xcconfig.
+// Both targets use KSCrash. This selector no longer chooses the crash backend.
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_DebugV10 = DEBUG
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_TestV10 = SENTRY_TEST
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_ReleaseV10 =
@@ -64,6 +64,5 @@ GCC_PREPROCESSOR_DEFINITIONS_ReleaseV10 = RELEASE=1
 // discovery for this target separate from the V10 KSCrash-backed target.
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV9
 
-// KSCrash integration sources live only in SentryV10 (which has the package dep).
-// Exclude them here so the plain Sentry target never tries to resolve KSCrash imports.
-EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/Swift/Integrations/KSCrash/*
+// Both source configurations compile the KSCrash integration.
+EXCLUDED_SOURCE_FILE_NAMES =

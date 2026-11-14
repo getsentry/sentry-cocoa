@@ -226,14 +226,8 @@ final class SentryClientTests: XCTestCase {
 
     func testInit_WhenUsingStandaloneClient_shouldStartBinaryImageCache() throws {
         SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
-#if !SDK_V10
-        sentrycrashbic_useFreshTestCacheState()
-#endif
         defer {
             SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
-#if !SDK_V10
-            sentrycrashbic_useDefaultCacheState()
-#endif
         }
 
         XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
@@ -3474,11 +3468,7 @@ final class SentryClientTests: XCTestCase {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         #endif
-        #if SDK_V10
         expectedIntegrations.append("KSCrash")
-        #else
-        expectedIntegrations.append("Crash")
-        #endif
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS)

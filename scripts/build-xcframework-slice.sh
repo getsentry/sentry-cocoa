@@ -86,12 +86,28 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
 fi
 
-# When MACH_O_TYPE is 'inherit', the target's xcconfig controls the product type
-# and we must NOT pass MACH_O_TYPE on the command line, as that would propagate
-# to every sub-target in the build (including SPM package targets) and break their link.
+# SDK targets default to dynamic frameworks in their xcconfigs. Do not force mh_dylib
+# on the command line: SwiftPM's KSCrash object aggregates would become dylibs too.
+# Static packaging intentionally uses libtool for the SDK and its package aggregates.
 mach_o_type_override=()
-if [ "$MACH_O_TYPE" != "inherit" ]; then
-    mach_o_type_override=( MACH_O_TYPE="$MACH_O_TYPE" )
+case "$MACH_O_TYPE" in
+    staticlib) mach_o_type_override=( MACH_O_TYPE=staticlib ) ;;
+    mh_dylib|inherit) ;;
+    *) log_error "Unsupported Mach-O type: $MACH_O_TYPE"; exit 1 ;;
+esac
+
+# Target xcconfig ARCHS does not propagate to SwiftPM dependencies. Set the full
+# slice architecture list on the command line, preserving explicit caller overrides.
+has_archs_override=false
+for setting in "${extra_build_settings[@]+${extra_build_settings[@]}}"; do
+    if [[ "$setting" == ARCHS=* ]]; then has_archs_override=true; fi
+done
+if [[ "$has_archs_override" == false ]]; then
+    case "$sdk" in
+        iphoneos|macosx|maccatalyst|appletvos|watchos|xros)
+            extra_build_settings+=( "ARCHS=\$(ARCHS_STANDARD) arm64e" ) ;;
+        *) extra_build_settings+=( "ARCHS=\$(ARCHS_STANDARD)" ) ;;
+    esac
 fi
 
 # Each slice uses the same derived-data directory, so clear it before building.

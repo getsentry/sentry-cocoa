@@ -21,13 +21,6 @@ import Foundation
         SentryObjCMetricKitOptions(wrapped.metrickit)
     }
 
-    #if !SDK_V10
-    @objc public var enableUnhandledCPPExceptionsV2: Bool {
-        get { wrapped.enableUnhandledCPPExceptionsV2 }
-        set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
-    }
-    #endif // !SDK_V10
-
     @objc public var enableNewURLLoaderSwizzling: Bool {
         get { wrapped.enableNewURLLoaderSwizzling }
         set { wrapped.enableNewURLLoaderSwizzling = newValue }

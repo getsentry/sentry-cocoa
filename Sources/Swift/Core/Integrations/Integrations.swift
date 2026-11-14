@@ -36,20 +36,6 @@ private struct AnyIntegration {
         }
     }
 
-    init(
-        name: String,
-        install: @escaping (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?
-    ) {
-        self.name = name
-        self.install = install
-    }
-
-#if !SDK_V10
-    static let sentryCrashV9 = AnyIntegration(
-        name: "SentryCrashIntegration",
-        install: SentryCrashV9Backend.installIntegration
-    )
-#endif
 }
 
 // Bridges to ObjC code to trigger installing the integrations
@@ -59,8 +45,8 @@ private struct AnyIntegration {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
         // The order of integrations here is important.
-        // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
-        // And SentrySessionReplayIntegration before SentryCrashIntegration.
+        // KSCrash needs to be initialized before SentryAutoSessionTrackingIntegration,
+        // and after SentrySessionReplayIntegration.
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self)
         ]
@@ -69,11 +55,7 @@ private struct AnyIntegration {
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
 
-        #if SDK_V10
         integrations.append(.init(SentryKSCrash.Integration.self))
-        #else
-        integrations.append(.sentryCrashV9)
-        #endif
 
         integrations.append(contentsOf: [
             .init(SentryAutoSessionTrackingIntegration.self),

@@ -6,5 +6,5 @@ SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) SDK_V10 SENTRY_TEST
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) SDK_V10=1 SENTRY_TEST=1
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
 
-// V9-only tests use SDK_V10 source guards, shared by Xcode and SwiftPM.
-// Keep shared low-level tool tests enabled; runtime selection belongs in the test plans.
+// Crash tests use KSCrash in both development configurations.
+// Keep SDK_V10 only for unrelated development behavior and module selection.

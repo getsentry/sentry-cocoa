@@ -1,6 +1,7 @@
 #!/bin/bash
-# Exercise the real static-library packager with tiny Mach-O archive products.
-# Only xcodebuild is stubbed! Compilation, libtool, lipo and nm are real.
+# Exercise the static-library packager with tiny Mach-O archive products, and the
+# shared SDK slice producer's dependency settings and failure propagation.
+# Only build commands are stubbed. Fixture compilation, libtool, lipo and nm are real.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -130,4 +131,30 @@ run_case single-wrapper-architecture "$WORK_DIR/objects/dependency-extra.o" '' "
 run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required wrapper architectures'
 run_case missing-wrapper "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentryObjCCompat.o'
 
-log_info 'All archive architecture regressions passed.'
+# The shared slice producer must propagate architectures without making package
+# object targets dynamic libraries. A successful formatter must not hide build failure.
+mkdir -p "$WORK_DIR/producer/tools"
+# shellcheck disable=SC2016
+printf '%s\n' '#!/bin/bash' 'printf "%s\n" "$@"' 'exit 42' > "$WORK_DIR/producer/tools/xcodebuild"
+printf '#!/bin/bash\ncat\n' > "$WORK_DIR/producer/tools/xcbeautify"
+chmod +x "$WORK_DIR/producer/tools/"*
+for sdk in iphoneos maccatalyst iphonesimulator; do
+    status=0
+    PATH="$WORK_DIR/producer/tools:$PATH" "$SCRIPT_DIR/build-xcframework-slice.sh" \
+        --sdk "$sdk" --scheme Sentry --build-path "$WORK_DIR/producer/$sdk" \
+        > "$WORK_DIR/producer/$sdk.log" 2>&1 || status=$?
+    if [[ "$status" != 42 ]]; then
+        log_error "$sdk: expected producer exit 42, got $status; see $WORK_DIR/producer/$sdk.log"
+        exit 1
+    fi
+    expected_archs="ARCHS=\$(ARCHS_STANDARD)"
+    if [[ "$sdk" != iphonesimulator ]]; then expected_archs+=' arm64e'; fi
+    if ! grep -Fxq "$expected_archs" "$WORK_DIR/producer/$sdk.log" || \
+        grep -q '^MACH_O_TYPE=' "$WORK_DIR/producer/$sdk.log"; then
+        log_error "$sdk: incorrect package architecture or dynamic-library override"
+        exit 1
+    fi
+    log_info "PASS $sdk producer settings and failure propagation"
+done
+
+log_info 'All archive architecture and failure regressions passed.'

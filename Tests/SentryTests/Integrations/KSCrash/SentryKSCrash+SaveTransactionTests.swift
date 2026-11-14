@@ -1,4 +1,3 @@
-#if SDK_V10
 import _SentryPrivate
 import Foundation
 import XCTest
@@ -114,4 +113,3 @@ final class SentryKSCrashSaveTransactionTests: XCTestCase {
         XCTAssertFalse(hasCallback)
     }
 }
-#endif

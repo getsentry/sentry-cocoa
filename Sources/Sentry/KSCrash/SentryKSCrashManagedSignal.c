@@ -19,20 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if SDK_V10
-
-#    include "SentryKSCrashManagedSignal.h"
-#    include "KSMach.h"
-#    include "KSMachineContext.h"
-#    include "KSSignalInfo.h"
-#    include "KSStackCursor_MachineContext.h"
-#    include "KSThread.h"
-#    include "SentryInternalCDefines.h"
-#    include "Unwind/KSStackCursor_Unwind.h"
-#    include <pthread.h>
-#    include <signal.h>
-#    include <stdatomic.h>
-#    include <stdlib.h>
+#include "SentryKSCrashManagedSignal.h"
+#include "KSMach.h"
+#include "KSMachineContext.h"
+#include "KSSignalInfo.h"
+#include "KSStackCursor_MachineContext.h"
+#include "KSThread.h"
+#include "SentryInternalCDefines.h"
+#include "Unwind/KSStackCursor_Unwind.h"
+#include <pthread.h>
+#include <signal.h>
+#include <stdatomic.h>
+#include <stdlib.h>
 
 // Signal-monitor synchronization baseline:
 // KSCrashMonitor_Signal.c at c3882b4db5e810a8ed4148b79cab29a173d4c5c5 (2.6.1).
@@ -42,16 +40,16 @@
 bool
 sentrykscrash_isManagedRuntimeBuild(void)
 {
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#ifdef SENTRY_CRASH_MANAGED_RUNTIME
     return true;
-#    else
+#else
     return false;
-#    endif
+#endif
 }
 
 // SENTRY MANAGED SIGNAL DIFFERENCE END
 
-#    if SENTRY_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
 
 typedef enum {
     SentryManagedSignalNotInstalled = 0,
@@ -82,9 +80,9 @@ static struct {
     // One initializer owns the callback copy; the readiness flag publishes it to readers.
     atomic_bool callbacksClaimed;
     atomic_bool callbacksReady;
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     stack_t signalStack;
-#        endif
+#    endif
     struct sigaction *previousHandlers;
     KSCrash_ExceptionHandlerCallbacks callbacks;
 } g_managedSignal;
@@ -216,7 +214,7 @@ sentrykscrash_managedSignal_handleSignal(int signal, siginfo_t *signalInfo, void
     raise(signal);
 }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: only used before any anchor has become reachable.
 // After exposure, even a failed install retains its allocations: handlers may still use them.
 static void
@@ -249,7 +247,7 @@ sentrykscrash_managedSignal_releaseUnusedStack(bool registered)
     g_managedSignal.signalStack = (stack_t) { 0 };
 }
 // SENTRY MANAGED SIGNAL DIFFERENCE END
-#        endif
+#    endif
 
 static void
 sentrykscrash_managedSignal_install(void)
@@ -261,7 +259,7 @@ sentrykscrash_managedSignal_install(void)
     }
 
     bool handlersExposed = false;
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: sigaltstack belongs to the installing thread,
     // not the monitor. Borrow an existing stack (including SS_ONSTACK); never replace it.
     bool stackRegistered = false;
@@ -279,7 +277,7 @@ sentrykscrash_managedSignal_install(void)
         stackRegistered = true;
     }
     // SENTRY MANAGED SIGNAL DIFFERENCE END
-#        endif
+#    endif
 
     const int *signals = kssignal_fatalSignals();
     const int count = kssignal_numFatalSignals();
@@ -290,9 +288,9 @@ sentrykscrash_managedSignal_install(void)
 
     struct sigaction action = { 0 };
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-#        if defined(__APPLE__) && defined(__LP64__)
+#    if defined(__APPLE__) && defined(__LP64__)
     action.sa_flags |= SA_64REGSET;
-#        endif
+#    endif
     sigemptyset(&action.sa_mask);
     action.sa_sigaction = sentrykscrash_managedSignal_handleSignal;
 
@@ -342,9 +340,9 @@ failed:
         atomic_store_explicit(&g_managedSignal.restorableHandlerCount, 0, memory_order_release);
         free(g_managedSignal.previousHandlers);
         g_managedSignal.previousHandlers = NULL;
-#        if SENTRY_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
         sentrykscrash_managedSignal_releaseUnusedStack(stackRegistered);
-#        endif
+#    endif
     }
     // SENTRY MANAGED SIGNAL DIFFERENCE END
 }
@@ -443,14 +441,14 @@ sentrykscrash_managedSignal_notify(void *context)
     (void)context;
 }
 
-#    endif // SENTRY_HAS_SIGNAL
+#endif // SENTRY_HAS_SIGNAL
 
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: plugin registration and pre-SDK anchor ownership.
 KSCrashMonitorAPI *
 sentrykscrash_managedSignal_getAPI(void)
 {
     static KSCrashMonitorAPI api = {
-#    if SENTRY_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
         .init = sentrykscrash_managedSignal_init,
         .monitorId = sentrykscrash_managedSignal_monitorId,
         .monitorFlags = sentrykscrash_managedSignal_monitorFlags,
@@ -459,7 +457,7 @@ sentrykscrash_managedSignal_getAPI(void)
         .addContextualInfoToEvent = sentrykscrash_managedSignal_addContextualInfoToEvent,
         .notifyPostMonitorsEnabled = sentrykscrash_managedSignal_notify,
         .notifyPostSystemEnable = sentrykscrash_managedSignal_notify,
-#    endif
+#endif
     };
     return &api;
 }
@@ -467,7 +465,7 @@ sentrykscrash_managedSignal_getAPI(void)
 void
 sentrykscrash_ignoreNextSignal(int signal)
 {
-#    if SENTRY_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
     if (pthread_once(&g_ignoredSignalKeyOnce, sentrykscrash_createIgnoredSignalKey) != 0
         || !g_ignoredSignalKeyCreated) {
         return;
@@ -490,20 +488,18 @@ sentrykscrash_ignoreNextSignal(int signal)
             &g_ignoredSignals, &head, entry, memory_order_release, memory_order_relaxed));
     }
     atomic_store_explicit(&entry->signal, signal, memory_order_relaxed);
-#    else
+#else
     (void)signal;
-#    endif
+#endif
 }
 
-#    if defined(SENTRY_CRASH_MANAGED_RUNTIME) && SENTRY_HAS_SIGNAL
+#if defined(SENTRY_CRASH_MANAGED_RUNTIME) && SENTRY_HAS_SIGNAL
 /** Install the downstream-owned chain anchor before Mono/.NET initializes. */
 __attribute__((constructor)) static void
 sentrykscrash_prepareManagedSignalMonitor(void)
 {
     sentrykscrash_managedSignal_install();
 }
-#    endif
+#endif
 
 // SENTRY MANAGED SIGNAL DIFFERENCE END
-
-#endif // SDK_V10

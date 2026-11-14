@@ -2,7 +2,9 @@
 
 This ledger tracks responsibilities moving from the SDK's bundled SentryCrash recorder (V9) to KSCrash-backed V10, and SDK-owned features and interfaces that must remain. Each row identifies the owner, replacement implementation and acceptance test; a historically named SentryCrash* feature is not necessarily part of the crash backend.
 
-The goal is separate release branches, with KSCrash as V10's sole backend on `main`. Both implementations temporarily remain in the development checkout so that work can proceed without changing existing V9 customer declarations and not having sync back and forth between pre-established branches. Before the first V10 release, establish the V9 maintenance branch and remove legacy recorder sources, adapters and version-selection machinery from V10. [Decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) records the rationale and release boundary.
+The source SDK now uses KSCrash exclusively. The previously bundled recorder and V9 adapters, headers, targets and implementation tests have been removed. The V9 columns below are historical ownership records, not paths in the current checkout or a new work queue. Unrelated V10 development settings remain; see [build configuration](BUILD.md#crash-handling). [Decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) records the coordinated V9 maintenance/release boundary.
+
+The idea is to remove this document before we merge to main (when main is V10).
 
 ## Contract
 
@@ -11,10 +13,10 @@ The goal is separate release branches, with KSCrash as V10's sole backend on `ma
 - SDK-owned files remain SDK-owned regardless of `SentryCrash` or `sentrycrash` spelling.
 - `working`: V10 has a working implementation and a test that exercises it.
 - `decision`: expected product behavior or compatibility requirements must be agreed before changing the implementation.
-- Development V10 uses the modern manifest's `V10` opt-in or `SDK_V10=1`; the older manifest is environment-only. Absent V10 selects V9 without requiring a V9 trait. Remove all version-selection machinery at the branch split.
-- Legacy files may compile in V10 only if the object checker uses that build's full log to identify their outputs and confirms they contain no recorder implementation. Every build-output audit requires the full log from that completed build, including archive builds.
-- V10 compile-out tracker: [#8528](https://github.com/getsentry/sentry-cocoa/issues/8528).
-- Repository-wide removal after V9 retirement: [#8319](https://github.com/getsentry/sentry-cocoa/issues/8319).
+- `SDK_V10=1` selects V10 development settings and source-module naming, not a crash backend. There is no backend-version trait.
+- Recorder sources are deleted, not compiled into empty objects. Migration-only source/object/header audits and their fixtures are retired from SDK builds and CI.
+- Completed V10 compile-out tracker: [#8528](https://github.com/getsentry/sentry-cocoa/issues/8528).
+- Repository-wide removal tracker: [#8319](https://github.com/getsentry/sentry-cocoa/issues/8319).
 - Downstream SPI audit: [#8738](https://github.com/getsentry/sentry-cocoa/issues/8738).
 
 ## SDK Use Cases
@@ -77,9 +79,7 @@ The goal is separate release branches, with KSCrash as V10's sole backend on `ma
 
 ## Legacy Tool Classification
 
-No legacy Tool implementation is retained in V10. SwiftPM isolates all `Sources/SentryCrash/**`
-implementations in the V9-only `SentryCrashV9` target, and the Xcode V10 source phase contains none
-of them. V9 keeps the complete recorder implementation.
+No legacy Tool implementation or recorder target remains in this checkout. V9 maintenance retains its own implementation separately.
 
 V10 replacements are SDK-owned providers or KSCrash adapters: RecordingCore supplies binary images
 and stack capture, Foundation supplies UUID conversion, and neutral SDK helpers own file I/O,
@@ -93,33 +93,28 @@ serialization, process-time queries, and debugger detection.
 - SDK-owned historically named types retained:
   - `SentryCrashReportConverter` and `SentryCrashStackEntryMapper`.
   - `SentryScopeSyncC.c`, `SentryCrashScope`, and all `sentrycrash_scopesync_*` APIs.
-- V9 recorder headers live under `Sources/SentryCrashV9Headers/include`; SwiftPM exposes that target
-  only to the V9 graph. V10 SwiftPM and Xcode header paths cannot resolve those interfaces.
+- The V9 recorder headers and their SwiftPM target have been deleted.
 - V10 packaging contract:
   - No header owned by `SentryCrashV9Headers` is packaged.
   - Generated V10 headers do not declare the excluded Swift adapter classes.
   - `SentryCrashExceptionApplication.h` remains public compatibility, and `SentryCrashReportConverter.h` remains an SDK-owned private header.
-  - The V10 branch of `SentryPrivate.h` and the test bridging header imports only neutral SDK/KSCrash interfaces.
-- `scripts/verify-v10-sentrycrash-framework.sh` enforces the path-owned header denylist for dynamic and static frameworks.
+  - `SentryPrivate.h` and the test-utils SDK-header umbrella import only SDK/KSCrash interfaces.
 
 ## Backend-Specific V10 Test Selection
 
-| V9-only implementation or behavior         | Positive V10 coverage                                                                                                                             | Contract                                                                                  |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Fatal screenshot/view-hierarchy callbacks  | KSCrash writer registration and clearing plus CrashE2E `crash-time-attachments`                                                                   | SCV10-008 through SCV10-010                                                               |
-| Nested crash user-info key/value storage   | Scope configuration and converter tests cover scalar options and nested scope data through `SentryScopeSyncC`                                     | Residual KSCrash key/value drops remain tracked by #8756                                  |
-| Legacy integration session finalization    | Shared finalizer and KSCrash integration tests cover crash, watchdog, fatal-hang, ordering, and timestamps                                        | SCV10-024 and SCV10-025                                                                   |
-| Legacy replay crash callback               | KSCrash `didWriteReport` checkpoint tests plus actual-crash recovery coverage                                                                     | SCV10-039                                                                                 |
-| Recorder/install/monitor/report-store code | No V10 replacement test is required for the absent implementation; reporter-neutral converter, stack mapping, and compatibility tests stay shared | V9 retains implementation tests; shared test exclusion is rejected by the source verifier |
+| V9-only implementation or behavior         | Positive V10 coverage                                                                                                                             | Contract                                                                      |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Fatal screenshot/view-hierarchy callbacks  | KSCrash writer registration and clearing plus CrashE2E `crash-time-attachments`                                                                   | SCV10-008 through SCV10-010                                                   |
+| Nested crash user-info key/value storage   | Scope configuration and converter tests cover scalar options and nested scope data through `SentryScopeSyncC`                                     | Residual KSCrash key/value drops remain tracked by #8756                      |
+| Legacy integration session finalization    | Shared finalizer and KSCrash integration tests cover crash, watchdog, fatal-hang, ordering, and timestamps                                        | SCV10-024 and SCV10-025                                                       |
+| Legacy replay crash callback               | KSCrash `didWriteReport` checkpoint tests plus actual-crash recovery coverage                                                                     | SCV10-039                                                                     |
+| Recorder/install/monitor/report-store code | No V10 replacement test is required for the absent implementation; reporter-neutral converter, stack mapping, and compatibility tests stay shared | V9 maintenance retains its tests; this checkout runs shared SDK/KSCrash tests |
 
 ## Contract Enforcement
 
-- `scripts/verify-v10-sentrycrash-source-contract.swift` inspects final Xcode/SwiftPM source ownership, header phases, umbrellas, shared test selection, packaging CI, and compatibility files.
-- `scripts/verify-v10-sentrycrash-objects.sh` requires completed compiler evidence and checks that any compiled legacy files contain no recorder implementation.
-- `scripts/verify-v10-sentrycrash-framework.sh` inspects final symbols, classes, compatibility APIs, and all path-owned recorder headers.
-- `scripts/verify-v10-sentrycrash-sentryobjc.sh` audits every static and dynamic ObjC-wrapper slice for recorder symbols, classes, headers, imports, and unresolved V10 gates.
-- CI builds dynamic/static Sentry XCFrameworks and static/dynamic SentryObjC wrappers for every supported SDK. Every produced slice is audited, and simulator architecture selection is passed through to SwiftPM dependencies explicitly.
-- Detailed purpose, guarantees, and limitations are documented at the top of each script.
+Shared SDK tests and CrashE2E cover the surviving behavior and compatibility contracts in both development configurations. CI builds dynamic/static Sentry XCFrameworks and static/dynamic SentryObjC wrappers for every supported SDK. Packaging uses the existing structure, architecture, symbol and wrapper-integration validators; architecture selection propagates explicitly to SwiftPM dependencies. Generated app and CLI jobs cover source imports and NoUI linkage. See [build coverage](BUILD.md#build-and-test-coverage) and [testing](TEST.md).
+
+The recorder-specific migration verifiers, compiler-evidence helpers, inventories and fixture suites are retired. Their former empty-object allowances are unnecessary after source deletion.
 
 ## Decisions
 
@@ -132,4 +127,4 @@ serialization, process-time queries, and debugger detection.
 - **SCV10-015 — initial crash user info:** Composition of release/dist/environment is working via `SentryKSCrash.Scope.Configuration`. Nested containers remain a KSCrash KV limitation in [#8756](https://github.com/getsentry/sentry-cocoa/issues/8756); crash reports get those fields from the SCV10-013 observer seed instead.
 - **SCV10-026 — low-power scope updates:** Completed in `SentryKSCrash.Scope.Configuration`. #8737 closed via #8760; #8736 remains a stale open duplicate.
 - **SCV10-039 — replay recovery:** Completed under [#8801](https://github.com/getsentry/sentry-cocoa/issues/8801), linked to #8758's KSCrash callback infrastructure. KSCrash `didWriteReport` writes the checkpoint before attachment capture. Keep replay-specific acceptance tests independent from report enrichment.
-- **Tracker hierarchy:** #8528 tracks removal of V10's SentryCrash dependency and remains open until V10 no longer needs it. #8319 tracks repository-wide removal only after V9 is retired.
+- **Tracker hierarchy:** #8528 is complete. #8319 owns repository-wide recorder removal; V9 maintenance and the V10 release boundary remain coordinated under decision 40.

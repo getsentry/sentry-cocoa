@@ -135,7 +135,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 
 ### Packaging
 
-3. No released or CI-built V10 `SentryObjC` artifact. `scripts/build-xcframework-sentryobjc.sh --v10` builds one locally, see [SentryObjC build](SENTRY-OBJC-BUILD.md#v10-builds). `scripts/verify-v10-sentrycrash-framework.sh` audits only `Sentry.framework`. Affects .NET, Unity, Godot, and Unreal
+3. At the audit revision there was no released or CI-built V10 `SentryObjC` artifact. The current [V10 build workflow](../.github/workflows/build-v10.yml) packages static/dynamic wrappers with the ordinary XCFramework validators; see [SentryObjC build](SENTRY-OBJC-BUILD.md#v10-builds). Recorder-specific migration audits have since been retired. Packaging coverage is not downstream runtime acceptance for .NET, Unity, Godot, or Unreal
 4. Shipped headers keep `#if SDK_V10` gates. `SentryObjC` has them in 13 public headers, which the local `--v10` build resolves with `unifdef`. `Sentry.xcframework` from `scripts/build-xcframework-v10.sh` ships them unresolved in [`SentryDefines.h`](../Sources/Sentry/Public/SentryDefines.h) and [`SentryRequest.h`](../Sources/Sentry/Public/SentryRequest.h). Whether a consumer that does not define `SDK_V10` still compiles against the generated Swift header is unverified
 5. Whether a V10 static `Sentry.xcframework` embeds the KSCrash objects and keeps the slice names React Native hardcodes is unverified
 6. The V10 SPM product `Sentry` maps to the Swift module `SentrySwift` ([`Package.swift`](../Package.swift)), so `import Sentry` does not resolve for source consumers such as Flutter and Capacitor
@@ -158,7 +158,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 
 - #8797: add the four .NET crash cases from `integration-test/ios.Tests.ps1` as acceptance tests and add Mach `EXC_BAD_ACCESS` and `EXC_ARITHMETIC` exclusion to the scope (gap 1)
 - Prioritize `SCV10-015` before any hybrid SDK ships on V10, and add a hybrid scope-sync case to its acceptance test (gap 2)
-- Add a CI job for the V10 `SentryObjC` xcframework, extend `verify-v10-sentrycrash-framework.sh` to `SentryObjC.framework`, and resolve `SDK_V10` header gates in both framework packaging paths (gaps 3 and 4)
+- The wrapper CI and resolved-header work in gaps 3 and 4 has been implemented. Keep validating shipped artifacts through the existing packaging/consumer jobs; do not restore retired migration verifiers
 - Build and verify a static V10 `Sentry.xcframework` with the slice layout React Native expects (gap 5)
 - Decide the V10 SPM module name (gap 6)
 - Add the Kotlin Multiplatform SPI and a ledger row for the flow (gap 7)

@@ -1,4 +1,3 @@
-#if SDK_V10
 #if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
@@ -436,4 +435,3 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
             .appendingPathComponent(String(format: "%016llx.ksscr", UInt64(bitPattern: reportID)))
     }
 }
-#endif

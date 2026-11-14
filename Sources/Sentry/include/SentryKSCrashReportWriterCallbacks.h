@@ -1,18 +1,16 @@
 #ifndef SentryKSCrashReportWriterCallbacks_h
 #define SentryKSCrashReportWriterCallbacks_h
 
-#if SDK_V10
+#include "KSCrashMonitorAPI.h"
+#include "KSCrashMonitorContext.h"
+#include "KSCrashReportWriter.h"
+#include "KSCrashReportWriterCallbacks.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-#    include "KSCrashMonitorAPI.h"
-#    include "KSCrashMonitorContext.h"
-#    include "KSCrashReportWriter.h"
-#    include "KSCrashReportWriterCallbacks.h"
-#    include <stdbool.h>
-#    include <stdint.h>
-
-#    ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#    endif
+#endif
 
 void sentrykscrash_willWriteReport(KSCrash_ExceptionHandlingPlan *_Nonnull const plan,
     const struct KSCrash_MonitorContext *_Nonnull context);
@@ -46,7 +44,7 @@ void sentrykscrash_attachments_setViewHierarchyWriter(
 void sentrykscrash_attachments_setSidecarPathProvider(
     KSCrashReportSidecarPathProviderFunc _Nullable provider);
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /** For testing. True when a screenshot writer is registered. */
 bool sentrykscrash_attachments_hasScreenshotWriter(void);
 
@@ -65,7 +63,7 @@ bool sentrykscrash_hasSaveTransaction(void);
 
 /** For testing. Invokes the registered save-transaction callback, if any. */
 void sentrykscrash_invokeSaveTransaction(void);
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 /**
  * This is accepted as not being a async-signal-safe operation.
@@ -80,10 +78,8 @@ void sentrykscrash_attachments_log_i(const char *_Nonnull message, int value);
 
 void sentrykscrash_attachments_handleDidWriteReport(void *_Nullable context, int64_t reportID);
 
-#    ifdef __cplusplus
+#ifdef __cplusplus
 }
-#    endif
-
-#endif // SDK_V10
+#endif
 
 #endif /* SentryKSCrashReportWriterCallbacks_h */

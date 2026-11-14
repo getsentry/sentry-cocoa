@@ -860,7 +860,7 @@ class SentrySessionTrackerTests: XCTestCase {
         sut = fixture.getSut()
         let sessionStartTime = fixture.currentDateProvider.date()
         
-        // SentryCrashIntegration stores the crashed session to the disk. We emulate
+        // The crash integration stores the crashed session to disk. We emulate
         // the result here.
         let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         crashedSession.environment = fixture.options.environment

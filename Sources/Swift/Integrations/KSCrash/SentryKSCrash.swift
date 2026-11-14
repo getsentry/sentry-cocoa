@@ -1,4 +1,3 @@
-#if SDK_V10
 /// All types related to KSCrash should live under this type
 @_spi(Private) public enum SentryKSCrash {
     /// Provides a `KSCrashInstalling` instance for dependency injection.
@@ -9,4 +8,3 @@
         func getKSCrashInstaller() -> Installing
     }
 }
-#endif

@@ -104,7 +104,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - mode: V9
+          - mode: Default
             sdk-v10: "0"
             runs-on: macos-26
             test-plan: SentrySPM_Base
@@ -168,25 +168,6 @@ jobs:
             TEST_INCLUDE_DISTRIBUTION=true \
             TEST_PLAN="$TEST_PLAN" \
             TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" 2>&1 | tee raw-test-output-distribution.log
-      - name: Verify V9 resource ownership
-        if: matrix.mode == 'V9'
-        shell: bash
-        run: |
-          # Xcode can discover SDK resources for the Sources-rooted recorder target,
-          # even with an explicit source list. Inspect the build we just tested.
-          derived_data="$RUNNER_TEMP/distribution-derived-data"
-          resources="$(find "$derived_data" \( -path '*SentryCrashV9*.build/*resource_bundle_accessor*' -o \
-            -name Sentry_SentryCrashV9.bundle \) -print)"
-          if [[ -n "$resources" ]]; then
-            echo "::error::V9 recorder unexpectedly owns a resource bundle/accessor"
-            printf '%s\n' "$resources"
-            exit 1
-          fi
-          recorder_objects="$(find "$derived_data" -type f -path '*/SentryCrashV9.build/*/SentryCrash.o' -print)"
-          if [[ -z "$recorder_objects" ]]; then
-            echo "::error::V9 recorder was not compiled; resource ownership was not verified"
-            exit 1
-          fi
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}

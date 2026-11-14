@@ -2,7 +2,6 @@ import Foundation
 
 private enum ValueOption: String {
     case platform = "--platform"
-    case reporter = "--reporter"
     case scenarios = "--scenarios"
     case iosDestination = "--ios-destination"
     case iosDeviceID = "--ios-device-id"
@@ -21,7 +20,6 @@ struct ConfigArgumentParser {
     private let arguments: [String]
     private var config: Config
     private var index = 0
-    private var didParseScenarios = false
 
     init(arguments: [String], directories: Directories) {
         self.arguments = arguments
@@ -60,8 +58,6 @@ struct ConfigArgumentParser {
         switch option {
         case .platform:
             try parsePlatform()
-        case .reporter:
-            try parseReporter()
         case .scenarios:
             try parseScenarios()
         case .iosDestination:
@@ -102,20 +98,6 @@ struct ConfigArgumentParser {
         index += 2
     }
 
-    private mutating func parseReporter() throws {
-        let value = try valueAfterCurrentArgument()
-        guard let reporter = Reporter(caseInsensitive: value) else {
-            throw CrashE2EFailure(message: "Invalid --reporter: \(value)")
-        }
-        config.reporter = reporter
-        if !didParseScenarios {
-            config.scenarios = reporter == .ksCrash
-                ? Scenario.ksCrashDefaultScenarios
-                : Scenario.defaultScenarios
-        }
-        index += 2
-    }
-
     private mutating func parseScenarios() throws {
         let values = try scenarioArgumentValues()
         let scenarioNames = values.flatMap(splitScenarioNames)
@@ -123,7 +105,6 @@ struct ConfigArgumentParser {
             throw CrashE2EFailure(message: "--scenarios must not be empty")
         }
         config.scenarios = try scenarioNames.map(parseScenario)
-        didParseScenarios = true
     }
 
     private mutating func scenarioArgumentValues() throws -> [String] {

@@ -54,12 +54,9 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
             userContextUnMerged = @{ };
         }
 
-        // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
-        // Now sentry_sdk_scope contains scope data. To be backwards compatible, to still support
-        // data from userInfo, and to not have to do many changes in here we merge both dictionaries
-        // here. For more details please check out SentryCrashScopeObserver.
-        // V9 writes sentry_sdk_scope at the report root. KSCrash can only write it inside the
-        // already-open user object. Lift both locations so converted events match.
+        // Preserve compatibility with stored reports that put scope fields directly in userInfo
+        // or in a root-level sentry_sdk_scope. KSCrash writes sentry_sdk_scope inside the
+        // already-open user object. Merge both locations, retaining root-level precedence.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
         NSDictionary *nestedScope = userContextUnMerged[@"sentry_sdk_scope"];

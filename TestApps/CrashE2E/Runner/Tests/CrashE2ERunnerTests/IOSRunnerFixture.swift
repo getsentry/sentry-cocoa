@@ -8,14 +8,14 @@ struct IOSRunnerFixture {
     let commands = CommandExecutorFake()
 
     init(pid: Int32, launchStatus: Int32 = 0, launchctlStatus: Int32 = 0, terminateStatus: Int32 = 0,
-         cleanupStatus: Int32? = nil, reporter: Reporter = .ksCrash, scenarios: [Scenario] = [], keepGoing: Bool = false,
+         cleanupStatus: Int32? = nil, scenarios: [Scenario] = [], keepGoing: Bool = false,
          onLaunch: @escaping (URL) throws -> Void = { _ in }, onTerminate: @escaping () -> Void = {}) throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         self.directory = directory
 
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 
-        let bundleID = reporter.iOSBundleID
+        let bundleID = CrashE2EApp.iOSBundleID
         var launched = false
 
         commands.handler = { call in
@@ -58,11 +58,10 @@ struct IOSRunnerFixture {
         }
 
         var config = Config(directories: Directories(crashE2EDir: directory, repoRoot: directory))
-        config.reporter = reporter
         config.scenarios = scenarios
         config.keepGoing = keepGoing
 
-        let app = config.derivedDataPath.appendingPathComponent("Build/Products/Debug-iphonesimulator/\(reporter.iOSAppName)")
+        let app = config.derivedDataPath.appendingPathComponent("Build/Products/Debug-iphonesimulator/\(CrashE2EApp.iOSAppName)")
 
         try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)
 

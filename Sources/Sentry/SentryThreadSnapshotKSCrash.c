@@ -1,15 +1,14 @@
-#if SDK_V10
-#    include "SentryThreadSnapshot.h"
-#    include <KSBacktrace.h>
-#    include <KSLogger.h>
-#    include <KSMachineContext.h>
-#    include <KSStackCursor.h>
-#    include <KSThread.h>
-#    include <TargetConditionals.h>
-#    include <mach/mach.h>
-#    include <stdatomic.h>
-#    include <stdlib.h>
-#    include <string.h>
+#include "SentryThreadSnapshot.h"
+#include <KSBacktrace.h>
+#include <KSLogger.h>
+#include <KSMachineContext.h>
+#include <KSStackCursor.h>
+#include <KSThread.h>
+#include <TargetConditionals.h>
+#include <mach/mach.h>
+#include <stdatomic.h>
+#include <stdlib.h>
+#include <string.h>
 
 _Static_assert(SENTRY_THREAD_SNAPSHOT_MAX_FRAMES == KSSC_MAX_STACK_DEPTH,
     "Snapshot storage must follow KSCrash's remote-stack bound");
@@ -120,17 +119,17 @@ static bool
 suspendThread(void *context, uintptr_t thread)
 {
     (void)context;
-#    if TARGET_OS_WATCH
+#if TARGET_OS_WATCH
     (void)thread;
     return false;
-#    else
+#else
     kern_return_t result = thread_suspend((thread_t)thread);
     if (result != KERN_SUCCESS) {
         KSLOG_ERROR("thread_suspend (0x%x) failed: %d", (thread_t)thread, result);
         return false;
     }
     return true;
-#    endif
+#endif
 }
 
 static size_t
@@ -150,16 +149,16 @@ static void
 resumeThread(void *context, uintptr_t thread)
 {
     (void)context;
-#    if TARGET_OS_WATCH
+#if TARGET_OS_WATCH
     (void)thread;
-#    else
+#else
     // Frames are already complete, and there is no safe corrective action for this diagnostic if
     // resume fails. Keep attempting the remaining resumes after recording the failure.
     kern_return_t result = thread_resume((thread_t)thread);
     if (result != KERN_SUCCESS) {
         KSLOG_ERROR("thread_resume (0x%x) failed: %d", (thread_t)thread, result);
     }
-#    endif
+#endif
 }
 
 bool
@@ -244,5 +243,3 @@ sentryThreadSnapshotSystemDestroy(SentryThreadSnapshotBuffer *output)
     SentryThreadSnapshotBackend backend = sentryThreadSnapshotKSCrashBackend();
     sentryThreadSnapshotDestroy(&backend, output);
 }
-
-#endif

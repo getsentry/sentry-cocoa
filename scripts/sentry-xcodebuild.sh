@@ -276,9 +276,16 @@ run_build() {
     local max_attempts=3
     local status
     local retry_args=()
+    local architecture_args=()
+    # Workspace arm64e support also affects SwiftPM dependencies. Simulator
+    # compiler runtimes may not have arm64e slices. Override package targets
+    # too, without changing device architectures or inherited linker flags.
+    if [[ "$DESTINATION" == *Simulator* ]]; then
+        architecture_args=("ARCHS=\$(ARCHS_STANDARD)")
+    fi
 
     while true; do
-        if NSUnbufferedIO=YES xcodebuild "$@" "${retry_args[@]+${retry_args[@]}}" 2>&1 |
+        if NSUnbufferedIO=YES xcodebuild "$@" "${architecture_args[@]+${architecture_args[@]}}" "${retry_args[@]+${retry_args[@]}}" 2>&1 |
             tee "$output_log" |
             format_output --preserve-unbeautified; then
             return 0
@@ -352,6 +359,13 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+    # Xcode can synthesize a dynamic KSCrash package product for the shared test graph.
+    # Its objects are coverage-instrumented, but its generated link command can omit the
+    # profile runtime. Link it explicitly for project tests without disabling coverage.
+    # Package tests also link Swift products, whose driver rejects this Clang flag.
+    if [[ "$TEST_SCHEME" != SentrySPM ]]; then
+        BFT_ARGS+=("OTHER_LDFLAGS=\$(inherited) -fprofile-instr-generate")
+    fi
     BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
     BFT_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 

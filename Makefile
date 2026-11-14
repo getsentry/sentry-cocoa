@@ -123,15 +123,6 @@ check-versions:
 	@echo "[MAKE] $@: Checking tooling versions..."
 	./scripts/check-tooling-versions.sh
 
-## Check SentryCrash imports
-#
-# CI ratchet that ensures the number of direct SentryCrash header imports
-# from SDK source files does not increase beyond the established baseline.
-.PHONY: check-sentrycrash-imports
-check-sentrycrash-imports:
-	@echo "[MAKE] $@: Checking SentryCrash imports"
-	@./scripts/check-sentrycrash-imports.sh
-
 ## Check changelog files for duplicate section headings
 #
 # Fails when a version block (including Unreleased) repeats a section heading
@@ -695,10 +686,10 @@ build-xcframework-sentryobjc-dynamic:
 
 ## Build V10 SentryObjC XCFrameworks locally for debugging downstream SDKs
 #
-# Builds SentryObjC with SDK_V10=1, which embeds KSCrash, and packages headers
-# with every SDK_V10 gate resolved. Not a release artifact. Output lands in
-# SentryObjC-Static.xcframework and SentryObjC-Dynamic.xcframework, replacing
-# any V9 output.
+# Builds SentryObjC with the V10 development settings and packages headers
+# with every SDK_V10 gate resolved. Both configurations embed KSCrash.
+# Not a release artifact. Output lands in SentryObjC-Static.xcframework and
+# SentryObjC-Dynamic.xcframework, replacing any default-configuration output.
 #
 # SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
 #
@@ -716,12 +707,6 @@ build-xcframework-sentryobjc-v10:
 	./scripts/validate-xcframework-sentryobjc-static.sh --xcframework "SentryObjC-Static.xcframework"
 	@echo "[MAKE] $@: Validating SentryObjC-Dynamic.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
-	@echo "[MAKE] $@: Verifying V10 SentryCrash symbols in SentryObjC-Static.xcframework"
-	./scripts/verify-v10-sentrycrash-sentryobjc.sh \
-		--xcframework-path "SentryObjC-Static.xcframework"
-	@echo "[MAKE] $@: Verifying V10 SentryCrash symbols in SentryObjC-Dynamic.xcframework"
-	./scripts/verify-v10-sentrycrash-sentryobjc.sh \
-		--xcframework-path "SentryObjC-Dynamic.xcframework"
 
 ## Build V10 Dynamic XCFramework
 #
@@ -740,16 +725,6 @@ build-xcframework-v10-dynamic:
 	./scripts/build-xcframework-v10.sh --suffix "-Dynamic" --sdks "$(SDKS)"
 	@echo "[MAKE] $@: Validating SentryV10-Dynamic.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryV10-Dynamic.xcframework"
-	@echo "[MAKE] $@: Finding V10 frameworks for SentryCrash symbol verification"
-	framework_paths="$$(find "SentryV10-Dynamic.xcframework" -type d -name Sentry.framework -print)"; \
-	if [ -z "$$framework_paths" ]; then \
-		echo "No Sentry.framework found in SentryV10-Dynamic.xcframework"; \
-		exit 1; \
-	fi; \
-	printf '%s\n' "$$framework_paths" | while IFS= read -r framework_path; do \
-		echo "[MAKE] $@: Verifying V10 SentryCrash symbols in $$framework_path"; \
-		./scripts/verify-v10-sentrycrash-framework.sh --framework-path "$$framework_path" || exit 1; \
-	done
 	@echo "[MAKE] $@: Compressing SentryV10-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryV10-Dynamic.xcframework"
 
@@ -770,16 +745,6 @@ build-xcframework-v10-static:
 	./scripts/build-xcframework-v10.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
 	@echo "[MAKE] $@: Validating SentryV10.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryV10.xcframework"
-	@echo "[MAKE] $@: Finding V10 frameworks for SentryCrash symbol verification"
-	framework_paths="$$(find "SentryV10.xcframework" -type d -name Sentry.framework -print)"; \
-	if [ -z "$$framework_paths" ]; then \
-		echo "No Sentry.framework found in SentryV10.xcframework"; \
-		exit 1; \
-	fi; \
-	printf '%s\n' "$$framework_paths" | while IFS= read -r framework_path; do \
-		echo "[MAKE] $@: Verifying V10 SentryCrash symbols in $$framework_path"; \
-		./scripts/verify-v10-sentrycrash-framework.sh --framework-path "$$framework_path" || exit 1; \
-	done
 	@echo "[MAKE] $@: Compressing SentryV10.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryV10.xcframework"
 
@@ -2204,10 +2169,13 @@ analyze:
 	@echo "[MAKE] $@: Removing previous analyzer reports"
 	rm -rf analyzer
 	@echo "[MAKE] $@: Running Xcode static analyzer"
+	# Keep SDK and SwiftPM dependency slices aligned for universal macOS analysis.
 	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze \
 		-workspace Sentry.xcworkspace \
 		-scheme Sentry \
 		-configuration Release \
+		-destination 'generic/platform=macOS' \
+		ARCHS="arm64 x86_64 arm64e" \
 		CLANG_ANALYZER_OUTPUT=html \
 		CLANG_ANALYZER_OUTPUT_DIR=analyzer \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified

@@ -62,7 +62,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertEqual(launchCall.arguments, [
             "simctl", "launch", "--stdout=\(directory.appendingPathComponent("stdout.log").path)",
             "--stderr=\(directory.appendingPathComponent("stderr.log").path)", fixture.runner.deviceID,
-            Reporter.ksCrash.iOSBundleID, "--io.sentry.disable-http-transport", "--scenario", "drain"
+            CrashE2EApp.iOSBundleID, "--io.sentry.disable-http-transport", "--scenario", "drain"
         ])
     }
 
@@ -77,7 +77,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
 
         let directory = try XCTUnwrap(fixture.runner.launchArtifacts)
         let launch = try String(contentsOf: directory.appendingPathComponent("launch.log"), encoding: .utf8)
-        XCTAssertTrue(launch.contains("\(Reporter.ksCrash.iOSBundleID): 0"))
+        XCTAssertTrue(launch.contains("\(CrashE2EApp.iOSBundleID): 0"))
     }
 
     func testLaunchApp_whenSimctlFails_shouldNotObservePID() throws {
@@ -173,9 +173,9 @@ final class IOSPlatformRunnerTests: XCTestCase {
         }
     }
 
-    func testRunScenarios_whenKnownFailureHasMalformedPID_shouldFailAndCleanUp() throws {
+    func testRunScenarios_whenPIDIsMalformed_shouldFailAndCleanUp() throws {
         // -- Arrange --
-        let fixture = try IOSRunnerFixture(pid: 0, reporter: .sentryCrash, scenarios: [.objcObject])
+        let fixture = try IOSRunnerFixture(pid: 0, scenarios: [.objcObject])
         defer { fixture.remove() }
 
         // -- Act & Assert --
@@ -188,9 +188,9 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertTrue(calls.dropFirst(launchIndex + 1).contains { $0.isCommand("xcrun", ["simctl", "terminate"]) })
     }
 
-    func testRunScenarios_whenKnownFailureHasLaunchFailure_shouldFailAndCleanUp() throws {
+    func testRunScenarios_whenLaunchFails_shouldFailAndCleanUp() throws {
         // -- Arrange --
-        let fixture = try IOSRunnerFixture(pid: 0, launchStatus: 1, reporter: .sentryCrash, scenarios: [.objcObject])
+        let fixture = try IOSRunnerFixture(pid: 0, launchStatus: 1, scenarios: [.objcObject])
         defer { fixture.remove() }
 
         // -- Act & Assert --
@@ -203,24 +203,24 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertTrue(calls.dropFirst(launchIndex + 1).contains { $0.isCommand("xcrun", ["simctl", "terminate"]) })
     }
 
-    func testRunScenarios_whenKnownReportIsMissing_shouldCleanUpAndPreserveCache() throws {
+    func testRunScenarios_whenReportIsMissing_shouldFailCleanUpAndPreserveCache() throws {
         // -- Arrange --
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/true")
         try process.run()
         process.waitUntilExit()
 
-        let fixture = try IOSRunnerFixture(pid: process.processIdentifier, reporter: .sentryCrash, scenarios: [.objcObject], onLaunch: { directory in
+        let fixture = try IOSRunnerFixture(pid: process.processIdentifier, scenarios: [.objcObject], onLaunch: { directory in
             let cache = directory.appendingPathComponent("Library/Caches/io.sentry")
             try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
             try Data("evidence\n".utf8).write(to: cache.appendingPathComponent("evidence"))
         })
         defer { fixture.remove() }
 
-        // -- Act --
-        try fixture.runner.runScenarios()
-
-        // -- Assert --
+        // -- Act & Assert --
+        XCTAssertThrowsError(try fixture.runner.runScenarios()) { error in
+            XCTAssertTrue(error is ReportAssertionFailure)
+        }
         XCTAssertEqual(fixture.runner.launchCount, 2, "Both crash and drain launches must complete before classifying a report failure")
         XCTAssertNil(fixture.runner.appProcess)
 
@@ -230,7 +230,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
 
     func testRunScenarios_whenCleanupFailsWithKeepGoing_shouldAbortBeforeNextScenario() throws {
         // -- Arrange --
-        let fixture = try IOSRunnerFixture(pid: 0, cleanupStatus: 1, reporter: .sentryCrash,
+        let fixture = try IOSRunnerFixture(pid: 0, cleanupStatus: 1,
                                             scenarios: [.objcObject, .signal], keepGoing: true)
         defer { fixture.remove() }
 
@@ -244,7 +244,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
 
     func testRunScenarios_whenInfrastructureFailsWithKeepGoing_shouldCleanUpAndReportFailures() throws {
         // -- Arrange --
-        let fixture = try IOSRunnerFixture(pid: 0, reporter: .sentryCrash,
+        let fixture = try IOSRunnerFixture(pid: 0,
                                             scenarios: [.objcObject, .objcObjectAfterCaughtCPP], keepGoing: true)
         defer { fixture.remove() }
 
@@ -267,7 +267,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
 
         fixture.commands.handler = { call in
             XCTAssertTrue(call.isCommand("xcrun", ["simctl", "launch"]))
-            return call.result(stdout: "\(Reporter.ksCrash.iOSBundleID): \(ProcessInfo.processInfo.processIdentifier)", timedOut: true)
+            return call.result(stdout: "\(CrashE2EApp.iOSBundleID): \(ProcessInfo.processInfo.processIdentifier)", timedOut: true)
         }
 
         // -- Act --
@@ -283,7 +283,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
 
     func testRunScenarios_whenCommandThrows_shouldPreserveErrorAndCleanUp() throws {
         // -- Arrange --
-        let fixture = try IOSRunnerFixture(pid: 0, reporter: .sentryCrash, scenarios: [.objcObject])
+        let fixture = try IOSRunnerFixture(pid: 0, scenarios: [.objcObject])
         defer { fixture.remove() }
 
         let failure = CocoaError(.fileReadNoPermission)
@@ -323,7 +323,7 @@ extension IOSPlatformRunnerTests {
         let fixture = try IOSRunnerFixture(pid: 0, launchStatus: 1, scenarios: [.signal])
         defer { fixture.remove() }
         let runner = fixture.runner
-        let app = runner.config.derivedDataPath.appendingPathComponent("Build/Products/Debug-iphonesimulator/\(runner.config.reporter.iOSAppName)")
+        let app = runner.config.derivedDataPath.appendingPathComponent("Build/Products/Debug-iphonesimulator/\(CrashE2EApp.iOSAppName)")
 
         // -- Act --
         XCTAssertThrowsError(try runner.runScenarios()) { error in

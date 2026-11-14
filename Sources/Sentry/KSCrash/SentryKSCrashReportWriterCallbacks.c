@@ -1,22 +1,21 @@
-#if SDK_V10
 
-#    include "SentryKSCrashReportWriterCallbacks.h"
-#    include "KSFileUtils.h"
-#    include "SentryAsyncSafeLog.h"
-#    include "SentryInternalCDefines.h"
-#    include "SentryScopeSyncC.h"
-#    include "SentrySessionReplaySyncC.h"
-#    include <dirent.h>
-#    include <errno.h>
-#    include <fcntl.h>
-#    include <inttypes.h>
-#    include <limits.h>
-#    include <stdatomic.h>
-#    include <stdbool.h>
-#    include <stdio.h>
-#    include <string.h>
-#    include <sys/stat.h>
-#    include <unistd.h>
+#include "SentryKSCrashReportWriterCallbacks.h"
+#include "KSFileUtils.h"
+#include "SentryAsyncSafeLog.h"
+#include "SentryInternalCDefines.h"
+#include "SentryScopeSyncC.h"
+#include "SentrySessionReplaySyncC.h"
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <stdatomic.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 static atomic_bool g_reportPersistenceEnabled = false;
 
@@ -217,7 +216,7 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
     }
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI
 void
 sentrykscrash_test_invokeDidWriteReport(
     bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID)
@@ -248,7 +247,7 @@ sentrykscrash_invokeSaveTransaction(void)
         callback();
     }
 }
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 static atomic_bool g_attachmentsEnabled = false;
 static _Atomic(SentryKSCrashAttachmentsScreenshotWriter) g_screenshotWriter;
@@ -292,7 +291,7 @@ sentrykscrash_attachments_setViewHierarchyWriter(SentryKSCrashAttachmentsViewHie
     atomic_store_explicit(&g_viewHierarchyWriter, writer, memory_order_release);
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI
 bool
 sentrykscrash_attachments_hasScreenshotWriter(void)
 {
@@ -315,7 +314,7 @@ sentrykscrash_attachments_invokeViewHierarchyWriter(const char *payloadDirectory
     }
     writer(payloadDirectory);
 }
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 void
 sentrykscrash_attachments_setSidecarPathProvider(KSCrashReportSidecarPathProviderFunc provider)
@@ -542,5 +541,3 @@ sentrykscrash_attachments_log_i(const char *message, int value)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("%s: %d", message != NULL ? message : "", value);
 }
-
-#endif // SDK_V10

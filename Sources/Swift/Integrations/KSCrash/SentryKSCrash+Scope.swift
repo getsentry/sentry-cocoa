@@ -1,4 +1,3 @@
-#if SDK_V10
 internal import _SentryPrivate
 
 extension SentryKSCrash {
@@ -107,4 +106,3 @@ extension SentryKSCrash.Scope {
         }
     }
 }
-#endif

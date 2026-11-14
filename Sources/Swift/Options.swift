@@ -69,7 +69,6 @@
     /// Controls the flush duration when calling SentrySDK/close.
     @objc public var shutdownTimeInterval: TimeInterval = 2.0
 
-    #if SDK_V10
     /// When enabled, the SDK sends crashes to Sentry.
     /// @note Disabling this feature disables the SentryWatchdogTerminationTrackingIntegration,
     /// because SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
@@ -80,15 +79,6 @@
     /// still terminates, but it writes no crash report, sends no event, and does not classify the
     /// next launch as crashed.
     @objc public var enableCrashHandler: Bool = true
-    #else
-    /// When enabled, the SDK sends crashes to Sentry.
-    /// @note Disabling this feature disables the SentryWatchdogTerminationTrackingIntegration,
-    /// because SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
-    /// termination.
-    /// @note Default value is @c true.
-    /// @note Crash reporting is automatically disabled if a debugger is attached.
-    @objc public var enableCrashHandler: Bool = true
-    #endif // SDK_V10
 
     #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     /// When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
@@ -107,27 +97,6 @@
     @objc public var enableUncaughtNSExceptionReporting: Bool = false
     #endif
 
-    #if !os(watchOS) && !SDK_V10
-    /// When enabled, the SDK reports SIGTERM signals to Sentry.
-    ///
-    /// It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
-    /// to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
-    /// or ignore, is a direct order to terminate your app's process immediately. Developers should be
-    /// aware that their app can receive a SIGTERM in various scenarios, such as CPU or disk overuse,
-    /// watchdog terminations, or when the OS updates your app.
-    ///
-    /// @note The default value is @c false.
-    /// @note Removed in v10. KSCrash always catches `SIGTERM`, records a clean exit, and never
-    /// writes a crash report for it.
-    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
-    @objc public var enableSigtermReporting: Bool {
-        get { _enableSigtermReporting }
-        set { _enableSigtermReporting = newValue }
-    }
-    var _enableSigtermReporting: Bool = false
-    #endif // !os(watchOS) && !SDK_V10
-
-    #if SDK_V10
     /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
     ///
     /// When `false`, unhandled C++ exceptions are still captured through `std::terminate` when
@@ -135,7 +104,6 @@
     ///
     /// - Note: Defaults to `false` to preserve the existing capture mode.
     @objc public var enableUnhandledCPPExceptionsV2: Bool = false
-    #endif // SDK_V10
 
     /// When enabled, the SDK introspects memory contents during a crash.
     /// Any Objective-C objects or C strings near the stack pointer or referenced by
@@ -306,8 +274,8 @@
     @objc public var enableGraphQLOperationTracking: Bool = false
 
     /// Whether to enable Watchdog Termination tracking or not.
-    /// @note This feature requires the SentryCrashIntegration being enabled, otherwise it would
-    /// falsely report every crash as watchdog termination.
+    /// @note This feature requires crash handling (@c enableCrashHandler) to be enabled, otherwise
+    /// it would falsely report every crash as watchdog termination.
     /// @note Default is @c true.
     @objc public var enableWatchdogTerminationTracking: Bool = true
 

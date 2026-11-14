@@ -6,8 +6,8 @@
 # the final xcframework. For CI, each slice runs as a separate parallel job;
 # this script is the local equivalent that runs them in sequence.
 #
-# With --v10 the package is built with SDK_V10=1, which swaps SentryCrash for
-# KSCrash and embeds the KSCrash objects into the library. The packaged headers
+# Both development configurations embed KSCrash. With --v10 the package uses
+# SDK_V10=1 for the remaining V10 development settings. The packaged headers
 # are copies with every SDK_V10 gate resolved, so consumers see the V10 API
 # without defining SDK_V10 themselves. V10 output is meant for local debugging
 # of downstream SDKs and is not a release artifact.
@@ -32,7 +32,7 @@ usage() {
     log_info "  --sdks <list>             Comma-separated SDKs (default: all Apple SDKs)"
     log_info "  --package-path <path>     Swift Package root (default: repo root)"
     log_info "  --variant <type>          static, dynamic, or both (default: static)"
-    log_info "  --v10                     Build the V10 (KSCrash) SDK for local debugging"
+    log_info "  --v10                     Build with V10 development settings for local debugging"
     exit 1
 }
 
@@ -103,25 +103,11 @@ trap 'for f in "${PACKAGE_FILES[@]}"; do mv "$f.bak" "$f"; done' EXIT
 IFS=',' read -r -a sdk_list <<< "$SDKS"
 
 for sdk in "${sdk_list[@]}"; do
-    objects_path="$OUTPUT_DIR/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryObjC/IntermediateBuildFilesPath"
-    if [ "$V10" = "true" ]; then
-        # Each audit needs fresh compiler evidence, not another slice's cached objects.
-        rm -rf "$objects_path"
-    fi
-
     "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
         --sdk "$sdk" \
         --output-dir "$OUTPUT_DIR" \
         --package-path "$PACKAGE_PATH" \
         --configuration "$CONFIGURATION"
-
-    if [ "$V10" = "true" ]; then
-        "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
-            --build-path "$objects_path" \
-            --build-log "$OUTPUT_DIR/archive/SentryObjC/$sdk.log" \
-            --archive-path "$OUTPUT_DIR/archive/SentryObjC/$sdk.xcarchive" \
-            --source-root "$PACKAGE_PATH"
-    fi
 done
 
 if [ "$VARIANT" = "static" ] || [ "$VARIANT" = "both" ]; then

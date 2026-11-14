@@ -1,4 +1,3 @@
-#if SDK_V10
 #if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
@@ -215,4 +214,3 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
     }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
 }
-#endif // SDK_V10

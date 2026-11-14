@@ -21,13 +21,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-#if SDK_V10
         crashReporterState = TestSentryCrashReporterState()
-#else
-        let crashReporter = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-        crashReporterState = crashReporter
-        SentryDependencyContainer.sharedInstance().crashWrapper = crashReporter
-#endif
         SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = crashReporterState
         currentDate = TestCurrentDateProvider()
     }

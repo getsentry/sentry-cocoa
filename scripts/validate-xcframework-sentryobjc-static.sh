@@ -122,7 +122,7 @@ if ! dsym_symbols="$(nm -arch all -gjU "$dsym_binary")"; then
 fi
 
 expected_symbols=(
-    "_sentrycrash_install"
+    "_OBJC_CLASS_\$_KSCrash"
     "_OBJC_CLASS_\$_SentryObjCSDK"
 )
 

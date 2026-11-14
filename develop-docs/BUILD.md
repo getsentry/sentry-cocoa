@@ -12,7 +12,7 @@ The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK te
 
 ## SwiftPM Test Targets
 
-SwiftPM test targets are separate from published SDK products. The shared `SentrySPM` scheme uses native V9/V10 Base test plans. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests) for local and CI commands, V9/V10 modes, and [compiler settings and project parity](TEST.md#compiler-settings-and-project-parity).
+SwiftPM test targets are separate from published SDK products. The shared `SentrySPM` scheme uses Base test plans for the default and V10 development configurations. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests) for local and CI commands and [compiler settings and project parity](TEST.md#compiler-settings-and-project-parity).
 
 ## UIKit Linking Control
 
@@ -34,6 +34,8 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 ./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 
+`build-xcframework-slice.sh` passes the complete release architecture list to the SDK and its KSCrash package dependencies. Dynamic builds use the SDK targets' default Mach-O type; a global `MACH_O_TYPE=mh_dylib` override would incorrectly turn package object aggregates into dynamic libraries. Static builds explicitly select `staticlib`.
+
 `assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
 
 ## Platform-Specific Build Notes
@@ -50,67 +52,28 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 - Binary distribution via git release assets
 - Not compatible with UIKit-free configurations
 
-## Temporary V10 Development Verification
+## Crash Handling
+
+The source SDK uses KSCrash with or without `SDK_V10`. The previously bundled SentryCrash recorder and its adapters, headers, targets and tests have been removed. SDK-side compatibility interfaces remain, including `SentryCrashExceptionApplication`, the Unity C++ handoff, scope sync, report conversion and stack mapping. That might change until the release of V10.
 
 > [!NOTE]
-> This workflow applies while V9 and V10 are developed in the same branch. At the branch split, retire the temporary backend-selection checks and adapt the remaining checks for KSCrash-only V10. See [decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) for the release plan.
-
-These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
+> Unrelated V10 development settings and source-product/module names stay until the coordinated cutover. These settings no longer select a crash backend. Existing published binary products are not rebuilt by changing the source checkout. See [decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) for the release boundary.
 
 ### SwiftPM V10 selection
 
-Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry` source product. The `V10` trait has been removed; V9 defaults and unrelated traits remain unchanged. See [decision 41](DECISIONS.md#41-select-swiftpm-v10-through-the-environment-only).
+Use `SDK_V10=1` for V10 development compiler settings and the `Sentry` source product. KSCrash dependencies are unconditional. There is no backend-version trait and unrelated traits stay unchanged. See [decision 41](DECISIONS.md#41-select-swiftpm-v10-through-the-environment-only) for the development naming rationale.
 
-| Selection      | SDK | Source product / Swift module |
-| -------------- | --- | ----------------------------- |
-| No `SDK_V10=1` | V9  | `SentrySPM` / `SentrySwift`   |
-| `SDK_V10=1`    | V10 | `Sentry` / `Sentry`           |
+| Selection      | Recorder | Source product / Swift module |
+| -------------- | -------- | ----------------------------- |
+| No `SDK_V10=1` | KSCrash  | `SentrySPM` / `SentrySwift`   |
+| `SDK_V10=1`    | KSCrash  | `Sentry` / `Sentry`           |
 
 Shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. Do not use `canImport` to select a version: cached modules can survive mode switches.
 
 `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
 
-### 1. Test the verification scripts
+### Build and test coverage
 
-Run their regression tests before using the verifiers on your checkout:
+The standard SDK and V10 development workflows build and test KSCrash on the supported platforms. The V10 build workflow also packages static/dynamic SDK and Objective-C wrapper products, builds generated source consumers, and runs CLI subprocess and NoUI linkage checks. Packaging targets use the shared XCFramework validators; Objective-C static libraries additionally use the wrapper-specific static integration check.
 
-```bash
-./scripts/test-v10-compiler-log.sh
-./scripts/test-v10-empty-objects.sh
-./scripts/test-v10-sentryobjc-slice-inventory.sh
-./scripts/test-v10-development-selection.sh
-```
-
-The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions. Run `./scripts/test-spm-crash-backend-selection.swift` separately for real consumer builds.
-
-### 2. Check source ownership
-
-Check that V9 recorder sources and headers stay separate from V10, shared compatibility interfaces remain available, and the required build and test coverage is configured:
-
-```bash
-./scripts/verify-v10-sentrycrash-source-contract.swift
-```
-
-### 3. Check a V10 build
-
-Create a fresh V10 build and save its full, verbose build log without filtering or summarizing it. Once the build has completed successfully, run:
-
-```bash
-./scripts/verify-v10-sentrycrash-objects.sh \
-  --build-path /path/to/build-output \
-  --build-log /path/to/raw-build.log
-```
-
-Choose `--build-path` for the build being checked:
-
-| Build                     | Output directory                                                                                   |
-| ------------------------- | -------------------------------------------------------------------------------------------------- |
-| SDK or SentryObjC archive | `DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/<scheme>/IntermediateBuildFilesPath` |
-| Catalyst packaging        | `DerivedData/Build/Intermediates.noindex`                                                          |
-| Debug SDK                 | `DerivedData`, including `Build/Products`                                                          |
-
-For archives, `<scheme>` is `SentryV10` or `SentryObjC`. SentryObjC also needs `--archive-path /path/to/sdk.xcarchive`: Xcode moves single-architecture package aggregates into `Products`, leaving dangling build-directory aliases. Only those logged aggregates may relocate, and their contents must still match their accounted inputs. For a copied checkout, add `--source-root /path/to/sdk`.
-
-Use the raw log from the same build. SDK builds retain `raw-build-output.log`; SDK XCFramework slices retain `XCFrameworkBuildPath/raw-build-output.log`; SentryObjC slices retain `<output-dir>/archive/SentryObjC/<sdk>.log`. V10 packagers audit each slice before its intermediates are replaced.
-
-Missing, incomplete or unsupported evidence fails the audit. See the [build-log reader](../scripts/read-v10-compiler-evidence.swift) and [object checker](../scripts/verify-v10-empty-objects.swift) for source/output accounting and aggregate-content checks. Build-only audit lanes disable coverage because it emits executable helpers even for empty Swift files; unit-test coverage is unchanged. Packaged artifacts and runtime behavior still need separate checks.
+Use the existing [SDK tests](TEST.md), [CrashE2E](../TestApps/CrashE2E/README.md), and [SentryObjC build targets](SENTRY-OBJC-BUILD.md) to validate behavior and distributed artifacts. The retired recorder's source/empty-object migration checks are no longer part of SDK builds or CI.

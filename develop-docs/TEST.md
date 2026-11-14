@@ -43,7 +43,7 @@ New Objective-C and Objective-C++ headers belong under `include/Wrappers/` for a
 
 [`SentryTestUtilsObjC.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC.h) is an import-only module entry point shared by Xcode and SwiftPM. The Objective-C++ module keeps C++ declarations textual so non-module consumers can include them too.
 
-Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`; `include/SentryCrashMonitorContext.h` must remain at the exported include root for Swift consumers of `SentryCrashReport.h`. These forwarders are header-search plumbing, not additional wrapper APIs.
+Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`. These forwarders are header-search plumbing, not additional wrapper APIs.
 
 ### SwiftPM SDK Tests
 
@@ -76,7 +76,7 @@ Use `xcodebuild`, not `swift test`, to include Objective-C/Objective-C++ package
 
 #### Package tests with xcodebuild
 
-For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These plans include the main SDK suite, with profiler tests only in V9. V9 crash tests remain in the main suite and use guarded imports of `SentryCrashV9Swift`. `swift test` does not apply Xcode test plans.
+For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for the default development configuration or `SentrySPM_Base_v10` with `SDK_V10=1`. Both run the KSCrash-backed SDK tests. Profiler tests remain default-configuration-only and unrelated V10 development differences and module import gates are unchanged. `swift test` does not apply Xcode test plans.
 
 `xcodebuild` cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
@@ -118,7 +118,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - CI invokes the explicit platform targets with `TEST_CONFIGURATION=TestCI`. The shared unit-test workflow derives the Make target from its `platform` input. Simulator targets use their platform-specific variables, such as `IOS_SIMULATOR_OS` and `IOS_DEVICE_NAME`. These targets select the SDK generation and Base plan, pass the existing package test xcconfig and explicit test definitions, and disable signing. `TEST_PLAN` selects a package Flaky or TestServer plan. `TEST_RESULT_BUNDLE` and `TEST_DERIVED_DATA` override the result bundle name and DerivedData path. Defaults for DerivedData and result bundles are under `RUNNER_TEMP` in CI and the temporary directory locally.
 - Set `TEST_COMMAND=build-for-testing` to prepare the package and compile tests. The corresponding `TEST_COMMAND=test-without-building` invocation reuses that package without preparation. Both phases must use the same `TEST_WORKSPACE`, configuration, platform, and destination. Regular, fast-PR, nightly, V10, and distribution jobs use these Make entry points.
 - Keep shared Base exclusions consistent between project and package plans, mapping tests to their Swift, Objective-C, or Objective-C++ target.
-- Use `SentrySPM_Flaky` for V9 flaky tests.
+- Use `SentrySPM_Flaky` for default-configuration flaky tests.
 - Use `SentrySPM_TestServer` or `SentrySPM_TestServer_v10` for network tests. Start the server with `make -C test-server start-debug` before that run and stop it with `make -C test-server stop` afterward, including on failure. Do not run unrelated plans while the server is active.
 
 #### Compiler settings and project parity
@@ -131,7 +131,7 @@ Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM te
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
 
-The package still checks warnings in legacy `SentryCrashSysCtl.c`, unlike the project. When changing settings, compare actual compiler commands, interface-verification results, and V9/V10 test identifiers and pass/skip outcomes. Confirm dependency diagnostics and ordinary consumer builds remain unchanged.
+When changing settings, compare actual compiler commands, interface-verification results, and default/V10 test identifiers and pass/skip outcomes. Confirm dependency diagnostics and ordinary consumer builds remain unchanged.
 
 ### Unit Tests with Thread Sanitizer
 
@@ -231,7 +231,7 @@ func testColdStart_shouldSetMeasurement() {
 
 ### Binary Image Unload Regression Test
 
-`SentryKSCrashBinaryImageProviderTests` covers an image that really unloads while the provider reads it. `SentryTestsV10` builds and embeds the pure-C `SentryUnloadingImage.framework` fixture without linking it at launch. The test is the sole owner of the only `dlopen` reference and closes it between image-address acquisition and metadata extraction, then asserts that the header became unreadable. This fixture must stay free of Swift or Objective-C metadata and _must not_ link it into the test bundle because either could keep the image mapped, and the regression would no longer unload anything.
+`SentryKSCrashBinaryImageProviderTests` covers an image that really unloads while the provider reads it. Both `SentryTests` and `SentryTestsV10` build and embed the pure-C `SentryUnloadingImage.framework` fixture without linking it at launch. The test is the sole owner of the only `dlopen` reference and closes it between image-address acquisition and metadata extraction, then asserts that the header became unreadable. This fixture must stay free of Swift or Objective-C metadata and _must not_ link it into the test bundle because either could keep the image mapped, and the regression would no longer unload anything.
 
 The regression runs in the Xcode project and Make-driven package tests on macOS and simulators. V10 Make targets enable `SENTRY_PACKAGE_TEST_FIXTURES`. After the package build, `scripts/build-package-test-fixture.sh` compiles and embeds the fixture in the main test bundle without linking it. Split build and execution phases reuse the embedded fixture. Use the Make targets for this regression, since a bare `swift test` or `xcodebuild` invocation does not embed it.
 

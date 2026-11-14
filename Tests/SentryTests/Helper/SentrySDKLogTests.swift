@@ -1,6 +1,5 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentryCrashV9Swift
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry
@@ -190,38 +189,6 @@ class SentrySDKLogTests: XCTestCase {
             "[Sentry] [error] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line + 3)] Log 4"
         ], logOutput.loggedMessages)
     }
-
-    #if !SDK_V10
-    func testV9ConvenienceLogs_whenMessagesAreFiltered_shouldOnlyEvaluateEnabledMessages() {
-        let cases: [(Bool, SentryLevel, [SentryLevel])] = [
-            (false, .debug, []),
-            (true, .fatal, []),
-            (true, .error, [.error]),
-            (true, .debug, [.debug, .error])
-        ]
-        for (debug, diagnosticLevel, expectedLevels) in cases {
-            // -- Arrange --
-            let logOutput = TestLogOutput(thread: Thread.current)
-            SentrySDKLog.setLogOutput(logOutput)
-            SentrySDKLogSupport.configure(debug, diagnosticLevel: diagnosticLevel)
-            var evaluations = 0
-            func message() -> String {
-                evaluations += 1
-                return "Log Message"
-            }
-
-            // -- Act --
-            SentryCrashV9Log.debug(message(), file: "/Sources/Crash.swift", line: 42)
-            SentryCrashV9Log.error(message(), file: "/Sources/Crash.swift", line: 42)
-
-            // -- Assert --
-            XCTAssertEqual(evaluations, expectedLevels.count, "Debug: \(debug), level: \(diagnosticLevel)")
-            XCTAssertEqual(expectedLevels.map {
-                "[Sentry] [\($0)] [\(timeIntervalSince1970)] [Crash:42] Log Message"
-            }, logOutput.loggedMessages)
-        }
-    }
-    #endif
 
     func testFatal_whenDebuggingIsDisabled_shouldStillEvaluateAndLogMessage() {
         // -- Arrange --

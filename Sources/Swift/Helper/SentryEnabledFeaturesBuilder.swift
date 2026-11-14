@@ -14,11 +14,7 @@ import Foundation
         var features: [String] = []
 
         // -- Feature: Errors --
-        #if SDK_V10
         let enableUnhandledCPPExceptionsV2 = options.enableUnhandledCPPExceptionsV2
-        #else
-        let enableUnhandledCPPExceptionsV2 = options.experimental.enableUnhandledCPPExceptionsV2
-        #endif // SDK_V10
         if enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }
