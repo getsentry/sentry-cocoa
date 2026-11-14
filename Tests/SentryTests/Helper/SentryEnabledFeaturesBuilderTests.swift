@@ -606,6 +606,59 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("uiViewControllerInitSwizzling"))
     }
 
+    func testEnableUIUpdateLinkFramesTracking_isEnabled_shouldAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *) else {
+            throw XCTSkip("UIUpdateLink is not available on this OS version")
+        }
+
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableUIUpdateLinkFramesTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("uiUpdateLinkFramesTracking"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableUIUpdateLinkFramesTracking_isEnabledWhereUnsupported_shouldNotAddFeature() throws {
+#if os(iOS) || os(tvOS) || os(visionOS)
+#if !targetEnvironment(macCatalyst)
+        if #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *) {
+            throw XCTSkip("UIUpdateLink is available on this OS version")
+        }
+#endif
+
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableUIUpdateLinkFramesTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiUpdateLinkFramesTracking"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableUIUpdateLinkFramesTracking_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiUpdateLinkFramesTracking"))
+    }
+
     func testAttachViewHierarchy_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --

@@ -29,6 +29,23 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertFalse(disabled.enableScopePersistence)
     }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testInitWithDictionary_whenUIUpdateLinkFramesTrackingConfigured_shouldUseBooleanValue() throws {
+        // -- Arrange --
+        let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]
+
+        // -- Act --
+        let defaults = try Options(dictionary: base)
+        let enabled = try Options(dictionary: base.merging(["enableUIUpdateLinkFramesTracking": true]) { _, value in value })
+        let disabled = try Options(dictionary: base.merging(["enableUIUpdateLinkFramesTracking": false]) { _, value in value })
+
+        // -- Assert --
+        XCTAssertFalse(defaults.experimental.enableUIUpdateLinkFramesTracking)
+        XCTAssertTrue(enabled.experimental.enableUIUpdateLinkFramesTracking)
+        XCTAssertFalse(disabled.experimental.enableUIUpdateLinkFramesTracking)
+    }
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+
     func testInitWithDictionary_whenAttachAllThreadsConfigured_shouldUseBooleanValue() throws {
         // -- Arrange --
         let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]

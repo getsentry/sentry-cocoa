@@ -8,12 +8,17 @@ import Foundation
 ///
 /// - Warning: Except for `totalFrames`, all members must be used on the main thread.
 protocol SentryFrameSource: AnyObject {
+    /// When `true`, the source reports every frame of the display, even when nothing on screen
+    /// changes. The tracker sets this while a listener waits for the next frame. A source that
+    /// reports every frame anyway ignores it.
+    var requiresContinuousFrames: Bool { get set }
+
     /// The source references the delegate weakly.
     func start(delegate: SentryFrameSourceDelegate)
     func stop()
 
-    /// The number of frames while the source was started, about one per refresh of the display. Can
-    /// be called on any thread.
+    /// The number of frames while the source was started, about one per refresh of the display. A
+    /// delayed frame counts as one frame, no matter how long it took. Can be called on any thread.
     func totalFrames() -> UInt
 
     /// Starts counting the total frames from zero.
@@ -28,6 +33,9 @@ protocol SentryFrameSourceDelegate: AnyObject {
     /// The main thread was free to produce a frame at the timestamp. If it gets blocked from now on,
     /// the frame that is in flight since this timestamp is the one that is delayed.
     func frameSource(didStartFrameAt systemTimestamp: UInt64)
+
+    /// The main thread waits for work, so no frame is in flight.
+    func frameSourceDidBecomeIdle()
 
     /// A frame took longer than the slow frame threshold of the current frame rate. The end of the
     /// delayed frame is also the start of the next one.

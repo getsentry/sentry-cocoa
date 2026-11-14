@@ -41,6 +41,9 @@ final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider
         }
 
         tracker = dependencies.framesTracker
+        // A launch profile starts the tracker before the options are known, with the default
+        // frame source.
+        tracker.useFrameSource(dependencies.makeFrameSource(options: options))
         tracker.start()
     }
 

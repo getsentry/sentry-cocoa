@@ -18,8 +18,12 @@ final class SentryDisplayLinkFrameSource: NSObject, SentryFrameSource {
     private var previousFrameTimestamp = SentryDisplayLinkFrameSource.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
 
-    /// Written by the display link callback, read by the threads that start and finish spans.
+    /// One frame per display link callback. Written by the display link callback, read by the threads
+    /// that start and finish spans.
     private let frameCount = SentryMutex<UInt>(0)
+
+    // The display link reports every frame anyway.
+    var requiresContinuousFrames = false
 
     init(displayLinkWrapper: SentryDisplayLinkWrapper, dateProvider: SentryCurrentDateProvider) {
         self.displayLinkWrapper = displayLinkWrapper

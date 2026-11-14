@@ -231,6 +231,10 @@ extension Options {
             self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         }
 
+        if let enableUIUpdateLinkFramesTracking = boolValue(dictionary["enableUIUpdateLinkFramesTracking"]) {
+            self.experimental.enableUIUpdateLinkFramesTracking = enableUIUpdateLinkFramesTracking
+        }
+
         #if !SDK_V10
         if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
             self.enableReportNonFullyBlockingAppHangsValue = enableReportNonFullyBlockingAppHangs

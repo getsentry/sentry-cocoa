@@ -45,6 +45,13 @@ import Foundation
         get { wrapped.enableUIViewControllerInitSwizzling }
         set { wrapped.enableUIViewControllerInitSwizzling = newValue }
     }
+
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    @objc public var enableUIUpdateLinkFramesTracking: Bool {
+        get { wrapped.enableUIUpdateLinkFramesTracking }
+        set { wrapped.enableUIUpdateLinkFramesTracking = newValue }
+    }
+    #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 // swiftlint:enable missing_docs

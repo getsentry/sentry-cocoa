@@ -13,6 +13,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/**
+ * Pass this to @c setPreviousFrameSystemTimestamp: when frames are being tracked, but no frame is
+ * in flight because the main thread is waiting for work. While it's set, @c getFramesDelayObjC
+ * doesn't add a delay for an ongoing frame. A frame source that doesn't report every frame, such as
+ * the run loop driven one on iOS 18 and later, needs this, because its last reported timestamp
+ * goes stale while the app is idle.
+ */
+static const uint64_t SentryDelayedFramesNoFrameInFlight = UINT64_MAX;
+
 @interface SentryDelayedFramesTracker : NSObject
 SENTRY_NO_INIT
 
