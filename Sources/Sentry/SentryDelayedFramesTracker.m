@@ -194,14 +194,17 @@ NS_ASSUME_NONNULL_BEGIN
         frames = self.delayedFrames.mutableCopy;
     }
 
-    // Add a delayed frame for a potentially ongoing but not recorded delayed frame
-    SentryDelayedFrame *currentFrameDelay = [[SentryDelayedFrame alloc]
-        initWithStartTimestamp:localPreviousFrameSystemTimestamp
-              expectedDuration:slowFrameThreshold
-                actualDuration:nanosecondsToTimeInterval(
-                                   endSystemTimestamp - localPreviousFrameSystemTimestamp)];
+    // Add a delayed frame for a potentially ongoing but not recorded delayed frame. There is no
+    // ongoing frame when the frame source reported that the main thread is waiting for work.
+    if (localPreviousFrameSystemTimestamp != SentryDelayedFramesNoFrameInFlight) {
+        SentryDelayedFrame *currentFrameDelay = [[SentryDelayedFrame alloc]
+            initWithStartTimestamp:localPreviousFrameSystemTimestamp
+                  expectedDuration:slowFrameThreshold
+                    actualDuration:nanosecondsToTimeInterval(
+                                       endSystemTimestamp - localPreviousFrameSystemTimestamp)];
 
-    [frames addObject:currentFrameDelay];
+        [frames addObject:currentFrameDelay];
+    }
 
     // We need to calculate the intersections of the queried TimestampInterval
     // (startSystemTimestamp - endSystemTimestamp) with the recorded frame delays. Doing that

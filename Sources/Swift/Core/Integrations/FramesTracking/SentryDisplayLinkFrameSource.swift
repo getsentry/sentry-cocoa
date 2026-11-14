@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// Observes frames with a `CADisplayLink`.
+/// The frame source for OS versions without `UIUpdateLink`.
 ///
 /// A `CADisplayLink` calls back for every frame of the display for as long as it's linked, even when
 /// nothing on screen changes. The time between two callbacks is the duration of a frame.
@@ -20,6 +20,9 @@ final class SentryDisplayLinkFrameSource: NSObject, SentryFrameSource {
 
     /// Written by the display link callback, read by the threads that start and finish spans.
     private let frameCount = SentryMutex<UInt>(0)
+
+    // The display link reports every frame anyway.
+    var requiresContinuousFrames = false
 
     init(displayLinkWrapper: SentryDisplayLinkWrapper, dateProvider: SentryCurrentDateProvider) {
         self.displayLinkWrapper = displayLinkWrapper
@@ -115,7 +118,7 @@ extension SentryFramesTracker {
         )
     }
 
-    /// Replaces the tracker's frame source with a display link driven one.
+    /// Makes the tracker use a display link, also on OS versions on which it otherwise doesn't.
     func setDisplayLinkWrapper(_ displayLinkWrapper: SentryDisplayLinkWrapper) {
         setFrameSource(SentryDisplayLinkFrameSource(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider))
     }

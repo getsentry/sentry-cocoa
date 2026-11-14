@@ -118,6 +118,15 @@ import Foundation
         if options.experimental.enableUIViewControllerInitSwizzling {
             features.append("uiViewControllerInitSwizzling")
         }
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if !targetEnvironment(macCatalyst)
+        // The frame source only exists where UIUpdateLink is available, so the feature is only
+        // reported where it's in use.
+        if #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *), options.experimental.enableUIUpdateLinkFramesTracking {
+            features.append("uiUpdateLinkFramesTracking")
+        }
+#endif // !targetEnvironment(macCatalyst)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.experimental.metrickit.hangReportingMode == .flamegraphAttachment {
             features.append("metricKitHangFlamegraphAttachment")
         }
