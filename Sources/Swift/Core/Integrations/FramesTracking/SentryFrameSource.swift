@@ -18,9 +18,7 @@ protocol SentryFrameSource: AnyObject {
     func stop()
 
     /// The number of frames while the source was started, about one per refresh of the display. A
-    /// display link observes every frame, a `UIUpdateLink` source assumes them from the time that
-    /// passed. A delayed frame counts as one frame, no matter how long it took. Can be called on any
-    /// thread.
+    /// delayed frame counts as one frame, no matter how long it took. Can be called on any thread.
     func totalFrames() -> UInt
 
     /// Starts counting the total frames from zero.
