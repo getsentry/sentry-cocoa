@@ -130,9 +130,10 @@ enum Scenario: String, CaseIterable {
         // Current Sentry Unity does not enable C++ V2, so this exercises the named-symbol
         // compatibility shim in V1/fallback context. Preserve the shim, not V1's weak report shape.
         .unityCxaThrow,
-        // Runs with C++ V2 enabled and strict modern-backend assertions. Current SentryCrash is
-        // expected to fail this scenario; see Scenario.knownFailureReason(for:).
+        // Runs with C++ V2 enabled and strict modern-backend assertions.
         .objcObject,
+        // SentryCrash is still expected to fail after a caught C++ exception;
+        // see Scenario.knownFailureReason(for:).
         .objcObjectAfterCaughtCPP,
         .binaryImages,
         .ignoredSignal,

@@ -210,7 +210,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
         try process.run()
         process.waitUntilExit()
 
-        let fixture = try IOSRunnerFixture(pid: process.processIdentifier, reporter: .sentryCrash, scenarios: [.objcObject], onLaunch: { directory in
+        let fixture = try IOSRunnerFixture(pid: process.processIdentifier, reporter: .sentryCrash, scenarios: [.objcObjectAfterCaughtCPP], onLaunch: { directory in
             let cache = directory.appendingPathComponent("Library/Caches/io.sentry")
             try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
             try Data("evidence\n".utf8).write(to: cache.appendingPathComponent("evidence"))
@@ -224,7 +224,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertEqual(fixture.runner.launchCount, 2, "Both crash and drain launches must complete before classifying a report failure")
         XCTAssertNil(fixture.runner.appProcess)
 
-        let snapshot = fixture.runner.config.artifactsDir.appendingPathComponent("ios-objc-object-failed-cache/io.sentry/evidence")
+        let snapshot = fixture.runner.config.artifactsDir.appendingPathComponent("ios-objc-object-after-caught-cpp-failed-cache/io.sentry/evidence")
         XCTAssertEqual(try String(contentsOf: snapshot, encoding: .utf8), "evidence\n")
     }
 

@@ -481,6 +481,30 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     XCTAssertFalse(hasStaleFrame);
 }
 
+- (void)testCallHandler_whenThrowWasNotCaptured_shouldCaptureFallbackStacktrace
+{
+    // -- Arrange --
+    api->setEnabled(false);
+    std::set_terminate(&mockTerminationHandler);
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+
+    // -- Act --
+    try {
+        throw std::runtime_error("Uncaptured throw");
+    } catch (...) {
+        // Enable after the throw to deterministically simulate a missed throw hook.
+        api->setEnabled(true);
+        SentryCrashStackCursor cursor = sentrycrashcm_cppexception_getStackCursor();
+        XCTAssertFalse(cursor.advanceCursor(&cursor));
+        std::get_terminate()();
+    }
+
+    // -- Assert --
+    XCTAssertEqual(capturedCrashType, SentryCrashMonitorTypeCPPException);
+    XCTAssertEqualObjects(capturedExceptionContextCrashReason, @"Uncaptured throw");
+    XCTAssertNotEqual(capturedExceptionStackAddress, (uintptr_t)0);
+}
+
 - (void)testCallHandler_whenNoActiveException_shouldCaptureTerminate
 {
     // -- Arrange --
