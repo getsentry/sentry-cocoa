@@ -42,7 +42,7 @@ class SentryProfileTestFixture {
     
 #if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-    lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
+    lazy var framesTracker = TestFramesTracker(frameSource: SentryDisplayLinkFrameSource(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider), dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
 #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     
     init() {

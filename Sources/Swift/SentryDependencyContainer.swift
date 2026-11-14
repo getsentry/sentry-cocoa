@@ -357,7 +357,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
         let sentryAutoTransactionMaxDuration = 500.0
         let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
-        return SentryFramesTracker(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+        let frameSource = SentryDisplayLinkFrameSource(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider)
+        return SentryFramesTracker(frameSource: frameSource, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
     }
 
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
