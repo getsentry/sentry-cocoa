@@ -11,6 +11,10 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
 
     private struct MockFramesTrackingProvider: FramesTrackingProvider {
         var framesTracker: SentryFramesTracker
+
+        func makeFrameSource(options: Options?) -> SentryFrameSource {
+            SentryDependencyContainer.sharedInstance().makeFrameSource(options: options)
+        }
     }
 
     private class Fixture {
@@ -140,6 +144,42 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
 
         XCTAssertNotNil(sut)
         XCTAssertNotNil(sut?.tracker)
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testInit_whenTrackerCreatedBeforeOptionsWithUIUpdateLinkEnabled_shouldSwitchFrameSource() throws {
+        guard #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *) else {
+            throw XCTSkip("UIUpdateLink is not available on this OS version")
+        }
+
+        // -- Arrange --
+        // The tracker exists before the options are known, like with a launch profile.
+        let tracker = fixture.framesTracker
+        XCTAssertTrue(tracker.frameSourceForTesting is SentryDisplayLinkFrameSource)
+        fixture.options.tracesSampleRate = 1
+        fixture.options.experimental.enableUIUpdateLinkFramesTracking = true
+
+        // -- Act --
+        let sut = SentryFramesTrackingIntegration(with: fixture.options, dependencies: fixture.dependencies)
+
+        // -- Assert --
+        XCTAssertNotNil(sut)
+        XCTAssertTrue(tracker.frameSourceForTesting is SentryUpdateLinkFrameSource)
+        XCTAssertTrue(tracker.isRunning)
+    }
+#endif // !targetEnvironment(macCatalyst)
+
+    func testInit_whenTrackerCreatedBeforeOptionsWithUIUpdateLinkDisabled_shouldKeepDisplayLink() throws {
+        // -- Arrange --
+        let tracker = fixture.framesTracker
+        fixture.options.tracesSampleRate = 1
+
+        // -- Act --
+        let sut = SentryFramesTrackingIntegration(with: fixture.options, dependencies: fixture.dependencies)
+
+        // -- Assert --
+        XCTAssertNotNil(sut)
+        XCTAssertTrue(tracker.frameSourceForTesting is SentryDisplayLinkFrameSource)
     }
 
     func testUninstall() throws {

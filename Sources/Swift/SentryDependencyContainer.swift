@@ -357,8 +357,23 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
         let sentryAutoTransactionMaxDuration = 500.0
         let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
-        let frameSource = SentryDisplayLinkFrameSource(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider)
-        return SentryFramesTracker(frameSource: frameSource, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+        return SentryFramesTracker(frameSource: makeFrameSource(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+    }
+
+    func makeFrameSource() -> SentryFrameSource {
+        makeFrameSource(options: startOptions)
+    }
+
+    func makeFrameSource(options: Options?) -> SentryFrameSource {
+        // UIUpdateLink lets the tracker observe frames without waking up the app for every frame.
+        // It isn't available on Mac Catalyst.
+        #if !targetEnvironment(macCatalyst)
+        if #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *), options?.experimental.enableUIUpdateLinkFramesTracking == true {
+            let uiUpdateObserver = SentryUIUpdateLinkObserver(notificationCenter: notificationCenterWrapper, dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
+            return SentryUpdateLinkFrameSource(dateProvider: dateProvider, runLoopObserver: SentryMainRunLoopActivityObserver(), uiUpdateObserver: uiUpdateObserver)
+        }
+        #endif
+        return SentryDisplayLinkFrameSource(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider)
     }
 
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
@@ -792,6 +807,7 @@ extension SentryDependencyContainer: NSFileManagerSwizzlingProvider { }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol FramesTrackingProvider {
     var framesTracker: SentryFramesTracker { get }
+    func makeFrameSource(options: Options?) -> SentryFrameSource
 }
 
 extension SentryDependencyContainer: FramesTrackingProvider { }
