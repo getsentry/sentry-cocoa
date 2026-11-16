@@ -43,6 +43,28 @@ final class SentryMainRunLoopActivityObserverTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(activities.element(at: beforeWaitingIndex + 1)), .afterWaiting)
     }
 
+    func testStart_whenMainRunLoopIdle_shouldNotWakeUpRunLoop() {
+        // -- Arrange --
+        // Not waking up an idle app is the reason this observer exists. A display link would wake
+        // up the run loop for every frame, which is 30 times or more in the time this waits.
+        let idleDuration: TimeInterval = 0.5
+        let wakeupsWithoutObserver = countMainRunLoopWakeups(during: idleDuration)
+
+        let sut = SentryMainRunLoopActivityObserver()
+        var reportedActivities = 0
+        sut.start { _ in reportedActivities += 1 }
+        defer { sut.stop() }
+
+        // -- Act --
+        let wakeupsWithObserver = countMainRunLoopWakeups(during: idleDuration)
+
+        // -- Assert --
+        XCTAssertGreaterThan(reportedActivities, 0)
+        // The test host wakes up the run loop a few times on its own, and not equally often in both
+        // intervals.
+        XCTAssertLessThanOrEqual(wakeupsWithObserver, wakeupsWithoutObserver + 5)
+    }
+
     func testStop_whenMainRunLoopRuns_shouldNotReportActivities() {
         // -- Arrange --
         let sut = SentryMainRunLoopActivityObserver()
@@ -72,6 +94,19 @@ final class SentryMainRunLoopActivityObserverTests: XCTestCase {
         // -- Assert --
         XCTAssertGreaterThan(firstHandlerCalls, 0)
         XCTAssertEqual(secondHandlerCalls, 0)
+    }
+
+    private func countMainRunLoopWakeups(during duration: TimeInterval) -> Int {
+        var wakeups = 0
+        let observer = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.afterWaiting.rawValue, true, 0) { _, _ in
+            wakeups += 1
+        }
+        CFRunLoopAddObserver(CFRunLoopGetMain(), observer, .commonModes)
+        defer { CFRunLoopRemoveObserver(CFRunLoopGetMain(), observer, .commonModes) }
+
+        RunLoop.main.run(until: Date().addingTimeInterval(duration))
+
+        return wakeups
     }
 }
 #endif

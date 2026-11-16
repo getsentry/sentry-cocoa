@@ -17,13 +17,15 @@ import Foundation
 /// display link counts, and slow and frozen frames can never exceed it.
 final class SentryUpdateLinkFrameSource: SentryFrameSource {
 
-    // A frame duration outside of these frame rates isn't one of a display, for example when UIKit
-    // shortens the deadline of a UI update to present it with low latency.
+    // The frame rate comes from the time UIKit gives a UI update to complete, which normally is the
+    // time between two refreshes of the display. It sometimes isn't, for example when UIKit shortens
+    // it to present an update with low latency, and then it would convert to a frame rate that no
+    // display has. A frame rate outside of this range is ignored, and the last one within it stays.
     private static let validFrameRates: ClosedRange<Double> = 10...240
 
     /// What the total frame count is made of. Written by the main thread, read by the threads that
     /// start and finish spans.
-    private struct Frames {
+    private struct State {
         /// Whether time is passing for the count. It doesn't while the source is stopped.
         var isCounting = false
         var frameRate: UInt64 = 60
@@ -51,7 +53,7 @@ final class SentryUpdateLinkFrameSource: SentryFrameSource {
     private let uiUpdateObserver: SentryUIUpdateObserving
     private weak var delegate: SentryFrameSourceDelegate?
 
-    private let frames = SentryMutex(Frames())
+    private let state = SentryMutex(State())
 
     var requiresContinuousFrames: Bool {
         get { uiUpdateObserver.requiresContinuousUpdates }
@@ -78,12 +80,12 @@ final class SentryUpdateLinkFrameSource: SentryFrameSource {
         self.delegate = delegate
 
         let now = dateProvider.systemTime()
-        frames.withLock { frames in
+        state.withLock { state in
             // The work that started tracking has nothing to compare to, like the first callback of
             // a display link.
-            frames.workStart = nil
-            frames.countedUntil = now
-            frames.isCounting = true
+            state.workStart = nil
+            state.countedUntil = now
+            state.isCounting = true
         }
 
         runLoopObserver.start { [weak self] activity in
@@ -99,37 +101,37 @@ final class SentryUpdateLinkFrameSource: SentryFrameSource {
         uiUpdateObserver.stop()
 
         let now = dateProvider.systemTime()
-        frames.withLock { frames in
-            if let workStart = frames.workStart, now > workStart, now - workStart > frames.slowFrameThresholdNanos {
+        state.withLock { state in
+            if let workStart = state.workStart, now > workStart, now - workStart > state.slowFrameThresholdNanos {
                 // The main thread is blocked while tracking stops, which is one delayed frame that
                 // nobody reports to the delegate any more.
-                frames.countNormalFrames(until: workStart)
-                frames.delayedFrames += 1
-                frames.countedUntil = now
+                state.countNormalFrames(until: workStart)
+                state.delayedFrames += 1
+                state.countedUntil = now
             } else {
-                frames.countNormalFrames(until: now)
+                state.countNormalFrames(until: now)
             }
-            frames.workStart = nil
-            frames.isCounting = false
+            state.workStart = nil
+            state.isCounting = false
         }
     }
 
     func totalFrames() -> UInt {
         let now = dateProvider.systemTime()
-        return frames.withLock { frames in
-            var total = frames.delayedFrames
-            var normalFrames = frames.normalFrames
-            if frames.isCounting {
+        return state.withLock { state in
+            var total = state.delayedFrames
+            var normalFrames = state.normalFrames
+            if state.isCounting {
                 // The work the main thread is on is a delayed frame in flight when it already took
                 // longer than the threshold. Like the Android SDK, that frame counts as one frame.
                 // Otherwise the time counts as normal frames.
-                if let workStart = frames.workStart, now > workStart, now - workStart > frames.slowFrameThresholdNanos {
-                    if workStart > frames.countedUntil {
-                        normalFrames += Double(workStart - frames.countedUntil) * Double(frames.frameRate) / 1e9
+                if let workStart = state.workStart, now > workStart, now - workStart > state.slowFrameThresholdNanos {
+                    if workStart > state.countedUntil {
+                        normalFrames += Double(workStart - state.countedUntil) * Double(state.frameRate) / 1e9
                     }
                     total += 1
-                } else if now > frames.countedUntil {
-                    normalFrames += Double(now - frames.countedUntil) * Double(frames.frameRate) / 1e9
+                } else if now > state.countedUntil {
+                    normalFrames += Double(now - state.countedUntil) * Double(state.frameRate) / 1e9
                 }
             }
             return total + UInt(normalFrames)
@@ -138,10 +140,10 @@ final class SentryUpdateLinkFrameSource: SentryFrameSource {
 
     func resetFrames() {
         let now = dateProvider.systemTime()
-        frames.withLock { frames in
-            frames.delayedFrames = 0
-            frames.normalFrames = 0
-            frames.countedUntil = now
+        state.withLock { state in
+            state.delayedFrames = 0
+            state.normalFrames = 0
+            state.countedUntil = now
         }
     }
 
@@ -156,16 +158,16 @@ final class SentryUpdateLinkFrameSource: SentryFrameSource {
         let isWaiting = activity == .beforeWaiting
 
         var delayedFrameStart: UInt64?
-        frames.withLock { frames in
-            if let workStart = frames.workStart, now > workStart, now - workStart > frames.slowFrameThresholdNanos {
+        state.withLock { state in
+            if let workStart = state.workStart, now > workStart, now - workStart > state.slowFrameThresholdNanos {
                 // The time before the delayed frame is normal frames. The delayed frame itself is
                 // one frame.
-                frames.countNormalFrames(until: workStart)
-                frames.delayedFrames += 1
-                frames.countedUntil = now
+                state.countNormalFrames(until: workStart)
+                state.delayedFrames += 1
+                state.countedUntil = now
                 delayedFrameStart = workStart
             }
-            frames.workStart = isWaiting ? nil : now
+            state.workStart = isWaiting ? nil : now
         }
 
         guard let delegate else { return }
@@ -187,15 +189,15 @@ final class SentryUpdateLinkFrameSource: SentryFrameSource {
         let now = dateProvider.systemTime()
 
         let reportedFrameRate = frameDuration > 0 ? round(1 / frameDuration) : 0
-        let frameRate: UInt64 = frames.withLock { frames in
-            if Self.validFrameRates.contains(reportedFrameRate) && UInt64(reportedFrameRate) != frames.frameRate {
+        let frameRate: UInt64 = state.withLock { state in
+            if Self.validFrameRates.contains(reportedFrameRate) && UInt64(reportedFrameRate) != state.frameRate {
                 // Normal frames up to now are at the old frame rate. The work the main thread is
                 // on isn't counted yet, because it may turn out to be a delayed frame.
-                frames.countNormalFrames(until: min(frames.workStart ?? now, now))
-                frames.frameRate = UInt64(reportedFrameRate)
-                frames.slowFrameThresholdNanos = Self.slowFrameThresholdNanos(frames.frameRate)
+                state.countNormalFrames(until: min(state.workStart ?? now, now))
+                state.frameRate = UInt64(reportedFrameRate)
+                state.slowFrameThresholdNanos = Self.slowFrameThresholdNanos(state.frameRate)
             }
-            return frames.frameRate
+            return state.frameRate
         }
 
         delegate?.frameSource(didMeasureFrameRate: frameRate, at: now)

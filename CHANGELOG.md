@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add experimental option `options.experimental.enableUIUpdateLinkFramesTracking` that tracks slow and frozen frames, frames delay, and time to display on iOS 18, tvOS 18 and visionOS 2 and later with the main run loop and a `UIUpdateLink` instead of a `CADisplayLink`, so the SDK no longer wakes up an idle app for every frame (#9541)
+  - The option is disabled by default. We recommend trying it out, as it reduces the impact of the SDK on the performance of your app.
+
 ## 9.35.0
 
 ### Features
@@ -9,7 +16,6 @@
   - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
 - Add the `launchTimeToFirstDraw`, `launchResumeTime`, `launchOptimizedTimeToFirstDraw`, `launchExtended`, `responsivenessHangTime` and `cellularConditionTime` metric reports, which send MetricKit histograms as distributions with one value per sample, up to about 100 values per histogram (#9493)
 - Report the low power mode and TestFlight state that MetricKit records with a diagnostic of a previous app run as `device.low_power_mode` and an `app.build_type` of `test`, and take `app.app_identifier` from the diagnostic instead of the running app (#9523)
-- Add experimental option `options.experimental.enableUIUpdateLinkFramesTracking` that tracks slow and frozen frames, frames delay, and time to display on iOS 18, tvOS 18 and visionOS 2 and later with the main run loop and a `UIUpdateLink` instead of a `CADisplayLink`, so the SDK no longer wakes up an idle app for every frame. Disabled by default (#9541)
 
 ### Fixes
 

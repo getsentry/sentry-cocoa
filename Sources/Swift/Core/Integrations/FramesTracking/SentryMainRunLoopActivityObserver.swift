@@ -35,17 +35,21 @@ final class SentryMainRunLoopActivityObserver: SentryMainRunLoopActivityObservin
         let beforeOthers: CFRunLoopActivity = [.entry, .beforeTimers, .afterWaiting]
         let afterOthers: CFRunLoopActivity = [.beforeWaiting, .exit]
 
-        let created = [
-            CFRunLoopObserverCreateWithHandler(nil, beforeOthers.rawValue, true, CFIndex.min) { _, activity in
+        // One observer without the other would report waiting time as work or the other way
+        // around, so it's both or none.
+        guard
+            let beforeOthersObserver = CFRunLoopObserverCreateWithHandler(nil, beforeOthers.rawValue, true, CFIndex.min, { _, activity in
                 handler(activity)
-            },
-            CFRunLoopObserverCreateWithHandler(nil, afterOthers.rawValue, true, CFIndex.max) { _, activity in
+            }),
+            let afterOthersObserver = CFRunLoopObserverCreateWithHandler(nil, afterOthers.rawValue, true, CFIndex.max, { _, activity in
                 handler(activity)
-            }
-        ]
+            })
+        else {
+            SentrySDKLog.warning("Failed to create the main run loop observers. Slow and frozen frames and frames delay won't be tracked.")
+            return
+        }
 
-        for observer in created {
-            guard let observer else { continue }
+        for observer in [beforeOthersObserver, afterOthersObserver] {
             CFRunLoopAddObserver(CFRunLoopGetMain(), observer, .commonModes)
             observers.append(observer)
         }
