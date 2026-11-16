@@ -59,17 +59,15 @@ validate_output_location() {
 
 prepare_headers() {
     local header
+    # Reuse Xcode's umbrella so Foundation and the public submodules have identical exports.
     cp "$SOURCE_HEADERS_DIR"/*.h "$headers_dir/"
-    {
-        # Configure V10 before any public declarations, without consumer compiler flags.
-        if [ "${SDK_V10:-0}" = 1 ]; then
-            cp "$SCRIPT_DIR/../Sources/SentryV10Configuration/include/SentryV10Configuration.h" "$headers_dir/"
-            printf '#import <Sentry/SentryV10Configuration.h>\n'
-        fi
+    if [ "${SDK_V10:-0}" = 1 ]; then
+        # Match SentryV10.xcconfig's COPY_HEADERS_RUN_UNIFDEF. Consumers must not need build
+        # flags, and defining SDK_V10 in the umbrella would export it as a Swift constant.
         for header in "$SOURCE_HEADERS_DIR"/*.h; do
-            printf '#import <Sentry/%s>\n' "${header##*/}"
+            xcrun unifdef -DSDK_V10=1 -o "$headers_dir/${header##*/}" "$header" || [ $? -eq 1 ]
         done
-    } > "$headers_dir/SentryHeaders.h"
+    fi
 }
 
 prepare_modules() {
@@ -94,7 +92,7 @@ prepare_modules() {
     fi
 
     # Import declarations directly: importing the parent module here would create a cycle.
-    sed 's|@import SentryHeaders;|#import <Sentry/SentryHeaders.h>|' \
+    sed 's|@import SentryHeaders;|#import <Sentry/Sentry.h>|' \
         "$swift_products/Sentry-Swift.h" > "$headers_dir/Sentry-Swift.h"
     # The Swift submodule exposes Swift declarations to ObjC without reimporting them into Swift.
     cp "$SCRIPT_DIR/../Sources/Resources/SentrySPM.modulemap" "$modules_dir/module.modulemap"

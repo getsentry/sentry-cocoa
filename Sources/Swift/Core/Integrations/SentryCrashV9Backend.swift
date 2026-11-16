@@ -8,6 +8,18 @@ import Foundation
 private func sentrycrash_v9_registerSwiftBackend()
 #endif
 
+/// Global function to finish and save transaction when a crash occurs.
+/// This function is called from C crash reporting code.
+@_cdecl("sentry_finishAndSaveTransaction")
+public func sentry_finishAndSaveTransaction() {
+    let scope = SentrySDKInternal.currentHub().scope as Scope
+    guard let span = scope.getCastedInternalSpan() else {
+        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
+        return
+    }
+    span.tracer?.finishForCrash()
+}
+
 /// Connects the V9-only Swift adapter module to the reporter-neutral SDK module.
 ///
 /// SwiftPM compiles the adapter as a separate target so V10 never schedules its sources. The

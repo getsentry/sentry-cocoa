@@ -874,6 +874,34 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }
 
+    #if SWIFT_PACKAGE
+    // Suppress the intentional deprecated API use in this compatibility regression test.
+    @available(*, deprecated)
+    func testLegacyCrashCallback_whenCalled_shouldStoreTransaction() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
+        // -- Arrange --
+        let options = fixture.options
+        options.enablePersistingTracesWhenCrashing = true
+        let client = try XCTUnwrap(SentryClientInternal(options: options))
+        defer { client.fileManager.deleteAllEnvelopes() }
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+        _ = try fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
+        let transaction = SentrySDK.startTransaction(name: "Crashing", operation: "Operation", bindToScope: true)
+
+        // -- Act --
+        SentryCrashV9Swift.sentry_finishAndSaveTransaction()
+
+        // -- Assert --
+        XCTAssertTrue(transaction.isFinished)
+        XCTAssertEqual(1, client.fileManager.getAllEnvelopes().count)
+        let contents = try XCTUnwrap(client.fileManager.getOldestEnvelope())
+        let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: contents.contents))
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertEqual("transaction", envelope.items.first?.header.type)
+    }
+    #endif
+
     func testEnableTracingForCrashes_InvokeCallbackWhenNoSpanOnScope_TransactionNotFinished() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 

@@ -95,6 +95,14 @@ elif "swift-api-digester" in args:
                 for name in ("SentrySDK", "Options")]
     children.append({"kind": "Function", "name": "example", "children": [
         {"kind": "TypeNominal", "printedName": name} for name in ("()", "Swift.String", "Swift.Int")]})
+    if spm and fail_spm("DIFFERENT_SPM_API"):
+        difference = os.environ["DIFFERENT_SPM_API"]
+        if difference == "declaration":
+            children.pop(0)
+        elif difference == "signature":
+            children[-1]["children"][-1]["printedName"] = "Swift.Double"
+        elif difference == "import":
+            children.append({"kind": "Import", "name": "Foundation", "declAttributes": ["Exported"]})
     Path(argument("-o")).write_text(json.dumps({"ABIRoot": {
         "kind": "Root", "json_format_version": 8, "children": children}}))
 elif "--show-sdk-path" in args:
@@ -221,6 +229,8 @@ class UpdateApiTests(unittest.TestCase):
             self.assertTrue(args[args.index("-iframework") + 1].endswith("-SPM.xcframework/ios-arm64"))
         self.assertFalse((self.repo / "sdk_api_sentryswiftui_spm.json").exists())
         self.assertIn("Skipping SentrySwiftUI SwiftPM", result.stdout)
+        self.assertIn("SwiftPM API matches Xcode: sdk_api_spm.json", result.stdout)
+        self.assertIn("SwiftPM API matches Xcode: sdk_api_v10_spm.json", result.stdout)
         self.assertEqual(list((self.root / "tmp").iterdir()), [])
 
     def test_updates_existing_snapshots_in_checkout(self):
@@ -267,6 +277,16 @@ class UpdateApiTests(unittest.TestCase):
         self.assertFalse((self.repo / "sdk_api_v10_spm.json").exists())
         self.assert_packaged_interfaces_preserved()
         self.assertEqual(list((self.root / "tmp").iterdir()), [])
+
+    def test_spm_api_differences_fail_for_each_generation(self):
+        for generation in ("0", "1"):
+            for difference in ("declaration", "signature", "import"):
+                with self.subTest(generation=generation, difference=difference):
+                    result = self.run_script(DIFFERENT_SPM_API=difference, FAIL_SPM_GENERATION=generation)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn("SwiftPM API differs from Xcode", result.stdout)
+                    self.assert_packaged_interfaces_preserved()
+                    self.assertEqual(list((self.root / "tmp").iterdir()), [])
 
     def test_missing_compat_header_fails_before_packaging(self):
         result = self.run_script(MISSING_COMPAT_HEADER="1")

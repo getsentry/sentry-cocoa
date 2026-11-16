@@ -7,6 +7,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
 
+check_api_parity() {
+    local xcode_api="$1" spm_api="$2"
+    # Both extractors already sort the complete JSON, including imports and nested signatures.
+    if ! diff -u "$xcode_api" "$spm_api"; then
+        log_error "SwiftPM API differs from Xcode: $spm_api vs $xcode_api"
+        return 1
+    fi
+    log_info "SwiftPM API matches Xcode: $spm_api"
+}
+
 begin_group "Check Xcode Version"
 # Check if Xcode 16 is selected
 # Read full output first to avoid broken pipe (SIGPIPE) error with pipefail
@@ -152,6 +162,7 @@ cp -R "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework" "$SPM_API_DIR/Sentry-SPM.xcfra
     --module Sentry \
     --output sdk_api_spm.json \
     --framework-path "$SPM_API_DIR/Sentry-SPM.xcframework/ios-arm64"
+check_api_parity sdk_api.json sdk_api_spm.json
 end_group
 
 export SDK_V10=1
@@ -168,6 +179,7 @@ cp -R "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework" "$SPM_API_DIR/SentryV10-SPM.xc
     --module Sentry \
     --output sdk_api_v10_spm.json \
     --framework-path "$SPM_API_DIR/SentryV10-SPM.xcframework/ios-arm64"
+check_api_parity sdk_api_v10.json sdk_api_v10_spm.json
 end_group
 
 # SentrySwiftUI's package target still uses the released binary.
