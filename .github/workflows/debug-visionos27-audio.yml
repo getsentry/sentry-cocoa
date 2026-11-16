@@ -22,11 +22,10 @@ jobs:
       matrix:
         variant:
           - baseline
-          - headless
           - restart-coreaudiod-preboot
-          - restart-coreaudiod-postboot
-          - kickstart-watchdog
-          - blackhole
+          - tcc-grant
+          - click-allow
+          - click-dont-allow
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

@@ -4,7 +4,8 @@ set -euo pipefail
 # Temporary debugging helper for the visionOS 27 simulator backboardd crash loop on CI.
 #
 # backboardd aborts in AURemoteIO::Initialize ("RPC timeout") because a CoreAudio HAL call to the
-# host never returns. This script boots the simulator with one mitigation applied, watches
+# host never returns: the host shows an unanswered microphone permission prompt for
+# SimulatorTrampoline.xpc. This script boots the simulator with one mitigation applied, watches
 # backboardd for a while, and collects host audio diagnostics.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,17 +15,17 @@ source "$SCRIPT_DIR/ci-utils.sh"
 VARIANT="baseline"
 OS_VERSION=""
 DEVICE_NAME="Apple Vision Pro"
-OBSERVE_SECONDS="420"
+OBSERVE_SECONDS="240"
 OUTPUT_DIR="visionos27-audio-debug"
 
 usage() {
     log_info "Usage: $0"
     log_info "  -v, --variant <name>           Mitigation to apply (default: baseline). One of:"
     log_info "                                 baseline, headless, restart-coreaudiod-preboot,"
-    log_info "                                 restart-coreaudiod-postboot, kickstart-watchdog, blackhole"
+    log_info "                                 tcc-grant, click-allow, click-dont-allow"
     log_info "  -o, --os-version <version>     visionOS simulator version, e.g. 27.2 (required)"
     log_info "  -d, --device <name>            Simulator device name (default: Apple Vision Pro)"
-    log_info "  -s, --observe-seconds <n>      How long to watch backboardd after boot (default: 420)"
+    log_info "  -s, --observe-seconds <n>      How long to watch backboardd after boot (default: 240)"
     log_info "  -u, --output-dir <path>        Directory for collected diagnostics (default: visionos27-audio-debug)"
     exit 1
 }
@@ -46,7 +47,7 @@ if [ -z "$OS_VERSION" ]; then
 fi
 
 case "$VARIANT" in
-    baseline|headless|restart-coreaudiod-preboot|restart-coreaudiod-postboot|kickstart-watchdog|blackhole) ;;
+    baseline|headless|restart-coreaudiod-preboot|tcc-grant|click-allow|click-dont-allow) ;;
     *)
         log_error "Unknown variant: $VARIANT"
         usage
@@ -69,22 +70,38 @@ restart_coreaudiod() {
     log_info "coreaudiod after: $(pgrep -x coreaudiod | tr '\n' ' ')"
 }
 
-install_blackhole() {
-    log_info "Installing BlackHole virtual audio device"
-    if ! NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask blackhole-2ch; then
-        log_warning "Installing blackhole-2ch failed"
+grant_microphone_access() {
+    local client="$1"
+    local db="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+    local sql="INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier, flags) VALUES ('kTCCServiceMicrophone', '$client', 0, 2, 4, 1, 'UNUSED', 0);"
+    log_info "Granting microphone access to $client"
+    ls -le "$db" || true
+    if sqlite3 "$db" "$sql"; then
+        log_info "Granted as current user"
+    elif sudo -n sqlite3 "$db" "$sql"; then
+        log_info "Granted with sudo"
+    else
+        log_warning "Could not write microphone grant for $client"
     fi
-    if ! NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install switchaudio-osx; then
-        log_warning "Installing switchaudio-osx failed"
-    fi
-    restart_coreaudiod
-    if command -v SwitchAudioSource > /dev/null; then
-        SwitchAudioSource -a || true
-        SwitchAudioSource -t output -s "BlackHole 2ch" || log_warning "Selecting BlackHole output failed"
-        SwitchAudioSource -t input -s "BlackHole 2ch" || log_warning "Selecting BlackHole input failed"
-        SwitchAudioSource -c -t output || true
-        SwitchAudioSource -c -t input || true
-    fi
+}
+
+dump_microphone_access() {
+    local db="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+    sqlite3 "$db" ".schema access" || sudo -n sqlite3 "$db" ".schema access" || log_warning "Could not read TCC schema"
+    sqlite3 "$db" "select service, client, client_type, auth_value, auth_reason from access where service = 'kTCCServiceMicrophone';" \
+        || sudo -n sqlite3 "$db" "select service, client, client_type, auth_value, auth_reason from access where service = 'kTCCServiceMicrophone';" \
+        || log_warning "Could not read microphone grants"
+}
+
+# Answers the host's microphone permission prompt for the simulator as soon as it shows up.
+run_prompt_clicker() {
+    local button="$1"
+    while true; do
+        if osascript -e "tell application \"System Events\" to tell process \"UserNotificationCenter\" to click button \"$button\" of window 1" >> "$OUTPUT_DIR/clicker.log" 2>&1; then
+            echo "$(date -u +%H:%M:%S) clicked $button" >> "$OUTPUT_DIR/clicker.log"
+        fi
+        sleep 2
+    done
 }
 
 log_host_audio_state() {
@@ -141,20 +158,6 @@ collect_hang_samples() {
     end_group
 }
 
-run_kickstart_watchdog() {
-    local udid="$1"
-    while true; do
-        if ! pgrep -x backboardd > /dev/null; then
-            if xcrun simctl spawn "$udid" launchctl kickstart system/com.apple.backboardd >> "$OUTPUT_DIR/watchdog.log" 2>&1; then
-                echo "$(date -u +%H:%M:%S) kickstart ok" >> "$OUTPUT_DIR/watchdog.log"
-            else
-                echo "$(date -u +%H:%M:%S) kickstart failed" >> "$OUTPUT_DIR/watchdog.log"
-            fi
-        fi
-        sleep 2
-    done
-}
-
 cleanup() {
     if [ -n "$WATCHDOG_PID" ]; then
         kill "$WATCHDOG_PID" 2> /dev/null || true
@@ -172,11 +175,24 @@ case "$VARIANT" in
         restart_coreaudiod
         end_group
         ;;
-    blackhole)
-        begin_group "Mitigation: BlackHole virtual audio device"
-        install_blackhole
+    tcc-grant)
+        begin_group "Mitigation: pre-grant microphone access"
+        dump_microphone_access
+        grant_microphone_access "com.apple.CoreSimulator.SimulatorTrampoline"
+        grant_microphone_access "com.apple.CoreSimulator.CoreSimulatorService"
+        grant_microphone_access "com.apple.dt.Devices"
+        dump_microphone_access
         end_group
-        log_host_audio_state "after BlackHole"
+        ;;
+    click-allow)
+        log_info "Starting prompt clicker (Allow)"
+        run_prompt_clicker "Allow" &
+        WATCHDOG_PID=$!
+        ;;
+    click-dont-allow)
+        log_info "Starting prompt clicker (Don't Allow)"
+        run_prompt_clicker "Don’t Allow" &
+        WATCHDOG_PID=$!
         ;;
     *) ;;
 esac
@@ -216,23 +232,6 @@ fi
 xcrun simctl bootstatus "$UDID" || log_warning "bootstatus failed"
 log_info "Boot started at $BOOT_STARTED, finished at $(date -u +%H:%M:%S)"
 end_group
-
-# === Post-boot mitigation ===
-case "$VARIANT" in
-    restart-coreaudiod-postboot)
-        collect_hang_samples "before-restart"
-        begin_group "Mitigation: restart coreaudiod after boot"
-        restart_coreaudiod
-        end_group
-        ;;
-    kickstart-watchdog)
-        log_info "Starting backboardd kickstart watchdog"
-        xcrun simctl spawn "$UDID" launchctl print system/com.apple.backboardd > "$OUTPUT_DIR/launchctl-print-backboardd.txt" 2>&1 || log_warning "launchctl print failed"
-        run_kickstart_watchdog "$UDID" &
-        WATCHDOG_PID=$!
-        ;;
-    *) ;;
-esac
 
 # === Observe ===
 begin_group "Observe backboardd"
@@ -279,9 +278,9 @@ for db in "$HOME/Library/Application Support/com.apple.TCC/TCC.db" "/Library/App
     log_info "TCC microphone entries in $db:"
     sudo -n sqlite3 "$db" "select service, client, client_type, auth_value, auth_reason from access where service in ('kTCCServiceMicrophone', 'kTCCServiceAudioCapture');" || log_warning "Reading $db failed"
 done
-if [ -f "$OUTPUT_DIR/watchdog.log" ]; then
-    log_info "Watchdog log:"
-    cat "$OUTPUT_DIR/watchdog.log"
+if [ -f "$OUTPUT_DIR/clicker.log" ]; then
+    log_info "Prompt clicker log (last 40 lines):"
+    tail -n 40 "$OUTPUT_DIR/clicker.log"
 fi
 end_group
 
