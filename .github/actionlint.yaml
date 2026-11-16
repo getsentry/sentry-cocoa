@@ -3,7 +3,6 @@ self-hosted-runner:
     - bitrise_pool_name:xcode-beta
     - bitrise_pool_name:sequoia
     - bitrise_pool_name:tahoe
-    - bitrise_pool_name:sonoma
 
 paths:
   .github/workflows/*.yml:
