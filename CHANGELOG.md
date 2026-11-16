@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.29.3
+
+### Internal Changes 🔧
+
+- (release) Bump craft to 3.9.0 by @itaybre in [e1a8d798](https://github.com/getsentry/sentry-cocoa/commit/e1a8d7986585d9f6df5627080808868c9b36ec45)
+
 ## 9.29.2
 
 ### Fixes
