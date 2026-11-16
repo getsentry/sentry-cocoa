@@ -2,10 +2,19 @@
 
 ## Unreleased
 
+### Features
+
+- Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
+  - Expose `options.webViewTracing` through the SentryObjC SDK as `SentryObjCOptions.webViewTracing` (#9539)
+  - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
+- Add the `launchTimeToFirstDraw`, `launchResumeTime`, `launchOptimizedTimeToFirstDraw`, `launchExtended`, `responsivenessHangTime` and `cellularConditionTime` metric reports, which send MetricKit histograms as distributions with one value per sample, up to about 100 values per histogram (#9493)
+- Report the low power mode and TestFlight state that MetricKit records with a diagnostic of a previous app run as `device.low_power_mode` and an `app.build_type` of `test`, and take `app.app_identifier` from the diagnostic instead of the running app (#9523)
+
 ### Fixes
 
 - Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
+- Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
 
 ## 9.34.0
 
@@ -18,6 +27,7 @@
 
 - Prevent a crash in file I/O tracing when `NSData` is read from a `nil` URL, for example by MessageUI when sharing to Mail (#9535)
 - Skip stored crash reports with a top-level JSON array instead of crashing during SDK startup (#9590)
+- Count error events captured with `captureEvent` in the current session's error count, as the Java and Native SDKs do, so hybrid SDKs such as Godot and Unreal report errored sessions. App hangs and events from a previous process still don't count (#9597)
 
 ### Improvements
 

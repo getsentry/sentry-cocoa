@@ -24,6 +24,16 @@ public struct SentryWebViewTracingOptions {
     public init(allowedHosts: [String]) {
         self.allowedHosts = allowedHosts
     }
+
+    /// Creates options from the `webViewTracing` entry of an options dictionary, shaped like the
+    /// `options` of `sentryWebViewProps` in the React Native SDK, for example
+    /// `["allowedHosts": ["example.com"]]`. Returns `nil` when the entry has no `allowedHosts` list.
+    init?(dictionary value: Any?) {
+        guard let dictionary = value as? [String: Any], let allowedHosts = dictionary["allowedHosts"] as? [Any] else {
+            return nil
+        }
+        self.init(allowedHosts: allowedHosts.compactMap { $0 as? String })
+    }
 }
 
 /// Connects traces of web content in a WebView with the app's trace.
@@ -49,6 +59,10 @@ public struct SentryWebViewTracingOptions {
 /// navigation. To propagate a newer trace, call `addTracePropagation` again: it replaces the script
 /// Sentry added earlier and keeps the app's own scripts. If the call fails, no Sentry script is
 /// left behind. Scripts apply from the next navigation.
+///
+/// To add trace propagation to every WebView and keep its trace current, set
+/// ``Options/webViewTracing`` instead. When it is set, controllers passed here keep the hosts of
+/// a successful call and are refreshed like the others.
 public enum SentryWebViewTracing {
     /// Adds trace propagation to WebViews that use this user content controller.
     ///
@@ -65,7 +79,13 @@ public enum SentryWebViewTracing {
     ) -> Bool {
         let hub = SentryWebViewTracePropagation.currentHub
         SentryWebViewTracePropagation.recordUsage(in: hub)
-        return SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
+        let installed = SentryWebViewTracePropagation.install(allowedHosts: options.allowedHosts, on: userContentController, hub: hub)
+        // With automatic propagation, keep this controller's own hosts on later loads and refreshes.
+        // A failed call isn't tracked, so the controller keeps the app-wide hosts.
+        if installed {
+            SentryWebViewTraceRefresherProxy.shared.target?.track(userContentController, allowedHosts: options.allowedHosts)
+        }
+        return installed
     }
 
     /// Adds trace propagation to WebViews created with this configuration.
@@ -109,7 +129,8 @@ public enum SentryWebViewTracing {
     ///
     /// Call it before creating the `WebPage`, because a `WebPage` doesn't expose its configuration.
     /// A `WebView(url:)` creates its page internally, so create a `WebPage` with this configuration
-    /// and pass it to `WebView(_:)` instead.
+    /// and pass it to `WebView(_:)` instead, or set ``Options/webViewTracing``, which also covers
+    /// `WebView(url:)`.
     ///
     /// - Parameters:
     ///   - configuration: The configuration of the `WebPage` that receives the trace.
@@ -144,17 +165,25 @@ enum SentryWebViewTracePropagation {
 
     /// Records feature adoption once per hub. Recorded on use rather than on success, like the
     /// other SDKs, so apps that wired the feature up count even when a call can't install.
-    @MainActor
     static func recordUsage(in hub: SentryHubInternal?) {
         guard let hub = hub, !hub.hasIntegration(integrationName) else {
             return
         }
-        hub.addInstalledIntegration(SentryWebViewTracePropagationIntegration(), name: integrationName)
+        hub.addInstalledIntegration(SentryWebViewTracePropagationUsage(), name: integrationName)
+    }
+
+    /// Removes Sentry's script and keeps the app's own scripts.
+    static func removeScript(from controller: WKUserContentController) {
+        let appScripts = controller.userScripts.filter { !$0.source.hasPrefix(scriptMarker) }
+        guard appScripts.count != controller.userScripts.count else {
+            return
+        }
+        controller.removeAllUserScripts()
+        appScripts.forEach { controller.addUserScript($0) }
     }
 
     /// Removes any previous Sentry script so a stale trace is never injected, then adds a fresh one
     /// before the app's own scripts.
-    @MainActor
     @discardableResult
     static func install(allowedHosts: [String], on controller: WKUserContentController, hub: SentryHubInternal?) -> Bool {
         let source = makeScriptSource(allowedHosts: allowedHosts, hub: hub)
@@ -290,9 +319,10 @@ enum SentryWebViewTracePropagation {
     }
 }
 
-/// Marks WebView trace propagation as used in the SDK info. It has no lifecycle, because the
-/// feature is a per-WebView call rather than an integration installed at SDK start.
-final class SentryWebViewTracePropagationIntegration: NSObject, SentryIntegrationProtocol {
+/// Marks manual WebView trace propagation as used in the SDK info. It has no lifecycle, because
+/// the manual API is a per-WebView call. When ``Options/webViewTracing`` is set,
+/// ``SentryWebViewTracePropagationIntegration`` is installed under the same name instead.
+final class SentryWebViewTracePropagationUsage: NSObject, SentryIntegrationProtocol {
     func uninstall() {}
 }
 #endif

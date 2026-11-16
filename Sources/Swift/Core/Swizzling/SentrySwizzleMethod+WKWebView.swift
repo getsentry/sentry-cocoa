@@ -1,9 +1,9 @@
 #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import WebKit
 
-extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments1, Result == AnyObject? {
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments1<NSURLRequest>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadRequest:]`.
-    /// - SeeAlso: `WKWebView.load(_:)` accepting a `URLRequest`.
+    /// - SeeAlso: `WKWebView.load(_:)` accepting a `URLRequest`
     static func webViewLoadRequest(_ receiver: Receiver.Type) -> Self {
         .init(
             selector: #selector(WKWebView.load(_:) as (WKWebView) -> (URLRequest) -> WKNavigation?),
@@ -13,7 +13,7 @@ extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwiz
     }
 }
 
-extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments2, Result == AnyObject? {
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments2<NSString, NSURL>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadHTMLString:baseURL:]`.
     /// - SeeAlso: `WKWebView.loadHTMLString(_:baseURL:)`
     static func webViewLoadHTMLString(_ receiver: Receiver.Type) -> Self {
@@ -23,7 +23,9 @@ extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwiz
             signature: .init(returnType: .object, arguments: [.object, .selector, .object, .object])
         )
     }
+}
 
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments2<NSURL, NSURL>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadFileURL:allowingReadAccessToURL:]`.
     /// - SeeAlso: `WKWebView.loadFileURL(_:allowingReadAccessTo:)`
     static func webViewLoadFileURL(_ receiver: Receiver.Type) -> Self {
@@ -33,7 +35,9 @@ extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwiz
             signature: .init(returnType: .object, arguments: [.object, .selector, .object, .object])
         )
     }
+}
 
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments2<NSURLRequest, NSURL>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadFileRequest:allowingReadAccessToURL:]`.
     /// - SeeAlso: `WKWebView.loadFileRequest(_:allowingReadAccessTo:)`
     static func webViewLoadFileRequest(_ receiver: Receiver.Type) -> Self {
@@ -43,7 +47,9 @@ extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwiz
             signature: .init(returnType: .object, arguments: [.object, .selector, .object, .object])
         )
     }
+}
 
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments2<NSURLRequest, NSString>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadSimulatedRequest:responseHTMLString:]`.
     /// - SeeAlso: `WKWebView.loadSimulatedRequest(_:responseHTML:)`
     static func webViewLoadSimulatedRequestHTML(_ receiver: Receiver.Type) -> Self {
@@ -55,7 +61,7 @@ extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwiz
     }
 }
 
-extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments3, Result == AnyObject? {
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments3<NSURLRequest, URLResponse, NSData>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadSimulatedRequest:response:responseData:]`.
     /// - SeeAlso: `WKWebView.loadSimulatedRequest(_:response:responseData:)`
     static func webViewLoadSimulatedRequestData(_ receiver: Receiver.Type) -> Self {
@@ -67,7 +73,7 @@ extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwiz
     }
 }
 
-extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments4, Result == AnyObject? {
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments4<NSData, NSString, NSString, NSURL>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadData:MIMEType:characterEncodingName:baseURL:]`.
     /// - SeeAlso: `WKWebView.load(_:mimeType:characterEncodingName:baseURL:)`
     static func webViewLoadData(_ receiver: Receiver.Type) -> Self {

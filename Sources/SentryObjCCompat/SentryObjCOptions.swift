@@ -477,6 +477,14 @@ import Foundation
         set { wrapped.enableNetworkTracking = newValue }
     }
 
+    #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Returns a copy, because the SDK stores a value type. Assign a new object to change it.
+    @objc public var webViewTracing: SentryObjCWebViewTracingOptions? {
+        get { wrapped.webViewTracing.map { SentryObjCWebViewTracingOptions(allowedHosts: $0.allowedHosts) } }
+        set { wrapped.webViewTracing = newValue?.toSentryWebViewTracingOptions() }
+    }
+    #endif
+
     @objc public var enableFileIOTracing: Bool {
         get { wrapped.enableFileIOTracing }
         set { wrapped.enableFileIOTracing = newValue }

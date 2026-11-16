@@ -50,7 +50,7 @@ final class KnownFailuresTests: XCTestCase {
 
     func testRunAllowingKnownFailure_whenKnownReportAssertionFails_shouldSucceed() throws {
         // -- Arrange --
-        let scenario = Scenario.objcObject
+        let scenario = Scenario.objcObjectAfterCaughtCPP
 
         // -- Act & Assert --
         XCTAssertNoThrow(try runAllowingKnownFailure(scenario, reporter: .sentryCrash, platform: "ios") {
@@ -72,7 +72,7 @@ final class KnownFailuresTests: XCTestCase {
 
     func testRunAllowingKnownFailure_whenOtherScenarioHasReportFailure_shouldThrow() {
         // -- Arrange --
-        let scenario = Scenario.nsException
+        let scenario = Scenario.objcObject
 
         // -- Act & Assert --
         XCTAssertThrowsError(try runAllowingKnownFailure(scenario, reporter: .sentryCrash, platform: "macos") {
@@ -84,7 +84,7 @@ final class KnownFailuresTests: XCTestCase {
 
     func testRunAllowingKnownFailure_whenKnownScenarioPasses_shouldThrow() {
         // -- Arrange --
-        let scenario = Scenario.objcObject
+        let scenario = Scenario.objcObjectAfterCaughtCPP
 
         // -- Act & Assert --
         XCTAssertThrowsError(try runAllowingKnownFailure(scenario, reporter: .sentryCrash, platform: "ios") {}) { error in
@@ -97,6 +97,6 @@ final class KnownFailuresTests: XCTestCase {
         let scenario = Scenario.objcObject
 
         // -- Act & Assert --
-        XCTAssertNoThrow(try runAllowingKnownFailure(scenario, reporter: .ksCrash, platform: "ios") {})
+        XCTAssertNoThrow(try runAllowingKnownFailure(scenario, reporter: .sentryCrash, platform: "macos") {})
     }
 }

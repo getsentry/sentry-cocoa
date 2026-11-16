@@ -160,6 +160,19 @@ static const NSUInteger SentryWeakMapCleanupBudget = 2;
     return self.storage.count;
 }
 
+- (NSArray *)allKeys
+{
+    [self prune];
+    NSMutableArray *keys = [NSMutableArray arrayWithCapacity:self.storage.count];
+    for (SentryWeakBox *box in self.storage.keyEnumerator) {
+        id key = box.key;
+        if (key != nil) {
+            [keys addObject:key];
+        }
+    }
+    return keys;
+}
+
 - (void)pruneNextEntries:(NSUInteger)limit
 {
     // The doubly linked list provides a stable cursor across dictionary mutations. Inspect a fixed

@@ -21,6 +21,12 @@ SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_SentrySwift = YES
 SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_SentryObjCCompat = YES
 BUILD_LIBRARY_FOR_DISTRIBUTION = $(SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_$(TARGET_NAME):default=$(inherited))
 
+// Swift 6.1's interface verifier does not reuse the Clang importer's module-map flags.
+// Make prepares a discoverable module map in the copied public-header directory. Keep
+// verification enabled and expose that directory through Swift's import search paths.
+SENTRY_PACKAGE_SWIFT_INCLUDE_PATHS_Sentry = $(SRCROOT)/Sources/Sentry/Public
+SWIFT_INCLUDE_PATHS = $(inherited) $(SENTRY_PACKAGE_SWIFT_INCLUDE_PATHS_$(PROJECT_NAME))
+
 // -xcconfig applies to dependency projects too. Keep their diagnostic policy inherited;
 // SwiftPM dependencies can use -suppress-warnings, which conflicts with -warnings-as-errors.
 SENTRY_PACKAGE_WARNINGS_Sentry = YES

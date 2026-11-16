@@ -41,6 +41,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
   - ".github/workflows/unit-test-common.yml"
+  - ".github/workflows/fast-pr-checks.yml"
+  - ".github/workflows/nightly-test.yml"
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
@@ -51,6 +53,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
+  - "scripts/build-package-test-fixture.sh"
   - "test-server/Makefile"
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"
@@ -454,6 +457,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
+  - "scripts/build-package-test-fixture.sh"
   - "scripts/verify-v10-sentrycrash-*.sh"
   - "scripts/verify-v10-sentrycrash-source-contract.swift"
   - "scripts/verify-v10-empty-objects.swift"
@@ -489,6 +493,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
   - "Package*.swift"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # Build configuration
   - "Makefile"
@@ -563,6 +568,7 @@ run_build_for_prs: &run_build_for_prs
   - ".github/actions/setup-git-access/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/sentry-xcodebuild.sh"
+  - "scripts/build-package-test-fixture.sh"
   - "scripts/check-ui-framework-linkage.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"

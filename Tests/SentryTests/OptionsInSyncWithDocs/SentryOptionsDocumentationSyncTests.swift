@@ -47,6 +47,10 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         options.insert("sessionReplay")
         #endif
 
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        options.insert("webViewTracing") // Docs update pending with the automatic WebView trace propagation release
+        #endif
+
         #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
         #endif
