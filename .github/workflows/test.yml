@@ -486,8 +486,16 @@ jobs:
             platform: "visionOS"
             timeout: 30
 
-          # visionOS 27 only runs in nightly-test.yml. The simulator's backboardd crash-loops on
-          # the runners and the job regularly hits its timeout. See the comment there for details.
+          # visionOS 27
+          # ci-boot-simulator.sh answers the host's microphone permission prompt for visionOS
+          # simulators. Unanswered, it makes the simulator's backboardd crash-loop and the tests
+          # take 10 to 60 minutes instead of 4.
+          # See https://github.com/getsentry/sentry-cocoa/pull/9644 for the investigation.
+          - name: visionOS 27 Sentry
+            runs-on: tahoe-xl
+            xcode: "27"
+            platform: "visionOS"
+            timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.

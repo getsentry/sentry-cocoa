@@ -43,6 +43,21 @@ run_with_timeout() {
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
+# On headless runners the host asks 'Allow "SimulatorTrampoline.xpc" to access your microphone?'
+# when a visionOS simulator boots. Until somebody answers, CoreAudio init inside the simulator
+# never returns, backboardd aborts with "RPC timeout" and crash-loops with a doubling respawn
+# delay, and every test that needs the render server blocks until the next respawn.
+# Answer the prompt in the background for 10 minutes, which covers boot retries.
+answer_microphone_prompt() {
+    local deadline=$((SECONDS + 600))
+    while [ $SECONDS -lt $deadline ]; do
+        if osascript -e 'tell application "System Events" to tell process "UserNotificationCenter" to click button "Allow" of window 1' > /dev/null 2>&1; then
+            log_info "Answered the host microphone permission prompt"
+        fi
+        sleep 2
+    done
+}
+
 usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
@@ -170,6 +185,14 @@ log_info "Booting simulator: $SIMULATOR - $PLATFORM_NAME $PLATFORM_VERSION (UDID
 
 MAX_BOOT_ATTEMPTS=5
 BOOT_TIMEOUT=180 # 3 minutes
+
+# Start the watcher once, before the first boot attempt, so it also covers boot retries.
+if [ "$PLATFORM_NAME" = "visionOS" ]; then
+    log_info "Watching for the host microphone permission prompt"
+    # Detach from the step's output so the step doesn't wait for the watcher to finish.
+    answer_microphone_prompt >> "${RUNNER_TEMP:-/tmp}/microphone-prompt.log" 2>&1 &
+    disown
+fi
 
 for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
     log_info "Boot attempt $attempt of $MAX_BOOT_ATTEMPTS"
