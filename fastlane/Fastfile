@@ -115,40 +115,6 @@ platform :ios do
     )
   end
 
-  desc "Run match for local development"
-  lane :match_local do
-    sync_code_signing(
-      type: "development",
-      app_identifier: [
-        "io.sentry.*",
-        "io.sentry.iOS-Swift-UITests.xctrunner",
-        "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
-        "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension",
-        "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
-        "io.sentry.sample.iOS-Swift.KeyboardExtension"
-      ],
-      readonly: true
-    )
-    sync_code_signing(
-      type: "appstore",
-      app_identifier: [
-        "io.sentry.*",
-        "io.sentry.iOS-Swift-UITests.xctrunner",
-        "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
-        "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension",
-        "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
-        "io.sentry.sample.iOS-Swift.KeyboardExtension"
-      ],
-      readonly: true
-    )
-  end
-
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do |options|
     skip_codesigning = options[:skip_codesigning] || false
@@ -238,8 +204,8 @@ platform :ios do
       type: "development",
       app_identifier: [
         "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip", 
-        "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension",
         "io.sentry.sample.iOS-Swift.IntentExtension",
         "io.sentry.sample.iOS-Swift.ActionExtension",
         "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
@@ -299,7 +265,7 @@ platform :ios do
       app_identifier: "io.sentry.iOS-SwiftUI"
     )
   end
-  
+
   lane :ui_tests_ios_swift6 do |options|
     run_ui_tests(
       scheme: "iOS-Swift6",
@@ -334,7 +300,7 @@ platform :ios do
       result_bundle_name: "ui_tests_tvos_swift"
     )
   end
-  
+
   desc "Run Duplication test"
   lane :duplication_test do
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
@@ -350,9 +316,30 @@ platform :ios do
     )
   end
 
-  desc "Generate all provisioning profiles for development"
+  desc "Install all development provisioning profiles"
+  lane :prepare_signing do
+    app_identifiers = [
+      "io.sentry.sample.SDK-Size",
+      "io.sentry.iOS-Swift-UITests.xctrunner",
+      "io.sentry.sample.iOS-Swift",
+      "io.sentry.sample.iOS-Swift.Clip",
+      "io.sentry.sample.iOS-Swift.ShareExtension",
+      "io.sentry.sample.iOS-Swift.IntentExtension",
+      "io.sentry.sample.iOS-Swift.ActionExtension",
+      "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+      "io.sentry.sample.iOS-Swift.KeyboardExtension"
+    ]
+    sync_code_signing(
+      type: "development",
+      app_identifier: app_identifiers,
+      readonly: true
+    )
+  end
+
+  desc "Renew all development and App Store provisioning profiles"
   lane :setup_code_signing do
     app_identifiers = [
+      "io.sentry.sample.SDK-Size",
       "io.sentry.iOS-Swift-UITests.xctrunner",
       "io.sentry.sample.iOS-Swift",
       "io.sentry.sample.iOS-Swift.Clip",
