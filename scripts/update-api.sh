@@ -134,10 +134,6 @@ begin_group "Diff SentryObjC vs SentryObjCCompat (V10)"
     --output sdk_api_objc_v10.diff.json
 end_group
 
-# Extract from temporary copies so the packaged artifacts retain their SPI interfaces.
-SPM_API_DIR=$(mktemp -d)
-trap 'rm -rf "$SPM_API_DIR"' EXIT
-
 export SDK_V10=0
 SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM"
 
@@ -147,11 +143,10 @@ begin_group "Build Sentry SwiftPM XCFramework"
 end_group
 
 begin_group "Extract SwiftPM Public API"
-cp -R "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework" "$SPM_API_DIR/Sentry-SPM.xcframework"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api_spm.json \
-    --framework-path "$SPM_API_DIR/Sentry-SPM.xcframework/ios-arm64"
+    --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
 end_group
 
 export SDK_V10=1
@@ -163,11 +158,10 @@ begin_group "Build Sentry V10 SwiftPM XCFramework"
 end_group
 
 begin_group "Extract V10 SwiftPM Public API"
-cp -R "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework" "$SPM_API_DIR/SentryV10-SPM.xcframework"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api_v10_spm.json \
-    --framework-path "$SPM_API_DIR/SentryV10-SPM.xcframework/ios-arm64"
+    --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
 end_group
 
 # SentrySwiftUI's package target still uses the released binary.
