@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/debug-visionos27-audio.yml"
       - "scripts/ci-debug-visionos27-audio.sh"
+      - "scripts/ci-boot-simulator.sh"
 
 # Pull-request-only workflow, so only the latest commit matters and older runs are cancelled.
 concurrency:
@@ -13,6 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Full visionOS 27 unit tests with the microphone prompt answered by ci-boot-simulator.sh.
+  unit-tests:
+    name: Unit visionOS 27 Sentry
+    uses: ./.github/workflows/unit-test-common.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+    with:
+      name: visionOS 27 Sentry
+      runs-on: tahoe-xl
+      timeout: 60
+      xcode: "27"
+      platform: "visionOS"
+
   probe:
     name: Probe ${{ matrix.variant }}
     runs-on: ${{ fromJSON('["bitrise_pool_name:tahoe-xl"]') }}
@@ -21,11 +36,7 @@ jobs:
       fail-fast: false
       matrix:
         variant:
-          - baseline
-          - restart-coreaudiod-preboot
-          - tcc-grant
           - click-allow
-          - click-dont-allow
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
