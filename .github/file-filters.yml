@@ -328,6 +328,7 @@ run_release_for_prs: &run_release_for_prs
   - "TestApps/macOS-ObjectiveC-Static-CMake/**"
   - "TestApps/macOS-SPM-CommandLine/**"
   - "TestApps/SPM-Dynamic/**"
+  - "TestApps/SPM-ObjC-Dynamic/**"
 
   # Build configuration
   - ".ruby-version"

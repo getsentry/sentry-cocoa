@@ -24,15 +24,9 @@ let package = Package(
         .package(name: "Sentry", path: "../../../sentry-cocoa")
     ] : [],
     targets: sdkTargets + [
-        .target(
-            name: "ObjCConsumer",
-            dependencies: sdkDependencies,
-            cSettings: [
-                .unsafeFlags(["-Werror=quoted-include-in-framework-header"])
-            ]),
         .executableTarget(
             name: "SPM-Dynamic",
-            dependencies: sdkDependencies + ["ObjCConsumer"],
+            dependencies: sdkDependencies,
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
             ],
