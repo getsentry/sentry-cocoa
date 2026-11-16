@@ -310,6 +310,13 @@ class UpdateApiTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(self.log.exists())
 
+    def test_compat_extractor_rejects_missing_supplied_header(self):
+        result = subprocess.run(
+            ["bash", str(self.repo / "scripts/extract-objc-compat-api.sh"), "--output", str(self.root / "compat.json"),
+             "--swift-header", str(self.root / "missing.h")], env=self.env, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(self.log.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

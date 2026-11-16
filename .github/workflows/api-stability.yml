@@ -63,6 +63,8 @@ jobs:
         run: |
           python3 scripts/test-update-api.py -v
           python3 scripts/test-prepare-sentry-framework-inputs.py -v
+          bash scripts/test-static-library-archive-architectures.sh
+          python3 scripts/test-spm-framework-packaging.py -v
 
       - name: Generate HEAD SDK
         run: |

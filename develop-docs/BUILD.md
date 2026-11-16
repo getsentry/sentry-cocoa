@@ -74,6 +74,8 @@ Source-backed SentrySwiftUI extraction is deferred; its package target still use
 
 Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -v` and the packaging-input tests with `python3 scripts/test-prepare-sentry-framework-inputs.py -v`.
 
+On macOS with Xcode selected, `bash scripts/test-static-library-archive-architectures.sh` checks archive architecture selection. `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, prepares and assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
+
 ## Platform-Specific Build Notes
 
 ### visionOS Considerations
