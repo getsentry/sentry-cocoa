@@ -71,7 +71,7 @@ _Remember to call this as early in your application life cycle as possible_
 Ideally in `applicationDidFinishLaunching` in `AppDelegate`
 
 ```swift
-import Sentry
+import SentrySwift // The SentrySPM product. Use `import Sentry` with the pre-built XCFrameworks.
 
 // ....
 
