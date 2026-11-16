@@ -57,8 +57,19 @@ public class SentryFramesTracker: NSObject {
     private var slowFrames: UInt = 0
     private var frozenFrames: UInt = 0
 
-    /// How the frames are observed. A var only so that tests can replace it.
-    private var frameSource: SentryFrameSource
+    private struct Source {
+        /// How the frames are observed.
+        var frameSource: SentryFrameSource
+        /// The total frames of the frame sources that `frameSource` replaced.
+        var totalFramesOfReplacedSources: UInt = 0
+    }
+
+    /// Written on the main thread, read by the threads that start and finish spans. The lock makes
+    /// replacing the frame source and carrying over its total frames one step for these threads.
+    private let source: SentryMutex<Source>
+    private var frameSource: SentryFrameSource {
+        source.withLock { $0.frameSource }
+    }
     let dateProvider: SentryCurrentDateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -73,7 +84,7 @@ public class SentryFramesTracker: NSObject {
         notificationCenter: SentryNSNotificationCenterWrapper,
         delayedFramesTracker: SentryDelayedFramesTrackerWrapper
     ) {
-        self.frameSource = frameSource
+        self.source = SentryMutex(Source(frameSource: frameSource))
         self.dateProvider = dateProvider
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.notificationCenter = notificationCenter
@@ -137,9 +148,9 @@ public class SentryFramesTracker: NSObject {
     ///
     /// The tracker can be created before the SDK's options are known, for example by a launch
     /// profile, and then has the default frame source. Once the options are known, the SDK calls
-    /// this with the frame source they ask for. The total, slow, and frozen frames and the frames
-    /// delay the old source produced are dropped, so that all frame data comes from one source.
-    /// The profiling timestamps are kept, as a launch profile may still be using them.
+    /// this with the frame source they ask for. The total, slow, and frozen frames keep counting
+    /// from where the old source left off, because spans that are running subtract the frames at
+    /// their start from the frames at their end. Only the frames delay of the old source is dropped.
     func useFrameSource(_ frameSource: SentryFrameSource) {
         dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
             self.useFrameSourceInternal(frameSource)
@@ -150,14 +161,18 @@ public class SentryFramesTracker: NSObject {
         guard ObjectIdentifier(type(of: frameSource)) != ObjectIdentifier(type(of: self.frameSource)) else { return }
 
         self.frameSource.stop()
-        self.frameSource = frameSource
         frameSource.requiresContinuousFrames = !listeners.isEmpty
 
-        // The new source counts total frames from zero, so the slow and frozen frames must start
-        // from zero too, or they could exceed the total. The delayed frames tracker can't account
-        // for frames across the switch, so it's reset like when the tracker pauses.
-        slowFrames = 0
-        frozenFrames = 0
+        // The new source counts total frames from zero. Its total continues the one of the old
+        // source, so that the total never goes back and never falls below the slow and frozen
+        // frames, which keep counting too.
+        source.withLock { source in
+            source.totalFramesOfReplacedSources += source.frameSource.totalFrames()
+            source.frameSource = frameSource
+        }
+
+        // The delayed frames tracker can't account for frames across the switch, so it's reset like
+        // when the tracker pauses.
         delayedFramesTracker.reset()
 
         if isRunning {
@@ -195,7 +210,7 @@ public class SentryFramesTracker: NSObject {
     public func currentFrames() -> SentryScreenFrames {
 #if os(iOS)
         return SentryScreenFrames(
-            total: frameSource.totalFrames(),
+            total: totalFrames(),
             frozen: frozenFrames,
             slow: slowFrames,
             slowFrameTimestamps: slowFrameTimestamps,
@@ -204,11 +219,15 @@ public class SentryFramesTracker: NSObject {
         )
 #else
         return SentryScreenFrames(
-            total: frameSource.totalFrames(),
+            total: totalFrames(),
             frozen: frozenFrames,
             slow: slowFrames
         )
 #endif
+    }
+
+    private func totalFrames() -> UInt {
+        source.withLock { $0.totalFramesOfReplacedSources + $0.frameSource.totalFrames() }
     }
 
     func getFramesDelay(
@@ -314,7 +333,7 @@ public class SentryFramesTracker: NSObject {
 #if SENTRY_TEST || SENTRY_TEST_CI
     func setFrameSource(_ frameSource: SentryFrameSource) {
         self.frameSource.stop()
-        self.frameSource = frameSource
+        source.withLock { $0.frameSource = frameSource }
     }
 
     var frameSourceForTesting: SentryFrameSource {
@@ -330,7 +349,10 @@ public class SentryFramesTracker: NSObject {
         frozenFrames = 0
         slowFrames = 0
 
-        frameSource.resetFrames()
+        source.withLock { source in
+            source.totalFramesOfReplacedSources = 0
+            source.frameSource.resetFrames()
+        }
 
 #if os(iOS)
         resetProfilingTimestampsInternal()

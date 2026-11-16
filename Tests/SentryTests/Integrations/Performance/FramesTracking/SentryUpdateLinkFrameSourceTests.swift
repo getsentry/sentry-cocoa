@@ -245,7 +245,7 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
         XCTAssertTrue(otherUIUpdateObserver.requiresContinuousUpdates)
     }
 
-    func testUseFrameSource_whenOldSourceCountedFrames_shouldDropItsFramesAndDelay() throws {
+    func testUseFrameSource_whenOldSourceCountedFrames_shouldKeepItsFramesAndDropItsDelay() throws {
         // -- Arrange --
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: fixture.dateProvider)
         let displayLinkSource = SentryDisplayLinkFrameSource(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider)
@@ -266,10 +266,12 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
         sut.useFrameSource(fixture.frameSource)
 
         // -- Assert --
+        // Spans that are running took a snapshot of the frames when they started. The frames must
+        // not go back to zero, or these spans would subtract their snapshot from unrelated counts.
         let frames = sut.currentFrames()
-        XCTAssertEqual(frames.total, 0)
-        XCTAssertEqual(frames.slow, 0)
-        XCTAssertEqual(frames.frozen, 0)
+        XCTAssertEqual(frames.total, 5)
+        XCTAssertEqual(frames.slow, 2)
+        XCTAssertEqual(frames.frozen, 1)
 #if os(iOS)
         XCTAssertEqual(frames.slowFrameTimestamps.count, 2, "Profiling timestamps must survive the switch.")
         XCTAssertEqual(frames.frozenFrameTimestamps.count, 1, "Profiling timestamps must survive the switch.")
@@ -279,7 +281,7 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
         XCTAssertEqual(delay.delayDuration, -1, accuracy: 0.0001, "The delay of the old source must not be reported.")
     }
 
-    func testUseFrameSource_whenOldSourceCountedFrames_shouldCountFramesOfNewSource() {
+    func testUseFrameSource_whenOldSourceCountedFrames_shouldAddFramesOfNewSource() {
         // -- Arrange --
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: fixture.dateProvider)
         let displayLinkSource = SentryDisplayLinkFrameSource(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider)
@@ -302,11 +304,41 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 
         // -- Assert --
         let frames = sut.currentFrames()
-        XCTAssertEqual(frames.total, 121)
-        XCTAssertEqual(frames.slow, 1)
-        XCTAssertEqual(frames.frozen, 0)
+        XCTAssertEqual(frames.total, 5 + 121)
+        XCTAssertEqual(frames.slow, 2 + 1)
+        XCTAssertEqual(frames.frozen, 1)
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
         XCTAssertEqual(delay.delayDuration, 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
+    }
+
+    func testUseFrameSource_whenSpanStartedBeforeSwitch_shouldReportFramesOfBothSources() {
+        // -- Arrange --
+        let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: fixture.dateProvider)
+        let displayLinkSource = SentryDisplayLinkFrameSource(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider)
+        let sut = SentryFramesTracker(
+            frameSource: displayLinkSource,
+            dateProvider: fixture.dateProvider,
+            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            notificationCenter: fixture.notificationCenter,
+            delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 10, dateProvider: fixture.dateProvider)
+        )
+        sut.start()
+        displayLinkWrapper.renderFrames(2, 1, 3)
+        // A span takes this snapshot when it starts, and subtracts it from the one at its end.
+        let framesAtSpanStart = sut.currentFrames()
+        displayLinkWrapper.renderFrames(1, 0, 2)
+
+        // -- Act --
+        sut.useFrameSource(fixture.frameSource)
+        fixture.wait(for: 1)
+        fixture.work(for: 0.5)
+        fixture.wait(for: 1)
+
+        // -- Assert --
+        let framesAtSpanEnd = sut.currentFrames()
+        XCTAssertEqual(framesAtSpanEnd.total - framesAtSpanStart.total, 3 + 121)
+        XCTAssertEqual(framesAtSpanEnd.slow - framesAtSpanStart.slow, 1 + 1)
+        XCTAssertEqual(framesAtSpanEnd.frozen - framesAtSpanStart.frozen, 0)
     }
 
     // MARK: - Slow and frozen frames
