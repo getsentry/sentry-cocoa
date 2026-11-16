@@ -110,7 +110,7 @@ jobs:
             test-plan: SentrySPM_Base
           - mode: V10
             sdk-v10: "1"
-            runs-on: ["bitrise_pool_name:tahoe"]
+            runs-on: macos-26
             test-plan: SentrySPM_Base_v10
     env:
       SDK_V10: ${{ matrix.sdk-v10 }}
@@ -212,7 +212,7 @@ jobs:
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     timeout-minutes: 20
     needs: build-test-server
 
@@ -402,19 +402,19 @@ jobs:
         include:
           # iOS 18
           - name: iOS 18 Sentry
-            runs-on: sequoia
+            runs-on: macos-15
             xcode: "16"
             platform: "iOS"
 
           # iOS 26
           - name: iOS 26 Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "iOS"
 
           # iOS 27
           - name: iOS 27 Sentry
-            runs-on: tahoe-27
+            runs-on: xcode-27
             xcode: "27"
             platform: "iOS"
 
@@ -424,25 +424,26 @@ jobs:
 
           # macOS 14
           - name: macOS 14 Sentry
-            runs-on: sonoma
+            # GitHub retired its macOS 14 runners, so stay on Bitrise.
+            runs-on: bitrise_pool_name:sonoma
             xcode: "16"
             platform: "macOS"
 
           # macOS 15
           - name: macOS 15 Sentry
-            runs-on: sequoia
+            runs-on: macos-15
             xcode: "16"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "macOS"
 
           # macOS 27
           - name: macOS 27 Sentry
-            runs-on: xcode-beta # golden gate
+            runs-on: xcode-27
             xcode: "27"
             platform: "macOS"
 
@@ -451,25 +452,26 @@ jobs:
 
           # Catalyst 14
           - name: Catalyst 14 Sentry
-            runs-on: sonoma
+            # GitHub retired its macOS 14 runners, so stay on Bitrise.
+            runs-on: bitrise_pool_name:sonoma
             xcode: "16"
             platform: "Catalyst"
 
           # Catalyst 15
           - name: Catalyst 15 Sentry
-            runs-on: sequoia
+            runs-on: macos-15
             xcode: "16"
             platform: "Catalyst"
 
           # Catalyst 26
           - name: Catalyst 26 Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "Catalyst"
 
           # Catalyst 27
           - name: Catalyst 27 Sentry
-            runs-on: xcode-beta
+            runs-on: xcode-27
             xcode: "27"
             platform: "Catalyst"
 
@@ -477,40 +479,40 @@ jobs:
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
           # tvOS 18
           - name: tvOS 18 Sentry
-            runs-on: sequoia
+            runs-on: macos-15
             xcode: "16"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "tvOS"
             device: "Apple TV"
 
           # tvOS 27
           - name: tvOS 27 Sentry
-            runs-on: tahoe-27
+            runs-on: xcode-27
             xcode: "27"
             platform: "tvOS"
 
           # visionOS 26
           - name: visionOS 26 Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "visionOS"
             timeout: 30
 
           # visionOS 27
-          # On tahoe-27 the visionOS 27 simulator's backboardd deadlocks in CoreAudio init
-          # ("Initialize: RPC timeout. Apparently deadlocked. Aborting now.") and the first
+          # On Bitrise tahoe-27 runners the visionOS 27 simulator's backboardd deadlocks in CoreAudio
+          # init ("Initialize: RPC timeout. Apparently deadlocked. Aborting now.") and the first
           # CADisplayLink/UIWindow in every test process blocks ~10 minutes until it aborts,
-          # so the job takes 30+ minutes. tahoe-xl still hits it but the wait is ~5 minutes.
+          # so the job takes 30+ minutes. Larger runners still hit it but the wait is ~5 minutes.
           # See https://github.com/getsentry/sentry-cocoa/pull/9043 for the investigation.
           # Because of that, the job is skipped on pull requests and only runs on pushes to
           # main and release branches. It also runs in nightly-test.yml.
           - name: visionOS 27 Sentry
-            runs-on: tahoe-xl
+            runs-on: xcode-27-xlarge
             xcode: "27"
             platform: "visionOS"
             timeout: 60

@@ -39,26 +39,26 @@ jobs:
         # Additional devices and platforms not covered by the regular CI matrix in test.yml.
         include:
           - name: iOS 26 iPad Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
-            runs-on: tahoe
+            runs-on: macos-26
             xcode: "26"
             platform: "watchOS"
             timeout: 30
 
           - name: watchOS 27 Sentry
-            runs-on: tahoe-27
+            runs-on: xcode-27
             xcode: "27"
             allow_prerelease: true
             platform: "watchOS"
             timeout: 30
 
           - name: visionOS 2.5 Sentry
-            runs-on: sequoia
+            runs-on: macos-15
             xcode: "16"
             platform: "visionOS"
             timeout: 30
@@ -67,7 +67,7 @@ jobs:
           # skips it on pull requests and only runs it on pushes to main and release branches.
           # See the visionOS 27 comment in test.yml for details.
           - name: visionOS 27 Sentry
-            runs-on: tahoe-xl
+            runs-on: xcode-27-xlarge
             xcode: "27"
             platform: "visionOS"
             timeout: 60

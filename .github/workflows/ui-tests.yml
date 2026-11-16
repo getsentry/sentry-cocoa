@@ -75,7 +75,7 @@ jobs:
       fastlane_command: ui_tests_${{matrix.target}}
       xcode_version: "16"
       build_with_make: true
-      macos_version: "sequoia"
+      macos_version: macos-15
       files_suffix: _${{matrix.target}}_
       platform: ${{matrix.platform}}
 
@@ -91,7 +91,7 @@ jobs:
       fastlane_command: ui_tests_ios_swiftui
       build_with_make: true
       xcode_version: "16"
-      macos_version: "sequoia"
+      macos_version: macos-15
       files_suffix: _swiftui_
       platform: "iOS"
 
@@ -114,7 +114,8 @@ jobs:
         include:
           - job_id: ios_17
             name: iOS 17
-            runs_on: sequoia
+            # GitHub-hosted macos-15 doesn't ship the iOS 17.5 simulator runtime, so stay on Bitrise.
+            runs_on: bitrise_pool_name:sequoia
             xcode: "16"
             test_destination_os: "17.5"
             platform: "iOS"
@@ -122,19 +123,19 @@ jobs:
 
           - job_id: ios_18
             name: iOS 18
-            runs_on: sequoia
+            runs_on: macos-15
             xcode: "16"
             platform: "iOS"
 
           - job_id: ios_26
             name: iOS 26
-            runs_on: tahoe
+            runs_on: macos-26
             xcode: "26"
             platform: "iOS"
 
           - job_id: ios_27
             name: iOS 27
-            runs_on: tahoe-27
+            runs_on: xcode-27
             xcode: "27"
             platform: "iOS"
     with:
@@ -159,7 +160,7 @@ jobs:
       fastlane_command: ui_tests_ios_swift6
       xcode_version: "16"
       build_with_make: true
-      macos_version: "sequoia"
+      macos_version: macos-15
       platform: iOS
       files_suffix: _swift6_
 
@@ -167,7 +168,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
     name: Test macOS Swift V2 # Up the version with every change to keep track of flaky tests
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: macos-26
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

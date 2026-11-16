@@ -32,7 +32,7 @@ on:
         default: false
         type: boolean
       macos_version:
-        description: "macOS version"
+        description: "Runner label, a GitHub-hosted label such as macos-15 or a Bitrise label such as bitrise_pool_name:sequoia"
         required: true
         type: string
       needs_xcframework:
@@ -69,9 +69,12 @@ jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) }}
+    runs-on: ${{ inputs.macos_version }}
     timeout-minutes: 40
     continue-on-error: ${{ inputs.continue_on_error }}
+    env:
+      # Bitrise runners can't use ruby/setup-ruby, so they install Ruby with rbenv.
+      ON_BITRISE: ${{ startsWith(inputs.macos_version, 'bitrise_pool_name:') }}
     steps:
       # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
@@ -103,6 +106,8 @@ jobs:
         background: true
         name: Cache Ruby
         id: cache-ruby
+        # rbenv cache for Bitrise runners; GitHub-hosted runners use ruby/setup-ruby.
+        if: ${{ env.ON_BITRISE == 'true' }}
         with:
           path: |
             ~/.rbenv/versions
@@ -160,23 +165,17 @@ jobs:
       - name: Wait for Ruby cache
         wait: cache-ruby
 
-      - name: Install Ruby
+      - name: Install Ruby (Bitrise)
+        if: ${{ env.ON_BITRISE == 'true' }}
         env:
           CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
-        run: |
-          # Only touch Homebrew / build Ruby when the cache missed.
-          if [ "$CACHE_HIT" != "true" ]; then
-            brew upgrade ruby-build
-            # Link against the image's openssl@3. Upgrading ruby-build pulls in
-            # openssl@4, but cache-hit runners skip that upgrade, so a Ruby
-            # linked against openssl@4 fails to load openssl from the cache.
-            RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)" rbenv install -s
-          else
-            echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
-            rbenv rehash
-          fi
-          ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
-          bundle install
+        run: ./scripts/ci-install-rbenv-ruby.sh --cache-hit "$CACHE_HIT"
+
+      - name: Setup Ruby
+        if: ${{ env.ON_BITRISE != 'true' }}
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          bundler-cache: true
 
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}

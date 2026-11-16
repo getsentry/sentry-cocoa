@@ -15,7 +15,7 @@ jobs:
   # and share it across the jobs below.
   build-xcframework:
     name: Build XCFramework
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     timeout-minutes: 30
     steps:
       # === Checkout and independent preparation ===
@@ -60,7 +60,7 @@ jobs:
   test-sentry-dart:
     name: Test sentry-dart
     needs: build-xcframework
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     timeout-minutes: 45
     steps:
       # === Checkout and independent preparation ===
@@ -125,21 +125,8 @@ jobs:
           # graph after the swap. That stale pin crashes Xcode's package resolution.
           rm -f ../../example/ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved \
                 ../../example/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
-      # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods.
-      # The runner's asdf Ruby shims would select the Ruby pinned by .ruby-version, which
-      # isn't installed, so pin an installed Ruby the same way sentry-react-native's CI does.
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        name: Cache Ruby
-        with:
-          path: ~/.asdf/installs/ruby
-          key: asdf-ruby-${{ runner.os }}-${{ runner.arch }}-3.3.0
-      - name: Install CocoaPods
-        working-directory: sentry-dart
-        run: |
-          asdf install ruby 3.3.0
-          echo "ruby 3.3.0" > .tool-versions
-          gem install cocoapods
-          pod --version
+      # Some plugins of the Flutter example don't support SPM yet and still require CocoaPods,
+      # which the GitHub-hosted runner image ships.
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
@@ -185,7 +172,7 @@ jobs:
   test-sentry-react-native:
     name: Test sentry-react-native
     needs: build-xcframework
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       # === Checkout and independent preparation ===
@@ -238,25 +225,13 @@ jobs:
           node-version: 22
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - name: Setup asdf Node.js
-        run: |
-          asdf global nodejs system
-          corepack enable
+      # Enable Corepack again for the Node.js that setup-node put on the PATH.
+      - name: Enable Corepack for Node.js 22
+        run: corepack enable
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
         run: yarn install
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        name: Cache Ruby
-        with:
-          path: ~/.asdf/installs/ruby
-          key: asdf-ruby-${{ runner.os }}-${{ runner.arch }}-3.3.0
-      - name: Install CocoaPods
-        working-directory: sentry-react-native
-        run: |
-          asdf install ruby 3.3.0
-          echo "ruby 3.3.0" > .tool-versions
-          gem install cocoapods
-          pod --version
+      # CocoaPods ships with the GitHub-hosted runner image.
       - name: Install App Pods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: pod install

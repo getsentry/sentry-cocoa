@@ -62,7 +62,7 @@ jobs:
     name: Build XCFrameworks
     needs: files-changed
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     timeout-minutes: 30
     steps:
       # === Checkout and independent preparation ===
@@ -107,7 +107,7 @@ jobs:
     name: SPM Tests (${{matrix.trait}}) | ${{matrix.integration_dir}}
     needs: [files-changed, build-xcframeworks]
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     timeout-minutes: 30
     strategy:
       fail-fast: false

@@ -74,28 +74,28 @@ jobs:
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - name: iOS 18
             platform:
-              runs-on: sequoia
+              runs-on: macos-15
               xcode: "16"
               platform: "iOS"
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26
             platform:
-              runs-on: tahoe
+              runs-on: macos-26
               xcode: "26"
               platform: "iOS"
 
           # iOS 27
           - name: iOS 27
             platform:
-              runs-on: tahoe-27
+              runs-on: xcode-27
               xcode: "27"
               platform: "iOS"
   run-swiftui-crash-test:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
     name: Run SwiftUI Crash Test
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - name: Warm CoreSimulator

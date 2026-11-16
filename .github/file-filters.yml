@@ -58,6 +58,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-install-rbenv-ruby.sh"
   - "scripts/ci-collect-sentrytests-metadata.sh"
   - "scripts/prepare-package.sh"
 
@@ -731,6 +732,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-install-rbenv-ruby.sh"
 
   # Test plans
   - "**/*.xctestplan"
@@ -786,6 +788,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-install-rbenv-ruby.sh"
 
   # Build configuration
   - ".ruby-version"

@@ -67,7 +67,7 @@ jobs:
       GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: iOS 18 Sentry
-      runs-on: sequoia
+      runs-on: macos-15
       timeout: 20
       should_skip: false
       xcode: "16"

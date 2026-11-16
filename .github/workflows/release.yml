@@ -524,7 +524,7 @@ jobs:
     with:
       fastlane_command: duplication_test
       xcode_version: "16"
-      macos_version: sequoia
+      macos_version: macos-15
       needs_xcframework: true
       platform: macOS
 

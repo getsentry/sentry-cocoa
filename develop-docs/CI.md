@@ -76,32 +76,21 @@ Validate workflow changes with actionlint and the configured pre-commit workflow
 
 For CI performance changes, use traces from `sentry/sentry-github-action-ci-data` to identify serial waits and record a baseline. Verify behavior in a draft PR with `run-full-ci`, then compare equivalent jobs before claiming a speedup. Keep measured improvements distinct from expected overlap.
 
-## Cirrus Labs Runners
+## macOS Runners
 
-We use [Cirrus Labs](https://cirrus-runners.app/) macOS runners for most of our CI jobs instead of the default GitHub-hosted macOS runners. The runner image is specified as a container reference (e.g., `ghcr.io/cirruslabs/macos-runner:sequoia`), paired with a `runner_group_id` label.
+macOS jobs run on GitHub-hosted runners. Pick the label by the Xcode major the job selects:
 
-### Why Cirrus Labs?
+| Xcode | Runner label |
+| ----- | ------------ |
+| 16    | `macos-15`   |
+| 26    | `macos-26`   |
+| 27    | `xcode-27`   |
 
-Cirrus Labs provides Apple Silicon M4 machines, whereas GitHub-hosted macOS runners use M1 Macs. The newer hardware means our tests run faster, and we have observed better stability with fewer flaky test runs and timeouts compared to GitHub-hosted runners.
+Use the `-xlarge` variant, such as `xcode-27-xlarge`, only for jobs that need more CPU or memory.
 
-### `runner_group_id`
+A few jobs need an OS or simulator runtime that GitHub-hosted images don't provide, so they stay on Bitrise runners with a `bitrise_pool_name:<pool>` label:
 
-The `runner_group_id` label routes the job to a specific runner group within our Cirrus Labs organization. We use `runner_group_id:10`, which corresponds to the runner group configured for the `sentry-cocoa` repository. This ensures our jobs land on runners provisioned with the right resources and configuration for our workloads.
+- macOS 14 and Catalyst 14 unit tests use `bitrise_pool_name:sonoma`, because GitHub retired its macOS 14 runners.
+- The iOS 17 UI tests use `bitrise_pool_name:sequoia`, because `macos-15` doesn't ship the iOS 17.5 simulator runtime.
 
-The group id `10` has been assigned by our security team during the initial runner setup.
-
-### Usage
-
-For workflows that hardcode the runner, use the array syntax:
-
-```yaml
-runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
-```
-
-For reusable workflows that support both GitHub-hosted and Cirrus Labs runners, the `run_on_cirrus_labs` input flag controls which runner is used:
-
-```yaml
-runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.runs-on)) || inputs.runs-on }}
-```
-
-When `run_on_cirrus_labs` is `true`, this constructs the Cirrus Labs runner label array dynamically using the macOS version from the `runs-on` input. When `false`, it falls back to the standard GitHub-hosted runner label.
+List every Bitrise label in `.github/actionlint.yaml`. `unit-test-common.yml` and `ui-tests-common.yml` take the full runner label and install Ruby with rbenv on Bitrise runners, where `ruby/setup-ruby` doesn't work.

@@ -45,7 +45,7 @@ jobs:
     name: Build test server
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Cache for Test Server
@@ -86,7 +86,7 @@ jobs:
     name: Test V10 ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: macos-26
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -188,7 +188,7 @@ jobs:
     name: Test Thread Inspection
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_thread_inspection_harness_for_prs == 'true'
     needs: files-changed
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: macos-26
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -255,7 +255,7 @@ jobs:
     name: Test V10 with Test Server ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: [files-changed, build-test-server]
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: macos-26
     timeout-minutes: 20
     strategy:
       fail-fast: false
