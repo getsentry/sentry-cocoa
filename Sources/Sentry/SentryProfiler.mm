@@ -3,13 +3,13 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFileManagerHelper.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfileConfiguration.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentryProfilingSwiftHelpers.h"
@@ -121,7 +121,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
-    sentry_startFramesTracker();
+    [SentryProfilerSDKAdapter.shared startFramesTracker];
 #    endif // SENTRY_HAS_UIKIT
 
     [self start];
@@ -131,8 +131,10 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 #    if SENTRY_HAS_UIKIT
     if (mode == SentryProfilerModeTrace) {
-        sentry_addObserver(
-            self, @selector(backgroundAbort), UIApplicationWillResignActiveNotification, nil);
+        [SentryProfilerSDKAdapter.shared addObserver:self
+                                            selector:@selector(backgroundAbort)
+                                                name:UIApplicationWillResignActiveNotification
+                                              object:nil];
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -154,7 +156,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
-    sentry_setIsTracingAppLaunch(NO);
+    [SentryProfilerSDKAdapter.shared setIsTracingAppLaunch:NO];
     [self.metricProfiler stop];
 
     if (![self isRunning]) {
@@ -172,13 +174,13 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     BOOL autoPerformanceTracingDisabled = sentry_autoPerformanceTracingDisabled();
 #        if SDK_V10
     if (autoPerformanceTracingDisabled) {
-        sentry_stopFramesTracker();
+        [SentryProfilerSDKAdapter.shared stopFramesTracker];
     }
 #        else
     BOOL appHangsDisabled = sentry_appHangsDisabled();
 
     if (autoPerformanceTracingDisabled && appHangsDisabled) {
-        sentry_stopFramesTracker();
+        [SentryProfilerSDKAdapter.shared stopFramesTracker];
     }
 #        endif // SDK_V10
 #    endif // SENTRY_HAS_UIKIT
@@ -219,8 +221,8 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     _samplingProfiler = std::make_unique<SamplingProfiler>(
         [state](auto &backtrace) {
             Backtrace backtraceCopy = backtrace;
-            backtraceCopy.absoluteTimestamp = sentry_getSystemTime();
             @autoreleasepool {
+                backtraceCopy.absoluteTimestamp = SentryProfilerSDKAdapter.shared.systemTime;
                 [state appendBacktrace:backtraceCopy];
             }
         },

@@ -88,6 +88,9 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
@@ -131,6 +134,9 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-sentryobjc-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       release-version: ${{ github.event.inputs.version }}
       sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
@@ -141,6 +147,8 @@ jobs:
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
     secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
       MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -156,6 +164,8 @@ jobs:
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
     secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
       MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -189,6 +199,9 @@ jobs:
           path: XCFrameworkBuildPath/
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       # === Toolchain and simulator preparation ===
       - name: Setup Xcode
@@ -262,6 +275,9 @@ jobs:
           merge-multiple: true
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -398,30 +414,34 @@ jobs:
           resolve-simulators: "false"
       - name: Wait for SPM framework
         wait: download-spm-sdk
-      - name: Prepare isolated consumer
+      - name: Prepare isolated consumers
         run: |
           ditto -x -k "$RUNNER_TEMP/spm-sdk/Sentry-Dynamic.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
           ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/Sentry-Dynamic.xcframework"
-          # Copy just the consumer, outside the checkout and all producer build paths.
-          mkdir -p "$RUNNER_TEMP/spm-sdk/consumer"
-          cp TestApps/SPM-Dynamic/Package.swift "$RUNNER_TEMP/spm-sdk/consumer/"
-          cp -R TestApps/SPM-Dynamic/Sources "$RUNNER_TEMP/spm-sdk/consumer/"
+          # Copy just the consumers, outside the checkout and all producer build paths.
+          for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
+            mkdir -p "$RUNNER_TEMP/spm-sdk/$consumer"
+            cp "TestApps/$consumer/Package.swift" "$RUNNER_TEMP/spm-sdk/$consumer/"
+            cp -R "TestApps/$consumer/Sources" "$RUNNER_TEMP/spm-sdk/$consumer/"
+          done
 
       # === Build and validation ===
-      - name: Build and run SPM consumer
+      - name: Build and run SPM consumers
         env:
           SENTRY_XCFRAMEWORK: ../Sentry-Dynamic.xcframework
         run: |
           status=0
-          swift run --package-path "$RUNNER_TEMP/spm-sdk/consumer" --configuration release SPM-Dynamic > "$RUNNER_TEMP/spm-sdk/consumer.log" 2>&1 || status=$?
-          tail -40 "$RUNNER_TEMP/spm-sdk/consumer.log"
+          for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
+            swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
+            tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
+          done
           exit "$status"
       - name: Upload consumer logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: spm-sdk-consumer-logs-${{ matrix.generation }}
-          path: ${{ runner.temp }}/spm-sdk/consumer.log
+          path: ${{ runner.temp }}/spm-sdk/SPM-*.log
           if-no-files-found: ignore
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -432,7 +452,7 @@ jobs:
           GENERATION: ${{ matrix.generation }}
         run: |
           echo "::warning title=Advisory SPM validation::SPM SDK $GENERATION consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
-          printf '### SPM SDK %s consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer log.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
+          printf '### SPM SDK %s consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
@@ -456,6 +476,9 @@ jobs:
           merge-multiple: true
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -495,9 +518,12 @@ jobs:
       # build system and `swift run` to verify dynamic loading and resources at runtime.
       # Newer SwiftPM defaults to SwiftBuild (verified with Xcode 27.1), which selects
       # the correct binary. The legacy native build system remains affected.
-      - name: Run dynamic consumer
+      - name: Run Swift dynamic consumer
         run: swift run --build-system xcode SPM-Dynamic
         working-directory: TestApps/SPM-Dynamic
+      - name: Run Objective-C dynamic consumer
+        run: swift run --build-system xcode SPM-ObjC-Dynamic
+        working-directory: TestApps/SPM-ObjC-Dynamic
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -524,6 +550,9 @@ jobs:
           merge-multiple: true
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -585,6 +614,9 @@ jobs:
           merge-multiple: true
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -628,6 +660,9 @@ jobs:
   duplication-tests:
     name: Test Sentry Duplication V4
     uses: ./.github/workflows/ui-tests-common.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'

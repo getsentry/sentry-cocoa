@@ -209,8 +209,14 @@
     XCTAssertEqual(SentryObjCMetricKitMetricReportMetalFramesPerSecond, 1ULL << 49);
     XCTAssertEqual(SentryObjCMetricKitMetricReportMetalFrameCount, 1ULL << 50);
     XCTAssertEqual(SentryObjCMetricKitMetricReportMetalActiveDrawingDuration, 1ULL << 51);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportLaunchTimeToFirstDraw, 1ULL << 52);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportLaunchResumeTime, 1ULL << 53);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportLaunchOptimizedTimeToFirstDraw, 1ULL << 54);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportLaunchExtended, 1ULL << 55);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportResponsivenessHangTime, 1ULL << 56);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportCellularConditionTime, 1ULL << 57);
     XCTAssertEqual(SentryObjCMetricKitMetricReportNone, 0ULL);
-    XCTAssertEqual(SentryObjCMetricKitMetricReportAll, (1ULL << 52) - 1);
+    XCTAssertEqual(SentryObjCMetricKitMetricReportAll, (1ULL << 58) - 1);
 }
 
 @end

@@ -15,7 +15,7 @@ private let persistTraceWhenCrashing: @convention(c) () -> Void = {
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder & CurrentRunProvider
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
@@ -70,7 +70,8 @@ extension SentryKSCrash {
 
             self.scopeConfiguration = SentryKSCrash.Scope.Configuration(
                 installer: installer,
-                options: options
+                options: options,
+                currentRun: dependencies.currentRun
             )
 
             #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK

@@ -52,13 +52,15 @@ Output: `XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework.zip` or `XCFrame
 Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
 
 ```bash
-SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework" \
-  swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
-SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/v10/Sentry-Dynamic.xcframework" \
-  swift run --package-path TestApps/SPM-Dynamic --configuration release SPM-Dynamic
+for generation in v9 v10; do
+  for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
+    SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/$generation/Sentry-Dynamic.xcframework" \
+      swift run --package-path "TestApps/$consumer" --configuration release "$consumer"
+  done
+done
 ```
 
-The sample checks dynamic loading, public API, SPI, ordinary Objective-C imports, and the privacy manifest from the loaded SDK bundle without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, it consumes the existing `Sentry-Dynamic` product; use `swift run --build-system xcode --package-path TestApps/SPM-Dynamic SPM-Dynamic` as in the Release workflow.
+The Swift-only [`SPM-Dynamic`](../TestApps/SPM-Dynamic) sample checks public API, SPI, and the privacy manifest from the loaded SDK bundle. The Objective-C-only [`SPM-ObjC-Dynamic`](../TestApps/SPM-ObjC-Dynamic) sample checks ordinary Objective-C imports, public API, and version exports. Both verify dynamic loading without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, both consume the existing `Sentry-Dynamic` product; use `swift run --build-system xcode --package-path "TestApps/$consumer" "$consumer"` for each sample as in the Release workflow.
 
 The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
