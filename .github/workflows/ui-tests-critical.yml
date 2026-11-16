@@ -88,7 +88,8 @@ jobs:
           # iOS 27
           - name: iOS 27
             platform:
-              runs-on: xcode-27
+              # The iOS 27 simulator takes minutes to boot on standard xcode-27 runners, so use the larger runner.
+              runs-on: xcode-27-xlarge
               xcode: "27"
               platform: "iOS"
   run-swiftui-crash-test:
