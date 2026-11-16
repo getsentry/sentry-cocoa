@@ -35,9 +35,9 @@ class SentryWeakMapTests: XCTestCase {
     private class PruningWorkMap: SentryWeakMap<TestKey, TestValue> {
         var entriesVisited = 0
 
-        override func prune() {
-            entriesVisited += Int(count())
-            super.prune()
+        override func pruneNextEntries(_ limit: UInt) {
+            entriesVisited += Int(min(limit, count()))
+            super.pruneNextEntries(limit)
         }
     }
 
@@ -48,21 +48,29 @@ class SentryWeakMapTests: XCTestCase {
         let value = TestValue()
 
         // -- Act --
-        withExtendedLifetime(keys) {
+        let work = withExtendedLifetime(keys) {
             for key in keys {
                 map.setObject(value, forKey: key)
             }
+            let insertionWork = map.entriesVisited
+            map.entriesVisited = 0
             for key in keys {
                 XCTAssertTrue(map.object(forKey: key) === value)
             }
+            let lookupWork = map.entriesVisited
+            map.entriesVisited = 0
             for key in keys {
                 map.removeObject(forKey: key)
             }
+            return [insertionWork, lookupWork, map.entriesVisited]
         }
 
         // -- Assert --
-        // Count entries scanned rather than wall time so this catches quadratic pruning on any host.
-        XCTAssertLessThanOrEqual(map.entriesVisited, keys.count * 8)
+        // Every operation type must exercise cleanup, with work linear in the number of accesses.
+        for entriesVisited in work {
+            XCTAssertGreaterThan(entriesVisited, 0)
+            XCTAssertLessThanOrEqual(entriesVisited, keys.count * 2)
+        }
         XCTAssertEqual(map.count(), 0)
     }
 
