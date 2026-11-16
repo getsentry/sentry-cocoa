@@ -63,9 +63,14 @@ jobs:
             platform: "visionOS"
             timeout: 30
 
-          # visionOS 27 is slow because of a backboardd deadlock in the simulator, so test.yml
-          # skips it on pull requests and only runs it on pushes to main and release branches.
-          # See the visionOS 27 comment in test.yml for details.
+          # The visionOS 27 simulator's backboardd aborts in CoreAudio init on the runners
+          # ("Initialize: RPC timeout. Apparently deadlocked. Aborting now.") and launchd doubles
+          # its respawn delay after every crash. Tests that need the render server, such as the
+          # first CADisplayLink/UIWindow per test process or creating a WKWebView, block until
+          # the next respawn, so each additional blocking test roughly doubles the job duration.
+          # Because of that, this job no longer runs in test.yml and only runs here.
+          # See https://github.com/getsentry/sentry-cocoa/pull/9043 and
+          # https://github.com/getsentry/sentry-cocoa/pull/9644 for the investigation.
           - name: visionOS 27 Sentry
             runs-on: tahoe-xl
             xcode: "27"
