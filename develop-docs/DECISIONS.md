@@ -1070,7 +1070,7 @@ Related links:
 ## 43. Compile SDK test support under `DEBUG`
 
 Date: November 13, 2026
-Contributors: @philprime, @denrase, Noah Martin, Itay Brenner
+Contributors: @philprime, @denrase, @noahsmartin, @itaybre
 
 Running the package tests from Xcode's UI with the `SentrySPM` scheme failed to compile. Many tests use SDK helpers, test-only initializers, and conditionally stripped protocols that were gated by `SENTRY_TEST || SENTRY_TEST_CI`. SwiftPM enables these only through the `_SentryTest`/`_SentryTestCI` package traits, and Xcode's package UI can't enable traits for tests ([Swift Forums](https://forums.swift.org/t/how-to-test-package-traits/78039/5)). `swift test --traits` works from the command line, but we want CMD+U, test diamonds, and the debugger in Xcode. The package-workspace migration ([#9601](https://github.com/getsentry/sentry-cocoa/pull/9601)) kept the existing test flags on purpose so the migration changed as little as possible, and its command-line workflow didn't hit the Xcode limitation.
 
