@@ -135,9 +135,6 @@ jobs:
         uses: ./.github/actions/resolve-test-destination
         with:
           platform: iOS
-      - name: Prepare test packages
-        shell: bash
-        run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
@@ -145,32 +142,32 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          SDK_V10: ${{ matrix.sdk-v10 }}
+        run: |
+          case "$SDK_V10" in
+            0) target=test-ios ;;
+            1) target=test-ios-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test SDK generation: $SDK_V10"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       - name: Run package tests
         env:
-          TEST_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
-          TEST_DEVICE: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          # Native Base plans include distribution tests; see develop-docs/TEST.md.
-          # Keep the result bundle outside the package: updates inside it trigger package-graph
-          # reloads that can invalidate test bundles and crash Xcode between test targets.
-          status=0
-          # Simulator tests do not need signing; codesign rejects the fixture bundle's
-          # copied Resources/ directory. Keep this override scoped to this test command.
-          # Xcode, not the shell, expands $(inherited).
-          # shellcheck disable=SC2016
-          NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
-            -configuration TestCI -parallel-testing-enabled NO \
-            -testPlan "$TEST_PLAN" \
-            -resultBundlePath "$RUNNER_TEMP/results.xcresult" \
-            -derivedDataPath "$RUNNER_TEMP/distribution-derived-data" \
-            -sdk iphonesimulator -destination "platform=iOS Simulator,OS=$TEST_OS,name=$TEST_DEVICE" \
-            -xcconfig Tests/Configuration/SwiftPM.xcconfig \
-            'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
-            'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
-            CODE_SIGNING_ALLOWED=NO \
-            > raw-test-output-distribution.log 2>&1 || status=$?
-          xcbeautify --preserve-unbeautified < raw-test-output-distribution.log
-          exit "$status"
+          make "$MAKE_TARGET" \
+            TEST_CONFIGURATION=TestCI \
+            TEST_INCLUDE_DISTRIBUTION=true \
+            TEST_PLAN="$TEST_PLAN" \
+            TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" 2>&1 | tee raw-test-output-distribution.log
       - name: Verify V9 resource ownership
         if: matrix.mode == 'V9'
         shell: bash
@@ -195,7 +192,11 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
-          path: raw-test-output-distribution.log
+          path: |
+            raw-test-output-distribution.log
+            raw-prepare-package-output.log
+            raw-build-for-testing-output.log
+            raw-test-output.log
 
       - name: Archiving Test Results
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -268,21 +269,33 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            macOS) target=test-macos ;;
+            Catalyst) target=test-catalyst ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
         env:
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os "${OS_VERSION}" \
-            --ref "${REF_NAME}" \
-            --command build-for-testing \
-            --configuration TestCI \
-            --scheme Sentry \
-            --test-plan Sentry_TestServer
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=build-for-testing \
+            TEST_CONFIGURATION=TestCI \
+            TEST_PLAN=SentrySPM_TestServer
 
       # A wait control step would wait for server exit, not HTTP readiness.
       - name: Wait for Test Server readiness
@@ -299,17 +312,14 @@ jobs:
 
       - name: Run tests
         env:
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os "${OS_VERSION}" \
-            --ref "${REF_NAME}" \
-            --command test-without-building \
-            --configuration TestCI \
-            --scheme Sentry \
-            --test-plan Sentry_TestServer
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=test-without-building \
+            TEST_CONFIGURATION=TestCI \
+            TEST_PLAN=SentrySPM_TestServer
 
       # Control steps run even after a failure, so the server cannot hold up cleanup.
       - name: Stop Test Server
@@ -324,6 +334,7 @@ jobs:
         with:
           name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
+            raw-prepare-package-output.log
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
@@ -335,7 +346,7 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
-          path: results.xcresult
+          path: ${{ runner.temp }}/results.xcresult
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -343,7 +354,7 @@ jobs:
         with:
           name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+            ${{ runner.temp }}/sentry-package-derived-data/Logs/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -384,7 +395,6 @@ jobs:
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
-      scheme: "Sentry"
     strategy:
       fail-fast: false
       matrix:

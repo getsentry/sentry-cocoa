@@ -343,8 +343,8 @@ targets += [
         name: "SentryTests",
         dependencies: [
             .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
-            .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
-        ] + (envSelectsV10 ? [] : [.target(name: "SentryCrashV9Swift")]),
+            .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .visionOS]))
+        ] + (envSelectsV10 ? [.product(name: "RecordingCore", package: "KSCrash")] : [.target(name: "SentryCrashV9Swift")]),
         path: "Tests/SentryTests",
         exclude: [
             "ObjC",

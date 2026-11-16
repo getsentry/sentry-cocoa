@@ -91,17 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: iOS
-            make-target: test-ios-v10
-          - platform: macOS
-            make-target: test-macos-v10
-          - platform: Catalyst
-            make-target: test-catalyst-v10
-          - platform: tvOS
-            make-target: test-tvos-v10
-          - platform: visionOS
-            make-target: test-visionos-v10
+        platform: [iOS, macOS, Catalyst, tvOS, visionOS]
 
     steps:
       # === Checkout and independent preparation ===
@@ -140,15 +130,36 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            iOS) target=test-ios-v10 ;;
+            macOS) target=test-macos-v10 ;;
+            Catalyst) target=test-catalyst-v10 ;;
+            tvOS) target=test-tvos-v10 ;;
+            visionOS) target=test-visionos-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       - name: Run V10 tests
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          TVOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.tvos-simulator-os }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          VISIONOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.visionos-simulator-os }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: make ${{ matrix.make-target }}
+        run: |
+          make "$MAKE_TARGET" \
+            TEST_CONFIGURATION=TestCI
 
       # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
@@ -157,6 +168,7 @@ jobs:
         with:
           name: raw-output-v10-${{ matrix.platform }}
           path: |
+            raw-prepare-package-output.log
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
@@ -166,7 +178,7 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-v10-${{ matrix.platform }}
-          path: results.xcresult
+          path: ${{ runner.temp }}/results.xcresult
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -289,21 +301,32 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            macOS) target=test-macos-v10 ;;
+            Catalyst) target=test-catalyst-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       - name: Build tests
         id: build_tests
         env:
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{ matrix.platform }} \
-            --os "${OS_VERSION}" \
-            --ref "${REF_NAME}" \
-            --command build-for-testing \
-            --configuration TestV10 \
-            --scheme SentryV10 \
-            --test-plan SentryV10_TestServer \
-            ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=build-for-testing \
+            TEST_CONFIGURATION=TestCI \
+            TEST_PLAN=SentrySPM_TestServer_v10
 
       # A wait control step would wait for server exit, not HTTP readiness.
       - name: Wait for Test Server readiness
@@ -320,18 +343,14 @@ jobs:
 
       - name: Run tests
         env:
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{ matrix.platform }} \
-            --os "${OS_VERSION}" \
-            --ref "${REF_NAME}" \
-            --command test-without-building \
-            --configuration TestV10 \
-            --scheme SentryV10 \
-            --test-plan SentryV10_TestServer \
-            ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=test-without-building \
+            TEST_CONFIGURATION=TestCI \
+            TEST_PLAN=SentrySPM_TestServer_v10
 
       # Control steps run even after a failure, so the server cannot hold up cleanup.
       - name: Stop Test Server
@@ -346,6 +365,7 @@ jobs:
         with:
           name: raw-output-v10-test-server-${{ matrix.platform }}
           path: |
+            raw-prepare-package-output.log
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
@@ -357,7 +377,7 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-v10-test-server-${{ matrix.platform }}
-          path: results.xcresult
+          path: ${{ runner.temp }}/results.xcresult
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -365,7 +385,7 @@ jobs:
         with:
           name: derived-data-v10-test-server-${{ matrix.platform }}
           path: |
-            ~/Library/Developer/Xcode/DerivedData/**/Logs/**
+            ${{ runner.temp }}/sentry-package-derived-data/Logs/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
