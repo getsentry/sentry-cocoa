@@ -51,6 +51,11 @@ on:
           For release workflows, the version to inject into the SDK.
         required: false
         type: string
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64:
+        required: false
+      GIT_SSH_KEY_PASSPHRASE:
+        required: false
 
 jobs:
   build-xcframework-variant-slices:
@@ -69,6 +74,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       # === Toolchain and simulator preparation ===
       # We use Xcode 16 (latest installed minor) for building XCFrameworks. The setup-xcode action

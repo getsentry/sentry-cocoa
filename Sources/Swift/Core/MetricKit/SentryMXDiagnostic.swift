@@ -9,7 +9,12 @@ import MetricKit
 /// converted to this type, so a diagnostic produces the same event regardless of the API that
 /// delivered it.
 struct SentryMXDiagnostic {
-    /// The process and the app and OS versions the diagnostic was recorded with.
+    /// The process, app, OS and device state the diagnostic was recorded with.
+    ///
+    /// MetricKit also reports the device type and CPU architecture, which can't change between
+    /// app runs on the same device. The SDK keeps the running device's model and architecture
+    /// instead, because MetricKit formats them differently, for example `arm64e` where the SDK
+    /// reports `arm64`, which would split one device across two values.
     struct Metadata {
         /// The process that recorded the diagnostic, or `nil` when MetricKit doesn't report it.
         let pid: pid_t?
@@ -17,6 +22,15 @@ struct SentryMXDiagnostic {
         let appBuild: String
         let osVersion: String?
         let osBuild: String?
+        /// The bundle identifier of the app that recorded the diagnostic, or `nil` when MetricKit
+        /// doesn't report it.
+        let bundleIdentifier: String?
+        /// Whether low power mode was enabled when the diagnostic was recorded, or `nil` when
+        /// MetricKit doesn't report it.
+        let lowPowerModeEnabled: Bool?
+        /// Whether the app that recorded the diagnostic was a TestFlight build, or `nil` when
+        /// MetricKit doesn't report it.
+        let isTestFlightApp: Bool?
     }
 
     let report: SentryMetricKit.DiagnosticReport
@@ -101,11 +115,27 @@ extension SentryMXDiagnostic {
 extension SentryMXDiagnostic.Metadata {
     init(_ diagnostic: MXDiagnostic) {
         var pid: pid_t?
+        var lowPowerModeEnabled: Bool?
+        var isTestFlightApp: Bool?
         if #available(iOS 17.0, macOS 14.0, *) {
             // MetricKit declares the metadata as nonnull, but a missing one bridges to a pid of 0.
             let diagnosticPid = diagnostic.metaData.pid
             pid = diagnosticPid == 0 ? nil : diagnosticPid
+            lowPowerModeEnabled = diagnostic.metaData.lowPowerModeEnabled
+            isTestFlightApp = diagnostic.metaData.isTestFlightApp
         }
+        // MXMetaData.bundleIdentifier only exists in the SDKs of Xcode 26 and later.
+        #if compiler(>=6.2)
+        var bundleIdentifier: String?
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+            // Declared nonnull, but bridges to an empty string when missing.
+            let diagnosticBundleIdentifier = diagnostic.metaData.bundleIdentifier
+            bundleIdentifier = diagnosticBundleIdentifier.isEmpty ? nil : diagnosticBundleIdentifier
+        }
+        #else
+        // A `var` without the assignment above fails the build with a never-mutated warning.
+        let bundleIdentifier: String? = nil
+        #endif // compiler(>=6.2)
         let osVersion = Self.parseOSVersion(diagnostic.metaData.osVersion)
         // MetricKit declares the versions as nonnull, but they bridge to empty strings when missing.
         self.init(
@@ -113,7 +143,10 @@ extension SentryMXDiagnostic.Metadata {
             appVersion: diagnostic.applicationVersion,
             appBuild: diagnostic.metaData.applicationBuildVersion,
             osVersion: osVersion?.version,
-            osBuild: osVersion?.build
+            osBuild: osVersion?.build,
+            bundleIdentifier: bundleIdentifier,
+            lowPowerModeEnabled: lowPowerModeEnabled,
+            isTestFlightApp: isTestFlightApp
         )
     }
 

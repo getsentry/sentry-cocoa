@@ -21,6 +21,9 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.name}}
     uses: ./.github/workflows/unit-test-common.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
@@ -30,7 +33,6 @@ jobs:
       platform: ${{matrix.platform}}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device}}
-      scheme: "Sentry"
     strategy:
       fail-fast: false
       matrix:
@@ -73,6 +75,9 @@ jobs:
   hybrid-sdks:
     name: Hybrid SDKs
     uses: ./.github/workflows/test-hybrid-sdks.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
   slack-notification:
     name: Slack Notification

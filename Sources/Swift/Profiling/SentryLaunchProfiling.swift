@@ -167,6 +167,8 @@ enum SentryLaunchProfileConfigKey {
         if lifecycleValue.intValue == SentryProfileOptions.SentryProfileLifecycle.manual.rawValue {
             // Start a manual lifecycle continuous profile (v2).
             setProfileConfiguration(lifecycle: .manual, decision: decision, shouldWaitForFullDisplay: shouldWaitForFullDisplay)
+            // Manual launch profiling has no tracer to initialize the SDK-owned backend.
+            _ = SentryDependencyContainer.sharedInstance()
             SentryContinuousProfiler.start()
             return
         }

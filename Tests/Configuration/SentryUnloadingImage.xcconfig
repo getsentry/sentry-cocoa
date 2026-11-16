@@ -1,0 +1,16 @@
+// Test-only framework, embedded but never linked into the test bundle at launch.
+PRODUCT_NAME = SentryUnloadingImage
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tests.UnloadingImage
+GENERATE_INFOPLIST_FILE = YES
+CURRENT_PROJECT_VERSION = 1
+MARKETING_VERSION = 1.0
+DEFINES_MODULE = NO
+IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
+SKIP_INSTALL = YES
+CODE_SIGNING_ALLOWED = NO
+CODE_SIGNING_REQUIRED = NO
+CODE_SIGN_IDENTITY =
+CODE_SIGN_IDENTITY[sdk=iphoneos*] =
+// Do not inherit the SDK's watchOS framework linkage; the fixture only needs libSystem.
+OTHER_LDFLAGS =
+OTHER_LDFLAGS[sdk=watch*] =

@@ -5,6 +5,29 @@
 #endif
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+@interface SentryTestUnavailableEnrichmentProfilerBackend : SentryDefaultProfilerSDKBackend
+@end
+
+@implementation SentryTestUnavailableEnrichmentProfilerBackend
+- (SentryDebugImageProvider *_Nullable)debugImageProvider
+{
+    return nil;
+}
+
+#    if SENTRY_HAS_UIKIT
+- (SentryScreenFrames *_Nullable)copyCurrentFrames
+{
+    return nil;
+}
+#    endif
+@end
+
+id<SentryProfilerSDKBackend>
+sentry_test_createProfilerBackendWithoutEnrichment(void)
+{
+    return [[SentryTestUnavailableEnrichmentProfilerBackend alloc] init];
+}
+
 void
 sentry_test_sdkInitProfilerTasks(NSObject *options, SentryHubInternal *hub)
 {
