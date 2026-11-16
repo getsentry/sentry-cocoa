@@ -119,18 +119,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self removeFileAtPath:self.eventsPath];
 
         if (!createDirectoryIfNotExists(self.sentryPath, error)) {
-// Suppress fatal error logging in Debug builds to keep test logs quiet.
-#if !defined(DEBUG)
             SENTRY_LOG_FATAL(@"Failed to create Sentry SDK working directory: %@", self.sentryPath);
-#endif
             return nil;
         }
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
-// Suppress fatal error logging in Debug builds to keep test logs quiet.
-#if !defined(DEBUG)
             SENTRY_LOG_FATAL(
                 @"Failed to create Sentry SDK envelopes directory: %@", self.envelopesPath);
-#endif
             return nil;
         }
 
@@ -149,11 +143,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
 
     NSString *_Nullable nullableDsnHash = [options.parsedDsn getHash];
-#if !defined(DEBUG)
     if (nullableDsnHash == nil) {
         SENTRY_LOG_FATAL(@"No DSN provided, using base path for envelopes: %@", self.basePath);
     }
-#endif // !defined(DEBUG)
 
     // We decided against changing the `sentryPath` and use a null fallback instead, because this
     // has been broken for a long time and the impact of changing the base path can result in

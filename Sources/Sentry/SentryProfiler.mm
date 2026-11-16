@@ -93,8 +93,11 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 + (void)load
 {
 #    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
-    // we want to allow starting a launch profile from here for UI tests, but not unit tests
-    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
+    // XCTest's launch configuration distinguishes unit tests from ordinary Debug consumers.
+    // The UI-test marker still allows launch profiling in test apps.
+    NSDictionary<NSString *, NSString *> *environment = NSProcessInfo.processInfo.environment;
+    if (environment[@"XCTestConfigurationFilePath"] != nil
+        && environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
     }
 

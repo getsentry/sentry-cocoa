@@ -206,8 +206,7 @@ jobs:
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           make "$MAKE_TARGET" \
-            TEST_COMMAND=build-for-testing \
-            TEST_CONFIGURATION=Debug
+            TEST_COMMAND=build-for-testing
 
       - name: Collect SentryTests Metadata
         id: collect_sentrytests_metadata
@@ -241,7 +240,6 @@ jobs:
         run: |
           make "$MAKE_TARGET" \
             TEST_COMMAND=test-without-building \
-            TEST_CONFIGURATION=Debug \
             TEST_PLAN=SentrySPM_Flaky \
             TEST_RESULT_BUNDLE=flaky-results.xcresult
 
@@ -265,7 +263,6 @@ jobs:
         run: |
           make "$MAKE_TARGET" \
             TEST_COMMAND=test-without-building \
-            TEST_CONFIGURATION=Debug \
             TEST_RESULT_BUNDLE=results.xcresult
 
       # === Reports and failure artifacts ===

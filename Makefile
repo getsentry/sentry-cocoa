@@ -1367,9 +1367,8 @@ build-testapp-SDK-Size:
 
 # Package test entry points shared by local development and CI.
 # TEST_COMMAND supports test, build-for-testing, and test-without-building.
-# Split phases must use the same TEST_WORKSPACE and TEST_CONFIGURATION.
+# Split phases must use the same TEST_WORKSPACE.
 TEST_COMMAND ?= test
-TEST_CONFIGURATION ?= Debug
 TEST_RESULT_BUNDLE ?= results.xcresult
 TEST_DERIVED_DATA ?= $(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/sentry-package-derived-data
 TEST_WORKSPACE ?= $(CURDIR)/.build/package-tests
@@ -1407,7 +1406,6 @@ prepare-test-package:
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1418,8 +1416,8 @@ prepare-test-package:
 #   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet
 #   make test-ios ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests
 #   make test-ios TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-#   make test-ios TEST_COMMAND=build-for-testing TEST_CONFIGURATION=Debug
-#   make test-ios TEST_COMMAND=test-without-building TEST_CONFIGURATION=Debug
+#   make test-ios TEST_COMMAND=build-for-testing
+#   make test-ios TEST_COMMAND=test-without-building
 #   make test-ios TEST_COMMAND=test-without-building TEST_PLAN=SentrySPM_Flaky TEST_RESULT_BUNDLE=flaky-results.xcresult
 .PHONY: test-ios
 test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
@@ -1432,7 +1430,7 @@ test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pac
 		--os "$(IOS_SIMULATOR_OS)" \
 		--device "$(IOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
@@ -1445,7 +1443,6 @@ test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pac
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1464,7 +1461,7 @@ test-macos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-p
 		--platform macOS \
 		--os latest \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
@@ -1477,7 +1474,6 @@ test-macos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-p
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1494,7 +1490,7 @@ test-catalyst: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--platform Catalyst \
 		--os latest \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
@@ -1507,7 +1503,6 @@ test-catalyst: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1525,7 +1520,7 @@ test-tvos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pa
 		--os "$(TVOS_SIMULATOR_OS)" \
 		--device "$(TVOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
@@ -1538,7 +1533,6 @@ test-tvos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pa
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1556,7 +1550,7 @@ test-visionos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--os "$(VISIONOS_SIMULATOR_OS)" \
 		--device "$(VISIONOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
@@ -1569,7 +1563,6 @@ test-visionos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1587,7 +1580,7 @@ test-watchos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 		--os "$(WATCHOS_SIMULATOR_OS)" \
 		--device "$(WATCHOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
@@ -1608,7 +1601,6 @@ test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visio
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1627,7 +1619,7 @@ test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 		--os "$(IOS_SIMULATOR_OS)" \
 		--device "$(IOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
@@ -1641,7 +1633,6 @@ test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1659,7 +1650,7 @@ test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-te
 		--platform macOS \
 		--os latest \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
@@ -1673,7 +1664,6 @@ test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-te
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1690,7 +1680,7 @@ test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 		--platform Catalyst \
 		--os latest \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
@@ -1704,7 +1694,6 @@ test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1722,7 +1711,7 @@ test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--os "$(TVOS_SIMULATOR_OS)" \
 		--device "$(TVOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
@@ -1736,7 +1725,6 @@ test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1754,7 +1742,7 @@ test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 		--os "$(VISIONOS_SIMULATOR_OS)" \
 		--device "$(VISIONOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
@@ -1768,7 +1756,6 @@ test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Debug)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1786,7 +1773,7 @@ test-watchos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-
 		--os "$(WATCHOS_SIMULATOR_OS)" \
 		--device "$(WATCHOS_DEVICE_NAME)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \

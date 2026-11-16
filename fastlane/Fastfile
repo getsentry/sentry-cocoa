@@ -18,6 +18,10 @@ platform :ios do
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
 
+    # Keep CI crash diagnostics and product validation while using Debug for tests.
+    xcargs = "'ARCHS=$(ARCHS_STANDARD)'"
+    xcargs += " DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES" if is_ci
+
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: scheme,
@@ -31,7 +35,7 @@ platform :ios do
       ensure_devices_found: true,
       # iOSPackagesShouldBuildARM64e makes local packages target arm64e, which
       # has no simulator Swift standard library. Restore standard simulator architectures.
-      xcargs: "'ARCHS=$(ARCHS_STANDARD)'"
+      xcargs: xcargs
     )
   end
 

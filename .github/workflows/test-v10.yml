@@ -158,8 +158,7 @@ jobs:
           VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          make "$MAKE_TARGET" \
-            TEST_CONFIGURATION=Debug
+          make "$MAKE_TARGET"
 
       # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
@@ -323,7 +322,6 @@ jobs:
         run: |
           make "$MAKE_TARGET" \
             TEST_COMMAND=build-for-testing \
-            TEST_CONFIGURATION=Debug \
             TEST_PLAN=SentrySPM_TestServer_v10
 
       # A wait control step would wait for server exit, not HTTP readiness.
@@ -345,7 +343,6 @@ jobs:
         run: |
           make "$MAKE_TARGET" \
             TEST_COMMAND=test-without-building \
-            TEST_CONFIGURATION=Debug \
             TEST_PLAN=SentrySPM_TestServer_v10
 
       # Control steps run even after a failure, so the server cannot hold up cleanup.
