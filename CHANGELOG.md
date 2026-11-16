@@ -106,6 +106,12 @@
 - Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
   The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
 
+## 9.30.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.30.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.30.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
+
 ## 9.30.2
 
 ### Fixes
@@ -155,6 +161,12 @@
 - Session Replay: Fix queue requirements during crash recovery (#9158)
 - Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 - Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
+
+## 9.29.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.29.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.29.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
 
 ## 9.29.2
 
