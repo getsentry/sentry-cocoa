@@ -14,6 +14,7 @@
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
 - Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
+- Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
 
 ### Improvements
 
