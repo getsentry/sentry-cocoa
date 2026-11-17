@@ -21,6 +21,7 @@ final class URLSessionTaskNetworkTrackerState {
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         var networkDetails: SentryReplayNetworkDetails?
+        var networkDetailCaptureDecisions: [String: Bool] = [:]
 #endif
     }
 

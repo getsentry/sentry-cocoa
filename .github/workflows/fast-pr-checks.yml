@@ -47,6 +47,9 @@ jobs:
     if: needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: Sentry
       suffix: -Dynamic
@@ -59,6 +62,9 @@ jobs:
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: iOS 18 Sentry
       runs-on: sequoia
@@ -66,7 +72,6 @@ jobs:
       should_skip: false
       xcode: "16"
       platform: iOS
-      scheme: Sentry
 
   sentrycrash-import-ratchet:
     name: SentryCrash Import Ratchet

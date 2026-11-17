@@ -48,6 +48,16 @@ final class SentryLogHandlerTests: XCTestCase {
         XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 42)
     }
 
+    // MARK: - Logger Label Tests
+
+    func testLog_WithLabel_shouldSetLoggerName() throws {
+        let sut = SentryLogHandler(label: "com.example.app.network", logLevel: .info)
+        sut.log(level: .info, message: "Test message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 1)
+
+        let log = try XCTUnwrap(capturedLogs.first)
+        XCTAssertEqual(log.attributes["logger.name"]?.value as? String, "com.example.app.network")
+    }
+
     func testLog_WithErrorLevel() throws {
         let sut = SentryLogHandler(logLevel: .info)
         sut.log(level: .error, message: "Test error message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 100)

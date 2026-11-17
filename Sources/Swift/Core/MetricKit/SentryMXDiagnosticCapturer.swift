@@ -16,6 +16,7 @@ final class SentryMXDiagnosticCapturer {
     let hangReportingMode: SentryMetricKitHangReportingMode
     let processIdentifier: pid_t
     let processStartDate: Date
+    let eventSourceSink: SentryEventSourceSink
 
     init(
         inAppLogic: SentryInAppLogic,
@@ -25,7 +26,8 @@ final class SentryMXDiagnosticCapturer {
         bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
         hangReportingMode: SentryMetricKitHangReportingMode = .legacy,
         processIdentifier: pid_t = ProcessInfo.processInfo.processIdentifier,
-        processStartDate: Date
+        processStartDate: Date,
+        eventSourceSink: SentryEventSourceSink
     ) {
         self.inAppLogic = inAppLogic
         self.attachDiagnosticAsAttachment = attachDiagnosticAsAttachment
@@ -34,6 +36,7 @@ final class SentryMXDiagnosticCapturer {
         self.hangReportingMode = hangReportingMode
         self.processIdentifier = processIdentifier
         self.processStartDate = processStartDate
+        self.eventSourceSink = eventSourceSink
     }
 
     func capture(_ diagnostic: SentryMXDiagnostic) {
@@ -83,22 +86,33 @@ final class SentryMXDiagnosticCapturer {
             }
         }
 
-        // The crash event can be way from the past. We don't want to impact the current session.
-        // Therefore we don't call captureFatalEvent.
-        SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
+        SentrySDKLog.debug("Reporting MetricKit payload event for diagnostic: \(diagnosticReport)")
 
-        // Diagnostic attachments travel in the hint rather than on the scope, because the client
-        // doesn't send the scope's attachments with events from a previous process.
-        let hint = Hint()
-        if let flamegraphAttachment {
-            hint.attachments = [flamegraphAttachment]
+        // The crash event can be way from the past. We don't want to impact the current session.
+        // Therefore the report isn't a fatal one.
+        // MetricKit is the only source that can't say which run its report belongs to yet: the
+        // run ID can only be read from a diagnostic once the SDK encodes it into the process,
+        // through a thread crumb in the call stacks or the reported states of xOS 27.
+        eventSourceSink.submit(
+            SentryEventSourceReport(
+                source: .metricKit,
+                kind: .diagnostic(attachments: attachments(of: diagnostic, flamegraph: flamegraphAttachment)),
+                runId: nil,
+                event: event
+            )
+        )
+        SentrySDKLog.debug("Reported MetricKit payload as event")
+    }
+
+    private func attachments(of diagnostic: SentryMXDiagnostic, flamegraph: Attachment?) -> [Attachment] {
+        var attachments: [Attachment] = []
+        if let flamegraph {
+            attachments.append(flamegraph)
         }
         if attachDiagnosticAsAttachment, let rawJSON = diagnostic.rawJSON() {
-            hint.attachments.append(Attachment(data: rawJSON, filename: diagnostic.rawFilename))
+            attachments.append(Attachment(data: rawJSON, filename: diagnostic.rawFilename))
         }
-
-        SentrySDKInternal.capture(event: event, scope: SentrySDKInternal.currentHub().scope, hint: hint)
-        SentrySDKLog.debug("Captured MetricKit payload as event")
+        return attachments
     }
 
     private func apply(callStackTree decodedCallStackTree: SentryMXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) -> Attachment? {

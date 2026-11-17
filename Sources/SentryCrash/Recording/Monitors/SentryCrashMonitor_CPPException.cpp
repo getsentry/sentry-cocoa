@@ -77,6 +77,9 @@ static SentryCrash_MonitorContext g_monitorContext;
 // Keep both the throw-site backtrace and its cursor local to the throwing thread.
 static thread_local SentryCrashStackCursor g_stackCursor;
 static thread_local unsigned g_stackCursorGeneration = 0;
+// True if a throw/rethrow hook captured this thread's cursor in the current monitor generation.
+// Enables a terminate-time fallback when capture was missed.
+static thread_local bool g_stackCursorValid = false;
 
 // ============================================================================
 #    pragma mark - Helpers -
@@ -89,6 +92,7 @@ currentStackCursor(void)
     if (g_stackCursorGeneration != generation) {
         sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
         g_stackCursorGeneration = generation;
+        g_stackCursorValid = false;
     }
     return &g_stackCursor;
 }
@@ -180,6 +184,7 @@ captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION
 
     if (g_isEnabled.load(std::memory_order_relaxed) && !g_isDiscoveringDescription) {
         sentrycrashsc_initSelfThread(currentStackCursor(), 2);
+        g_stackCursorValid = true;
     }
     THWART_TAIL_CALL_OPTIMISATION
 }
@@ -225,6 +230,7 @@ __sentry_cxa_rethrow()
 
     if (g_isEnabled.load(std::memory_order_relaxed) && !g_isDiscoveringDescription) {
         sentrycrashsc_initSelfThread(currentStackCursor(), 1);
+        g_stackCursorValid = true;
     }
 
     static cxa_rethrow_type orig_cxa_rethrow = NULL;
@@ -327,6 +333,11 @@ CPPExceptionTerminate(void)
         if (tinfo == NULL) {
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
             sentrycrashsc_initSelfThread(stackCursor, 0);
+        } else if (!g_stackCursorValid) {
+            // The throw bypassed interception. Capture best-effort evidence from terminate
+            // instead of emitting an empty cursor. Match KSCrash's foreign-throw fallback:
+            // skip the terminate internals and __cxa_throw (the exact frames vary by platform).
+            sentrycrashsc_initSelfThread(stackCursor, 4);
         }
 
         thread_act_array_t threads = NULL;
