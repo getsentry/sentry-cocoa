@@ -82,7 +82,16 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
             report: .crash,
             exceptionValue: { "" },
             timestamp: Date(),
-            metadata: SentryMXDiagnostic.Metadata(pid: nil, appVersion: "1.0.0", appBuild: "1", osVersion: nil, osBuild: nil),
+            metadata: SentryMXDiagnostic.Metadata(
+                pid: nil,
+                appVersion: "1.0.0",
+                appBuild: "1",
+                osVersion: nil,
+                osBuild: nil,
+                bundleIdentifier: nil,
+                lowPowerModeEnabled: nil,
+                isTestFlightApp: nil
+            ),
             callStackTree: { throw NSError(domain: "test", code: 1) },
             rawJSON: { Data("{}".utf8) },
             rawFilename: "MXDiagnosticPayload.json"
