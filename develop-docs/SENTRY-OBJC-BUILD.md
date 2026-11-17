@@ -81,17 +81,23 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 1. **SPM archive.** `xcodebuild archive -workspace <repo-root> -scheme SentryObjC` builds the full SPM dependency chain. Because SPM library products without an explicit type archive as per-target Mach-O object files (not frameworks), the archive contains `.o` files under `Products/`.
 
-2. **Object merging.** `libtool -static` combines all `.o` files from SentryObjC, SentryObjCCompat, and SentryObjCInternal into a single `libSentryObjC.a`. This is why all wrapper class symbols (`SentryObjCSDK`, `SentryObjCBreadcrumb`, etc.) end up in one binary.
+2. **Object merging.** `libtool -static` combines the archived target objects into `libSentryObjC-Debug.a`, using only the architectures required by SentryObjCCompat. This unstripped archive retains debug maps for dynamic dSYM generation. For the distributed `libSentryObjC.a`, the builder copies the merged archive, removes external debug-map references with `strip -S`, and verifies that none remain before publishing the copy. Inspection or stripping failures stop packaging. Exported symbols, Objective-C categories without global definitions, and symbol-free objects are preserved; the original archive objects and debug library are not modified.
 
 3. **Static XCFramework assembly.** `assemble-xcframework.sh --library-template` passes the per-SDK `.a` files and public headers from `Sources/SentryObjC/Public/` to `xcodebuild -create-xcframework`, producing `SentryObjC-Static.xcframework`.
 
-4. **Dynamic re-linking.** `swiftc -emit-library -force_load` re-links each per-SDK `libSentryObjC.a` as a dynamic library. The result is packaged as a `.framework` bundle with headers, modulemap, and Info.plist.
+4. **Dynamic re-linking.** `swiftc -emit-library -force_load` re-links each per-SDK `libSentryObjC-Debug.a` as a dynamic library. The result is packaged as a `.framework` bundle with headers, modulemap, and Info.plist; its dSYM is generated before the framework binary is stripped.
 
 5. **Dynamic XCFramework assembly.** `assemble-xcframework.sh --framework-template` passes the per-SDK `.framework` bundles and available dSYMs to `xcodebuild -create-xcframework`, producing `SentryObjC-Dynamic.xcframework`.
 
+### Packaging regression tests
+
+Run `./scripts/test-static-library-archive-architectures.sh` to check architecture selection, debug-map removal, symbol preservation, and inspection/stripping failure handling without building the SDK. The fixtures use real compiled and partially linked Mach-O objects; only the archive invocation and explicitly injected tool failures are stubbed. Pass `--work-dir <new-directory>` to retain the fixtures and logs.
+
+These checks apply to the shared SwiftPM packaging builder. The main SDK’s Xcode-project static framework pipeline is unchanged.
+
 ## V10 builds
 
-`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK for local debugging of downstream SDKs. It is not a release artifact and has no CI job.
+`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK for local debugging of downstream SDKs. It is not a release artifact. The [V10 CI packaging matrix](../.github/workflows/build-v10.yml) builds and validates it for each SDK.
 
 - Exports `SDK_V10=1` so `Package.swift` adds the KSCrash dependency and the V10 defines. The KSCrash objects land in the archive products and are merged into `libSentryObjC.a`
 - Copies the public headers through `unifdef -DSDK_V10=1` so the packaged headers match the binary. Consumers such as bindings generators do not define `SDK_V10`

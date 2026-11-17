@@ -1,6 +1,7 @@
 #!/bin/bash
 # Exercise the real static-library packager with tiny Mach-O archive products.
-# Only xcodebuild is stubbed! Compilation, libtool, lipo and nm are real.
+# Compilation, linking, libtool and lipo are real; xcodebuild supplies fixture products.
+# nm and strip delegate to the real tools except in explicit fault-injection cases.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,6 +40,18 @@ mkdir -p "$WORK_DIR/package/Sources/Configuration"
 printf 'MARKETING_VERSION = 9.33.0\n' > "$WORK_DIR/package/Sources/Configuration/Versioning.xcconfig"
 printf 'int target_marker(void) { return 1; }\n' > "$WORK_DIR/target.c"
 printf 'int dependency_marker(void) { return 1; }\n' > "$WORK_DIR/dependency.c"
+printf '\n' > "$WORK_DIR/empty.c"
+cat > "$WORK_DIR/category.m" <<'OBJC'
+__attribute__((objc_root_class))
+@interface FixtureLogger
+@end
+@interface FixtureLogger (FormatString)
+- (int)formatMarker;
+@end
+@implementation FixtureLogger (FormatString)
+- (int)formatMarker { return 42; }
+@end
+OBJC
 
 cat > "$WORK_DIR/tools/xcodebuild" <<'SH'
 #!/bin/bash
@@ -55,14 +68,66 @@ while [[ $# -gt 0 ]]; do
 done
 exit 1
 SH
-chmod +x "$WORK_DIR/tools/xcodebuild"
+# A failing nm can emit valid partial output before failing. The packager must not
+# mistake that failure for "no debug maps", even when grep would find OSO records.
+cat > "$WORK_DIR/tools/nm" <<'SH'
+#!/bin/bash
+set -euo pipefail
+binary="${!#}"
+archs="$(xcrun lipo -archs "$binary")"
+if [[ "$PACKAGING_FAULT" = unused-architecture && "$archs" == *armv7k* ]]; then
+    echo 'injected unused-architecture inspection failure' >&2
+    exit 42
+fi
+if [[ "$archs" == *arm64_32* ]] && { [ "$PACKAGING_FAULT" = nm-error ] || \
+    { [ "$PACKAGING_FAULT" = nm-after-strip-error ] && [ -f "$binary.stripped" ]; }; }; then
+    "$REAL_NM" "$@"
+    echo 'injected nm failure (arm64_32)' >&2
+    exit 42
+fi
+exec "$REAL_NM" "$@"
+SH
+cat > "$WORK_DIR/tools/strip" <<'SH'
+#!/bin/bash
+set -euo pipefail
+binary="${!#}"
+case "$PACKAGING_FAULT" in
+    strip-error) echo 'injected strip failure' >&2; exit 42 ;;
+    strip-noop) exit 0 ;;
+esac
+"$REAL_STRIP" "$@"
+if [ "$PACKAGING_FAULT" = nm-after-strip-error ]; then touch "$binary.stripped"; fi
+SH
+chmod +x "$WORK_DIR/tools/"*
+real_nm="$(xcrun --find nm)"
+real_strip="$(xcrun --find strip)"
 
 sysroot="$(xcrun --sdk watchos --show-sdk-path)"
 for arch in arm64 arm64_32; do
-    for fixture in target dependency; do
+    for source in target.c dependency.c category.m; do
+        fixture="${source%.*}"
         xcrun --sdk watchos clang -target "$arch-apple-watchos9.0" -isysroot "$sysroot" \
-            -c "$WORK_DIR/$fixture.c" -o "$WORK_DIR/objects/$fixture-$arch.o"
+            -g -c "$WORK_DIR/$source" -o "$WORK_DIR/objects/$fixture-$arch-source.o"
+        # Model Xcode's per-target relocatable link, which creates external OSO maps.
+        xcrun --sdk watchos clang -target "$arch-apple-watchos9.0" -isysroot "$sysroot" \
+            -r -nostdlib "$WORK_DIR/objects/$fixture-$arch-source.o" -o "$WORK_DIR/objects/$fixture-$arch.o"
+        fixture_symbols="$(nm -ap "$WORK_DIR/objects/$fixture-$arch.o")"
+        if ! grep ' OSO ' <<< "$fixture_symbols" > /dev/null; then
+            log_error "Fixture must contain debug maps: $fixture-$arch.o"
+            exit 1
+        fi
     done
+    # Categories without global definitions must survive stripping and archive assembly.
+    if [ -n "$(nm -gUj "$WORK_DIR/objects/category-$arch.o")" ]; then
+        log_error "Category fixture must not define global symbols ($arch)"
+        exit 1
+    fi
+    xcrun --sdk watchos clang -target "$arch-apple-watchos9.0" -isysroot "$sysroot" \
+        -c "$WORK_DIR/empty.c" -o "$WORK_DIR/objects/empty-$arch.o"
+done
+for fixture in category empty; do
+    xcrun lipo -create "$WORK_DIR/objects/$fixture-arm64.o" "$WORK_DIR/objects/$fixture-arm64_32.o" \
+        -output "$WORK_DIR/objects/$fixture.o"
 done
 
 xcrun --sdk watchos clang -target armv7k-apple-watchos5.0 -isysroot "$sysroot" \
@@ -81,9 +146,10 @@ xcrun lipo -create "$WORK_DIR/objects/dependency-matching.o" "$WORK_DIR/objects/
 #   target_object: fixture defining the required architecture set.
 #   scheme: archived scheme and output library name.
 #   architecture_target: target name used for the archived <target>.o file.
+#   fault: optional nm/strip failure mode; other cases use the real tools.
 run_case() {
     local name="$1" dependency="$2" expected_error="$3"
-    local target_object="$4" scheme="$5" architecture_target="$6"
+    local target_object="$4" scheme="$5" architecture_target="$6" fault="${7:-}"
     local root="$WORK_DIR/$name"
     local products="$root/archive/$scheme/watchos.xcarchive/Products/Objects"
 
@@ -92,6 +158,12 @@ run_case() {
         cp "$target_object" "$products/$architecture_target.o"
     fi
     cp "$dependency" "$products/Dependency.o"
+    cp "$WORK_DIR/objects/category.o" "$products/Category.o"
+    cp "$WORK_DIR/objects/empty.o" "$products/Empty.o"
+    if [ "$name" = duplicate-basenames ]; then
+        mkdir -p "$products/duplicate"
+        cp "$dependency" "$products/duplicate/Dependency.o"
+    fi
 
     local build_products="$root/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/$scheme/BuildProductsPath"
     local configuration
@@ -101,8 +173,15 @@ run_case() {
         touch "$build_products/$configuration/Fixture.bundle/$configuration"
     done
 
+    if [ -n "$fault" ] && [ -n "$expected_error" ]; then
+        # A failed rebuild must not leave a previous distribution looking current.
+        mkdir -p "$root/lib/$scheme/watchos"
+        printf 'stale library\n' > "$root/lib/$scheme/watchos/lib$scheme.a"
+    fi
+
     local status=0
-    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library.sh" \
+    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" PACKAGING_FAULT="$fault" \
+        REAL_NM="$real_nm" REAL_STRIP="$real_strip" "$SCRIPT_DIR/build-static-library.sh" \
         --sdk watchos \
         --output-dir "$root" \
         --package-path "$WORK_DIR/package" \
@@ -117,10 +196,25 @@ run_case() {
             log_error "$name: expected '$expected_error'; see $root/build.log"
             exit 1
         fi
-        if [ -e "$root/lib/$scheme/watchos/lib$scheme.a" ] || \
-            [ -e "$root/lib/$scheme/watchos/lib$scheme-Debug.a" ]; then
+        if [ -e "$root/lib/$scheme/watchos/lib$scheme.a" ]; then
             log_error "$name: invalid archive produced a distributable library"
             exit 1
+        fi
+        if [ -z "$fault" ] && [ -e "$root/lib/$scheme/watchos/lib$scheme-Debug.a" ]; then
+            log_error "$name: invalid archive inputs produced a debug library"
+            exit 1
+        fi
+        if [ -n "$fault" ]; then
+            local diagnostic
+            if [ "$fault" = strip-noop ]; then
+                diagnostic=' OSO '
+            else
+                diagnostic='injected '
+            fi
+            if ! grep -F "$diagnostic" "$root/build.log" > /dev/null; then
+                log_error "$name: missing tool error or remaining debug-map diagnostic"
+                exit 1
+            fi
         fi
     else
         if [ "$status" -ne 0 ]; then log_error "$name: packaging failed; see $root/build.log"; exit 1; fi
@@ -151,15 +245,41 @@ run_case() {
 
             for arch in "${expected_arch_array[@]}"; do
                 local symbols
-                symbols="$(nm -arch "$arch" -gUj "$binary")"
+                symbols="$(nm -arch "$arch" -gUj "$binary" 2> "$root/$library-$arch-nm.log")"
+                # These fixtures' exports start with '_'; omit nm's archive-member headings.
+                printf '%s\n' "$symbols" | grep '^_' | sort > "$root/$library-$arch-exports.log"
                 if ! grep -Fxq '_target_marker' <<< "$symbols" || \
                     ! grep -Fxq '_dependency_marker' <<< "$symbols"; then
                     log_error "$name: $library lost target or dependency content for $arch"
                     exit 1
                 fi
+                symbols="$(nm -arch "$arch" -ap "$binary" 2>> "$root/$library-$arch-nm.log")"
+                if ! grep -F '(Empty.o):' <<< "$symbols" > /dev/null; then
+                    log_error "$name: $library lost the symbol-free object ($arch)"
+                    exit 1
+                fi
+                if ! grep -F -- '-[FixtureLogger(FormatString) formatMarker]' <<< "$symbols" > /dev/null; then
+                    log_error "$name: $library lost the category without global symbols ($arch)"
+                    exit 1
+                fi
+                if [ "$library" = "lib$scheme.a" ]; then
+                    if grep ' OSO ' <<< "$symbols" > /dev/null; then
+                        log_error "$name: $library retained external debug maps ($arch)"
+                        exit 1
+                    fi
+                elif ! grep ' OSO ' <<< "$symbols" > /dev/null; then
+                    log_error "$name: $library lost the debug maps needed for dynamic dSYMs ($arch)"
+                    exit 1
+                fi
             done
         done
+        for arch in "${expected_arch_array[@]}"; do
+            # Stripping debug information must not change the exported symbol set.
+            cmp "$root/lib$scheme.a-$arch-exports.log" "$root/lib$scheme-Debug.a-$arch-exports.log"
+        done
     fi
+    cmp "$dependency" "$products/Dependency.o"
+    if [[ "$name" != missing-*target ]]; then cmp "$target_object" "$products/$architecture_target.o"; fi
     log_info "PASS $name"
 }
 
@@ -252,4 +372,41 @@ run_case \
     SentrySPM \
     SentrySwift
 
-log_info 'All archive architecture regressions passed.'
+# Reject duplicate archive member names before merging the input objects.
+run_case \
+    duplicate-basenames \
+    "$WORK_DIR/objects/dependency-matching.o" \
+    'Duplicate product object basename: Dependency.o' \
+    "$WORK_DIR/objects/target.o" \
+    SentryObjC \
+    SentryObjCCompat
+
+# Tool failures in a dependency-only architecture must not prevent cleaning the
+# supported slices. Reproduces the old pipeline silently skipping the whole object.
+run_case \
+    unused-architecture-inspection \
+    "$WORK_DIR/objects/dependency-extra.o" \
+    '' \
+    "$WORK_DIR/objects/target.o" \
+    SentryObjC \
+    SentryObjCCompat \
+    unused-architecture
+
+# Fail closed on a required, non-host architecture, preserving the tool's stderr.
+for fault in nm-error nm-after-strip-error strip-error strip-noop; do
+    case "$fault" in
+        nm-*) expected_error='injected nm failure (arm64_32)' ;;
+        strip-error) expected_error='injected strip failure' ;;
+        strip-noop) expected_error='Static library still contains debug-map references after stripping' ;;
+    esac
+    run_case \
+        "$fault" \
+        "$WORK_DIR/objects/dependency-matching.o" \
+        "$expected_error" \
+        "$WORK_DIR/objects/target.o" \
+        SentryObjC \
+        SentryObjCCompat \
+        "$fault"
+done
+
+log_info 'All archive architecture and debug-map regressions passed.'
