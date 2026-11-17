@@ -141,26 +141,29 @@ public struct SentryLogHandler: LogHandler {
             attributes["swift-log.\(key)"] = "\(value)"
         }
         
-        // Call the appropriate SentryLog method based on level
-        let messageString = String(describing: message)
+        send(String(describing: message), level: level, attributes: attributes)
+    }
+
+    /// Calls the `SentryLog` method that matches `level`.
+    private func send(_ message: String, level: Logger.Level, attributes: [String: Any]) {
         let logger = SentrySDK.logger
-        
+
         switch level {
         case .trace:
-            logger.trace(messageString, attributes: attributes)
+            logger.trace(message, attributes: attributes)
         case .debug:
-            logger.debug(messageString, attributes: attributes)
+            logger.debug(message, attributes: attributes)
         case .info:
-            logger.info(messageString, attributes: attributes)
+            logger.info(message, attributes: attributes)
         case .notice:
             // Map notice to info as SentryLog doesn't have notice
-            logger.info(messageString, attributes: attributes)
+            logger.info(message, attributes: attributes)
         case .warning:
-            logger.warn(messageString, attributes: attributes)
+            logger.warn(message, attributes: attributes)
         case .error:
-            logger.error(messageString, attributes: attributes)
+            logger.error(message, attributes: attributes)
         case .critical:
-            logger.fatal(messageString, attributes: attributes)
+            logger.fatal(message, attributes: attributes)
         }
     }
     
