@@ -3,9 +3,9 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+@_spi(Private) import SentryTestUtils
 import _SentryPrivate
 import Foundation
-import SentryTestUtils
 import XCTest
 
 // MARK: - Tests
@@ -86,6 +86,42 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         }
         return readData == nil ? "nil" : "data"
     }
+
+#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+    func testStop_whenOutsideTests_shouldPreserveLaterSwizzle() throws {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        let originalProcessInfo = container.processInfoWrapper
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.environment = [:]
+        container.processInfoWrapper = processInfo
+        let selector = NSSelectorFromString("writeToFile:atomically:")
+        let method = try XCTUnwrap(class_getInstanceMethod(NSData.self, selector))
+        let original = method_getImplementation(method)
+        swizzle()
+        var invocations = 0
+        let replacement: @convention(block) (NSData, NSString, Bool) -> Bool = { _, _, _ in
+            invocations += 1
+            return false
+        }
+        let replacementIMP = imp_implementationWithBlock(replacement)
+        method_setImplementation(method, replacementIMP)
+        defer {
+            method_setImplementation(method, original)
+            imp_removeBlock(replacementIMP)
+            container.processInfoWrapper = originalProcessInfo
+        }
+
+        // -- Act --
+        SentryNSDataSwizzlingHelper.stop()
+        let success = (testData as NSData).write(toFile: filePath, atomically: true)
+
+        // -- Assert --
+        XCTAssertFalse(success)
+        XCTAssertEqual(invocations, 1)
+    }
+
+#endif
 
     // MARK: - Write Methods
 

@@ -402,8 +402,11 @@ public class SentryFramesTracker: NSObject {
 
     private func recordTimestamp(_ timestamp: NSNumber, value: NSNumber, array: inout SentryFrameInfoTimeSeries) {
         var shouldRecord = SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling()
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if SENTRY_TEST || SENTRY_TEST_CI
         shouldRecord = true
+#elseif DEBUG
+        shouldRecord = shouldRecord || SentryDependencyContainer.sharedInstance().processInfoWrapper
+            .environment["XCTestConfigurationFilePath"] != nil
 #endif
         if shouldRecord {
             array.append(["timestamp": timestamp, "value": value])

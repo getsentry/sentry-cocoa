@@ -45,6 +45,37 @@ final class SentryFramesTrackerTests: XCTestCase {
         clearTestState()
     }
 
+#if os(iOS) && DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+    func testFrameTimestamps_whenNotProfilingOutsideTests_shouldNotRetainSamples() {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        let originalProcessInfo = container.processInfoWrapper
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.environment = [:]
+        container.processInfoWrapper = processInfo
+        defer { container.processInfoWrapper = originalProcessInfo }
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        let sut = fixture.sut
+        sut.start()
+        fixture.displayLinkWrapper.call()
+
+        // -- Act --
+        for _ in 0..<10 {
+            _ = fixture.displayLinkWrapper.slowestSlowFrame()
+            _ = fixture.displayLinkWrapper.fastestFrozenFrame()
+        }
+
+        // -- Assert --
+        let frames = sut.currentFrames()
+        XCTAssertEqual(frames.slow, 10)
+        XCTAssertEqual(frames.frozen, 10)
+        XCTAssertTrue(frames.slowFrameTimestamps.isEmpty)
+        XCTAssertTrue(frames.frozenFrameTimestamps.isEmpty)
+        XCTAssertTrue(frames.frameRateTimestamps.isEmpty)
+    }
+#endif
+
     func testIsNotRunning_WhenNotStarted() {
         XCTAssertFalse(self.fixture.sut.isRunning)
     }

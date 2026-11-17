@@ -58,8 +58,15 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)stop
 {
     _tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if SENTRY_TEST || SENTRY_TEST_CI
     [self unswizzle];
+#elif defined(DEBUG)
+    // Unswizzling is test cleanup, not safe teardown for source-based Debug consumers.
+    if (SentryDependencyContainer.sharedInstance.processInfoWrapper
+            .environment[@"XCTestConfigurationFilePath"]
+        != nil) {
+        [self unswizzle];
+    }
 #endif
 }
 
