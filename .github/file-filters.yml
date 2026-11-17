@@ -141,6 +141,10 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
 
+  # Source-backed crash adapter and configuration
+  - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
+
   # GH Actions
   - ".github/workflows/api-stability.yml"
   - ".github/file-filters.yml"

@@ -68,6 +68,8 @@ The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packa
 
 `make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It updates the existing Xcode-framework and ObjC-wrapper snapshots and adds only `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks).
 
+The [API stability workflow](../.github/workflows/api-stability.yml) runs the same target and fails if a checked-in snapshot differs from the regenerated API.
+
 Source-backed SentrySwiftUI extraction is deferred; its package target still uses the released binary.
 
 ## Platform-Specific Build Notes
