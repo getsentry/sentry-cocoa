@@ -194,9 +194,14 @@ log_info "  Distribution architectures: ${target_archs[*]}"
 archive_dir="$LIB_DIR/$SDK"
 debug_static_lib="$archive_dir/lib${SCHEME}-Debug.a"
 static_lib="$archive_dir/lib${SCHEME}.a"
-stripped_objects_dir="$archive_dir/stripped-objects"
-rm -rf "$stripped_objects_dir"
-mkdir -p "$stripped_objects_dir"
+# Do not leave an earlier distributable library behind if cleaning this archive fails.
+rm -f "$static_lib"
+
+duplicate_basenames="$(printf '%s\n' "${objects[@]##*/}" | sort | uniq -d)"
+if [ -n "$duplicate_basenames" ]; then
+    log_error "Duplicate product object basename: $duplicate_basenames"
+    exit 1
+fi
 
 architecture_libraries_dir="$archive_dir/architecture-libraries"
 rm -rf "$architecture_libraries_dir"
@@ -222,24 +227,24 @@ log_info "  Debug output: $debug_static_lib"
 # It is an intermediate and is not distributed as the static library.
 create_static_library "$debug_static_lib" "${objects[@]}"
 
-stripped_objects=()
-for object in "${objects[@]}"; do
-    stripped_object="$stripped_objects_dir/${object##*/}"
-    if [ -e "$stripped_object" ]; then
-        log_error "Duplicate product object basename: ${object##*/}"
-        exit 1
-    fi
-    cp "$object" "$stripped_object"
-    # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
-    # retaining all linkable content, including Objective-C categories without global symbols.
-    if nm -arch all -ap "$stripped_object" 2> /dev/null | grep ' OSO ' > /dev/null; then
-        strip -S "$stripped_object"
-    fi
-    stripped_objects+=( "$stripped_object" )
-done
-
+# The merged archive already contains only the required architectures. Strip a copy
+# instead of inspecting each universal input, which may include unused legacy slices.
 log_info "  Static output: $static_lib"
-create_static_library "$static_lib" "${stripped_objects[@]}"
+staged_static_lib="$architecture_libraries_dir/lib${SCHEME}.a"
+cp "$debug_static_lib" "$staged_static_lib"
+# Standalone assignments make nm failures fatal under set -e; do not hide them in a pipeline.
+nm_output="$(nm -arch all -ap "$staged_static_lib")"
+if grep ' OSO ' <<< "$nm_output" > /dev/null; then
+    strip -S "$staged_static_lib"
+    nm_output="$(nm -arch all -ap "$staged_static_lib")"
+fi
+if grep ' OSO ' <<< "$nm_output" > /dev/null; then
+    log_error "Static library still contains debug-map references after stripping: $staged_static_lib"
+    grep ' OSO ' <<< "$nm_output" >&2
+    exit 1
+fi
+# Publish only the verified copy; retain the unstripped archive for dynamic dSYMs.
+mv "$staged_static_lib" "$static_lib"
 end_group
 
 # SwiftPM installs objects, but not its interfaces, generated headers or resource bundles.
