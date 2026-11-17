@@ -58,6 +58,7 @@ private final class SentryCrashV9Dependencies: SentryCrashV9IntegrationDependenc
         let crashWrapper = crashWrapper
         let dispatchQueue = container.dispatchQueueWrapper
         let replayRecoveryIdleGate = container.replayRecoveryIdleGate
+        let crashHandlerEventSource = container.crashHandlerEventSource
         let inAppIncludes = options.inAppIncludes
         return SentryCrashV9DependencyStore.withLock {
             if let crashInstallationReporter {
@@ -67,7 +68,8 @@ private final class SentryCrashV9Dependencies: SentryCrashV9IntegrationDependenc
                 inAppLogic: SentryInAppLogic(inAppIncludes: inAppIncludes),
                 crashWrapper: crashWrapper,
                 dispatchQueue: dispatchQueue,
-                startupCrashFlush: SentryStartupCrashFlush(idleGate: replayRecoveryIdleGate)
+                startupCrashFlush: SentryStartupCrashFlush(idleGate: replayRecoveryIdleGate),
+                crashHandlerEventSource: crashHandlerEventSource
             )
             crashInstallationReporter = reporter
             return reporter

@@ -159,7 +159,6 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "scripts/assemble-xcframework.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/update-api.sh"
-  - "scripts/test-update-api.py"
   - "scripts/test-prepare-sentry-framework-inputs.py"
   - "scripts/test-static-library-archive-architectures.sh"
   - "scripts/test-spm-framework-packaging.py"

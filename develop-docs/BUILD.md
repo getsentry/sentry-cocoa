@@ -68,11 +68,11 @@ The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packa
 
 `make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It updates the existing Xcode-framework and ObjC-wrapper snapshots and adds only `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks).
 
-Extraction uses disposable copies so packaged SPI interfaces remain intact. For each generation, the command fails if the complete SwiftPM snapshot differs from its Xcode counterpart, including imports, attributes, and nested signatures. Both builds declare the Swift sampler callback alias, and the V9 crash callback belongs to the main SDK module. The source-only `SentryCrashV9Swift` adapter retains its old Swift entry point as a deprecated forwarder; the main SDK remains the sole owner of the C callback symbol. SwiftPM packaging reuses Xcode's `Sentry.h` umbrella and resolves V10 header conditionals with `unifdef`, matching `SentryV10.xcconfig`, without exposing configuration macros or extra public submodules.
+Extraction runs directly on the dedicated SwiftPM API builds in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`, removing their private SPI interfaces before analysis. For each generation, the command fails if the complete SwiftPM snapshot differs from its Xcode counterpart, including imports, attributes, and nested signatures. Both builds declare the Swift sampler callback alias, and the V9 crash callback belongs to the main SDK module. The source-only `SentryCrashV9Swift` adapter retains its old Swift entry point as a deprecated forwarder; the main SDK remains the sole owner of the C callback symbol. SwiftPM packaging reuses Xcode's `Sentry.h` umbrella and resolves V10 header conditionals with `unifdef`, matching `SentryV10.xcconfig`, without exposing configuration macros or extra public submodules.
 
 Source-backed SentrySwiftUI extraction is deferred; its package target still uses the released binary.
 
-Run the orchestration/extractor tests with `python3 scripts/test-update-api.py -v` and the packaging-input tests with `python3 scripts/test-prepare-sentry-framework-inputs.py -v`.
+Run the packaging-input tests with `python3 scripts/test-prepare-sentry-framework-inputs.py -v`.
 
 On macOS with Xcode selected, `bash scripts/test-static-library-archive-architectures.sh` checks archive architecture selection. `python3 scripts/test-spm-framework-packaging.py -v` archives a dependency-free fixture, prepares and assembles one XCFramework, deletes the producer sources and intermediates, and builds/runs a clean SwiftPM consumer. It checks public API, SPI, Objective-C header import, and resource lookup.
 

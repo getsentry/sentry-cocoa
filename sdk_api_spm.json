@@ -60220,7 +60220,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC22networkDetailAllowUrlsSayAA0A12UrlMatchable_pGvg",
                 "moduleName": "Sentry",
@@ -60252,7 +60251,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC22networkDetailAllowUrlsSayAA0A12UrlMatchable_pGvs",
                 "moduleName": "Sentry",
@@ -60277,11 +60275,7 @@
                 "usr": "s:Sa"
               }
             ],
-            "declAttributes": [
-              "HasStorage"
-            ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A13ReplayOptionsC22networkDetailAllowUrlsSayAA0A12UrlMatchable_pGvp",
             "moduleName": "Sentry",
@@ -60310,7 +60304,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvg",
                 "moduleName": "Sentry",
@@ -60342,7 +60335,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvs",
                 "moduleName": "Sentry",
@@ -60367,11 +60359,7 @@
                 "usr": "s:Sa"
               }
             ],
-            "declAttributes": [
-              "HasStorage"
-            ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvp",
             "moduleName": "Sentry",

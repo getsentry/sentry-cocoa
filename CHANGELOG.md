@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.35.0
 
 ### Features
 
@@ -14,6 +14,11 @@
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
 - Align the public API of SwiftPM-built frameworks with Xcode builds, preserving the existing v9 crash callback entry point (#9641)
+- Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
+
+### Improvements
+
+- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
 
 ## 9.34.0
 
@@ -102,6 +107,12 @@
 - Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
   The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
 
+## 9.30.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.30.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.30.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
+
 ## 9.30.2
 
 ### Fixes
@@ -151,6 +162,12 @@
 - Session Replay: Fix queue requirements during crash recovery (#9158)
 - Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 - Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
+
+## 9.29.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.29.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.29.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
 
 ## 9.29.2
 
