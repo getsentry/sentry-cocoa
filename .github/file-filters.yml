@@ -97,7 +97,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Tests/SentryObjCTests/**"
   - "Tests/SentryProfilerTests/**"
   - "Tests/SentryTests/**"
-  - "Tests/Resources/**"
+  - "Tests/Fixtures/**"
   - "SentryTestUtilsDynamic/**"
   - "Plans/Sentry_Base.xctestplan"
   - "Plans/SentryV10_Base.xctestplan"
