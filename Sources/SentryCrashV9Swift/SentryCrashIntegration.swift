@@ -296,8 +296,11 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // makes Swift emit a second thunk with the same C symbol. Use a noncapturing closure.
         #if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
         sentrycrash_setSaveTransaction { SentrySwift.sentry_finishAndSaveTransaction() }
-        #else
+        #elseif SWIFT_PACKAGE
         sentrycrash_setSaveTransaction { Sentry.sentry_finishAndSaveTransaction() }
+        #else
+        // Xcode builds use either Sentry or SentryWithoutUIKit as the module name.
+        sentrycrash_setSaveTransaction { sentry_finishAndSaveTransaction() }
         #endif
     }
 }

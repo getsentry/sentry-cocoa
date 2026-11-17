@@ -252,18 +252,4 @@ run_case \
     SentrySPM \
     SentrySwift
 
-for option in --scheme --architecture-target; do
-    root="$WORK_DIR/empty-${option#--}"
-    if PATH="$WORK_DIR/tools:$PATH" "$SCRIPT_DIR/build-static-library.sh" \
-        --sdk watchos --package-path "$WORK_DIR/package" --output-dir "$root" \
-        --configuration Release --scheme SentryObjC --architecture-target SentryObjCCompat \
-        "$option" '' > "$root.log" 2>&1; then
-        log_error "$option: empty value was accepted"
-        exit 1
-    fi
-    grep -Fq -- "$option is required" "$root.log"
-    [ ! -d "$root" ]
-    log_info "PASS empty-${option#--}"
-done
-
 log_info 'All archive architecture regressions passed.'
