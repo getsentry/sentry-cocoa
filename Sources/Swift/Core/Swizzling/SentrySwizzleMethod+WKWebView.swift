@@ -1,6 +1,28 @@
 #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import WebKit
 
+extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == Void, Result == WKNavigation? {
+    /// Describes `-[WKWebView reload]`.
+    /// - SeeAlso: `WKWebView.reload()`
+    static func webViewReload(_ receiver: Receiver.Type) -> Self {
+        .init(
+            selector: #selector(WKWebView.reload as (WKWebView) -> () -> WKNavigation?),
+            receiver: receiver,
+            signature: .init(returnType: .object, arguments: [.object, .selector])
+        )
+    }
+
+    /// Describes `-[WKWebView reloadFromOrigin]`.
+    /// - SeeAlso: `WKWebView.reloadFromOrigin()`
+    static func webViewReloadFromOrigin(_ receiver: Receiver.Type) -> Self {
+        .init(
+            selector: #selector(WKWebView.reloadFromOrigin as (WKWebView) -> () -> WKNavigation?),
+            receiver: receiver,
+            signature: .init(returnType: .object, arguments: [.object, .selector])
+        )
+    }
+}
+
 extension SentrySwizzleMethod where Receiver: WKWebView, Arguments == SentrySwizzleObjectArguments1<NSURLRequest>, Result == WKNavigation? {
     /// Describes `-[WKWebView loadRequest:]`.
     /// - SeeAlso: `WKWebView.load(_:)` accepting a `URLRequest`

@@ -39,11 +39,12 @@ SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
 }
 
-var handler = SentryLogHandler(logLevel: .info)
-handler.metadata["app_version"] = "1.0.0"
-handler.metadata["environment"] = "production"
-
-LoggingSystem.bootstrap { _ in handler }
+LoggingSystem.bootstrap { label in
+    var handler = SentryLogHandler(label: label, logLevel: .info)
+    handler.metadata["app_version"] = "1.0.0"
+    handler.metadata["environment"] = "production"
+    return handler
+}
 
 let logger = Logger(label: "com.example.app")
 
@@ -58,6 +59,18 @@ logger.info("User action", metadata: [
 ```
 
 ## Configuration
+
+### Logger Label
+
+`swift-log` passes the label of each `Logger` to the `LoggingSystem.bootstrap` closure. Pass it to `SentryLogHandler(label:logLevel:)` so each log entry records the logger that wrote it as the `logger.name` attribute:
+
+```swift
+LoggingSystem.bootstrap { label in
+    SentryLogHandler(label: label)
+}
+```
+
+Handlers created with `SentryLogHandler(logLevel:)` don't set `logger.name`.
 
 ### Log Level Threshold
 
@@ -112,6 +125,7 @@ The handler automatically includes the following attributes with every log entry
 - `code.file.path`: The source file name
 - `code.function.name`: The function name
 - `code.line.number`: The line number
+- `logger.name`: The label of the logger, when the handler was created with `SentryLogHandler(label:logLevel:)`
 
 ## Documentation
 
