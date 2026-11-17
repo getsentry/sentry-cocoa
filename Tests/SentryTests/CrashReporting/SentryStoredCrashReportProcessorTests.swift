@@ -105,7 +105,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
 
     func testProcessReport_whenReportStoresRunId_shouldSubmitReportOfCrashHandlerWithRunId() throws {
         // -- Arrange --
-        var report = try getCrashReport(resource: "Resources/crash-report-1")
+        var report = try getCrashReport(resource: "Fixtures/crash-report-1")
         var user = report["user"] as? [AnyHashable: Any] ?? [:]
         user[SentryCurrentRun.userInfoKey] = "crashed-run-id"
         report["user"] = user
