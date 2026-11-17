@@ -117,7 +117,7 @@
 		3CBD19E23046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 3CBD19E03046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c */; };
 		3CBD19E33046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 3CBD19E03046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c */; };
 		3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		3CFC66E92FF50342004005B4 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
+		3CFC66E92FF50342004005B4 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Fixtures */; };
 		3DC0F52DC65298EA3C0DDEA5 /* SentryOptionsObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = FA24E0292EBBF6F500EFD92E /* SentryOptionsObjC.h */; };
 		3F4B9E3D4A320583B9233565 /* SentryScopeSyncC.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B96571F26830C9100C66E25 /* SentryScopeSyncC.h */; };
 		3FD4B9379366C1DED499A148 /* SentrySamplerDecisionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF3B58FC1FB43198A8471D8 /* SentrySamplerDecisionHelper.m */; };
@@ -191,7 +191,7 @@
 		6304360A1EC0595B00C4D3FA /* SentryNSDataUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6304360B1EC0595B00C4D3FA /* SentryNSDataUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 630436091EC0595B00C4D3FA /* SentryNSDataUtils.m */; };
 		630436101EC0600A00C4D3FA /* SentrySerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 6304360F1EC0600A00C4D3FA /* SentrySerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		630C01961EC341D600C52CEF /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
+		630C01961EC341D600C52CEF /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Fixtures */; };
 		631E6D331EBC679C00712345 /* SentryQueueableRequestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */; };
 		631E6D341EBC679C00712345 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };
 		632331F9240506DF008D91D6 /* SentryScope+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632331F7240506DF008D91D6 /* SentryScope+Private.h */; };
@@ -435,7 +435,7 @@
 		8431D4562BE1745F009EAEC1 /* SentryContinuousProfilerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8446F5182BE172290040D57E /* SentryContinuousProfilerTests.swift */; };
 		E12A0000000000000000000A /* SentryProfilerSDKAdapterCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12A00000000000000000009 /* SentryProfilerSDKAdapterCaptureTests.swift */; };
 		8431EFD129B27B1100D8DC56 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		8431EFD329B27B1100D8DC56 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
+		8431EFD329B27B1100D8DC56 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Fixtures */; };
 		8431EFDC29B27B5300D8DC56 /* SentryProfilerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 03F9D37B2819A65C00602916 /* SentryProfilerTests.mm */; };
 		8431EFDD29B27B5300D8DC56 /* SentrySamplingProfilerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 035E73CB27D575B3005EEB11 /* SentrySamplingProfilerTests.mm */; };
 		8431EFDF29B27B5300D8DC56 /* SentryThreadHandleTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 035E73C927D57398005EEB11 /* SentryThreadHandleTests.mm */; };
@@ -1222,7 +1222,7 @@
 		630436091EC0595B00C4D3FA /* SentryNSDataUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataUtils.m; sourceTree = "<group>"; };
 		6304360D1EC05CEF00C4D3FA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		6304360F1EC0600A00C4D3FA /* SentrySerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySerializable.h; path = Public/SentrySerializable.h; sourceTree = "<group>"; };
-		630C01951EC341D600C52CEF /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
+		630C01951EC341D600C52CEF /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fixtures; sourceTree = "<group>"; };
 		631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryQueueableRequestManager.h; path = include/SentryQueueableRequestManager.h; sourceTree = "<group>"; };
 		631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryQueueableRequestManager.m; sourceTree = "<group>"; };
 		632331F7240506DF008D91D6 /* SentryScope+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryScope+Private.h"; path = "include/SentryScope+Private.h"; sourceTree = "<group>"; };
@@ -2466,7 +2466,7 @@
 			children = (
 				B1C000000000000000000001 /* image.c */,
 				844DA7F6282435CD00E6B62E /* README.md */,
-				630C01951EC341D600C52CEF /* Resources */,
+				630C01951EC341D600C52CEF /* Fixtures */,
 				63AA76AA1EB9D5CD00D153DE /* Configuration */,
 				846D3F122E286ECF00D4E7E3 /* DuplicatedSDKTest */,
 				FAB1CB682F458C680000CC24 /* SentryTests */,
@@ -4306,7 +4306,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3CFC66E92FF50342004005B4 /* Resources in Resources */,
+				3CFC66E92FF50342004005B4 /* Fixtures in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4322,7 +4322,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				630C01961EC341D600C52CEF /* Resources in Resources */,
+				630C01961EC341D600C52CEF /* Fixtures in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4330,7 +4330,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8431EFD329B27B1100D8DC56 /* Resources in Resources */,
+				8431EFD329B27B1100D8DC56 /* Fixtures in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
