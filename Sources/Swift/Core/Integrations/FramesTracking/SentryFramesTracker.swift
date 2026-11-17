@@ -189,8 +189,7 @@ public class SentryFramesTracker: NSObject {
         _ startSystemTimestamp: UInt64,
         endSystemTimestamp: UInt64
     ) -> SentryFramesDelayResultSPI {
-        let result = getFramesDelay(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp)
-        return .init(delayDuration: result.delayDuration, framesContributingToDelayCount: result.framesContributingToDelayCount)
+        return .init(getFramesDelay(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp))
     }
 
     // The add/remove pair below is shaped so the dispatched closures never
