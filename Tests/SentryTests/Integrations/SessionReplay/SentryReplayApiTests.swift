@@ -70,8 +70,38 @@ class SentryReplayApiTests: XCTestCase {
         }
 
         wait(for: [commandExpectation], timeout: 1)
-        XCTAssertEqual(mockReplayIntegration.commands, ["start", "startBuffering", "pause", "resume", "flush", "stop"])
+        XCTAssertEqual(
+            mockReplayIntegration.commands,
+            ["start", "startBuffering", "pause", "resume", "flush", "stop"]
+        )
         XCTAssertEqual(mockReplayIntegration.commandsOnMainThread, Array(repeating: true, count: 6))
+    }
+
+    func testTouchTrackingCommands_fromBackgroundThread_shouldExecuteBeforeReturning() throws {
+        let options = Options()
+        let mockClient = TestClient(options: options)
+        let mockReplayIntegration = try XCTUnwrap(MockSessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let mockHub = TestHub(client: mockClient, andScope: Scope())
+        mockHub.removeAllIntegrations()
+        mockReplayIntegration.addItselfToSentryHub(hub: mockHub)
+        SentrySDKInternal.setCurrentHub(mockHub)
+        let sut = SentryReplayApi()
+        let done = expectation(description: "Touch tracking commands executed")
+        var commandsAfterPause = [String]()
+        var commandsAfterResume = [String]()
+
+        DispatchQueue.global().async {
+            sut.pauseTouchTracking()
+            commandsAfterPause = mockReplayIntegration.commands
+            sut.resumeTouchTracking()
+            commandsAfterResume = mockReplayIntegration.commands
+            done.fulfill()
+        }
+
+        wait(for: [done], timeout: 1)
+        XCTAssertEqual(commandsAfterPause, ["pauseTouchTracking"])
+        XCTAssertEqual(commandsAfterResume, ["pauseTouchTracking", "resumeTouchTracking"])
+        XCTAssertEqual(mockReplayIntegration.commandsOnMainThread, [false, false])
     }
 
     func testStartBuffering_whenReplayIntegrationIsMissing_shouldNotInstall() {
@@ -145,6 +175,14 @@ private class MockSessionReplayIntegration: SentrySessionReplayIntegration {
 
     @objc override func resume() {
         record("resume")
+    }
+
+    @objc override func pauseTouchTracking() {
+        record("pauseTouchTracking")
+    }
+
+    @objc override func resumeTouchTracking() {
+        record("resumeTouchTracking")
     }
 
     @objc override func flush() {

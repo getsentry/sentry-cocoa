@@ -54,10 +54,24 @@ import UIKit
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
-    private let enabled = SentryMutex<Bool>(false)
+    private struct State {
+        /// Driven by the replay lifecycle: on while a replay is capturing.
+        var isEnabled = false
+        /// Driven by the user through `SentryReplayApi.pauseTouchTracking()`. Kept separate from
+        /// `isEnabled` so replay lifecycle changes, like resuming a paused replay, can't re-enable
+        /// touch recording while the user paused it.
+        var isPaused = false
+    }
+
+    private let state = SentryMutex(State())
 
     var isEnabled: Bool {
-        enabled.withLock { $0 }
+        state.withLock { $0.isEnabled }
+    }
+
+    /// Whether touches are currently recorded.
+    var isTracking: Bool {
+        state.withLock { $0.isEnabled && !$0.isPaused }
     }
     
     public init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
@@ -74,15 +88,23 @@ import UIKit
     }
 
     func enable() {
-        enabled.withLock { $0 = true }
+        state.withLock { $0.isEnabled = true }
     }
 
     func disable() {
-        enabled.withLock { $0 = false }
+        state.withLock { $0.isEnabled = false }
+    }
+
+    func pause() {
+        state.withLock { $0.isPaused = true }
+    }
+
+    func resume() {
+        state.withLock { $0.isPaused = false }
     }
     
     public func trackTouchFrom(event: UIEvent) {
-        guard enabled.withLock({ $0 }) else { return }
+        guard isTracking else { return }
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         
