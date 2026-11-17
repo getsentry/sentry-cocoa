@@ -23,6 +23,59 @@ typealias SentrySwizzleObjectArguments4<A: AnyObject, B: AnyObject, C: AnyObject
 /// When an argument isn't of its declared class, the original implementation runs without the
 /// interceptor, like it does for an unexpected receiver.
 extension SentryTypedSwizzle {
+    /// Swizzles an instance method with no explicit arguments and an object result.
+    ///
+    /// The interceptor must invoke the original closure exactly where the original method should
+    /// execute and return its result.
+    ///
+    /// - Parameters:
+    ///   - classToSwizzle: The class whose instance method is replaced.
+    ///   - method: The selector, expected receiving-object type, and Objective-C runtime signature.
+    ///   - mode: The deduplication behavior for this swizzle installation.
+    ///   - key: The stable identity used by `mode`.
+    ///   - interceptor: The typed replacement behavior and access to the original implementation.
+    /// - Returns: `true` when the swizzle was installed, or `false` when validation or deduplication
+    ///   prevented installation.
+    @discardableResult
+    static func instanceMethod<Receiver: AnyObject, R: AnyObject>(
+        in classToSwizzle: AnyClass,
+        method: SentrySwizzleMethod<Receiver, Void, R?>,
+        mode: SentrySwizzleMode,
+        key: Key,
+        interceptor: @escaping (Receiver, @escaping () -> R?) -> R?
+    ) -> Bool {
+        guard validate(in: classToSwizzle, method: method) else {
+            return false
+        }
+
+        return SentrySwizzleWrapperHelper.swizzleInstanceMethod(
+            method.selector,
+            in: classToSwizzle,
+            mode: mode,
+            key: key.pointer
+        ) { getOriginal in
+            { receiver in
+                let callOriginal: () -> AnyObject? = {
+                    let original = unsafeBitCast(
+                        getOriginal(),
+                        to: (@convention(c) (AnyObject, Selector) -> AnyObject?).self
+                    )
+                    return original(receiver, method.selector)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal()
+                }
+                let result = ObjectResult<R>()
+                let returned = interceptor(typedReceiver) {
+                    result.capture(callOriginal())
+                }
+                return result.resolve(returned)
+            } as @convention(block) (AnyObject) -> AnyObject?
+        }
+    }
+
     /// Swizzles an instance method with one object argument and an object result.
     ///
     /// The interceptor must invoke the original closure exactly where the original method should

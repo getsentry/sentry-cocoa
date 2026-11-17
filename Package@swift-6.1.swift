@@ -307,7 +307,7 @@ targets += [
         path: "SentryTestUtils/SourcesObjC",
         // One fixture bundle shared by Swift and Clang tests. Copy preserves nested paths.
         resources: [
-            .copy("../../Tests/Resources"),
+            .copy("../../Tests/Fixtures"),
             .copy("../../Tests/SentryTests/Helper/InfoPlist/TestInfoPlist.plist")
         ],
         cSettings: [
