@@ -797,6 +797,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     // swiftlint:enable avoid_dispatch_groups_in_tests
 
     private func configureEnvelopeSnapshotOptions(_ options: Options) {
+        // Match the snapshots regardless of build route or which test first resets package metadata.
+        SentrySdkPackage.resetPackageManager()
         options.enableAutoSessionTracking = false
         options.enableAutoBreadcrumbTracking = false
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

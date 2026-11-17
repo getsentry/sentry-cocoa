@@ -1,10 +1,24 @@
 # Changelog
 
-## Unreleased
+## 9.35.0
+
+### Features
+
+- Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
+  - Expose `options.webViewTracing` through the SentryObjC SDK as `SentryObjCOptions.webViewTracing` (#9539)
+  - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
+- Add the `launchTimeToFirstDraw`, `launchResumeTime`, `launchOptimizedTimeToFirstDraw`, `launchExtended`, `responsivenessHangTime` and `cellularConditionTime` metric reports, which send MetricKit histograms as distributions with one value per sample, up to about 100 values per histogram (#9493)
+- Report the low power mode and TestFlight state that MetricKit records with a diagnostic of a previous app run as `device.low_power_mode` and an `app.build_type` of `test`, and take `app.app_identifier` from the diagnostic instead of the running app (#9523)
+- Add `SentryLogHandler(label:logLevel:)` to the SentrySwiftLog integration, which records the swift-log logger label as the `logger.name` attribute on every log (#9636)
 
 ### Fixes
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
+- Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
+
+### Improvements
+
+- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
 
 ## 9.34.0
 
@@ -93,6 +107,12 @@
 - Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
   The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
 
+## 9.30.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.30.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.30.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
+
 ## 9.30.2
 
 ### Fixes
@@ -142,6 +162,12 @@
 - Session Replay: Fix queue requirements during crash recovery (#9158)
 - Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 - Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
+
+## 9.29.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.29.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.29.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
 
 ## 9.29.2
 

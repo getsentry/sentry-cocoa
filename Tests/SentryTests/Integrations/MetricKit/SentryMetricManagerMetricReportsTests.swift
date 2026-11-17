@@ -270,7 +270,8 @@ final class SentryMetricManagerMetricReportsTests: XCTestCase {
             .memoryPeakUsage, .memoryAverageSuspended,
             .displayAveragePixelLuminance,
             .diskSpaceBinaryFileSize, .diskSpaceBinaryFileCount, .diskSpaceDataFileSize, .diskSpaceDataFileCount,
-            .diskSpaceCacheFolderSize, .diskSpaceCloneSize, .diskSpaceTotalUsed, .diskSpaceTotalCapacity
+            .diskSpaceCacheFolderSize, .diskSpaceCloneSize, .diskSpaceTotalUsed, .diskSpaceTotalCapacity,
+            .cellularConditionTime
         ])
         #else
         return reports
@@ -322,6 +323,9 @@ final class SentryMetricManagerMetricReportsTests: XCTestCase {
         payload.overrides.displayMetrics = TestMXDisplayMetric()
         payload.overrides.animationMetrics = TestMXAnimationMetric()
         payload.overrides.applicationExitMetrics = TestMXAppExitMetric()
+        payload.overrides.applicationLaunchMetrics = TestMXAppLaunchMetric()
+        payload.overrides.applicationResponsivenessMetrics = TestMXAppResponsivenessMetric()
+        payload.overrides.cellularConditionMetrics = TestMXCellularConditionMetric()
         payload.overrides.diskSpaceUsageMetrics = TestMXDiskSpaceUsageMetric()
         return payload
     }
@@ -365,7 +369,12 @@ final class SentryMetricManagerMetricReportsTests: XCTestCase {
                 "watchdogTerminationCount": exitsInBackground.cumulativeAppWatchdogExitCount,
                 "fileLockTerminationCount": exitsInBackground.cumulativeSuspendedWithLockedFileExitCount,
                 "taskTimeoutTerminationCount": exitsInBackground.cumulativeBackgroundTaskAssertionTimeoutExitCount
-            ]]
+            ]],
+            ["timeToFirstDrawMetric": ["histogram": durationHistogram(from: 0.5, to: 0.6)]],
+            ["applicationResumeTimeMetric": ["histogram": durationHistogram(from: 0.1, to: 0.2)]],
+            ["optimizedTimeToFirstDrawMetric": ["histogram": durationHistogram(from: 0.3, to: 0.4)]],
+            ["extendedLaunchMetric": ["histogram": durationHistogram(from: 1, to: 2)]],
+            ["hangTimeMetric": ["histogram": durationHistogram(from: 0.25, to: 0.5)]]
         ]
         #if !os(macOS) && !targetEnvironment(macCatalyst)
         let appTime = TestMXAppRunTimeMetric()
@@ -401,7 +410,12 @@ final class SentryMetricManagerMetricReportsTests: XCTestCase {
             ["totalDiskSpaceCapacityMetric": [
                 "capacity": bytes(diskSpace.totalDiskSpaceCapacity),
                 "spaceUsed": bytes(diskSpace.totalDiskSpaceUsedSize)
-            ]]
+            ]],
+            ["cellularConditionTimeMetric": ["histogram": ["buckets": [[
+                "lowerBound": ["value": 3, "unit": "bars"],
+                "upperBound": ["value": 4, "unit": "bars"],
+                "count": 1
+            ]]]]]
         ]
         #endif // !os(macOS) && !targetEnvironment(macCatalyst)
         return values
@@ -459,6 +473,15 @@ final class SentryMetricManagerMetricReportsTests: XCTestCase {
         report["environment"] = environment
         let data = try JSONSerialization.data(withJSONObject: report)
         return try JSONDecoder().decode(MetricKit.MetricReport.self, from: data)
+    }
+
+    /// A histogram with one sample between the bounds, in seconds.
+    private func durationHistogram(from lowerBound: Double, to upperBound: Double) -> [String: Any] {
+        ["buckets": [[
+            "lowerBound": seconds(Measurement(value: lowerBound, unit: .seconds)),
+            "upperBound": seconds(Measurement(value: upperBound, unit: .seconds)),
+            "count": 1
+        ]]]
     }
 
     private func seconds(_ measurement: Measurement<UnitDuration>) -> [String: Any] {

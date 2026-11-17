@@ -459,4 +459,86 @@ class SentryReplayOptionsNetworkTests: XCTestCase {
                           "Header '\(expectedHeader)' should appear exactly once, but found: \(matchingHeaders)")
         }
     }
+
+    func testNetworkDetailUrlPatternsSnapshot_whenPatternsModified_shouldNormalize() throws {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        XCTAssertFalse(options.networkDetailHasUrls)
+        let initialSnapshot = options.networkDetailUrlPatternsSnapshot()
+        XCTAssertEqual(initialSnapshot.allowUrls.count, 0)
+        XCTAssertEqual(initialSnapshot.denyUrls.count, 0)
+
+        // -- Act --
+        let allowRegex = try NSRegularExpression(pattern: "^https://example\\.com/api/.*")
+        options.networkDetailAllowUrls = ["https://example.com", allowRegex]
+
+        // -- Assert --
+        XCTAssertTrue(options.networkDetailHasUrls)
+        let allowSnapshot = options.networkDetailUrlPatternsSnapshot()
+        XCTAssertEqual(allowSnapshot.allowUrls.count, 2)
+        guard case .string(let str) = allowSnapshot.allowUrls[0] else {
+            XCTFail("Expected .string matcher at index 0")
+            return
+        }
+        XCTAssertEqual(str, "https://example.com")
+        guard case .regex(let regex) = allowSnapshot.allowUrls[1] else {
+            XCTFail("Expected .regex matcher at index 1")
+            return
+        }
+        XCTAssertEqual(regex.pattern, "^https://example\\.com/api/.*")
+
+        // Reading back through the public property getter should preserve matchable types
+        XCTAssertEqual(options.networkDetailAllowUrls.count, 2)
+        XCTAssertEqual(options.networkDetailAllowUrls[0] as? String, "https://example.com")
+        XCTAssertEqual(options.networkDetailAllowUrls[1] as? NSRegularExpression, allowRegex)
+
+        // -- Act --
+        let denyRegex = try NSRegularExpression(pattern: ".*/private/.*")
+        options.networkDetailDenyUrls = ["https://example.com/deny", denyRegex]
+
+        // -- Assert --
+        let denySnapshot = options.networkDetailUrlPatternsSnapshot()
+        XCTAssertEqual(denySnapshot.denyUrls.count, 2)
+        guard case .string(let denyStr) = denySnapshot.denyUrls[0] else {
+            XCTFail("Expected .string matcher at index 0 in deny list")
+            return
+        }
+        XCTAssertEqual(denyStr, "https://example.com/deny")
+        guard case .regex(let denyRegexParsed) = denySnapshot.denyUrls[1] else {
+            XCTFail("Expected .regex matcher at index 1 in deny list")
+            return
+        }
+        XCTAssertEqual(denyRegexParsed.pattern, ".*/private/.*")
+    }
+
+    func testNetworkDetailOptions_concurrentReadsAndWrites_shouldNotCrashOrDeadlock() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        let iterations = 100
+        let expectation = expectation(description: "concurrent network detail option access")
+        expectation.expectedFulfillmentCount = iterations * 2
+
+        // -- Act --
+        for i in 0..<iterations {
+            DispatchQueue.global().async {
+                if i % 2 == 0 {
+                    options.networkDetailAllowUrls = ["https://example.com/\(i)"]
+                } else {
+                    options.networkDetailDenyUrls = ["https://deny.example.com/\(i)"]
+                }
+                expectation.fulfill()
+            }
+
+            DispatchQueue.global().async {
+                let snapshot = options.networkDetailUrlPatternsSnapshot()
+                XCTAssertGreaterThanOrEqual(snapshot.allowUrls.count, 0)
+                _ = options.isNetworkDetailCaptureEnabled(for: "https://example.com/test")
+                _ = options.networkDetailHasUrls
+                expectation.fulfill()
+            }
+        }
+
+        // -- Assert --
+        wait(for: [expectation], timeout: 5)
+    }
 }

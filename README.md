@@ -71,7 +71,7 @@ _Remember to call this as early in your application life cycle as possible_
 Ideally in `applicationDidFinishLaunching` in `AppDelegate`
 
 ```swift
-import Sentry
+import SentrySwift // The SentrySPM product. Use `import Sentry` with the pre-built XCFrameworks.
 
 // ....
 
@@ -81,14 +81,16 @@ SentrySDK.start { options in
 }
 ```
 
+For Objective-C, depend on the `SentryObjC` product instead of `SentrySPM` (or `SentryObjC-Static` / `SentryObjC-Dynamic` for the pre-built frameworks):
+
 ```objc
-@import Sentry;
+#import <SentryObjC/SentryObjC.h>
 
 // ....
 
-[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+[SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
     options.dsn = @"___PUBLIC_DSN___";
-    options.debug = @YES; // Helpful to see what's going on
+    options.debug = YES; // Helpful to see what's going on
 }];
 ```
 

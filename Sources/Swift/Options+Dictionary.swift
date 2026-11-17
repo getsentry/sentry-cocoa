@@ -266,6 +266,9 @@ extension Options {
         if let enableNetworkTracking = boolValue(dictionary["enableNetworkTracking"]) {
             self.enableNetworkTracking = enableNetworkTracking
         }
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.webViewTracing = SentryWebViewTracingOptions(dictionary: dictionary["webViewTracing"])
+        #endif
 
         if let enableFileIOTracing = boolValue(dictionary["enableFileIOTracing"]) {
             self.enableFileIOTracing = enableFileIOTracing

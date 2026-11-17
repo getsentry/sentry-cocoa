@@ -60,10 +60,11 @@ on:
         default: ""
         type: string
 
-      scheme:
-        description: the scheme to test
-        required: true
-        type: string
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64:
+        required: false
+      GIT_SSH_KEY_PASSPHRASE:
+        required: false
 
 jobs:
   unit-tests:
@@ -82,6 +83,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       - name: Resolve macOS build
         id: macos-build
@@ -167,33 +171,53 @@ jobs:
           ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
           bundle install
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          case "$PLATFORM" in
+            iOS) target=test-ios ;;
+            macOS) target=test-macos ;;
+            Catalyst) target=test-catalyst ;;
+            tvOS) target=test-tvos ;;
+            visionOS) target=test-visionos ;;
+            watchOS) target=test-watchos ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
         env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          SCHEME: ${{ inputs.scheme }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform "$PLATFORM" \
-            --os "$OS_VERSION" \
-            --ref "$REF_NAME" \
-            --command build-for-testing \
-            --device "$DEVICE_NAME" \
-            --configuration TestCI \
-            --scheme "$SCHEME"
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=build-for-testing \
+            TEST_CONFIGURATION=TestCI
 
       - name: Collect SentryTests Metadata
         id: collect_sentrytests_metadata
-        if: ${{ steps.build_tests.outcome == 'success' && inputs.scheme == 'Sentry' }}
+        if: ${{ steps.build_tests.outcome == 'success' }}
         continue-on-error: true
         run: |
           ./scripts/ci-collect-sentrytests-metadata.sh \
-            --derived-data-root "$HOME/Library/Developer/Xcode/DerivedData" \
+            --derived-data-root "$RUNNER_TEMP/sentry-package-derived-data" \
             --output-dir sentrytests-metadata
 
       # === Run tests ===
@@ -206,54 +230,54 @@ jobs:
       # xcodebuild fails if a result bundle already exists at the target path.
       - name: Run Flaky Tests
         id: run_flaky_tests
-        # Only the Sentry Scheme has the Flaky TestPlan.
-        if: ${{ inputs.scheme == 'Sentry' }}
         env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          SCHEME: ${{ inputs.scheme }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform "$PLATFORM" \
-            --os "$OS_VERSION" \
-            --ref "$REF_NAME" \
-            --command test-without-building \
-            --device "$DEVICE_NAME" \
-            --configuration TestCI \
-            --scheme "$SCHEME" \
-            --test-plan Sentry_Flaky \
-            --result-bundle flaky-results.xcresult
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=test-without-building \
+            TEST_CONFIGURATION=TestCI \
+            TEST_PLAN=SentrySPM_Flaky \
+            TEST_RESULT_BUNDLE=flaky-results.xcresult
 
       - name: Run tests
         id: run_tests
-        # We call a script with the platform so the destination
+        # Select the platform Make target so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
           REF_NAME: ${{ github.ref_name }}
-          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          SCHEME: ${{ inputs.scheme }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
           TEST_RUNNER_GITHUB_TOKEN: ${{ github.token }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform "$PLATFORM" \
-            --os "$OS_VERSION" \
-            --ref "$REF_NAME" \
-            --command test-without-building \
-            --device "$DEVICE_NAME" \
-            --configuration TestCI \
-            --scheme "$SCHEME" \
-            --result-bundle results.xcresult
+          make "$MAKE_TARGET" \
+            GIT-REF="$REF_NAME" \
+            TEST_COMMAND=test-without-building \
+            TEST_CONFIGURATION=TestCI \
+            TEST_RESULT_BUNDLE=results.xcresult
 
       # === Reports and failure artifacts ===
       - name: Publish Test Report
         id: publish_test_report
-        uses: mikepenz/action-junit-report@4a26df3e2ae132254ba12a53f65a388d0961e786 # v6.7.0
+        uses: mikepenz/action-junit-report@a16be3a69023e9bd7e748ede768b3282ea7b30ce # v6.7.1
         if: ${{ always() && (steps.run_tests.outcome == 'failure' || steps.run_flaky_tests.outcome == 'failure' || (github.run_attempt > 1 && steps.run_tests.outcome != 'skipped')) }}
         with:
           report_paths: "build/reports/junit.xml"
@@ -286,6 +310,7 @@ jobs:
         with:
           name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
+            raw-prepare-package-output.log
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
@@ -298,14 +323,14 @@ jobs:
         with:
           name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
-            results.xcresult
-            flaky-results.xcresult
+            ${{ runner.temp }}/results.xcresult
+            ${{ runner.temp }}/flaky-results.xcresult
 
       - name: Archiving SentryTests Metadata
         id: upload-test-metadata
         background: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
+        if: ${{ (failure() || cancelled()) && steps.collect_sentrytests_metadata.outcome == 'success' }}
         with:
           name: sentrytests-metadata-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           if-no-files-found: error
@@ -318,7 +343,7 @@ jobs:
         with:
           name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+            ${{ runner.temp }}/sentry-package-derived-data/Logs/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
