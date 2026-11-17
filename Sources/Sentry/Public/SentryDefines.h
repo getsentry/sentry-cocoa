@@ -228,6 +228,11 @@ static NSString *_Nonnull const kSentryFalseString DEPRECATED_MSG_ATTRIBUTE(
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward declaration, the
                                                          // actual enum is implemented in Swift.
 
+/**
+ * Session status.
+ */
+typedef NS_ENUM(NSUInteger, SentrySessionEndStatus); // Defined in SentrySessionEndStatus.h
+
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 /**

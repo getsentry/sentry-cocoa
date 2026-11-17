@@ -517,6 +517,22 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
             XCTAssertEqual(result, expected, "Expected \(expected) for ObjC case \(objcCase)")
         }
     }
+    
+    // MARK: - SentryObjCSessionEndStatus
+
+    func testSessionEndStatusUnderlying_whenEachCase_shouldMapCorrectly() {
+        let cases: [(SentryObjCSessionEndStatus, SentrySessionEndStatus)] = [
+            (.exited, .exited),
+            (.crashed, .crashed),
+            (.abnormal, .abnormal),
+            (.unhandled, .unhandled)
+        ]
+
+        for (objcCase, expected) in cases {
+            let result = objcCase.underlying
+            XCTAssertEqual(result, expected, "Expected \(expected) for ObjC case \(objcCase)")
+        }
+    }
 }
 
 // swiftlint:enable type_body_length file_length

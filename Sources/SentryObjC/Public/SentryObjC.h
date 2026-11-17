@@ -18,6 +18,7 @@
 #    import "SentryObjCProfileLifecycle.h"
 #    import "SentryObjCReplayQuality.h"
 #    import "SentryObjCSampleDecision.h"
+#    import "SentryObjCSessionEndStatus.h"
 #    import "SentryObjCSpanStatus.h"
 #    import "SentryObjCTransactionNameSource.h"
 #else
@@ -30,6 +31,7 @@
 #    import <SentryObjC/SentryObjCProfileLifecycle.h>
 #    import <SentryObjC/SentryObjCReplayQuality.h>
 #    import <SentryObjC/SentryObjCSampleDecision.h>
+#    import <SentryObjC/SentryObjCSessionEndStatus.h>
 #    import <SentryObjC/SentryObjCSpanStatus.h>
 #    import <SentryObjC/SentryObjCTransactionNameSource.h>
 #endif

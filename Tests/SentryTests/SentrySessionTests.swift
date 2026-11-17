@@ -33,6 +33,57 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertEqual(SentrySessionStatus.exited, session.status)
     }
     
+    func testEndSessionWithStatus_whenExited_shouldEndAsExited() {
+        let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
+        let date = currentDateProvider.date().addingTimeInterval(1)
+        session.endExited(withTimestamp: date)
+
+        XCTAssertEqual(1, session.duration)
+        XCTAssertEqual(date, session.timestamp)
+        XCTAssertEqual(SentrySessionStatus.exited, session.status)
+    }
+
+    func testEndSessionWithStatus_whenExitedAndPendingUnhandled_shouldEndAsExited() {
+        let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+        let date = currentDateProvider.date().addingTimeInterval(1)
+        session.endExited(withTimestamp: date)
+
+        XCTAssertEqual(1, session.duration)
+        XCTAssertEqual(date, session.timestamp)
+        XCTAssertEqual(SentrySessionStatus.exited, session.status)
+    }
+    
+    func testEndSessionWithStatus_whenUnhandled_shouldEndAsUnhandled() {
+        let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
+        let date = currentDateProvider.date().addingTimeInterval(1)
+        session.endUnhandled(withTimestamp: date)
+
+        XCTAssertEqual(1, session.duration)
+        XCTAssertEqual(date, session.timestamp)
+        XCTAssertEqual(SentrySessionStatus.unhandled, session.status)
+    }
+    
+    func testEndSessionWithStatus_whenCrashed_shouldEndAsCrashed() {
+        let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
+        let date = currentDateProvider.date().addingTimeInterval(1)
+        session.endCrashed(withTimestamp: date)
+
+        XCTAssertEqual(1, session.duration)
+        XCTAssertEqual(date, session.timestamp)
+        XCTAssertEqual(SentrySessionStatus.crashed, session.status)
+    }
+    
+    func testEndSessionWithStatus_whenAbnormal_shouldEndAsAbnormal() {
+        let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
+        let date = currentDateProvider.date().addingTimeInterval(1)
+        session.endAbnormal(withTimestamp: date)
+
+        XCTAssertEqual(1, session.duration)
+        XCTAssertEqual(date, session.timestamp)
+        XCTAssertEqual(SentrySessionStatus.abnormal, session.status)
+    }
+    
     func testInitAndDurationNilWhenSerialize() {
         // A restored, still-active session (no init flag, no stored duration, but with a
         // timestamp) must not gain a duration on re-serialization. Duration is only set on
