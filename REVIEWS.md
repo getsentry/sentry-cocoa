@@ -28,6 +28,7 @@ In order of importance:
 - **Support floor drops** — raising min OS/SDK versions or dropping a platform needs explicit docs/changelog/migration notes
 - **Envelope serialization** — correct byte ordering, length prefixes, JSON encoding
 - **SentryObjC wrapper** — any new public API must also be exposed in `SentryObjC` / `SentryObjCCompat`; see [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) for the wrapper pattern and naming convention
+- **Options dictionary** — any new option must also be read in [`Options+Dictionary.swift`](Sources/Swift/Options+Dictionary.swift); hybrid SDKs set options through it
 - **Specification compliance** — for changes covered by an SDK specification, verify `sentry-spec-compliance.json` accurately reflects the implementation and follows [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md)
 
 ## Conventions to Enforce

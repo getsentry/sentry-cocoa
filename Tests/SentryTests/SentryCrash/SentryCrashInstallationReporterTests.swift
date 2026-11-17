@@ -29,7 +29,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testReportIsSentAndDeleted() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-1")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
@@ -45,7 +45,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testShouldCaptureCrashReportWithLegacyStorageInfo() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-legacy-storage-info")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-legacy-storage-info")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
@@ -63,7 +63,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-without-device-context")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-without-device-context")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
@@ -80,7 +80,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testFaultyReportIsNotSentAndDeleted() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
+        try givenStoredSentryCrashReport(resource: "Fixtures/Crash-faulty-report")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 0)
@@ -105,7 +105,8 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
-            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource()
         )
         let container = SentryDependencyContainer.sharedInstance()
         sut.setBridgeObject(SentryCrashBridge(

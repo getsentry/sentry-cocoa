@@ -7,9 +7,9 @@ extension Scenario {
     /// closed the scenario passes unexpectedly, the run fails, and the entry has to be removed.
     func knownFailureReason(for reporter: Reporter) -> String? {
         switch (reporter, self) {
-        case (.sentryCrash, .objcObject), (.sentryCrash, .objcObjectAfterCaughtCPP):
-            // These run with C++ V2 enabled and strict modern-backend assertions, which the
-            // SentryCrash C++ monitor does not meet for thrown Objective-C objects.
+        case (.sentryCrash, .objcObjectAfterCaughtCPP):
+            // This runs with C++ V2 enabled and strict modern-backend assertions, which the
+            // SentryCrash C++ monitor does not meet for Objective-C objects thrown after caught C++ exceptions.
             return "SentryCrash does not report thrown Objective-C objects with the modern report shape"
         default:
             return nil

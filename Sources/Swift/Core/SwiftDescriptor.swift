@@ -10,7 +10,7 @@ import UIKit
     
     @objc
     public static func getObjectClassName(_ object: AnyObject) -> String {
-        return String(describing: type(of: object))
+        return "\(type(of: object))"
     }
 
     /// UIViewControllers aren't available on watchOS

@@ -25,6 +25,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
                       crashWrapper:(id<SentryCrashReporter>)crashWrapper
                      dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
                  startupCrashFlush:(SentryStartupCrashFlush *)startupCrashFlush
+           crashHandlerEventSource:(SentryCrashHandlerEventSource *)crashHandlerEventSource
 {
     if (self = [super init]) {
         // SentryCrash retains its legacy batch cleanup policy, so it does not preserve a session
@@ -32,9 +33,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
         // because it retains retryable reports individually.
         self.reportProcessor =
             [[SentryStoredCrashReportProcessor alloc] initWithInAppLogic:inAppLogic
-                                                      currentHubProvider:^SentryHubInternal * {
-                                                          return SentrySDKInternal.currentHub;
-                                                      }
+                                                 crashHandlerEventSource:crashHandlerEventSource
                                   preserveCrashedSessionOnCaptureFailure:NO];
         self.crashWrapper = crashWrapper;
         self.dispatchQueue = dispatchQueue;

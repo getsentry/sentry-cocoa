@@ -7,6 +7,7 @@
 #else
 @testable import Sentry
 #endif
+import _SentryPrivate
 import SentryTestUtilsObjC
 import XCTest
 
@@ -300,6 +301,35 @@ class SentryWeakMapTests: XCTestCase {
         XCTAssertEqual(sizeBeforePrune, 100)
         // 30 keys were deallocated, so the map should have 70 objects remaining
         XCTAssertEqual(sizeAfterPrune, 70)
+    }
+
+    func testAllKeys_emptyMap_shouldReturnEmptyArray() {
+        // -- Arrange --
+        let map = SentryWeakMap<TestKey, TestValue>()
+
+        // -- Act --
+        let keys = map.allKeys()
+
+        // -- Assert --
+        XCTAssertTrue(keys.isEmpty)
+    }
+
+    func testAllKeys_shouldReturnOnlyLiveKeys() {
+        // -- Arrange --
+        let map = SentryWeakMap<TestKey, TestValue>()
+        let liveKey = TestKey()
+        map.setObject(TestValue(), forKey: liveKey)
+        autoreleasepool {
+            map.setObject(TestValue(), forKey: TestKey())
+        }
+
+        // -- Act --
+        let keys = map.allKeys()
+
+        // -- Assert --
+        XCTAssertEqual(keys.count, 1)
+        XCTAssertTrue(keys.first === liveKey)
+        XCTAssertEqual(map.count(), 1)
     }
 
     func testPrune_referencesAllDeallocated_shouldRemoveAllObjects() {

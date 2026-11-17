@@ -6,6 +6,7 @@ protocol SentryDispatchQueueWrapperProtocol {
     func dispatchAsync(_ block: @escaping () -> Void)
     func dispatch(after interval: TimeInterval, block: @escaping () -> Void)
     func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void)
+    func dispatchAsyncOnMainQueue(block: @escaping () -> Void)
     func dispatchSyncOnMainQueue(block: @escaping () -> Void)
     func dispatchSyncOnMainQueue(_ block: @escaping () -> Void, timeout: Double)
     func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void)
@@ -55,6 +56,11 @@ protocol SentryDispatchQueueWrapperProtocol {
     @objc(dispatchAsyncOnMainQueueIfNotMainThread:)
     public func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void) {
         internalWrapper.dispatchAsyncOnMainQueueIfNotMainThread(block: block)
+    }
+
+    @objc(dispatchAsyncOnMainQueue:)
+    public func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
+        internalWrapper.dispatchAsyncOnMainQueue(block: block)
     }
 
     @objc(dispatchSyncOnMainQueue:)

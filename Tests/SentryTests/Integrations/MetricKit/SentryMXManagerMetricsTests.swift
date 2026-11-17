@@ -289,6 +289,102 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         XCTAssertTrue(metricsApi.recordedMetrics.isEmpty)
     }
 
+    // MARK: - Histograms
+
+    func testDidReceive_whenHistogramReportsEnabled_shouldRecordMiddleOfBucketInCanonicalUnit() {
+        assertRecordedMetrics(for: [
+            .launchTimeToFirstDraw,
+            .launchResumeTime,
+            .launchOptimizedTimeToFirstDraw,
+            .launchExtended,
+            .responsivenessHangTime,
+            .cellularConditionTime
+        ], [
+            .init(key: "metrickit.launch.time_to_first_draw", kind: .distribution, value: 0.55, unit: .second),
+            .init(key: "metrickit.launch.resume_time", kind: .distribution, value: 0.15, unit: .second),
+            .init(key: "metrickit.launch.optimized_time_to_first_draw", kind: .distribution, value: 0.35, unit: .second),
+            .init(key: "metrickit.launch.extended_launch", kind: .distribution, value: 1.5, unit: .second),
+            .init(key: "metrickit.responsiveness.hang_time", kind: .distribution, value: 0.375, unit: .second),
+            .init(key: "metrickit.cellular.condition_time", kind: .distribution, value: 3.5, unit: .generic("bars"))
+        ])
+    }
+
+    func testDidReceive_whenHistogramHasSeveralSamples_shouldSpreadEachBucketAcrossInterval() {
+        // -- Arrange --
+        let metricsApi = TestInternalMetricsApi()
+        let sut = givenSut(enabledMetricReports: [.responsivenessHangTime], metricsApi: metricsApi)
+        let payload = givenPayload()
+        payload.overrides.applicationResponsivenessMetrics = TestMXAppResponsivenessMetric(hangTime: [
+            .init(start: 0, end: 1, count: 2),
+            .init(start: 1, end: 3, count: 1)
+        ])
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        let duration = timeStampEnd.timeIntervalSince(timeStampBegin)
+        XCTAssertEqual(metricsApi.recordedMetrics.map(\.value), [0.5, 0.5, 2])
+        XCTAssertEqual(metricsApi.recordedMetrics.map(\.timestamp), [
+            timeStampBegin.addingTimeInterval(duration * 0.25),
+            timeStampBegin.addingTimeInterval(duration * 0.75),
+            timeStampBegin.addingTimeInterval(duration * 0.5)
+        ])
+    }
+
+    func testDidReceive_whenHistogramHasEmptyBuckets_shouldSkipThem() {
+        // -- Arrange --
+        let metricsApi = TestInternalMetricsApi()
+        let sut = givenSut(enabledMetricReports: [.responsivenessHangTime], metricsApi: metricsApi)
+        let payload = givenPayload()
+        payload.overrides.applicationResponsivenessMetrics = TestMXAppResponsivenessMetric(hangTime: [
+            .init(start: 0, end: 1, count: 0),
+            .init(start: 1, end: 3, count: 1)
+        ])
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        XCTAssertEqual(metricsApi.recordedMetrics.map(\.value), [2])
+    }
+
+    func testDidReceive_whenHistogramIsEmpty_shouldNotRecordMetric() {
+        // -- Arrange --
+        let metricsApi = TestInternalMetricsApi()
+        let sut = givenSut(enabledMetricReports: [.responsivenessHangTime], metricsApi: metricsApi)
+        let payload = givenPayload()
+        payload.overrides.applicationResponsivenessMetrics = TestMXAppResponsivenessMetric(hangTime: [])
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        XCTAssertTrue(metricsApi.recordedMetrics.isEmpty)
+    }
+
+    func testDidReceive_whenHistogramExceedsValueLimit_shouldKeepShareOfEachBucket() {
+        // -- Arrange --
+        let metricsApi = TestInternalMetricsApi()
+        let sut = givenSut(enabledMetricReports: [.responsivenessHangTime], metricsApi: metricsApi)
+        let payload = givenPayload()
+        payload.overrides.applicationResponsivenessMetrics = TestMXAppResponsivenessMetric(hangTime: [
+            .init(start: 0, end: 1, count: 900),
+            .init(start: 1, end: 3, count: 90),
+            .init(start: 3, end: 5, count: 10)
+        ])
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        let values = metricsApi.recordedMetrics.map(\.value)
+        XCTAssertEqual(values.count, SentryMXMetricRecorder.maxHistogramValues)
+        XCTAssertEqual(values.filter { $0 == 0.5 }.count, 90)
+        XCTAssertEqual(values.filter { $0 == 2 }.count, 9)
+        XCTAssertEqual(values.filter { $0 == 4 }.count, 1)
+    }
+
     // MARK: - Timestamp
 
     func testDidReceive_shouldStampMetricsWithMiddleOfReportingInterval() throws {
@@ -481,6 +577,9 @@ final class SentryMXManagerMetricsTests: XCTestCase {
         payload.overrides.displayMetrics = TestMXDisplayMetric()
         payload.overrides.animationMetrics = TestMXAnimationMetric()
         payload.overrides.applicationExitMetrics = TestMXAppExitMetric()
+        payload.overrides.applicationLaunchMetrics = TestMXAppLaunchMetric()
+        payload.overrides.applicationResponsivenessMetrics = TestMXAppResponsivenessMetric()
+        payload.overrides.cellularConditionMetrics = TestMXCellularConditionMetric()
         #if compiler(>=6.2)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             payload.overrides.diskSpaceUsageMetrics = TestMXDiskSpaceUsageMetric()
@@ -597,6 +696,9 @@ class TestMXMetricPayload: MXMetricPayload {
         var displayMetrics: MXDisplayMetric?
         var animationMetrics: MXAnimationMetric?
         var applicationExitMetrics: MXAppExitMetric?
+        var applicationLaunchMetrics: MXAppLaunchMetric?
+        var applicationResponsivenessMetrics: MXAppResponsivenessMetric?
+        var cellularConditionMetrics: MXCellularConditionMetric?
         // Typed as MXMetric because MXDiskSpaceUsageMetric requires iOS 26.
         var diskSpaceUsageMetrics: MXMetric?
     }
@@ -618,6 +720,9 @@ class TestMXMetricPayload: MXMetricPayload {
     override var displayMetrics: MXDisplayMetric? { overrides.displayMetrics }
     override var animationMetrics: MXAnimationMetric? { overrides.animationMetrics }
     override var applicationExitMetrics: MXAppExitMetric? { overrides.applicationExitMetrics }
+    override var applicationLaunchMetrics: MXAppLaunchMetric? { overrides.applicationLaunchMetrics }
+    override var applicationResponsivenessMetrics: MXAppResponsivenessMetric? { overrides.applicationResponsivenessMetrics }
+    override var cellularConditionMetrics: MXCellularConditionMetric? { overrides.cellularConditionMetrics }
 
     #if compiler(>=6.2)
     @available(iOS 26.0, macOS 26.0, *)
@@ -756,6 +861,114 @@ class TestMXBackgroundExitData: MXBackgroundExitData {
 class TestMXAppExitMetric: MXAppExitMetric {
     override var foregroundExitData: MXForegroundExitData { TestMXForegroundExitData() }
     override var backgroundExitData: MXBackgroundExitData { TestMXBackgroundExitData() }
+}
+
+/// A histogram bucket, with its bounds in the base unit of the histogram.
+struct TestHistogramBucket {
+    let start: Double
+    let end: Double
+    let count: Int
+}
+
+// Swift can only subclass the generic MetricKit histogram classes with concrete units.
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXDurationHistogramBucket: MXHistogramBucket<UnitDuration> {
+    var bucket = TestHistogramBucket(start: 0, end: 0, count: 0)
+    var unit = UnitDuration.seconds
+
+    override var bucketStart: Measurement<UnitDuration> { Measurement(value: bucket.start, unit: unit) }
+    override var bucketEnd: Measurement<UnitDuration> { Measurement(value: bucket.end, unit: unit) }
+    override var bucketCount: Int { bucket.count }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXDurationHistogram: MXHistogram<UnitDuration> {
+    private var buckets: [TestMXDurationHistogramBucket] = []
+
+    convenience init(_ buckets: [TestHistogramBucket], in unit: UnitDuration) {
+        self.init()
+        self.buckets = buckets.map { bucket in
+            let testBucket = TestMXDurationHistogramBucket()
+            testBucket.bucket = bucket
+            testBucket.unit = unit
+            return testBucket
+        }
+    }
+
+    override var totalBucketCount: Int { buckets.count }
+    override var bucketEnumerator: NSEnumerator { (buckets as NSArray).objectEnumerator() }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXSignalBarsHistogramBucket: MXHistogramBucket<MXUnitSignalBars> {
+    var bucket = TestHistogramBucket(start: 0, end: 0, count: 0)
+
+    override var bucketStart: Measurement<MXUnitSignalBars> { Measurement(value: bucket.start, unit: .bars) }
+    override var bucketEnd: Measurement<MXUnitSignalBars> { Measurement(value: bucket.end, unit: .bars) }
+    override var bucketCount: Int { bucket.count }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXSignalBarsHistogram: MXHistogram<MXUnitSignalBars> {
+    private var buckets: [TestMXSignalBarsHistogramBucket] = []
+
+    convenience init(_ buckets: [TestHistogramBucket]) {
+        self.init()
+        self.buckets = buckets.map { bucket in
+            let testBucket = TestMXSignalBarsHistogramBucket()
+            testBucket.bucket = bucket
+            return testBucket
+        }
+    }
+
+    override var totalBucketCount: Int { buckets.count }
+    override var bucketEnumerator: NSEnumerator { (buckets as NSArray).objectEnumerator() }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXAppLaunchMetric: MXAppLaunchMetric {
+    override var histogrammedTimeToFirstDraw: MXHistogram<UnitDuration> {
+        TestMXDurationHistogram([.init(start: 500, end: 600, count: 1)], in: .milliseconds)
+    }
+    override var histogrammedApplicationResumeTime: MXHistogram<UnitDuration> {
+        TestMXDurationHistogram([.init(start: 100, end: 200, count: 1)], in: .milliseconds)
+    }
+    override var histogrammedOptimizedTimeToFirstDraw: MXHistogram<UnitDuration> {
+        TestMXDurationHistogram([.init(start: 300, end: 400, count: 1)], in: .milliseconds)
+    }
+    override var histogrammedExtendedLaunch: MXHistogram<UnitDuration> {
+        TestMXDurationHistogram([.init(start: 1, end: 2, count: 1)], in: .seconds)
+    }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXAppResponsivenessMetric: MXAppResponsivenessMetric {
+    private var hangTime: [TestHistogramBucket] = [.init(start: 250, end: 500, count: 1)]
+    private var hangTimeUnit = UnitDuration.milliseconds
+
+    convenience init(hangTime: [TestHistogramBucket]) {
+        self.init()
+        self.hangTime = hangTime
+        hangTimeUnit = .seconds
+    }
+
+    override var histogrammedApplicationHangTime: MXHistogram<UnitDuration> {
+        TestMXDurationHistogram(hangTime, in: hangTimeUnit)
+    }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXCellularConditionMetric: MXCellularConditionMetric {
+    override var histogrammedCellularConditionTime: MXHistogram<MXUnitSignalBars> {
+        TestMXSignalBarsHistogram([.init(start: 3, end: 4, count: 1)])
+    }
 }
 
 #if compiler(>=6.2)
