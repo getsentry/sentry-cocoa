@@ -9,6 +9,9 @@ internal import _SentryPrivate
 final class SentryMXRunIdThreadCrumb {
     private enum State {
         case notAttempted
+        /// A caller is parking the crumb. The group is left once the attempt settles, so other
+        /// callers wait on it instead of on the lock.
+        case parking(DispatchGroup)
         case parked(runId: SentryCurrentRun.ID, addresses: [UInt64])
         /// Parking was tried and didn't return the spelled frames. The thread may still exist,
         /// because parking gives up waiting for a thread that takes too long to spell, so it
@@ -16,10 +19,24 @@ final class SentryMXRunIdThreadCrumb {
         case failed
     }
 
+    /// What a caller of ``park(runId:)`` has to do, decided while holding the lock.
+    private enum Attempt {
+        case spell(DispatchGroup)
+        case wait(DispatchGroup)
+        case settled
+    }
+
     /// The crumb of the process. Every SDK start parks through it, so the process has one thread.
     static let shared = SentryMXRunIdThreadCrumb()
 
     private let state = SentryMutex<State>(.notAttempted)
+    private let spell: (String) throws -> [UInt64]
+
+    /// - Parameter spell: Parks a thread spelling the message; tests replace it to control when
+    ///   and how an attempt settles.
+    init(spell: @escaping (String) throws -> [UInt64] = SentryMXRunIdThreadCrumb.spell) {
+        self.spell = spell
+    }
 
     /// Why a crumb couldn't be parked.
     enum ParkError: Error, Equatable {
@@ -39,31 +56,57 @@ final class SentryMXRunIdThreadCrumb {
     /// diagnostics are sent without a run ID.
     ///
     /// This waits for the crumb's thread to spell the run ID, so it must not be called on the
-    /// main thread.
+    /// main thread. A call that overlaps the attempt of another caller waits for that attempt.
     ///
     /// - Returns: The addresses of the spelled frames, outermost first, which the decoder matches
     ///   against the call stacks of a diagnostic.
     /// - Throws: A ``ParkError`` when the crumb couldn't be parked, now or in an earlier attempt,
     ///   or when this process already parked a crumb for a different run ID.
     func park(runId: SentryCurrentRun.ID) throws -> [UInt64] {
-        try state.withLock { state in
+        // The lock only guards the state. Spelling blocks for up to the park timeout, and an
+        // unfair lock must not be held across a blocking wait, so the attempt runs outside of it.
+        let attempt: Attempt = state.withLock { state in
+            switch state {
+            case .notAttempted:
+                let group = DispatchGroup()
+                group.enter()
+                state = .parking(group)
+                return .spell(group)
+            case let .parking(group):
+                return .wait(group)
+            case .parked, .failed:
+                return .settled
+            }
+        }
+
+        switch attempt {
+        case let .spell(group):
+            defer { group.leave() }
+            do {
+                let addresses = try spell(runId.rawValue)
+                state.withLock { $0 = .parked(runId: runId, addresses: addresses) }
+                return addresses
+            } catch {
+                state.withLock { $0 = .failed }
+                throw error
+            }
+        case let .wait(group):
+            group.wait()
+        case .settled:
+            break
+        }
+
+        return try state.withLock { state in
             switch state {
             case let .parked(parkedRunId, addresses):
                 guard parkedRunId == runId else {
                     throw ParkError.parkedForAnotherRun(parkedRunId)
                 }
                 return addresses
-            case .failed:
+            case .failed, .notAttempted, .parking:
+                // An attempt settles as parked or failed before its group is left, so the other
+                // two states can't be seen here.
                 throw ParkError.earlierAttemptFailed
-            case .notAttempted:
-                do {
-                    let addresses = try Self.spell(runId.rawValue)
-                    state = .parked(runId: runId, addresses: addresses)
-                    return addresses
-                } catch {
-                    state = .failed
-                    throw error
-                }
             }
         }
     }

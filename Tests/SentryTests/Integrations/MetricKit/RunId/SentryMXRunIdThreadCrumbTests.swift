@@ -120,6 +120,77 @@ final class SentryMXRunIdThreadCrumbTests: XCTestCase {
             XCTAssertEqual(error as? SentryMXRunIdThreadCrumb.ParkError, .earlierAttemptFailed)
         }
     }
+
+    func testPark_whenAnotherCallIsSpelling_shouldWaitAndReturnItsAddresses() {
+        // -- Arrange --
+        let spelling = expectation(description: "The first call is spelling")
+        let finishSpelling = DispatchSemaphore(value: 0)
+        let spellCount = SentryMutex<Int>(0)
+        let sut = SentryMXRunIdThreadCrumb(spell: { _ in
+            spellCount.withLock { $0 += 1 }
+            spelling.fulfill()
+            finishSpelling.wait()
+            return [1, 2, 3]
+        })
+        let runId = SentryCurrentRun.ID(rawValue: "ABC")
+        let results = SentryMutex<[[UInt64]]>([])
+        let parked = expectation(description: "Both calls returned")
+        parked.expectedFulfillmentCount = 2
+        let park = {
+            do {
+                let addresses = try sut.park(runId: runId)
+                results.withLock { $0.append(addresses) }
+            } catch {
+                XCTFail("Parking should succeed, but threw \(error)")
+            }
+            parked.fulfill()
+        }
+
+        // -- Act --
+        DispatchQueue.global().async(execute: park)
+        wait(for: [spelling], timeout: 5)
+        DispatchQueue.global().async(execute: park)
+        finishSpelling.signal()
+
+        // -- Assert --
+        wait(for: [parked], timeout: 5)
+        XCTAssertEqual(results.withLock { $0 }, [[1, 2, 3], [1, 2, 3]])
+        XCTAssertEqual(spellCount.withLock { $0 }, 1, "The overlapping call must not park a second thread")
+    }
+
+    func testPark_whenAnotherCallIsSpellingAndFails_shouldThrowEarlierAttemptFailed() {
+        // -- Arrange --
+        let spelling = expectation(description: "The first call is spelling")
+        let finishSpelling = DispatchSemaphore(value: 0)
+        let sut = SentryMXRunIdThreadCrumb(spell: { _ in
+            spelling.fulfill()
+            finishSpelling.wait()
+            throw SentryMXRunIdThreadCrumb.ParkError.notSpelled
+        })
+        let runId = SentryCurrentRun.ID(rawValue: "ABC")
+        let errors = SentryMutex<[String: SentryMXRunIdThreadCrumb.ParkError]>([:])
+        let threw = expectation(description: "Both calls threw")
+        threw.expectedFulfillmentCount = 2
+        let park = { (caller: String) in
+            do {
+                _ = try sut.park(runId: runId)
+                XCTFail("Parking should throw for the \(caller) call")
+            } catch {
+                errors.withLock { $0[caller] = error as? SentryMXRunIdThreadCrumb.ParkError }
+            }
+            threw.fulfill()
+        }
+
+        // -- Act --
+        DispatchQueue.global().async { park("spelling") }
+        wait(for: [spelling], timeout: 5)
+        DispatchQueue.global().async { park("overlapping") }
+        finishSpelling.signal()
+
+        // -- Assert --
+        wait(for: [threw], timeout: 5)
+        XCTAssertEqual(errors.withLock { $0 }, ["spelling": .notSpelled, "overlapping": .earlierAttemptFailed])
+    }
 }
 
 #endif // os(iOS) || os(macOS) || os(visionOS)
