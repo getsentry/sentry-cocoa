@@ -1,7 +1,7 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourceSinkProvider>: NSObject, SwiftIntegration {
+final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourceSinkProvider & CurrentRunProvider & FileManagerProvider & DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
     
     /// Captures the enabled diagnostics, or `nil` when none is enabled.
     let diagnosticCapturer: SentryMXDiagnosticCapturer?
@@ -28,7 +28,8 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
             releaseName: options.releaseName,
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp,
-            eventSourceSink: dependencies.eventSourceSink
+            eventSourceSink: dependencies.eventSourceSink,
+            runIdDecoder: Self.recordRunId(dependencies: dependencies)
         )
         let metricRecorder = enabledMetricReports.isEmpty ? nil : SentryMXMetricRecorder(
             enabledMetricReports: enabledMetricReports,
@@ -59,6 +60,34 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
     
     static var name: String {
         "SentryMetricKitIntegration"
+    }
+
+    /// Spells the run ID into a parked thread so the diagnostics of this run carry it, records
+    /// it so a later run can read it back, and returns the decoder that does so.
+    ///
+    /// - Returns: `nil` without a file manager, because the record couldn't be kept.
+    private static func recordRunId(dependencies: Dependencies) -> SentryMXRunIdDecoding? {
+        guard let fileManager = dependencies.fileManager else {
+            SentrySDKLog.warning("MetricKit diagnostics can't be matched to their run without a file manager.")
+            return nil
+        }
+        let store = SentryMXRunIdRecordStore(fileManager: fileManager, dateProvider: dependencies.dateProvider)
+        let runId = dependencies.currentRun.id
+        let date = dependencies.dateProvider.date()
+        // Parking waits for the crumb's thread to spell the run ID, so it happens off the calling
+        // thread, which is the main thread when the SDK starts there. A crash before the crumb is
+        // parked has no run ID in its diagnostic, which is then sent as its own event.
+        dependencies.dispatchQueueWrapper.dispatchAsync {
+            // The crumb is parked once per process. On an SDK restart with the same run ID it
+            // returns the frames again, and the record is written once more.
+            do {
+                let addresses = try SentryMXRunIdThreadCrumb.shared.park(runId: runId)
+                store.add(SentryMXRunIdRecord(runId: runId, threadCrumbAddresses: addresses, date: date))
+            } catch {
+                SentrySDKLog.warning("Could not park the thread crumb for the run ID, so MetricKit diagnostics of this run can't be matched to it: \(error)")
+            }
+        }
+        return SentryMXRunIdDecoder(store: store)
     }
     
     func uninstall() {

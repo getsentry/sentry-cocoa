@@ -9,6 +9,7 @@
 
 - Add experimental option `options.experimental.enableUIUpdateLinkFramesTracking` that tracks slow and frozen frames, frames delay, and time to display on iOS 18, tvOS 18 and visionOS 2 and later with the main run loop and a `UIUpdateLink` instead of a `CADisplayLink`, so the SDK no longer wakes up an idle app for every frame (#9541)
   - The option is disabled by default.
+- Spell the run ID into the call stack of a parked thread while MetricKit diagnostics are enabled, so the SDK can match a MetricKit crash, hang or memory diagnostic to the run it describes. The thread is named `io.sentry.threadcrumb` and stays idle; the run ID stays on the device (#9582)
 
 ## 9.35.0
 
