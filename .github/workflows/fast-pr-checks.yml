@@ -73,23 +73,12 @@ jobs:
       xcode: "16"
       platform: iOS
 
-  sentrycrash-import-ratchet:
-    name: SentryCrash Import Ratchet
-    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
-    needs: files-changed
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Check SentryCrash import count
-        run: ./scripts/check-sentrycrash-imports.sh
-
   fast-checks-required:
     needs: [
       run-full-ci-gate,
       files-changed,
       fast-xcframework-slices,
       fast-unit-tests,
-      sentrycrash-import-ratchet,
     ]
     name: Fast PR Checks
     if: always()

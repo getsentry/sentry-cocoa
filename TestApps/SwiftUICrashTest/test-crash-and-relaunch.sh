@@ -149,6 +149,7 @@ xcodebuild -workspace Sentry.xcworkspace \
     -destination "platform=iOS Simulator,id=$DEVICE_ID" \
     -derivedDataPath DerivedData \
     -configuration Debug \
+    "ARCHS=\$(ARCHS_STANDARD)" \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify --preserve-unbeautified
 

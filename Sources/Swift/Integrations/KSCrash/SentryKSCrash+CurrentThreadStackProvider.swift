@@ -1,4 +1,3 @@
-#if SDK_V10
 internal import KSCrashRecordingCore
 import Foundation
 
@@ -31,4 +30,3 @@ public final class SentryKSCrashCurrentThreadStackProvider: NSObject {
         return entries
     }
 }
-#endif // SDK_V10

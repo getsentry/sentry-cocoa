@@ -95,7 +95,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Controls the flush duration when calling @c SentryObjCSDK.close.
 @property (nonatomic) NSTimeInterval shutdownTimeInterval;
 
-#if SDK_V10
 /**
  * When enabled, the SDK sends crashes to Sentry.
  * @note Disabling this feature disables watchdog termination tracking, because it would falsely
@@ -106,18 +105,8 @@ NS_ASSUME_NONNULL_BEGIN
  * still terminates, but it writes no crash report, sends no event, and does not classify the
  * next launch as crashed.
  */
-#else
-/**
- * When enabled, the SDK sends crashes to Sentry.
- * @note Disabling this feature disables watchdog termination tracking, because it would falsely
- * report every crash as watchdog termination.
- * @note Default value is @c YES.
- * @note Crash reporting is automatically disabled if a debugger is attached.
- */
-#endif // SDK_V10
 @property (nonatomic) BOOL enableCrashHandler;
 
-#if SDK_V10
 /**
  * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
  * When @c NO, unhandled C++ exceptions are still captured through @c std::terminate when crash
@@ -125,7 +114,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @note Defaults to @c NO to preserve the existing capture mode.
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
-#endif // SDK_V10
 
 /**
  * When enabled, the SDK introspects memory contents during a crash.
@@ -762,21 +750,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableUncaughtNSExceptionReporting;
 
 #endif
-
-#if !TARGET_OS_WATCH && !SDK_V10
-
-/**
- * When enabled, the SDK reports SIGTERM signals.
- * @note Default value is @c NO.
- * @note Removed in v10. KSCrash always catches @c SIGTERM, records a clean exit, and never writes
- * a crash report for it.
- */
-@property (nonatomic) BOOL enableSigtermReporting
-    __attribute__((deprecated("This property will be removed in v10. KSCrash always catches "
-                              "SIGTERM, records a clean exit, and never writes a crash report "
-                              "for it.")));
-
-#endif // !TARGET_OS_WATCH && !SDK_V10
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 

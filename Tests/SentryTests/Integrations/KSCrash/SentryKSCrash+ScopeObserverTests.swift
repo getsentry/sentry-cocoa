@@ -1,4 +1,3 @@
-#if SDK_V10
 #if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
 #else
@@ -496,4 +495,3 @@ class SentryKSCrashScopeObserverTests: XCTestCase {
         }
     }
 }
-#endif

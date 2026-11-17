@@ -1,14 +1,9 @@
 #import "SentryBaggage.h"
-#import "SentryInternalSerializable.h"
-#if SDK_V10
-#    import "SentryThreadSnapshot.h"
-#else
-#    import "SentryCrashThread.h"
-#endif
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeprecated+Private.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
@@ -17,6 +12,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
+#import "SentryThreadSnapshot.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
@@ -66,11 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
 
-#if SDK_V10
         uintptr_t currentThread = sentryThreadInspectionCurrentThread();
-#else
-        SentryCrashThread currentThread = sentrycrashthread_self();
-#endif
         _data[SPAN_DATA_THREAD_ID] = @(currentThread);
 
         if ([NSThread isMainThread]) {

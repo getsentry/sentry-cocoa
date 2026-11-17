@@ -17,7 +17,7 @@ on:
 
 # Concurrency configuration:
 # - For pull requests, we cancel in-progress runs when new commits are pushed, since only the
-#   latest commit matters and each run occupies four macOS runners.
+#   latest commit matters and each run occupies two macOS runners.
 # - For main branch pushes, we never cancel so every merged commit gets a complete crash
 #   reporting signal.
 concurrency:
@@ -46,7 +46,7 @@ jobs:
           filters: .github/file-filters.yml
 
   crash-e2e:
-    name: Run ${{ matrix.reporter }} ${{ matrix.platform }}
+    name: Run KSCrash ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_crash_e2e_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
@@ -54,9 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # SentryCrash is the V9 reporter and KSCrash is the V10 reporter. Each job runs the
-        # reporter-specific default scenarios from Config.swift in the CrashE2E runner.
-        reporter: [SentryCrash, KSCrash]
+        # KSCrash is the only SDK recorder. Preserve its full default scenario set.
         platform: [iOS, macOS]
 
     steps:
@@ -104,13 +102,12 @@ jobs:
       - name: Run Crash E2E scenarios
         id: crash-scenarios
         env:
-          REPORTER: ${{ matrix.reporter }}
           PLATFORM: ${{ matrix.platform }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           set -o pipefail
-          ARGS=(--reporter "$REPORTER" --quiet-build --keep-going --keep-artifacts)
+          ARGS=(--quiet-build --keep-going --keep-artifacts)
           if [[ "$PLATFORM" == "iOS" ]]; then
             ARGS+=(--platform ios --ios-destination "platform=iOS Simulator,name=${IOS_DEVICE_NAME},OS=${IOS_SIMULATOR_OS}")
           else
@@ -126,7 +123,6 @@ jobs:
         timeout-minutes: 10
         env:
           CRASH_E2E_HARNESS_TIMEOUT_TEST: "1"
-          CRASH_E2E_TEST_REPORTER: ${{ matrix.reporter }}
           CRASH_E2E_TEST_DERIVED_DATA: ${{ github.workspace }}/DerivedData/CrashE2E
           CRASH_E2E_TEST_ARTIFACTS: ${{ runner.temp }}/crash-e2e-harness-timeout
           CRASH_E2E_TEST_IOS_DESTINATION: platform=iOS Simulator,name=${{ steps.resolve-test-destination.outputs.TEST_DEVICE }},OS=${{ steps.resolve-test-destination.outputs.TEST_OS }}
@@ -138,7 +134,7 @@ jobs:
         if: ${{ always() && matrix.platform == 'iOS' && steps.timeout-recovery.outcome != 'skipped' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: crash-e2e-harness-timeout-${{ matrix.reporter }}
+          name: crash-e2e-harness-timeout-KSCrash
           path: ${{ runner.temp }}/crash-e2e-harness-timeout/**
 
       - name: Archiving Crash E2E Artifacts
@@ -147,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-e2e-${{ matrix.reporter }}-${{ matrix.platform }}
+          name: crash-e2e-KSCrash-${{ matrix.platform }}
           path: |
             raw-crash-e2e-output.log
             TestApps/CrashE2E/artifacts/**
@@ -156,7 +152,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-crash-e2e-${{ matrix.reporter }}-${{ matrix.platform }}
+          name: crash-logs-crash-e2e-KSCrash-${{ matrix.platform }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 

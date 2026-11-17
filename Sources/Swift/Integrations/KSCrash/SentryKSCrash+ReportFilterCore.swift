@@ -1,4 +1,3 @@
-#if SDK_V10
 internal import _SentryPrivate
 import Foundation
 
@@ -232,4 +231,3 @@ extension SentryKSCrash {
 }
 
 extension SentryStoredCrashReportProcessor: SentryKSCrash.StoredCrashReportProcessing {}
-#endif

@@ -8,7 +8,6 @@ typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider
 // nor we want to continue using the DependencyContainer
 private weak var globalViewHierarchyProvider: SentryViewHierarchyProvider?
 
-#if SDK_V10
 private let crashTimeViewHierarchyWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
     sentrykscrash_attachments_log("view-hierarchy writer: enter")
     guard let provider = globalViewHierarchyProvider else {
@@ -19,7 +18,6 @@ private let crashTimeViewHierarchyWriter: @convention(c) (UnsafePointer<CChar>) 
     provider.saveViewHierarchy(filePath)
     sentrykscrash_attachments_log("view-hierarchy writer: returned")
 }
-#endif
 
 final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
@@ -52,26 +50,13 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         client.addAttachmentProcessor(self)
 
         globalViewHierarchyProvider = viewHierarchyProvider
-#if SDK_V10
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(
             crashTimeViewHierarchyWriter
         )
-#else
-        sentrycrash_setSaveViewHierarchy { path in
-            guard let path = path else { return }
-            let reportPath = String(cString: path)
-            let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
-            globalViewHierarchyProvider?.saveViewHierarchy(filePath)
-        }
-#endif
     }
 
     func uninstall() {
-#if SDK_V10
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(nil)
-#else
-        sentrycrash_setSaveViewHierarchy(nil)
-#endif
         globalViewHierarchyProvider = nil
         client?.removeAttachmentProcessor(self)
     }

@@ -1,4 +1,3 @@
-#if SDK_V10
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) @testable import SentrySwift
@@ -856,4 +855,3 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }
 }
-#endif
