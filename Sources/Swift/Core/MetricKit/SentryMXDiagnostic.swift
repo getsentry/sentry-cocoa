@@ -43,6 +43,9 @@ struct SentryMXDiagnostic {
     /// The start of the time range MetricKit reports the diagnostic in.
     let timestamp: Date
     let metadata: Metadata
+    /// The run the diagnostic says it belongs to, which only the reported states of xOS 27 tell,
+    /// or `nil` when the run can only be found through the thread crumb in the call stacks.
+    let runId: SentryCurrentRun.ID?
     /// Converts MetricKit's call stack tree, throwing when it has an unexpected format.
     let callStackTree: () throws -> SentryMXCallStackTree
     /// The raw diagnostic as JSON, attached when ``SentrySDKOptions/enableMetricKitRawPayload``
@@ -57,6 +60,7 @@ struct SentryMXDiagnostic {
         level: SentryLevel? = nil,
         timestamp: Date,
         metadata: Metadata,
+        runId: SentryCurrentRun.ID? = nil,
         callStackTree: @escaping () throws -> SentryMXCallStackTree,
         rawJSON: @escaping () -> Data?,
         rawFilename: String
@@ -67,6 +71,7 @@ struct SentryMXDiagnostic {
         self.level = level
         self.timestamp = timestamp
         self.metadata = metadata
+        self.runId = runId
         self.callStackTree = callStackTree
         self.rawJSON = rawJSON
         self.rawFilename = rawFilename

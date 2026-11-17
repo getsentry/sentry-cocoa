@@ -9,6 +9,9 @@ import XCTest
 
 #if (os(iOS) || os(macOS) || os(visionOS)) && compiler(>=6.4)
 import MetricKit
+#if os(iOS) || os(macOS)
+import StateReporting
+#endif // os(iOS) || os(macOS)
 
 final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
 
@@ -27,6 +30,41 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         super.tearDown()
         // swiftlint:disable:next avoid_clear_test_state - the SDK is started with a hub per test.
         clearTestState()
+    }
+
+    // MARK: - Run ID
+
+#if os(iOS) || os(macOS)
+    func testRunId_whenReportListsTheStateOfTheRun_shouldReturnItsRunId() throws {
+        guard #available(iOS 27.0, macOS 27.0, *) else { return }
+        // -- Arrange --
+        let report = try givenHangReport(states: [
+            [
+                "domain": "io.sentry.run",
+                "label": "run",
+                "duration": encoded(Measurement(value: 12, unit: UnitDuration.seconds)),
+                "stableMetadata": try JSONSerialization.jsonObject(with: JSONEncoder().encode(["run_id": ReportableMetadataValue.string("run-1")]))
+            ]
+        ])
+
+        // -- Act --
+        let runId = SentryMXDiagnostic.runId(reportedIn: report.environment)
+
+        // -- Assert --
+        XCTAssertEqual(runId, SentryCurrentRun.ID(rawValue: "run-1"))
+    }
+#endif // os(iOS) || os(macOS)
+
+    func testRunId_whenReportListsNoStates_shouldReturnNil() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        let report = try givenHangReport()
+
+        // -- Act --
+        let runId = SentryMXDiagnostic.runId(reportedIn: report.environment)
+
+        // -- Assert --
+        XCTAssertNil(runId)
     }
 
     // MARK: - Same events as the legacy API
@@ -479,7 +517,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""],
         bundleIdentifier: String = "io.sentry.app",
         lowPowerModeEnabled: Bool = false,
-        isTestFlightApp: Bool = false
+        isTestFlightApp: Bool = false,
+        states: [[String: Any]] = []
     ) throws -> MetricKit.DiagnosticReport {
         try givenReport(
             result: "hangDiagnostic",
@@ -493,7 +532,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             osVersion: osVersion,
             bundleIdentifier: bundleIdentifier,
             lowPowerModeEnabled: lowPowerModeEnabled,
-            isTestFlightApp: isTestFlightApp
+            isTestFlightApp: isTestFlightApp,
+            states: states
         )
     }
 
@@ -509,7 +549,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         osVersion: [String: Any] = ["platform": "", "number": "", "buildNumber": ""],
         bundleIdentifier: String = "io.sentry.app",
         lowPowerModeEnabled: Bool = false,
-        isTestFlightApp: Bool = false
+        isTestFlightApp: Bool = false,
+        states: [[String: Any]] = []
     ) throws -> MetricKit.DiagnosticReport {
         var environment: [String: Any] = [
             "regionFormat": "US",
@@ -522,7 +563,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             "applicationBuildVersion": appBuild,
             "bundleIdentifier": bundleIdentifier,
             "signpostData": [],
-            "states": []
+            "states": states
         ]
         if let pid {
             environment["pid"] = pid

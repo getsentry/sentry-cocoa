@@ -17,8 +17,8 @@ final class SentryMXDiagnosticCapturer {
     let processIdentifier: pid_t
     let processStartDate: Date
     let eventSourceSink: SentryEventSourceSink
-    /// Finds the run a diagnostic belongs to, or `nil` when the SDK doesn't record run IDs for
-    /// MetricKit.
+    /// Finds the run of a diagnostic that doesn't say which run it belongs to, or `nil` when the
+    /// SDK doesn't record run IDs for MetricKit.
     let runIdDecoder: SentryMXRunIdDecoding?
 
     init(
@@ -93,7 +93,7 @@ final class SentryMXDiagnosticCapturer {
         SentrySDKLog.debug("Reported MetricKit payload as event")
     }
 
-    /// Applies the call stacks of the diagnostic to the event and reads the run ID they spell.
+    /// Applies the call stacks of the diagnostic to the event and finds the run it belongs to.
     ///
     /// - Returns: `nil` when the call stacks can't be decoded and the diagnostic is dropped.
     private func applyCallStackTree(
@@ -109,9 +109,10 @@ final class SentryMXDiagnosticCapturer {
                 useFullCallStackTree: diagnostic.report == .hang,
                 isHandled: isHandled
             )
-            // The run ID is spelled by the thread crumb in the call stacks, which only diagnostics
-            // that carry the call stacks of all threads contain.
-            return (flamegraph, runIdDecoder?.runId(of: callStackTree))
+            // The reported states name the run directly. Without them, the run ID is spelled by
+            // the thread crumb in the call stacks, which only diagnostics that carry the call
+            // stacks of all threads contain.
+            return (flamegraph, diagnostic.runId ?? runIdDecoder?.runId(of: callStackTree))
         } catch {
             SentrySDKLog.error("Failed to decode call stack tree from MetricKit payload: \(error)")
 
@@ -121,7 +122,7 @@ final class SentryMXDiagnosticCapturer {
                 SentrySDKLog.debug("Raw MetricKit diagnostic attachments are disabled, ignoring payload")
                 return nil
             }
-            return (nil, nil)
+            return (nil, diagnostic.runId)
         }
     }
 
