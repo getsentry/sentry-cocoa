@@ -38,7 +38,8 @@ mkdir -p "$WORK_DIR/tools" "$WORK_DIR/package" "$WORK_DIR/objects"
 printf '// Fixture package, archive invocation is stubbed.\n' > "$WORK_DIR/package/Package.swift"
 mkdir -p "$WORK_DIR/package/Sources/Configuration"
 printf 'MARKETING_VERSION = 9.33.0\n' > "$WORK_DIR/package/Sources/Configuration/Versioning.xcconfig"
-printf 'int target_marker(void) { return 1; }\n' > "$WORK_DIR/target.c"
+# Model a generated *_vers.o: data-only arm64_32 objects retain OSO records after strip -S.
+printf 'const double target_marker = 9.35;\n' > "$WORK_DIR/target.c"
 printf 'int dependency_marker(void) { return 1; }\n' > "$WORK_DIR/dependency.c"
 printf '\n' > "$WORK_DIR/empty.c"
 cat > "$WORK_DIR/category.m" <<'OBJC'

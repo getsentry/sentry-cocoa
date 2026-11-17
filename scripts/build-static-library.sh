@@ -238,6 +238,20 @@ if grep ' OSO ' <<< "$nm_output" > /dev/null; then
     strip -S "$staged_static_lib"
     nm_output="$(nm -arch all -ap "$staged_static_lib")"
 fi
+# Apple strip skips linker cleanup for data-only arm64_32 objects (e.g. *_vers.o).
+# Rebuild only that slice, keeping each input as a separate archive member.
+if [[ " ${target_archs[*]} " = *" arm64_32 "* ]] && grep ' OSO ' <<< "$nm_output" > /dev/null; then
+    cleaned_objects=()
+    mkdir -p "$architecture_libraries_dir/arm64_32"
+    for object in "${objects[@]}"; do
+        cleaned_object="$architecture_libraries_dir/arm64_32/${object##*/}"
+        ld -r -S -keep_private_externs -arch arm64_32 "$object" -o "$cleaned_object"
+        cleaned_objects+=( "$cleaned_object" )
+    done
+    libtool -static -no_warning_for_no_symbols -o "$architecture_libraries_dir/arm64_32.a" "${cleaned_objects[@]}"
+    xcrun lipo "$staged_static_lib" -replace arm64_32 "$architecture_libraries_dir/arm64_32.a" -output "$staged_static_lib"
+    nm_output="$(nm -arch all -ap "$staged_static_lib")"
+fi
 if grep ' OSO ' <<< "$nm_output" > /dev/null; then
     log_error "Static library still contains debug-map references after stripping: $staged_static_lib"
     grep ' OSO ' <<< "$nm_output" >&2
