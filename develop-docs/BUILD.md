@@ -66,9 +66,9 @@ The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packa
 
 ## Public API Generation
 
-`make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. This single command regenerates both V9/V10 Xcode-framework and SwiftPM snapshots, including `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks), along with the SentrySwiftUI and ObjC-wrapper snapshots.
+`make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It updates the existing Xcode-framework and ObjC-wrapper snapshots and adds only `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks).
 
-The [API stability workflow](../.github/workflows/api-stability.yml) uses the same Make target and compares the checked-in Xcode and SwiftPM snapshots against the regenerated files. Any difference fails CI and prints a diff and Swift API diagnostics. For intentional changes, run `make generate-public-api` and commit all updated snapshots.
+The [API stability workflow](../.github/workflows/api-stability.yml) runs the same target and fails if a checked-in snapshot differs from the regenerated API.
 
 Both the Xcode and SwiftPM paths build iPhoneOS XCFrameworks, then use the same extractor on their packaged `Sentry` framework slices. SwiftPM artifacts are built in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`. Private SPI interfaces are removed before analysis. The complete generated JSON snapshots are the source of truth: for each generation, the command fails if the SwiftPM snapshot differs from its Xcode counterpart, including imports, attributes, and nested signatures.
 
