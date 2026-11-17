@@ -141,11 +141,11 @@ public struct SentryLogHandler: LogHandler {
             attributes["swift-log.\(key)"] = "\(value)"
         }
         
-        send(String(describing: message), level: level, attributes: attributes)
+        logInternal(String(describing: message), level: level, attributes: attributes)
     }
 
     /// Calls the `SentryLog` method that matches `level`.
-    private func send(_ message: String, level: Logger.Level, attributes: [String: Any]) {
+    private func logInternal(_ message: String, level: Logger.Level, attributes: [String: Any]) {
         let logger = SentrySDK.logger
 
         switch level {
