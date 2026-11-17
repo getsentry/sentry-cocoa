@@ -7915,7 +7915,8 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override"
+              "Override",
+              "Required"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
