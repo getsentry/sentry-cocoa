@@ -1,4 +1,5 @@
 #import "SentrySwizzleWrapperHelper.h"
+#import "SentrySwift.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT
@@ -36,11 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
     SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-    // some tests need to swizzle multiple times, once for each test case. but since they're in the
-    // same process, if they set something other than "always", subsequent swizzles fail. override
-    // it here for tests
-    mode = SentrySwizzleModeAlways;
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+    // Test cases share a process and need fresh callbacks. Debug consumers must still honor the
+    // key.
+    if (SentryDependencyContainer.sharedInstance.processInfoWrapper
+            .environment[@"XCTestConfigurationFilePath"]
+        != nil) {
+        mode = SentrySwizzleModeAlways;
+    }
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
