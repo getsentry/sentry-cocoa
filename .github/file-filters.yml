@@ -810,13 +810,16 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Sources/Swift/**"
   - "Tests/**"
   - "TestApps/**"
+  # SwiftLint lints every Swift file that `.swiftlint.yml` does not exclude,
+  # such as 3rd-party-integrations, SentryTestUtils, and Utils
+  - "**/*.swift"
 
   # GH Actions
   - ".github/workflows/lint-swiftlint-formatting.yml"
   - ".github/file-filters.yml"
 
-  # SwiftLint configuration
-  - ".swiftlint.yml"
+  # SwiftLint configuration, including nested configs
+  - "**/.swiftlint.yml"
   - "scripts/.swiftlint-version"
 
   # Scripts
