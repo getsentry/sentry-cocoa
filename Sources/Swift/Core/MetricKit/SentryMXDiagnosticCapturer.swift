@@ -62,7 +62,11 @@ final class SentryMXDiagnosticCapturer {
         mechanism.handled = NSNumber(value: handled)
         mechanism.synthetic = true
 
-        let exception = Exception(value: diagnostic.exceptionValue(), type: diagnosticReport.exceptionType)
+        let resolvedExceptionType = diagnostic.exceptionTypeOverride ?? diagnosticReport.exceptionType
+        let exception = Exception(
+            value: diagnostic.exceptionValue(),
+            type: resolvedExceptionType
+        )
         exception.mechanism = mechanism
         event.exceptions = [exception]
 
