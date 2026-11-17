@@ -137,6 +137,19 @@ __sentry_threadcrumb_start__(void *arg) SENTRY_THREADCRUMB_KEEP_FRAME
     return NULL;
 }
 
+/** Frees a crumb that no thread points at, with the semaphores it has. */
+static void
+sentry_threadcrumb_destroy(sentry_threadcrumb_t *crumb)
+{
+    if (crumb->spelled != NULL) {
+        dispatch_release(crumb->spelled);
+    }
+    if (crumb->park != NULL) {
+        dispatch_release(crumb->park);
+    }
+    free(crumb);
+}
+
 size_t
 sentry_threadcrumb_park(const char *message, uint64_t *addresses, size_t addressesCount)
 {
@@ -161,6 +174,12 @@ sentry_threadcrumb_park(const char *message, uint64_t *addresses, size_t address
     dispatch_once_f(&sentry_threadcrumb_table_once, NULL, sentry_threadcrumb_fill_table);
     crumb->spelled = dispatch_semaphore_create(0);
     crumb->park = dispatch_semaphore_create(0);
+    // Neither failure can be forced in a test: creating a semaphore only fails without memory,
+    // and creating the thread only at the thread limit of the process.
+    if (crumb->spelled == NULL || crumb->park == NULL) {
+        sentry_threadcrumb_destroy(crumb);
+        return 0;
+    }
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -170,7 +189,7 @@ sentry_threadcrumb_park(const char *message, uint64_t *addresses, size_t address
     int created = pthread_create(&thread, &attr, __sentry_threadcrumb_start__, crumb);
     pthread_attr_destroy(&attr);
     if (created != 0) {
-        free(crumb);
+        sentry_threadcrumb_destroy(crumb);
         return 0;
     }
 
