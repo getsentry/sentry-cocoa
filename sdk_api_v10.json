@@ -81101,17 +81101,19 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
+            "isFromExtension": true,
             "kind": "Constructor",
             "mangledName": "$s6Sentry18TransactionContextC4name9operationACSS_SStcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithName:operation:",
             "printedName": "init(name:operation:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:"
+            "usr": "c:@CM@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:"
           },
           {
             "children": [
@@ -81169,17 +81171,19 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
+            "isFromExtension": true,
             "kind": "Constructor",
             "mangledName": "$s6Sentry18TransactionContextC4name9operation7sampled10sampleRate0G4RandACSS_SSSo0A14SampleDecisionVSo8NSNumberCSgAMtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithName:operation:sampled:sampleRate:sampleRand:",
             "printedName": "init(name:operation:sampled:sampleRate:sampleRand:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:sampled:sampleRate:sampleRand:"
+            "usr": "c:@CM@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:sampled:sampleRate:sampleRand:"
           },
           {
             "children": [
@@ -81263,17 +81267,19 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
+            "isFromExtension": true,
             "kind": "Constructor",
             "mangledName": "$s6Sentry18TransactionContextC4name9operation5trace6spanId010parentSpanH00I7Sampled0I10SampleRate0iL4RandACSS_SSSo0aH0CSo0ajH0CAOSgSo0aL8DecisionVSo8NSNumberCSgAUtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithName:operation:traceId:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:",
             "printedName": "init(name:operation:trace:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:traceId:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:"
+            "usr": "c:@CM@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:traceId:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:"
           },
           {
             "children": [
