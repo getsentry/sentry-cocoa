@@ -9,7 +9,7 @@ import XCTest
 /// Snapshot testing for network envelopes.
 ///
 /// Compares a serialized ``SentryEnvelope`` against a JSON snapshot stored in
-/// `Tests/Resources/NetworkEnvelopeSnapshots`. The comparison is a **strict structural match**:
+/// `Tests/Fixtures/NetworkEnvelopeSnapshots`. The comparison is a **strict structural match**:
 /// every key in the snapshot must exist in the envelope, and every key in the envelope must exist
 /// in the snapshot. Unexpected additions — a leaked PII context key, an extra span, a new field in
 /// `contexts` — fail the assertion just like missing or changed values do.
@@ -48,7 +48,7 @@ struct NetworkEnvelopeSnapshot {
         return paths
     }()
 
-    private static let resourceDirectory = "Resources/NetworkEnvelopeSnapshots"
+    private static let resourceDirectory = "Fixtures/NetworkEnvelopeSnapshots"
 
     /// Catalyst and V10 send different payloads, so each has dedicated snapshots rather than
     /// exceptions carved into the comparison.

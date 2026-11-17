@@ -22,6 +22,26 @@ final class SentryTypedSwizzleObjectArgumentsTests: XCTestCase {
 
     // MARK: - Forwarding
 
+    func testNoArguments_whenIntercepted_shouldForwardResult() {
+        // -- Arrange --
+        let target = ObjectArgumentsSwizzleTarget()
+        var calls = 0
+        let installed = SentryTypedSwizzle.instanceMethod(in: ObjectArgumentsSwizzleTarget.self, method: method0, mode: .always, key: key(method0.selector)) { receiver, original in
+            calls += 1
+            XCTAssertTrue(receiver === target)
+            return original()
+        }
+
+        // -- Act --
+        let result = target.zero()
+
+        // -- Assert --
+        XCTAssertTrue(installed)
+        XCTAssertEqual(calls, 1)
+        XCTAssertEqual(target.calls, 1)
+        XCTAssertTrue(result === target.result)
+    }
+
     func testOneArgument_whenIntercepted_shouldForwardArgumentAndResult() {
         // -- Arrange --
         let target = ObjectArgumentsSwizzleTarget()
@@ -315,6 +335,11 @@ final class SentryTypedSwizzleObjectArgumentsTests: XCTestCase {
 
     // MARK: - Helpers
 
+    private var method0: SentrySwizzleMethod<ObjectArgumentsSwizzleTarget, Void, NSObject?> {
+        .init(selector: #selector(ObjectArgumentsSwizzleTarget.zero), receiver: ObjectArgumentsSwizzleTarget.self,
+              signature: .init(returnType: .object, arguments: [.object, .selector]))
+    }
+
     private var method1: SentrySwizzleMethod<ObjectArgumentsSwizzleTarget, SentrySwizzleObjectArguments1<NSObject>, NSObject?> {
         .init(selector: #selector(ObjectArgumentsSwizzleTarget.one(_:)), receiver: ObjectArgumentsSwizzleTarget.self,
               signature: .init(returnType: .object, arguments: [.object, .selector, .object]))
@@ -346,6 +371,10 @@ private class ObjectArgumentsSwizzleTarget: NSObject {
     var result: AnyObject? = NSObject()
     var received: [AnyObject?] = []
     var calls = 0
+
+    @objc dynamic func zero() -> AnyObject? {
+        record([])
+    }
 
     @objc dynamic func one(_ first: AnyObject?) -> AnyObject? {
         record([first])

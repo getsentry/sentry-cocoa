@@ -78,7 +78,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
     func testFilterReports_whenConversionFails_shouldConsumeWithoutCapturing() throws {
         let invalidReport = TestReport(
-            dictionary: try getCrashReport(resource: "Resources/Crash-faulty-report")
+            dictionary: try getCrashReport(resource: "Fixtures/Crash-faulty-report")
         )
 
         var completionResult: Result<[TestReport], Error>?
@@ -121,10 +121,10 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
     func testFilterReports_whenMultipleReportsProvided_shouldFailBeforeProcessing() throws {
         let firstReport = TestReport(
-            dictionary: try getCrashReport(resource: "Resources/crash-report-1")
+            dictionary: try getCrashReport(resource: "Fixtures/crash-report-1")
         )
         let secondReport = TestReport(
-            dictionary: try getCrashReport(resource: "Resources/crash-report-1")
+            dictionary: try getCrashReport(resource: "Fixtures/crash-report-1")
         )
 
         var completionResult: Result<[TestReport], Error>?
@@ -146,7 +146,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
         let report = TestReport(
-            dictionary: try getCrashReport(resource: "Resources/crash-report-1")
+            dictionary: try getCrashReport(resource: "Fixtures/crash-report-1")
         )
         let client = try getTestClient()
         var completionResult: Result<[TestReport], Error>?
@@ -378,7 +378,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
     func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldProcessSynchronouslyWithoutFlushing() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
-        var dictionary = try getCrashReport(resource: "Resources/crash-report-1")
+        var dictionary = try getCrashReport(resource: "Fixtures/crash-report-1")
         let timestamp = "2026-07-23T16:00:00Z"
         var reportContext = try XCTUnwrap(dictionary["report"] as? [String: Any])
         reportContext["timestamp"] = timestamp
@@ -526,7 +526,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
     }
 
     private func makeCrashReport(durationSinceInitialization: TimeInterval) throws -> [String: Any] {
-        var report = try getCrashReport(resource: "Resources/crash-report-1")
+        var report = try getCrashReport(resource: "Fixtures/crash-report-1")
         let initializationDate = Date(timeIntervalSince1970: 10_000)
 
         var reportContext = try XCTUnwrap(report["report"] as? [String: Any])
