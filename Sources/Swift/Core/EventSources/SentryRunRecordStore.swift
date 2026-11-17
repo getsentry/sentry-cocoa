@@ -2,9 +2,6 @@ internal import _SentryPrivate
 import Foundation
 
 /// What a store keeps about one run.
-///
-/// The store is where the run ID is kept as a string, so a record turns it into one when it is
-/// written and back into an ID when it is read.
 protocol SentryRunRecord: Codable, Equatable {
     var runId: SentryCurrentRun.ID { get }
     /// When the record was made. Records older than the store's retention are dropped.
@@ -16,13 +13,20 @@ protocol SentryRunRecord: Codable, Equatable {
 /// The sources report on a run at different times, and MetricKit up to a day after it ended, with
 /// the app possibly closed for longer in between. A store keeps what a later launch needs to know
 /// about a run in one JSON file that each run appends to.
+/// Serializes every read and write of the record files.
+///
+/// The lock belongs to the files and not to a store, because every SDK start creates its own
+/// stores for the same files, and a store's own lock wouldn't keep two of them from overwriting
+/// each other's records. It is one lock for all files, because a generic type can't hold a
+/// static one per file, and the stores are read and written too rarely to contend.
+private let runRecordFilesLock = SentryLock()
+
 final class SentryRunRecordStore<Record: SentryRunRecord> {
     static var retention: TimeInterval { 7 * 24 * 60 * 60 }
 
     let fileName: String
     private let fileManager: SentryFileManager
     private let dateProvider: SentryCurrentDateProvider
-    private let lock = NSLock()
 
     init(fileName: String, fileManager: SentryFileManager, dateProvider: SentryCurrentDateProvider) {
         self.fileName = fileName
@@ -37,7 +41,7 @@ final class SentryRunRecordStore<Record: SentryRunRecord> {
     /// Adds the record, replacing the record of the same run, and drops the records older than
     /// the retention.
     func add(_ record: Record) {
-        lock.synchronized {
+        runRecordFilesLock.withLock {
             var records = readRecords().filter { $0.runId != record.runId }
             records.append(record)
             writeRecords(records)
@@ -46,12 +50,12 @@ final class SentryRunRecordStore<Record: SentryRunRecord> {
 
     /// The records within the retention, oldest first.
     func records() -> [Record] {
-        lock.synchronized { readRecords() }
+        runRecordFilesLock.withLock { readRecords() }
     }
 
     /// The record of the run, or `nil` when the run has none within the retention.
     func record(forRunId runId: SentryCurrentRun.ID) -> Record? {
-        lock.synchronized { readRecords().first { $0.runId == runId } }
+        runRecordFilesLock.withLock { readRecords().first { $0.runId == runId } }
     }
 
     private func readRecords() -> [Record] {
