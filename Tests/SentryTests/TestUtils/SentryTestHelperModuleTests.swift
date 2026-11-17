@@ -53,21 +53,6 @@ final class SentryTestHelperModuleTests: XCTestCase {
         XCTAssertNil(imageName)
     }
 
-    #if !SDK_V10
-    func testCrashScopeHelper_whenImported_shouldForwardSwiftProtocolCalls() throws {
-        // -- Arrange --
-        let observer: SentryScopeObserver = SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 10)
-        defer { sentrycrash_scopesync_reset() }
-
-        // -- Act --
-        observer.setEnvironment("test")
-
-        // -- Assert --
-        let environment = try XCTUnwrap(sentrycrash_scopesync_getScope().pointee.environment)
-        XCTAssertEqual(String(cString: environment), "\"test\"")
-    }
-    #endif
-
     func testURLSessionTaskMock_whenStateChanges_shouldExposeStateAndRequest() throws {
         // -- Arrange --
         let request = URLRequest(url: try XCTUnwrap(URL(string: "https://example.com")))

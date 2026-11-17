@@ -18,8 +18,7 @@ sentryThreadSuspensionRelease(void)
     atomic_flag_clear_explicit(&g_threadSuspensionAdmission, memory_order_release);
 }
 
-#if SDK_V10
-#    include <string.h>
+#include <string.h>
 
 bool
 sentryThreadSnapshotCapture(const SentryThreadSnapshotBackend *backend, bool captureStacks,
@@ -141,4 +140,3 @@ sentryThreadSnapshotDestroy(
     }
     *output = (SentryThreadSnapshotBuffer) { 0 };
 }
-#endif

@@ -35,11 +35,6 @@ final class CrashE2ERunner {
         if shouldRunIOS {
             try processRunner.requireTool("xcrun")
         }
-
-        if config.reporter != .ksCrash,
-           config.scenarios.contains(where: \.requiresKSCrash) {
-            try fail("The selected scenario requires --reporter KSCrash.")
-        }
     }
 
     private func preparePlatforms() throws {
@@ -65,16 +60,16 @@ final class CrashE2ERunner {
             try buildVariant(
                 derivedDataPath: config.derivedDataPath,
                 label: "default",
-                extraBuildSettings: crashE2ETestHookBuildSettings + reporterBuildSettings()
+                extraBuildSettings: crashE2ETestHookBuildSettings + sdkBuildSettings()
             )
         }
         if shouldBuildManagedRuntimeVariant {
-            // Both reporters preload their signal handler before the fake managed runtime installs
+            // Preload the SDK signal handler before the fake managed runtime installs
             // its own. Normal SDK initialization would reverse the required handler order.
             try buildVariant(
                 derivedDataPath: config.managedRuntimeDerivedDataPath,
                 label: "managed runtime",
-                extraBuildSettings: reporterBuildSettings(managedRuntime: true)
+                extraBuildSettings: sdkBuildSettings(managedRuntime: true)
             )
         }
     }
@@ -91,10 +86,10 @@ final class CrashE2ERunner {
     }
 
     private func buildIOSApp(derivedDataPath: URL, label: String, extraBuildSettings: [String]) throws {
-        log("Building \(config.reporter.iOSScheme) (\(label)).")
+        log("Building \(CrashE2EApp.iOSScheme) (\(label)).")
         try xcodebuild([
             "-project", config.directories.crashE2EDir.appendingPathComponent("CrashE2E.xcodeproj").path,
-            "-scheme", config.reporter.iOSScheme,
+            "-scheme", CrashE2EApp.iOSScheme,
             "-configuration", "Debug",
             "-destination", iOSRunner.xcodebuildDestination,
             "-derivedDataPath", derivedDataPath.path,
@@ -103,10 +98,10 @@ final class CrashE2ERunner {
     }
 
     private func buildMacOSApp(derivedDataPath: URL, label: String, extraBuildSettings: [String]) throws {
-        log("Building \(config.reporter.macOSScheme) (\(label)).")
+        log("Building \(CrashE2EApp.macOSScheme) (\(label)).")
         try xcodebuild([
             "-project", config.directories.crashE2EDir.appendingPathComponent("CrashE2E.xcodeproj").path,
-            "-scheme", config.reporter.macOSScheme,
+            "-scheme", CrashE2EApp.macOSScheme,
             "-configuration", "Debug",
             "-destination", "platform=macOS",
             "-derivedDataPath", derivedDataPath.path,
@@ -181,22 +176,17 @@ final class CrashE2ERunner {
         return ["OTHER_SWIFT_FLAGS=$(inherited) -DSENTRY_CRASH_E2E"]
     }
 
-    private func reporterBuildSettings(managedRuntime: Bool = false) -> [String] {
-        var cConditions = ["$(inherited)"]
-        var settings: [String] = []
-        if config.reporter == .ksCrash {
-            // Command-line settings reach project-reference dependencies. The app target's settings
-            // alone would leave the SentryObjC V10 wrapper compiling against V9 declarations.
-            cConditions.append("SDK_V10=1")
-            settings.append("SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SDK_V10")
-        }
+    private func sdkBuildSettings(managedRuntime: Bool = false) -> [String] {
+        // Keep unrelated V10 settings aligned through project-reference dependencies,
+        // including the ObjC wrappers. App-target settings alone do not propagate there.
+        var cConditions = ["$(inherited)", "SDK_V10=1"]
         if managedRuntime {
             cConditions.append("SENTRY_CRASH_MANAGED_RUNTIME=1")
         }
-        if cConditions.count > 1 {
-            settings.append("GCC_PREPROCESSOR_DEFINITIONS=\(cConditions.joined(separator: " "))")
-        }
-        return settings
+        return [
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SDK_V10",
+            "GCC_PREPROCESSOR_DEFINITIONS=\(cConditions.joined(separator: " "))"
+        ]
     }
 
     private var shouldBuildNormalVariant: Bool {

@@ -15,30 +15,6 @@ fileGroups:
   - CrashE2E.yml
   - App/Configurations
 targets:
-  CrashE2E-iOS:
-    type: application
-    platform: iOS
-    deploymentTarget: "16.0"
-    dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentryObjC
-      - target: Sentry/SentryObjCCompat
-      - target: CrashE2EDynamicImageBefore-iOS
-        embed: true
-        link: false
-      - target: CrashE2EDynamicImageAfter-iOS
-        embed: true
-        link: false
-    sources:
-      - path: App/Sources
-        type: group
-        group: App
-        excludes:
-          - "**/.gitkeep"
-    configFiles:
-      Debug: App/Configurations/CrashE2E-iOS.xcconfig
-      Release: App/Configurations/CrashE2E-iOS.xcconfig
-
   CrashE2E-iOS-KSCrash:
     type: application
     platform: iOS
@@ -68,31 +44,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tests.CrashE2E.KSCrash.iOS
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
         GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
-
-  CrashE2E-macOS:
-    type: tool
-    platform: macOS
-    deploymentTarget: "12.0"
-    dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentryObjC
-      - target: Sentry/SentryObjCCompat
-      - target: CrashE2EDynamicImageBefore-macOS
-        link: false
-      - target: CrashE2EDynamicImageAfter-macOS
-        link: false
-    sources:
-      - path: App/Sources
-        type: group
-        group: App
-        excludes:
-          - "**/.gitkeep"
-    configFiles:
-      Debug: App/Configurations/CrashE2E-macOS.xcconfig
-      Release: App/Configurations/CrashE2E-macOS.xcconfig
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI"
 
   CrashE2E-macOS-KSCrash:
     type: tool
@@ -179,29 +130,11 @@ targets:
         GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) CRASH_E2E_DYNAMIC_IMAGE_AFTER=1"
 
 schemes:
-  CrashE2E-iOS:
-    build:
-      targets:
-        CrashE2E-iOS: all
-    run:
-      config: Debug
-    archive:
-      config: Release
-
   CrashE2E-iOS-KSCrash:
     build:
       buildImplicitDependencies: false
       targets:
         CrashE2E-iOS-KSCrash: all
-    run:
-      config: Debug
-    archive:
-      config: Release
-
-  CrashE2E-macOS:
-    build:
-      targets:
-        CrashE2E-macOS: all
     run:
       config: Debug
     archive:

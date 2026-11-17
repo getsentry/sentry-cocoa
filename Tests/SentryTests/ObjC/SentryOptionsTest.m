@@ -173,14 +173,21 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
-#if !TARGET_OS_WATCH
-#    if !SDK_V10
-- (void)testEnableSigtermReporting
+- (void)testInitWithDictionary_whenLegacySigtermKeyIsPresent_shouldIgnoreIt
 {
-    [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
+    // -- Arrange --
+    for (NSNumber *value in @[ @YES, @NO ]) {
+        // -- Act --
+        SentryOptions *options = [self getValidOptions:@{ @"enableSigtermReporting" : value }];
+
+        // -- Assert --
+        XCTAssertTrue(options.enableCrashHandler);
+        XCTAssertFalse(
+            [options respondsToSelector:NSSelectorFromString(@"enableSigtermReporting")]);
+        XCTAssertFalse(
+            [options respondsToSelector:NSSelectorFromString(@"setEnableSigtermReporting:")]);
+    }
 }
-#    endif // !SDK_V10
-#endif // !TARGET_OS_WATCH
 
 - (void)testValidEnabled
 {
@@ -212,24 +219,10 @@
     XCTAssertEqual([maxBreadcrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
-#if SDK_V10
 - (void)testInitWithDictionary_whenUnhandledCPPExceptionsV2IsConfigured_shouldApplyValue
 {
     [self testBooleanField:@"enableUnhandledCPPExceptionsV2" defaultValue:NO];
 }
-#else
-- (void)testInitWithDictionary_whenUnhandledCPPExceptionsV2IsEnabled_shouldEnableExperimentalOption
-{
-    // -- Arrange --
-    NSDictionary *dictionary = @{ @"enableUnhandledCPPExceptionsV2" : @YES };
-
-    // -- Act --
-    SentryOptions *options = [self getValidOptions:dictionary];
-
-    // -- Assert --
-    XCTAssertTrue(options.experimental.enableUnhandledCPPExceptionsV2);
-}
-#endif // SDK_V10
 
 - (void)testInitWithDictionary_whenFileManagerSwizzlingIsConfigured_shouldApplyValue
 {
