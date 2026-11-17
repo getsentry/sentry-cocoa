@@ -68,12 +68,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         options.enableMetricKit = true
         #endif // !SDK_V10
         let sut = SentryMXManager(
-            diagnosticCapturer: SentryMXDiagnosticCapturer(
-                inAppLogic: SentryInAppLogic(inAppIncludes: []),
-                attachDiagnosticAsAttachment: false,
-                enabledDiagnostics: [.crash],
-                processStartDate: .distantPast
-            )
+            diagnosticCapturer: givenDiagnosticCapturer(enabledDiagnostics: [.crash])
         )
 
         let payload = TestMXDiagnosticPayload()
@@ -92,12 +87,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let sut = SentryMXManager(
-            diagnosticCapturer: SentryMXDiagnosticCapturer(
-                inAppLogic: SentryInAppLogic(inAppIncludes: []),
-                attachDiagnosticAsAttachment: false,
-                enabledDiagnostics: [.crash],
-                processStartDate: .distantPast
-            )
+            diagnosticCapturer: givenDiagnosticCapturer(enabledDiagnostics: [.crash])
         )
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -219,12 +209,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let sut = SentryMXManager(
-            diagnosticCapturer: SentryMXDiagnosticCapturer(
-                inAppLogic: SentryInAppLogic(inAppIncludes: []),
-                attachDiagnosticAsAttachment: true,
-                enabledDiagnostics: [.hang],
-                processStartDate: .distantPast
-            )
+            diagnosticCapturer: givenDiagnosticCapturer(attachDiagnosticAsAttachment: true, enabledDiagnostics: [.hang])
         )
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
@@ -761,6 +746,19 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         return capture.hint?.attachments ?? []
     }
 
+    private func givenDiagnosticCapturer(
+        attachDiagnosticAsAttachment: Bool = false,
+        enabledDiagnostics: Set<SentryMXManager.Diagnostic>
+    ) -> SentryMXDiagnosticCapturer {
+        SentryMXDiagnosticCapturer(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: attachDiagnosticAsAttachment,
+            enabledDiagnostics: enabledDiagnostics,
+            processStartDate: .distantPast,
+            eventSourceSink: TestEventSources.hubSink()
+        )
+    }
+
     private func givenSDKWithHubWithScope() {
         let scope = Scope()
         scope.addBreadcrumb(TestData.crumb)
@@ -970,30 +968,5 @@ class TestMXAppLaunchDiagnostic: MXAppLaunchDiagnostic {
     }
 }
 #endif // os(iOS) || os(visionOS)
-
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-class TestMXMetaData: MXMetaData {
-    struct Override {
-        var osVersion = ""
-        var applicationBuildVersion = ""
-        var pid: pid_t = 0
-    }
-
-    public var overrides = Override()
-
-    override var osVersion: String {
-        return overrides.osVersion
-    }
-
-    @available(iOS 17.0, macOS 14.0, *)
-    override var pid: pid_t {
-        return overrides.pid
-    }
-
-    override var applicationBuildVersion: String {
-        return overrides.applicationBuildVersion
-    }
-}
 
 #endif // os(iOS) || os(macOS)

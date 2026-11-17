@@ -51,6 +51,41 @@ class SentryDispatchQueueWrapperSwiftTests: XCTestCase {
         wait(for: [blockExpectation], timeout: 2)
     }
     
+    func testDispatchAsyncOnMainQueue_whenOnMainThread_shouldRunOnLaterTurn() {
+        // -- Arrange --
+        let sut = SentryDispatchQueueWrapper()
+        let expectation = XCTestExpectation(description: "Block ran")
+        var didRun = false
+
+        // -- Act --
+        sut.dispatchAsyncOnMainQueue {
+            XCTAssertTrue(Thread.isMainThread)
+            didRun = true
+            expectation.fulfill()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(didRun, "The block ran synchronously, but it should run on a later main queue turn")
+        wait(for: [expectation], timeout: 2)
+    }
+
+    func testDispatchAsyncOnMainQueue_whenOnBackgroundThread_shouldRunOnMainThread() {
+        // -- Arrange --
+        let sut = SentryDispatchQueueWrapper()
+        let expectation = XCTestExpectation(description: "Block ran")
+
+        // -- Act --
+        DispatchQueue.global().async {
+            sut.dispatchAsyncOnMainQueue {
+                XCTAssertTrue(Thread.isMainThread)
+                expectation.fulfill()
+            }
+        }
+
+        // -- Assert --
+        wait(for: [expectation], timeout: 2)
+    }
+
     func testDispatchAsyncOnMainQueueIfNotMainThreadFromBackground() {
         let expectation = XCTestExpectation()
         

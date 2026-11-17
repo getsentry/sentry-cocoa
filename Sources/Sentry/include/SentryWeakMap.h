@@ -43,6 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSUInteger)count;
 
+/**
+ * Returns the keys that are still alive, after pruning the deallocated ones.
+ */
+- (NSArray<KeyType> *)allKeys;
+
 @end
 
 NS_ASSUME_NONNULL_END

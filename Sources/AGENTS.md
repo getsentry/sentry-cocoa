@@ -49,6 +49,7 @@
 - Do not add `@objc`, `NSObject` inheritance, `NS_SWIFT_NAME`, or Objective-C wrappers unless an existing contract or identified consumer requires Objective-C support
 - Use `@_spi(Private)` for unstable API consumed by hybrid SDKs
 - Keep `@_spi(Private)` out of public headers
+- When adding/changing/removing an option in `Options`, adapt the parsing from dictionary in [`Options+Dictionary.swift`](Swift/Options+Dictionary.swift) used by Hybrid SDKs
 - Use `SENTRY_NO_INIT` for types that must not be publicly instantiated
 - Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md) for wrappers and API placement
 

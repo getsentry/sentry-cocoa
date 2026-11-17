@@ -14,6 +14,19 @@ private let repositoryRoot = URL(fileURLWithPath: #filePath)
     .standardizedFileURL
 private var errors: [String] = []
 
+private struct PackageTestPlan: Decodable {
+    struct TestTarget: Decodable {
+        struct Target: Decodable {
+            let identifier: String
+        }
+        let target: Target
+        let enabled: Bool?
+        let selectedTests: [String]?
+        let skippedTests: [String]?
+    }
+    let testTargets: [TestTarget]
+}
+
 private extension URL {
     func appending(_ path: String) -> URL {
         appendingPathComponent(path)
@@ -248,22 +261,58 @@ private func run() throws {
         report("retained compatibility source/header is missing: \(requiredPath)")
     }
 
-    let v10TestConfig = try text("Tests/Configuration/SentryTestsV10.xcconfig")
-    let v10TestPlan = try text("Plans/SentryV10_Base.xctestplan")
-    for sharedTest in [
-        "SentryCrashReportConverterTests.m",
-        "SentryCrashStackEntryMapperTests.swift",
-        "SentryDebugImageProviderTests.swift",
-        "SentryStacktraceBuilderTests.swift"
-    ] where v10TestConfig.contains(sharedTest) {
-        report("V10 source selection excludes shared test: \(sharedTest)")
+    for manifestName in manifestNames {
+        let manifest = try text(manifestName)
+        for sharedTest in [
+            "SentryCrashReportConverterTests.m",
+            "SentryCrashStackEntryMapperTests.swift",
+            "SentryDebugImageProviderTests.swift",
+            "SentryStacktraceBuilderTests.swift"
+        ] where manifest.contains(sharedTest) {
+            report("\(manifestName) source selection excludes shared test: \(sharedTest)")
+        }
     }
-    for sharedSuite in [
-        "SentryCrashReportConverterTests",
-        "SentryCrashStackEntryMapperTests",
-        "SentryKSCrashNSExceptionTests"
-    ] where v10TestPlan.contains("\"\(sharedSuite)") {
-        report("V10 test plan skips shared suite: \(sharedSuite)")
+    let webViewTests = [
+        "SentryWebViewTracingTests/testInstall_whenAddedAfterWebViewCreated_shouldInjectTagsOnNextNavigation()",
+        "SentryWebViewTracingTests/testInstall_whenWebPageCreatedWithConfiguration_shouldInjectTagsBeforePageScripts()",
+        "SentryWebViewTracePropagationIntegrationTests/testLoad_whenSwiftUIWebViewWithURL_shouldTrackItsController()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenGoingBackToCachedPage_shouldKeepItsOriginalTrace()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenTraceChangesBeforeInPageNavigation_shouldInjectNewTrace()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenTraceChangesBeforeReload_shouldInjectNewTrace()",
+        "SentryWebViewTracePropagationIntegrationTests/testNavigation_whenTraceChangesInSameTurnAsReload_shouldInjectNewTrace()"
+    ].map { ("SentryTests", $0) }
+    let requiredTestsByPlan = [
+        ("SentrySPM_Base", [
+            ("SentryTests", "SentryDependencyContainerTests/testCrashReporter_whenFirstAccessIsConcurrent_shouldReturnSameInstance()"),
+            ("SentryTests", "SentryDependencyContainerTests/testThreadSafety_ResetAndAccessProperties()"),
+            ("SentryTests", "SentrySDKLogTests/testV9ConvenienceLogs_whenMessagesAreFiltered_shouldOnlyEvaluateEnabledMessages()")
+        ] + webViewTests),
+        ("SentrySPM_Base_v10", [
+            ("SentryTestsObjC", "SentryCrashReportConverterTests"),
+            ("SentryTests", "SentryCrashStackEntryMapperTests"),
+            ("SentryTests", "SentryKSCrashNSExceptionTests")
+        ] + webViewTests)
+    ]
+    for (planName, requiredTests) in requiredTestsByPlan {
+        let plan = try JSONDecoder().decode(
+            PackageTestPlan.self,
+            from: Data(try text("Plans/\(planName).xctestplan").utf8)
+        )
+        for (target, requiredTest) in requiredTests {
+            guard let testTarget = plan.testTargets.first(where: { $0.target.identifier == target }),
+                  testTarget.enabled != false else {
+                report("\(planName) omits required test target: \(target)")
+                continue
+            }
+            if !(testTarget.selectedTests ?? []).isEmpty {
+                report("\(planName) restricts Base test selection for target: \(target)")
+            }
+            if (testTarget.skippedTests ?? []).contains(where: {
+                $0.hasPrefix(requiredTest) || requiredTest.hasPrefix("\($0)/")
+            }) {
+                report("\(planName) skips required test: \(requiredTest)")
+            }
+        }
     }
 
     let compatibilityTest = try text(

@@ -15,11 +15,16 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         var sut: SentryCrashReportSink {
+            return getSut(crashHandlerEventSource: TestEventSources.crashHandlerEventSource())
+        }
+
+        func getSut(crashHandlerEventSource: SentryCrashHandlerEventSource) -> SentryCrashReportSink {
             return SentryCrashReportSink(
                 inAppLogic: inAppLogic,
                 crashWrapper: crashWrapper,
                 dispatchQueue: dispatchQueue,
-                startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+                startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
+                crashHandlerEventSource: crashHandlerEventSource
             )
         }
 
@@ -41,6 +46,21 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         clearTestState()
     }
         
+    func testFilterReports_whenEventSourceInjected_shouldSubmitReportToItsSink() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = fixture.getSut(crashHandlerEventSource: SentryCrashHandlerEventSource(sink: eventSourceSink))
+
+        // -- Act --
+        sut.filterReports([[String: Any]()]) { _, _, _ in }
+
+        // -- Assert --
+        XCTAssertEqual(eventSourceSink.submittedReports.count, 1)
+        let submitted = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(submitted.source, .crashHandler)
+        XCTAssertEqual(getTestClient().captureFatalEventInvocations.count, 0)
+    }
+
     func testFilterReports_withScreenShots() {
         filterReportWithAttachment()
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)

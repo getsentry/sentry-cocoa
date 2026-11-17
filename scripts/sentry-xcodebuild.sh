@@ -28,6 +28,7 @@ WORKSPACE="Sentry.xcworkspace"
 SDK=""
 RAW_DESTINATION=""
 OVERRIDE_XCCONFIG=""
+XCODEBUILD_ARGS=()
 FOR_AGENTS="${FOR_AGENTS:-false}"
 
 usage() {
@@ -47,13 +48,14 @@ OPTIONS:
     -s, --scheme <scheme>            Test scheme (default: Sentry)
     -t, --test-plan <plan>           Test plan name (default: empty)
     --only-testing <tests>           Comma-separated test selectors.
-                                      Each selector must be Target/Class or Target/Class/testMethod.
+                                      Each selector must be Target, Target/Class, or Target/Class/testMethod.
     -R, --result-bundle <path>       Result bundle path (default: results.xcresult)
     -w, --workspace <path>           Workspace path (default: Sentry.xcworkspace)
     --sdk <sdk>                      SDK override (e.g. iphoneos, watchos)
     --destination <dest>             Raw xcodebuild destination string (bypasses
                                       --platform resolution)
     --xcconfig <path>                Build settings override file
+    -- <arguments...>                Forward remaining arguments directly to xcodebuild
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
@@ -124,6 +126,11 @@ while [[ $# -gt 0 ]]; do
         --destination)
             RAW_DESTINATION="$2"
             shift 2
+            ;;
+        --)
+            shift
+            XCODEBUILD_ARGS=("$@")
+            break
             ;;
         --xcconfig)
             OVERRIDE_XCCONFIG="$2"
@@ -308,6 +315,7 @@ if [ $RUN_BUILD == true ]; then
     BUILD_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BUILD_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     BUILD_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    BUILD_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     run_build raw-build-output.log "${BUILD_ARGS[@]}" build
 fi
@@ -321,9 +329,9 @@ ONLY_TESTING_ARGS=()
 if [ -n "$ONLY_TESTING" ]; then
     IFS=',' read -ra TEST_ARRAY <<< "$ONLY_TESTING"
     for test in "${TEST_ARRAY[@]}"; do
-        if [[ ! "$test" =~ ^[^/[:space:]]+/[^/[:space:]]+(/[^/[:space:]]+)?$ ]]; then
+        if [[ ! "$test" =~ ^[^/[:space:]]+(/[^/[:space:]]+){0,2}$ ]]; then
             log_error "Invalid --only-testing value: $test"
-            log_error "Use Target/Class or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
+            log_error "Use Target, Target/Class, or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
             exit 1
         fi
 
@@ -343,9 +351,19 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     )
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
+    [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    BFT_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     run_build raw-build-for-testing-output.log "${BFT_ARGS[@]}" build-for-testing
+
+    if [[ "$TEST_SCHEME" == SentrySPM && "${SDK_V10:-0}" == 1 ]]; then
+        bash "$(dirname "$0")/build-package-test-fixture.sh" \
+            --workspace "$WORKSPACE" \
+            --derived-data "$DERIVED_DATA_PATH" \
+            --configuration "$CONFIGURATION" \
+            --platform "$PLATFORM"
+    fi
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
@@ -366,7 +384,9 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
     TWB_ARGS+=(-destination "$DESTINATION")
     TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
+    [[ -n "$DERIVED_DATA_PATH" ]] && TWB_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    TWB_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${TWB_ARGS[@]}" \

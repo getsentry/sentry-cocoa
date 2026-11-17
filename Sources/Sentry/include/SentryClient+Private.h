@@ -247,6 +247,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                             SentryScope))scope
                                                    hint:(SentryHint *)hint;
 
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
+                                                            SentryScope))scope
+                                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                                   hint:(SentryHint *)hint;
+
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 @end

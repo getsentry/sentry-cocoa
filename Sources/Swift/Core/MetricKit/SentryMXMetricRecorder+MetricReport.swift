@@ -98,18 +98,34 @@ extension SentryMXMetricRecorder {
         case .totalDiskSpaceCapacity(let diskSpace):
             recordGauge(.diskSpaceTotalUsed, diskSpace.spaceUsed.converted(to: .bytes).value, unit: .byte, context)
             recordGauge(.diskSpaceTotalCapacity, diskSpace.capacity.converted(to: .bytes).value, unit: .byte, context)
-        case .cellularConditionTime:
-            // A histogram, which legacy payloads don't send either.
-            break
+        case .cellularConditionTime(let condition):
+            recordHistogram(.cellularConditionTime, Self.buckets(of: condition.histogram, in: .baseUnit()), unit: .generic("bars"), context)
         #endif // !os(macOS) && !targetEnvironment(macCatalyst)
-        case .hangTime, .timeToFirstDraw, .applicationResumeTime, .optimizedTimeToFirstDraw, .extendedLaunch:
-            // Histograms, which legacy payloads don't send either.
-            break
+        case .hangTime(let hangTime):
+            recordHistogram(.responsivenessHangTime, Self.buckets(of: hangTime.histogram, in: .seconds), unit: .second, context)
+        case .timeToFirstDraw(let launch):
+            recordHistogram(.launchTimeToFirstDraw, Self.buckets(of: launch.histogram, in: .seconds), unit: .second, context)
+        case .applicationResumeTime(let resume):
+            recordHistogram(.launchResumeTime, Self.buckets(of: resume.histogram, in: .seconds), unit: .second, context)
+        case .optimizedTimeToFirstDraw(let launch):
+            recordHistogram(.launchOptimizedTimeToFirstDraw, Self.buckets(of: launch.histogram, in: .seconds), unit: .second, context)
+        case .extendedLaunch(let launch):
+            recordHistogram(.launchExtended, Self.buckets(of: launch.histogram, in: .seconds), unit: .second, context)
         case .signpostInterval:
             // Signpost metrics describe the app's own intervals, which the SDK doesn't send.
             break
         @unknown default:
             SentrySDKLog.debug("Unsupported MetricKit metric result, skipping it")
+        }
+    }
+
+    private static func buckets<UnitType: Dimension>(of histogram: Histogram<UnitType>, in unit: UnitType) -> [HistogramBucket] {
+        histogram.buckets.map { bucket in
+            HistogramBucket(
+                lowerBound: bucket.lowerBound.converted(to: unit).value,
+                upperBound: bucket.upperBound.converted(to: unit).value,
+                count: bucket.count
+            )
         }
     }
 
