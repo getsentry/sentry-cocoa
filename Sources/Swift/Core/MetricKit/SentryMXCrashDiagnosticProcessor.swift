@@ -36,7 +36,7 @@ extension SentryMXCrashDiagnosticProcessor {
                 code: crash.exceptionCode.map { String($0) } ?? "nil",
                 signal: crash.signal.map { String($0) } ?? "nil"
             ),
-            terminationReason: crash.terminationReason,
+            terminationReason: crash.terminationReason?.rawValue,
             callStackTree: crash.callStackTree,
             in: report
         )
