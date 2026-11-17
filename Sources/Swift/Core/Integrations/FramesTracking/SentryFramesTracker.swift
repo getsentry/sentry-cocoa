@@ -43,7 +43,7 @@ public class SentryFramesTracker: NSObject {
         didSet {
             // A listener waits for the next frame. Without continuous updates that frame never
             // comes while nothing on screen changes.
-            frameSource.requiresContinuousFrames = !listeners.isEmpty
+            sourceState.withLock { $0.frameSource }.requiresContinuousFrames = !listeners.isEmpty
         }
     }
 
@@ -57,7 +57,7 @@ public class SentryFramesTracker: NSObject {
     private var slowFrames: UInt = 0
     private var frozenFrames: UInt = 0
 
-    private struct Source {
+    private struct SourceState {
         /// How the frames are observed.
         var frameSource: SentryFrameSource
         /// The total frames of the frame sources that `frameSource` replaced.
@@ -66,10 +66,7 @@ public class SentryFramesTracker: NSObject {
 
     /// Written on the main thread, read by the threads that start and finish spans. The lock makes
     /// replacing the frame source and carrying over its total frames one step for these threads.
-    private let source: SentryMutex<Source>
-    private var frameSource: SentryFrameSource {
-        source.withLock { $0.frameSource }
-    }
+    private let sourceState: SentryMutex<SourceState>
     let dateProvider: SentryCurrentDateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -84,7 +81,7 @@ public class SentryFramesTracker: NSObject {
         notificationCenter: SentryNSNotificationCenterWrapper,
         delayedFramesTracker: SentryDelayedFramesTrackerWrapper
     ) {
-        self.source = SentryMutex(Source(frameSource: frameSource))
+        self.sourceState = SentryMutex(SourceState(frameSource: frameSource))
         self.dateProvider = dateProvider
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.notificationCenter = notificationCenter
@@ -100,7 +97,7 @@ public class SentryFramesTracker: NSObject {
         removeObservers()
         // A frame source can retain itself while it's started, and has to be stopped on the main
         // thread. This must not capture self.
-        let frameSource = self.frameSource
+        let frameSource = sourceState.withLock { $0.frameSource }
         dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
             frameSource.stop()
         }
@@ -158,17 +155,19 @@ public class SentryFramesTracker: NSObject {
     }
 
     private func useFrameSourceInternal(_ frameSource: SentryFrameSource) {
-        guard ObjectIdentifier(type(of: frameSource)) != ObjectIdentifier(type(of: self.frameSource)) else { return }
+        // Only the main thread replaces the frame source, so it's still the current one below.
+        let replacedFrameSource = sourceState.withLock { $0.frameSource }
+        guard ObjectIdentifier(type(of: frameSource)) != ObjectIdentifier(type(of: replacedFrameSource)) else { return }
 
-        self.frameSource.stop()
+        replacedFrameSource.stop()
         frameSource.requiresContinuousFrames = !listeners.isEmpty
 
         // The new source counts total frames from zero. Its total continues the one of the old
         // source, so that the total never goes back and never falls below the slow and frozen
         // frames, which keep counting too.
-        source.withLock { source in
-            source.totalFramesOfReplacedSources += source.frameSource.totalFrames()
-            source.frameSource = frameSource
+        sourceState.withLock { state in
+            state.totalFramesOfReplacedSources += state.frameSource.totalFrames()
+            state.frameSource = frameSource
         }
 
         // The delayed frames tracker can't account for frames across the switch, so it's reset like
@@ -227,7 +226,7 @@ public class SentryFramesTracker: NSObject {
     }
 
     private func totalFrames() -> UInt {
-        source.withLock { $0.totalFramesOfReplacedSources + $0.frameSource.totalFrames() }
+        sourceState.withLock { $0.totalFramesOfReplacedSources + $0.frameSource.totalFrames() }
     }
 
     func getFramesDelay(
@@ -332,12 +331,12 @@ public class SentryFramesTracker: NSObject {
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     func setFrameSource(_ frameSource: SentryFrameSource) {
-        self.frameSource.stop()
-        source.withLock { $0.frameSource = frameSource }
+        sourceState.withLock { $0.frameSource }.stop()
+        sourceState.withLock { $0.frameSource = frameSource }
     }
 
     var frameSourceForTesting: SentryFrameSource {
-        frameSource
+        sourceState.withLock { $0.frameSource }
     }
 
     var listenersCount: Int {
@@ -349,9 +348,9 @@ public class SentryFramesTracker: NSObject {
         frozenFrames = 0
         slowFrames = 0
 
-        source.withLock { source in
-            source.totalFramesOfReplacedSources = 0
-            source.frameSource.resetFrames()
+        sourceState.withLock { state in
+            state.totalFramesOfReplacedSources = 0
+            state.frameSource.resetFrames()
         }
 
 #if os(iOS)
@@ -378,7 +377,7 @@ public class SentryFramesTracker: NSObject {
 
         isRunning = true
 
-        frameSource.start(delegate: self)
+        sourceState.withLock { $0.frameSource }.start(delegate: self)
     }
 
     private func pause() {
@@ -388,7 +387,7 @@ public class SentryFramesTracker: NSObject {
         // frame delay statistics cannot be provided, as we can't account for events during the pause.
         delayedFramesTracker.reset()
 
-        frameSource.stop()
+        sourceState.withLock { $0.frameSource }.stop()
     }
 
     /// - Precondition: The duration is longer than the slow frame threshold.
