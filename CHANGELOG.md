@@ -9,6 +9,7 @@
   - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
 - Add the `launchTimeToFirstDraw`, `launchResumeTime`, `launchOptimizedTimeToFirstDraw`, `launchExtended`, `responsivenessHangTime` and `cellularConditionTime` metric reports, which send MetricKit histograms as distributions with one value per sample, up to about 100 values per histogram (#9493)
 - Report the low power mode and TestFlight state that MetricKit records with a diagnostic of a previous app run as `device.low_power_mode` and an `app.build_type` of `test`, and take `app.app_identifier` from the diagnostic instead of the running app (#9523)
+- Add `SentryLogHandler(label:logLevel:)` to the SentrySwiftLog integration, which records the swift-log logger label as the `logger.name` attribute on every log (#9636)
 
 ### Fixes
 
