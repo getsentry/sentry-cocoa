@@ -32,8 +32,6 @@ public class SentryFramesTracker: NSObject {
             _isRunning.withLock { $0 = newValue }
         }
     }
-    private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
-    private var previousFrameSystemTimestamp: UInt64 = 0
     private var currentFrameRate: UInt64 = 60
     // We hold listeners through `WeakReference` rather than `NSHashTable.weakObjects()`
     // because NSHashTable's internal buckets can be zeroed by the ObjC runtime on the
@@ -49,28 +47,27 @@ public class SentryFramesTracker: NSObject {
     private var frameRateTimestamps = SentryFrameInfoTimeSeries()
 #endif // os(iOS)
 
-    // Frame counters - accessed only from main thread (display link callback)
-    private var totalFrames: UInt = 0
+    // Frame counters - accessed only from main thread (frame source callbacks)
     private var slowFrames: UInt = 0
     private var frozenFrames: UInt = 0
 
-    private var displayLinkWrapper: SentryDisplayLinkWrapper
-    private let dateProvider: SentryCurrentDateProvider
+    /// How the frames are observed. A var only so that tests can replace it.
+    private var frameSource: SentryFrameSource
+    let dateProvider: SentryCurrentDateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let notificationCenter: SentryNSNotificationCenterWrapper
     private var delayedFramesTracker: SentryDelayedFramesTrackerWrapper
     
     private static let frozenFrameThreshold: CFTimeInterval = 0.7
-    private static let previousFrameInitialValue: CFTimeInterval = -1
 
     init(
-        displayLinkWrapper: SentryDisplayLinkWrapper,
+        frameSource: SentryFrameSource,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueueWrapper: SentryDispatchQueueWrapper,
         notificationCenter: SentryNSNotificationCenterWrapper,
         delayedFramesTracker: SentryDelayedFramesTrackerWrapper
     ) {
-        self.displayLinkWrapper = displayLinkWrapper
+        self.frameSource = frameSource
         self.dateProvider = dateProvider
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.notificationCenter = notificationCenter
@@ -84,8 +81,12 @@ public class SentryFramesTracker: NSObject {
     
     deinit {
         removeObservers()
-        // Need to invalidate so DisplayLink is releasing this object. Calling this is thread-safe.
-        displayLinkWrapper.invalidate()
+        // A frame source can retain itself while it's started, and has to be stopped on the main
+        // thread. This must not capture self.
+        let frameSource = self.frameSource
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+            frameSource.stop()
+        }
     }
 
     // MARK: - Public Methods
@@ -156,7 +157,7 @@ public class SentryFramesTracker: NSObject {
     public func currentFrames() -> SentryScreenFrames {
 #if os(iOS)
         return SentryScreenFrames(
-            total: totalFrames,
+            total: frameSource.totalFrames(),
             frozen: frozenFrames,
             slow: slowFrames,
             slowFrameTimestamps: slowFrameTimestamps,
@@ -165,7 +166,7 @@ public class SentryFramesTracker: NSObject {
         )
 #else
         return SentryScreenFrames(
-            total: totalFrames,
+            total: frameSource.totalFrames(),
             frozen: frozenFrames,
             slow: slowFrames
         )
@@ -273,21 +274,21 @@ public class SentryFramesTracker: NSObject {
     // MARK: - Internal Methods
 
 #if SENTRY_TEST || SENTRY_TEST_CI
-    @objc func setDisplayLinkWrapper(_ displayLinkWrapper: SentryDisplayLinkWrapper) {
-        self.displayLinkWrapper = displayLinkWrapper
+    func setFrameSource(_ frameSource: SentryFrameSource) {
+        self.frameSource.stop()
+        self.frameSource = frameSource
     }
-    
+
     var listenersCount: Int {
         listeners.filter { $0.value != nil }.count
     }
 #endif
 
     @objc func resetFrames() {
-        totalFrames = 0
         frozenFrames = 0
         slowFrames = 0
 
-        previousFrameTimestamp = Self.previousFrameInitialValue
+        frameSource.resetFrames()
 
 #if os(iOS)
         resetProfilingTimestampsInternal()
@@ -313,9 +314,7 @@ public class SentryFramesTracker: NSObject {
 
         isRunning = true
 
-        // Reset the previous frame timestamp to avoid wrong metrics being collected
-        previousFrameTimestamp = Self.previousFrameInitialValue
-        displayLinkWrapper.link(withTarget: self, selector: #selector(displayLinkCallback))
+        frameSource.start(delegate: self)
     }
 
     private func pause() {
@@ -325,101 +324,38 @@ public class SentryFramesTracker: NSObject {
         // frame delay statistics cannot be provided, as we can't account for events during the pause.
         delayedFramesTracker.reset()
 
-        displayLinkWrapper.invalidate()
+        frameSource.stop()
     }
 
-// swiftlint:disable function_body_length
-    @objc
-    private func displayLinkCallback() {
-        let thisFrameTimestamp = displayLinkWrapper.timestamp
-        let thisFrameSystemTimestamp = dateProvider.systemTime()
-
-        if previousFrameTimestamp == Self.previousFrameInitialValue {
-            previousFrameTimestamp = thisFrameTimestamp
-            previousFrameSystemTimestamp = thisFrameSystemTimestamp
-            delayedFramesTracker.setPreviousFrameSystemTimestamp(thisFrameSystemTimestamp)
-            reportNewFrame()
-            return
-        }
-
-        // Calculate the actual frame rate as pointed out by the Apple docs:
-        // https://developer.apple.com/documentation/quartzcore/cadisplaylink?language=objc The actual
-        // frame rate can change at any time by setting preferredFramesPerSecond or due to ProMotion
-        // display, low power mode, critical thermal state, and accessibility settings. Therefore we
-        // need to check the frame rate for every callback.
-        // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
-        // 60 fps.
-        currentFrameRate = 60
-        if displayLinkWrapper.targetTimestamp != displayLinkWrapper.timestamp {
-            currentFrameRate = UInt64(round(
-                1 / (displayLinkWrapper.targetTimestamp - displayLinkWrapper.timestamp)
-            ))
-        }
-
-#if os(iOS)
-        let thisFrameNSDate = dateProvider.date()
-        let isContinuousProfiling = SentryContinuousProfiler.isCurrentlyProfiling()
-        let profilingTimestamp = isContinuousProfiling ?
-            NSNumber(value: thisFrameNSDate.timeIntervalSince1970) :
-            NSNumber(value: thisFrameSystemTimestamp)
-
-        if SentryTraceProfiler.isCurrentlyProfiling() || isContinuousProfiling {
-            let hasNoFrameRatesYet = frameRateTimestamps.isEmpty
-            let previousFrameRate = frameRateTimestamps.last?["value"]?.uint64Value ?? 0
-            let frameRateChanged = previousFrameRate != currentFrameRate
-            let shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged
-
-            if shouldRecordNewFrameRate {
-                SentrySDKLog.debug("Recording new frame rate at \(profilingTimestamp).")
-                recordTimestamp(profilingTimestamp, value: NSNumber(value: currentFrameRate), array: &frameRateTimestamps)
-            }
-        }
-#endif // os(iOS)
-
-        let frameDuration = thisFrameTimestamp - previousFrameTimestamp
-        let slowThreshold = Self.slowFrameThreshold(currentFrameRate)
-
-        if frameDuration > slowThreshold && frameDuration <= Self.frozenFrameThreshold {
-            slowFrames += 1
-#if os(iOS)
-            SentrySDKLog.debug("Detected slow frame starting at \(profilingTimestamp) (frame tracker: \(self)).")
-            recordTimestamp(
-                profilingTimestamp,
-                value: NSNumber(value: thisFrameSystemTimestamp - previousFrameSystemTimestamp),
-                array: &slowFrameTimestamps
-            )
-#endif // os(iOS)
-        } else if frameDuration > Self.frozenFrameThreshold {
+    /// - Precondition: The duration is longer than the slow frame threshold.
+    private func countSlowOrFrozenFrame(
+        duration: CFTimeInterval,
+        previousFrameSystemTimestamp: UInt64,
+        thisFrameSystemTimestamp: UInt64
+    ) {
+        let isFrozen = duration > Self.frozenFrameThreshold
+        if isFrozen {
             frozenFrames += 1
-#if os(iOS)
-            SentrySDKLog.debug("Detected frozen frame starting at \(profilingTimestamp).")
-            recordTimestamp(
-                profilingTimestamp,
-                value: NSNumber(value: thisFrameSystemTimestamp - previousFrameSystemTimestamp),
-                array: &frozenFrameTimestamps
-            )
-#endif // os(iOS)
-        }
-
-        if frameDuration > slowThreshold {
-            delayedFramesTracker.recordDelayedFrame(
-                previousFrameSystemTimestamp,
-                thisFrameSystemTimestamp: thisFrameSystemTimestamp,
-                expectedDuration: slowThreshold,
-                actualDuration: frameDuration
-            )
         } else {
-            delayedFramesTracker.setPreviousFrameSystemTimestamp(thisFrameSystemTimestamp)
+            slowFrames += 1
         }
 
-        totalFrames += 1
-        previousFrameTimestamp = thisFrameTimestamp
-        previousFrameSystemTimestamp = thisFrameSystemTimestamp
-        reportNewFrame()
+#if os(iOS)
+        let timestamp = profilingTimestamp(systemTimestamp: thisFrameSystemTimestamp)
+        let value = NSNumber(value: thisFrameSystemTimestamp - previousFrameSystemTimestamp)
+        if isFrozen {
+            SentrySDKLog.debug("Detected frozen frame starting at \(timestamp).")
+            recordTimestamp(timestamp, value: value, array: &frozenFrameTimestamps)
+        } else {
+            SentrySDKLog.debug("Detected slow frame starting at \(timestamp) (frame tracker: \(self)).")
+            recordTimestamp(timestamp, value: value, array: &slowFrameTimestamps)
+        }
+#endif // os(iOS)
     }
-// swiftlint:enable function_body_length
 
     private func reportNewFrame() {
+        guard !listeners.isEmpty else { return }
+
         let newFrameDate = dateProvider.date()
         // Resolve strong references out of the weak refs and drop any zeroed
         // entries in a single pass before invoking callbacks. Callbacks may
@@ -443,6 +379,27 @@ public class SentryFramesTracker: NSObject {
     }
 
 #if os(iOS)
+    /// Continuous profiling works with dates, trace profiling with system timestamps.
+    private func profilingTimestamp(systemTimestamp: UInt64) -> NSNumber {
+        SentryContinuousProfiler.isCurrentlyProfiling() ?
+            NSNumber(value: dateProvider.date().timeIntervalSince1970) :
+            NSNumber(value: systemTimestamp)
+    }
+
+    private func recordFrameRateIfProfiling(systemTimestamp: UInt64) {
+        guard SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling() else {
+            return
+        }
+
+        let hasNoFrameRatesYet = frameRateTimestamps.isEmpty
+        let previousFrameRate = frameRateTimestamps.last?["value"]?.uint64Value ?? 0
+        guard hasNoFrameRatesYet || previousFrameRate != currentFrameRate else { return }
+
+        let timestamp = profilingTimestamp(systemTimestamp: systemTimestamp)
+        SentrySDKLog.debug("Recording new frame rate at \(timestamp).")
+        recordTimestamp(timestamp, value: NSNumber(value: currentFrameRate), array: &frameRateTimestamps)
+    }
+
     private func recordTimestamp(_ timestamp: NSNumber, value: NSNumber, array: inout SentryFrameInfoTimeSeries) {
         var shouldRecord = SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling()
 #if SENTRY_TEST || SENTRY_TEST_CI
@@ -486,6 +443,40 @@ public class SentryFramesTracker: NSObject {
         reportNewFrame()
     }
     #endif
+}
+
+// MARK: - SentryFrameSourceDelegate
+
+extension SentryFramesTracker: SentryFrameSourceDelegate {
+    func frameSource(didMeasureFrameRate frameRate: UInt64, at systemTimestamp: UInt64) {
+        currentFrameRate = frameRate
+
+#if os(iOS)
+        recordFrameRateIfProfiling(systemTimestamp: systemTimestamp)
+#endif // os(iOS)
+    }
+
+    func frameSource(didStartFrameAt systemTimestamp: UInt64) {
+        delayedFramesTracker.setPreviousFrameSystemTimestamp(systemTimestamp)
+    }
+
+    func frameSource(didDelayFrameFrom startSystemTimestamp: UInt64, to endSystemTimestamp: UInt64, duration: CFTimeInterval) {
+        countSlowOrFrozenFrame(
+            duration: duration,
+            previousFrameSystemTimestamp: startSystemTimestamp,
+            thisFrameSystemTimestamp: endSystemTimestamp
+        )
+        delayedFramesTracker.recordDelayedFrame(
+            startSystemTimestamp,
+            thisFrameSystemTimestamp: endSystemTimestamp,
+            expectedDuration: Self.slowFrameThreshold(currentFrameRate),
+            actualDuration: duration
+        )
+    }
+
+    func frameSourceDidRenderFrame() {
+        reportNewFrame()
+    }
 }
 
 #endif

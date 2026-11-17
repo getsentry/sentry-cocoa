@@ -38758,6 +38758,298 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryEventSourceSubmissionResult?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$sSo33SentryEventSourceSubmissionResultV8rawValueABSgSi_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:So33SentryEventSourceSubmissionResultV8rawValueABSgSi_tcfc"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "implicit": true,
+            "kind": "TypeAlias",
+            "mangledName": "$sSo33SentryEventSourceSubmissionResultV8RawValuea",
+            "moduleName": "Sentry",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:So33SentryEventSourceSubmissionResultV8RawValuea"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryEventSourceSubmissionResult",
+                        "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryEventSourceSubmissionResult.Type) -> Sentry.SentryEventSourceSubmissionResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "accepted",
+            "printedName": "accepted",
+            "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult@SentryEventSourceSubmissionResultAccepted"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo33SentryEventSourceSubmissionResultV8rawValueSivg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So33SentryEventSourceSubmissionResultV8rawValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "implicit": true,
+            "kind": "Var",
+            "mangledName": "$sSo33SentryEventSourceSubmissionResultV8rawValueSivp",
+            "moduleName": "Sentry",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:So33SentryEventSourceSubmissionResultV8rawValueSivp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryEventSourceSubmissionResult",
+                        "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryEventSourceSubmissionResult.Type) -> Sentry.SentryEventSourceSubmissionResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "unavailable",
+            "printedName": "unavailable",
+            "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult@SentryEventSourceSubmissionResultUnavailable"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryEventSourceSubmissionResult",
+                        "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryEventSourceSubmissionResult",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult",
+                    "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryEventSourceSubmissionResult.Type) -> Sentry.SentryEventSourceSubmissionResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "withdrawn",
+            "printedName": "withdrawn",
+            "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult@SentryEventSourceSubmissionResultWithdrawn"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryEventSourceSubmissionResult.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declAttributes": [
+          "Dynamic",
+          "ObjC",
+          "Sendable",
+          "SynthesizedProtocol",
+          "SynthesizedProtocol"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "Int",
+        "kind": "TypeDecl",
+        "moduleName": "Sentry",
+        "name": "SentryEventSourceSubmissionResult",
+        "objc_name": "SentryEventSourceSubmissionResult",
+        "printedName": "SentryEventSourceSubmissionResult",
+        "usr": "c:@M@Sentry@E@SentryEventSourceSubmissionResult"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "SentryExperimentalOptions",
                 "printedName": "Sentry.SentryExperimentalOptions",
                 "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions"
@@ -51777,6 +52069,43 @@
                 ],
                 "declKind": "EnumElement",
                 "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO21cellularConditionTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "cellularConditionTime",
+                "printedName": "cellularConditionTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO21cellularConditionTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
                 "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO25cpuCumulativeInstructionsyA2EmF",
                 "moduleName": "Sentry",
                 "name": "cpuCumulativeInstructions",
@@ -52887,6 +53216,154 @@
                 ],
                 "declKind": "EnumElement",
                 "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO14launchExtendedyA2EmF",
+                "moduleName": "Sentry",
+                "name": "launchExtended",
+                "printedName": "launchExtended",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO14launchExtendedyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO30launchOptimizedTimeToFirstDrawyA2EmF",
+                "moduleName": "Sentry",
+                "name": "launchOptimizedTimeToFirstDraw",
+                "printedName": "launchOptimizedTimeToFirstDraw",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO30launchOptimizedTimeToFirstDrawyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO16launchResumeTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "launchResumeTime",
+                "printedName": "launchResumeTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO16launchResumeTimeyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO21launchTimeToFirstDrawyA2EmF",
+                "moduleName": "Sentry",
+                "name": "launchTimeToFirstDraw",
+                "printedName": "launchTimeToFirstDraw",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO21launchTimeToFirstDrawyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
                 "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO37locationBestAccuracyForNavigationTimeyA2EmF",
                 "moduleName": "Sentry",
                 "name": "locationBestAccuracyForNavigationTime",
@@ -53410,6 +53887,43 @@
                 "name": "networkWifiUpload",
                 "printedName": "networkWifiUpload",
                 "usr": "s:6Sentry0A9MetricKitO0B6ReportO17networkWifiUploadyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "MetricReport",
+                            "printedName": "Sentry.SentryMetricKit.MetricReport",
+                            "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "MetricReport",
+                        "printedName": "Sentry.SentryMetricKit.MetricReport",
+                        "usr": "s:6Sentry0A9MetricKitO0B6ReportO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.MetricReport.Type) -> Sentry.SentryMetricKit.MetricReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO0B6ReportO22responsivenessHangTimeyA2EmF",
+                "moduleName": "Sentry",
+                "name": "responsivenessHangTime",
+                "printedName": "responsivenessHangTime",
+                "usr": "s:6Sentry0A9MetricKitO0B6ReportO22responsivenessHangTimeyA2EmF"
               }
             ],
             "conformances": [
@@ -59294,7 +59808,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC22networkDetailAllowUrlsSayAA0A12UrlMatchable_pGvg",
                 "moduleName": "Sentry",
@@ -59326,7 +59839,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC22networkDetailAllowUrlsSayAA0A12UrlMatchable_pGvs",
                 "moduleName": "Sentry",
@@ -59351,11 +59863,7 @@
                 "usr": "s:Sa"
               }
             ],
-            "declAttributes": [
-              "HasStorage"
-            ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A13ReplayOptionsC22networkDetailAllowUrlsSayAA0A12UrlMatchable_pGvp",
             "moduleName": "Sentry",
@@ -59384,7 +59892,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvg",
                 "moduleName": "Sentry",
@@ -59416,7 +59923,6 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvs",
                 "moduleName": "Sentry",
@@ -59441,11 +59947,7 @@
                 "usr": "s:Sa"
               }
             ],
-            "declAttributes": [
-              "HasStorage"
-            ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvp",
             "moduleName": "Sentry",

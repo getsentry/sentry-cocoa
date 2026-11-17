@@ -171,8 +171,30 @@ typedef NS_OPTIONS(uint64_t, SentryObjCMetricKitMetricReport) {
     /// distribution in seconds with the layer's name as the @c metal.layer_name attribute.
     /// @note Requires iOS 27 or macOS 27.
     SentryObjCMetricKitMetricReportMetalActiveDrawingDuration = 1ULL << 51,
+    /// The time from launching the app to drawing its first frame, sent as the
+    /// @c metrickit.launch.time_to_first_draw distribution in seconds with one value per launch.
+    SentryObjCMetricKitMetricReportLaunchTimeToFirstDraw = 1ULL << 52,
+    /// The time to resume the app from the background, sent as the
+    /// @c metrickit.launch.resume_time distribution in seconds with one value per resume.
+    SentryObjCMetricKitMetricReportLaunchResumeTime = 1ULL << 53,
+    /// The time from launching the app to drawing its first frame when the system prewarmed it,
+    /// sent as the @c metrickit.launch.optimized_time_to_first_draw distribution in seconds with
+    /// one value per launch.
+    /// @note Requires iOS 15.2 or macOS 12.2.
+    SentryObjCMetricKitMetricReportLaunchOptimizedTimeToFirstDraw = 1ULL << 54,
+    /// The time from launching the app to the end of its extended launch tasks, sent as the
+    /// @c metrickit.launch.extended_launch distribution in seconds with one value per launch.
+    /// @note Requires iOS 16 or macOS 13.
+    SentryObjCMetricKitMetricReportLaunchExtended = 1ULL << 55,
+    /// The duration of the app's hangs, sent as the @c metrickit.responsiveness.hang_time
+    /// distribution in seconds with one value per hang.
+    SentryObjCMetricKitMetricReportResponsivenessHangTime = 1ULL << 56,
+    /// The cellular signal strength while the app used the network, sent as the
+    /// @c metrickit.cellular.condition_time distribution in signal bars with one value per sample.
+    /// @note Not sent on macOS.
+    SentryObjCMetricKitMetricReportCellularConditionTime = 1ULL << 57,
     /// Every metric report above.
-    SentryObjCMetricKitMetricReportAll = (1ULL << 52) - 1,
+    SentryObjCMetricKitMetricReportAll = (1ULL << 58) - 1,
 };
 
 #endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV

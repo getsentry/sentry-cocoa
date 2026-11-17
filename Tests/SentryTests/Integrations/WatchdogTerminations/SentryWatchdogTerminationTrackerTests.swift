@@ -58,7 +58,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             return try getSut(fileManager: fileManager )
         }
         
-        func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
+        func getSut(
+            fileManager: SentryFileManager,
+            eventSourceSink: SentryEventSourceSink = TestEventSources.hubSink()
+        ) throws -> SentryWatchdogTerminationTracker {
             let dependencies = SentryDependencyContainer.sharedInstance()
             dependencies.fileManager = fileManager
             dependencies.sysctlWrapper = sysctl
@@ -79,7 +82,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopePersistentStore: scopePersistentStore
+                scopePersistentStore: scopePersistentStore,
+                eventSourceSink: eventSourceSink
             )
         }
     }
@@ -247,6 +251,36 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
+    func testStart_whenWatchdogTermination_shouldSubmitFatalReportWithRunIdOfTerminatedRun() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        // The run that gets terminated persists its app state with its own run ID.
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        sut = try fixture.getSut(fileManager: fixture.fileManager, eventSourceSink: eventSourceSink)
+        sut.start()
+        goToForeground()
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        // The next run detects the termination and reports it under the terminated run's ID.
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "next-run-id"))
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertEqual(eventSourceSink.submittedReports.count, 1)
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(report.source, .watchdogTermination)
+        XCTAssertEqual(report.event.exceptions?.first?.type, "WatchdogTermination")
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        guard case let .fatal(attachmentPaths, isRetainedOnFailure) = report.kind else {
+            return XCTFail("Expected a fatal report")
+        }
+        XCTAssertEqual(attachmentPaths, [])
+        XCTAssertFalse(isRetainedOnFailure)
+        // The tracker only reports the termination, the sink decides whether it is captured.
+        XCTAssertEqual(fixture.client.captureFatalEventInvocations.count, 0)
+    }
+
     func testSDKStartedTwice_NoOOM() {
         sut.start()
         goToForeground()
@@ -278,16 +312,26 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         try assertOOMEventSent()
     }
 
-    func testANR_NoOOM() {
+    func testStart_whenPreviousLaunchEndedDuringHang_shouldRespectSDKVersion() throws {
+        // -- Arrange --
         sut.start()
         goToForeground()
-        
-        update(appState: { appState in
-            appState.isANROngoing = true
-        })
+        var previousAppState = try XCTUnwrap(fixture.fileManager.readAppState()).serialize()
+        previousAppState["is_anr_ongoing"] = true
+        givenPreviousAppState(appState: try XCTUnwrap(SentryAppState(jsonObject: previousAppState)))
+        sut.stop()
+        sut = try fixture.getSut()
 
+        // -- Act --
         sut.start()
+
+        // -- Assert --
+        #if SDK_V10
+        try assertOOMEventSent()
+        XCTAssertTrue(SentrySDKInternal.fatalDetected)
+        #else
         assertNoOOMSent()
+        #endif
     }
 
     func testAppOOM_WithBreadcrumbs() throws {
@@ -437,13 +481,6 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
         fixture.fileManager.moveAppStateToPreviousAppState()
-    }
-    
-    private func update(appState: (SentryAppState) -> Void) {
-        if let currentAppState = fixture.fileManager.readAppState() {
-            appState(currentAppState)
-            fixture.fileManager.store(currentAppState)
-        }
     }
     
     private func assertOOMEventSent(expectedBreadcrumbs: Int = 0) throws {

@@ -170,6 +170,15 @@ extension SentryMXDiagnostic {
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 extension SentryMXDiagnostic.Metadata {
+    /// The SDK leaves out the remaining environment attributes:
+    /// - `regionFormat` is a region, not a locale, and events have no attribute for it.
+    /// - `states` is only reported for the state reporting domains an app enables through
+    ///   `MetricManager(enabledStateReportingDomains:)`, and the SDK doesn't enable any.
+    /// - `signpostData` lists the app's own signposts, which would need a mapping of its own,
+    ///   for example to breadcrumbs.
+    ///
+    /// All of them are kept in the raw report that
+    /// ``SentrySDKOptions/enableMetricKitRawPayload`` attaches.
     init(_ environment: MetricKit.DiagnosticReport.Environment) {
         let osVersion = environment.osVersion
         self.init(
@@ -177,7 +186,10 @@ extension SentryMXDiagnostic.Metadata {
             appVersion: environment.applicationVersion,
             appBuild: environment.applicationBuildVersion,
             osVersion: osVersion.number.isEmpty ? nil : osVersion.number,
-            osBuild: osVersion.buildNumber.isEmpty ? nil : osVersion.buildNumber
+            osBuild: osVersion.buildNumber.isEmpty ? nil : osVersion.buildNumber,
+            bundleIdentifier: environment.bundleIdentifier.isEmpty ? nil : environment.bundleIdentifier,
+            lowPowerModeEnabled: environment.lowPowerModeEnabled,
+            isTestFlightApp: environment.isTestFlightApp
         )
     }
 }

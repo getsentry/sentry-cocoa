@@ -1245,7 +1245,8 @@ class MockCrashDependencies: CrashIntegrationProvider {
             inAppLogic: inAppLogic,
             crashWrapper: mockedCrashWrapper,
             dispatchQueue: mockedDispatchQueueWrapper,
-            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource()
         )
     }
 }

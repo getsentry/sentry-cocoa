@@ -15,7 +15,7 @@ private let persistTraceWhenCrashing: @convention(c) () -> Void = {
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder & CurrentRunProvider
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder & CurrentRunProvider & CrashHandlerEventSourceProvider
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
@@ -110,7 +110,7 @@ extension SentryKSCrash {
         private func processStoredReports(options: Options, dependencies: Dependencies) {
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
-                currentHubProvider: { SentrySDKInternal.currentHub() },
+                crashHandlerEventSource: dependencies.crashHandlerEventSource,
                 preserveCrashedSessionOnCaptureFailure: true
             )
             // The report filter dispatches regular reports itself. Keep this call synchronous so
