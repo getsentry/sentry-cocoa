@@ -204,5 +204,103 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     }
     #endif
 }
+
+/// A manually controlled sampler for measuring the existing thread inspector's overhead.
+/// This does not install hang tracking or send captured stacks to Sentry.
+@_spi(Private) public final class SentryThreadProfilerBenchmark {
+    /// Aggregate counts and full inspector-call timings for one benchmark arm.
+    public struct Result: Sendable {
+        /// Number of inspector calls, including calls that returned no stacks.
+        public internal(set) var samples = 0
+        /// Total thread objects returned by the inspector.
+        public internal(set) var threads = 0
+        /// Total captured stack frames.
+        public internal(set) var frames = 0
+        /// Inspector calls that returned no threads or no stack frames.
+        public internal(set) var failures = 0
+        /// End-to-end inspector-call durations in seconds, not thread suspension windows.
+        public internal(set) var captureDurations: [TimeInterval] = []
+    }
+
+    private struct State {
+        var timer: SentryDispatchSourceWrapper?
+        var result = Result()
+    }
+
+    private let state = SentryMutex(State())
+    private let queue = SentryDispatchQueueWrapper(name: "io.sentry.thread-profiler-benchmark")
+    private let threadInspector: SentryThreadInspector
+    private let dateProvider: SentryCurrentDateProvider
+
+    /// Uses the same inspector instance as the SDK integrations.
+    public convenience init() {
+        self.init(dependencies: SentryDependencyContainer.sharedInstance())
+    }
+
+    init(dependencies: ThreadInspectorProvider & CurrentDateProvider) {
+        threadInspector = dependencies.threadInspector
+        dateProvider = dependencies.dateProvider
+    }
+
+    /// Resets the results and starts sampling every 50 ms. Repeated starts are ignored.
+    public func start() async {
+        await withCheckedContinuation { continuation in
+            queue.dispatchAsync { [self] in
+                state.withLock { state in
+                    guard state.timer == nil else { return }
+                    state.result = Result()
+                    state.result.captureDurations.reserveCapacity(256)
+                    state.timer = SentryDispatchSourceWrapper(
+                        interval: 50_000_000,
+                        leeway: 0,
+                        queue: queue
+                    ) { [weak self] in
+                        self?.sample()
+                    }
+                }
+                continuation.resume()
+            }
+        }
+    }
+
+    /// Stops sampling and waits for the last inspector call to finish before returning results.
+    public func stop() async -> Result {
+        await withCheckedContinuation { continuation in
+            queue.dispatchAsync { [self] in
+                let result = state.withLock { state in
+                    state.timer?.cancel()
+                    state.timer = nil
+                    return state.result
+                }
+                continuation.resume(returning: result)
+            }
+        }
+    }
+
+    private func sample() {
+        // Discard stacks each tick, including autoreleased Objective-C objects. Retaining them
+        // would measure an ever-growing profile rather than the cost of taking a snapshot.
+        autoreleasepool {
+            guard state.withLock({ $0.timer != nil }) else { return }
+            let started = dateProvider.getAbsoluteTime()
+            let threads = threadInspector.getCurrentThreadsWithStackTrace()
+            let duration = Double(dateProvider.getAbsoluteTime() - started) / 1_000_000_000
+            let frameCount = threads.reduce(0) { $0 + ($1.stacktrace?.frames.count ?? 0) }
+            state.withLock { state in
+                state.result.samples += 1
+                state.result.threads += threads.count
+                state.result.frames += frameCount
+                if threads.isEmpty || frameCount == 0 {
+                    state.result.failures += 1
+                }
+                state.result.captureDurations.append(duration)
+            }
+        }
+    }
+
+    deinit {
+        state.withLock { $0.timer?.cancel() }
+    }
+}
 // swiftlint:enable missing_docs
 #endif

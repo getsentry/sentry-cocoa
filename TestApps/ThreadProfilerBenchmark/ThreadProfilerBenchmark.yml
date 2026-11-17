@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: ThreadProfilerBenchmark
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+options:
+  bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
+targets:
+  ThreadProfilerBenchmark:
+    type: application
+    platform: auto
+    sources:
+      - path: Sources
+        type: group
+      - path: Resources
+        type: group
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/TestAppAssets.xcassets
+        group: Resources
+      - path: Configuration
+        type: group
+        buildPhase: none
+      - path: ../Shared/Config
+        type: group
+        group: Configuration
+        buildPhase: none
+      - path: ThreadProfilerBenchmark.yml
+        group: Configuration
+        buildPhase: none
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: Configuration/ThreadProfilerBenchmark.xcconfig
+      Release: Configuration/ThreadProfilerBenchmark.xcconfig
+    info:
+      path: Configuration/Info.plist
+      properties:
+        BenchmarkBuildConfiguration: $(CONFIGURATION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+schemes:
+  ThreadProfilerBenchmark:
+    build:
+      targets:
+        ThreadProfilerBenchmark: all
+    run:
+      config: Release
+    profile:
+      config: Release

@@ -1,0 +1,7 @@
+#include "../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.ThreadProfilerBenchmark
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator macosx
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+MACOSX_DEPLOYMENT_TARGET = 14.0
+SUPPORTS_MACCATALYST = NO

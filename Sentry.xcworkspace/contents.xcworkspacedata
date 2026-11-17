@@ -62,6 +62,9 @@
          location = "group:TestApps/SDK-Size/SDK-Size.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:TestApps/ThreadProfilerBenchmark/ThreadProfilerBenchmark.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:TestApps/SwiftUITestSample/SwiftUITestSample.xcodeproj">
       </FileRef>
       <FileRef

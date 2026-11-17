@@ -1,0 +1,457 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		14D297C608A1D8EF9DE2C736 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F80AE9F8F01E9BA6D40B96E8 /* Sentry-iOS.framework */; };
+		41967BEDE0C3C12B45356759 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63630093A01633342645CA95 /* MainApp.swift */; };
+		59996E2203CF962F880C328C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FAD9147C8434CBCF4519E8 /* ContentView.swift */; };
+		7CFDF12DF9CFA69077A89D7D /* TestAppAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 54D060280D624328E87EB8ED /* TestAppAssets.xcassets */; };
+		9C5DCE807400B591C3D61126 /* BenchmarkMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030FAD09BACEA89FB4F3BAB1 /* BenchmarkMetrics.swift */; };
+		B0CE0236D096C5C2DEEF5DDB /* BenchmarkSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0DC76F28B8363B9A399994 /* BenchmarkSession.swift */; };
+		CC09BA943F245121BA8AE596 /* Sentry-iOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F80AE9F8F01E9BA6D40B96E8 /* Sentry-iOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		549666B9B9B2AC6459A7CBF4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 934747DD87E35CB2C4B705AF /* Sentry */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		C4E84300D152E5A6BC3C1E95 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 934747DD87E35CB2C4B705AF /* Sentry */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		458D531913A0FEE5E7C9871D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CC09BA943F245121BA8AE596 /* Sentry-iOS.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		030FAD09BACEA89FB4F3BAB1 /* BenchmarkMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkMetrics.swift; sourceTree = "<group>"; };
+		0C8FA09CBC5294063D304B5E /* AssetCatalog.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AssetCatalog.xcconfig; sourceTree = "<group>"; };
+		1227D23436A802849C850FCB /* ClangWarningsObjC.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsObjC.xcconfig; sourceTree = "<group>"; };
+		2C0DC76F28B8363B9A399994 /* BenchmarkSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkSession.swift; sourceTree = "<group>"; };
+		3059ECDA95536E7C9B20B55E /* Localization.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Localization.xcconfig; sourceTree = "<group>"; };
+		49ECD3E556A449484CDD48A1 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		4A465D7D39776B097EABE271 /* Metal.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Metal.xcconfig; sourceTree = "<group>"; };
+		54D060280D624328E87EB8ED /* TestAppAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = TestAppAssets.xcassets; path = ../../Shared/TestAppAssets.xcassets; sourceTree = "<group>"; };
+		63630093A01633342645CA95 /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
+		6E7A157F6A35E9FDB5D0B41E /* ClangAnalyzer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangAnalyzer.xcconfig; sourceTree = "<group>"; };
+		715B2B848B38231D39309301 /* ClangWarnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarnings.xcconfig; sourceTree = "<group>"; };
+		7D8CA18999A2222E263B7DC5 /* ThreadProfilerBenchmark.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = ThreadProfilerBenchmark.yml; path = ../ThreadProfilerBenchmark.yml; sourceTree = "<group>"; };
+		934747DD87E35CB2C4B705AF /* Sentry */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
+		9A28AFD6F250E039EE4E2558 /* Linking.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Linking.xcconfig; sourceTree = "<group>"; };
+		B4FAD9147C8434CBCF4519E8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B520758053EA7A319C8658D9 /* ClangObjCLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangObjCLanguage.xcconfig; sourceTree = "<group>"; };
+		B73B612615DBC3B1FE5AE0BC /* ThreadProfilerBenchmark.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ThreadProfilerBenchmark.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B78566D783986B3ECAE86C58 /* ClangLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangLanguage.xcconfig; sourceTree = "<group>"; };
+		BA26D8726D36033B72B262E2 /* Packaging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Packaging.xcconfig; sourceTree = "<group>"; };
+		C066079C2A23C0CB629C1002 /* ClangPreprocessing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangPreprocessing.xcconfig; sourceTree = "<group>"; };
+		C1914BD3C012E95516DA3B54 /* ClangCppLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangCppLanguage.xcconfig; sourceTree = "<group>"; };
+		C1B1F478FA17B8652D9CCDC7 /* ThreadProfilerBenchmark.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ThreadProfilerBenchmark.xcconfig; sourceTree = "<group>"; };
+		C24EF8FDE34913881FE87B38 /* BuildOptions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildOptions.xcconfig; sourceTree = "<group>"; };
+		C572EEF871ACD7C13A27E703 /* CodeGeneration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CodeGeneration.xcconfig; sourceTree = "<group>"; };
+		CCF8E242A61571D6B2E93F72 /* ClangWarningsCpp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsCpp.xcconfig; sourceTree = "<group>"; };
+		D8C82A6ED8A677E53DBA88C8 /* _Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = _Common.xcconfig; sourceTree = "<group>"; };
+		DF39C5AE4D53D3F89C523B7D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		EC06E9EB48477AFA3ED50949 /* SearchPaths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SearchPaths.xcconfig; sourceTree = "<group>"; };
+		EEEBA90A5A8602DB996146E9 /* ClangModules.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangModules.xcconfig; sourceTree = "<group>"; };
+		EF77EC466A30EB6D66ADDD4B /* Deployment.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Deployment.xcconfig; sourceTree = "<group>"; };
+		F290C7BC70445EC03DBDD61F /* Architectures.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Architectures.xcconfig; sourceTree = "<group>"; };
+		FE46FE082387BBEA187A1E2A /* Swift.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Swift.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F0D3F4A7C618D832A065502B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				14D297C608A1D8EF9DE2C736 /* Sentry-iOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		40D81818780554BBEBA1368E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F80AE9F8F01E9BA6D40B96E8 /* Sentry-iOS.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5EF0649000F8A8ADF31627F3 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				DF39C5AE4D53D3F89C523B7D /* Info.plist */,
+				C1B1F478FA17B8652D9CCDC7 /* ThreadProfilerBenchmark.xcconfig */,
+				7D8CA18999A2222E263B7DC5 /* ThreadProfilerBenchmark.yml */,
+				D4282B8ECF59C7F8A253460C /* Config */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		730817FB56214DE5B457DC8C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				030FAD09BACEA89FB4F3BAB1 /* BenchmarkMetrics.swift */,
+				2C0DC76F28B8363B9A399994 /* BenchmarkSession.swift */,
+				B4FAD9147C8434CBCF4519E8 /* ContentView.swift */,
+				63630093A01633342645CA95 /* MainApp.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		9242C3B2DDE2146308005437 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B73B612615DBC3B1FE5AE0BC /* ThreadProfilerBenchmark.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B5F6B8DF604C593DEDB16F3C = {
+			isa = PBXGroup;
+			children = (
+				5EF0649000F8A8ADF31627F3 /* Configuration */,
+				D5829250DF87133EC7AF708B /* Resources */,
+				730817FB56214DE5B457DC8C /* Sources */,
+				9242C3B2DDE2146308005437 /* Products */,
+				B9B6C9E239211E37177CD3E2 /* Projects */,
+			);
+			sourceTree = "<group>";
+		};
+		B9B6C9E239211E37177CD3E2 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				934747DD87E35CB2C4B705AF /* Sentry */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		D4282B8ECF59C7F8A253460C /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D8C82A6ED8A677E53DBA88C8 /* _Common.xcconfig */,
+				F290C7BC70445EC03DBDD61F /* Architectures.xcconfig */,
+				0C8FA09CBC5294063D304B5E /* AssetCatalog.xcconfig */,
+				C24EF8FDE34913881FE87B38 /* BuildOptions.xcconfig */,
+				6E7A157F6A35E9FDB5D0B41E /* ClangAnalyzer.xcconfig */,
+				C1914BD3C012E95516DA3B54 /* ClangCppLanguage.xcconfig */,
+				B78566D783986B3ECAE86C58 /* ClangLanguage.xcconfig */,
+				EEEBA90A5A8602DB996146E9 /* ClangModules.xcconfig */,
+				B520758053EA7A319C8658D9 /* ClangObjCLanguage.xcconfig */,
+				C066079C2A23C0CB629C1002 /* ClangPreprocessing.xcconfig */,
+				715B2B848B38231D39309301 /* ClangWarnings.xcconfig */,
+				CCF8E242A61571D6B2E93F72 /* ClangWarningsCpp.xcconfig */,
+				1227D23436A802849C850FCB /* ClangWarningsObjC.xcconfig */,
+				C572EEF871ACD7C13A27E703 /* CodeGeneration.xcconfig */,
+				EF77EC466A30EB6D66ADDD4B /* Deployment.xcconfig */,
+				9A28AFD6F250E039EE4E2558 /* Linking.xcconfig */,
+				3059ECDA95536E7C9B20B55E /* Localization.xcconfig */,
+				4A465D7D39776B097EABE271 /* Metal.xcconfig */,
+				BA26D8726D36033B72B262E2 /* Packaging.xcconfig */,
+				EC06E9EB48477AFA3ED50949 /* SearchPaths.xcconfig */,
+				49ECD3E556A449484CDD48A1 /* Signing.xcconfig */,
+				FE46FE082387BBEA187A1E2A /* Swift.xcconfig */,
+			);
+			name = Config;
+			path = ../../Shared/Config;
+			sourceTree = "<group>";
+		};
+		D5829250DF87133EC7AF708B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				54D060280D624328E87EB8ED /* TestAppAssets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FEAAC87210C6853341BA5690 /* ThreadProfilerBenchmark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 74F4B07D11C475502721C8F6 /* Build configuration list for PBXNativeTarget "ThreadProfilerBenchmark" */;
+			buildPhases = (
+				10FAC27B8256D4FF5686ACAE /* Sources */,
+				08A02559A6773FD32115E959 /* Resources */,
+				F0D3F4A7C618D832A065502B /* Frameworks */,
+				458D531913A0FEE5E7C9871D /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9AF14B2642D3DE0284F6949B /* PBXTargetDependency */,
+			);
+			name = ThreadProfilerBenchmark;
+			packageProductDependencies = (
+			);
+			productName = ThreadProfilerBenchmark;
+			productReference = B73B612615DBC3B1FE5AE0BC /* ThreadProfilerBenchmark.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		273187ACC322BDC59EC44B1D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					FEAAC87210C6853341BA5690 = {
+						DevelopmentTeam = 97JCY7859U;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B43C4D194C3D92994C5580E7 /* Build configuration list for PBXProject "ThreadProfilerBenchmark" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B5F6B8DF604C593DEDB16F3C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9242C3B2DDE2146308005437 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 40D81818780554BBEBA1368E /* Products */;
+					ProjectRef = 934747DD87E35CB2C4B705AF /* Sentry */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				FEAAC87210C6853341BA5690 /* ThreadProfilerBenchmark */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		F80AE9F8F01E9BA6D40B96E8 /* Sentry-iOS.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = "Sentry-iOS.framework";
+			remoteRef = 549666B9B9B2AC6459A7CBF4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		08A02559A6773FD32115E959 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7CFDF12DF9CFA69077A89D7D /* TestAppAssets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		10FAC27B8256D4FF5686ACAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9C5DCE807400B591C3D61126 /* BenchmarkMetrics.swift in Sources */,
+				B0CE0236D096C5C2DEEF5DDB /* BenchmarkSession.swift in Sources */,
+				59996E2203CF962F880C328C /* ContentView.swift in Sources */,
+				41967BEDE0C3C12B45356759 /* MainApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9AF14B2642D3DE0284F6949B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = C4E84300D152E5A6BC3C1E95 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		23EFC7C7B0AA6293C6A502F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		364BC249154239612ECB1078 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B9F9224A51F4D51668C0F799 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1B1F478FA17B8652D9CCDC7 /* ThreadProfilerBenchmark.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = Configuration/Info.plist;
+			};
+			name = Debug;
+		};
+		C86B571A369C30B0D6DCC80F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1B1F478FA17B8652D9CCDC7 /* ThreadProfilerBenchmark.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = Configuration/Info.plist;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		74F4B07D11C475502721C8F6 /* Build configuration list for PBXNativeTarget "ThreadProfilerBenchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9F9224A51F4D51668C0F799 /* Debug */,
+				C86B571A369C30B0D6DCC80F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B43C4D194C3D92994C5580E7 /* Build configuration list for PBXProject "ThreadProfilerBenchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23EFC7C7B0AA6293C6A502F2 /* Debug */,
+				364BC249154239612ECB1078 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 273187ACC322BDC59EC44B1D /* Project object */;
+}

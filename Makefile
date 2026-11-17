@@ -808,6 +808,7 @@ build-testapps: \
 	build-testapp-macOS-SwiftUI \
 	build-testapp-macOS-SwiftUI-SPM \
 	build-testapp-SDK-Size \
+	build-testapp-ThreadProfilerBenchmark \
 	build-testapp-SPM \
 	build-testapp-tvOS-Swift \
 	build-testapp-tvOS-SwiftUI-SPM \
@@ -1163,6 +1164,21 @@ build-testapp-iOS-Swift:
 		-scheme iOS-Swift \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the thread inspector benchmark in Release mode
+#
+# Override THREAD_PROFILER_DESTINATION to build for an iOS simulator or device.
+THREAD_PROFILER_DESTINATION ?= platform=macOS
+THREAD_PROFILER_BUILD_SETTINGS ?= CODE_SIGNING_ALLOWED=NO
+.PHONY: build-testapp-ThreadProfilerBenchmark
+build-testapp-ThreadProfilerBenchmark: xcode-ci-ThreadProfilerBenchmark
+	set -o pipefail && xcodebuild \
+		-project TestApps/ThreadProfilerBenchmark/ThreadProfilerBenchmark.xcodeproj \
+		-scheme ThreadProfilerBenchmark \
+		-configuration Release \
+		-destination '$(THREAD_PROFILER_DESTINATION)' \
+		-derivedDataPath .build/thread-profiler-benchmark \
+		$(THREAD_PROFILER_BUILD_SETTINGS) build | xcbeautify --preserve-unbeautified
 
 ## Build the iOS-Swift6 test app
 #
@@ -2343,8 +2359,13 @@ xcode-ci: xcode-ci-SPM \
 	xcode-ci-CrashE2E \
 	xcode-ci-DistributionSample \
 	xcode-ci-SDK-Size \
+	xcode-ci-ThreadProfilerBenchmark \
 	xcode-ci-SwiftUITestSample \
 	xcode-ci-SwiftUICrashTest
+
+.PHONY: xcode-ci-ThreadProfilerBenchmark
+xcode-ci-ThreadProfilerBenchmark:
+	xcodegen --spec TestApps/ThreadProfilerBenchmark/ThreadProfilerBenchmark.yml
 
 .PHONY: xcode-ci-CrashE2E
 xcode-ci-CrashE2E:
