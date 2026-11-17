@@ -2236,12 +2236,14 @@ analyze:
 # CODE GENERATION
 # ============================================================================
 
-## Generate public API documentation
+## Regenerate Xcode and SwiftPM public API snapshots
 #
-# Updates V9/V10 framework and SwiftPM API snapshots.
+# Updates V9/V10 Xcode and SwiftPM snapshots, plus SentrySwiftUI and ObjC snapshots.
+# Fails if the generated SwiftPM API differs from its Xcode counterpart.
+# Run this single command for API stability failures and commit the updated snapshots.
 .PHONY: generate-public-api
 generate-public-api:
-	@echo "[MAKE] $@: Generating public API documentation"
+	@echo "[MAKE] $@: Generating Xcode and SwiftPM public API snapshots (V9/V10)"
 	./scripts/update-api.sh
 
 ## Generate the Objective-C to Swift conversion diagram
