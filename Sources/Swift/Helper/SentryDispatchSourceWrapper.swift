@@ -29,7 +29,7 @@ internal import _SentryPrivate
         source.cancel()
     }
 
-    #if SENTRY_TEST || SENTRY_TEST_CI
+    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     public var dispatchSource: DispatchSourceTimer {
         return source
     }

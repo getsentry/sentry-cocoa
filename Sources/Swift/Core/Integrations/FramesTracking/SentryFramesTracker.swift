@@ -328,7 +328,7 @@ public class SentryFramesTracker: NSObject {
 
     // MARK: - Internal Methods
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     func setFrameSource(_ frameSource: SentryFrameSource) {
         sourceState.withLock { $0.frameSource }.stop()
         sourceState.withLock { $0.frameSource = frameSource }
@@ -466,6 +466,9 @@ public class SentryFramesTracker: NSObject {
         var shouldRecord = SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling()
 #if SENTRY_TEST || SENTRY_TEST_CI
         shouldRecord = true
+#elseif DEBUG
+        shouldRecord = shouldRecord || SentryDependencyContainer.sharedInstance().processInfoWrapper
+            .environment["XCTestConfigurationFilePath"] != nil
 #endif
         if shouldRecord {
             array.append(["timestamp": timestamp, "value": value])
@@ -500,7 +503,7 @@ public class SentryFramesTracker: NSObject {
     }
     
     // MARK: - Test Utils
-    #if SENTRY_TEST || SENTRY_TEST_CI
+    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     func manualReportNewFrame() {
         reportNewFrame()
     }
