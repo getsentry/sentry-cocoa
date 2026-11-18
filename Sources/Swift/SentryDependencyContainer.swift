@@ -24,7 +24,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
-        return .init(delayDuration: objcResult.delayDuration, framesContributingToDelayCount: objcResult.framesContributingToDelayCount)
+        // The Objective-C tracker reports a negative duration when it can't calculate the delay.
+        guard objcResult.delayDuration >= 0 else {
+            return .unavailable
+        }
+        return .delay(duration: objcResult.delayDuration, framesContributingToDelayCount: objcResult.framesContributingToDelayCount)
     }
 }
 #endif
