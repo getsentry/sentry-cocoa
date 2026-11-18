@@ -289,9 +289,9 @@ jobs:
       - name: Test packaging failure handling
         if: matrix.sdk == 'macosx'
         run: ./scripts/test-v10-archive-audit-path.sh
-      - name: Test wrapper archive architectures
+      - name: Test static library architectures
         if: matrix.sdk == 'watchos'
-        run: ./scripts/test-sentryobjc-archive-architectures.sh --work-dir "$RUNNER_TEMP/wrapper-archive-architectures"
+        run: ./scripts/test-static-library-archive-architectures.sh --work-dir "$RUNNER_TEMP/static-library-archive-architectures"
 
       # === Build and validation ===
       - name: Wait for CoreSimulator warmup
@@ -315,10 +315,10 @@ jobs:
         if: failure() && matrix.sdk == 'watchos'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: wrapper-archive-architectures
+          name: static-library-archive-architectures
           path: |
-            ${{ runner.temp }}/wrapper-archive-architectures/**/*.log
-            ${{ runner.temp }}/wrapper-archive-architectures/**/*.exit-status
+            ${{ runner.temp }}/static-library-archive-architectures/**/*.log
+            ${{ runner.temp }}/static-library-archive-architectures/**/*.exit-status
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}

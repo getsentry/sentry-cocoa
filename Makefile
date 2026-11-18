@@ -555,6 +555,20 @@ build-xcframework-testapp:
 	@echo "[MAKE] $@: Building test app with xcodebuild"
 	xcodebuild -project "TestApps/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+## Package the SPM SDK as a dynamic XCFramework
+#
+# Both generations build the Sentry module. CI validates these artifacts
+# separately from the existing Xcode-project release products.
+SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM/$(if $(filter 1,$(SDK_V10)),v10,v9)
+.PHONY: build-xcframework-spm
+build-xcframework-spm:
+	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant-spm.sh --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
+	@echo "[MAKE] $@: Validating Sentry-Dynamic.xcframework"
+	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
+	@echo "[MAKE] $@: Compressing Sentry-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
+
 ## Build Sentry-Dynamic XCFramework
 #
 # SDKS is a comma-separated list of SDK names (default: all).
