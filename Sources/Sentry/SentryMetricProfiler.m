@@ -263,9 +263,7 @@ serializeContinuousProfileMetrics(NSDictionary *state)
         return;
     }
 
-    @synchronized(self) {
-        [_memoryFootprint addObject:[self metricReadingForValue:footprintBytes]];
-    }
+    [_memoryFootprint addObject:[self metricReadingForValue:footprintBytes]];
 }
 
 - (void)recordCPUsage:(NSNumber *_Nullable)result
@@ -274,28 +272,24 @@ serializeContinuousProfileMetrics(NSDictionary *state)
         return;
     }
 
-    @synchronized(self) {
-        [_cpuUsage addObject:[self metricReadingForValue:result]];
-    }
+    [_cpuUsage addObject:[self metricReadingForValue:result]];
 }
 
 // Only some architectures support reading energy.
 #    if defined(__arm__) || defined(__arm64__)
 - (void)recordEnergyUsageEstimate:(NSNumber *_Nullable)reading
 {
-    @synchronized(self) {
-        if (reading != nil) {
-            if (previousEnergyReading == nil
-                || reading.unsignedIntegerValue < previousEnergyReading.unsignedIntegerValue) {
-                previousEnergyReading = reading;
-                return;
-            }
-
-            NSUInteger value
-                = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+    if (reading != nil) {
+        if (previousEnergyReading == nil
+            || reading.unsignedIntegerValue < previousEnergyReading.unsignedIntegerValue) {
             previousEnergyReading = reading;
-            [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
+            return;
         }
+
+        NSUInteger value
+            = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+        previousEnergyReading = reading;
+        [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
 #    endif

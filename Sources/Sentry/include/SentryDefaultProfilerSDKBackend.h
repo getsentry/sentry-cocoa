@@ -5,7 +5,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDefaultProfilerSDKBackend : NSObject <SentryProfilerSDKBackend>
+#    if SENTRY_TEST || SENTRY_TEST_CI
 @property (nonatomic, strong) SENTRY_SWIFT_MIGRATION_ID(SentrySystemWrapper) systemWrapper;
+#    endif
 - (void)activate;
 @end
 

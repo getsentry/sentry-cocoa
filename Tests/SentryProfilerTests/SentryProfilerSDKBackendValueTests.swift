@@ -17,7 +17,8 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
         defer { container.framesTracker = previousTracker }
         let clock = TestCurrentDateProvider()
         let tracker = TestFramesTracker(
-            displayLinkWrapper: TestDisplayLinkWrapper(dateProvider: clock),
+            frameSource: SentryDisplayLinkFrameSource(
+                displayLinkWrapper: TestDisplayLinkWrapper(dateProvider: clock), dateProvider: clock),
             dateProvider: clock,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
             notificationCenter: TestNSNotificationCenterWrapper(),

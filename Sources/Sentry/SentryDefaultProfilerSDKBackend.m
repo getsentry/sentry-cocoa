@@ -60,12 +60,14 @@
     }
 }
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
 - (void)setSystemWrapper:(SentrySystemWrapper *)systemWrapper
 {
     @synchronized(self) {
         _systemWrapper = systemWrapper;
     }
 }
+#    endif
 
 - (SentryProfilingSystemMetrics *)systemMetrics
 {
