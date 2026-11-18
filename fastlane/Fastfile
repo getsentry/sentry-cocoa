@@ -18,14 +18,12 @@ platform :ios do
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
 
-    # Keep CI crash diagnostics and product validation while using Debug for tests.
-    xcargs = "'ARCHS=$(ARCHS_STANDARD)'"
-    xcargs += " DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES" if is_ci
+    # Preserve the test builds' crash diagnostics and product validation.
+    xcargs = "'ARCHS=$(ARCHS_STANDARD)' DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES"
 
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: scheme,
-      configuration: 'Debug',
       xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}",
@@ -218,7 +216,7 @@ platform :ios do
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Debug build-for-testing 2>&1 | xcbeautify --preserve-unbeautified"
+    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Debug DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES build-for-testing 2>&1 | xcbeautify --preserve-unbeautified"
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
   end

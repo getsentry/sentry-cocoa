@@ -1811,6 +1811,7 @@ test-testapp-iOS-Swift-ui: xcode-ci-iOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
 		-testPlan iOS-Swift_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1825,6 +1826,7 @@ test-testapp-iOS-SwiftUI-ui: xcode-ci-iOS-SwiftUI
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
 		-testPlan iOS-SwiftUI_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1839,6 +1841,7 @@ test-testapp-iOS-Swift6-ui: xcode-ci-iOS-Swift6
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift6 \
 		-testPlan iOS-Swift6_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1853,6 +1856,7 @@ test-testapp-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
 		-testPlan iOS-ObjectiveC_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1875,6 +1879,7 @@ test-testapp-macOS-Swift-ui: xcode-ci-macOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		-testPlan macOS-Swift_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-resultBundlePath macos-swift-ui-results.xcresult \
 		CODE_SIGNING_ALLOWED="YES" \
 		CODE_SIGNING_REQUIRED="YES" \
@@ -1892,6 +1897,7 @@ test-testapp-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
 		-testPlan tvOS-Swift_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 

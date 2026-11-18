@@ -92,7 +92,7 @@ fi
 
 status=0
 xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
-  -configuration Debug -parallel-testing-enabled NO \
+  -parallel-testing-enabled NO \
   -testPlan "$test_plan" \
   -destination 'platform=macOS' \
   -xcconfig "$package_test_config" \
