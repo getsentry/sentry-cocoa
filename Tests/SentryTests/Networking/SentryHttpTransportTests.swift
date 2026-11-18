@@ -1261,6 +1261,28 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(UInt(metricsData.count), traceMetricByte.quantity)
     }
 
+    func testRequestManagerReturnsErroredResponse_WithFourStreamedSpans_RecordsSpanQuantityOfFour() throws {
+        // -- Arrange --
+        try givenErrorResponse()
+        let spanItem = SentryEnvelopeItem(
+            type: SentryEnvelopeItemTypes.span,
+            data: Data("{\"items\":[{},{},{},{}]}".utf8),
+            contentType: "application/vnd.sentry.items.span.v2+json",
+            itemCount: 4
+        )
+
+        // -- Act --
+        sut.send(envelope: SentryEnvelope(id: nil, singleItem: spanItem))
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(1, dict?.count)
+
+        let discardedSpan = try XCTUnwrap(dict?["span:send_error"])
+        XCTAssertEqual(4, discardedSpan.quantity)
+    }
+
     func testRequestManagerReturnsErroredResponse_WithLogsWithoutItemCount_RecordsQuantityOfOne() throws {
         // -- Arrange --
         try givenErrorResponse()
