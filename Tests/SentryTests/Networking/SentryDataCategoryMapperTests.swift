@@ -19,6 +19,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(SentryDataCategory(itemType: "feedback"), .feedback)
         XCTAssertEqual(SentryDataCategory(itemType: "log"), .logItem)
         XCTAssertEqual(SentryDataCategory(itemType: "trace_metric"), .traceMetric)
+        XCTAssertEqual(SentryDataCategory(itemType: "span"), .span)
         XCTAssertEqual(SentryDataCategory(itemType: "unknown item type"), .default)
     }
 
