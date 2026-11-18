@@ -85,7 +85,7 @@ jobs:
       )
     needs: files-changed
     name: Build and Upload iOS-Swift to Testflight
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -99,7 +99,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "26"
+          version: "27"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
