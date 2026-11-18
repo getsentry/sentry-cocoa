@@ -13,6 +13,10 @@
 #    else
 @import Sentry;
 #    endif
+
+@interface SentryProfileConfiguration (LegacyLaunchTests)
+- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay;
+@end
 #endif
 
 @interface SentryProfilerConfigurationBridgeTests : XCTestCase
@@ -50,6 +54,21 @@
 
     // -- Assert --
     XCTAssertFalse(configuration.launchProfileCorrelatedToTraces);
+    XCTAssertFalse(configuration.traceLaunchConfigured);
+}
+
+- (void)testConfiguration_whenLegacyLaunchHasNoProfileOptions_shouldCorrelateToTraces
+{
+    // -- Arrange --
+    sentry_setProfileConfiguration(
+        [[SentryProfileConfiguration alloc] initWaitingForFullDisplay:YES]);
+    SentryDefaultProfilerSDKBackend *backend = [[SentryDefaultProfilerSDKBackend alloc] init];
+
+    // -- Act --
+    SentryProfilingConfiguration configuration = [backend configuration];
+
+    // -- Assert --
+    XCTAssertTrue(configuration.launchProfileCorrelatedToTraces);
     XCTAssertFalse(configuration.traceLaunchConfigured);
 }
 
@@ -268,6 +287,28 @@
     tracer.profilesSamplerDecision = nil;
     XCTAssertEqual(
         sentry_profilerTraceDecision(tracer, nil, context), SentryProfilingTraceDecisionNone);
+}
+
+- (void)
+    testTraceDecision_whenTracingLegacyLaunchWithoutSamplerDecision_shouldSelectTransactionProfiling
+{
+    // -- Arrange --
+    (void)SentryDependencyContainer.sharedInstance;
+    SentryProfilerSDKAdapter.shared.isTracingAppLaunch = YES;
+    SentryTracerConfiguration *tracer = [[SentryTracerConfiguration alloc] init];
+    XCTAssertNil(tracer.profilesSamplerDecision);
+    SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithTraceId:[[SentryId alloc] init]
+                                                   spanId:[[SentrySpanId alloc] init]
+                                                 parentId:nil
+                                                operation:@"test"
+                                                  sampled:kSentrySampleDecisionYes];
+
+    // -- Act --
+    SentryProfilingTraceDecision result = sentry_profilerTraceDecision(tracer, nil, context);
+
+    // -- Assert --
+    XCTAssertEqual(result, SentryProfilingTraceDecisionTransaction);
 }
 
 - (void)testTraceLifecycle_whenClientOptionsChange_shouldReadCurrentValues
