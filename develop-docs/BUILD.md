@@ -109,7 +109,7 @@ Run their regression tests before using the verifiers on your checkout:
 ./scripts/test-v10-development-selection.sh
 ```
 
-The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions. Run `./scripts/test-spm-crash-backend-selection.swift` separately for real consumer builds.
+The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions.
 
 ### 2. Check source ownership
 

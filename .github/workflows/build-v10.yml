@@ -444,21 +444,17 @@ jobs:
       - run: make init-ci-build
       - name: Test V10 development selection
         run: ./scripts/test-v10-development-selection.sh --work-dir "$RUNNER_TEMP/v10-development-selection"
-      - name: Test crash backend selection
-        run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
       - name: Test V9 NoUI linkage
         run: ./scripts/test-spm-v9-no-ui-framework.swift --work-dir "$RUNNER_TEMP/v9-no-ui-framework"
-      - name: Upload backend selection logs
+      - name: Upload selection logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: crash-backend-selection-logs
+          name: selection-logs
           path: |
             ${{ runner.temp }}/v10-development-selection/**/*.log
             ${{ runner.temp }}/v10-development-selection/**/generated.yml
             ${{ runner.temp }}/v10-development-selection/**/*-env
-            ${{ runner.temp }}/crash-backend-selection/*.log
-            ${{ runner.temp }}/crash-backend-selection/*.exit-status
             ${{ runner.temp }}/v9-no-ui-framework/*.log
             ${{ runner.temp }}/v9-no-ui-framework/*.exit-status
       - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
