@@ -65,6 +65,7 @@
 #    import "SentryCrashScopeObserver.h"
 #endif
 #import "SentryDateUtils.h"
+#import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #import "SentryDelayedFramesTracker.h"

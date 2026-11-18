@@ -17,7 +17,7 @@
 
 #    if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
-@class SentryScreenFrames;
+@class SentryProfilingFrameMeasurements;
 #    endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
@@ -59,7 +59,7 @@ SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
  * transactions to finish. Once we move to continuous profiling only, this won't be needed as the
  * data can be directly marshaled to the serialization function.
  */
-@property (strong, nonatomic, nullable) SentryScreenFrames *screenFrameData;
+@property (strong, nonatomic, nullable) SentryProfilingFrameMeasurements *screenFrameData;
 #    endif // SENTRY_HAS_UIKIT
 
 SENTRY_NO_INIT
