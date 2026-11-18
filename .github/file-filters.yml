@@ -808,8 +808,21 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
+  - "Sources/SentryCrashV9Swift/**"
   - "Tests/**"
   - "TestApps/**"
+  # SwiftLint lints every Swift file that `.swiftlint.yml` does not exclude.
+  # Keep every directory with Swift sources listed here, or the required
+  # check skips on PRs and only fails on main.
+  - "3rd-party-integrations/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsDynamic/**"
+  - "SentryTestUtilsTests/**"
+  - "Utils/VersionBump/**"
+  - "distribution/apple-binaries/**"
+  - "test-server/**"
+  - "scripts/*.swift"
+  - "Package*.swift"
 
   # GH Actions
   - ".github/workflows/lint-swiftlint-formatting.yml"

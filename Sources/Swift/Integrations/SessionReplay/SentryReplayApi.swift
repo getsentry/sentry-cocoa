@@ -47,6 +47,31 @@ open class SentryReplayApi: NSObject {
         }
     }
 
+    /// Stops recording touch positions until ``resumeTouchTracking()`` is called.
+    ///
+    /// Screenshots continue to be captured and breadcrumbs are not affected. Use this while
+    /// sensitive input, such as a PIN pad, is on screen.
+    ///
+    /// This is independent of ``pause()`` and ``resume()``: ``resume()`` does not resume touch
+    /// tracking. The pause also applies to replays started later within the same process, so this
+    /// method can be called before a replay is active.
+    open func pauseTouchTracking() {
+        SentrySDKLog.info("[Session Replay] Pausing touch tracking")
+        // Runs on the calling thread instead of through `dispatchReplayCommand`: it doesn't change
+        // the replay lifecycle, so its order relative to lifecycle commands doesn't matter, and a
+        // queued call could let touches that are already pending on the main queue through.
+        installedReplayIntegration()?.pauseTouchTracking()
+    }
+
+    /// Resumes recording touch positions paused with ``pauseTouchTracking()``.
+    ///
+    /// If the replay is paused with ``pause()``, touch tracking resumes only after ``resume()``
+    /// is called.
+    open func resumeTouchTracking() {
+        SentrySDKLog.info("[Session Replay] Resuming touch tracking")
+        installedReplayIntegration()?.resumeTouchTracking()
+    }
+
     /// Starts a new replay session. Does nothing if a replay is already active.
     ///
     /// This explicit start bypasses session sampling. Recording and delivery remain subject to

@@ -51,6 +51,7 @@ See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and eve
 - Run `make format` for every change, including documentation-only changes
 - For non-documentation changes, run `make analyze` and the narrowest relevant build and tests
 - Stop at the first failure and fix failures caused by the change
+- When adding or reviewing a Swift file, check that its directory is listed in `run_lint_swiftlint_for_prs` in [`.github/file-filters.yml`](.github/file-filters.yml). Otherwise the required `Lint SwiftLint` check skips on pull requests and fails only on `main`. List the directory, not a blanket `**/*.swift`, which can match third-party checkouts and build directories
 
 | Change scope                                                  | Build                                   | Test                                    |
 | ------------------------------------------------------------- | --------------------------------------- | --------------------------------------- |
