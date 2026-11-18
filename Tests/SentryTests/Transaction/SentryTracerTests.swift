@@ -36,7 +36,7 @@ class SentryTracerTests: XCTestCase {
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
-        var transactionContext: TransactionContext!
+        let transactionContext: TransactionContext
         
         let appStartOperation = "app.start"
         let appStartWarmOperation = "app.start.warm"

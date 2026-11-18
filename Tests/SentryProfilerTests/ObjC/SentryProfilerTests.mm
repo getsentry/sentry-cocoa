@@ -13,7 +13,6 @@
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"
-#    import "SentryTransactionContext+Private.h"
 
 using namespace sentry::profiling;
 

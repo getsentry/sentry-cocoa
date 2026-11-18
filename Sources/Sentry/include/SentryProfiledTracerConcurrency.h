@@ -17,7 +17,6 @@
 #if SENTRY_HAS_UIKIT
 @class SentryAppStartMeasurement;
 #endif // SENTRY_HAS_UIKIT
-@class SentryTransactionContext;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -31,7 +30,8 @@ SENTRY_EXTERN_C_BEGIN
  */
 SentryId *_Nullable sentry_startProfilerForTrace(
     SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext);
+    SentryHubInternal *_Nullable hub,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext);
 
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
