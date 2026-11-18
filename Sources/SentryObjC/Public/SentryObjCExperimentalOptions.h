@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 #if !__has_include(<SentryObjC/SentryObjCMetricKitOptions.h>)
 #    import "SentryObjCMetricKitOptions.h"
 #else
@@ -68,6 +73,30 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://github.com/getsentry/sentry-cocoa/issues/8548
  */
 @property (nonatomic) BOOL enableUIViewControllerInitSwizzling;
+
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+/**
+ * Tracks slow and frozen frames, frames delay, and time to display without waking up the app for
+ * every frame.
+ *
+ * By default, the SDK tracks frames with a @c CADisplayLink, which makes the main thread wake up
+ * for every frame of the display for as long as the app is active, even when nothing on screen
+ * changes. With this option, the SDK observes the main run loop to measure how long the main thread
+ * is blocked, and uses a @c UIUpdateLink to observe the UI updates UIKit produces anyway. An idle
+ * app stays idle.
+ *
+ * The frame data is comparable to the default implementation: a frame counts as slow or frozen when
+ * one piece of work blocks the main thread for longer than the duration of a frame, and the total
+ * frame count assumes a frame for every refresh of the display outside of slow and frozen frames,
+ * like the Android SDK does.
+ *
+ * @note Only has an effect on iOS 18, tvOS 18, and visionOS 2 and later. On older versions and on
+ * Mac Catalyst the SDK keeps using a @c CADisplayLink. Configure this option before starting the
+ * SDK.
+ * @warning This is an experimental feature and is therefore disabled by default.
+ */
+@property (nonatomic) BOOL enableUIUpdateLinkFramesTracking;
+#endif // (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 /// Initializes experimental options with default values.
 - (instancetype)init;

@@ -396,7 +396,8 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
                 "CFBundleVersion": "20"
             ],
             processIdentifier: Self.currentPid,
-            processStartDate: .distantPast
+            processStartDate: .distantPast,
+            eventSourceSink: TestEventSources.hubSink()
         )
     }
 

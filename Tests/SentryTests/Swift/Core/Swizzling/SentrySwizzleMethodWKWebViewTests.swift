@@ -61,6 +61,22 @@ final class SentrySwizzleMethodWKWebViewTests: XCTestCase {
         XCTAssertTrue(SentryTypedSwizzle.validate(in: WKWebView.self, method: method))
     }
 
+    func testReload_shouldMatchRuntimeSignature() {
+        let method = SentrySwizzleMethod<WKWebView, Void, WKNavigation?>.webViewReload(WKWebView.self)
+
+        XCTAssertEqual(NSStringFromSelector(method.selector), "reload")
+        XCTAssertEqual(method.signature.description, "@@:")
+        XCTAssertTrue(SentryTypedSwizzle.validate(in: WKWebView.self, method: method))
+    }
+
+    func testReloadFromOrigin_shouldMatchRuntimeSignature() {
+        let method = SentrySwizzleMethod<WKWebView, Void, WKNavigation?>.webViewReloadFromOrigin(WKWebView.self)
+
+        XCTAssertEqual(NSStringFromSelector(method.selector), "reloadFromOrigin")
+        XCTAssertEqual(method.signature.description, "@@:")
+        XCTAssertTrue(SentryTypedSwizzle.validate(in: WKWebView.self, method: method))
+    }
+
     func testLoadRequest_whenArgumentCountIsWrong_shouldRejectSignature() {
         let method = SentrySwizzleMethod<WKWebView, SentrySwizzleObjectArguments1<NSURLRequest>, WKNavigation?>(
             selector: #selector(WKWebView.load(_:) as (WKWebView) -> (URLRequest) -> WKNavigation?),

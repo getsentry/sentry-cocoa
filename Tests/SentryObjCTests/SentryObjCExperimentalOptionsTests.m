@@ -149,4 +149,35 @@
 }
 #endif
 
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+#    pragma mark - enableUIUpdateLinkFramesTracking
+
+- (void)testEnableUIUpdateLinkFramesTracking_whenDefault_shouldBeFalse
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse(options.enableUIUpdateLinkFramesTracking);
+}
+
+- (void)testEnableUIUpdateLinkFramesTracking_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Act --
+    options.enableUIUpdateLinkFramesTracking = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableUIUpdateLinkFramesTracking);
+
+    // -- Act --
+    options.enableUIUpdateLinkFramesTracking = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.enableUIUpdateLinkFramesTracking);
+}
+#endif // (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+
 @end

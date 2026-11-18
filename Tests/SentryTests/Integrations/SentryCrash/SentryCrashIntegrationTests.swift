@@ -688,7 +688,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Manually simulate a crash
         sentrycrashstate_notifyAppCrash()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-1")
 
         // Force reloading of crash state
         sentrycrashstate_initialize(sentrycrashstate_filePath())
@@ -1245,7 +1245,8 @@ class MockCrashDependencies: CrashIntegrationProvider {
             inAppLogic: inAppLogic,
             crashWrapper: mockedCrashWrapper,
             dispatchQueue: mockedDispatchQueueWrapper,
-            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource()
         )
     }
 }

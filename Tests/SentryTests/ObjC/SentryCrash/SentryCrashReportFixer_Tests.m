@@ -25,7 +25,7 @@
 - (void)testLoadCrash
 {
     NSBundle *bundle = SentryTestResourceBundle(self.class);
-    NSString *rawPath = [bundle pathForResource:@"Resources/raw" ofType:@"json"];
+    NSString *rawPath = [bundle pathForResource:@"Fixtures/raw" ofType:@"json"];
     NSData *rawData = [NSData dataWithContentsOfFile:rawPath];
     // The fixer expects a NUL-terminated string, which NSData.bytes does not guarantee.
     NSString *rawJSON = [[NSString alloc] initWithData:rawData encoding:NSUTF8StringEncoding];
@@ -43,7 +43,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(fixedObjects);
 
-    NSString *processedPath = [bundle pathForResource:@"Resources/processed" ofType:@"json"];
+    NSString *processedPath = [bundle pathForResource:@"Fixtures/processed" ofType:@"json"];
     NSData *processedData = [NSData dataWithContentsOfFile:processedPath];
     id processedObjects = [NSJSONSerialization JSONObjectWithData:processedData
                                                           options:0

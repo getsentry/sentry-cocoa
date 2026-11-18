@@ -31,6 +31,14 @@ import Foundation
         wrapped.value.resume()
     }
 
+    @objc public func pauseTouchTracking() {
+        wrapped.value.pauseTouchTracking()
+    }
+
+    @objc public func resumeTouchTracking() {
+        wrapped.value.resumeTouchTracking()
+    }
+
     @objc public func flush() {
         wrapped.value.flush()
     }

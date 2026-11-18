@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+> [!TIP]
+> Try the new experimental option `options.experimental.enableUIUpdateLinkFramesTracking`. On iOS 18, tvOS 18 and visionOS 2 and later, it tracks frames without waking up your idle app for every frame, which reduces the impact of the SDK on the performance of your app. The option is disabled by default, so set it to `true` to opt in.
+
+### Features
+
+- Add experimental option `options.experimental.enableUIUpdateLinkFramesTracking` that tracks slow and frozen frames, frames delay, and time to display on iOS 18, tvOS 18 and visionOS 2 and later with the main run loop and a `UIUpdateLink` instead of a `CADisplayLink`, so the SDK no longer wakes up an idle app for every frame (#9541)
+  - The option is disabled by default.
+- Spell the run ID into the call stack of a parked thread while MetricKit diagnostics are enabled, so the SDK can match a MetricKit crash, hang or memory diagnostic to the run it describes. The thread is named `io.sentry.threadcrumb` and stays idle; the run ID stays on the device (#9582)
+- Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
+
+## 9.35.0
+
 ### Features
 
 - Add `options.webViewTracing` to connect the traces of every `WKWebView` automatically, keeping the trace current across page loads (#9538)
@@ -9,10 +21,16 @@
   - See the [WebView docs](https://docs.sentry.io/platforms/apple/configuration/webview/) for details.
 - Add the `launchTimeToFirstDraw`, `launchResumeTime`, `launchOptimizedTimeToFirstDraw`, `launchExtended`, `responsivenessHangTime` and `cellularConditionTime` metric reports, which send MetricKit histograms as distributions with one value per sample, up to about 100 values per histogram (#9493)
 - Report the low power mode and TestFlight state that MetricKit records with a diagnostic of a previous app run as `device.low_power_mode` and an `app.build_type` of `test`, and take `app.app_identifier` from the diagnostic instead of the running app (#9523)
+- Add `SentryLogHandler(label:logLevel:)` to the SentrySwiftLog integration, which records the swift-log logger label as the `logger.name` attribute on every log (#9636)
 
 ### Fixes
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
+- Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
+
+### Improvements
+
+- Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
 
 ## 9.34.0
 
@@ -101,6 +119,12 @@
 - Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
   The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
 
+## 9.30.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.30.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.30.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
+
 ## 9.30.2
 
 ### Fixes
@@ -150,6 +174,12 @@
 - Session Replay: Fix queue requirements during crash recovery (#9158)
 - Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 - Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
+
+## 9.29.3
+
+> [!IMPORTANT]
+> This is a re-release of the Stable version [9.29.2](https://github.com/getsentry/sentry-cocoa/releases/tag/9.29.2) with the new signing certificate.
+> See https://github.com/getsentry/sentry-cocoa/issues/9645 for more information
 
 ## 9.29.2
 
