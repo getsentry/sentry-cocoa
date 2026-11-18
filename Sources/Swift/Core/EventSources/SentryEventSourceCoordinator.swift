@@ -51,6 +51,9 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
     /// Serializes everything that reads, writes or sends the held report, so a diagnostic, the
     /// deadline and the background notification can't send it twice.
     private let heldReportLock = SentryMutex(())
+    /// The run whose report was held since this launch, which tells it from a report a previous
+    /// launch left behind. Only read and written with `heldReportLock` taken.
+    private let runHeldSinceLaunch = SentryMutex<SentryCurrentRun.ID?>(nil)
     private let backgroundObserver = SentryMutex<NSObjectProtocol?>(nil)
 
     /// - Parameter downstream: The sink that takes the reports the coordinator lets through.
@@ -96,10 +99,8 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
             return result
         }
         if case .fatal = report.kind {
-            // The sources report at launch, so a report still held now was left behind by a
-            // previous run that ended before its deadline, and no hold may be registered anymore
-            // to send it.
-            sendHeldReport(because: "a previous run left it behind")
+            // No hold may be registered anymore to send a report a previous launch left behind.
+            sendHeldReportOfPreviousLaunch()
         }
 
         return forward(report, beforeAccepting: beforeAccepting)
@@ -125,16 +126,31 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
         }
         holdDurations.withLock { $0[source] = duration }
         observeBackground()
-        // A report held by a previous run that ended before its deadline is sent now. Reading and
-        // sending it is file and capture work, and the integration that asks for the hold is
-        // installed on the thread that starts the SDK, which is usually the main thread.
+        // Reading and sending the report a previous launch left behind is file and capture work,
+        // and the integration that asks for the hold is installed on the thread that starts the
+        // SDK, which is usually the main thread.
         dispatchQueueWrapper.dispatchAsync { [weak self] in
-            self?.sendHeldReport(because: "a previous run left it behind")
+            self?.sendHeldReportOfPreviousLaunch()
         }
     }
 
     func stopHolding(fatalReportsOf source: SentryEventSource) {
         holdDurations.withLock { $0[source] = nil }
+    }
+
+    /// Sends the report a previous launch held and left behind, because it ended before the
+    /// deadline. A report held since this launch keeps waiting.
+    ///
+    /// The SDK calls this at every start, because nothing else sends the report in a launch that
+    /// neither holds reports, for example after MetricKit diagnostics were disabled, nor reports
+    /// a fatal run.
+    func sendHeldReportOfPreviousLaunch() {
+        heldReportLock.withLock { _ in
+            guard let held = heldFatalReportStore?.read(), held.runId != runHeldSinceLaunch.withLock({ $0 }) else {
+                return
+            }
+            sendHeldReportLocked(ofRun: held.runId, because: "a previous launch left it behind")
+        }
     }
 
     /// Sends the held report as it is, when there is one.
@@ -161,7 +177,11 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
             // The sources that are held report once per launch, so a report still held here
             // belongs to an earlier run and can't wait for its diagnostic any longer.
             sendHeldReportLocked(ofRun: nil, because: "another report is held")
-            return store.storeTakingCrashedSession(SentryHeldFatalReport(runId: runId, source: report.source, event: report.event))
+            let isStored = store.storeTakingCrashedSession(SentryHeldFatalReport(runId: runId, source: report.source, event: report.event))
+            if isStored {
+                runHeldSinceLaunch.withLock { $0 = runId }
+            }
+            return isStored
         }
         guard isStored else {
             // A report that isn't on disk can't be sent at its deadline, so it is sent now, as it

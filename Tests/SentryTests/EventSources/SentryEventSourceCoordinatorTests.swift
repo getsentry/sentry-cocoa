@@ -683,6 +683,65 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         XCTAssertNil(heldReportStore.read())
     }
 
+    func testHold_whenAReportWasHeldSinceLaunch_shouldKeepHoldingIt() {
+        // -- Arrange --
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
+
+        // -- Act --
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+
+        // -- Assert --
+        XCTAssertEqual(downstream.submittedReports.count, 0)
+        XCTAssertNotNil(heldReportStore.read())
+    }
+
+    func testSendHeldReportOfPreviousLaunch_whenAPreviousLaunchLeftAHeldReportAndNothingIsHeld_shouldSendIt() throws {
+        // -- Arrange --
+        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+        let sut = givenSut()
+
+        // -- Act --
+        sut.sendHeldReportOfPreviousLaunch()
+
+        // -- Assert --
+        XCTAssertEqual(downstream.submittedReports.count, 1)
+        XCTAssertEqual(try XCTUnwrap(downstream.submittedReports.first).runId, SentryCurrentRun.ID(rawValue: "run-1"))
+        XCTAssertNil(heldReportStore.read())
+        XCTAssertEqual(try XCTUnwrap(store.record(forRunId: SentryCurrentRun.ID(rawValue: "run-1"))).reportedBy, .watchdogTermination)
+    }
+
+    func testSendHeldReportOfPreviousLaunch_whenAReportWasHeldSinceLaunch_shouldKeepHoldingIt() {
+        // -- Arrange --
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
+
+        // -- Act --
+        sut.sendHeldReportOfPreviousLaunch()
+
+        // -- Assert --
+        XCTAssertEqual(downstream.submittedReports.count, 0)
+        XCTAssertNotNil(heldReportStore.read())
+    }
+
+    func testSubmit_whenAReportWasHeldSinceLaunchAndHoldingStopped_shouldKeepHoldingItBeforeAFatalReport() throws {
+        // -- Arrange --
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
+        sut.stopHolding(fatalReportsOf: .watchdogTermination)
+
+        // -- Act --
+        sut.submit(givenFatalReport(source: .crashHandler, runId: "run-0"))
+
+        // -- Assert --
+        XCTAssertEqual(downstream.submittedReports.count, 1)
+        XCTAssertEqual(try XCTUnwrap(downstream.submittedReports.first).source, .crashHandler)
+        XCTAssertNotNil(heldReportStore.read())
+    }
+
     func testSubmit_whenAPreviousRunLeftAHeldReportAndNothingIsHeld_shouldSendItBeforeAFatalReport() throws {
         // -- Arrange --
         heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))

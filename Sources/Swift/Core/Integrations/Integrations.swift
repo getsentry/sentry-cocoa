@@ -127,6 +127,13 @@ private struct AnyIntegration {
 
             SentrySDKInternal.currentHub().addInstalledIntegration(integration, name: anyIntegration.name)
         }
+
+        // A fatal report a previous launch held is sent at every start, whichever integrations
+        // are installed now. Otherwise it stays on disk when this launch neither holds reports
+        // nor reports a fatal run. Off the calling thread, which is usually the main thread.
+        dependencies.dispatchQueueWrapper.dispatchAsync {
+            dependencies.eventSourceCoordinator.sendHeldReportOfPreviousLaunch()
+        }
     }
 }
 // swiftlint:enable missing_docs

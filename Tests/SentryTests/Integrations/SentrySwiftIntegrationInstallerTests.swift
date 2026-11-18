@@ -21,6 +21,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
     override func tearDown() {
         SentrySDKInternal.setCurrentHub(nil)
+        // Installing creates dependencies the container keeps, such as the event source
+        // coordinator, which must not reach the next test.
+        SentryDependencyContainer.reset()
 
         super.tearDown()
     }
@@ -112,5 +115,47 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         // Assert
         XCTAssertEqual(testHub.installedIntegrationNames().count, expectedDefaultIntegrationCount)
         XCTAssertEqual(testHub.installedIntegrations().count, expectedDefaultIntegrationCount)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
+    func testInstall_whenAPreviousLaunchLeftAHeldReportAndNothingHoldsReports_shouldSendIt() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentrySwiftIntegrationInstallerTests")
+        options.enableAutoSessionTracking = false
+        options.enableAutoPerformanceTracing = false
+        options.tracesSampleRate = 0
+        #if !SDK_V10
+        options.enableAppHangTracking = false
+        #endif // !SDK_V10
+        options.enableWatchdogTerminationTracking = false
+        options.enableSwizzling = false
+        options.enableCrashHandler = false
+        // Without MetricKit diagnostics no integration asks to hold reports, and without a crash
+        // or a watchdog termination no fatal report is submitted in this launch.
+        #if canImport(MetricKit) && !os(tvOS)
+        #if SDK_V10
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        #else
+        options.enableMetricKit = false
+        #endif // SDK_V10
+        #endif
+
+        let fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper()))
+        defer { fileManager.deleteAllFolders() }
+        SentryDependencyContainer.sharedInstance().fileManager = fileManager
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let heldReportStore = SentryHeldFatalReportStore(fileManager: fileManager)
+        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+
+        let client = try XCTUnwrap(TestClient(options: options))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        // -- Act --
+        SentrySwiftIntegrationInstaller.install(with: options)
+
+        // -- Assert --
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
+        XCTAssertNil(heldReportStore.read())
     }
 }
