@@ -17,6 +17,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./tools.sh disable=SC1091
+source "$SCRIPT_DIR/tools.sh"
 
 OUTPUT_DIR="XCFrameworkBuildPath"
 SDKS="iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
@@ -109,7 +111,9 @@ for sdk in "${sdk_list[@]}"; do
         rm -rf "$objects_path"
     fi
 
-    "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
+    "$SCRIPT_DIR/build-static-library.sh" \
+        --scheme SentryObjC \
+        --architecture-target SentryObjCCompat \
         --sdk "$sdk" \
         --output-dir "$OUTPUT_DIR" \
         --package-path "$PACKAGE_PATH" \
@@ -134,8 +138,11 @@ if [ "$VARIANT" = "static" ] || [ "$VARIANT" = "both" ]; then
 fi
 
 if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
+    version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
     for sdk in "${sdk_list[@]}"; do
-        "$SCRIPT_DIR/build-dynamic-framework-sentryobjc.sh" \
+        "$SCRIPT_DIR/build-dynamic-framework.sh" \
+            --framework-name SentryObjC \
+            --version "$version" \
             --sdk "$sdk" \
             --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC-Debug.a" \
             --headers "$HEADERS_DIR" \
