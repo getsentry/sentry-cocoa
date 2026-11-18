@@ -100,7 +100,7 @@ final class SentryDisplayLinkFrameSource: NSObject, SentryFrameSource {
     }
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 extension SentryFramesTracker {
     /// Most tests drive the tracker frame by frame with a `TestDisplayLinkWrapper`.
     convenience init(

@@ -87,7 +87,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         return readData == nil ? "nil" : "data"
     }
 
-#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+#if DEBUG
     func testStop_whenOutsideTests_shouldPreserveLaterSwizzle() throws {
         // -- Arrange --
         let container = SentryDependencyContainer.sharedInstance()

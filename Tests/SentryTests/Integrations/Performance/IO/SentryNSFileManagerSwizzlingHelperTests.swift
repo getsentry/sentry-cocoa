@@ -66,7 +66,7 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
     }
 
-#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+#if DEBUG
     func testStop_whenOutsideTests_shouldPreserveLaterSwizzle() throws {
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("FileManager swizzling requires iOS 18, macOS 15, or tvOS 18")
