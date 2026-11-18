@@ -4,6 +4,7 @@
 // Absent development V10 selects V9, including empty and NoUI-only declarations.
 // SDK copies and build logs stay outside the checkout but with --work-dir 
 // you keep them where you like for review.
+// Use --shard INDEX/COUNT to split the cases across CI jobs.
 
 import Foundation
 
@@ -295,34 +296,54 @@ private func testHeaderContexts(root: URL) throws {
     }
 }
 
+// Line-buffer stdout so CI logs show each result when it happens, not all at exit.
+setvbuf(stdout, nil, _IOLBF, 0)
+
 do {
     var work: URL?
     var selected: String?
+    var shard: (index: Int, count: Int)?
     var arguments = Array(CommandLine.arguments.dropFirst())
+    let usage = "Usage: test-spm-crash-backend-selection.swift [--work-dir|-w PATH] [--case|-c NAME | --shard|-s INDEX/COUNT]"
 
     while !arguments.isEmpty {
         let flag = arguments.removeFirst()
-        try require(!arguments.isEmpty, "Usage: test-spm-crash-backend-selection.swift [--work-dir|-w PATH] [--case|-c NAME]")
+        try require(!arguments.isEmpty, usage)
         let value = arguments.removeFirst()
 
         switch flag {
         case "--work-dir", "-w": work = URL(fileURLWithPath: value).standardizedFileURL
         case "--case", "-c": selected = value
+        case "--shard", "-s":
+            let parts = value.split(separator: "/").compactMap { Int($0) }
+            try require(parts.count == 2 && parts[1] > 0 && (1...parts[1]).contains(parts[0]),
+                        "Shard must be INDEX/COUNT with 1 <= INDEX <= COUNT, got \(value)")
+            shard = (parts[0], parts[1])
         default: throw Failure(message: "Unknown option \(flag)")
         }
     }
+    try require(selected == nil || shard == nil, usage)
 
     let root = work ?? files.temporaryDirectory.appendingPathComponent("sentry-backend-selection-\(UUID().uuidString)")
     try require(!files.fileExists(atPath: root.path), "Work directory must not already exist: \(root.path)")
 
-    let requested = cases.filter { selected == nil || $0.name == selected }
-    try require(!requested.isEmpty, "Unknown case \(selected ?? "")")
+    // Round-robin keeps the heavy package-wide and module-switch cases on different shards.
+    let requested = cases.enumerated().filter { offset, scenario in
+        if let selected { return scenario.name == selected }
+        if let shard { return offset % shard.count == shard.index - 1 }
+        return true
+    }.map { $0.element }
+    try require(!requested.isEmpty, selected.map { "Unknown case \($0)" } ?? "No cases in shard")
     try files.createDirectory(at: root, withIntermediateDirectories: true)
     print("Evidence: \(root.path)")
 
-    for scenario in requested { try test(scenario, root: root) }
+    for scenario in requested {
+        let start = Date()
+        try test(scenario, root: root)
+        print("TIME \(scenario.name) \(Int(Date().timeIntervalSince(start)))s")
+    }
 
-    if selected == nil { try testHeaderContexts(root: root) }
+    if selected == nil && (shard?.index ?? 1) == 1 { try testHeaderContexts(root: root) }
 
     print("All \(requested.count) backend-selection consumer builds passed")
 

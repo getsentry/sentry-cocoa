@@ -419,6 +419,47 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
+  # Each case cold-builds the SDK from source, so one runner takes 30+ minutes.
+  # The script splits the cases round-robin; add matrix entries to add shards.
+  verify-v10-backend-selection:
+    name: Verify Backend Selection ${{ matrix.shard }}/${{ strategy.job-total }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      - name: Remove binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+
+      - name: Test crash backend selection
+        run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection" --shard "${{ matrix.shard }}/${{ strategy.job-total }}"
+      - name: Upload backend selection logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: crash-backend-selection-logs-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/crash-backend-selection/*.log
+            ${{ runner.temp }}/crash-backend-selection/*.exit-status
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
   check-v10-macOS-CLI-Xcode-no-UI-framework:
     name: Verify CLI UI Linkage
     env:
@@ -444,21 +485,17 @@ jobs:
       - run: make init-ci-build
       - name: Test V10 development selection
         run: ./scripts/test-v10-development-selection.sh --work-dir "$RUNNER_TEMP/v10-development-selection"
-      - name: Test crash backend selection
-        run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
       - name: Test V9 NoUI linkage
         run: ./scripts/test-spm-v9-no-ui-framework.swift --work-dir "$RUNNER_TEMP/v9-no-ui-framework"
-      - name: Upload backend selection logs
+      - name: Upload selection logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: crash-backend-selection-logs
+          name: selection-logs
           path: |
             ${{ runner.temp }}/v10-development-selection/**/*.log
             ${{ runner.temp }}/v10-development-selection/**/generated.yml
             ${{ runner.temp }}/v10-development-selection/**/*-env
-            ${{ runner.temp }}/crash-backend-selection/*.log
-            ${{ runner.temp }}/crash-backend-selection/*.exit-status
             ${{ runner.temp }}/v9-no-ui-framework/*.log
             ${{ runner.temp }}/v9-no-ui-framework/*.exit-status
       - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
@@ -492,6 +529,7 @@ jobs:
         build-v10-testapps,
         package-v10,
         check-v10-macOS-CLI-Xcode-no-UI-framework,
+        verify-v10-backend-selection,
         verify-no-binary-targets,
         verify-v10-source-contract,
         run-full-ci-gate,
