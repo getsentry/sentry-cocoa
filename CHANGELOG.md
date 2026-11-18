@@ -26,6 +26,7 @@
 ### Fixes
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
+- Align the public API of SwiftPM-built frameworks with Xcode builds, preserving the existing v9 crash callback entry point (#9641)
 - Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
 
 ### Improvements
