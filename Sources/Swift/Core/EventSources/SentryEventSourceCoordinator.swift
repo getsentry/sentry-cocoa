@@ -102,6 +102,11 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
             sendHeldReport(because: "a previous run left it behind")
         }
 
+        return forward(report, beforeAccepting: beforeAccepting)
+    }
+
+    /// Hands the report to the downstream sink and records the run when it ended fatally.
+    private func forward(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult {
         let result = downstream.submit(report, beforeAccepting: beforeAccepting)
         SentrySDKLog.debug("Report of event source \(report.source.rawValue) for run \(report.runId?.rawValue ?? "unknown") was \(result.logDescription)")
 
@@ -120,8 +125,12 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
         }
         holdDurations.withLock { $0[source] = duration }
         observeBackground()
-        // A report held by a previous run that ended before its deadline is sent now.
-        sendHeldReport(because: "a previous run left it behind")
+        // A report held by a previous run that ended before its deadline is sent now. Reading and
+        // sending it is file and capture work, and the integration that asks for the hold is
+        // installed on the thread that starts the SDK, which is usually the main thread.
+        dispatchQueueWrapper.dispatchAsync { [weak self] in
+            self?.sendHeldReport(because: "a previous run left it behind")
+        }
     }
 
     func stopHolding(fatalReportsOf source: SentryEventSource) {
@@ -148,11 +157,18 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
         guard beforeAccepting() else {
             return .withdrawn
         }
-        heldReportLock.withLock { _ in
+        let isStored = heldReportLock.withLock { _ in
             // The sources that are held report once per launch, so a report still held here
             // belongs to an earlier run and can't wait for its diagnostic any longer.
             sendHeldReportLocked(ofRun: nil, because: "another report is held")
-            store.storeTakingCrashedSession(SentryHeldFatalReport(runId: runId, source: report.source, event: report.event))
+            return store.storeTakingCrashedSession(SentryHeldFatalReport(runId: runId, source: report.source, event: report.event))
+        }
+        guard isStored else {
+            // A report that isn't on disk can't be sent at its deadline, so it is sent now, as it
+            // is without a hold. The source already agreed to hand it over, and the crashed
+            // session is still in its place for it.
+            SentrySDKLog.warning("The \(report.source.rawValue) report for run \(runId) couldn't be stored to hold it, sending it right away")
+            return forward(report) { true }
         }
         SentrySDKLog.debug("Holding the \(report.source.rawValue) report for run \(runId) for \(duration) seconds")
         dispatchQueueWrapper.dispatch(after: duration) { [weak self] in
@@ -216,8 +232,11 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
             }
             observer = notificationCenter.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { [weak self] _ in
                 // The app can be suspended any time now, so the held report doesn't wait for its
-                // deadline.
-                self?.sendHeldReport(because: "the app moved to the background")
+                // deadline. The notification is posted on the main thread, which must not wait
+                // for the lock, the file or the capture.
+                self?.dispatchQueueWrapper.dispatchAsync { [weak self] in
+                    self?.sendHeldReport(because: "the app moved to the background")
+                }
             }
         }
         #endif

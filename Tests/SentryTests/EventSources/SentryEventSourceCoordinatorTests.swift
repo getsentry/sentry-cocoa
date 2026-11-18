@@ -478,6 +478,55 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         XCTAssertNotNil(heldReportStore.read())
     }
 
+    func testSubmit_whenHeldReportCantBeStored_shouldForwardItAndRecordRun() throws {
+        // -- Arrange --
+        try givenHeldReportCantBeStored()
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        let report = givenFatalReport(source: .watchdogTermination, runId: "run-1")
+
+        // -- Act --
+        let result = sut.submit(report)
+
+        // -- Assert --
+        XCTAssertEqual(result, .accepted)
+        XCTAssertEqual(downstream.submittedReports.count, 1)
+        XCTAssertIdentical(try XCTUnwrap(downstream.submittedReports.first).event, report.event)
+        XCTAssertEqual(dispatchQueueWrapper.dispatchAfterInvocations.count, 0)
+        XCTAssertEqual(try XCTUnwrap(store.record(forRunId: SentryCurrentRun.ID(rawValue: "run-1"))).reportedBy, .watchdogTermination)
+    }
+
+    func testSubmit_whenHeldReportCantBeStored_shouldLeaveCrashedSessionForTheForwardedReport() throws {
+        // -- Arrange --
+        try givenHeldReportCantBeStored()
+        fileManager.storeCrashedSession(givenCrashedSession())
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+
+        // -- Act --
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
+
+        // -- Assert --
+        guard case .storedForPreviousRun = try XCTUnwrap(downstream.submittedReports.first).crashedSession else {
+            return XCTFail("Expected the forwarded report to take the stored crashed session")
+        }
+        XCTAssertNotNil(fileManager.readCrashedSession())
+    }
+
+    func testSubmit_whenHeldReportCantBeStoredAndSourceWithdraws_shouldNotForwardIt() throws {
+        // -- Arrange --
+        try givenHeldReportCantBeStored()
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+
+        // -- Act --
+        let result = sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1")) { false }
+
+        // -- Assert --
+        XCTAssertEqual(result, .withdrawn)
+        XCTAssertEqual(downstream.submittedReports.count, 0)
+    }
+
     func testSubmit_whenAReportIsAlreadyHeld_shouldSendItBeforeHoldingTheNewOne() throws {
         // -- Arrange --
         let sut = givenSut()
@@ -570,6 +619,25 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         XCTAssertNil(heldReportStore.read())
     }
 
+    func testBackground_whenAppMovesToBackground_shouldSendHeldReportOffTheMainThread() throws {
+        // -- Arrange --
+        let sut = givenSut()
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
+        dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let dispatchesBefore = dispatchQueueWrapper.dispatchAsyncInvocations.count
+
+        // -- Act --
+        notificationCenter.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+
+        // -- Assert --
+        XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, dispatchesBefore + 1)
+        XCTAssertEqual(downstream.submittedReports.count, 0, "The notification is posted on the main thread, which must not send the report")
+        dispatchQueueWrapper.invokeLastDispatchAsync()
+        XCTAssertEqual(downstream.submittedReports.count, 1)
+        XCTAssertNil(heldReportStore.read())
+    }
+
     func testHold_whenCalledTwice_shouldObserveBackgroundOnce() {
         // -- Arrange --
         let sut = givenSut()
@@ -596,6 +664,23 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(downstream.submittedReports.first).runId, SentryCurrentRun.ID(rawValue: "run-1"))
         XCTAssertNil(heldReportStore.read())
         XCTAssertEqual(try XCTUnwrap(store.record(forRunId: SentryCurrentRun.ID(rawValue: "run-1"))).reportedBy, .watchdogTermination)
+    }
+
+    func testHold_whenAPreviousRunLeftAHeldReport_shouldSendItOffTheCallingThread() {
+        // -- Arrange --
+        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+        dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let sut = givenSut()
+
+        // -- Act --
+        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+
+        // -- Assert --
+        XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+        XCTAssertEqual(downstream.submittedReports.count, 0, "The SDK can start on the main thread, which must not send the report")
+        dispatchQueueWrapper.invokeLastDispatchAsync()
+        XCTAssertEqual(downstream.submittedReports.count, 1)
+        XCTAssertNil(heldReportStore.read())
     }
 
     func testSubmit_whenAPreviousRunLeftAHeldReportAndNothingIsHeld_shouldSendItBeforeAFatalReport() throws {
@@ -789,6 +874,11 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
             dispatchQueueWrapper: dispatchQueueWrapper,
             notificationCenter: notificationCenter
         )
+    }
+
+    /// Puts a directory in the place of the held report's file, so the file can't be written.
+    private func givenHeldReportCantBeStored() throws {
+        try FileManager.default.createDirectory(atPath: (heldReportStore.filePath as NSString).appendingPathComponent("blocker"), withIntermediateDirectories: true)
     }
 
     private func givenCrashedSession() -> SentrySession {

@@ -58,13 +58,19 @@ final class SentryHeldFatalReportStore {
     ///
     /// The session is only removed once the report is stored with it, so it isn't lost when the
     /// process dies in between.
-    func storeTakingCrashedSession(_ report: SentryHeldFatalReport) {
+    ///
+    /// - Returns: Whether the report was stored. When it wasn't, the session stays in its place.
+    @discardableResult
+    func storeTakingCrashedSession(_ report: SentryHeldFatalReport) -> Bool {
         var report = report
         report.session = fileManager.readCrashedSession()
-        guard store(report), report.session != nil else {
-            return
+        guard store(report) else {
+            return false
         }
-        fileManager.deleteCrashedSession()
+        if report.session != nil {
+            fileManager.deleteCrashedSession()
+        }
+        return true
     }
 
     /// - Returns: Whether the report was stored.
