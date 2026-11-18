@@ -13,7 +13,7 @@
 
 #    pragma mark - Private
 
-NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 namespace {
@@ -43,7 +43,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return YES;
         }
 
-        [_sentry_threadUnsafe_traceProfileTimeoutTimer invalidate];
+        [_sentry_threadUnsafe_traceProfileTimeoutTimer cancel];
         _sentry_threadUnsafe_traceProfileTimeoutTimer = nil;
         _threadUnsafe_gTraceProfiler =
             [[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace];
@@ -97,9 +97,9 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
         }
 
         _sentry_threadUnsafe_traceProfileTimeoutTimer = [SentryProfilerSDKAdapter.shared
-            scheduledTimerWithInterval:kSentryProfilerTimeoutInterval
-                               repeats:NO
-                                 block:^{ [self timeoutTimerExpiredForProfiler:profiler]; }];
+            scheduleTimerWithInterval:kSentryProfilerTimeoutInterval
+                              repeats:NO
+                                block:^{ [self timeoutTimerExpiredForProfiler:profiler]; }];
     }];
 }
 
