@@ -161,7 +161,8 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
             previousHub = SentrySDKInternal.currentHub()
             let clock = TestCurrentDateProvider()
             tracker = TestFramesTracker(
-                displayLinkWrapper: TestDisplayLinkWrapper(dateProvider: clock),
+                frameSource: SentryDisplayLinkFrameSource(
+                    displayLinkWrapper: TestDisplayLinkWrapper(dateProvider: clock), dateProvider: clock),
                 dateProvider: clock,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 notificationCenter: TestNSNotificationCenterWrapper(),
