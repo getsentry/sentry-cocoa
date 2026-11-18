@@ -16,7 +16,14 @@
 
 - (void)cancel
 {
-    _cancellation();
+    dispatch_block_t cancellation;
+    @synchronized(self) {
+        cancellation = _cancellation;
+        _cancellation = nil;
+    }
+    if (cancellation != nil) {
+        cancellation();
+    }
 }
 
 @end

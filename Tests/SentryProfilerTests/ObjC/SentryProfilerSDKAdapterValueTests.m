@@ -1,4 +1,5 @@
 @import XCTest;
+#import "SentryProfilerCancellation.h"
 #import "SentryProfilerSDKAdapter.h"
 #import "SentryProfilerTestConditionals.h"
 #import "TestProfilerValueBackend.h"
@@ -79,6 +80,42 @@
     // -- Assert --
     XCTAssertNotNil(timer);
     XCTAssertFalse(backend.lastTimer.isValid);
+}
+
+- (void)testCancel_whenHandleRetained_shouldReleaseCapturedResources
+{
+    // -- Arrange --
+    SentryProfilerCancellation *cancellation;
+    __weak NSMutableArray *weakResource;
+    @autoreleasepool {
+        NSMutableArray *resource = [[NSMutableArray alloc] init];
+        weakResource = resource;
+        cancellation =
+            [[SentryProfilerCancellation alloc] initWithCancellation:^{ [resource addObject:@1]; }];
+    }
+    XCTAssertNotNil(weakResource);
+
+    // -- Act --
+    [cancellation cancel];
+
+    // -- Assert --
+    XCTAssertNil(weakResource);
+    XCTAssertNotNil(cancellation);
+}
+
+- (void)testCancel_whenCalledRepeatedly_shouldInvokeBlockOnce
+{
+    // -- Arrange --
+    __block NSUInteger callCount = 0;
+    SentryProfilerCancellation *cancellation =
+        [[SentryProfilerCancellation alloc] initWithCancellation:^{ callCount++; }];
+
+    // -- Act --
+    [cancellation cancel];
+    [cancellation cancel];
+
+    // -- Assert --
+    XCTAssertEqual(callCount, 1U);
 }
 
 - (void)testValueOperations_whenNoTarget_shouldPreserveMissingBackendResults
