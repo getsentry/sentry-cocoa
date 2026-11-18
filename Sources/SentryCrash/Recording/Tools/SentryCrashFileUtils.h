@@ -31,13 +31,13 @@
 #ifndef HDR_SentryCrashFileUtils_h
 #define HDR_SentryCrashFileUtils_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SentryCrashFU_MAX_PATH_LENGTH 500
 

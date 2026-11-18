@@ -28,13 +28,13 @@
 #ifndef HDR_SentryCrashString_h
 #define HDR_SentryCrashString_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Check if a memory location contains a null terminated UTF-8 string.
  *

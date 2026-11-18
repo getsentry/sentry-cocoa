@@ -31,14 +31,14 @@
 #ifndef HDR_SentryCrashReport_h
 #define HDR_SentryCrashReport_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashReportWriter.h"
 
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // ============================================================================
 #pragma mark - Configuration -

@@ -35,11 +35,11 @@
 @class SentryCrashBridge;
 #endif
 
+#include "SentryCrashMonitor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashMonitor.h"
 
 #ifdef __OBJC__
 /** Set the bridge for accessing SDK services. Must be called before enabling the monitor. */

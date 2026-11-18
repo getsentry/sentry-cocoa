@@ -28,11 +28,11 @@
 #ifndef HDR_SentryCrashCPU_Apple_h
 #define HDR_SentryCrashCPU_Apple_h
 
+#include <mach/mach_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <mach/mach_types.h>
 
 /** Fill in state information about a thread.
  *

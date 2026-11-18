@@ -31,13 +31,13 @@
 #ifndef HDR_SentryCrashMonitor_MachException_h
 #define HDR_SentryCrashMonitor_MachException_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashMonitor.h"
 #include <mach/mach.h>
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Access the Monitor API.
  */

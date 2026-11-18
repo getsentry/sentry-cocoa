@@ -31,11 +31,11 @@
 #ifndef HDR_SentryCrashMonitor_Signal_h
 #define HDR_SentryCrashMonitor_Signal_h
 
+#include "SentryCrashMonitor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashMonitor.h"
 
 /** Whether to assign the signal handler for SIGTERM or not.
  */

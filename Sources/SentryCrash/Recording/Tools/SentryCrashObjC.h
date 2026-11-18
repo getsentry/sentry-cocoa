@@ -28,12 +28,12 @@
 #ifndef HDR_SentryCrashObjC_h
 #define HDR_SentryCrashObjC_h
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <stdint.h>
 
 typedef enum {
     SentryCrashObjCTypeUnknown = 0,

@@ -28,15 +28,15 @@
 #ifndef HDR_SentryCrashMonitorContext_h
 #define HDR_SentryCrashMonitorContext_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorType.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct SentryCrash_MonitorContext {
     /** Unique identifier for this event. */

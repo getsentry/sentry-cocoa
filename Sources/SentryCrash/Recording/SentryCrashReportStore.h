@@ -28,11 +28,11 @@
 #ifndef HDR_SentryCrashReportStore_h
 #define HDR_SentryCrashReportStore_h
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
 
 #define SentryCrashCRS_MAX_PATH_LENGTH 500
 

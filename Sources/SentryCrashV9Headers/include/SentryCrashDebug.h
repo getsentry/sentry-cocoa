@@ -31,11 +31,11 @@
 #ifndef HDR_SentryCrashDebug_h
 #define HDR_SentryCrashDebug_h
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
 
 /** Check if the current process is being traced or not.
  *

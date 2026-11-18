@@ -31,11 +31,11 @@
 #ifndef HDR_SentryCrashSignalInfo_h
 #define HDR_SentryCrashSignalInfo_h
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
 
 /** Get the name of a signal.
  *

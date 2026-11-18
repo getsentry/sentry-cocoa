@@ -31,11 +31,11 @@
 #ifndef HDR_sentrycrashmemory_h
 #define HDR_sentrycrashmemory_h
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
 
 /** Test if the specified memory is safe to read from.
  *

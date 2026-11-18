@@ -28,14 +28,14 @@
 #ifndef HDR_SentryCrashCPU_h
 #define HDR_SentryCrashCPU_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashMachineContext.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Get the current CPU architecture.
  *

@@ -19,12 +19,12 @@
 #ifndef HDR_SentryCrashObjCApple_h
 #define HDR_SentryCrashObjCApple_h
 
+#include <CoreFoundation/CoreFoundation.h>
+#include <objc/objc.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <CoreFoundation/CoreFoundation.h>
-#include <objc/objc.h>
 
 #define MAKE_LIST_T(TYPE)                                                                          \
     typedef struct TYPE##_list_t {                                                                 \

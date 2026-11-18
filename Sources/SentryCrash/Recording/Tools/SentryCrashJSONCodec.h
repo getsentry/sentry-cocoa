@@ -31,12 +31,12 @@
 #ifndef HDR_SentryCrashJSONCodec_h
 #define HDR_SentryCrashJSONCodec_h
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <stdint.h>
 
 /* Tells the encoder to automatically determine the length of a field value.
  * Currently, this is done using strlen().
