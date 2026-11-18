@@ -670,7 +670,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testStartUpCrash_CallsFlush() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
+        // Installs SentryCrash, which sets up the report store and crash state.
+        let (_, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
         // Manually reset and enable the crash state because tearing down the global state in SentryCrash to achieve the same is complicated and doesn't really work.
         let crashStatePath = String(cString: sentrycrashstate_filePath())
@@ -692,8 +693,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         // Force reloading of crash state
         sentrycrashstate_initialize(sentrycrashstate_filePath())
-        // Force sending all reports, because the crash reports are only sent once after first init.
-        sut.sendAllSentryCrashReports()
+        // A new integration sends all pending crash reports during initialization.
+        _ = try fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
 
         XCTAssertEqual(1, transport.flushInvocations.count)
         XCTAssertEqual(5.0, transport.flushInvocations.first)
