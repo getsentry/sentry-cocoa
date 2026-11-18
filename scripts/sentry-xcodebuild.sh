@@ -320,6 +320,22 @@ if [ $RUN_BUILD == true ]; then
     run_build raw-build-output.log "${BUILD_ARGS[@]}" build
 fi
 
+# Package tests need explicit metadata so Xcode's native reports include transitive
+# SDK sources and executable headers. Export all scheme plans when building so a
+# later test-without-building can select Flaky/TestServer without rebuilding.
+PACKAGE_TESTS=false
+if [[ "$TEST_SCHEME" == SentrySPM && "$COMMAND" != build ]]; then
+    PACKAGE_TESTS=true
+    if [[ -z "$DERIVED_DATA_PATH" || -z "$PLATFORM" || -z "$CONFIGURATION" ]]; then
+        log_error "SentrySPM tests require --derived-data, --platform, and a test configuration"
+        exit 1
+    fi
+    if [ -z "$TEST_PLAN" ]; then
+        TEST_PLAN=SentrySPM_Base
+        [[ "${SDK_V10:-0}" == 1 ]] && TEST_PLAN=SentrySPM_Base_v10
+    fi
+fi
+
 TEST_PLAN_ARGS=()
 if [ -n "$TEST_PLAN" ]; then
     TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
@@ -340,15 +356,16 @@ if [ -n "$ONLY_TESTING" ]; then
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_info "Running xcodebuild build-for-testing"
 
     BFT_ARGS=(
         -workspace "$WORKSPACE"
         -scheme "$TEST_SCHEME"
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}"
         "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}"
     )
+    if [ "$PACKAGE_TESTS" = false ]; then
+        BFT_ARGS+=("${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}")
+    fi
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
@@ -367,7 +384,6 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_info "Running xcodebuild test-without-building"
 
     if [ -d "$RESULT_BUNDLE_PATH" ]; then
@@ -375,17 +391,47 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         rm -rf "$RESULT_BUNDLE_PATH"
     fi
 
-    TWB_ARGS=(
-        -workspace "$WORKSPACE"
-        -scheme "$TEST_SCHEME"
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}"
-        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}"
-    )
-    [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
+    if [ "$PACKAGE_TESTS" = true ]; then
+        # Drop the incomplete source filter so Xcode uses the binaries' coverage maps.
+        # Keep a sibling copy to preserve the original and __TESTROOT__.
+        PACKAGE_XCTESTRUN=$(python3 - "$DERIVED_DATA_PATH" "$CONFIGURATION" "$PLATFORM" "$TEST_PLAN" <<'PY'
+from pathlib import Path
+import plistlib
+import sys
+
+derived, configuration, platform, plan = sys.argv[1:]
+sdk = {"macOS": "macosx", "Catalyst": "macosx", "iOS": "iphonesimulator",
+       "tvOS": "appletvsimulator", "watchOS": "watchsimulator", "visionOS": "xrsimulator"}[platform]
+suffix = "" if platform == "macOS" else "-maccatalyst" if platform == "Catalyst" else f"-{sdk}"
+paths = [p for p in Path(derived).glob(f"Build/Products/SentrySPM_{plan}_{sdk}*.xctestrun")
+         if not p.name.endswith(".coverage.xctestrun")]
+if len(paths) != 1:
+    sys.exit(f"Expected exactly one .xctestrun for {plan}/{sdk}; build-for-testing first")
+original = paths[0]
+metadata = plistlib.loads(original.read_bytes())
+if not metadata["TestConfigurations"][0]["TestTargets"][0]["TestBundlePath"].startswith(f"__TESTROOT__/{configuration}{suffix}/"):
+    sys.exit("Build configuration mismatch; build-for-testing with the same configuration and destination first")
+for info in metadata.get("CodeCoverageBuildableInfos", []):
+    if any(".xctest/" in path for path in info.get("ProductPaths", [])):
+        info.pop("SourceFiles", None)
+output = original.with_suffix(".coverage.xctestrun")
+output.write_bytes(plistlib.dumps(metadata))
+print(output)
+PY
+        )
+        # -xctestrun is an alternative to workspace/scheme/testPlan, not an addition.
+        TWB_ARGS=(-xctestrun "$PACKAGE_XCTESTRUN")
+    else
+        TWB_ARGS=(-workspace "$WORKSPACE" -scheme "$TEST_SCHEME")
+        TWB_ARGS+=("${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}")
+        [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
+        TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    fi
+    TWB_ARGS+=("${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}")
     TWB_ARGS+=(-destination "$DESTINATION")
     TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
+    # Also binds __DERIVEDDATA__ in the exported metadata (notably ProfileData).
     [[ -n "$DERIVED_DATA_PATH" ]] && TWB_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
-    TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
     TWB_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
