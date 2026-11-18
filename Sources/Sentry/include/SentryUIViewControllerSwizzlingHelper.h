@@ -24,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Swizzles a specific UIViewController subclass for performance tracking.
- * @param class The UIViewController subclass to swizzle.
+ * @param viewControllerClass The UIViewController subclass to swizzle.
  */
-+ (void)swizzleViewControllerSubClass:(Class)class;
++ (void)swizzleViewControllerSubClass:(Class)viewControllerClass;
 
 /**
  * Swizzles the base @c UIViewController designated initializers and notifies @c delegate after each

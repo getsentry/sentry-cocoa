@@ -20,6 +20,9 @@ IOS_SIMULATOR_OS ?= 18.4
 # iOS Simulator device name (defaults to 'iPhone 16 Pro', can be overridden via IOS_DEVICE_NAME='iPhone 15 Pro')
 IOS_DEVICE_NAME ?= iPhone 16 Pro
 
+# Build configuration for the iOS source-package test app.
+IOS_SPM_BUILD_CONFIGURATION ?= Debug
+
 # tvOS Simulator OS version (defaults to 'latest', can be overridden via TVOS_SIMULATOR_OS=18.5)
 TVOS_SIMULATOR_OS ?= latest
 
@@ -1060,6 +1063,7 @@ build-testapp-iOS-SwiftUI-SPM:
 	set -o pipefail && xcodebuild \
 		-project "TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
 		-scheme iOS-SwiftUI-SPM \
+		-configuration '$(IOS_SPM_BUILD_CONFIGURATION)' \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
