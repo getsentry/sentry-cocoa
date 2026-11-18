@@ -101,7 +101,73 @@ class SentryTouchTrackerTests: XCTestCase {
 
         XCTAssertEqual(sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5)).count, 1)
     }
-    
+
+    func testTrackTouchFromEvent_whenPaused_shouldNotBufferEvents() {
+        // -- Arrange --
+        let sut = getSut()
+        let event = MockUIEvent(timestamp: 3)
+        event.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100)))
+
+        // -- Act --
+        sut.pause()
+        sut.trackTouchFrom(event: event)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isEnabled)
+        XCTAssertFalse(sut.isTracking)
+        XCTAssertTrue(sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5)).isEmpty)
+    }
+
+    func testEnable_whenPaused_shouldNotResumeTracking() {
+        // -- Arrange --
+        let sut = getSut(enabled: false)
+        let event = MockUIEvent(timestamp: 3)
+        event.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100)))
+        sut.pause()
+
+        // -- Act --
+        sut.disable()
+        sut.enable()
+        sut.trackTouchFrom(event: event)
+
+        // -- Assert --
+        XCTAssertFalse(sut.isTracking)
+        XCTAssertTrue(sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5)).isEmpty)
+    }
+
+    func testResume_whenPaused_shouldBufferNewEventsOnly() {
+        // -- Arrange --
+        let sut = getSut()
+        let pausedEvent = MockUIEvent(timestamp: 2)
+        pausedEvent.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100)))
+        sut.pause()
+        sut.trackTouchFrom(event: pausedEvent)
+
+        let resumedEvent = MockUIEvent(timestamp: 3)
+        resumedEvent.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 200, y: 200)))
+
+        // -- Act --
+        sut.resume()
+        sut.trackTouchFrom(event: resumedEvent)
+
+        // -- Assert --
+        let result = sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5))
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.timestamp, referenceDate.addingTimeInterval(3))
+    }
+
+    func testResume_whenDisabled_shouldNotTrack() {
+        // -- Arrange --
+        let sut = getSut(enabled: false)
+        sut.pause()
+
+        // -- Act --
+        sut.resume()
+
+        // -- Assert --
+        XCTAssertFalse(sut.isTracking)
+    }
+
     func testTrackTouchFromEvent() {
         let sut = getSut()
         let event = MockUIEvent(timestamp: 3)
