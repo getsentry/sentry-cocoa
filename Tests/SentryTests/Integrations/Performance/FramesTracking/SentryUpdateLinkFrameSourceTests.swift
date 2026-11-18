@@ -278,10 +278,10 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 #endif
         fixture.dateProvider.advance(by: 1)
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
-        XCTAssertEqual(delay.delayDuration, -1, accuracy: 0.0001, "The delay of the old source must not be reported.")
+        XCTAssertEqual(delay, .unavailable, "The delay of the old source must not be reported.")
     }
 
-    func testUseFrameSource_whenOldSourceCountedFrames_shouldAddFramesOfNewSource() {
+    func testUseFrameSource_whenOldSourceCountedFrames_shouldAddFramesOfNewSource() throws {
         // -- Arrange --
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: fixture.dateProvider)
         let displayLinkSource = SentryDisplayLinkFrameSource(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider)
@@ -308,7 +308,7 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
         XCTAssertEqual(frames.slow, 2 + 1)
         XCTAssertEqual(frames.frozen, 1)
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
-        XCTAssertEqual(delay.delayDuration, 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
+        XCTAssertEqual(try XCTUnwrap(delay.delayDuration), 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
     }
 
     func testUseFrameSource_whenSpanStartedBeforeSwitch_shouldReportFramesOfBothSources() {
@@ -650,7 +650,7 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 
     // MARK: - Frames delay
 
-    func testGetFramesDelay_whenMainThreadWasBlocked_shouldReturnTimeOverSlowFrameThreshold() {
+    func testGetFramesDelay_whenMainThreadWasBlocked_shouldReturnTimeOverSlowFrameThreshold() throws {
         // -- Arrange --
         let sut = fixture.sut
         sut.start()
@@ -663,10 +663,10 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 
         // -- Assert --
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
-        XCTAssertEqual(delay.delayDuration, 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
+        XCTAssertEqual(try XCTUnwrap(delay.delayDuration), 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
     }
 
-    func testGetFramesDelay_whenMainThreadStillBlocked_shouldIncludeOngoingDelay() {
+    func testGetFramesDelay_whenMainThreadStillBlocked_shouldIncludeOngoingDelay() throws {
         // -- Arrange --
         let sut = fixture.sut
         sut.start()
@@ -680,10 +680,10 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 
         // -- Assert --
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
-        XCTAssertEqual(delay.delayDuration, 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
+        XCTAssertEqual(try XCTUnwrap(delay.delayDuration), 0.5 - fixture.slowFrameThreshold, accuracy: 0.0001)
     }
 
-    func testGetFramesDelay_whenRunLoopWaiting_shouldNotCountWaitingAsDelay() {
+    func testGetFramesDelay_whenRunLoopWaiting_shouldNotCountWaitingAsDelay() throws {
         // -- Arrange --
         let sut = fixture.sut
         sut.start()
@@ -695,10 +695,10 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 
         // -- Assert --
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
-        XCTAssertEqual(delay.delayDuration, 0, accuracy: 0.0001)
+        XCTAssertEqual(try XCTUnwrap(delay.delayDuration), 0, accuracy: 0.0001)
     }
 
-    func testGetFramesDelay_whenNoRunLoopActivityYet_shouldReturnMinusOne() {
+    func testGetFramesDelay_whenNoRunLoopActivityYet_shouldReturnUnavailable() {
         // -- Arrange --
         let sut = fixture.sut
         sut.start()
@@ -709,7 +709,7 @@ final class SentryUpdateLinkFrameSourceTests: XCTestCase {
 
         // -- Assert --
         let delay = sut.getFramesDelay(start, endSystemTimestamp: fixture.dateProvider.systemTime())
-        XCTAssertEqual(delay.delayDuration, -1, accuracy: 0.0001)
+        XCTAssertEqual(delay, .unavailable)
     }
 
     // MARK: - Listeners

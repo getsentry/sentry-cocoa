@@ -15,7 +15,7 @@ static __weak SentryUIViewControllerPerformanceTracker *_tracker = nil;
 // Weak, like _tracker: a strong reference here would outlive the caller that installed the funnel.
 static __weak id<SentryUIViewControllerInitSwizzlingDelegate> _initSwizzlingDelegate = nil;
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 static BOOL swizzlingIsActive = FALSE;
 #    endif
 
@@ -30,7 +30,7 @@ static BOOL swizzlingIsActive = FALSE;
         @"swizzleUIViewControllerWithTracker: must be called on the main thread.");
 
     _tracker = tracker;
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
     swizzlingIsActive = TRUE;
 #    endif
 
@@ -276,10 +276,17 @@ static BOOL swizzlingIsActive = FALSE;
     _initSwizzlingDelegate = nil;
 #    if SENTRY_TEST || SENTRY_TEST_CI
     [self unswizzle];
+#    elif defined(DEBUG)
+    // Unswizzling is test cleanup, not safe teardown for source-based Debug consumers.
+    if (SentryDependencyContainer.sharedInstance.processInfoWrapper
+            .environment[@"XCTestConfigurationFilePath"]
+        != nil) {
+        [self unswizzle];
+    }
 #    endif
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 + (void)unswizzle
 {
     SENTRY_ASSERT([NSThread isMainThread], @"unswizzle must be called on the main thread.");

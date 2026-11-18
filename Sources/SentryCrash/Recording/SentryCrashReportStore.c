@@ -248,7 +248,7 @@ sentrycrashcrs_getNextCrashReportPath(char *crashReportPathBuffer)
     getCrashReportPathByID(getNextUniqueID(), crashReportPathBuffer);
 }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void
 sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
 {
@@ -256,7 +256,7 @@ sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
     initializeIDsFromTime(reportTime);
     pthread_mutex_unlock(&g_mutex);
 }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 int
 sentrycrashcrs_getReportCount(void)
