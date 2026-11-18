@@ -1,6 +1,7 @@
 #!/bin/bash
 # Exercise the real static-library packager with tiny Mach-O archive products.
-# Only xcodebuild is stubbed! Compilation, libtool, lipo and nm are real.
+# xcodebuild supplies fixtures; nm and strip use real tools except for injected faults.
+# Compilation, linking, libtool and lipo are real.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -56,7 +57,29 @@ while [[ $# -gt 0 ]]; do
 done
 exit 1
 SH
-chmod +x "$WORK_DIR/tools/xcodebuild"
+cat > "$WORK_DIR/tools/nm" <<'SH'
+#!/bin/bash
+set -euo pipefail
+case "$PACKAGING_FAULT" in
+    nm-error) echo 'injected nm failure' >&2; exit 42 ;;
+    nm-partial-error) "$REAL_NM" "$@"; echo 'injected nm failure' >&2; exit 42 ;;
+    nm-verification-error)
+        if [[ "${!#}" = *.a ]]; then echo 'injected nm failure' >&2; exit 42; fi ;;
+esac
+exec "$REAL_NM" "$@"
+SH
+cat > "$WORK_DIR/tools/strip" <<'SH'
+#!/bin/bash
+set -euo pipefail
+case "$PACKAGING_FAULT" in
+    strip-error) echo 'injected strip failure' >&2; exit 42 ;;
+    strip-noop) exit 0 ;;
+esac
+exec "$REAL_STRIP" "$@"
+SH
+chmod +x "$WORK_DIR/tools/"*
+real_nm="$(xcrun --find nm)"
+real_strip="$(xcrun --find strip)"
 
 sysroot="$(xcrun --sdk watchos --show-sdk-path)"
 for arch in arm64 arm64_32; do
@@ -84,9 +107,10 @@ xcrun lipo -create "$WORK_DIR/objects/dependency-matching.o" "$WORK_DIR/objects/
 #   target_object: fixture defining the required architecture set.
 #   scheme: archived scheme and output library name.
 #   architecture_target: target name used for the archived <target>.o file.
+#   fault: optional nm/strip fault injection; other cases use the real tools.
 run_case() {
     local name="$1" dependency="$2" expected_error="$3"
-    local target_object="$4" scheme="$5" architecture_target="$6"
+    local target_object="$4" scheme="$5" architecture_target="$6" fault="${7:-}"
     local root="$WORK_DIR/$name"
     local products="$root/archive/$scheme/watchos.xcarchive/Products/Objects"
 
@@ -104,8 +128,15 @@ run_case() {
         touch "$build_products/$configuration/Fixture.bundle/$configuration"
     done
 
+    if [ -n "$fault" ] && [ -n "$expected_error" ]; then
+        # A failed rebuild must not leave a previous distributable looking current.
+        mkdir -p "$root/lib/$scheme/watchos"
+        printf 'stale library\n' > "$root/lib/$scheme/watchos/lib$scheme.a"
+    fi
+
     local status=0
-    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" "$SCRIPT_DIR/build-static-library.sh" \
+    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" PACKAGING_FAULT="$fault" \
+        REAL_NM="$real_nm" REAL_STRIP="$real_strip" "$SCRIPT_DIR/build-static-library.sh" \
         --sdk watchos \
         --output-dir "$root" \
         --package-path "$WORK_DIR/package" \
@@ -120,9 +151,12 @@ run_case() {
             log_error "$name: expected '$expected_error'; see $root/build.log"
             exit 1
         fi
-        if [ -e "$root/lib/$scheme/watchos/lib$scheme.a" ] || \
-            [ -e "$root/lib/$scheme/watchos/lib$scheme-Debug.a" ]; then
-            log_error "$name: invalid archive produced a distributable library"
+        if [ -e "$root/lib/$scheme/watchos/lib$scheme.a" ]; then
+            log_error "$name: failed packaging left a distributable library"
+            exit 1
+        fi
+        if [ -z "$fault" ] && [ -e "$root/lib/$scheme/watchos/lib$scheme-Debug.a" ]; then
+            log_error "$name: invalid archive inputs produced a debug library"
             exit 1
         fi
     else
@@ -265,4 +299,22 @@ run_case \
     SentrySPM \
     SentrySwift
 
-log_info 'All archive architecture regressions passed.'
+# Inspection failures (including partial output), ineffective stripping, and failed
+# verification must all fail closed and remove an earlier distributable.
+for fault in nm-error nm-partial-error nm-verification-error strip-error strip-noop; do
+    case "$fault" in
+        nm-*) expected_error='injected nm failure' ;;
+        strip-error) expected_error='injected strip failure' ;;
+        strip-noop) expected_error='Static library still contains debug-map references' ;;
+    esac
+    run_case \
+        "$fault" \
+        "$WORK_DIR/objects/dependency-extra.o" \
+        "$expected_error" \
+        "$WORK_DIR/objects/target-arm64.o" \
+        SentrySPM \
+        SentrySwift \
+        "$fault"
+done
+
+log_info 'All archive architecture and debug-map regressions passed.'
