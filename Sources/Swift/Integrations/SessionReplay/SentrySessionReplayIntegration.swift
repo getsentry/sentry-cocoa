@@ -447,6 +447,18 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         sessionReplay?.resume()
     }
 
+    /// The touch tracker lives as long as this integration, so the pause applies to every replay
+    /// started afterwards, and `start()`, `stop()`, and `resume()` don't clear it.
+    @objc public func pauseTouchTracking() {
+        SentrySDKLog.debug("[Session Replay] Pausing touch tracking")
+        touchTracker?.pause()
+    }
+
+    @objc public func resumeTouchTracking() {
+        SentrySDKLog.debug("[Session Replay] Resuming touch tracking")
+        touchTracker?.resume()
+    }
+
     @objc public func start() {
         SentrySDKLog.debug("[Session Replay] Starting session")
         start(fullSession: true)

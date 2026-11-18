@@ -29,6 +29,8 @@ class SentryInternalReplayApiTests: XCTestCase {
         sut.startBuffering()
         sut.pause()
         sut.resume()
+        sut.pauseTouchTracking()
+        sut.resumeTouchTracking()
         sut.flush()
         sut.stop()
 

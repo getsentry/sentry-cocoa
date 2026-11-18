@@ -35,6 +35,7 @@
 #import "SentryScopeSyncC.h"
 #import "SentrySessionReplaySyncC.h"
 #import "SentrySwizzleWrapperHelper.h"
+#import "SentryThreadCrumb.h"
 #import "SentryTime.h"
 #import "SentryTracer.h"
 #import "SentryViewHierarchyProviderHelper.h"
@@ -64,6 +65,7 @@
 #    import "SentryCrashScopeObserver.h"
 #endif
 #import "SentryDateUtils.h"
+#import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #import "SentryDelayedFramesTracker.h"
