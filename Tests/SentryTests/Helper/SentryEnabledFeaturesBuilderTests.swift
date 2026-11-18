@@ -424,6 +424,33 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("graphQLOperationTracking"))
     }
 
+    func testWebViewTracing_whenSet_shouldAddFeature() throws {
+#if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        // -- Arrange --
+        let options = Options()
+        options.webViewTracing = SentryWebViewTracingOptions(allowedHosts: ["example.com"])
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("webViewTracing"))
+#else
+        throw XCTSkip("WebView tracing is not available on this platform")
+#endif
+    }
+
+    func testWebViewTracing_whenDefault_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("webViewTracing"))
+    }
+
     func testEnableUnhandledCPPExceptionsV2_whenDefault_shouldNotAddFeature() {
         // -- Arrange --
         let options = Options()

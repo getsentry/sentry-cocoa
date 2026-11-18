@@ -66,6 +66,15 @@ import Foundation
             features.append("graphQLOperationTracking")
         }
 
+        // -- Feature: WebView --
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        // Only the automatic propagation is an option. The per-WebView helper is reported through
+        // the installed integrations instead.
+        if options.webViewTracing != nil {
+            features.append("webViewTracing")
+        }
+        #endif // canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+
         // -- Feature: Metrics --
         #if SDK_V10
         features.append("metrics")
