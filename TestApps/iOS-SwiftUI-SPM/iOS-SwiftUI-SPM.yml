@@ -9,6 +9,7 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
+  Debug-CxxInterop: debug
   Release: release
 packages:
   Sentry:
@@ -31,6 +32,9 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.iOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
+      configs:
+        Debug-CxxInterop:
+          SWIFT_OBJC_INTEROP_MODE: objcxx
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
