@@ -1233,7 +1233,8 @@ private extension SentryFramesTrackerTests {
 #endif
 }
 
-private extension SentryFramesDelayResult {
+// Also used by SentryUpdateLinkFrameSourceTests.
+extension SentryFramesDelayResult {
     var delayDuration: CFTimeInterval? {
         guard case let .delay(duration, _) = self else { return nil }
         return duration
