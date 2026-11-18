@@ -200,8 +200,9 @@ extension SentryMXDiagnostic {
 extension SentryMXDiagnostic.Metadata {
     /// The SDK leaves out the remaining environment attributes:
     /// - `regionFormat` is a region, not a locale, and events have no attribute for it.
-    /// - `states` is only reported for the state reporting domains an app enables through
-    ///   `MetricManager(enabledStateReportingDomains:)`, and the SDK doesn't enable any.
+    /// - `states` only lists the states of the domains the SDK's `MetricManager` enables, which
+    ///   is the SDK's own domain while diagnostics are enabled. The SDK reads the run ID from
+    ///   it, see ``SentryMXRunIdState``, instead of sending it as metadata.
     /// - `signpostData` lists the app's own signposts, which would need a mapping of its own,
     ///   for example to breadcrumbs.
     ///

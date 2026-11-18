@@ -31,8 +31,10 @@ enum SentryMXRunIdState {
 
     /// Reports the state of the run.
     ///
-    /// The system keeps one reporter per domain and ignores a transition to the state it is
-    /// already in, so an SDK restart reports nothing new.
+    /// An SDK restart reports the same state again, because the run ID lasts for the process.
+    /// The SDK assumes the system ignores a transition to the state it is already in, which
+    /// can't be verified, as a reported state can't be read back. If the system lists the state
+    /// twice instead, both carry the same run ID, which ``runId(of:)`` still returns.
     static func report(runId: SentryCurrentRun.ID) {
         StateReporter
             .reporter(for: domain, stableMetadata: Metadata.self)

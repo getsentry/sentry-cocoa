@@ -13,7 +13,7 @@
 - Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
 - Stop sending a MetricKit crash diagnostic for a crash the crash handler already reported in the same run, so enabling `.crash` in `enabledDiagnosticReports` no longer shows the same crash twice (#9584)
 - Hold a watchdog termination event for up to 30 seconds while MetricKit `.crash` or `.memoryException` diagnostics are enabled, and merge it with the MetricKit diagnostic of the same run, so the event gets a stack trace and the termination reason. Without a matching diagnostic the event is sent unchanged (#9599)
-- Report the run ID as a state on iOS and macOS 27 and later while MetricKit diagnostics are enabled, so every MetricKit diagnostic of a run, including hangs, can be matched to it. The state is in the `io.sentry.run` domain of `StateReporting`, and the run ID stays on the device (#9650)
+- Report the run ID as a state on iOS and macOS 27 and later while MetricKit diagnostics are enabled, so every MetricKit diagnostic of a run, including hangs, can be matched to it. The state is in the `io.sentry.run` domain of `StateReporting`. The run ID is only sent to Sentry as part of the raw diagnostic that `enableMetricKitRawPayload` attaches (#9650)
 
 ### Fixes
 

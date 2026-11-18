@@ -11,7 +11,8 @@ extension SentryMXMetricRecorder {
     func record(metricReport report: MetricKit.MetricReport) {
         SentrySDKLog.debug("Processing MetricKit metric report from \(report.timeRange.start) to \(report.timeRange.end)")
         // The full day entry has the values of the whole report. The other entries split them by
-        // the states of the enabled state reporting domains, which the SDK doesn't enable.
+        // the states of the enabled state reporting domains, which is the domain of the SDK's
+        // run ID state while diagnostics are enabled, see `SentryMXRunIdState`.
         // `fullDayEntry` traps when there are no entries.
         guard !report.intervalEntries.isEmpty else {
             SentrySDKLog.debug("MetricKit metric report has no interval entries, skipping it")
