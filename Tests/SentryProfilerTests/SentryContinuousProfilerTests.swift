@@ -169,15 +169,13 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     
     /**
-     Given a running profiler whose serialization queue is paused,
-     when a chunk boundary is reached,
-     then serialization is queued and no envelope is captured until that work executes.
-     Executing the queued work captures one profile chunk without stopping sampling.
+     Deferred serialization must not read images or capture envelopes until queued work runs.
      This checks deferred dispatch, not which thread executes the work in production.
      */
     func testTransmitChunk_whenSerializationIsDeferred_shouldQueueSerialization() throws {
         // -- Arrange --
         let client = try XCTUnwrap(fixture.client)
+        let debugImageProvider = try XCTUnwrap(SentryDependencyContainer.sharedInstance().debugImageProvider as? TestDebugImageProvider)
         SentryContinuousProfiler.start()
         let originalAsyncExecution = fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock
         defer {
@@ -191,6 +189,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         }
         fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
         let currentAsyncDispatches = fixture.dispatchQueueWrapper.dispatchAsyncCalled
+        let currentImageReads = debugImageProvider.getDebugImagesFromCacheInvocations.count
 
         // -- Act --
         fixture.currentDateProvider.advanceBy(interval: 60)
@@ -199,6 +198,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(client.captureEnvelopeInvocations.isEmpty)
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncCalled, currentAsyncDispatches + 1)
+        XCTAssertEqual(debugImageProvider.getDebugImagesFromCacheInvocations.count, currentImageReads)
 
         // -- Act --
         fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true
@@ -206,6 +206,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(client.captureEnvelopeInvocations.count, 1)
+        XCTAssertEqual(debugImageProvider.getDebugImagesFromCacheInvocations.count, currentImageReads + 1)
         let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)

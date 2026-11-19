@@ -111,12 +111,11 @@ final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
             let nowSystemTime = dateProvider.systemTime()
             if reported {
                 let framesDelayStartSystemTime = nowSystemTime &- appHangStoppedInterval
-                let framesDelay = framesTracker.getFramesDelay(framesDelayStartSystemTime, endSystemTimestamp: nowSystemTime)
-                if framesDelay.delayDuration == -1 {
+                guard case let .delay(framesDelayDuration, _) = framesTracker.getFramesDelay(framesDelayStartSystemTime, endSystemTimestamp: nowSystemTime) else {
                     continue
                 }
 
-                let appHangStopped = framesDelay.delayDuration < appHangStoppedFrameDelayThreshold
+                let appHangStopped = framesDelayDuration < appHangStoppedFrameDelayThreshold
                 if appHangStopped {
                     SentrySDKLog.debug("App hang stopped.")
 
@@ -149,13 +148,12 @@ final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
             }
 
             let frameDelayStartSystemTime = nowSystemTime &- timeoutIntervalInNanos
-            let framesDelayForTimeInterval = framesTracker.getFramesDelay(frameDelayStartSystemTime, endSystemTimestamp: nowSystemTime)
-            if framesDelayForTimeInterval.delayDuration == -1 {
+            guard case let .delay(framesDelayForTimeInterval, framesContributingToDelayCount) = framesTracker.getFramesDelay(frameDelayStartSystemTime, endSystemTimestamp: nowSystemTime) else {
                 continue
             }
 
-            let framesDelayForTimeIntervalInNanos = timeIntervalToNanoseconds(framesDelayForTimeInterval.delayDuration)
-            let isFullyBlocking = framesDelayForTimeInterval.framesContributingToDelayCount == 1
+            let framesDelayForTimeIntervalInNanos = timeIntervalToNanoseconds(framesDelayForTimeInterval)
+            let isFullyBlocking = framesContributingToDelayCount == 1
             if isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos {
                 SentrySDKLog.warning("App Hang detected: fully-blocking.")
                 reported = true
@@ -164,7 +162,7 @@ final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
             }
 
             let nonFullyBlockingFramesDelayThreshold = timeoutInterval * 0.99
-            if !isFullyBlocking && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold {
+            if !isFullyBlocking && framesDelayForTimeInterval > nonFullyBlockingFramesDelayThreshold {
                 SentrySDKLog.warning("App Hang detected: non-fully-blocking.")
                 reported = true
                 lastAppHangStartedSystemTime = dateProvider.systemTime()

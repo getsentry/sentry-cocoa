@@ -341,7 +341,7 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
         return inAppLogic.isClassInApp(targetClass)
     }
     
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         // Exposes shouldSwizzle for testing
     func testShouldSwizzleViewController(_ targetClass: AnyClass) -> Bool {
         shouldSwizzleViewController(targetClass)

@@ -1,5 +1,6 @@
 #import "SentryThread.h"
 #import "NSMutableDictionary+Sentry.h"
+#import "SentryCurrentThreadInfo.h"
 #import "SentryInternalSerializable.h"
 #include "SentryProfilingConditionals.h"
 #import "SentryStacktrace.h"
@@ -40,6 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 {
     const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
     return [[SentryThread alloc] initWithThreadId:@(threadID)];
+}
+
+SentryThread *
+sentry_currentThreadInfo(void)
+{
+    return [SentryThread threadInfo];
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

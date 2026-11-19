@@ -24,7 +24,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
-        return .init(delayDuration: objcResult.delayDuration, framesContributingToDelayCount: objcResult.framesContributingToDelayCount)
+        // The Objective-C tracker reports a negative duration when it can't calculate the delay.
+        guard objcResult.delayDuration >= 0 else {
+            return .unavailable
+        }
+        return .delay(duration: objcResult.delayDuration, framesContributingToDelayCount: objcResult.framesContributingToDelayCount)
     }
 }
 #endif
@@ -108,7 +112,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     var applicationOverride: SentryApplication?
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
@@ -118,7 +122,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
 #endif
     @objc public func application() -> SentryApplication? {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     let `override` = self.applicationOverride
     if let `override` {
         return `override`
@@ -169,11 +173,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryCrashV9Backend.capture(exception: exception, dependencies: self)
     }
 #endif // !SDK_V10
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     var activeCrashReporterStateOverride: SentryCrashReporterState?
 #endif
     @objc public var activeCrashReporterState: SentryCrashReporterState {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         if let activeCrashReporterStateOverride {
             return activeCrashReporterStateOverride
         }
@@ -668,7 +672,7 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #if !SDK_V10
 extension SentryDependencyContainer: WindowFactoryProvider {
     var windowFactory: SentryUserFeedbackWindowFactory {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         if let override = windowFactoryOverride {
             return override
         }

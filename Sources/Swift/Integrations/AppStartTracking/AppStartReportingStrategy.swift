@@ -38,7 +38,7 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
     ) -> any Span {
         let context = TransactionContext(
             name: Constants.appStartTransactionName,
-            rawNameSource: SentryTransactionNameSource.component.rawValue,
+            nameSource: .component,
             operation: SentrySpanOperationAppStart,
             origin: SentryTraceOriginAutoAppStart,
             trace: traceId

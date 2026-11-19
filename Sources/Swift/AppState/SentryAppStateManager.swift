@@ -62,7 +62,7 @@ import UIKit
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     /// Test-only initializer to allow injecting a custom `buildCurrentAppState` closure for testing
     /// scenarios where the current app state needs specific values (e.g., nil vendorId).
     init(releaseName: String?, customBuildCurrentAppState: @escaping () -> SentryAppState, dependencies: Dependencies) {

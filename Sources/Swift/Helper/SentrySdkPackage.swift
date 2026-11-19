@@ -49,7 +49,7 @@ private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .unknown
         return getSentrySDKPackage(SENTRY_PACKAGE_INFO)
     }
 
-    #if SENTRY_TEST || SENTRY_TEST_CI
+    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     @objc
     public static func setPackageManager(_ manager: UInt) {
         SENTRY_PACKAGE_INFO = SentryPackageManagerOption(rawValue: manager) ?? .unknown

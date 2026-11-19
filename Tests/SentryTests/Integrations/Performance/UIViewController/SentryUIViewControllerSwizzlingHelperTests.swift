@@ -35,6 +35,36 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
     }
 
+#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+    func testStop_whenSubclassSwizzledOutsideTests_shouldPreserveBaseLoadView() throws {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        let originalProcessInfo = container.processInfoWrapper
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.environment = [:]
+        container.processInfoWrapper = processInfo
+        let selector = #selector(UIViewController.loadView)
+        let method = try XCTUnwrap(class_getInstanceMethod(UIViewController.self, selector))
+        let original = method_getImplementation(method)
+        defer {
+            container.processInfoWrapper = originalProcessInfo
+            SentryUIViewControllerSwizzlingHelper.stop()
+            method_setImplementation(method, original)
+        }
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewController(withTracker: tracker!)
+        SentryUIViewControllerSwizzlingHelper.swizzleViewControllerSubClass(ConsumerViewController.self)
+
+        // -- Act --
+        SentryUIViewControllerSwizzlingHelper.stop()
+        let controller = UIViewController()
+        controller.loadView()
+
+        // -- Assert --
+        XCTAssertNotEqual(controller.view.accessibilityIdentifier, "consumer-subclass-view")
+    }
+
+#endif
+
     func testStop_whenCalled_shouldDeactivateSwizzling() {
         // -- Arrange --
         let performanceTracker = tracker!
@@ -293,6 +323,16 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertFalse(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
     }
 }
+
+#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+private final class ConsumerViewController: UIViewController {
+    override func loadView() {
+        view = UIView()
+        view.accessibilityIdentifier = "consumer-subclass-view"
+    }
+}
+
+#endif
 
 /// The helper holds its delegate weakly, so tests must keep a strong reference for as long as they
 /// expect the funnel to report back.
