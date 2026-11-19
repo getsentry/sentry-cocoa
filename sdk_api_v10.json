@@ -8097,23 +8097,9 @@
                       {
                         "children": [
                           {
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "ProtocolComposition",
-                                "printedName": "Any"
-                              },
-                              {
-                                "kind": "TypeNominal",
-                                "name": "String",
-                                "printedName": "Swift.String",
-                                "usr": "s:SS"
-                              }
-                            ],
                             "kind": "TypeNominal",
-                            "name": "Dictionary",
-                            "printedName": "[Swift.String : Any]",
-                            "usr": "s:SD"
+                            "name": "ProtocolComposition",
+                            "printedName": "Any"
                           },
                           {
                             "kind": "TypeNominal",
@@ -8124,85 +8110,30 @@
                         ],
                         "kind": "TypeNominal",
                         "name": "Dictionary",
-                        "printedName": "[Swift.String : [Swift.String : Any]]",
+                        "printedName": "[Swift.String : Any]",
                         "usr": "s:SD"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "[Swift.String : [Swift.String : Any]]?",
+                    "printedName": "[Swift.String : Any]?",
                     "usr": "s:Sq"
                   }
                 ],
+                "declAttributes": [
+                  "ObjC"
+                ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry5EventC7contextSDySSSDySSypGGSgvg",
+                "mangledName": "$s6Sentry5EventC7contextSDySSypGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
-                "usr": "s:6Sentry5EventC7contextSDySSSDySSypGGSgvg"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)context"
               },
               {
                 "accessorKind": "set",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "ProtocolComposition",
-                                "printedName": "Any"
-                              },
-                              {
-                                "kind": "TypeNominal",
-                                "name": "String",
-                                "printedName": "Swift.String",
-                                "usr": "s:SS"
-                              }
-                            ],
-                            "kind": "TypeNominal",
-                            "name": "Dictionary",
-                            "printedName": "[Swift.String : Any]",
-                            "usr": "s:SD"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Dictionary",
-                        "printedName": "[Swift.String : [Swift.String : Any]]",
-                        "usr": "s:SD"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "[Swift.String : [Swift.String : Any]]?",
-                    "usr": "s:Sq"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry5EventC7contextSDySSSDySSypGGSgvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "s:6Sentry5EventC7contextSDySSSDySSypGGSgvs"
-              }
-            ],
-            "children": [
-              {
                 "children": [
                   {
                     "children": [
@@ -8224,6 +8155,41 @@
                         "name": "Dictionary",
                         "printedName": "[Swift.String : Any]",
                         "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Any]?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7contextSDySSypGSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setContext:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
                       },
                       {
                         "kind": "TypeNominal",
@@ -8234,26 +8200,29 @@
                     ],
                     "kind": "TypeNominal",
                     "name": "Dictionary",
-                    "printedName": "[Swift.String : [Swift.String : Any]]",
+                    "printedName": "[Swift.String : Any]",
                     "usr": "s:SD"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "[Swift.String : [Swift.String : Any]]?",
+                "printedName": "[Swift.String : Any]?",
                 "usr": "s:Sq"
               }
             ],
             "declAttributes": [
-              "NonObjC"
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry5EventC7contextSDySSSDySSypGGSgvp",
+            "mangledName": "$s6Sentry5EventC7contextSDySSypGSgvp",
             "moduleName": "Sentry",
             "name": "context",
             "printedName": "context",
-            "usr": "s:6Sentry5EventC7contextSDySSSDySSypGGSgvp"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)context"
           },
           {
             "accessors": [
