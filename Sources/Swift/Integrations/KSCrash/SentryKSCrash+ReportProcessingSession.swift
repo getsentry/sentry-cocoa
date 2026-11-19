@@ -1,4 +1,3 @@
-#if SDK_V10
 import Foundation
 
 extension SentryKSCrash {
@@ -180,4 +179,3 @@ extension SentryKSCrash {
         }
     }
 }
-#endif

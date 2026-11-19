@@ -43,7 +43,7 @@ New Objective-C and Objective-C++ headers belong under `include/Wrappers/` for a
 
 [`SentryTestUtilsObjC.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC.h) is the import-only module entry point. The Objective-C++ module keeps C++ declarations textual so non-module consumers can include them too.
 
-Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`; `include/SentryCrashMonitorContext.h` must remain at the exported include root for Swift consumers of `SentryCrashReport.h`. These forwarders are header-search plumbing, not additional wrapper APIs.
+Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`. These forwarders are header-search plumbing, not additional wrapper APIs.
 
 ### SwiftPM SDK Tests
 
@@ -69,7 +69,7 @@ Use `xcodebuild`, not `swift test`, to include Objective-C/Objective-C++ package
 
 #### Package tests with xcodebuild
 
-For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These plans include the main SDK suite, with profiler tests only in V9. V9 crash tests remain in the main suite and use guarded imports of `SentryCrashV9Swift`. `swift test` does not apply Xcode test plans.
+For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for the default development configuration or `SentrySPM_Base_v10` with `SDK_V10=1`. Both run the KSCrash-backed SDK tests. Profiler tests remain default-configuration-only and unrelated V10 development differences and module import gates are unchanged. `swift test` does not apply Xcode test plans.
 
 For CI-equivalent ABI and diagnostic checks, apply the package test xcconfig to a Debug build. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
@@ -109,7 +109,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - CI invokes the explicit platform targets, which use Debug. The shared unit-test workflow derives the Make target from its `platform` input. Simulator targets use their platform-specific variables, such as `IOS_SIMULATOR_OS` and `IOS_DEVICE_NAME`. These targets select the SDK generation and Base plan, pass the package test xcconfig, and disable signing. `TEST_PLAN` selects a package Flaky or TestServer plan. `TEST_RESULT_BUNDLE` and `TEST_DERIVED_DATA` override the result bundle name and DerivedData path. Defaults for DerivedData and result bundles are under `RUNNER_TEMP` in CI and the temporary directory locally.
 - Set `TEST_COMMAND=build-for-testing` to prepare the package and compile tests. The corresponding `TEST_COMMAND=test-without-building` invocation reuses that package without preparation. Both phases must use the same `TEST_WORKSPACE`, configuration, platform, and destination. Regular, fast-PR, nightly, V10, and distribution jobs use these Make entry points.
 - Base-plan exclusions use the owning Swift, Objective-C, or Objective-C++ package test target.
-- Use `SentrySPM_Flaky` for V9 flaky tests.
+- Use `SentrySPM_Flaky` for default-configuration flaky tests.
 - Use `SentrySPM_TestServer` or `SentrySPM_TestServer_v10` for network tests. Start the server with `make -C test-server start-debug` before that run and stop it with `make -C test-server stop` afterward, including on failure. Do not run unrelated plans while the server is active.
 
 #### Compiler settings and project parity
@@ -122,7 +122,7 @@ Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM te
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
 
-The package still checks warnings in legacy `SentryCrashSysCtl.c`, unlike the project. When changing settings, compare actual compiler commands, interface-verification results, and V9/V10 test identifiers and pass/skip outcomes. Confirm dependency diagnostics and ordinary consumer builds remain unchanged.
+When changing settings, compare actual compiler commands, interface-verification results, and default/V10 test identifiers and pass/skip outcomes. Confirm dependency diagnostics and ordinary consumer builds remain unchanged.
 
 ### Thread Inspection Sanitizers
 

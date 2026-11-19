@@ -1,4 +1,3 @@
-#if SDK_V10
 internal import _SentryPrivate
 internal import KSCrashRecording
 internal import KSCrashRecordingCore
@@ -297,5 +296,3 @@ extension SentryKSCrash.AttachmentsMonitor {
         return Unmanaged.passRetained(stitched as CFDictionary)
     }
 }
-
-#endif

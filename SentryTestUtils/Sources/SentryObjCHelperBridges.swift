@@ -13,13 +13,3 @@
 #else
 @_spi(Private) extension SentryTestObjCRuntimeWrapper: @retroactive SentryObjCRuntimeWrapper {}
 #endif
-
-#if !SDK_V10
-extension SentryCrashScopeHelper {
-    @_spi(Private) public static func getScopeObserver(withMaxBreacdrumb maxBreadcrumbs: Int) -> SentryScopeObserver {
-        // Preserve the original ObjC helper's id<SentryScopeObserver> cast: the legacy
-        // observer implements these selectors without formally declaring conformance.
-        unsafeBitCast(makeScopeObserver(maxBreadcrumbs: maxBreadcrumbs), to: SentryScopeObserver.self)
-    }
-}
-#endif

@@ -2819,13 +2819,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableSigtermReporting",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableSpotlight",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2876,7 +2869,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableUnhandledCPPExceptionsV2",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -7075,13 +7068,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableSigtermReporting:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableSpotlight:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -7132,7 +7118,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableUnhandledCPPExceptionsV2:",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -10557,12 +10543,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "enableSigtermReporting",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "enableSpotlight",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -10606,7 +10586,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableUnhandledCPPExceptionsV2",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {

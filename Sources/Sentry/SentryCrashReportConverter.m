@@ -31,6 +31,7 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 @property (nonatomic, strong) NSDictionary *report;
 @property (nonatomic, assign) NSInteger crashedThreadIndex;
 @property (nonatomic, strong) NSDictionary *exceptionContext;
+@property (nonatomic, copy) NSArray<NSDictionary *> *cppThrowFrames;
 @property (nonatomic, strong) NSArray *binaryImages;
 @property (nonatomic, strong) NSArray *threads;
 @property (nonatomic, strong) NSDictionary *systemContext;
@@ -54,12 +55,9 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
             userContextUnMerged = @{ };
         }
 
-        // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
-        // Now sentry_sdk_scope contains scope data. To be backwards compatible, to still support
-        // data from userInfo, and to not have to do many changes in here we merge both dictionaries
-        // here. For more details please check out SentryCrashScopeObserver.
-        // V9 writes sentry_sdk_scope at the report root. KSCrash can only write it inside the
-        // already-open user object. Lift both locations so converted events match.
+        // Preserve compatibility with stored reports that put scope fields directly in userInfo
+        // or in a root-level sentry_sdk_scope. KSCrash writes sentry_sdk_scope inside the
+        // already-open user object. Merge both locations, retaining root-level precedence.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
         NSDictionary *nestedScope = userContextUnMerged[@"sentry_sdk_scope"];
@@ -89,6 +87,17 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
+        // Trust the writing process, not the options or recorder in use during readback. Older
+        // reports can have last_exception_backtrace from an unrelated, already-caught C++ throw.
+        if ([userContextUnMerged[@"sentry_cpp_throw_stack"] isEqual:@YES] &&
+            [self.exceptionContext isKindOfClass:NSDictionary.class] &&
+            [self.exceptionContext[@"type"] isEqual:@"cpp_exception"]) {
+            id saved = crashContext[@"last_exception_backtrace"];
+            if ([saved isKindOfClass:NSDictionary.class] &&
+                [saved[@"contents"] isKindOfClass:NSArray.class]) {
+                self.cppThrowFrames = saved[@"contents"];
+            }
+        }
         [self initThreads:crashContext[@"threads"]];
 
         self.systemContext = report[@"system"];
@@ -131,8 +140,8 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
                 SENTRY_UNWRAP_NULLABLE(NSString, self.report[@"report"][@"timestamp"]));
         }
         event.threads = [self convertThreads];
-        event.debugMeta = [self debugMetaForThreads:event.threads];
         event.exceptions = [self convertExceptions];
+        event.debugMeta = [self debugMetaForThreads:event.threads exceptions:event.exceptions];
 
         event.dist = self.userContext[@"dist"];
         event.environment = self.userContext[@"environment"];
@@ -244,12 +253,6 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
     return kSentryLevelError;
 }
 
-- (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex
-{
-    NSDictionary *thread = self.threads[threadIndex];
-    return thread[@"backtrace"][@"contents"];
-}
-
 - (NSDictionary *)registersForThreadIndex:(NSInteger)threadIndex
 {
     NSDictionary *thread = self.threads[threadIndex];
@@ -302,7 +305,6 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
     }
     SentryThread *thread =
         [[SentryThread alloc] initWithThreadId:SENTRY_UNWRAP_NULLABLE(NSNumber, threadIndexObj)];
-    // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
         // If we don't have any frames, we discard the whole frame
@@ -322,9 +324,8 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
     return thread;
 }
 
-- (SentryFrame *)stackFrameAtIndex:(NSInteger)frameIndex inThreadIndex:(NSInteger)threadIndex
+- (SentryFrame *)convertFrame:(NSDictionary *)frameDictionary
 {
-    NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][frameIndex];
     uintptr_t instructionAddress
         = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
@@ -337,10 +338,9 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
     return frame;
 }
 
-// We already get all the frames in the right order
-- (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex
+- (NSArray<SentryFrame *> *)convertFrames:(NSArray<NSDictionary *> *)rawFrames
 {
-    NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
+    NSUInteger frameCount = rawFrames.count;
     if (frameCount <= 0) {
         return @[];
     }
@@ -348,8 +348,7 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
     SentryFrame *lastFrame = nil;
 
-    for (NSInteger i = 0; i < frameCount; i++) {
-        NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
+    for (NSDictionary *frameDictionary in rawFrames) {
         uintptr_t instructionAddress
             = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
         if (instructionAddress == SentryLegacyAsyncStackTraceMarker) {
@@ -359,7 +358,7 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
             // skip the marker frame
             continue;
         }
-        lastFrame = [self stackFrameAtIndex:i inThreadIndex:threadIndex];
+        lastFrame = [self convertFrame:frameDictionary];
         [frames addObject:lastFrame];
     }
 
@@ -368,12 +367,30 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 
 - (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex
 {
-    NSArray<SentryFrame *> *frames = [self stackFramesForThreadIndex:threadIndex];
+    NSArray<SentryFrame *> *frames =
+        [self convertFrames:self.threads[threadIndex][@"backtrace"][@"contents"]];
     SentryStacktrace *stacktrace =
         [[SentryStacktrace alloc] initWithFrames:frames
                                        registers:[self registersForThreadIndex:threadIndex]];
     [stacktrace fixDuplicateFrames];
     return stacktrace;
+}
+
+- (SentryStacktrace *_Nullable)cppThrowStacktrace
+{
+    if (self.cppThrowFrames.count == 0) {
+        return nil;
+    }
+    for (id frame in self.cppThrowFrames) {
+        if (![frame isKindOfClass:NSDictionary.class]
+            || ![frame[@"instruction_addr"] isKindOfClass:NSNumber.class] ||
+            [frame[@"instruction_addr"] unsignedLongLongValue] == 0) {
+            return nil;
+        }
+    }
+    NSArray<SentryFrame *> *frames = [self convertFrames:self.cppThrowFrames];
+    // The registers in the report describe the termination thread, not this throw site.
+    return frames.count > 0 ? [[SentryStacktrace alloc] initWithFrames:frames registers:@{ }] : nil;
 }
 
 - (SentryThread *_Nullable)crashedThread
@@ -396,18 +413,27 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
     return debugMeta;
 }
 
+- (void)addImageAddressesFromStacktrace:(SentryStacktrace *)stacktrace
+                                  toSet:(NSMutableSet<NSString *> *)addresses
+{
+    for (SentryFrame *frame in stacktrace.frames) {
+        NSString *address = frame.imageAddress;
+        if (address != nil) {
+            [addresses addObject:address];
+        }
+    }
+}
+
 - (NSArray<SentryDebugMeta *> *)debugMetaForThreads:(NSArray<SentryThread *> *)threads
+                                         exceptions:(NSArray<SentryException *> *)exceptions
 {
     NSMutableSet<NSString *> *imageNames = [[NSMutableSet alloc] init];
-
     for (SentryThread *thread in threads) {
-        for (SentryFrame *frame in thread.stacktrace.frames) {
-            NSString *_Nullable nullableImageAddress = frame.imageAddress;
-            if (nullableImageAddress == nil) {
-                continue;
-            }
-            [imageNames addObject:SENTRY_UNWRAP_NULLABLE(NSString, nullableImageAddress)];
-        }
+        [self addImageAddressesFromStacktrace:thread.stacktrace toSet:imageNames];
+    }
+    // A module can be present only on the original throw stack after the exception unwinds.
+    for (SentryException *exception in exceptions) {
+        [self addImageAddressesFromStacktrace:exception.stacktrace toSet:imageNames];
     }
 
     NSMutableArray<SentryDebugMeta *> *result = [[NSMutableArray alloc] init];
@@ -513,7 +539,7 @@ const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 
     SentryThread *crashedThread = [self crashedThread];
     exception.threadId = crashedThread.threadId;
-    exception.stacktrace = crashedThread.stacktrace;
+    exception.stacktrace = [self cppThrowStacktrace] ?: crashedThread.stacktrace;
 
     NSString *exceptionValue = exception.value;
     if (nil != self.diagnosis && self.diagnosis.length > 0 && exceptionValue != nil

@@ -317,6 +317,41 @@ CrashE2EThrowCaughtCPPException(void)
 }
 
 extern "C" __attribute__((noinline, disable_tail_calls)) void
+CrashE2ETriggerMissedCPPException(void)
+{
+    try {
+        CrashE2EThrowCaughtCPPException();
+    } catch (const std::runtime_error &) {
+    }
+    void *abi = dlopen("/usr/lib/libc++abi.dylib", RTLD_NOW | RTLD_FIRST);
+    auto unhooked
+        = abi ? reinterpret_cast<sentry_cxa_throw_type>(dlsym(abi, "__cxa_throw")) : nullptr;
+    if (!unhooked)
+        abort();
+    void *storage = __cxxabiv1::__cxa_allocate_exception(sizeof(std::runtime_error));
+    new (storage) std::runtime_error("missed fatal throw");
+    unhooked(storage, const_cast<std::type_info *>(&typeid(std::runtime_error)),
+        CrashE2EDestroyRuntimeError);
+}
+
+extern "C" void CrashE2EArmUnwindProbe(void);
+extern "C" bool CrashE2EUnwindProbeFired(void);
+
+struct CrashE2EEmptyCapture final : std::exception {
+    const char *
+    what() const noexcept override
+    {
+        return CrashE2EUnwindProbeFired() ? "confirmed empty capture" : "fault did not fire";
+    }
+};
+extern "C" __attribute__((noinline, disable_tail_calls)) void
+CrashE2ETriggerEmptyCPPException(void)
+{
+    CrashE2EArmUnwindProbe();
+    throw CrashE2EEmptyCapture();
+}
+
+extern "C" __attribute__((noinline, disable_tail_calls)) void
 CrashE2ETriggerObjCObjectAfterCaughtCPPException(void)
 {
     try {

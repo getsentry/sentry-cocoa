@@ -88,7 +88,7 @@ final class ProcessExitObserverTests: XCTestCase {
 
     func testLaunchedProcessIdentifier_whenOutputMatchesBundle_shouldParsePID() throws {
         // -- Arrange --
-        let bundleID = Reporter.ksCrash.iOSBundleID
+        let bundleID = CrashE2EApp.iOSBundleID
         let stdout = "simctl informational output\n\(bundleID): 12345\n"
 
         // -- Act --
@@ -100,7 +100,7 @@ final class ProcessExitObserverTests: XCTestCase {
 
     func testLaunchedProcessIdentifier_whenOutputIsInvalid_shouldThrow() {
         // -- Arrange --
-        let bundleID = Reporter.ksCrash.iOSBundleID
+        let bundleID = CrashE2EApp.iOSBundleID
         let outputs = ["", "other.bundle: 123", "\(bundleID): 0", "\(bundleID): -1",
                        "\(bundleID): nope", "\(bundleID): 123 extra", "\(bundleID): 999999999999",
                        "\(bundleID): 123\n\(bundleID): 456"]

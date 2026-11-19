@@ -86,11 +86,7 @@ protocol SentryBinaryImageProvider: AnyObject {
     }
 
     convenience init(processInfoWrapper: SentryProcessInfoSource) {
-#if SDK_V10
         self.init(provider: SentryKSCrash.BinaryImageProvider(), processInfoWrapper: processInfoWrapper)
-#else
-        self.init(provider: SentryCrashBinaryImageProvider(), processInfoWrapper: processInfoWrapper)
-#endif
     }
 
     init(provider: SentryBinaryImageProvider, processInfoWrapper: SentryProcessInfoSource) {

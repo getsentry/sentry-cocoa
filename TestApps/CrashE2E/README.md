@@ -1,9 +1,9 @@
 # Crash E2E harness
 
-Run crash scenarios and verify the reports delivered on the following launch:
+Run KSCrash scenarios and verify the reports delivered on the following launch. There is one recorder and one default scenario set:
 
 ```sh
-./TestApps/CrashE2E/run-crash-e2e.sh --platform ios --reporter KSCrash \
+./TestApps/CrashE2E/run-crash-e2e.sh --platform ios \
   --scenarios ns-exception-rethrow,cpp-exception-v1,objc-object-after-caught-cpp,sigterm,kscrash-per-report-retry \
   --keep-artifacts
 ```
@@ -22,7 +22,7 @@ They cover stale `launchd` entries, launch failures, malformed PIDs, live proces
 
 ## Live timeout-path test
 
-`harness-timeout` is an explicit opt-in scenario, excluded from `Config` defaults and both reporter-specific default lists. It starts the real app and SDK, logs readiness with its PID, and waits indefinitely in `crashE2EHarnessTimeoutWait`. In UI apps the wait runs on a background thread to avoid testing the OS's main-thread watchdog instead of the runner's deadline. It is not an SDK crash trigger or a known-failure exemption.
+`harness-timeout` is an explicit opt-in scenario, excluded from `Config` defaults and `Scenario.defaultScenarios`. It starts the real app and SDK, logs readiness with its PID, and waits indefinitely in `crashE2EHarnessTimeoutWait`. In UI apps the wait runs on a background thread to avoid testing the OS's main-thread watchdog instead of the runner's deadline. It is not an SDK crash trigger or a known-failure exemption.
 
 `HarnessTimeoutIntegrationTests` is skipped by the ordinary Swift test command. When enabled, it invokes the built Swift runner with `--scenarios harness-timeout,signal --keep-going --skip-build --keep-artifacts`. The runner must still exit with status 1 for exactly the original app-exit timeout. The outer test requires SDK startup/readiness for that PID before the unchanged 25-second deadline, successful stack collection with a symbolicated waiting frame, observer-confirmed cleanup before the next scenario, and a passing `signal` crash/drain. Setup, launch, readiness, authorization, collection, cleanup, or following-scenario failures cannot substitute for that result. The scenario is not retried.
 
@@ -30,22 +30,21 @@ Build and run a normal scenario first, then run the live test as your normal use
 
 ```sh
 env -u SDKROOT ./TestApps/CrashE2E/run-crash-e2e.sh \
-  --platform ios --reporter SentryCrash --scenarios signal --quiet-build
+  --platform ios --scenarios signal --quiet-build
 
 # Requires existing non-interactive authorization for sudo -n /usr/sbin/spindump.
 # If needed, authenticate with sudo -v in your own terminal, not by running Swift as root.
 OUT="$PWD/DerivedData/crash-e2e-harness-timeout-$(date +%s)"
 env -u SDKROOT \
   CRASH_E2E_HARNESS_TIMEOUT_TEST=1 \
-  CRASH_E2E_TEST_REPORTER=SentryCrash \
   CRASH_E2E_TEST_DERIVED_DATA="$PWD/DerivedData/CrashE2E" \
   CRASH_E2E_TEST_ARTIFACTS="$OUT" \
   swift test --package-path TestApps/CrashE2E/Runner --filter HarnessTimeoutIntegrationTests
 ```
 
-Use a fresh artifact directory under the workspace, not `/tmp`: simulator runtimes can remap `/tmp` redirects into their own filesystem, leaving the host artifact directory without app logs. Artifacts are retained on success and failure; the test refuses an existing directory. `runner-output.log` is outside the runner's own artifact directory so its reset cannot erase the transcript. Optional `CRASH_E2E_TEST_IOS_DEVICE_ID` and `CRASH_E2E_TEST_IOS_DESTINATION` select the simulator. To test KSCrash, build with `--reporter KSCrash` and set `CRASH_E2E_TEST_REPORTER=KSCrash`.
+Use a fresh artifact directory under the workspace, not `/tmp`: simulator runtimes can remap `/tmp` redirects into their own filesystem, leaving the host artifact directory without app logs. Artifacts are retained on success and failure; the test refuses an existing directory. `runner-output.log` is outside the runner's own artifact directory so its reset cannot erase the transcript. Optional `CRASH_E2E_TEST_IOS_DEVICE_ID` and `CRASH_E2E_TEST_IOS_DESTINATION` select the simulator.
 
-CI runs this test on both iOS reporter legs **after** the ordinary E2E step, reusing its build products and keeping its result unchanged. Separate `crash-e2e-harness-timeout-<reporter>` artifacts are uploaded even on success. The CI step/job provides the outer time bound; the test does not interrupt the collector with a second short timeout. This verifies diagnostics and recovery, not a fix for unexpected SDK/app hangs.
+CI runs this test on iOS **after** the ordinary E2E step, reusing its build products and keeping its result unchanged. Separate `crash-e2e-harness-timeout-KSCrash` artifacts are uploaded even on success. The CI step/job provides the outer time bound; the test does not interrupt the collector with a second short timeout. This verifies diagnostics and recovery, not a fix for unexpected SDK/app hangs.
 
 ## iOS termination and diagnostics
 
@@ -94,9 +93,7 @@ If termination cannot be confirmed, the run aborts (even with `--keep-going`) to
 
 Once the app has stopped, the runner attempts to preserve SDK's cache directories in `ios-<scenario>-failed-cache`. It uses the container path acquired for that scenario, without another simulator query. If setup never acquired a container, the log explains why no cache snapshot is available. An aborted run lists the scenarios that were not executed.
 
-### Expected failures
-
-Cleanup also applies to scenarios with known SDK gaps. Only report assertion failures qualify as expected failures; launch errors, process-observation errors, timeouts, and report I/O errors remain test failures.
+All scenario failures remain failures, including missing reports and payload assertions. There are no recorder-specific expected-failure exemptions. Launch errors, process-observation errors, timeouts, cleanup errors and report I/O errors also fail the run.
 
 ### Keeping artifacts
 

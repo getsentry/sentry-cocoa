@@ -32,51 +32,12 @@ enum Platform: String {
     case macos
 }
 
-enum Reporter: String, CaseIterable {
-    case sentryCrash = "SentryCrash"
-    case ksCrash = "KSCrash"
-
-    init?(caseInsensitive value: String) {
-        guard let reporter = Self.allCases.first(where: { $0.rawValue.caseInsensitiveCompare(value) == .orderedSame }) else {
-            return nil
-        }
-        self = reporter
-    }
-
-    var iOSScheme: String {
-        switch self {
-        case .sentryCrash:
-            return "CrashE2E-iOS"
-        case .ksCrash:
-            return "CrashE2E-iOS-KSCrash"
-        }
-    }
-
-    var macOSScheme: String {
-        switch self {
-        case .sentryCrash:
-            return "CrashE2E-macOS"
-        case .ksCrash:
-            return "CrashE2E-macOS-KSCrash"
-        }
-    }
-
-    var iOSBundleID: String {
-        switch self {
-        case .sentryCrash:
-            return "io.sentry.tests.CrashE2E.iOS"
-        case .ksCrash:
-            return "io.sentry.tests.CrashE2E.KSCrash.iOS"
-        }
-    }
-
-    var iOSAppName: String {
-        "\(iOSScheme).app"
-    }
-
-    var macOSExecutableName: String {
-        macOSScheme
-    }
+enum CrashE2EApp {
+    static let iOSScheme = "CrashE2E-iOS-KSCrash"
+    static let macOSScheme = "CrashE2E-macOS-KSCrash"
+    static let iOSBundleID = "io.sentry.tests.CrashE2E.KSCrash.iOS"
+    static let iOSAppName = "\(iOSScheme).app"
+    static let macOSExecutableName = macOSScheme
 }
 
 enum Scenario: String, CaseIterable {
@@ -88,6 +49,9 @@ enum Scenario: String, CaseIterable {
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
+    case cppExceptionV2Rethrow = "cpp-exception-v2-rethrow"
+    case cppCaughtThenMissed = "cpp-caught-then-missed"
+    case cppEmptyCapture = "cpp-empty-capture"
     case cppExceptionV2DynamicImage = "cpp-exception-v2-dynamic-image"
     case unityCxaThrow = "unity-cxa-throw"
     case unityCxaThrowV2 = "unity-cxa-throw-v2"
@@ -127,19 +91,19 @@ enum Scenario: String, CaseIterable {
         // uncaught C++ exception without throw-site swapping even though it has no "V1" backend.
         .cppExceptionV1,
         .cppExceptionV2,
+        .cppExceptionV2Rethrow,
+        .cppCaughtThenMissed,
+        .cppEmptyCapture,
         // Current Sentry Unity does not enable C++ V2, so this exercises the named-symbol
         // compatibility shim in V1/fallback context. Preserve the shim, not V1's weak report shape.
         .unityCxaThrow,
-        // Runs with C++ V2 enabled and strict modern-backend assertions.
+        // Runs with C++ V2 enabled and strict report assertions.
         .objcObject,
-        // SentryCrash is still expected to fail after a caught C++ exception;
-        // see Scenario.knownFailureReason(for:).
         .objcObjectAfterCaughtCPP,
         .binaryImages,
         .ignoredSignal,
-        // SIGTERM is a graceful-shutdown request, not a crash. Both reporters must let the process
-        // terminate without writing a report or an event, and the next launch must not be
-        // classified as crashed. V9 honors enableSigtermReporting (off here); V10 has no option.
+        // SIGTERM is a graceful-shutdown request, not a crash. The process must terminate
+        // without a report/event, and the next launch must not be classified as crashed.
         .sigterm,
         .closedSignal,
         .reinitSignal,
@@ -153,15 +117,12 @@ enum Scenario: String, CaseIterable {
         .managedRuntimeReinitSignal,
         .swiftAsyncCPPExceptionV2Off,
         .swiftAsyncCPPExceptionV2On,
-        // enableMemoryIntrospection must reach the crash-time writer of both reporters. A marker
+        // enableMemoryIntrospection must reach the crash-time writer. A marker
         // string that only memory introspection can discover must appear in the stored report and
         // event when enabled, and be absent when disabled or left at the default.
         .memoryIntrospectionEnabled,
         .memoryIntrospectionDisabled,
-        .memoryIntrospectionDefault
-    ]
-
-    static let ksCrashDefaultScenarios = defaultScenarios + [
+        .memoryIntrospectionDefault,
         .cppExceptionV2DynamicImage,
         .unityCxaThrowV2,
         .ksCrashPerReportRetry,
@@ -199,13 +160,6 @@ enum Scenario: String, CaseIterable {
         }
     }
 
-    var requiresKSCrash: Bool {
-        self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
-            || self == .ksCrashPerReportRetry
-            || self == .crashTimeAttachments || self == .crashTimeReplay
-            || self == .crashTimeReplayAttachmentCrash
-    }
-
     var requiresCrashE2ETestHook: Bool {
         self == .ksCrashPerReportRetry || self == .crashTimeAttachments || self == .crashTimeReplay
             || self == .crashTimeReplayAttachmentCrash
@@ -215,7 +169,6 @@ enum Scenario: String, CaseIterable {
 struct Config {
     let directories: Directories
     var platform: Platform = .all
-    var reporter: Reporter = .sentryCrash
     var scenarios: [Scenario] = Scenario.defaultScenarios
     var iosDestination: String?
     var iosDeviceID: String?
@@ -251,10 +204,7 @@ func usage(defaults: Config) -> String {
     return """
     Usage: run-crash-e2e.sh [options]
       --platform <all|ios|macos>          Platforms to run (default: all)
-      --reporter <SentryCrash|KSCrash>    Crash reporter to test (default: SentryCrash)
-      --scenarios <space/comma list>      Scenarios to run (uses reporter-specific defaults).
-                                          Default sets: Scenario.defaultScenarios and
-                                          Scenario.ksCrashDefaultScenarios in Config.swift.
+      --scenarios <space/comma list>      Scenarios to run (defaults: Scenario.defaultScenarios in Config.swift).
                                           Known scenarios: \(knownScenarios)
       --ios-destination <destination>     xcodebuild iOS destination (default: auto-selected simulator id)
       --ios-device-id <device-id>         simctl device id (default: auto-select booted/preferred iPhone simulator)
