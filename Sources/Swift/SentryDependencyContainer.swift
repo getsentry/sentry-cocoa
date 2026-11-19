@@ -200,7 +200,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _eventSourceCoordinator: SentryEventSourceCoordinator?
     lazy var eventSourceCoordinator: SentryEventSourceCoordinator = getLazyVar(\._eventSourceCoordinator) {
-        SentryEventSourceCoordinator(downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()))
+        SentryEventSourceCoordinator(
+            downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()),
+            fatalRunRecordStore: fileManager.map { SentryFatalRunRecordStore(fileManager: $0, dateProvider: dateProvider) },
+            dateProvider: dateProvider
+        )
     }
     private var _crashHandlerEventSource: SentryCrashHandlerEventSource?
     @objc public lazy var crashHandlerEventSource: SentryCrashHandlerEventSource = getLazyVar(\._crashHandlerEventSource) {
