@@ -3,11 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
+#    import "SentryProfilingLog.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -34,7 +34,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
         std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
 
         if ([_threadUnsafe_gTraceProfiler isRunning]) {
-            SENTRY_LOG_DEBUG(@"A trace profiler is already running.");
+            SENTRY_PROFILING_LOG_DEBUG(@"A trace profiler is already running.");
             sentry_trackTransactionProfilerForTrace(
                 SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gTraceProfiler), traceId);
             // record a new metric sample for every concurrent span start
@@ -47,7 +47,8 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
         _threadUnsafe_gTraceProfiler =
             [[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace];
         if (_threadUnsafe_gTraceProfiler == nil) {
-            SENTRY_LOG_WARN(@"Trace profiler was unable to be initialized, will not proceed.");
+            SENTRY_PROFILING_LOG_WARN(
+                @"Trace profiler was unable to be initialized, will not proceed.");
             return NO;
         }
 
@@ -71,7 +72,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
     if (![_threadUnsafe_gTraceProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No trace profiler is currently running.");
+        SENTRY_PROFILING_LOG_DEBUG(@"No trace profiler is currently running.");
         return;
     }
 
@@ -111,11 +112,11 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
     _sentry_threadUnsafe_traceProfileTimeoutTimer = nil;
 
     if (![_threadUnsafe_gTraceProfiler isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running.");
+        SENTRY_PROFILING_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
     [_threadUnsafe_gTraceProfiler stopForReason:SentryProfilerTruncationReasonTimeout];
 }
 

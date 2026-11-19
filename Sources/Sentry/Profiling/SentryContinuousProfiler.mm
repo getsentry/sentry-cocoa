@@ -3,11 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilingLog.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -54,7 +54,7 @@ void
 _sentry_threadUnsafe_transmitChunkEnvelope(void)
 {
     if (_threadUnsafe_gContinuousCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(
+        SENTRY_PROFILING_LOG_DEBUG(
             @"No continuous profiler is currently running, so no chunk can be transmitted.");
         return;
     }
@@ -113,13 +113,13 @@ _sentry_unsafe_stopTimerAndCleanup()
         _stopCalled = NO;
 
         if ([_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-            SENTRY_LOG_DEBUG(@"A continuous profiler is already running.");
+            SENTRY_PROFILING_LOG_DEBUG(@"A continuous profiler is already running.");
             return;
         }
 
         if (!(_threadUnsafe_gContinuousCurrentProfiler =
                     [[SentryProfiler alloc] initWithMode:SentryProfilerModeContinuous])) {
-            SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
+            SENTRY_PROFILING_LOG_WARN(@"Continuous profiler was unable to be initialized.");
             return;
         }
 
@@ -158,7 +158,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
     if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
+        SENTRY_PROFILING_LOG_DEBUG(@"No continuous profiler is currently running.");
         return;
     }
 
@@ -176,7 +176,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
 
-    SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
+    SENTRY_PROFILING_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
     _stopCalled = YES;
 }
 
@@ -200,8 +200,9 @@ _sentry_unsafe_stopTimerAndCleanup()
             return;
         }
         if (_chunkTimer != nil) {
-            SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
-                            @"taken if there is no profiler running.");
+            SENTRY_PROFILING_LOG_WARN(
+                @"There was already a timer in flight, but this codepath shouldn't be "
+                @"taken if there is no profiler running.");
             return;
         }
 
@@ -220,8 +221,9 @@ _sentry_unsafe_stopTimerAndCleanup()
             return;
         }
         if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-            SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
-                            @"and disabling the timer from running again.");
+            SENTRY_PROFILING_LOG_WARN(
+                @"Current profiler is not running. Sending whatever data it has left "
+                @"and disabling the timer from running again.");
             disableTimer();
         }
 
@@ -232,7 +234,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
     }
 
-    SENTRY_LOG_DEBUG(
+    SENTRY_PROFILING_LOG_DEBUG(
         @"Last continuous profile chunk transmitted after stop called, shutting down profiler.");
 
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
