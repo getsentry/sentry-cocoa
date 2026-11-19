@@ -34,7 +34,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentrySpanStatus.h>
 #    import <SentryWithoutUIKit/SentryStacktrace.h>
 #    import <SentryWithoutUIKit/SentryThread.h>
-#    import <SentryWithoutUIKit/SentryTraceContext.h>
 #    import <SentryWithoutUIKit/SentryTraceHeader.h>
 #    import <SentryWithoutUIKit/SentryUser.h>
 

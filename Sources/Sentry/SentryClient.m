@@ -30,8 +30,6 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentryTraceContext+Private.h"
-#import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"

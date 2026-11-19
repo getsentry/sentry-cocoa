@@ -12,7 +12,6 @@
 #import "SentrySpanContext.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
-#import "SentryTraceContext.h"
 #import "SentryUser.h"
 #if __has_include(<Sentry/SentryDefines.h>)
 #    import <Sentry/SentryDefines.h>
@@ -63,9 +62,6 @@ SENTRY_NO_INIT
 @end
 
 @interface SentryBreadcrumb () <SentryInternalSerializable>
-@end
-
-@interface SentryTraceContext () <SentryInternalSerializable>
 @end
 
 @interface SentryThread () <SentryInternalSerializable>

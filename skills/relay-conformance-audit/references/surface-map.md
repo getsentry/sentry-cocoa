@@ -143,7 +143,7 @@ Links track `main` (Cocoa) / `master` (Relay). If a linked path 404s, the file m
 **Cocoa:**
 
 - [`Sources/Sentry/SentryBaggage.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryBaggage.m) (`toHTTPHeaderWithOriginalBaggage:`)
-- [`Sources/Sentry/SentryTraceContext.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryTraceContext.m) (`initWithDict:`, `serialize`)
+- [`Sources/Swift/TraceContext.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/TraceContext.swift) (`init(dict:)`, `serialize`)
 - [`Sources/Swift/Core/Helper/SentryBaggageSerialization.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Core/Helper/SentryBaggageSerialization.swift)
 
 **Spec:** [develop-docs: dynamic sampling context](https://develop.sentry.dev/sdk/foundations/trace-propagation/dynamic-sampling-context/).
@@ -182,7 +182,7 @@ Links track `main` (Cocoa) / `master` (Relay). If a linked path 404s, the file m
 **Cocoa:**
 
 - [`Sources/Sentry/SentrySampling.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentrySampling.m) (`_sentry_calcSample`)
-- [`Sources/Sentry/SentryTraceContext.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryTraceContext.m)
+- [`Sources/Swift/TraceContext.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/TraceContext.swift)
 
 **Spec:** [develop-docs: dynamic sampling context](https://develop.sentry.dev/sdk/foundations/trace-propagation/dynamic-sampling-context/) — invariant `sample_rand < sample_rate ⟺ sampled`.
 
