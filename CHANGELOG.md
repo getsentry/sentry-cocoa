@@ -92,6 +92,7 @@
 - Report eligible watchdog terminations during ongoing app hangs instead of suppressing them in V10 (#9469)
 - Restore `import Sentry` for V10 SwiftPM source consumers while preserving default V9 imports (#9459)
 - Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756, #9770)
+- Preserve the original throw site for rethrown C++ exceptions with `enableUnhandledCPPExceptionsV2`, while keeping the termination stack on the crashed thread.
 
 ## 9.36.0
 

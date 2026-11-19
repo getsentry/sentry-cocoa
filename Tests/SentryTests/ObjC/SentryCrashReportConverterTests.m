@@ -39,6 +39,86 @@
     [super tearDown];
 }
 
+- (SentryEvent *)convertReportWithSavedBacktrace:(id)savedBacktrace
+                                     markedCppV2:(BOOL)markedCppV2
+                                            type:(NSString *)type
+{
+    NSMutableDictionary *crash = [@{
+        @"threads" : @[ @{
+            @"index" : @7,
+            @"crashed" : @YES,
+            @"backtrace" : @ { @"contents" : @[ @{ @"instruction_addr" : @0x1010 } ] },
+            @"registers" : @ { @"basic" : @ { @"pc" : @0x1010 } },
+        } ],
+        @"error" : @ { @"type" : type },
+    } mutableCopy];
+    crash[@"last_exception_backtrace"] = savedBacktrace;
+    NSDictionary *report = @{
+        @"crash" : crash,
+        @"user" : markedCppV2 ? @ { @"sentry_cpp_throw_stack" : @YES } : @ { },
+        @"binary_images" : @[
+            @{ @"name" : @"/thread", @"image_addr" : @0x1000, @"image_size" : @0x100 },
+            @{ @"name" : @"/origin", @"image_addr" : @0x2000, @"image_size" : @0x100 },
+        ],
+    };
+    return [[[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic]
+        convertReportToEvent];
+}
+
+- (void)testCppThrowStackIsSeparateFromTerminationStack
+{
+    SentryEvent *event = [self convertReportWithSavedBacktrace:@{
+        @"contents" : @[
+            @{ @"instruction_addr" : @0x2018 },
+            @{ @"instruction_addr" : @0x2020 },
+        ]
+    }
+                                                   markedCppV2:YES
+                                                          type:@"cpp_exception"];
+    SentryException *exception = event.exceptions.firstObject;
+    SentryThread *thread = event.threads.firstObject;
+    XCTAssertEqualObjects(exception.threadId, thread.threadId);
+    XCTAssertEqualObjects(thread.crashed, @YES);
+    XCTAssertEqualObjects([exception.stacktrace.frames valueForKey:@"instructionAddress"],
+        (@[ @"0x0000000000002020", @"0x0000000000002018" ]));
+    XCTAssertEqualObjects(
+        thread.stacktrace.frames.lastObject.instructionAddress, @"0x0000000000001010");
+    XCTAssertEqualObjects(thread.stacktrace.registers[@"pc"], @"0x0000000000001010");
+    XCTAssertEqual(exception.stacktrace.registers.count, 0U);
+    XCTAssertEqualObjects([event.debugMeta valueForKey:@"codeFile"], (@[ @"/thread", @"/origin" ]));
+}
+
+- (void)testCppThrowStackFallsBackWhenAbsentEmptyOrUnusable
+{
+    for (id saved in @[
+             NSNull.null, @{ }, @{ @"contents" : @[] }, @{ @"contents" : @"invalid" },
+             @{ @"contents" : @[ @{ } ] }, @{ @"contents" : @[ @"invalid frame" ] }
+         ]) {
+        SentryEvent *event =
+            [self convertReportWithSavedBacktrace:saved == NSNull.null ? nil : saved
+                                      markedCppV2:YES
+                                             type:@"cpp_exception"];
+        XCTAssertEqualObjects(
+            event.exceptions.firstObject.stacktrace.frames.lastObject.instructionAddress,
+            @"0x0000000000001010", @"saved backtrace: %@", saved);
+        XCTAssertEqualObjects(event.exceptions.firstObject.threadId, @7);
+    }
+}
+
+- (void)testUnmarkedOrNonCppReportsIgnoreSavedThrowStack
+{
+    NSDictionary *saved = @{ @"contents" : @[ @{ @"instruction_addr" : @0x2018 } ] };
+    for (SentryEvent *event in @[
+             [self convertReportWithSavedBacktrace:saved markedCppV2:NO type:@"cpp_exception"],
+             [self convertReportWithSavedBacktrace:saved markedCppV2:YES type:@"signal"],
+         ]) {
+        XCTAssertEqualObjects(
+            event.exceptions.firstObject.stacktrace.frames.lastObject.instructionAddress,
+            @"0x0000000000001010");
+        XCTAssertEqualObjects([event.debugMeta valueForKey:@"codeFile"], (@[ @"/thread" ]));
+    }
+}
+
 - (void)testConvertReport
 {
     NSDictionary *report = [self getCrashReport:@"Fixtures/crash-report-1"];

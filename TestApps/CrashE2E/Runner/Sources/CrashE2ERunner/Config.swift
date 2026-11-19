@@ -49,6 +49,9 @@ enum Scenario: String, CaseIterable {
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
+    case cppExceptionV2Rethrow = "cpp-exception-v2-rethrow"
+    case cppCaughtThenMissed = "cpp-caught-then-missed"
+    case cppEmptyCapture = "cpp-empty-capture"
     case cppExceptionV2DynamicImage = "cpp-exception-v2-dynamic-image"
     case unityCxaThrow = "unity-cxa-throw"
     case unityCxaThrowV2 = "unity-cxa-throw-v2"
@@ -88,6 +91,9 @@ enum Scenario: String, CaseIterable {
         // uncaught C++ exception without throw-site swapping even though it has no "V1" backend.
         .cppExceptionV1,
         .cppExceptionV2,
+        .cppExceptionV2Rethrow,
+        .cppCaughtThenMissed,
+        .cppEmptyCapture,
         // Current Sentry Unity does not enable C++ V2, so this exercises the named-symbol
         // compatibility shim in V1/fallback context. Preserve the shim, not V1's weak report shape.
         .unityCxaThrow,
@@ -177,7 +183,8 @@ enum Scenario: String, CaseIterable {
             // pthread_kill delivers a plain signal; no Mach exception is raised.
             return false
         case .harnessTimeout, .nsException, .nsExceptionRethrow, .nsExceptionSubclass,
-             .cppExceptionV1, .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow,
+             .cppExceptionV1, .cppExceptionV2, .cppExceptionV2Rethrow, .cppCaughtThenMissed,
+             .cppEmptyCapture, .cppExceptionV2DynamicImage, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ignoredSignal, .sigterm,
              .closedSignal, .closedNSException, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .crashTimeReplayAttachmentCrash:
