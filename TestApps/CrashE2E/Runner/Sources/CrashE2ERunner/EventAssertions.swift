@@ -53,7 +53,8 @@ enum EventAssertions {
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assert(!threadValues.isEmpty, "Expected threads for \(platform)/\(scenario.rawValue)")
-        case .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrowV2,
+        case .cppExceptionV2Rethrow, .cppCaughtThenMissed, .cppEmptyCapture, .cppExceptionV2,
+             .cppExceptionV2DynamicImage, .unityCxaThrowV2,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .objcObject,
              .objcObjectAfterCaughtCPP:
             try assert(exceptionThreadID != nil,
@@ -130,13 +131,8 @@ enum EventAssertions {
                 scenario: scenario, event: event, firstException: firstException, platform: platform)
 
         case .nsException, .nsExceptionRethrow, .nsExceptionSubclass:
-            try assertNSExceptionScenario(
-                scenario,
-                firstException: firstException,
-                mechanism: mechanism,
-                eventContext: eventContext,
-                platform: platform
-            )
+            try assertNSExceptionScenario(scenario, firstException: firstException, mechanism: mechanism,
+                                          eventContext: eventContext, platform: platform)
 
         case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .unityCxaThrowV2:
@@ -144,6 +140,10 @@ enum EventAssertions {
                 scenario, firstException: firstException,
                 mechanism: mechanism, platform: platform
             )
+
+        case .cppExceptionV2Rethrow, .cppCaughtThenMissed, .cppEmptyCapture:
+            try assertCPPStackScenario(scenario, firstException: firstException, mechanism: mechanism,
+                                       event: event, platform: platform)
 
         case .cppExceptionV2DynamicImage:
             try assertDynamicCPPException(firstException, mechanism: mechanism,
@@ -165,6 +165,40 @@ enum EventAssertions {
             // and the no-event scenarios never reach this point. Attachment-crash proves the
             // pre-drain checkpoint, not a happy-path drain event.
             return
+        }
+    }
+
+    private static func assertCPPStackScenario(_ scenario: Scenario, firstException: [String: Any],
+                                               mechanism: [String: Any], event: [String: Any], platform: String) throws {
+        func appSymbols(_ entry: [String: Any]) throws -> [String] {
+            let frames = valuesArray(entry["stacktrace"], key: "frames")
+            return try symbolicatedFrameNames(frames.filter { string($0["package"])?.contains("CrashE2E-") == true })
+        }
+        let symbols = try appSymbols(firstException)
+        if scenario == .cppExceptionV2Rethrow {
+            try assertCPPException(firstException, mechanism: mechanism, platform: platform,
+                                   scenario: scenario, expectedValue: "CrashE2ECPPRethrow")
+            let threads = valuesArray(event["threads"], key: "values")
+            guard let threadID = int(firstException["thread_id"]), let crashed = threads.first(where: {
+                bool($0["crashed"]) == true && int($0["id"]) == threadID
+            }) else { try fail("Missing linked crashed thread for C++ rethrow") }
+            let threadSymbols = try appSymbols(crashed)
+            try assert(threadSymbols.contains { $0.contains("CrashE2ERethrowSite") },
+                       "Expected rethrow site on crashed thread: \(threadSymbols)")
+            try assert(symbols.contains { $0.contains("CrashE2EThrowOrigin") },
+                       "Expected original throw site on exception: \(symbols); crashed thread: \(threadSymbols)")
+        } else {
+            let missed = scenario == .cppCaughtThenMissed
+            try assert(string(mechanism["type"]) == "cpp_exception", "Expected a C++ exception")
+            let marker = missed ? "missed fatal throw" : "confirmed empty capture"
+            try assert(string(firstException["value"])?.contains(marker) == true, "Missing \(marker)")
+            if missed {
+                try assert(symbols.contains { $0.contains("CrashE2ETriggerMissedCPPException") }, "Missing fatal origin: \(symbols)")
+            } else {
+                // Termination evidence is sufficient; the throw-site capture was deliberately lost.
+                try assert(!symbols.isEmpty, "Missing termination-thread app frames")
+            }
+            try assert(!symbols.contains { $0.contains("CrashE2EThrowCaughtCPPException") }, "Stale caught origin")
         }
     }
 

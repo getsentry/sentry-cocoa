@@ -14,6 +14,9 @@ enum CrashE2EScenario: String {
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
+    case cppExceptionV2Rethrow = "cpp-exception-v2-rethrow"
+    case cppCaughtThenMissed = "cpp-caught-then-missed"
+    case cppEmptyCapture = "cpp-empty-capture"
     case cppExceptionV2DynamicImage = "cpp-exception-v2-dynamic-image"
     case unityCxaThrow = "unity-cxa-throw"
     case unityCxaThrowV2 = "unity-cxa-throw-v2"
@@ -134,7 +137,7 @@ enum CrashE2ERuntime {
             Thread.detachNewThread {
                 crashE2EHarnessTimeoutWait()
             }
-        case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+        case .cppExceptionV2Rethrow, .cppCaughtThenMissed, .cppEmptyCapture, .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .closedSignal, .reinitSignal, .closedNSException, .managedRuntimeSignalChain,
@@ -168,7 +171,7 @@ enum CrashE2ERuntime {
             waitForExternalSigtermSynchronously()
         case .harnessTimeout:
             crashE2EHarnessTimeoutWait()
-        case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+        case .cppExceptionV2Rethrow, .cppCaughtThenMissed, .cppEmptyCapture, .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .closedSignal, .reinitSignal, .closedNSException, .managedRuntimeSignalChain,
@@ -222,7 +225,10 @@ enum CrashE2ERuntime {
             // KSCrash has no "V1" implementation, but its standard terminate monitor must preserve
             // uncaught C++ reporting when throw-site swapping is disabled. unity-cxa-throw matches
             // Sentry Unity's option-off behavior; unity-cxa-throw-v2 is the KSCrash-only companion.
-            if configuration.scenario == .cppExceptionV2
+            if configuration.scenario == .cppExceptionV2Rethrow
+                || configuration.scenario == .cppCaughtThenMissed
+                || configuration.scenario == .cppEmptyCapture
+                || configuration.scenario == .cppExceptionV2
                 || configuration.scenario == .cppExceptionV2DynamicImage
                 || configuration.scenario == .unityCxaThrowV2
                 || configuration.scenario == .objcObject
@@ -234,7 +240,7 @@ enum CrashE2ERuntime {
 
             if configuration.scenario == .swiftAsyncCPPExceptionV2Off {
                 options.swiftAsyncStacktraces = false
-            } else if configuration.scenario == .swiftAsyncCPPExceptionV2On {
+            } else if configuration.scenario == .swiftAsyncCPPExceptionV2On || configuration.scenario == .cppEmptyCapture {
                 options.swiftAsyncStacktraces = true
             }
 

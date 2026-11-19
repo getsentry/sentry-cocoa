@@ -37,7 +37,8 @@ enum CrashE2ECrashTriggers {
             CrashE2ETriggerMemoryIntrospectionMarkerCrash()
             abortBecauseScenarioReturned(scenario)
         case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .closedNSException,
-             .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
+             .cppExceptionV1, .cppExceptionV2, .cppExceptionV2Rethrow, .cppCaughtThenMissed,
+             .cppEmptyCapture, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
              .ksCrashRetryReportB,
@@ -71,6 +72,8 @@ enum CrashE2ECrashTriggers {
                 userInfo: ["crash_e2e_kscrash_report": marker]
             ).raise()
             abortBecauseScenarioReturned(scenario)
+        case .cppExceptionV2Rethrow, .cppCaughtThenMissed, .cppEmptyCapture:
+            triggerCPPStackScenario(scenario)
         case .cppExceptionV1, .cppExceptionV2:
             CrashE2ETriggerCPPException()
             abortBecauseScenarioReturned(scenario)
@@ -102,6 +105,16 @@ enum CrashE2ECrashTriggers {
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             abortBecauseScenarioReturned(scenario)
         }
+    }
+
+    private static func triggerCPPStackScenario(_ scenario: CrashE2EScenario) -> Never {
+        switch scenario {
+        case .cppExceptionV2Rethrow: CrashE2ERethrowSite()
+        case .cppCaughtThenMissed: CrashE2ETriggerMissedCPPException()
+        case .cppEmptyCapture: CrashE2ETriggerEmptyCPPException()
+        default: preconditionFailure("Not a C++ stack scenario: \(scenario)")
+        }
+        abortBecauseScenarioReturned(scenario)
     }
 
     private static func triggerNSExceptionScenario(_ scenario: CrashE2EScenario) -> Never {

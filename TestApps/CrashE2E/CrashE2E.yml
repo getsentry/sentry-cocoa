@@ -23,6 +23,8 @@ targets:
       - target: "Sentry/SentryV10"
       - target: "Sentry/SentryObjCV10"
       - target: "Sentry/SentryObjCCompatV10"
+      - target: CrashE2EUnwindProbe-iOS
+        embed: true
       - target: CrashE2EDynamicImageBefore-iOS
         embed: true
         link: false
@@ -53,6 +55,7 @@ targets:
       - target: "Sentry/SentryV10"
       - target: "Sentry/SentryObjCV10"
       - target: "Sentry/SentryObjCCompatV10"
+      - target: CrashE2EUnwindProbe-macOS
       - target: CrashE2EDynamicImageBefore-macOS
         link: false
       - target: CrashE2EDynamicImageAfter-macOS
@@ -72,6 +75,24 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tests.CrashE2E.KSCrash.macOS
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI SDK_V10"
         GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
+
+  CrashE2EUnwindProbe-iOS:
+    type: library.dynamic
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources: [App/UnwindProbe]
+    settings:
+      base:
+        DYLIB_INSTALL_NAME_BASE: "@rpath"
+
+  CrashE2EUnwindProbe-macOS:
+    type: library.dynamic
+    platform: macOS
+    deploymentTarget: "12.0"
+    sources: [App/UnwindProbe]
+    settings:
+      base:
+        DYLIB_INSTALL_NAME_BASE: "@executable_path"
 
   CrashE2EDynamicImageBefore-iOS:
     type: library.dynamic

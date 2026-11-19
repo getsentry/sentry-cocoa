@@ -140,6 +140,8 @@ extension SentryKSCrash {
             try Self.installCrashHandler {
                 try KSCrash.shared.install(with: config)
             }
+            // At readback, distinguish reports written with lifetime-aware C++ V2 capture from older reports.
+            KSCrash.shared.setUserInfo(enableSwapCxaThrow, forKey: "sentry_cpp_throw_stack")
             self.installPath = URL(fileURLWithPath: installPath, isDirectory: true)
             inspectionInstallationSucceeded = true
             installed = true
