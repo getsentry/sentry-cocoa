@@ -5,7 +5,6 @@
 #import "SentryCrashReportConverter.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
-#import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"
