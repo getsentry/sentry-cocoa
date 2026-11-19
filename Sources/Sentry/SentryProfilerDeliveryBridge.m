@@ -19,7 +19,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTransactionContext+Private.h"
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
 #    endif
@@ -208,8 +207,9 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : ((SentryTracer *)transaction.trace).traceId.sentryIdString,
     }];
-    NSNumber *_Nullable activeThreadId =
-        [((SentryTracer *)transaction.trace).transactionContext sentry_threadInfo].threadId;
+    SentryTransactionContext *transactionContext
+        = ((SentryTracer *)transaction.trace).transactionContext;
+    NSNumber *_Nullable activeThreadId = [transactionContext sentry_threadInfo].threadId;
     if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
         transactionDict[@"active_thread_id"] = activeThreadId;
     }
