@@ -86,8 +86,6 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentryStoredCrashReportProcessor.h"
 #import "SentrySysctlObjC.h"
-#import "SentryTraceContext+Private.h"
-#import "SentryTraceContextSwiftHelper.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"

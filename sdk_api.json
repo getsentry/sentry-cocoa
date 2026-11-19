@@ -812,16 +812,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryTraceContext",
-        "printedName": "Sentry.SentryTraceContext"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryTraceHeader",
         "printedName": "Sentry.SentryTraceHeader"
       },
@@ -82444,7 +82434,7 @@
                         "kind": "TypeNominal",
                         "name": "TraceContext",
                         "printedName": "Sentry.TraceContext",
-                        "usr": "c:objc(cs)SentryTraceContext"
+                        "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -82459,7 +82449,7 @@
                 "declKind": "Accessor",
                 "genericSig": "<Self where Self : Sentry.Span>",
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry4SpanP12traceContextSo0a5TraceD0CSgvg",
+                "mangledName": "$s6Sentry4SpanP12traceContextAA05TraceD0CSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -82475,7 +82465,7 @@
                     "kind": "TypeNominal",
                     "name": "TraceContext",
                     "printedName": "Sentry.TraceContext",
-                    "usr": "c:objc(cs)SentryTraceContext"
+                    "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -82489,7 +82479,7 @@
             ],
             "declKind": "Var",
             "kind": "Var",
-            "mangledName": "$s6Sentry4SpanP12traceContextSo0a5TraceD0CSgvp",
+            "mangledName": "$s6Sentry4SpanP12traceContextAA05TraceD0CSgvp",
             "moduleName": "Sentry",
             "name": "traceContext",
             "printedName": "traceContext",
@@ -84280,24 +84270,62 @@
                 "kind": "TypeNominal",
                 "name": "TraceContext",
                 "printedName": "Sentry.TraceContext",
-                "usr": "c:objc(cs)SentryTraceContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
               }
             ],
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override"
+              "Override",
+              "Required"
             ],
             "declKind": "Constructor",
-            "implicit": true,
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry12TraceContextCACycfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "init",
             "overriding": true,
             "printedName": "init()",
-            "usr": "c:objc(cs)NSObject(im)init"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)init"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry12TraceContextC9serializeSDySSypGyF",
+            "moduleName": "Sentry",
+            "name": "serialize",
+            "objc_name": "serialize",
+            "printedName": "serialize()",
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)serialize"
           },
           {
             "children": [
@@ -84310,18 +84338,17 @@
             ],
             "declAttributes": [
               "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry12TraceContextC9toBaggageSo0aE0CyF",
             "moduleName": "Sentry",
             "name": "toBaggage",
-            "objc_name": "toBaggage",
             "printedName": "toBaggage()",
-            "usr": "c:objc(cs)SentryTraceContext(im)toBaggage"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)toBaggage"
           },
           {
             "accessors": [
@@ -84344,18 +84371,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC11environmentSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "environment",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)environment"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)environment"
               }
             ],
             "children": [
@@ -84375,17 +84400,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC11environmentSSSgvp",
             "moduleName": "Sentry",
             "name": "environment",
-            "objc_name": "environment",
             "printedName": "environment",
-            "usr": "c:objc(cs)SentryTraceContext(py)environment"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)environment"
           },
           {
             "accessors": [
@@ -84408,18 +84432,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC5orgIdSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "orgId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)orgId"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)orgId"
               }
             ],
             "children": [
@@ -84439,17 +84461,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC5orgIdSSSgvp",
             "moduleName": "Sentry",
             "name": "orgId",
-            "objc_name": "orgId",
             "printedName": "orgId",
-            "usr": "c:objc(cs)SentryTraceContext(py)orgId"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)orgId"
           },
           {
             "accessors": [
@@ -84464,18 +84485,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC9publicKeySSvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "publicKey",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)publicKey"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)publicKey"
               }
             ],
             "children": [
@@ -84487,17 +84506,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC9publicKeySSvp",
             "moduleName": "Sentry",
             "name": "publicKey",
-            "objc_name": "publicKey",
             "printedName": "publicKey",
-            "usr": "c:objc(cs)SentryTraceContext(py)publicKey"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)publicKey"
           },
           {
             "accessors": [
@@ -84520,18 +84538,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC11releaseNameSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "releaseName",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)releaseName"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)releaseName"
               }
             ],
             "children": [
@@ -84551,17 +84567,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC11releaseNameSSSgvp",
             "moduleName": "Sentry",
             "name": "releaseName",
-            "objc_name": "releaseName",
             "printedName": "releaseName",
-            "usr": "c:objc(cs)SentryTraceContext(py)releaseName"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)releaseName"
           },
           {
             "accessors": [
@@ -84584,18 +84599,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC8replayIdSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "replayId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)replayId"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)replayId"
               }
             ],
             "children": [
@@ -84615,17 +84628,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC8replayIdSSSgvp",
             "moduleName": "Sentry",
             "name": "replayId",
-            "objc_name": "replayId",
             "printedName": "replayId",
-            "usr": "c:objc(cs)SentryTraceContext(py)replayId"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)replayId"
           },
           {
             "accessors": [
@@ -84648,18 +84660,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC10sampleRandSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampleRand",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)sampleRand"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)sampleRand"
               }
             ],
             "children": [
@@ -84679,17 +84689,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC10sampleRandSSSgvp",
             "moduleName": "Sentry",
             "name": "sampleRand",
-            "objc_name": "sampleRand",
             "printedName": "sampleRand",
-            "usr": "c:objc(cs)SentryTraceContext(py)sampleRand"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)sampleRand"
           },
           {
             "accessors": [
@@ -84712,18 +84721,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC10sampleRateSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampleRate",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)sampleRate"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)sampleRate"
               }
             ],
             "children": [
@@ -84743,17 +84750,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC10sampleRateSSSgvp",
             "moduleName": "Sentry",
             "name": "sampleRate",
-            "objc_name": "sampleRate",
             "printedName": "sampleRate",
-            "usr": "c:objc(cs)SentryTraceContext(py)sampleRate"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)sampleRate"
           },
           {
             "accessors": [
@@ -84776,18 +84782,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC7sampledSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampled",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)sampled"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)sampled"
               }
             ],
             "children": [
@@ -84807,17 +84811,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC7sampledSSSgvp",
             "moduleName": "Sentry",
             "name": "sampled",
-            "objc_name": "sampled",
             "printedName": "sampled",
-            "usr": "c:objc(cs)SentryTraceContext(py)sampled"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)sampled"
           },
           {
             "accessors": [
@@ -84832,18 +84835,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC7traceIdSo0aE0Cvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "traceId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)traceId"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)traceId"
               }
             ],
             "children": [
@@ -84855,17 +84856,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC7traceIdSo0aE0Cvp",
             "moduleName": "Sentry",
             "name": "traceId",
-            "objc_name": "traceId",
             "printedName": "traceId",
-            "usr": "c:objc(cs)SentryTraceContext(py)traceId"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)traceId"
           },
           {
             "accessors": [
@@ -84888,18 +84888,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC11transactionSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "transaction",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)transaction"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)transaction"
               }
             ],
             "children": [
@@ -84919,17 +84917,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC11transactionSSSgvp",
             "moduleName": "Sentry",
             "name": "transaction",
-            "objc_name": "transaction",
             "printedName": "transaction",
-            "usr": "c:objc(cs)SentryTraceContext(py)transaction"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)transaction"
           }
         ],
         "conformances": [
@@ -84996,13 +84993,14 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
           "ObjC"
         ],
         "declKind": "Class",
+        "hasMissingDesignatedInitializers": true,
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry12TraceContextC",
         "moduleName": "Sentry",
         "name": "TraceContext",
         "objc_name": "SentryTraceContext",
@@ -85011,7 +85009,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryTraceContext"
+        "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
       },
       {
         "children": [

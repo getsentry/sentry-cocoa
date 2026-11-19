@@ -18,7 +18,6 @@
 #import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
-#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer+Private.h"
 

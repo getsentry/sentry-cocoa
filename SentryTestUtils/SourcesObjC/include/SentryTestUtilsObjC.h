@@ -15,7 +15,6 @@
 #import "Wrappers/SentryHttpTransportWrapper.h"
 #import "Wrappers/SentryHub+PrivateWrapper.h"
 #import "Wrappers/SentrySpanInternal+PrivateWrapper.h"
-#import "Wrappers/SentryTraceContext+PrivateWrapper.h"
 #import "Wrappers/SentryTracer+PrivateWrapper.h"
 #import "Wrappers/SentryTransactionContext+PrivateWrapper.h"
 
