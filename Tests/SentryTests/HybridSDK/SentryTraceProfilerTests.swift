@@ -89,6 +89,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         try fixture.timerFactory.check()
         _ = try startTrace()
         let nextTimer = try XCTUnwrap(fixture.timerFactory.overrides?.timer)
+        let nextCancellation = try XCTUnwrap(_sentry_threadUnsafe_traceProfileTimeoutTimer)
 
         // -- Act --
         oldCallback(oldTimer.timer)
@@ -96,7 +97,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertTrue(nextTimer.isValid)
-        XCTAssertTrue(nextTimer === _sentry_threadUnsafe_traceProfileTimeoutTimer)
+        XCTAssertTrue(nextCancellation === _sentry_threadUnsafe_traceProfileTimeoutTimer)
     }
 
     func testScheduleTimeout_whenOldMainCallbackRunsAfterReplacement_shouldIgnoreIt() throws {
@@ -371,8 +372,10 @@ final class SentryTraceProfilerTests: XCTestCase {
         system.overrides.cpuUsage = 10
         system.overrides.memoryFootprintBytes = 100
         system.overrides.cpuEnergyUsage = 100
-        SentryMetricProfiler.setSystemWrapperOverride(system)
-        defer { SentryMetricProfiler.setSystemWrapperOverride(nil) }
+        let backend = try XCTUnwrap(SentryProfilerSDKAdapter.shared.target as? SentryDefaultProfilerSDKBackend)
+        let previousSystemWrapper = backend.systemWrapper
+        backend.systemWrapper = system
+        defer { backend.systemWrapper = previousSystemWrapper }
         let oldTracer = profiledTracer(named: "old")
         let oldProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
         fixture.dateProvider.advance(by: 30)

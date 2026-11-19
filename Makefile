@@ -20,6 +20,9 @@ IOS_SIMULATOR_OS ?= 18.4
 # iOS Simulator device name (defaults to 'iPhone 16 Pro', can be overridden via IOS_DEVICE_NAME='iPhone 15 Pro')
 IOS_DEVICE_NAME ?= iPhone 16 Pro
 
+# Build configuration for the iOS source-package test app.
+IOS_SPM_BUILD_CONFIGURATION ?= Debug
+
 # tvOS Simulator OS version (defaults to 'latest', can be overridden via TVOS_SIMULATOR_OS=18.5)
 TVOS_SIMULATOR_OS ?= latest
 
@@ -555,6 +558,20 @@ build-xcframework-testapp:
 	@echo "[MAKE] $@: Building test app with xcodebuild"
 	xcodebuild -project "TestApps/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+## Package the SPM SDK as a dynamic XCFramework
+#
+# Both generations build the Sentry module. CI validates these artifacts
+# separately from the existing Xcode-project release products.
+SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM/$(if $(filter 1,$(SDK_V10)),v10,v9)
+.PHONY: build-xcframework-spm
+build-xcframework-spm:
+	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant-spm.sh --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
+	@echo "[MAKE] $@: Validating Sentry-Dynamic.xcframework"
+	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
+	@echo "[MAKE] $@: Compressing Sentry-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
+
 ## Build Sentry-Dynamic XCFramework
 #
 # SDKS is a comma-separated list of SDK names (default: all).
@@ -1046,6 +1063,7 @@ build-testapp-iOS-SwiftUI-SPM:
 	set -o pipefail && xcodebuild \
 		-project "TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
 		-scheme iOS-SwiftUI-SPM \
+		-configuration '$(IOS_SPM_BUILD_CONFIGURATION)' \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 

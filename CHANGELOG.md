@@ -12,6 +12,10 @@
 - Spell the run ID into the call stack of a parked thread while MetricKit diagnostics are enabled, so the SDK can match a MetricKit crash, hang or memory diagnostic to the run it describes. The thread is named `io.sentry.threadcrumb` and stays idle; the run ID stays on the device (#9582)
 - Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
 
+### Fixes
+
+- Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
+
 ## 9.35.0
 
 ### Features
@@ -27,6 +31,7 @@
 
 - Read `attachAllThreads`, `enableDataSwizzling` and `enableStandaloneAppStartTracing` from the options dictionary that hybrid SDKs pass to the native SDK (#9586)
 - Preserve a fallback stack trace and the crashing thread when the experimental C++ exception monitor (V2) misses a throw hook (#9612)
+- Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
 
 ### Improvements
 

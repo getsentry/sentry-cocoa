@@ -3,7 +3,9 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
+import ObjectiveC
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -103,6 +105,58 @@ class SentrySwizzleWrapperTests: XCTestCase {
         wait(for: [neverExpectation], timeout: 0.1)
     }
     
+    func testSwizzleViewDidAppear_whenNotRunningTests_shouldInstallOncePerKey() throws {
+        // -- Arrange --
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.environment = [:]
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfo
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(UIViewController.viewDidAppear(_:))
+        let method = try XCTUnwrap(class_getInstanceMethod(UIViewController.self, selector))
+        let original = method_getImplementation(method)
+        defer {
+            SentrySwizzle.unswizzleInstanceMethod(selector, in: UIViewController.self, key: key.pointer)
+            method_setImplementation(method, original)
+        }
+        var firstInvocations = 0
+        var secondInvocations = 0
+
+        // -- Act --
+        SentrySwizzleWrapperHelper.swizzleViewDidAppear({ _ in firstInvocations += 1 }, forKey: key.pointer)
+        SentrySwizzleWrapperHelper.swizzleViewDidAppear({ _ in secondInvocations += 1 }, forKey: key.pointer)
+        UIViewController().viewDidAppear(false)
+
+        // -- Assert --
+        XCTAssertEqual(firstInvocations, 1)
+        XCTAssertEqual(secondInvocations, 0)
+    }
+
+    func testSwizzleViewDidAppear_whenRunningTests_shouldAllowRepeatedInstallation() throws {
+        // -- Arrange --
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.environment = ["XCTestConfigurationFilePath": "test-configuration"]
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfo
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(UIViewController.viewDidAppear(_:))
+        let method = try XCTUnwrap(class_getInstanceMethod(UIViewController.self, selector))
+        let original = method_getImplementation(method)
+        defer {
+            SentrySwizzle.unswizzleInstanceMethod(selector, in: UIViewController.self, key: key.pointer)
+            method_setImplementation(method, original)
+        }
+        var firstInvocations = 0
+        var secondInvocations = 0
+
+        // -- Act --
+        SentrySwizzleWrapperHelper.swizzleViewDidAppear({ _ in firstInvocations += 1 }, forKey: key.pointer)
+        SentrySwizzleWrapperHelper.swizzleViewDidAppear({ _ in secondInvocations += 1 }, forKey: key.pointer)
+        UIViewController().viewDidAppear(false)
+
+        // -- Assert --
+        XCTAssertEqual(firstInvocations, 1)
+        XCTAssertEqual(secondInvocations, 1)
+    }
+
     private func sendActionCalled() {
         SentrySwizzleWrapper.sendActionCalled(#selector(someMethod), target: nil, sender: nil, event: self.fixture.event)
     }

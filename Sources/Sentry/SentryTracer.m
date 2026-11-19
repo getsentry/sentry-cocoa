@@ -19,7 +19,6 @@
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
-#import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -78,7 +77,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+- (instancetype)initWithTransactionContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                               SentryTransactionContext))transactionContext
                                        hub:(nullable SentryHubInternal *)hub
 {
     return [self initWithTransactionContext:transactionContext
@@ -86,11 +86,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                               configuration:SentryTracerConfiguration.defaultConfiguration];
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+- (instancetype)initWithTransactionContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                               SentryTransactionContext))transactionContext
                                        hub:(nullable SentryHubInternal *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 {
-    if (!(self = [super initWithContext:transactionContext
+    SentryTransactionContext *context = transactionContext;
+    if (!(self = [super initWithContext:context
 #if SENTRY_HAS_UIKIT
                           framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
 #endif // SENTRY_HAS_UIKIT
@@ -103,7 +105,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     _dispatchQueue = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     _debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
 
-    self.transactionContext = transactionContext;
+    self.transactionContext = context;
     _children = [[NSMutableArray alloc] init];
     self.hub = hub;
     self.wasFinishCalled = NO;
@@ -146,20 +148,20 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, transactionContext);
+    _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, context);
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    if (transactionContext.parentSpanId == nil) {
+    if (context.parentSpanId == nil) {
         SENTRY_LOG_DEBUG(
             @"Started root span tracer with id: %@; profilerReferenceId: %@; span id: %@",
-            transactionContext.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            context.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
             self.spanId.sentrySpanIdString);
     } else {
         SENTRY_LOG_DEBUG(@"Started child span tracer with id: %@; profilerReferenceId: %@; span "
                          @"id: %@; parent span id: %@",
-            transactionContext.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
-            self.spanId.sentrySpanIdString, transactionContext.parentSpanId.sentrySpanIdString);
+            context.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            self.spanId.sentrySpanIdString, context.parentSpanId.sentrySpanIdString);
     }
 
     return self;
@@ -557,8 +559,12 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     SentryTransaction *transaction = [self toTransaction];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_stopProfilerDueToFinishedTransaction(
-        _hub, _dispatchQueue, transaction, _isProfiling, self.startTimestamp, _startSystemTime
+    SentryDispatchQueueWrapper *dispatchQueue = _dispatchQueue;
+    SentryProfilingDispatch dispatchAsync
+        = ^(dispatch_block_t block) { [dispatchQueue dispatchAsyncWithBlock:block]; };
+    BOOL isLaunchTrace = self == (SentryTracer *)SentryLaunchProfiling.launchTracer;
+    sentry_stopProfilerDueToFinishedTransaction(_hub, dispatchAsync, transaction, _isProfiling,
+        isLaunchTrace, self.startTimestamp, _startSystemTime
 #    if SENTRY_HAS_UIKIT
         ,
         appStartMeasurement
@@ -748,7 +754,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
-    transaction.transaction = self.transactionContext.name;
+    SentryTransactionContext *transactionContext = self.transactionContext;
+    transaction.transaction = transactionContext.name;
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpanInternal *)self frames]) {

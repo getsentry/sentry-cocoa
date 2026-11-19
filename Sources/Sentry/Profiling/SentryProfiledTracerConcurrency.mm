@@ -226,7 +226,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
-    profiler.screenFrameData = [SentryProfilerSDKAdapter.shared copyCurrentFrames];
+    profiler.screenFrameData = [SentryProfilerSDKAdapter.shared copyFrameMeasurements];
     SENTRY_LOG_DEBUG(
         @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
         profiler.screenFrameData);
@@ -239,10 +239,9 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 }
 
 void
-sentry_stopProfilerDueToFinishedTransaction(
-    SentryHubInternal *hub, SentryDispatchQueueWrapper *dispatchQueue,
-    SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) transaction, BOOL isProfiling,
-    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
+    SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction, BOOL isProfiling,
+    BOOL isLaunchTrace, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
@@ -264,7 +263,7 @@ sentry_stopProfilerDueToFinishedTransaction(
         // SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer. Other transactions finishing
         // during the launch profiling window (e.g., manual transactions or app start transactions)
         // must still be captured.
-        if (trace != SentryProfilerSDKAdapter.shared.launchTracer) {
+        if (!isLaunchTrace) {
             [hub captureTransaction:transaction withScope:hub.scope];
         }
         return;
@@ -336,36 +335,35 @@ sentry_stopProfilerDueToFinishedTransaction(
     // This code can run on the main thread, and the profile serialization can take a couple of
     // milliseconds. Therefore, we move this to a background thread to avoid potentially
     // blocking the main thread.
-    [SentryProfilerSDKAdapter.shared
-        dispatchAsyncOnQueue:dispatchQueue
-                       block:^{
-                           const auto profilingData = [profiler.state copyProfilingData];
+    dispatchAsync(^{
+        const auto profilingData = [profiler.state copyProfilingData];
 
-                           const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-                               hub, profiler, profilingData, transaction, startTimestamp);
+        const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
+            hub, profiler, profilingData, transaction, startTimestamp);
 
-                           if (!profileEnvelopeItem) {
-                               [hub captureTransaction:transaction withScope:hub.scope];
-                           } else {
-                               [hub captureTransaction:transaction
-                                                 withScope:hub.scope
-                                   additionalEnvelopeItems:@[ SENTRY_UNWRAP_NULLABLE(
-                                                               SentryEnvelopeItem,
-                                                               profileEnvelopeItem) ]];
-                           }
-                       }];
+        if (!profileEnvelopeItem) {
+            [hub captureTransaction:transaction withScope:hub.scope];
+        } else {
+            [hub captureTransaction:transaction
+                              withScope:hub.scope
+                additionalEnvelopeItems:@[ SENTRY_UNWRAP_NULLABLE(
+                                            SentryEnvelopeItem, profileEnvelopeItem) ]];
+        }
+    });
 }
 
 SentryId *_Nullable sentry_startProfilerForTrace(
     SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext)
+    SentryHubInternal *_Nullable hub,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext)
 {
+    SentryTransactionContext *context = transactionContext;
     SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
     if (profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
         // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
-            profileConfiguration.profileOptions, transactionContext);
+            profileConfiguration.profileOptions, context);
     }
     SentryClientInternal *_Nullable client = hub.getClient;
     if (client != nil
@@ -378,7 +376,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
             SENTRY_LOG_DEBUG(@"No profiling options found, will not start profiler.");
             return nil;
         }
-        return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, transactionContext);
+        return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, context);
     }
     SentrySamplerDecision *profilesSamplerDecision =
         [(NSObject *)configuration valueForKey:@"profilesSamplerDecision"];
@@ -389,7 +387,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
-                sentry_stringFromSentryID(sentry_getTraceID(transactionContext)),
+                sentry_stringFromSentryID(sentry_getTraceID(context)),
                 sentry_stringFromSentryID(internalID));
             return internalID;
         }

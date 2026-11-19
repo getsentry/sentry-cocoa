@@ -799,16 +799,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryTransactionContext",
-        "printedName": "Sentry.SentryTransactionContext"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryUser",
         "printedName": "Sentry.SentryUser"
       },
@@ -29353,7 +29343,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -29362,7 +29352,7 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry15SamplingContextC011transactionC0ACSo0a11TransactionC0C_tcfc",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC0AcA011TransactionC0C_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithTransactionContext:",
@@ -29408,7 +29398,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -29417,7 +29407,7 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry15SamplingContextC011transactionC006custombC0ACSo0a11TransactionC0C_SDySSypGSgtcfc",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC006custombC0AcA011TransactionC0C_SDySSypGSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithTransactionContext:customSamplingContext:",
@@ -29524,7 +29514,7 @@
                     "kind": "TypeNominal",
                     "name": "TransactionContext",
                     "printedName": "Sentry.TransactionContext",
-                    "usr": "c:objc(cs)SentryTransactionContext"
+                    "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
                   }
                 ],
                 "declAttributes": [
@@ -29534,7 +29524,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry15SamplingContextC011transactionC0So0a11TransactionC0Cvg",
+                "mangledName": "$s6Sentry15SamplingContextC011transactionC0AA011TransactionC0Cvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -29546,7 +29536,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -29558,7 +29548,7 @@
             "hasStorage": true,
             "isLet": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry15SamplingContextC011transactionC0So0a11TransactionC0Cvp",
+            "mangledName": "$s6Sentry15SamplingContextC011transactionC0AA011TransactionC0Cvp",
             "moduleName": "Sentry",
             "name": "transactionContext",
             "printedName": "transactionContext",
@@ -42208,7 +42198,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -42219,7 +42209,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContextSo0A4Span_pSo0adF0C_tF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContextSo0A4Span_pAA0dF0C_tF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:",
@@ -42244,7 +42234,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -42255,7 +42245,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScopeSo0A4Span_pSo0adF0C_SbtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScopeSo0A4Span_pAA0dF0C_SbtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:bindToScope:",
@@ -42299,7 +42289,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -42310,7 +42300,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pSo0adF0C_SbSDySSypGtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pAA0dF0C_SbSDySSypGtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:bindToScope:customSamplingContext:",
@@ -42348,7 +42338,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -42359,7 +42349,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext014customSamplingF0So0A4Span_pSo0adF0C_SDySSypGtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext014customSamplingF0So0A4Span_pAA0dF0C_SDySSypGtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:customSamplingContext:",
@@ -63625,7 +63615,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -63635,12 +63625,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContextSo0A4Span_pSo0adF0C_tFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContextSo0A4Span_pAA0dF0C_tFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContextSo0A4Span_pSo0adF0C_tFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContextSo0A4Span_pAA0dF0C_tFZ"
           },
           {
             "children": [
@@ -63660,7 +63650,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -63670,12 +63660,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeSo0A4Span_pSo0adF0C_SbtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeSo0A4Span_pAA0dF0C_SbtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:bindToScope:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeSo0A4Span_pSo0adF0C_SbtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeSo0A4Span_pAA0dF0C_SbtFZ"
           },
           {
             "children": [
@@ -63714,7 +63704,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -63724,12 +63714,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pSo0adF0C_SbSDySSypGtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pAA0dF0C_SbSDySSypGtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:bindToScope:customSamplingContext:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pSo0adF0C_SbSDySSypGtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pAA0dF0C_SbSDySSypGtFZ"
           },
           {
             "children": [
@@ -63762,7 +63752,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -63772,12 +63762,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0So0A4Span_pSo0adF0C_SDySSypGtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0So0A4Span_pAA0dF0C_SDySSypGtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:customSamplingContext:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0So0A4Span_pSo0adF0C_SDySSypGtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0So0A4Span_pAA0dF0C_SDySSypGtFZ"
           },
           {
             "children": [
@@ -80961,7 +80951,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -80969,13 +80959,15 @@
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
+            "isFromExtension": true,
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC4name9operationACSS_SStcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithName:operation:",
             "printedName": "init(name:operation:)",
-            "usr": "c:objc(cs)SentryTransactionContext(im)initWithName:operation:"
+            "usr": "c:@CM@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:"
           },
           {
             "children": [
@@ -81029,7 +81021,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -81037,13 +81029,15 @@
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
+            "isFromExtension": true,
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC4name9operation7sampled10sampleRate0G4RandACSS_SSSo0A14SampleDecisionVSo8NSNumberCSgAMtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithName:operation:sampled:sampleRate:sampleRand:",
             "printedName": "init(name:operation:sampled:sampleRate:sampleRand:)",
-            "usr": "c:objc(cs)SentryTransactionContext(im)initWithName:operation:sampled:sampleRate:sampleRand:"
+            "usr": "c:@CM@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:sampled:sampleRate:sampleRand:"
           },
           {
             "children": [
@@ -81123,7 +81117,7 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
@@ -81131,13 +81125,15 @@
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
+            "isFromExtension": true,
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC4name9operation5trace6spanId010parentSpanH00I7Sampled0I10SampleRate0iL4RandACSS_SSSo0aH0CSo0ajH0CAOSgSo0aL8DecisionVSo8NSNumberCSgAUtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithName:operation:traceId:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:",
             "printedName": "init(name:operation:trace:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:)",
-            "usr": "c:objc(cs)SentryTransactionContext(im)initWithName:operation:traceId:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:"
+            "usr": "c:@CM@Sentry@objc(cs)SentryTransactionContext(im)initWithName:operation:traceId:spanId:parentSpanId:parentSampled:parentSampleRate:parentSampleRand:"
           },
           {
             "children": [
@@ -81151,24 +81147,22 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
-              "Dynamic",
-              "ObjC",
+              "NonObjC",
               "Override"
             ],
             "declKind": "Constructor",
-            "implicit": true,
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC9operationACSS_tcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "objc_name": "initWithOperation:",
             "overriding": true,
             "printedName": "init(operation:)",
-            "usr": "c:objc(cs)SentrySpanContext(im)initWithOperation:"
+            "usr": "s:6Sentry18TransactionContextC9operationACSS_tcfc"
           },
           {
             "children": [
@@ -81188,24 +81182,22 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
-              "Dynamic",
-              "ObjC",
+              "NonObjC",
               "Override"
             ],
             "declKind": "Constructor",
-            "implicit": true,
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC9operation7sampledACSS_So0A14SampleDecisionVtcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "objc_name": "initWithOperation:sampled:",
             "overriding": true,
             "printedName": "init(operation:sampled:)",
-            "usr": "c:objc(cs)SentrySpanContext(im)initWithOperation:sampled:"
+            "usr": "s:6Sentry18TransactionContextC9operation7sampledACSS_So0A14SampleDecisionVtcfc"
           },
           {
             "children": [
@@ -81251,24 +81243,22 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
-              "Dynamic",
-              "ObjC",
+              "NonObjC",
               "Override"
             ],
             "declKind": "Constructor",
-            "implicit": true,
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC5trace6spanId06parentF09operation7sampledACSo0aF0C_So0a4SpanF0CALSgSSSo0A14SampleDecisionVtcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "objc_name": "initWithTraceId:spanId:parentId:operation:sampled:",
             "overriding": true,
             "printedName": "init(trace:spanId:parentId:operation:sampled:)",
-            "usr": "c:objc(cs)SentrySpanContext(im)initWithTraceId:spanId:parentId:operation:sampled:"
+            "usr": "s:6Sentry18TransactionContextC5trace6spanId06parentF09operation7sampledACSo0aF0C_So0a4SpanF0CALSgSSSo0A14SampleDecisionVtcfc"
           },
           {
             "children": [
@@ -81328,24 +81318,22 @@
                 "kind": "TypeNominal",
                 "name": "TransactionContext",
                 "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
               }
             ],
             "declAttributes": [
-              "Dynamic",
-              "ObjC",
+              "NonObjC",
               "Override"
             ],
             "declKind": "Constructor",
-            "implicit": true,
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry18TransactionContextC5trace6spanId06parentF09operation0E11Description7sampledACSo0aF0C_So0a4SpanF0CAMSgS2SSgSo0A14SampleDecisionVtcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "objc_name": "initWithTraceId:spanId:parentId:operation:spanDescription:sampled:",
             "overriding": true,
             "printedName": "init(trace:spanId:parentId:operation:spanDescription:sampled:)",
-            "usr": "c:objc(cs)SentrySpanContext(im)initWithTraceId:spanId:parentId:operation:spanDescription:sampled:"
+            "usr": "s:6Sentry18TransactionContextC5trace6spanId06parentF09operation0E11Description7sampledACSo0aF0C_So0a4SpanF0CAMSgS2SSgSo0A14SampleDecisionVtcfc"
           },
           {
             "accessors": [
@@ -81360,53 +81348,43 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC16forNextAppLaunchSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "forNextAppLaunch",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)forNextAppLaunch"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)forNextAppLaunch"
               },
               {
                 "accessorKind": "set",
                 "children": [
                   {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
-                  {
                     "kind": "TypeNominal",
                     "name": "Bool",
                     "printedName": "Swift.Bool",
                     "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC16forNextAppLaunchSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setForNextAppLaunch:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)setForNextAppLaunch:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)setForNextAppLaunch:"
               }
             ],
             "children": [
@@ -81418,17 +81396,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC16forNextAppLaunchSbvp",
             "moduleName": "Sentry",
             "name": "forNextAppLaunch",
-            "objc_name": "forNextAppLaunch",
             "printedName": "forNextAppLaunch",
-            "usr": "c:objc(cs)SentryTransactionContext(py)forNextAppLaunch"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)forNextAppLaunch"
           },
           {
             "accessors": [
@@ -81443,18 +81421,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC4nameSSvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "name",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)name"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)name"
               }
             ],
             "children": [
@@ -81466,17 +81443,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC4nameSSvp",
             "moduleName": "Sentry",
             "name": "name",
-            "objc_name": "name",
             "printedName": "name",
-            "usr": "c:objc(cs)SentryTransactionContext(py)name"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)name"
           },
           {
             "accessors": [
@@ -81491,18 +81470,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC10nameSourceAA0ab4NameE0Ovg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "nameSource",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)nameSource"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)nameSource"
               }
             ],
             "children": [
@@ -81514,17 +81492,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC10nameSourceAA0ab4NameE0Ovp",
             "moduleName": "Sentry",
             "name": "nameSource",
-            "objc_name": "nameSource",
             "printedName": "nameSource",
-            "usr": "c:objc(cs)SentryTransactionContext(py)nameSource"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)nameSource"
           },
           {
             "accessors": [
@@ -81547,34 +81527,20 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC16parentSampleRandSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "parentSampleRand",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)parentSampleRand"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)parentSampleRand"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -81588,20 +81554,24 @@
                     "name": "Optional",
                     "printedName": "Foundation.NSNumber?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC16parentSampleRandSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setParentSampleRand:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)setParentSampleRand:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)setParentSampleRand:"
               }
             ],
             "children": [
@@ -81621,17 +81591,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC16parentSampleRandSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "name": "parentSampleRand",
-            "objc_name": "parentSampleRand",
             "printedName": "parentSampleRand",
-            "usr": "c:objc(cs)SentryTransactionContext(py)parentSampleRand"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)parentSampleRand"
           },
           {
             "accessors": [
@@ -81654,34 +81625,20 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC16parentSampleRateSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "parentSampleRate",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)parentSampleRate"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)parentSampleRate"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -81695,20 +81652,24 @@
                     "name": "Optional",
                     "printedName": "Foundation.NSNumber?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC16parentSampleRateSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setParentSampleRate:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)setParentSampleRate:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)setParentSampleRate:"
               }
             ],
             "children": [
@@ -81728,17 +81689,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC16parentSampleRateSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "name": "parentSampleRate",
-            "objc_name": "parentSampleRate",
             "printedName": "parentSampleRate",
-            "usr": "c:objc(cs)SentryTransactionContext(py)parentSampleRate"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)parentSampleRate"
           },
           {
             "accessors": [
@@ -81753,53 +81715,43 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC13parentSampledSo0A14SampleDecisionVvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "parentSampled",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)parentSampled"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)parentSampled"
               },
               {
                 "accessorKind": "set",
                 "children": [
                   {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
-                  {
                     "kind": "TypeNominal",
                     "name": "SentrySampleDecision",
                     "printedName": "Sentry.SentrySampleDecision",
                     "usr": "c:@E@SentrySampleDecision"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC13parentSampledSo0A14SampleDecisionVvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setParentSampled:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)setParentSampled:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)setParentSampled:"
               }
             ],
             "children": [
@@ -81811,17 +81763,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC13parentSampledSo0A14SampleDecisionVvp",
             "moduleName": "Sentry",
             "name": "parentSampled",
-            "objc_name": "parentSampled",
             "printedName": "parentSampled",
-            "usr": "c:objc(cs)SentryTransactionContext(py)parentSampled"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)parentSampled"
           },
           {
             "accessors": [
@@ -81844,34 +81796,20 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC10sampleRandSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampleRand",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)sampleRand"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)sampleRand"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -81885,20 +81823,24 @@
                     "name": "Optional",
                     "printedName": "Foundation.NSNumber?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC10sampleRandSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setSampleRand:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)setSampleRand:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)setSampleRand:"
               }
             ],
             "children": [
@@ -81918,17 +81860,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC10sampleRandSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "name": "sampleRand",
-            "objc_name": "sampleRand",
             "printedName": "sampleRand",
-            "usr": "c:objc(cs)SentryTransactionContext(py)sampleRand"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)sampleRand"
           },
           {
             "accessors": [
@@ -81951,34 +81894,20 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC10sampleRateSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampleRate",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)sampleRate"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)sampleRate"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -81992,20 +81921,24 @@
                     "name": "Optional",
                     "printedName": "Foundation.NSNumber?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry18TransactionContextC10sampleRateSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setSampleRate:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransactionContext(im)setSampleRate:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(im)setSampleRate:"
               }
             ],
             "children": [
@@ -82025,17 +81958,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry18TransactionContextC10sampleRateSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "name": "sampleRate",
-            "objc_name": "sampleRate",
             "printedName": "sampleRate",
-            "usr": "c:objc(cs)SentryTransactionContext(py)sampleRate"
+            "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext(py)sampleRate"
           }
         ],
         "conformances": [
@@ -82096,13 +82030,15 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
-          "ObjC"
+          "ObjC",
+          "ObjCMembers"
         ],
         "declKind": "Class",
+        "hasMissingDesignatedInitializers": true,
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry18TransactionContextC",
         "moduleName": "Sentry",
         "name": "TransactionContext",
         "objc_name": "SentryTransactionContext",
@@ -82112,7 +82048,7 @@
           "Sentry.SpanContext"
         ],
         "superclassUsr": "c:objc(cs)SentrySpanContext",
-        "usr": "c:objc(cs)SentryTransactionContext"
+        "usr": "c:@M@Sentry@objc(cs)SentryTransactionContext"
       },
       {
         "children": [

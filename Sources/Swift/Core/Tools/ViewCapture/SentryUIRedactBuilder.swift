@@ -405,7 +405,7 @@ final class SentryUIRedactBuilder {
         redactClassesIdentifiers.insert(ClassIdentifier(class: containerClass))
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     func isIgnoreContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
         return isIgnoreContainerClass(containerClass)
     }

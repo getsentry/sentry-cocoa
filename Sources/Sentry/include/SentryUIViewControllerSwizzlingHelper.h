@@ -24,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Swizzles a specific UIViewController subclass for performance tracking.
- * @param class The UIViewController subclass to swizzle.
+ * @param viewControllerClass The UIViewController subclass to swizzle.
  */
-+ (void)swizzleViewControllerSubClass:(Class)class;
++ (void)swizzleViewControllerSubClass:(Class)viewControllerClass;
 
 /**
  * Swizzles the base @c UIViewController designated initializers and notifies @c delegate after each
@@ -43,15 +43,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)stop;
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
 
 /**
- * Unswizzles all UIViewController methods. Only available in test targets.
+ * Unswizzles all UIViewController methods. Only available in Debug and test builds.
  */
 + (void)unswizzle;
 
 /**
- * Returns whether swizzling is currently active. Only available in test targets.
+ * Returns whether swizzling is currently active. Only available in Debug and test builds.
  */
 + (BOOL)swizzlingActive;
 #    endif

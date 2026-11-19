@@ -1,6 +1,10 @@
 #if !SDK_V10
 #if SWIFT_PACKAGE
+#if SENTRY_BUILD_XCFRAMEWORK
+@_spi(Private) import Sentry
+#else
 @_spi(Private) import SentrySwift
+#endif
 #endif
 internal import _SentryPrivate
 import Foundation
@@ -170,7 +174,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     /// Sends all pending crash reports. Called internally during initialization,
     /// and exposed for testing purposes.
     func sendAllSentryCrashReports() {

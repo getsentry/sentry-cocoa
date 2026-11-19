@@ -31,14 +31,14 @@
 #ifndef HDR_SentryCrashC_h
 #define HDR_SentryCrashC_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashMonitorType.h"
 #include "SentryCrashReportWriter.h"
 
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Install the crash reporter. The reporter will record the next crash and then
  * terminate the program.

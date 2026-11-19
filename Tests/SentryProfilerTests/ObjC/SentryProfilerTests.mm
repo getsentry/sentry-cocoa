@@ -7,11 +7,11 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerMocks.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"
-#    import "SentryTransactionContext+Private.h"
 
 using namespace sentry::profiling;
 
@@ -182,12 +182,9 @@ using namespace sentry::profiling;
         [[SentryHubInternal alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT
         ,
-        [[SentryScreenFrames alloc] initWithTotal:5
-                                           frozen:6
-                                             slow:7
-                              slowFrameTimestamps:@[]
-                            frozenFrameTimestamps:@[]
-                              frameRateTimestamps:@[]]
+        [[SentryProfilingFrameMeasurements alloc] initWithSlowFrameTimestamps:@[]
+                                                        frozenFrameTimestamps:@[]
+                                                          frameRateTimestamps:@[]]
 #    endif // SENTRY_HAS_UIKIT
     );
 
