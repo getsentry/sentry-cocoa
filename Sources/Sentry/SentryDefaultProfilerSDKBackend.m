@@ -215,11 +215,10 @@
 
 - (void)stopFramesTrackerIfUnused
 {
-    SentryOptions *performanceOptions = [[[SentrySDKInternal currentHub] getClient] options];
-    BOOL shouldStop = performanceOptions == nil || !performanceOptions.enableAutoPerformanceTracing;
+    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    BOOL shouldStop = options == nil || !options.enableAutoPerformanceTracing;
 #        if !SDK_V10
-    SentryOptions *appHangOptions = [[[SentrySDKInternal currentHub] getClient] options];
-    BOOL appHangsDisabled = appHangOptions != nil && [appHangOptions isAppHangTrackingDisabled];
+    BOOL appHangsDisabled = options != nil && [options isAppHangTrackingDisabled];
     shouldStop = shouldStop && appHangsDisabled;
 #        endif
     if (shouldStop) {
