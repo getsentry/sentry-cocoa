@@ -38,7 +38,7 @@ class SentryDefaultEventContextEnricher: SentryEventContextEnricher {
         }
 
         // Get or create app context
-        var appContext = (context["app"] as? [String: Any]) ?? [:]
+        var appContext = (contextEntry(context["app"])) ?? [:]
 
         // If both fields are set, we don't overwrite them
         if appContext["in_foreground"] != nil && appContext["is_active"] != nil {

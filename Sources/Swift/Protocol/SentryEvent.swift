@@ -94,11 +94,27 @@ open class Event: NSObject {
     /// User associated with the event.
     public var user: User?
 
-    /// Meta information. Maintained automatically.
+    /// This object contains meta information.
     ///
-    /// Entries are usually one dictionary per context type. Crash reports also store other JSON
-    /// values, so this is a dictionary of arbitrary values rather than nested dictionaries.
-    public var context: [String: Any]?
+    /// This is maintained automatically, and shouldn't normally need to be modified.
+    @nonobjc public var context: [String: [String: Any]]? {
+        get { nestedContext(from: contextDictionary) }
+        set { contextDictionary = newValue as NSDictionary? }
+    }
+
+    /// Objective-C access to ``context``.
+    ///
+    /// Crash reports store non-dictionary JSON values here. A nested Swift dictionary setter
+    /// would reject those values, so Objective-C reads and writes this storage directly.
+    @_spi(Private) @objc(context) public var contextDictionary: NSDictionary?
+
+    /// Stores context built as a dictionary of arbitrary values.
+    ///
+    /// The public property only accepts nested dictionaries. This writes the raw storage so
+    /// callers can keep values that are not dictionaries, such as crash-report strings.
+    func storeContext(_ context: [String: Any]?) {
+        contextDictionary = context as NSDictionary?
+    }
 
     /// Threads captured for a crash or a user-reported exception.
     public var threads: [SentryThread]?
@@ -247,7 +263,9 @@ open class Event: NSObject {
         set("modules", modules, on: &serializedData)
         set("stacktrace", serializedObject(stacktrace), on: &serializedData)
         addBreadcrumbs(to: &serializedData)
-        set("contexts", sanitized(context), on: &serializedData)
+        // Read the raw dictionary. The Swift property omits non-dictionary values that crash
+        // reports store, and serialization still sends those values.
+        set("contexts", sanitized(contextDictionary as? [String: Any]), on: &serializedData)
         if let message {
             set("message", serializedObject(message), on: &serializedData)
         }
@@ -296,4 +314,23 @@ private func serializedObjects(_ objects: [AnyObject]?) -> [Any] {
 
 private func sanitized(_ dictionary: [String: Any]?) -> Any? {
     sentry_sanitize_dictionary(dictionary as NSDictionary?)
+}
+
+/// Reads one context entry.
+///
+/// A subscript of ``Event/context`` is already `[String: Any]?`. A subscript of a dictionary of
+/// arbitrary values is `Any?`. Call sites use this instead of `as?` so both compile.
+func contextEntry<Value>(_ value: Value?) -> [String: Any]? {
+    value as? [String: Any]
+}
+
+private func nestedContext(from storage: NSDictionary?) -> [String: [String: Any]]? {
+    guard let storage else { return nil }
+    var nested: [String: [String: Any]] = [:]
+    nested.reserveCapacity(storage.count)
+    for (key, value) in storage {
+        guard let key = key as? String, let value = value as? [String: Any] else { continue }
+        nested[key] = value
+    }
+    return nested
 }

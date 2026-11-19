@@ -1959,7 +1959,7 @@ class SentryHubTests: XCTestCase {
 
     private func featureFlagValues(from scope: Scope) throws -> [[String: Any]] {
         let context = try XCTUnwrap(scope.serialize()["context"] as? [String: Any])
-        let flags = try XCTUnwrap(context["flags"] as? [String: Any])
+        let flags = try XCTUnwrap(contextEntry(context["flags"]))
         return try XCTUnwrap(flags["values"] as? [[String: Any]])
     }
     
