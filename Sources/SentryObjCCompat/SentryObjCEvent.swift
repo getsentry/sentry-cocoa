@@ -131,10 +131,17 @@ import Foundation
         set { wrapped.user = newValue?.wrapped }
     }
 
+#if SDK_V10
+    @objc public var context: [String: Any]? {
+        get { wrapped.context }
+        set { wrapped.context = newValue }
+    }
+#else
     @objc public var context: [String: [String: Any]]? {
         get { wrapped.context }
         set { wrapped.context = newValue }
     }
+#endif
 
     @objc public var threads: [SentryObjCThread]? {
         get {
