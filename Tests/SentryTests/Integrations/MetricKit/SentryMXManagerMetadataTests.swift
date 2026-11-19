@@ -417,7 +417,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual((event?.context?["app"] as? [String: Any])?["app_identifier"] as? String, "io.sentry.app.extension")
+            XCTAssertEqual((contextEntry(event?.context?["app"]))?["app_identifier"] as? String, "io.sentry.app.extension")
         }
     }
     #endif // compiler(>=6.2)

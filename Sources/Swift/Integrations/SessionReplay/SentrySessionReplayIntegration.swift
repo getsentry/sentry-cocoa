@@ -227,7 +227,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         if let transaction = event as? Transaction {
             return transaction.trace.traceId
         }
-        guard let traceContext = event.context?["trace"] as? [String: Any],
+        guard let traceContext = contextEntry(event.context?["trace"]),
               let hexString = traceContext["trace_id"] as? String else {
             return nil
         }

@@ -662,7 +662,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         // -- Assert --
         let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
-        let device = context["device"] as? [String: Any]
+        let device = contextEntry(context["device"])
         XCTAssertNil(device?["locale"])
 #endif // !SDK_V10
     }
@@ -1103,12 +1103,12 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     private func assertContext(context: [String: Any]?) {
-        guard let os = context?["os"] as? [String: Any] else {
+        guard let os = contextEntry(context?["os"]) else {
             XCTFail("No OS found on context.")
             return
         }
 
-        guard let device = context?["device"] as? [String: Any] else {
+        guard let device = contextEntry(context?["device"]) else {
             XCTFail("No device found on context.")
             return
         }
@@ -1140,7 +1140,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private func assertLocaleOnHub(locale: String, hub: SentryHubInternal) {
         let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
 
-        guard let device = context["device"] as? [String: Any] else {
+        guard let device = contextEntry(context["device"]) else {
             XCTFail("No device found on context.")
             return
         }

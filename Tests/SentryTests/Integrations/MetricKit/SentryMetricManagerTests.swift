@@ -229,10 +229,10 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(event.isFromPreviousProcess, true)
             XCTAssertEqual(event.releaseName, "io.sentry.app@1.0.0+10")
             XCTAssertEqual(event.dist, "10")
-            let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
+            let appContext = try XCTUnwrap(contextEntry(event.context?["app"]))
             XCTAssertEqual(appContext["app_version"] as? String, "1.0.0")
             XCTAssertEqual(appContext["app_build"] as? String, "10")
-            let osContext = try XCTUnwrap(event.context?["os"] as? [String: Any])
+            let osContext = try XCTUnwrap(contextEntry(event.context?["os"]))
             XCTAssertEqual(osContext["version"] as? String, "27.0")
             XCTAssertEqual(osContext["build"] as? String, "24A100")
         }
@@ -285,7 +285,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         // MetricKit doesn't tell which build type a non-TestFlight build had.
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertNil((event?.context?["app"] as? [String: Any])?["build_type"])
+            XCTAssertNil((contextEntry(event?.context?["app"]))?["build_type"])
         }
     }
 

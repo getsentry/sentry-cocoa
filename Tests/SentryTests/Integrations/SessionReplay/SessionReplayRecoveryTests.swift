@@ -94,7 +94,7 @@ class SessionReplayRecoveryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(
-            (crash.context?["replay"] as? [String: Any])?["replay_id"] as? String,
+            (contextEntry(crash.context?["replay"]))?["replay_id"] as? String,
             replayId.sentryIdString
         )
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
@@ -185,7 +185,7 @@ class SessionReplayRecoveryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(
-            (firstCrash.context?["replay"] as? [String: Any])?["replay_id"] as? String,
+            (contextEntry(firstCrash.context?["replay"]))?["replay_id"] as? String,
             replayId.sentryIdString
         )
         XCTAssertNil(secondCrash.context?["replay"])
