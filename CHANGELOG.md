@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Wrap the breadcrumb write index when copying a full scope so a later `addBreadcrumb` does not grow past `maxBreadcrumbs` and drop the new crumb (#9685)
+
 ## 9.35.0
 
 ### Features
