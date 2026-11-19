@@ -203,6 +203,9 @@ else
 fi
 
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
+    if [[ "$product_name" == Sentry || "$product_name" == SentryWithoutUIKit ]]; then
+        "$SCRIPT_DIR/package-kscrash-user-info.sh" --archive "$sentry_xcarchive_path/Products/Library/Frameworks/$resolved_product_name/$product_name"
+    fi
     begin_group "Patch Info.plist for static framework (${slice_id})"
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
         infoPlistPath="Resources/Info.plist"
