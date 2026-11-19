@@ -45,7 +45,7 @@ final class SentryFramesTrackerTests: XCTestCase {
         clearTestState()
     }
 
-#if os(iOS) && DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+#if os(iOS) && DEBUG
     func testFrameTimestamps_whenNotProfilingOutsideTests_shouldNotRetainSamples() {
         // -- Arrange --
         let container = SentryDependencyContainer.sharedInstance()

@@ -41,9 +41,6 @@ WATCHOS_SIMULATOR_OS ?= latest
 # watchOS Simulator device name (defaults to 'Apple Watch SE 3 (44mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch Ultra 3 (49mm)')
 WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 
-# Current git reference name
-GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
-
 # Reduce build and test output for agents while retaining raw xcodebuild logs.
 FOR_AGENTS ?= false
 export FOR_AGENTS
@@ -189,7 +186,6 @@ build-ios:
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
 		--device "$(IOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--configuration Debug
 
@@ -203,7 +199,6 @@ build-macos:
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--configuration Debug
 
@@ -217,7 +212,6 @@ build-catalyst:
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--configuration Debug
 
@@ -232,7 +226,6 @@ build-tvos:
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
 		--device "$(TVOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--configuration Debug
 
@@ -247,7 +240,6 @@ build-visionos:
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--configuration Debug
 
@@ -282,7 +274,6 @@ build-ios-v10:
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
 		--device "$(IOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryV10 \
 		--configuration DebugV10
@@ -296,7 +287,6 @@ build-macos-v10:
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryV10 \
 		--configuration DebugV10
@@ -310,7 +300,6 @@ build-catalyst-v10:
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryV10 \
 		--configuration DebugV10 \
@@ -326,7 +315,6 @@ build-tvos-v10:
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
 		--device "$(TVOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryV10 \
 		--configuration DebugV10
@@ -341,7 +329,6 @@ build-visionos-v10:
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryV10 \
 		--configuration DebugV10
@@ -377,7 +364,6 @@ build-objc-ios:
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
 		--device "$(IOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjC \
 		--configuration Debug
@@ -391,7 +377,6 @@ build-objc-macos:
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjC \
 		--configuration Debug
@@ -405,7 +390,6 @@ build-objc-catalyst:
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjC \
 		--configuration Debug
@@ -420,7 +404,6 @@ build-objc-tvos:
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
 		--device "$(TVOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjC \
 		--configuration Debug
@@ -435,7 +418,6 @@ build-objc-visionos:
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjC \
 		--configuration Debug
@@ -450,7 +432,6 @@ build-objc-watchos:
 		--platform watchOS \
 		--os $(WATCHOS_SIMULATOR_OS) \
 		--device "$(WATCHOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjC \
 		--configuration Debug
@@ -471,7 +452,6 @@ build-objc-ios-v10:
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
 		--device "$(IOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjCV10 \
 		--configuration DebugV10
@@ -485,7 +465,6 @@ build-objc-macos-v10:
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjCV10 \
 		--configuration DebugV10
@@ -499,7 +478,6 @@ build-objc-catalyst-v10:
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
 		--os latest \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjCV10 \
 		--configuration DebugV10 \
@@ -515,7 +493,6 @@ build-objc-tvos-v10:
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
 		--device "$(TVOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjCV10 \
 		--configuration DebugV10
@@ -530,7 +507,6 @@ build-objc-visionos-v10:
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjCV10 \
 		--configuration DebugV10
@@ -545,7 +521,6 @@ build-objc-watchos-v10:
 		--platform watchOS \
 		--os $(WATCHOS_SIMULATOR_OS) \
 		--device "$(WATCHOS_DEVICE_NAME)" \
-		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryObjCV10 \
 		--configuration DebugV10
@@ -1396,9 +1371,8 @@ build-testapp-SDK-Size:
 
 # Package test entry points shared by local development and CI.
 # TEST_COMMAND supports test, build-for-testing, and test-without-building.
-# Split phases must use the same TEST_WORKSPACE and TEST_CONFIGURATION.
+# Split phases must use the same TEST_WORKSPACE.
 TEST_COMMAND ?= test
-TEST_CONFIGURATION ?= Test
 TEST_RESULT_BUNDLE ?= results.xcresult
 TEST_DERIVED_DATA ?= $(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/sentry-package-derived-data
 TEST_WORKSPACE ?= $(CURDIR)/.build/package-tests
@@ -1436,7 +1410,6 @@ prepare-test-package:
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1447,8 +1420,8 @@ prepare-test-package:
 #   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet
 #   make test-ios ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests
 #   make test-ios TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-#   make test-ios TEST_COMMAND=build-for-testing TEST_CONFIGURATION=TestCI
-#   make test-ios TEST_COMMAND=test-without-building TEST_CONFIGURATION=TestCI
+#   make test-ios TEST_COMMAND=build-for-testing
+#   make test-ios TEST_COMMAND=test-without-building
 #   make test-ios TEST_COMMAND=test-without-building TEST_PLAN=SentrySPM_Flaky TEST_RESULT_BUNDLE=flaky-results.xcresult
 .PHONY: test-ios
 test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
@@ -1460,16 +1433,13 @@ test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pac
 		--platform iOS \
 		--os "$(IOS_SIMULATOR_OS)" \
 		--device "$(IOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 
 ## Run macOS tests
 #
@@ -1477,7 +1447,6 @@ test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pac
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1495,16 +1464,13 @@ test-macos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-p
 		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
 		--platform macOS \
 		--os latest \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 
 ## Run Catalyst tests
 #
@@ -1512,7 +1478,6 @@ test-macos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-p
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1528,16 +1493,13 @@ test-catalyst: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
 		--platform Catalyst \
 		--os latest \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 
 ## Run tvOS tests
 #
@@ -1545,7 +1507,6 @@ test-catalyst: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1562,16 +1523,13 @@ test-tvos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pa
 		--platform tvOS \
 		--os "$(TVOS_SIMULATOR_OS)" \
 		--device "$(TVOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 
 ## Run visionOS tests
 #
@@ -1579,7 +1537,6 @@ test-tvos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-pa
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1596,16 +1553,13 @@ test-visionos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--platform visionOS \
 		--os "$(VISIONOS_SIMULATOR_OS)" \
 		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 
 ## Run watchOS tests
 #
@@ -1613,7 +1567,6 @@ test-visionos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1630,16 +1583,13 @@ test-watchos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 		--platform watchOS \
 		--os "$(WATCHOS_SIMULATOR_OS)" \
 		--device "$(WATCHOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
 		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST)' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 
 ## Run all platform tests with SDK_V10 flag
 #
@@ -1655,7 +1605,6 @@ test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visio
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1673,16 +1622,14 @@ test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 		--platform iOS \
 		--os "$(IOS_SIMULATOR_OS)" \
 		--device "$(IOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) SENTRY_PACKAGE_TEST_FIXTURES'
 
 ## Run macOS tests with SDK_V10 flag
 #
@@ -1690,7 +1637,6 @@ test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1707,16 +1653,14 @@ test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-te
 		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
 		--platform macOS \
 		--os latest \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) SENTRY_PACKAGE_TEST_FIXTURES'
 
 ## Run Catalyst tests with SDK_V10 flag
 #
@@ -1724,7 +1668,6 @@ test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-te
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1740,16 +1683,14 @@ test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
 		--platform Catalyst \
 		--os latest \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO ENABLE_CODE_COVERAGE=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) SENTRY_PACKAGE_TEST_FIXTURES'
 
 ## Run tvOS tests with SDK_V10 flag
 #
@@ -1757,7 +1698,6 @@ test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1774,16 +1714,14 @@ test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 		--platform tvOS \
 		--os "$(TVOS_SIMULATOR_OS)" \
 		--device "$(TVOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) SENTRY_PACKAGE_TEST_FIXTURES'
 
 ## Run visionOS tests with SDK_V10 flag
 #
@@ -1791,7 +1729,6 @@ test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1808,16 +1745,14 @@ test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 		--platform visionOS \
 		--os "$(VISIONOS_SIMULATOR_OS)" \
 		--device "$(VISIONOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) SENTRY_PACKAGE_TEST_FIXTURES'
 
 ## Run watchOS tests with SDK_V10 flag
 #
@@ -1825,7 +1760,6 @@ test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_CONFIGURATION=Configuration to override the test configuration (default: Test)
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
@@ -1842,16 +1776,14 @@ test-watchos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-
 		--platform watchOS \
 		--os "$(WATCHOS_SIMULATOR_OS)" \
 		--device "$(WATCHOS_DEVICE_NAME)" \
-		--ref "$(GIT-REF)" \
 		--command "$(TEST_COMMAND)" \
-		--configuration "$(TEST_CONFIGURATION)" \
+		--configuration Debug \
 		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
 		--derived-data "$(TEST_DERIVED_DATA)" \
 		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base_v10)" \
 		--only-testing "$(ONLY_TESTING)" \
 		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
-		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) $(if $(filter TestCI,$(TEST_CONFIGURATION)),SENTRY_TEST_CI,SENTRY_TEST) SENTRY_PACKAGE_TEST_FIXTURES' \
-		'GCC_PREPROCESSOR_DEFINITIONS=$$(inherited) DEBUG=1 SENTRY_TEST=1$(if $(filter TestCI,$(TEST_CONFIGURATION)), SENTRY_TEST_CI=1)'
+		'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$$(inherited) SENTRY_PACKAGE_TEST_FIXTURES'
 
 ## Run critical UI tests
 #
@@ -1883,6 +1815,7 @@ test-testapp-iOS-Swift-ui: xcode-ci-iOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
 		-testPlan iOS-Swift_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1897,6 +1830,7 @@ test-testapp-iOS-SwiftUI-ui: xcode-ci-iOS-SwiftUI
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
 		-testPlan iOS-SwiftUI_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1911,6 +1845,7 @@ test-testapp-iOS-Swift6-ui: xcode-ci-iOS-Swift6
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift6 \
 		-testPlan iOS-Swift6_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1925,6 +1860,7 @@ test-testapp-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
 		-testPlan iOS-ObjectiveC_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
@@ -1947,6 +1883,7 @@ test-testapp-macOS-Swift-ui: xcode-ci-macOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		-testPlan macOS-Swift_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-resultBundlePath macos-swift-ui-results.xcresult \
 		CODE_SIGNING_ALLOWED="YES" \
 		CODE_SIGNING_REQUIRED="YES" \
@@ -1964,6 +1901,7 @@ test-testapp-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
 		-testPlan tvOS-Swift_Base \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 

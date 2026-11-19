@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryAppendablePixelBuffer {
     func append(image: UIImage, presentationTime: CMTime) -> Bool
 }

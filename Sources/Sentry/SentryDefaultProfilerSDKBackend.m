@@ -69,7 +69,7 @@
     }
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 - (void)setSystemWrapper:(SentrySystemWrapper *)systemWrapper
 {
     @synchronized(self) {

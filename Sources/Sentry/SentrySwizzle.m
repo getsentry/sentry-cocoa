@@ -26,11 +26,11 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
         return NULL;
     }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(DEBUG) // Test support.
     @synchronized(self) {
         self.originalCalled = YES;
     }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(DEBUG)
 
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.
     return (SentrySwizzleOriginalIMP)_impProviderBlock();
@@ -46,7 +46,7 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 // only one thread is modifying the class at a time.
 static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 /**
  * - Returns: a dictionary that maps keys to the references to the original implementations.
  */
@@ -129,7 +129,7 @@ getRefToOriginalImplementation(const void *key)
     }
     return (IMP)[originalImplementationValue pointerValue];
 }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // defined(DEBUG)
 
 static void
 swizzle(
@@ -197,7 +197,7 @@ swizzle(
     pthread_mutex_lock(&gLock);
 
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
     if (originalIMP) {
         if (key != NULL) {
             storeRefToOriginalImplementation(key, originalIMP);
@@ -206,12 +206,12 @@ swizzle(
                 @"Swizzling without a key is not recommended, because they can not be unswizzled.");
         }
     }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // defined(DEBUG)
 
     pthread_mutex_unlock(&gLock);
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 static void
 unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 {
@@ -239,7 +239,7 @@ unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 
     pthread_mutex_unlock(&gLock);
 }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // defined(DEBUG)
 
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary(void)
@@ -305,7 +305,7 @@ swizzledClassesForKey(const void *key)
     return YES;
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key
 {
     NSAssert(key != NULL, @"Key may not be NULL.");
@@ -327,7 +327,7 @@ swizzledClassesForKey(const void *key)
 
     return YES;
 }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // defined(DEBUG)
 
 + (void)swizzleClassMethod:(SEL)selector
                    inClass:(Class)classToSwizzle

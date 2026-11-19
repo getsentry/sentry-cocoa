@@ -40,9 +40,12 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 + (void)load
 {
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-    // we want to allow starting a launch profile from here for UI tests, but not unit tests
-    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
+    // XCTest's launch configuration distinguishes unit tests from ordinary Debug consumers.
+    // The UI-test marker still allows launch profiling in test apps.
+    NSDictionary<NSString *, NSString *> *environment = NSProcessInfo.processInfo.environment;
+    if (environment[@"XCTestConfigurationFilePath"] != nil
+        && environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
     }
 
@@ -54,7 +57,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
         removeSentryStaticBasePath();
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(DEBUG)
 
     sentry_startLaunchProfile();
 }

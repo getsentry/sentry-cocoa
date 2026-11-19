@@ -46,7 +46,7 @@ void sentrykscrash_attachments_setViewHierarchyWriter(
 void sentrykscrash_attachments_setSidecarPathProvider(
     KSCrashReportSidecarPathProviderFunc _Nullable provider);
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 /** For testing. True when a screenshot writer is registered. */
 bool sentrykscrash_attachments_hasScreenshotWriter(void);
 
@@ -65,7 +65,7 @@ bool sentrykscrash_hasSaveTransaction(void);
 
 /** For testing. Invokes the registered save-transaction callback, if any. */
 void sentrykscrash_invokeSaveTransaction(void);
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#    endif // defined(DEBUG)
 
 /**
  * This is accepted as not being a async-signal-safe operation.

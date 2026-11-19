@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setAppStartScreen:(nullable NSString *)screenName;
 + (nullable NSString *)consumeAppStartScreen;
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 + (void)reset;
 #    endif
 

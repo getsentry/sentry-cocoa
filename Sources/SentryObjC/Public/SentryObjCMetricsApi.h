@@ -224,7 +224,7 @@ SENTRY_NO_INIT
 
 #pragma mark - Testing
 
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 - (instancetype)initWithTestApi:(NSObject *)api;
 #endif
 

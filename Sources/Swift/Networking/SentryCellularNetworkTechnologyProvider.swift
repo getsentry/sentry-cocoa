@@ -39,7 +39,7 @@ enum SentryCellularNetworkTechnology: String {
     }
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryCellularNetworkTechnologyProviding {
     /// The technology of the cellular network currently used for data, or `nil` when it is unknown,
     /// not being monitored, or not exposed by the platform.
@@ -52,7 +52,7 @@ protocol SentryCellularNetworkTechnologyProviding {
 extension SentryCellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding {}
 #else
 typealias SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider
-#endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#endif // DEBUG
 
 /// Reports the cellular network technology of the data service via `CoreTelephony`.
 ///
