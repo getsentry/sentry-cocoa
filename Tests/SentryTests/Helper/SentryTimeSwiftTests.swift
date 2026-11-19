@@ -1,4 +1,5 @@
 import _SentryPrivate
+import SentryNativeUtils
 import XCTest
 
 final class SentryTimeSwiftTests: XCTestCase {

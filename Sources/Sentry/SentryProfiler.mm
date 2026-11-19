@@ -6,8 +6,8 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
-#    import "SentryProfilerTestHelpers.h"
 #    import "SentryProfilingLog.h"
+#    import "SentryProfilingRuntime.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryTime.h"
 
@@ -116,12 +116,11 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         return;
     }
 
-    // Pop the clang diagnostic to ignore unreachable code for TSAN runs
-#    if defined(__has_feature)
-#        if __has_feature(thread_sanitizer)
-#            pragma clang diagnostic pop
-#        endif // __has_feature(thread_sanitizer)
-#    endif // defined(__has_feature)
+    SentryProfilingMemoryReader memoryReader = [SentryProfilerSDKAdapter.shared memoryReader];
+    if (memoryReader == nullptr) {
+        SENTRY_PROFILING_LOG_WARN(@"Cannot start profiling without a memory reader.");
+        return;
+    }
 
     SENTRY_PROFILING_LOG_DEBUG(@"Starting profiler.");
 
@@ -135,7 +134,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
                 [state appendBacktrace:backtraceCopy];
             }
         },
-        kSentryProfilerFrequencyHz);
+        kSentryProfilerFrequencyHz, memoryReader);
     _samplingProfiler->startSampling();
 }
 

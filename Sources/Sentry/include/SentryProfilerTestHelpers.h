@@ -7,15 +7,10 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
+#    import "SentryProfilingRuntime.h"
 #    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * Disable profiling when running with TSAN because it produces a TSAN false positive, similar to
- * the situation described here: https://github.com/envoyproxy/envoy/issues/2561
- */
-SENTRY_EXTERN BOOL sentry_threadSanitizerIsPresent(void);
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)                          \
         || defined(SENTRY_UI_TEST_SUPPORT)

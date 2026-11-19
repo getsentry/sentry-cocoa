@@ -25,6 +25,10 @@ flowchart TD
     HTTP --> Files["SentryFileManager: on-disk envelope storage"]
 ```
 
+### Shared Native Utilities
+
+The SDK and profiling code consume [`SentryNativeUtils`](../Sources/SentryNativeUtils) for shared native utilities. This library owns process-wide suspension admission and async-safe logging state so consumers coordinate through one implementation. It has no dependency on SDK implementation, `_SentryPrivate`, or Swift. See [native utility builds](BUILD.md#native-utility-library) and [decision 42](DECISIONS.md#42-share-native-utilities-below-sdk-features).
+
 ## Feature Areas
 
 - **Performance Tracking**: `SentryTracer`, `SentrySpan`, `SentryPerformanceTracker` for transaction monitoring

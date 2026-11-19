@@ -1,0 +1,1 @@
+../../../../../Sources/SentryNativeUtils/include/SentryThreadSuspension.h

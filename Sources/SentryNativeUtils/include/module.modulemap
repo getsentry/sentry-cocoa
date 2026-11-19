@@ -1,0 +1,15 @@
+module SentryNativeUtils {
+    header "SentryAsyncSafeLog.h"
+    header "SentryCompiler.h"
+    header "SentryInternalCDefines.h"
+    header "SentryProfilingConditionals.h"
+    header "SentryThreadSuspension.h"
+    header "SentryTime.h"
+    export *
+
+    module Cxx {
+        requires cplusplus
+        header "SentryMachLogging.hpp"
+        export *
+    }
+}

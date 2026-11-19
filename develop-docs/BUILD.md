@@ -6,6 +6,14 @@ This document covers the build system and configuration details for the Sentry C
 
 - XCConfig files in `Sources/Configuration/` for SDK settings; settings should not be modified in pbxproj files
 
+## Native Utility Library
+
+`SentryNativeUtils` is a static dependency of the SDK, not an additional framework consumers must embed. Shared source files compile only in this library. SDK framework headers retain their existing declarations, while source-built Swift callers import the native module explicitly.
+
+The Xcode schemes `SentryNativeUtils` and `SentryNativeUtilsV10` build the utility library independently. Their configuration files, [V9](../Sources/Configuration/SentryNativeUtils.xcconfig) and [V10](../Sources/Configuration/SentryNativeUtilsV10.xcconfig), match the corresponding SDK's architectures and recorder selection. The V10 variant depends on KSCrash's `RecordingCore` product.
+
+For SwiftPM, build the `SentryNativeUtils` target with the same `SDK_V10` environment selection used for the SDK. It has no SDK or `_SentryPrivate` target dependency.
+
 ## SDK Test Configurations
 
 The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK test helpers through `SENTRY_TEST` or `SENTRY_TEST_CI` in [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig). Swift 6.1+ provides the opt-in `_SentryTest` and `_SentryTestCI` traits for local `swift test` invocations. Swift 6.0 and `xcodebuild` package-workspace tests continue to supply these flags explicitly at the call site; see [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Do not enable test traits or flags in normal package builds.

@@ -1,6 +1,8 @@
 #ifndef SENTRY_THREAD_SNAPSHOT_H
 #define SENTRY_THREAD_SNAPSHOT_H
 
+#include "SentryThreadSuspension.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -71,17 +73,6 @@ typedef struct {
     size_t count;
     SentryThreadSnapshot *threads;
 } SentryThreadSnapshotBuffer;
-
-/**
- * Process-wide, nonblocking admission shared by nonfatal bulk inspection and profiling.
- *
- * Acquisition returns immediately. Remote-suspension paths acquire before their first suspension.
- * A caller that acquires admission must release it exactly once, after its final balancing resume
- * attempt. A contender must skip remote suspension rather than wait because the current owner may
- * already have suspended the contending thread.
- */
-bool sentryThreadSuspensionTryAcquire(void);
-void sentryThreadSuspensionRelease(void);
 
 /**
  * C-only backend interface; no backend-specific type crosses the snapshot boundary.
