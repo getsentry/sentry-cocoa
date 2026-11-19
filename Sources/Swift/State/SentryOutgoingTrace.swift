@@ -20,11 +20,11 @@ struct SentryOutgoingTrace {
             )
         }
 
-        let baggage = SentryTraceContextSwiftHelper.baggage(
-            traceId: scope.propagationContextTraceId.sentryIdString,
+        let baggage = TraceContext(
+            trace: scope.propagationContextTraceId,
             options: options,
             replayId: scope.replayId
-        )
+        ).toBaggage()
         return SentryOutgoingTrace(
             traceHeader: scope.propagationContextTraceHeader,
             baggage: baggage,

@@ -4,7 +4,6 @@
 #import "SentryId+Private.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import "SentryTraceContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
