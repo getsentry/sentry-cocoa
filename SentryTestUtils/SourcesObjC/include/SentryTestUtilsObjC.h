@@ -39,5 +39,6 @@
 #import "SentryTestResourceBundle.h"
 #import "SentryTestStateWrapper.h"
 #import "SentryTracer+Test.h"
+#import "SentryWeakMap+Test.h"
 #import "TestSentrySpan.h"
 #import "URLSessionTaskMock.h"
