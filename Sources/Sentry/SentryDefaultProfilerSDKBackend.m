@@ -1,7 +1,11 @@
 #import "SentryDefaultProfilerSDKBackend.h"
+#import "SentryClient+Private.h"
+#import "SentryHub+Private.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryProfilerCancellation.h"
+#import "SentryProfilerConfigurationBridge.h"
+#import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -16,6 +20,11 @@
 - (void)dealloc
 {
     [SentryProfilerSDKAdapter.shared removeTarget:self];
+}
+
+- (SentryProfilingConfiguration)configuration
+{
+    return sentry_profilerConfigurationSnapshot();
 }
 
 - (SentryProfilingTimestamp)timestamp
@@ -202,6 +211,19 @@
 - (void)startFramesTracker
 {
     [SentryDependencyContainer.sharedInstance.framesTracker start];
+}
+
+- (void)stopFramesTrackerIfUnused
+{
+    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    BOOL shouldStop = options == nil || !options.enableAutoPerformanceTracing;
+#        if !SDK_V10
+    BOOL appHangsDisabled = options != nil && [options isAppHangTrackingDisabled];
+    shouldStop = shouldStop && appHangsDisabled;
+#        endif
+    if (shouldStop) {
+        [self stopFramesTracker];
+    }
 }
 
 - (void)stopFramesTracker
