@@ -26,8 +26,8 @@ SENTRY_EXTERN_C_BEGIN
  * @Returns An ID to use as a unique, unchanging ID for the tracer that started the profiler. It's
  * different from the profiler's internal ID.
  */
-SentryId *_Nullable sentry_startProfilerForTrace(
-    SentryProfilingTraceDecision decision, SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext);
+SentryId *_Nullable sentry_startProfilerForTrace(SentryProfilingTraceDecision decision,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext);
 
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle

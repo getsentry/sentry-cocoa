@@ -315,8 +315,8 @@ sentry_stopProfilerDueToFinishedTransaction(
     });
 }
 
-SentryId *_Nullable sentry_startProfilerForTrace(
-    SentryProfilingTraceDecision decision, SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext)
+SentryId *_Nullable sentry_startProfilerForTrace(SentryProfilingTraceDecision decision,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext)
 {
     SentryTransactionContext *context = transactionContext;
     if (decision == SentryProfilingTraceDecisionContinuous) {
