@@ -148,6 +148,9 @@ typedef union {
     MachExceptionIdentityProtectedMessage identityProtected;
 } MachExceptionReceivedMessage;
 
+/** msgh_id of mach_exception_raise_identity_protected (mach_exc.defs). */
+#        define MACH_EXCEPTION_RAISE_IDENTITY_PROTECTED_ID 2408
+
 /** A mach reply message (according to ux_exception.c, xnu-1699.22.81).
  */
 #        pragma pack(4)
@@ -188,10 +191,6 @@ static struct {
 
 /** Our exception port. */
 static mach_port_t g_exceptionPort = MACH_PORT_NULL;
-
-/** The behavior our exception port is registered with, without
- * MACH_EXCEPTION_CODES. It decides the layout of the received messages. */
-static exception_behavior_t g_exceptionBehavior = EXCEPTION_DEFAULT;
 
 /** Primary exception handler thread. */
 static pthread_t g_primaryPThread;
@@ -244,32 +243,22 @@ restoreExceptionPorts(void)
  * such as EXCEPTION_DEFAULT. Nothing public tells whether the restrictions
  * apply, so the identity-protected behavior is always tried first. Rosetta
  * rejects it with KERN_INVALID_ARGUMENT and does not enforce the restrictions,
- * so translated processes fall back to EXCEPTION_DEFAULT.
- *
- * On success, g_exceptionBehavior holds the registered behavior, which decides
- * the layout of the messages the port receives.
+ * so translated processes fall back to EXCEPTION_DEFAULT. See
+ * exception_is_identity_protected in xnu's osfmk/kern/ipc_tt.c.
  */
 static kern_return_t
 setExceptionPort(const task_t task, const exception_mask_t mask)
 {
     kern_return_t kr = task_set_exception_ports(task, mask, g_exceptionPort,
         (int)(EXCEPTION_IDENTITY_PROTECTED | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
-    if (kr == KERN_SUCCESS) {
-        g_exceptionBehavior = EXCEPTION_IDENTITY_PROTECTED;
-        return kr;
-    }
     if (kr != KERN_INVALID_ARGUMENT) {
         return kr;
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Identity-protected exception behavior rejected, using the default behavior.");
-    kr = task_set_exception_ports(task, mask, g_exceptionPort,
+    return task_set_exception_ports(task, mask, g_exceptionPort,
         (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
-    if (kr == KERN_SUCCESS) {
-        g_exceptionBehavior = EXCEPTION_DEFAULT;
-    }
-    return kr;
 }
 
 /** Find the thread with the given THREAD_IDENTIFIER_INFO thread ID.
@@ -442,7 +431,8 @@ handleExceptions(void *const userData)
         SENTRY_ASYNC_SAFE_LOG_ERROR("mach_msg: %s", mach_error_string(kr));
     }
 
-    const bool isIdentityProtected = g_exceptionBehavior == EXCEPTION_IDENTITY_PROTECTED;
+    const bool isIdentityProtected
+        = exceptionMessage.header.msgh_id == MACH_EXCEPTION_RAISE_IDENTITY_PROTECTED_ID;
     const exception_type_t exception = isIdentityProtected
         ? exceptionMessage.identityProtected.exception
         : exceptionMessage.standard.exception;
