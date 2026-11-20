@@ -1,4 +1,3 @@
-#import "SentryAttachment.h"
 #import "SentryClient+Attachments.h"
 #import "SentrySwift.h"
 
@@ -45,38 +44,40 @@ NS_ASSUME_NONNULL_BEGIN
     hint.attachments = allAttachments;
 }
 
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
+- (void)addAttachmentProcessor:(id)attachmentProcessor
 {
     [self.attachmentProcessors addObject:attachmentProcessor];
 }
 
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
+- (void)removeAttachmentProcessor:(id)attachmentProcessor
 {
     [self.attachmentProcessors removeObject:attachmentProcessor];
 }
 
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments
+- (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+    processAttachmentsForEvent:(SentryEvent *)event
+                   attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)attachments
 {
+    NSArray<SentryAttachment *> *typedAttachments = (NSArray<SentryAttachment *> *)attachments;
     if (self.attachmentProcessors.count == 0) {
-        return attachments;
+        return (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)typedAttachments;
     }
 
-    NSArray<SentryAttachment *> *processedAttachments = attachments;
+    NSArray<SentryAttachment *> *processedAttachments = typedAttachments;
 
-    for (id<SentryClientAttachmentProcessor> attachmentProcessor in self.attachmentProcessors) {
+    for (id attachmentProcessor in self.attachmentProcessors) {
         // Keep chaining the processed attachments so each processor works on the output of the
         // previous one. This is necessary so each processor can add and remove attachments.
         //
         // Important: This means the order of adding processors matters and relies on the
         // initialization order of the integrations. At this point in time the attachment processors
         // are only adding attachments, therefore we can ignore this restriction for now.
-        processedAttachments = [attachmentProcessor processAttachments:processedAttachments
-                                                              forEvent:event];
+        processedAttachments = [(id<SentryClientAttachmentProcessor>)attachmentProcessor
+            processAttachments:processedAttachments
+                      forEvent:event];
     }
 
-    return processedAttachments;
+    return (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)processedAttachments;
 }
 
 @end

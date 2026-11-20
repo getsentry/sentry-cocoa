@@ -6,6 +6,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
+#import "SentrySDKInternal+SwiftPrivate.h"
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
@@ -553,7 +554,8 @@ static BOOL sdkStarted;
 
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments
 {
     [SentrySDKInternal.currentHub captureSerializedFeedback:serializedFeedback
                                                 withEventId:feedbackEventId

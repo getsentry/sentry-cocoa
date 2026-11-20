@@ -11,7 +11,6 @@
 @class SentryTracer;
 @class SentryTracerConfiguration;
 @class SentryReplayEvent;
-@class SentryAttachment;
 @class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
 @protocol SentrySessionListener;
@@ -100,10 +99,6 @@ NS_ASSUME_NONNULL_BEGIN
                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
             attachAllThreads:(nullable NSNumber *)attachAllThreads
     NS_SWIFT_NAME(captureMessage(_:with:attachAllThreads:));
-
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
 
 - (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope

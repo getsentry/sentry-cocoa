@@ -1,4 +1,3 @@
-#import "SentryAttachment.h"
 #import "SentryClient+ReplayAndFeedback.h"
 #import "SentryEvent+Private.h"
 #import "SentryId+Private.h"
@@ -29,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
               currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
 
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments;
+- (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+    processAttachmentsForEvent:(SentryEvent *)event
+                   attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)attachments;
 
 @end
 
@@ -115,7 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments
                             scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                      currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope
 {
@@ -174,9 +174,11 @@ NS_ASSUME_NONNULL_BEGIN
             [allAttachments addObject:attachment];
         }
     }
-    NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
-                                                                     attachments:allAttachments]
-        arrayByAddingObjectsFromArray:feedbackAttachments];
+    NSArray<SentryAttachment *> *processedAttachments
+        = (NSArray<SentryAttachment *> *)[self processAttachmentsForEvent:preparedEvent
+                                                              attachments:allAttachments];
+    NSArray<SentryAttachment *> *attachments = [processedAttachments
+        arrayByAddingObjectsFromArray:(NSArray<SentryAttachment *> *)feedbackAttachments];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -186,7 +188,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments
                             scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];
