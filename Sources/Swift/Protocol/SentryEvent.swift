@@ -321,7 +321,12 @@ extension Event: SentrySerializable {}
 #endif
 
 private func serializedObject(_ object: AnyObject?) -> Any? {
-    (object as? SentryInternalSerializable)?.serialize()
+    guard let object else { return nil }
+    guard let serializable = object as? SentryInternalSerializable else {
+        SentrySDKLog.error("Failed to serialize \(type(of: object)) while serializing an event.")
+        return nil
+    }
+    return serializable.serialize()
 }
 
 private func serializedObjects(_ objects: [AnyObject]?) -> [Any] {
