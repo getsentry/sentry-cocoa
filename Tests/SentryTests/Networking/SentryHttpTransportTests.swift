@@ -1432,23 +1432,35 @@ class SentryHttpTransportTests: XCTestCase {
         let flushReturned = DispatchSemaphore(value: 0)
         var result: SentryFlushResult?
         var requestsAtReturn = -1
-        DispatchQueue.global().async {
-            result = sut.flush(self.fixture.flushTimeout)
-            requestsAtReturn = self.fixture.requestManager.requests.count
-            flushReturned.signal()
-        }
-        XCTAssertEqual(.success, flushRegistered.wait(timeout: .now() + 5))
+        var registeredInTime = false
+        var returnedInTime = false
+        let driverFinished = expectation(description: "Flush scenario finished")
 
         // -- Act --
-        releaseConnectivityDrain.signal()
-        // Gives an early return the chance to happen while the capture is still unstored.
-        let returnedBeforeCapture = flushReturned.wait(timeout: .now() + 1) == .success
-        releaseCapture.signal()
-        if !returnedBeforeCapture {
-            XCTAssertEqual(.success, flushReturned.wait(timeout: .now() + fixture.flushTimeout + 5))
+        // Every blocking wait runs at the transport queue's QoS; blocking the main thread on it
+        // would be a priority inversion, whose report costs the test several seconds.
+        let defaultQoS = DispatchQueue.global(qos: .default)
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            defaultQoS.async(qos: .default, flags: .enforceQoS) {
+                result = sut.flush(self.fixture.flushTimeout)
+                requestsAtReturn = self.fixture.requestManager.requests.count
+                flushReturned.signal()
+            }
+            registeredInTime = flushRegistered.wait(timeout: .now() + 5) == .success
+            releaseConnectivityDrain.signal()
+            // Gives an early return the chance to happen while the capture is still unstored.
+            returnedInTime = flushReturned.wait(timeout: .now() + 1) == .success
+            releaseCapture.signal()
+            if !returnedInTime {
+                returnedInTime = flushReturned.wait(timeout: .now() + self.fixture.flushTimeout + 5) == .success
+            }
+            driverFinished.fulfill()
         }
+        wait(for: [driverFinished], timeout: fixture.flushTimeout + 15)
 
         // -- Assert --
+        XCTAssertTrue(registeredInTime)
+        XCTAssertTrue(returnedInTime)
         XCTAssertEqual(.success, result)
         XCTAssertEqual(1, requestsAtReturn, "A successful flush must not return before the captured envelope is sent")
     }

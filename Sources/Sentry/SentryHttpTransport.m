@@ -17,7 +17,18 @@
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) dispatch_group_t dispatchGroup;
+/**
+ * The group of the flush in progress, or @c nil when no flush is in progress.
+ */
+@property (nullable, nonatomic, strong) dispatch_group_t flushGroup;
+
+/**
+ * Whether the flush in progress has started its own drain. Only a drain that started after it can
+ * end the flush, because an earlier drain can finish before envelopes captured before the flush
+ * are stored.
+ */
+@property (nonatomic) BOOL hasFlushDrainStarted;
+
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryReachability *reachability;
 
@@ -41,8 +52,6 @@
  * 30% slower than using atomic here.
  */
 @property (atomic) BOOL isSending;
-
-@property (atomic) BOOL isFlushing;
 
 @end
 
@@ -71,10 +80,8 @@
         self.envelopeRateLimit = envelopeRateLimit;
         self.dispatchQueue = dispatchQueueWrapper;
         self.dateProvider = dateProvider;
-        self.dispatchGroup = dispatch_group_create();
         self.reachability = reachability;
         _isSending = NO;
-        _isFlushing = NO;
         self.discardedEvents = [[NSMutableDictionary alloc] init];
         self.notStoredEnvelopes = [[NSMutableArray alloc] init];
         [self.envelopeRateLimit setDelegate:self];
@@ -185,16 +192,19 @@
     dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
     dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
 
+    dispatch_group_t flushGroup;
     @synchronized(self) {
-        if (_isFlushing) {
+        if (self.flushGroup != nil) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
             return SentryFlushResultAlreadyFlushing;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
 
-        _isFlushing = YES;
-        dispatch_group_enter(self.dispatchGroup);
+        flushGroup = dispatch_group_create();
+        dispatch_group_enter(flushGroup);
+        self.flushGroup = flushGroup;
+        self.hasFlushDrainStarted = NO;
 #if defined(DEBUG) // Test support.
         if (self.startFlushCallback != nil) {
             self.startFlushCallback();
@@ -207,15 +217,16 @@
     // desired flush duration. Therefore, we dispatch the sendAllCachedEnvelopes async. Furthermore,
     // when calling flush directly after captureEnvelope, it could happen that SDK doesn't store the
     // envelope to disk, which happens async, before starting to flush.
-    [self.dispatchQueue dispatchAsyncWithBlock:^{ [self sendAllCachedEnvelopes]; }];
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        [self startFlushDrainForGroup:flushGroup];
+        [self sendAllCachedEnvelopes];
+    }];
 
-    intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
+    intptr_t result = dispatch_group_wait(flushGroup, dispatchTimeout);
 
-    // Every `dispatch_group_enter` must have a corresponding `dispatch_group_leave`.
-    // If nobody called `stopFlushing`, we must call `dispatch_group_leave` here, because
-    // otherwise the dispatch group never leaves and the next time somebody calls flush,
-    // flush will always time out.
-    [self stopFlushing];
+    // Every `dispatch_group_enter` must have a corresponding `dispatch_group_leave`. If no drain
+    // ended this flush, leave the group here. This never ends a later flush.
+    [self stopFlushingGroup:flushGroup];
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
@@ -226,13 +237,22 @@
     }
 }
 
-- (void)stopFlushing
+- (void)startFlushDrainForGroup:(dispatch_group_t)flushGroup
 {
     @synchronized(self) {
-        if (_isFlushing) {
+        if (self.flushGroup == flushGroup) {
+            self.hasFlushDrainStarted = YES;
+        }
+    }
+}
+
+- (void)stopFlushingGroup:(dispatch_group_t)flushGroup
+{
+    @synchronized(self) {
+        if (self.flushGroup == flushGroup) {
             SENTRY_LOG_DEBUG(@"Stop flushing.");
-            _isFlushing = NO;
-            dispatch_group_leave(self.dispatchGroup);
+            self.flushGroup = nil;
+            dispatch_group_leave(flushGroup);
         }
     }
 }
@@ -458,7 +478,10 @@
 {
     @synchronized(self) {
         self.isSending = NO;
-        [self stopFlushing];
+        dispatch_group_t flushGroup = self.flushGroup;
+        if (flushGroup != nil && self.hasFlushDrainStarted) {
+            [self stopFlushingGroup:flushGroup];
+        }
     }
 }
 

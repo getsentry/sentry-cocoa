@@ -16,6 +16,7 @@
 ### Fixes
 
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
+- Keep `flush` waiting until the envelopes captured before it are sent, instead of returning success when an unrelated cache drain finds no envelopes (#9706)
 
 ## 9.35.0
 
