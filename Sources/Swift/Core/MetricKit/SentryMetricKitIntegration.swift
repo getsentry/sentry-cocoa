@@ -63,7 +63,11 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
         // visionOS, which only the subscriber reports.
         let metricManagerDiagnosticCapturer = Self.metricManagerDeliversDiagnostics ? diagnosticCapturer : nil
         let metricManagerMetricRecorder = Self.metricManagerDeliversMetrics ? metricRecorder : nil
-        metricManager = Self.makeMetricManager(diagnosticCapturer: metricManagerDiagnosticCapturer, metricRecorder: metricManagerMetricRecorder)
+        metricManager = Self.makeMetricManager(
+            diagnosticCapturer: metricManagerDiagnosticCapturer,
+            metricRecorder: metricManagerMetricRecorder,
+            runId: dependencies.currentRun.id
+        )
 
         let subscriberDiagnosticCapturer = metricManagerDiagnosticCapturer == nil ? diagnosticCapturer : nil
         let subscriberMetricRecorder = metricManagerMetricRecorder == nil ? metricRecorder : nil
@@ -143,13 +147,25 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
 
     /// Creates the `SentryMetricManager` that receives the given reports from `MetricManager`, or
     /// returns `nil` when it receives none.
+    ///
+    /// When it receives diagnostics on iOS or macOS, it also reports the run ID as a state, so
+    /// the diagnostics of this run list it.
     private static func makeMetricManager(
         diagnosticCapturer: SentryMXDiagnosticCapturer?,
-        metricRecorder: SentryMXMetricRecorder?
+        metricRecorder: SentryMXMetricRecorder?,
+        runId: SentryCurrentRun.ID
     ) -> SentryMetricKitReportReceiver? {
         #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *), diagnosticCapturer != nil || metricRecorder != nil {
-            return SentryMetricManager(diagnosticCapturer: diagnosticCapturer, metricRecorder: metricRecorder)
+            let listsRunIdState = diagnosticCapturer != nil
+            // The manager enables the SDK's domain, so it is created before the state is reported.
+            let source = SentryMetricManager.makeSource(listsRunIdState: listsRunIdState)
+            #if os(iOS) || os(macOS)
+            if listsRunIdState {
+                SentryMXRunIdState.report(runId: runId)
+            }
+            #endif // os(iOS) || os(macOS)
+            return SentryMetricManager(source: source, diagnosticCapturer: diagnosticCapturer, metricRecorder: metricRecorder)
         }
         #endif // compiler(>=6.4)
         return nil

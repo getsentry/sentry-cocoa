@@ -121,6 +121,66 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
         XCTAssertEqual(runIdDecoder.decodedCallStackTrees.count, 1)
     }
 
+    func testCapture_whenDiagnosticNamesItsRun_shouldSubmitReportWithThatRunIdWithoutDecodingTheCallStacks() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let runIdDecoder = TestRunIdDecoder(runId: SentryCurrentRun.ID(rawValue: "run-of-thread-crumb"))
+        let sut = givenSut(attachDiagnosticAsAttachment: false, eventSourceSink: eventSourceSink, runIdDecoder: runIdDecoder)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(report: .crash, runId: SentryCurrentRun.ID(rawValue: "run-of-reported-state")))
+
+        // -- Assert --
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "run-of-reported-state"))
+        XCTAssertEqual(runIdDecoder.decodedCallStackTrees.count, 0)
+    }
+
+    func testCapture_whenDiagnosticNamesItsRunAndThereIsNoRunIdDecoder_shouldSubmitReportWithThatRunId() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = givenSut(attachDiagnosticAsAttachment: false, eventSourceSink: eventSourceSink)
+
+        // -- Act --
+        sut.capture(try givenDiagnostic(report: .crash, runId: SentryCurrentRun.ID(rawValue: "run-of-reported-state")))
+
+        // -- Assert --
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "run-of-reported-state"))
+    }
+
+    func testCapture_whenCallStackTreeCantBeDecodedAndDiagnosticNamesItsRun_shouldSubmitReportWithThatRunId() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = givenSut(attachDiagnosticAsAttachment: true, eventSourceSink: eventSourceSink)
+        let diagnostic = SentryMXDiagnostic(
+            report: .crash,
+            exceptionValue: { "" },
+            timestamp: Date(),
+            metadata: SentryMXDiagnostic.Metadata(
+                pid: nil,
+                appVersion: "1.0.0",
+                appBuild: "1",
+                osVersion: nil,
+                osBuild: nil,
+                bundleIdentifier: nil,
+                lowPowerModeEnabled: nil,
+                isTestFlightApp: nil
+            ),
+            runId: SentryCurrentRun.ID(rawValue: "run-of-reported-state"),
+            callStackTree: { throw NSError(domain: "test", code: 1) },
+            rawJSON: { Data("{}".utf8) },
+            rawFilename: "DiagnosticReport.json"
+        )
+
+        // -- Act --
+        sut.capture(diagnostic)
+
+        // -- Assert --
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "run-of-reported-state"))
+    }
+
     func testCapture_whenCallStackTreeCantBeDecoded_shouldSubmitReportWithoutRunId() throws {
         // -- Arrange --
         let eventSourceSink = TestEventSourceSink()
@@ -199,7 +259,7 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
         }
     }
 
-    private func givenDiagnostic(report: SentryMetricKit.DiagnosticReport) throws -> SentryMXDiagnostic {
+    private func givenDiagnostic(report: SentryMetricKit.DiagnosticReport, runId: SentryCurrentRun.ID? = nil) throws -> SentryMXDiagnostic {
         let callStackTreeJSON = try contentsOfResource("MetricKitCallstacks/per-thread")
         return SentryMXDiagnostic(
             report: report,
@@ -215,6 +275,7 @@ final class SentryMXDiagnosticCapturerTests: XCTestCase {
                 lowPowerModeEnabled: nil,
                 isTestFlightApp: nil
             ),
+            runId: runId,
             callStackTree: { try JSONDecoder().decode(SentryMXCallStackTree.self, from: callStackTreeJSON) },
             rawJSON: { Data("{}".utf8) },
             rawFilename: "MXDiagnosticPayload.json"

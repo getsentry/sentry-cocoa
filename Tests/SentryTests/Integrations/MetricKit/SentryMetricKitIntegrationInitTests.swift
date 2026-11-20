@@ -209,6 +209,43 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         XCTAssertNil(sut.diagnosticCapturer)
     }
 
+#if (os(iOS) || os(macOS)) && compiler(>=6.4)
+    func testInit_whenDiagnosticsAreEnabled_shouldEnableTheDomainOfTheRunIdState() throws {
+        guard #available(iOS 27.0, macOS 27.0, *) else {
+            throw XCTSkip("Reported states require iOS 27 or macOS 27")
+        }
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+
+        // -- Assert --
+        let metricManager = try XCTUnwrap(sut.metricManager as? SentryMetricManager)
+        let source = try XCTUnwrap(metricManager.source as? MetricManager)
+        XCTAssertEqual(source.enabledStateReportingDomains, ["io.sentry.run"])
+    }
+
+    func testInit_whenOnlyMetricReportsAreEnabled_shouldNotEnableTheDomainOfTheRunIdState() throws {
+        guard #available(iOS 27.0, macOS 27.0, *) else {
+            throw XCTSkip("Reported states require iOS 27 or macOS 27")
+        }
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledMetricReports = [.cpuCumulativeTime]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+
+        // -- Assert --
+        let metricManager = try XCTUnwrap(sut.metricManager as? SentryMetricManager)
+        let source = try XCTUnwrap(metricManager.source as? MetricManager)
+        XCTAssertEqual(source.enabledStateReportingDomains, [])
+    }
+#endif // (os(iOS) || os(macOS)) && compiler(>=6.4)
+
     func testInit_whenMetricReportsNotConfigured_shouldNotEnableMetricReports() throws {
         // -- Arrange --
         let options = Options()

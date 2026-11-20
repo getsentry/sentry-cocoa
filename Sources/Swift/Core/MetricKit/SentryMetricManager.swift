@@ -30,7 +30,7 @@ extension MetricManager: SentryMetricManagerSource {
 /// Receives the reports of `MetricManager`, which replaces `MXMetricManager` on xOS 27 and later.
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 final class SentryMetricManager: SentryMetricKitReportReceiver {
-    private let source: SentryMetricManagerSource
+    let source: SentryMetricManagerSource
     /// Captures the diagnostic reports, or `nil` when `MetricManager` doesn't deliver diagnostics.
     private let diagnosticCapturer: SentryMXDiagnosticCapturer?
     /// Records the metric reports, or `nil` when `MetricManager` doesn't deliver metrics.
@@ -47,6 +47,19 @@ final class SentryMetricManager: SentryMetricKitReportReceiver {
         self.source = source
         self.diagnosticCapturer = diagnosticCapturer
         self.metricRecorder = metricRecorder
+    }
+
+    /// Creates the `MetricManager` the SDK receives its reports from.
+    ///
+    /// - Parameter listsRunIdState: Whether the diagnostics list the state the SDK reports the
+    ///   run ID with. Ignored on visionOS, where MetricKit doesn't list reported states.
+    static func makeSource(listsRunIdState: Bool) -> MetricManager {
+        #if os(iOS) || os(macOS)
+        if listsRunIdState {
+            return MetricManager(enabledStateReportingDomains: [StateReportingDomain(rawValue: SentryMXRunIdState.domain)])
+        }
+        #endif // os(iOS) || os(macOS)
+        return MetricManager()
     }
 
     func receiveReports() {
@@ -154,6 +167,7 @@ extension SentryMXDiagnostic {
             level: level,
             timestamp: report.timeRange.start,
             metadata: Metadata(report.environment),
+            runId: Self.runId(reportedIn: report.environment),
             callStackTree: {
                 try SentryMXCallStackTree(callStackTree)
             },
@@ -171,11 +185,24 @@ extension SentryMXDiagnostic {
 }
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+extension SentryMXDiagnostic {
+    /// The run ID of the state the SDK reported in the run of the diagnostic.
+    static func runId(reportedIn environment: MetricKit.DiagnosticReport.Environment) -> SentryCurrentRun.ID? {
+        #if os(iOS) || os(macOS)
+        return SentryMXRunIdState.runId(of: environment.states)
+        #else
+        return nil
+        #endif // os(iOS) || os(macOS)
+    }
+}
+
+@available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 extension SentryMXDiagnostic.Metadata {
     /// The SDK leaves out the remaining environment attributes:
     /// - `regionFormat` is a region, not a locale, and events have no attribute for it.
-    /// - `states` is only reported for the state reporting domains an app enables through
-    ///   `MetricManager(enabledStateReportingDomains:)`, and the SDK doesn't enable any.
+    /// - `states` only lists the states of the domains the SDK's `MetricManager` enables, which
+    ///   is the SDK's own domain while diagnostics are enabled. The SDK reads the run ID from
+    ///   it, see ``SentryMXRunIdState``, instead of sending it as metadata.
     /// - `signpostData` lists the app's own signposts, which would need a mapping of its own,
     ///   for example to breadcrumbs.
     ///
