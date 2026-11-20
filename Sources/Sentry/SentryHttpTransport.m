@@ -23,9 +23,9 @@
 @property (nullable, nonatomic, strong) dispatch_group_t flushGroup;
 
 /**
- * Whether the flush in progress has started its own drain. Only a drain that started after it can
- * end the flush, because an earlier drain can finish before envelopes captured before the flush
- * are stored.
+ * Whether the block the flush in progress dispatched has started running. Until then,
+ * @c finishedSending doesn't end the flush, because a drain queued ahead of that block can finish
+ * before the envelopes captured before the flush are stored.
  */
 @property (nonatomic) BOOL hasFlushDrainStarted;
 
@@ -212,7 +212,8 @@
 #endif // defined(DEBUG)
     }
 
-    // We are waiting for the dispatch group below, which we leave in finished sending. As
+    // We are waiting for the dispatch group below, which finished sending leaves once the block
+    // below has started, and which we leave ourselves after waiting. As
     // sendAllCachedEnvelopes does some IO, it could block the calling thread longer than the
     // desired flush duration. Therefore, we dispatch the sendAllCachedEnvelopes async. Furthermore,
     // when calling flush directly after captureEnvelope, it could happen that SDK doesn't store the
