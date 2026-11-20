@@ -84,6 +84,57 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         // -- Act & Assert --
         try assertSameEvent(legacyPayload: legacyPayload, report: report, exceptionType: "MXCPUException")
     }
+    
+    func testProcess_whenCrashHasWatchdogTerminationCategory_shouldOverrideExceptionType() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        givenSdkWithHub()
+        let sut = givenSut(enabledDiagnostics: [.crash])
+        let report = try givenCrashReport(terminationCategory: .watchdog)
+        // -- Act --
+        sut.process(diagnosticReport: report)
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let exception = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(exception.type, "WatchdogTermination")
+        }
+    }
+
+    func testProcess_whenCrashReasonContainsWatchdogCode_shouldOverrideExceptionType() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        givenSdkWithHub()
+        let sut = givenSut(enabledDiagnostics: [.crash])
+        let reason = try XCTUnwrap(
+            MetricKit.CrashDiagnostic.TerminationReason(
+                rawValue: "Namespace SPRINGBOARD, Code 0X8BADF00D"))
+        let report = try givenCrashReport(terminationReason: reason)
+        // -- Act --
+        sut.process(diagnosticReport: report)
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let exception = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(exception.type, "WatchdogTermination")
+        }
+    }
+
+    func testProcess_whenCrashIsNotWatchdog_shouldKeepDefaultExceptionType() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        givenSdkWithHub()
+        let sut = givenSut(enabledDiagnostics: [.crash])
+        let reason = try XCTUnwrap(
+            MetricKit.CrashDiagnostic.TerminationReason(
+                rawValue: "Namespace RUNNINGBOARD, Code 0xdead10cc"))
+        let report = try givenCrashReport(terminationCategory: .abnormal, terminationReason: reason)
+        // -- Act --
+        sut.process(diagnosticReport: report)
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let exception = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(exception.type, "MXCrashDiagnostic")
+        }
+    }
 
     func testProcess_whenDiskWriteExceptionReport_shouldCaptureSameEventAsLegacyDiagnostic() throws {
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
@@ -473,6 +524,27 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             lowPowerModeEnabled: lowPowerModeEnabled,
             isTestFlightApp: isTestFlightApp
         )
+    }
+
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    private func givenCrashReport(
+        terminationCategory: MetricKit.CrashDiagnostic.TerminationCategory? = nil,
+        terminationReason: MetricKit.CrashDiagnostic.TerminationReason? = nil
+    ) throws -> MetricKit.DiagnosticReport {
+        var diagnostic: [String: Any] = [
+            "callStackTree": try callStackTree(
+                fromLegacyResource: "MetricKitCallstacks/per-thread"), "exceptionType": 1,
+            "exceptionCode": 0, "signal": 11
+        ]
+        if let terminationCategory {
+            diagnostic["terminationCategory"] = try JSONSerialization.jsonObject(
+                with: JSONEncoder().encode(terminationCategory), options: .fragmentsAllowed)
+        }
+        if let terminationReason {
+            diagnostic["terminationReason"] = try JSONSerialization.jsonObject(
+                with: JSONEncoder().encode(terminationReason), options: .fragmentsAllowed)
+        }
+        return try givenReport(result: "crashDiagnostic", diagnostic: diagnostic)
     }
 
     /// `DiagnosticReport` has no public initializer, so reports are decoded from the JSON format

@@ -46,9 +46,12 @@ struct SentryMXDiagnostic {
     /// is enabled, or `nil` when it can't be encoded.
     let rawJSON: () -> Data?
     let rawFilename: String
+    /// Overrides the default exception type provided by the DiagnosticReport enum.
+    let exceptionTypeOverride: String?
 
     init(
         report: SentryMetricKit.DiagnosticReport,
+        exceptionTypeOverride: String? = nil,
         exceptionValue: @escaping () -> String,
         level: SentryLevel? = nil,
         timestamp: Date,
@@ -58,6 +61,7 @@ struct SentryMXDiagnostic {
         rawFilename: String
     ) {
         self.report = report
+        self.exceptionTypeOverride = exceptionTypeOverride
         self.exceptionValue = exceptionValue
         self.level = level
         self.timestamp = timestamp
@@ -83,6 +87,7 @@ extension SentryMXDiagnostic {
     /// Converts a diagnostic of a legacy `MXDiagnosticPayload`.
     init(
         report: SentryMetricKit.DiagnosticReport,
+        exceptionTypeOverride: String? = nil,
         exceptionValue: @autoclosure @escaping () -> String,
         level: SentryLevel? = nil,
         payloadTimeStampBegin: Date,
@@ -90,6 +95,7 @@ extension SentryMXDiagnostic {
     ) {
         self.init(
             report: report,
+            exceptionTypeOverride: exceptionTypeOverride,
             exceptionValue: exceptionValue,
             level: level,
             timestamp: payloadTimeStampBegin,
