@@ -23,7 +23,7 @@ import Foundation
     public func startSpan(withName name: String, nameSource: Int, operation: String, origin: String) -> SpanId {
         var activeSpan: Span?
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        activeSpan = SentryLaunchProfiling.launchTracer
+        activeSpan = optionalSentrySpan(from: SentryLaunchProfiling.launchTracer)
 #endif
         if activeSpan == nil {
             synchronized(activeSpanStack) { [self] in
@@ -76,7 +76,7 @@ import Foundation
                 }
             )
             tracer.delegate = delegateAdapter
-            newSpan = tracer
+            newSpan = sentrySpan(from: tracer)
         }
 
         guard let spanId = newSpan?.spanId else {
@@ -215,7 +215,7 @@ import Foundation
 private final class PerformanceTrackerDelegate: NSObject, SentryTracerDelegate {
     weak var tracker: SentryPerformanceTracker?
 
-    func getActiveSpan() -> Span? {
+    func getActiveSpan() -> Any? {
         tracker?.getActiveSpan()
     }
 

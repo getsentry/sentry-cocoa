@@ -933,7 +933,7 @@ final class SentryClientTests: XCTestCase {
         scope.addBreadcrumb(TestData.crumb)
         scope.setExtra(value: "extra", key: "key")
         scope.setLevel(.fatal)
-        scope.span = SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil)
+        scope.span = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil))
         let event = Event(level: .warning)
         event.message = fixture.message
         event.context = ["app": ["app_version": "1.0.0"], "device": ["model": "iPhone17,1"]]
@@ -1763,7 +1763,7 @@ final class SentryClientTests: XCTestCase {
     func testCaptureFatalEventWithSession_ScopeWithSpan_NotAppliedToFatalEvent() throws {
         // Arrange
         let scope = fixture.scope
-        scope.span = SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil)
+        scope.span = sentrySpan(from: SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil))
         let event = fixture.eventWithCrash
 
         // Act
@@ -2043,7 +2043,7 @@ final class SentryClientTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
         tracer.finish()
         let transaction = Transaction(trace: tracer, children: [])
-        scope.span = tracer
+        scope.span = sentrySpan(from: tracer)
         scope.span = nil
         var callbackCalled = false
         let sut = fixture.getSut(configureOptions: { options in
@@ -2073,7 +2073,7 @@ final class SentryClientTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
         tracer.finish()
         let transaction = Transaction(trace: tracer, children: [])
-        scope.span = tracer
+        scope.span = sentrySpan(from: tracer)
         scope.span = nil
         var callbackTrace: [String: Any]?
         let sut = fixture.getSut(configureOptions: { options in
@@ -3990,7 +3990,7 @@ final class SentryClientTests: XCTestCase {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         let scope = Scope()
-        scope.span = fixture.trace
+        scope.span = sentrySpan(from: fixture.trace)
 
         let client = fixture.getSut()
         client.capture(event: event, scope: scope)
@@ -4509,9 +4509,9 @@ extension SentryClientTests {
 
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
 #if os(iOS) || os(tvOS) || os(visionOS)
-        return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
+        return sentrySpan(from: SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil))
 #else
-        return  SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation))
+        return sentrySpan(from: SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation)))
         #endif
     }
 
