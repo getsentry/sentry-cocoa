@@ -74,6 +74,17 @@ NS_ASSUME_NONNULL_BEGIN
     return @{ };
 }
 
+// The shared instance is returned to every caller, possibly on many threads at once, so it must
+// not store frames: concurrent calls to the inherited nonatomic setter over-release the old value.
+- (nullable NSArray<SentryFrame *> *)frames
+{
+    return nil;
+}
+
+- (void)setFrames:(nullable NSArray<SentryFrame *> *)frames
+{
+}
+
 - (BOOL)isFinished
 {
     return NO;

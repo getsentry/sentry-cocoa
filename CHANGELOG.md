@@ -16,6 +16,7 @@
 ### Fixes
 
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
+- Stop the shared no-op span from storing stack frames, so file I/O on the main thread after its transaction finished no longer keeps those frames alive (#9690)
 
 ## 9.35.0
 

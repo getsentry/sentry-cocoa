@@ -48,6 +48,31 @@ class SentryNoOpSpanTests: XCTestCase {
         XCTAssertTrue(sut.tags.isEmpty)
     }
     
+    func testFrames_whenSet_shouldStayNil() {
+        // -- Arrange --
+        let sut = SentryNoOpSpan.shared()
+
+        // -- Act --
+        sut.frames = [TestData.mainFrame, TestData.testFrame]
+
+        // -- Assert --
+        XCTAssertNil(sut.frames)
+    }
+
+    func testFrames_whenSetConcurrently_shouldNotCrash() {
+        // -- Arrange --
+        let sut = SentryNoOpSpan.shared()
+        let frames = [TestData.mainFrame, TestData.testFrame]
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 1_000) { _ in
+            sut.frames = frames
+        }
+
+        // -- Assert --
+        XCTAssertNil(sut.frames)
+    }
+
     func testIsAlwaysNotFinished() {
         let sut = SentryNoOpSpan.shared()
         
