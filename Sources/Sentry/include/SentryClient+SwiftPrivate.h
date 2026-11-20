@@ -15,9 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
                           scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           isFromPreviousProcess:(BOOL)isFromPreviousProcess;
 
-- (NSArray *)processAttachmentsForEvent:(SentryEvent *)event
-                            attachments:
-                                (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)attachments;
+- (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+    processAttachmentsForEvent:(SentryEvent *)event
+                   attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)attachments;
 
 - (void)addAttachmentProcessor:(SENTRY_SWIFT_MIGRATION_ID(
                                    id<SentryClientAttachmentProcessor>))attachmentProcessor;

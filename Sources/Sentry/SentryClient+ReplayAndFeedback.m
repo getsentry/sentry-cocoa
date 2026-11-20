@@ -28,7 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
               currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
 
-- (NSArray *)processAttachmentsForEvent:(SentryEvent *)event attachments:(NSArray *)attachments;
+- (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+    processAttachmentsForEvent:(SentryEvent *)event
+                   attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)attachments;
 
 @end
 
@@ -112,7 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray *)feedbackAttachments
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments
                             scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                      currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope
 {
@@ -185,7 +188,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray *)feedbackAttachments
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments
                             scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];

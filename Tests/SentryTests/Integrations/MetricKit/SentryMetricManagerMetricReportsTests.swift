@@ -500,12 +500,22 @@ private final class TestMXMetricManager: SentryMXMetricManager {
 }
 
 @available(iOS 27.0, macOS 27.0, *)
-private final class TestMetricReportSource: SentryMetricManagerSource {
-    let reports: AsyncStream<MetricKit.MetricReport>
-    let continuation: AsyncStream<MetricKit.MetricReport>.Continuation
+private final class TestMetricReportSource: SentryMetricManagerSource, @unchecked Sendable {
+    // Stored as Any so XCTest can realize this class on an older simulator. The class is
+    // unavailable below xOS 27, but XCTest still realizes every class, and the MetricReport
+    // metadata accessor crashes there.
+    private let reportsBox: Any
+    private let continuationBox: Any
+
+    var continuation: AsyncStream<MetricKit.MetricReport>.Continuation {
+        // swiftlint:disable:next force_cast
+        continuationBox as! AsyncStream<MetricKit.MetricReport>.Continuation
+    }
 
     init() {
-        (reports, continuation) = AsyncStream.makeStream()
+        let (reports, continuation) = AsyncStream<MetricKit.MetricReport>.makeStream()
+        reportsBox = reports
+        continuationBox = continuation
     }
 
     func makeDiagnosticReports() -> any AsyncSequence<MetricKit.DiagnosticReport, Never> {
@@ -513,7 +523,8 @@ private final class TestMetricReportSource: SentryMetricManagerSource {
     }
 
     func makeMetricReports() -> any AsyncSequence<MetricKit.MetricReport, Never> {
-        reports
+        // swiftlint:disable:next force_cast
+        reportsBox as! AsyncStream<MetricKit.MetricReport>
     }
 }
 

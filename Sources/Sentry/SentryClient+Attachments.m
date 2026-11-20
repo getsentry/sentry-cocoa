@@ -54,11 +54,13 @@ NS_ASSUME_NONNULL_BEGIN
     [self.attachmentProcessors removeObject:attachmentProcessor];
 }
 
-- (NSArray *)processAttachmentsForEvent:(SentryEvent *)event attachments:(NSArray *)attachments
+- (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+    processAttachmentsForEvent:(SentryEvent *)event
+                   attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)attachments
 {
     NSArray<SentryAttachment *> *typedAttachments = (NSArray<SentryAttachment *> *)attachments;
     if (self.attachmentProcessors.count == 0) {
-        return typedAttachments;
+        return (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)typedAttachments;
     }
 
     NSArray<SentryAttachment *> *processedAttachments = typedAttachments;
@@ -75,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
                       forEvent:event];
     }
 
-    return processedAttachments;
+    return (NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)processedAttachments;
 }
 
 @end
