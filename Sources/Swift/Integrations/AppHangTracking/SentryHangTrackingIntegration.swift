@@ -179,6 +179,9 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
             guard let event = fileManager.readAppHangEvent() else { return }
             fileManager.deleteAppHangEvent()
             if activeCrashReporterState.crashedLastLaunch {
+                // The app hung in the process that crashed, so the hang must not count as an
+                // error of the running process's session.
+                event.isFromPreviousProcess = true
                 SentrySDK.capture(event: event, scope: Scope())
             } else {
                 if event.exceptions?.count != 1 {
