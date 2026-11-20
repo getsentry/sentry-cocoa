@@ -27,14 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isReady
 {
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
     // force every envelope to be cached in UI tests so we can inspect what the SDK would've sent
     // for a given operation
     if ([NSProcessInfo.processInfo.environment[@"--io.sentry.scope.sdk-environment"]
             isEqualToString:@"ui-tests"]) {
         return NO;
     }
-#endif // SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#endif // defined(DEBUG)
 #if defined(DEBUG)
     if ([NSProcessInfo.processInfo.arguments
             containsObject:@"--io.sentry.disable-http-transport"]) {

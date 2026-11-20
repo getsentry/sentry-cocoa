@@ -112,7 +112,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     var applicationOverride: SentryApplication?
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
@@ -122,7 +122,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
 #endif
     @objc public func application() -> SentryApplication? {
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     let `override` = self.applicationOverride
     if let `override` {
         return `override`
@@ -173,11 +173,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryCrashV9Backend.capture(exception: exception, dependencies: self)
     }
 #endif // !SDK_V10
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     var activeCrashReporterStateOverride: SentryCrashReporterState?
 #endif
     @objc public var activeCrashReporterState: SentryCrashReporterState {
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
         if let activeCrashReporterStateOverride {
             return activeCrashReporterStateOverride
         }
@@ -200,7 +200,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _eventSourceCoordinator: SentryEventSourceCoordinator?
     lazy var eventSourceCoordinator: SentryEventSourceCoordinator = getLazyVar(\._eventSourceCoordinator) {
-        SentryEventSourceCoordinator(downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()))
+        SentryEventSourceCoordinator(
+            downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()),
+            fatalRunRecordStore: fileManager.map { SentryFatalRunRecordStore(fileManager: $0, dateProvider: dateProvider) },
+            dateProvider: dateProvider
+        )
     }
     private var _crashHandlerEventSource: SentryCrashHandlerEventSource?
     @objc public lazy var crashHandlerEventSource: SentryCrashHandlerEventSource = getLazyVar(\._crashHandlerEventSource) {
@@ -672,11 +676,11 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #if !SDK_V10
 extension SentryDependencyContainer: WindowFactoryProvider {
     var windowFactory: SentryUserFeedbackWindowFactory {
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
         if let override = windowFactoryOverride {
             return override
         }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
         return SentryUserFeedbackWidget.defaultWindowFactory
     }
 }

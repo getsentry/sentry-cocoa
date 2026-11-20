@@ -144,7 +144,7 @@ static NSString *_Nullable appStartScreen;
     }
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 + (void)reset
 {
     @synchronized(appStartMeasurementLock) {

@@ -134,6 +134,67 @@ class SentryFileManagerTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().dateProvider = originalDateProvider
     }
     
+    func testInit_whenWorkingDirectoryCannotBeCreated_shouldLogFatal() {
+        // -- Arrange --
+        let output = TestLogOutput()
+        SentrySDKLog.setLogOutput(output)
+        fixture.options.cacheDirectoryPath = "/dev/null"
+
+        // -- Act --
+        XCTAssertThrowsError(try SentryFileManager(
+            options: fixture.options,
+            dateProvider: fixture.currentDateProvider,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        ))
+
+        // -- Assert --
+        XCTAssertTrue(output.loggedMessages.contains {
+            $0.contains("[fatal]") && $0.contains("Failed to create Sentry SDK working directory:")
+        })
+    }
+
+    func testInit_whenEnvelopesDirectoryCannotBeCreated_shouldLogFatal() throws {
+        // -- Arrange --
+        let output = TestLogOutput()
+        SentrySDKLog.setLogOutput(output)
+        try FileManager.default.removeItem(atPath: sut.envelopesPath)
+        try Data().write(to: URL(fileURLWithPath: sut.envelopesPath))
+        defer {
+            do {
+                try FileManager.default.removeItem(atPath: sut.envelopesPath)
+            } catch {
+                XCTFail("Failed to remove envelopes file: \(error)")
+            }
+        }
+
+        // -- Act --
+        XCTAssertThrowsError(try SentryFileManager(
+            options: fixture.options,
+            dateProvider: fixture.currentDateProvider,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        ))
+
+        // -- Assert --
+        XCTAssertTrue(output.loggedMessages.contains {
+            $0.contains("[fatal]") && $0.contains("Failed to create Sentry SDK envelopes directory:")
+        })
+    }
+
+    func testInit_whenDSNIsMissing_shouldLogFatal() throws {
+        // -- Arrange --
+        let output = TestLogOutput()
+        SentrySDKLog.setLogOutput(output)
+        fixture.options.dsn = nil
+
+        // -- Act --
+        _ = try fixture.getSut()
+
+        // -- Assert --
+        XCTAssertTrue(output.loggedMessages.contains {
+            $0.contains("[fatal]") && $0.contains("No DSN provided, using base path for envelopes:")
+        })
+    }
+
     func testInitDoesNotOverrideDirectories() throws {
         sut.store(TestConstants.envelope)
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", distinctId: "some-id"))

@@ -190,7 +190,7 @@ final class SentryHubEventSourceSinkTests: SentrySDKIntegrationTestsBase {
         let attachment = Attachment(data: Data("diagnostic".utf8), filename: "diagnostic.json")
         let report = SentryEventSourceReport(
             source: .metricKit,
-            kind: .diagnostic(attachments: [attachment]),
+            kind: .diagnostic(attachments: [attachment], runEnd: nil),
             runId: nil,
             event: event
         )
@@ -214,7 +214,7 @@ final class SentryHubEventSourceSinkTests: SentrySDKIntegrationTestsBase {
         let client = try currentTestClient()
         let report = SentryEventSourceReport(
             source: .metricKit,
-            kind: .diagnostic(attachments: []),
+            kind: .diagnostic(attachments: [], runEnd: nil),
             runId: nil,
             event: Event(level: .error)
         )

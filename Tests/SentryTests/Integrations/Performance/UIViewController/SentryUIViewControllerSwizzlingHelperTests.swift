@@ -35,7 +35,7 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
     }
 
-#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+#if DEBUG
     func testStop_whenSubclassSwizzledOutsideTests_shouldPreserveBaseLoadView() throws {
         // -- Arrange --
         let container = SentryDependencyContainer.sharedInstance()
@@ -324,7 +324,7 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
     }
 }
 
-#if DEBUG && !SENTRY_TEST && !SENTRY_TEST_CI
+#if DEBUG
 private final class ConsumerViewController: UIViewController {
     override func loadView() {
         view = UIView()

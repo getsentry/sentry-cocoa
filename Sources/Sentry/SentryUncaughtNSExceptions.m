@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_once(&onceToken, ^{
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 #        pragma clang diagnostic ignored "-Wunused-variable"
 #    endif
         // AppKit calls _crashOnException: when an exception is caught during CATransaction flush
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
             SentrySwizzleClassMethod(NSApplication, selector, SentrySWReturnType(void),
                 SentrySWArguments(NSException * exception), SentrySWReplacement({
                     [SentryNSExceptionCaptureHelper crashOnException:exception];
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
                     // Don't call the original in tests as it would abort() the process.
                     swizzleInfo.originalCalled = YES;
 #    else
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
             SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
                 SentrySWArguments(NSException * exception), SentrySWReplacement({
                     [SentryNSExceptionCaptureHelper crashOnException:exception];
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
                     // Don't call the original in tests as it would abort() the process.
                     swizzleInfo.originalCalled = YES;
 #    else

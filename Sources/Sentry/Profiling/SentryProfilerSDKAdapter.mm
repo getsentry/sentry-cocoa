@@ -38,6 +38,12 @@
     }
 }
 
+- (SentryProfilingConfiguration)configuration
+{
+    id<SentryProfilerSDKBackend> target = self.target;
+    return target == nil ? (SentryProfilingConfiguration) { NO, NO } : [target configuration];
+}
+
 - (SentryProfilingTimestamp)timestamp
 {
     id<SentryProfilerSDKBackend> target = self.target;
@@ -136,9 +142,9 @@
     [self.target startFramesTracker];
 }
 
-- (void)stopFramesTracker
+- (void)stopFramesTrackerIfUnused
 {
-    [self.target stopFramesTracker];
+    [self.target stopFramesTrackerIfUnused];
 }
 
 - (void)resetProfilingTimestamps

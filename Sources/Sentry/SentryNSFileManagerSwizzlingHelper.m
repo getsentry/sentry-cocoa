@@ -7,7 +7,7 @@
 @implementation SentryNSFileManagerSwizzlingHelper
 
 static __weak SentryFileIOTracker *_tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 static BOOL swizzlingIsActive = FALSE;
 #endif
 
@@ -18,7 +18,7 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)swizzleWithTracker:(SentryFileIOTracker *)tracker
 {
     _tracker = tracker;
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
     swizzlingIsActive = TRUE;
 #endif
 
@@ -58,9 +58,7 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)stop
 {
     _tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI
-    [self unswizzle];
-#elif defined(DEBUG)
+#if defined(DEBUG) // Test support.
     // Unswizzling is test cleanup, not safe teardown for source-based Debug consumers.
     if (SentryDependencyContainer.sharedInstance.processInfoWrapper
             .environment[@"XCTestConfigurationFilePath"]
@@ -70,7 +68,7 @@ static BOOL swizzlingIsActive = FALSE;
 #endif
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 + (void)unswizzle
 {
     swizzlingIsActive = FALSE;

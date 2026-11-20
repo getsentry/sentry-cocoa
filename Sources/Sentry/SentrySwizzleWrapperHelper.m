@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
     // Test cases share a process and need fresh callbacks. Debug consumers must still honor the
     // key.
     if (SentryDependencyContainer.sharedInstance.processInfoWrapper
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
         != nil) {
         mode = SentrySwizzleModeAlways;
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({

@@ -355,7 +355,7 @@ private struct SessionSegmentState {
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
     /// The trace IDs currently buffered for the not-yet-sent segment, as hex strings.
     func getCollectedTraceIdsTestOnly() -> [String] {
         traceIdBuffer.withLock { $0.map { $0.sentryIdString } }

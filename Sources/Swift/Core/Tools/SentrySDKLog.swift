@@ -55,7 +55,7 @@ typealias SentryLogOutput = ((String) -> Void)
      */
     @objc
     public static func willLog(atLevel level: SentryLevel) -> Bool {
-        #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+        #if DEBUG // Test support.
             willLogCallCount.withLock { state in
                 guard state.thread === Thread.current else { return }
                 state.count += 1
@@ -82,7 +82,7 @@ typealias SentryLogOutput = ((String) -> Void)
         logOutput = output ?? defaultLogOutput
     }
 
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+    #if DEBUG // Test support.
 
         private struct WillLogCallCount {
             var thread: Thread?

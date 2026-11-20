@@ -2,7 +2,7 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryProfilingDispatch.h"
-#import "SentrySampleDecision.h"
+#import "SentryProfilingTraceDecision.h"
 #import <Foundation/Foundation.h>
 
 @class SentryProfiler;
@@ -11,8 +11,6 @@
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryTransaction;
-@class SentryTracerConfiguration;
-@class SentryProfileOptions;
 @class SentryId;
 #if SENTRY_HAS_UIKIT
 @class SentryAppStartMeasurement;
@@ -28,18 +26,17 @@ SENTRY_EXTERN_C_BEGIN
  * @Returns An ID to use as a unique, unchanging ID for the tracer that started the profiler. It's
  * different from the profiler's internal ID.
  */
-SentryId *_Nullable sentry_startProfilerForTrace(
-    SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub,
+SentryId *_Nullable sentry_startProfilerForTrace(SentryProfilingTraceDecision decision,
     SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext);
 
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
  * option configured.
  */
-SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
-    SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction, BOOL isProfiling,
-    BOOL isLaunchTrace, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
+    SentryHubInternal *hub, SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction,
+    BOOL isProfiling, BOOL isLaunchTrace, BOOL continuousTraceProfiling,
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
@@ -66,10 +63,10 @@ void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHu
  */
 SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 void sentry_resetConcurrencyTracking(void);
 NSUInteger sentry_currentProfiledTracers(void);
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 SENTRY_EXTERN_C_END
 

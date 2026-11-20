@@ -217,7 +217,7 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
     }
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 void
 sentrykscrash_test_invokeDidWriteReport(
     bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID)
@@ -248,7 +248,7 @@ sentrykscrash_invokeSaveTransaction(void)
         callback();
     }
 }
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#    endif // defined(DEBUG)
 
 static atomic_bool g_attachmentsEnabled = false;
 static _Atomic(SentryKSCrashAttachmentsScreenshotWriter) g_screenshotWriter;
@@ -292,7 +292,7 @@ sentrykscrash_attachments_setViewHierarchyWriter(SentryKSCrashAttachmentsViewHie
     atomic_store_explicit(&g_viewHierarchyWriter, writer, memory_order_release);
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 bool
 sentrykscrash_attachments_hasScreenshotWriter(void)
 {
@@ -315,7 +315,7 @@ sentrykscrash_attachments_invokeViewHierarchyWriter(const char *payloadDirectory
     }
     writer(payloadDirectory);
 }
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#    endif // defined(DEBUG)
 
 void
 sentrykscrash_attachments_setSidecarPathProvider(KSCrashReportSidecarPathProviderFunc provider)

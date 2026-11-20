@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -66,8 +64,6 @@ targets:
     configFiles:
       Debug: App/Configurations/iOS-ObjectiveC.xcconfig
       Release: App/Configurations/iOS-ObjectiveC.xcconfig
-      Test: App/Configurations/iOS-ObjectiveC.xcconfig
-      TestCI: App/Configurations/iOS-ObjectiveC.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -160,8 +156,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
       Release: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
-      Test: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
-      TestCI: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
@@ -174,6 +168,6 @@ schemes:
         iOS-ObjectiveC: all
         iOS-ObjectiveC-UITests: test
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/iOS-ObjectiveC_Base.xctestplan
