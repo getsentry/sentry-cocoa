@@ -1687,6 +1687,13 @@ class SentryTracerTests: XCTestCase {
 
         let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
 
+        // Children started after `sut.finish()` are all the shared `SentryNoOpSpan`. Writing frames
+        // to it from many threads at once races on its nonatomic property, so skip it.
+        let setEmptyFrames: (Span) -> Void = { span in
+            guard !(span is SentryNoOpSpan) else { return }
+            Dynamic(span).frames = [] as [Frame]
+        }
+
         let addChildrenCount = 100
         let expectation = XCTestExpectation(description: "Add spans while finishing")
         expectation.expectedFulfillmentCount = addChildrenCount * 2 + 1
@@ -1695,7 +1702,7 @@ class SentryTracerTests: XCTestCase {
         for _ in 0 ..< 100 {
             queue.async {
                 let child = sut.startChild(operation: self.fixture.transactionOperation)
-                Dynamic(child).frames = [] as [Frame]
+                setEmptyFrames(child)
                 child.finish()
 
                 expectation.fulfill()
@@ -1710,7 +1717,7 @@ class SentryTracerTests: XCTestCase {
         for _ in 0 ..< 100 {
             queue.async {
                 let child = sut.startChild(operation: self.fixture.transactionOperation)
-                Dynamic(child).frames = [] as [Frame]
+                setEmptyFrames(child)
                 child.finish()
 
                 expectation.fulfill()
