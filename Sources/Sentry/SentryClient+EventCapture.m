@@ -13,8 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
  * Whether a captured event counts as an error of the current session, like errors captured through
  * the event-capture API of the Java and Native SDKs.
  *
- * App hangs and MetricKit diagnostics from a previous process are captured through this path too,
- * but they don't describe an error of the running session, so they don't count.
+ * The sessions specification counts every event of level error or higher, which includes app hangs
+ * the app recovered from. Events from a previous process, such as MetricKit diagnostics or an app
+ * hang of a process that crashed, are captured through this path too, but they don't describe an
+ * error of the running session, so they don't count.
  */
 static BOOL
 shouldIncrementSessionErrors(SentryEvent *event)
@@ -22,11 +24,6 @@ shouldIncrementSessionErrors(SentryEvent *event)
     if (event.isFromPreviousProcess) {
         return NO;
     }
-#if !SDK_V10
-    if (event.isAppHangEvent) {
-        return NO;
-    }
-#endif // !SDK_V10
 
     if (event.level >= kSentryLevelError) {
         return YES;
