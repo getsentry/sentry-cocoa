@@ -1,7 +1,7 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashMonitorContext.h"
+#    import "SentryCrashDebug.h"
 #    import "SentryCrashMonitor_MachException.h"
 #    import "SentryInternalCDefines.h"
 
@@ -14,10 +14,16 @@
 
 @implementation SentryCrashMonitor_MachException_Tests
 
-- (void)testSetEnabled_whenEnabled_shouldRegisterIdentityProtectedBehavior
+- (void)testSetEnabled_whenEnabled_shouldRegisterIdentityProtectedBehaviorUnlessTranslated
 {
+    // Installing replaces a debugger's exception ports, and disabling does not restore them.
+    if (sentrycrashdebug_isBeingTraced()) {
+        XCTSkip(@"The Mach exception monitor does not install under a debugger.");
+    }
+
     // -- Arrange --
     SentryCrashMonitorAPI *api = sentrycrashcm_machexception_getAPI();
+    const bool wasEnabled = api->isEnabled();
     // Rosetta rejects the identity-protected behavior, so translated processes keep the default.
     int translated = 0;
     size_t size = sizeof(translated);
@@ -28,6 +34,8 @@
         = isTranslated ? EXCEPTION_DEFAULT : EXCEPTION_IDENTITY_PROTECTED;
 
     // -- Act --
+    // The monitor installs once per process, so this may observe an earlier install; every
+    // install registers through the same code path.
     api->setEnabled(true);
 
     // -- Assert --
@@ -46,8 +54,7 @@
     XCTAssertTrue(behaviors[0] & MACH_EXCEPTION_CODES);
     mach_port_deallocate(mach_task_self(), ports[0]);
 
-    // The handler threads stay running; disabling only stops them from handling exceptions.
-    api->setEnabled(false);
+    api->setEnabled(wasEnabled);
 }
 
 @end
