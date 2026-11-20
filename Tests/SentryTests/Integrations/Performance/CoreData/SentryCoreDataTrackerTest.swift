@@ -356,6 +356,28 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertTrue(result === expectedResult)
     }
 
+    func testFetch_whenTransactionFinished_shouldNotCaptureStacktrace() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        try bindChildSpanOfFinishedTransaction()
+        SentryNoOpSpan.shared().frames = nil
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TestEntity")
+        let expectedResult = NSArray()
+        var calls = 0
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, executeFetchRequest: request, error: nil) { _, _ in
+            calls += 1
+            return expectedResult
+        }
+
+        // -- Assert --
+        XCTAssertTrue(result === expectedResult)
+        XCTAssertEqual(calls, 1)
+        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations, 0)
+        XCTAssertNil(SentryNoOpSpan.shared().frames)
+    }
+
     func testFetch_whenOriginalReturnsEmptyArray_shouldFinishSuccessfully() throws {
         // -- Arrange --
         let sut = fixture.getSut()
@@ -420,6 +442,27 @@ class SentryCoreDataTrackerTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(result)
         XCTAssertEqual(calls, 1)
+    }
+
+    func testSave_whenTransactionFinished_shouldNotCaptureStacktrace() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        try bindChildSpanOfFinishedTransaction()
+        SentryNoOpSpan.shared().frames = nil
+        fixture.context.inserted = [fixture.testEntity()]
+        var calls = 0
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, save: nil) { _ in
+            calls += 1
+            return true
+        }
+
+        // -- Assert --
+        XCTAssertTrue(result)
+        XCTAssertEqual(calls, 1)
+        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations, 0)
+        XCTAssertNil(SentryNoOpSpan.shared().frames)
     }
 
     func test_Save_NoChanges() throws {
@@ -507,6 +550,14 @@ private extension SentryCoreDataTrackerTests {
         }
     }
     
+    /// A child span stays on the scope after its transaction finishes, and from then on it only
+    /// hands out the shared no-op span.
+    private func bindChildSpanOfFinishedTransaction() throws {
+        let transaction = try startTransaction()
+        SentrySDKInternal.currentHub().scope.span = transaction.startChild(operation: "child")
+        transaction.finish()
+    }
+
     private func startTransaction() throws -> SentryTracer {
         return try XCTUnwrap(SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as? SentryTracer)
     }
