@@ -554,7 +554,8 @@ static BOOL sdkStarted;
 
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray *)feedbackAttachments
+                      attachments:(NSArray<SENTRY_SWIFT_MIGRATION_ID(SentryAttachment)> *)
+                                      feedbackAttachments
 {
     [SentrySDKInternal.currentHub captureSerializedFeedback:serializedFeedback
                                                 withEventId:feedbackEventId
