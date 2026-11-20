@@ -1409,6 +1409,56 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, fileManager.getAllEnvelopes().count)
     }
 
+    func testFlush_whenEarlierDrainFindsEmptyCache_shouldNotSucceedBeforeCaptureIsSent() throws {
+        // -- Arrange --
+        let transportQueue = SentryDispatchQueueWrapper()
+        let reachability = TestSentryReachability()
+        let sut = try fixture.getSut(dispatchQueueWrapper: transportQueue, reachability: reachability)
+
+        // Queue order: hold, connectivity drain, hold, capture, flush drain.
+        let releaseConnectivityDrain = DispatchSemaphore(value: 0)
+        let releaseCapture = DispatchSemaphore(value: 0)
+        defer {
+            releaseConnectivityDrain.signal()
+            releaseCapture.signal()
+        }
+        transportQueue.dispatchAsync { _ = releaseConnectivityDrain.wait(timeout: .now() + 20) }
+        reachability.triggerNetworkReachable()
+        transportQueue.dispatchAsync { _ = releaseCapture.wait(timeout: .now() + 20) }
+        sut.send(envelope: fixture.eventEnvelope)
+
+        // -- Act & Assert --
+        assertFlushWaitsForCapture(sut, releaseEarlierDrain: releaseConnectivityDrain, releaseCapture: releaseCapture)
+    }
+
+    func testFlush_whenPreviousFlushTimedOut_shouldNotSucceedBeforeCaptureIsSent() throws {
+        // -- Arrange --
+        let transportQueue = SentryDispatchQueueWrapper()
+        let sut = try fixture.getSut(dispatchQueueWrapper: transportQueue, reachability: TestSentryReachability())
+
+        // Queue order: hold, timed-out flush's drain, hold, capture, second flush's drain.
+        let releaseStaleDrain = DispatchSemaphore(value: 0)
+        let releaseCapture = DispatchSemaphore(value: 0)
+        defer {
+            releaseStaleDrain.signal()
+            releaseCapture.signal()
+        }
+        transportQueue.dispatchAsync { _ = releaseStaleDrain.wait(timeout: .now() + 20) }
+        let firstFlushReturned = expectation(description: "First flush returned")
+        var firstResult: SentryFlushResult?
+        DispatchQueue.global(qos: .default).async(qos: .default, flags: .enforceQoS) {
+            firstResult = sut.flush(0.1)
+            firstFlushReturned.fulfill()
+        }
+        wait(for: [firstFlushReturned], timeout: 5)
+        XCTAssertEqual(.timedOut, firstResult)
+        transportQueue.dispatchAsync { _ = releaseCapture.wait(timeout: .now() + 20) }
+        sut.send(envelope: fixture.eventEnvelope)
+
+        // -- Act & Assert --
+        assertFlushWaitsForCapture(sut, releaseEarlierDrain: releaseStaleDrain, releaseCapture: releaseCapture)
+    }
+
     func testSendsWhenNetworkComesBack() {
         givenNoInternetConnection()
 
@@ -1436,6 +1486,47 @@ class SentryHttpTransportTests: XCTestCase {
         _ = try fixture.getSut()
 
         fixture.reachability.triggerNetworkReachable()
+    }
+
+    /// Flushes `sut` while releasing `releaseEarlierDrain` and then, after a window in which an early return would
+    /// show, `releaseCapture`. Asserts that the flush succeeds only once the capture's request was sent.
+    private func assertFlushWaitsForCapture(
+        _ sut: Transport,
+        releaseEarlierDrain: DispatchSemaphore,
+        releaseCapture: DispatchSemaphore,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let flushRegistered = DispatchSemaphore(value: 0)
+        sut.setStartFlushCallback { flushRegistered.signal() }
+        let flushReturnedSignal = DispatchSemaphore(value: 0)
+        let flushReturned = expectation(description: "Flush returned")
+        let captureReleased = expectation(description: "Capture released")
+        var result: SentryFlushResult?
+        var requestsAtReturn = -1
+        var registeredInTime = false
+
+        // The blocking waits run off the main thread at the transport queue's default QoS. A main thread blocked
+        // on a lower QoS is a priority inversion, which Xcode's performance checker reports by stalling the test.
+        let defaultQoS = DispatchQueue.global(qos: .default)
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            result = sut.flush(10)
+            requestsAtReturn = self.fixture.requestManager.requests.count
+            flushReturnedSignal.signal()
+            flushReturned.fulfill()
+        }
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            registeredInTime = flushRegistered.wait(timeout: .now() + 5) == .success
+            releaseEarlierDrain.signal()
+            _ = flushReturnedSignal.wait(timeout: .now() + 1)
+            releaseCapture.signal()
+            captureReleased.fulfill()
+        }
+        wait(for: [captureReleased, flushReturned], timeout: 20)
+
+        XCTAssertTrue(registeredInTime, "The flush never started", file: file, line: line)
+        XCTAssertEqual(.success, result, file: file, line: line)
+        XCTAssertEqual(1, requestsAtReturn, "A successful flush must not return before the captured envelope is sent", file: file, line: line)
     }
 #endif // !os(watchOS)
     
