@@ -12,10 +12,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryCurrentScopeStorage *)currentScopeStorage;
 - (SentryTransportAdapter *)transportAdapter;
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))event
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
 - (nullable SENTRY_SWIFT_MIGRATION_ID(
     SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event

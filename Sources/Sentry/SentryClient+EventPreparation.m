@@ -23,10 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClientInternal (EventPreparation)
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))untypedEvent
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     SentryEvent *event = untypedEvent;
     return [self prepareEvent:event
@@ -35,11 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
                   isFatalEvent:NO];
 }
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))untypedEvent
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   isFatalEvent:(BOOL)isFatalEvent
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent
 {
     SentryEvent *_Nullable event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
@@ -50,12 +50,12 @@ NS_ASSUME_NONNULL_BEGIN
                           hint:hint];
 }
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))untypedEvent
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   isFatalEvent:(BOOL)isFatalEvent
-                                                           hint:(SentryHint *)hint
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent
+                         hint:(SentryHint *)hint
 {
     SentryEvent *_Nullable event = untypedEvent;
     SentryScope *cs = [self.currentScopeStorage scope];
@@ -67,12 +67,12 @@ NS_ASSUME_NONNULL_BEGIN
                           hint:hint];
 }
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))untypedEvent
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   isFatalEvent:(BOOL)isFatalEvent
-                                                   currentScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nullable)currentScope
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent
+                 currentScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope)_Nullable)currentScope
 {
     SentryEvent *_Nullable event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];

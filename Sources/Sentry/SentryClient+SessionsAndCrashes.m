@@ -76,20 +76,19 @@ extern NSString *const DropSessionLogMessage;
     [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryEvent))untypedEvent
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+- (SentryId *)
+    captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryEvent *event = untypedEvent;
     SentryHint *hint = [[SentryHint alloc] init];
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryEvent))untypedEvent
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
-                                                   hint:(SentryHint *)hint
+- (SentryId *)
+    captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                                         hint:(SentryHint *)hint
 {
     SentryEvent *event = untypedEvent;
     return [self captureEventIncrementingSessionErrorCount:event
@@ -98,12 +97,11 @@ extern NSString *const DropSessionLogMessage;
                                                       hint:hint];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryEvent))untypedEvent
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
-                                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   hint:(SentryHint *)hint
+- (SentryId *)
+    captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                         hint:(SentryHint *)hint
 {
     SentryEvent *event = untypedEvent;
     [self populateHintAttachments:hint

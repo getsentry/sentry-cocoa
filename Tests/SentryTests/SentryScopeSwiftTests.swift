@@ -694,9 +694,9 @@ class SentryScopeSwiftTests: XCTestCase {
 
         let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
 
-        XCTAssertEqual(actual?.context?["os"]?["name"] as? String, "iOS")
-        XCTAssertEqual(actual?.context?["os"]?["version"] as? String, "17")
-        XCTAssertEqual(actual?.context?["app"]?["app_id"] as? String, "abc")
+        XCTAssertEqual(contextEntry(actual?.context?["os"])?["name"] as? String, "iOS")
+        XCTAssertEqual(contextEntry(actual?.context?["os"])?["version"] as? String, "17")
+        XCTAssertEqual(contextEntry(actual?.context?["app"])?["app_id"] as? String, "abc")
         XCTAssertNil(actual?.context?["legacy"])
     }
 

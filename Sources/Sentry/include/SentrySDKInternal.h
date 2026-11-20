@@ -68,7 +68,8 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a manually created event and sends it to Sentry. Maintains the global scope but mutates
@@ -79,7 +80,8 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope) scope))block NS_SWIFT_NAME(capture(event:scopeBlockObject:));
+            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
+    NS_SWIFT_NAME(capture(event:scopeBlockObject:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.

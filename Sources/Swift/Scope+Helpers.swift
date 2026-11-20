@@ -6,7 +6,7 @@ private let kSentryScopeSpanStatusSerializationKey = "status"
 extension Scope {
     func applySpan(_ span: Span?, to event: Event) {
         var context = event.context ?? [:]
-        let previousTraceId = context["trace"]?["trace_id"] as? String
+        let previousTraceId = contextEntry(context["trace"])?["trace_id"] as? String
         #if SDK_V10
         if event.type == SentryEnvelopeItemTypes.transaction, let transaction = event as? Transaction {
             // Transaction capture is asynchronous, so the scope may no longer hold its tracer.
@@ -21,7 +21,7 @@ extension Scope {
 
         guard event.type != SentryEnvelopeItemTypes.transaction else { return }
 
-        let updatedTraceId = context["trace"]?["trace_id"] as? String
+        let updatedTraceId = contextEntry(context["trace"])?["trace_id"] as? String
         if let tracer = SentryTracer.getTracer(span) {
             event.transaction = tracer.transactionContext.name
         } else if span != nil, previousTraceId != nil, previousTraceId != updatedTraceId {

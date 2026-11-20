@@ -261,13 +261,13 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
             let event = try XCTUnwrap(event)
-            XCTAssertEqual(event.context?["app"] as NSDictionary?, [
+            XCTAssertEqual(event.context?["app"] as? NSDictionary, [
                 "app_identifier": "io.sentry.app.extension",
                 "app_version": "1.0.0",
                 "app_build": "10",
                 "build_type": "test"
             ])
-            XCTAssertEqual(event.context?["device"] as NSDictionary?, ["model": "iPhone18,1", "low_power_mode": true])
+            XCTAssertEqual(event.context?["device"] as? NSDictionary, ["model": "iPhone18,1", "low_power_mode": true])
         }
     }
 

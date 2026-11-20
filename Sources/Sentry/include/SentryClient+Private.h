@@ -141,23 +141,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal (EventPreparation)
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))event
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))event
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   isFatalEvent:(BOOL)isFatalEvent;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent;
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))event
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   isFatalEvent:(BOOL)isFatalEvent
-                                                           hint:(SentryHint *)hint;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent
+                         hint:(SentryHint *)hint;
 
 - (nullable SENTRY_SWIFT_MIGRATION_ID(
     SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
@@ -241,21 +241,21 @@ NS_ASSUME_NONNULL_BEGIN
                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-                                              withScope:
-                                                  (SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+- (SentryId *)
+    captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(captureEventIncrementingSessionErrorCount(_:with:));
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
-                                                   hint:(SentryHint *)hint;
+- (SentryId *)
+    captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                                         hint:(SentryHint *)hint;
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
-                                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   hint:(SentryHint *)hint;
+- (SentryId *)
+    captureEventIncrementingSessionErrorCount:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                                         hint:(SentryHint *)hint;
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 

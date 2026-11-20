@@ -391,10 +391,11 @@ static BOOL sdkStarted;
 }
 
 + (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
-            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope) scope))block
+            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
 {
     SentryEvent *event = untypedEvent;
-    SentryScope *scope = [[SentryScope alloc] initWithScope:(SentryScope *)SentrySDKInternal.currentHub.scope];
+    SentryScope *scope =
+        [[SentryScope alloc] initWithScope:(SentryScope *)SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureEvent:event withScope:scope];
 }

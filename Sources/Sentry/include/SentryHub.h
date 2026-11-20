@@ -55,7 +55,8 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.

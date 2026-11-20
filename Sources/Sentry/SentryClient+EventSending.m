@@ -13,12 +13,12 @@ extern NSString *const DropSessionLogMessage;
 - (SentryCurrentScopeStorage *)currentScopeStorage;
 - (SentryTransportAdapter *)transportAdapter;
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(
-                                                                    SentryEvent))event
-                                                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                                         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                                                   isFatalEvent:(BOOL)isFatalEvent
-                                                           hint:(SentryHint *)hint;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent
+                         hint:(SentryHint *)hint;
 
 - (nullable SentryTraceContext *)
     getTraceStateWithEvent:(SentryEvent *)event

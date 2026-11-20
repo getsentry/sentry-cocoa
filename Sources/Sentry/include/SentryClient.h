@@ -51,7 +51,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+    NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures an error event and sends it to Sentry.
