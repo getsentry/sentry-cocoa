@@ -1,6 +1,5 @@
 #import "SentryBaggage.h"
 #import "SentryLogC.h"
-#import "SentryScope+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
