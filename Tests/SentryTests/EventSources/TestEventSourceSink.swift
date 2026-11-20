@@ -34,7 +34,10 @@ enum TestEventSources {
             fatalRunRecordStore: dependencies.fileManager.map {
                 SentryFatalRunRecordStore(fileManager: $0, dateProvider: dependencies.dateProvider)
             },
-            dateProvider: dependencies.dateProvider
+            heldFatalReportStore: dependencies.fileManager.map { SentryHeldFatalReportStore(fileManager: $0) },
+            dateProvider: dependencies.dateProvider,
+            dispatchQueueWrapper: dependencies.dispatchQueueWrapper,
+            notificationCenter: dependencies.notificationCenterWrapper
         )
     }
 

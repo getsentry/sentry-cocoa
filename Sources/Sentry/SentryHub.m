@@ -324,6 +324,25 @@ NS_ASSUME_NONNULL_BEGIN
     return [client captureFatalEvent:event withScope:scope];
 }
 
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+                                withScope:(SentryScope *)scope
+                           crashedSession:(id _Nullable)crashedSession
+{
+    event.isFatalEvent = YES;
+
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        return SentryId.empty;
+    }
+
+    if ([crashedSession isKindOfClass:[SentrySession class]]) {
+        return [client captureFatalEvent:event
+                             withSession:(SentrySession *)crashedSession
+                               withScope:scope];
+    }
+    return [client captureFatalEvent:event withScope:scope];
+}
+
 - (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client
 {
     if (![eventId isEqual:SentryId.empty]) {
