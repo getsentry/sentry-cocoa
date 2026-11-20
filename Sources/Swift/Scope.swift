@@ -176,7 +176,11 @@ open class Scope: NSObject {
         }
         let crumbs = scope.breadcrumbs()
         breadcrumbArray = NSMutableArray(capacity: Int(scope.maxBreadcrumbs))
-        currentBreadcrumbIndex = crumbs.count
+        // Flattened copy is chronological. A full ring must wrap to index 0 so
+        // the next add overwrites the oldest slot instead of appending past the cap.
+        if maxBreadcrumbs > 0 {
+            currentBreadcrumbIndex = crumbs.count % Int(maxBreadcrumbs)
+        }
         breadcrumbArray.addObjects(from: crumbs)
         fingerprintArray.addObjects(from: scope.fingerprints())
         // Read the source attachments before taking this scope's mutex. Holding both mutexes

@@ -15,6 +15,7 @@
 ### Fixes
 
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
+- Overwrite the oldest breadcrumb after copying a full scope, instead of dropping the next breadcrumb (#9696)
 
 ## 9.35.0
 
