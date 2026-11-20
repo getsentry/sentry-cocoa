@@ -1,4 +1,6 @@
 #import "SentryProfilerSerialization.h"
+#import "SentryDeviceContextKeys.h"
+#import "SentrySwift.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -20,8 +22,6 @@
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentryScope+Private.h"
-#    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
@@ -169,7 +169,8 @@ sentry_serializedTraceProfileData(
 
     payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
-    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"environment"]
+        = ((SentryScope *)hub.scope).environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
 
     // add the gathered metrics
@@ -248,7 +249,8 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 
     payload[@"chunk_id"] = [chunkID sentryIdString];
     payload[@"profiler_id"] = profileID.sentryIdString;
-    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"environment"]
+        = ((SentryScope *)hub.scope).environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
     payload[@"platform"] = SentryPlatformName;
 
