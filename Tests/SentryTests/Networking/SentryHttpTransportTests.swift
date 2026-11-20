@@ -1409,6 +1409,50 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, fileManager.getAllEnvelopes().count)
     }
 
+    func testFlush_whenEarlierDrainFindsEmptyCache_shouldNotSucceedBeforeCaptureIsSent() throws {
+        // -- Arrange --
+        let transportQueue = SentryDispatchQueueWrapper()
+        let reachability = TestSentryReachability()
+        let sut = try fixture.getSut(dispatchQueueWrapper: transportQueue, reachability: reachability)
+
+        // Queue order: hold, connectivity drain, hold, capture, flush drain.
+        let releaseConnectivityDrain = DispatchSemaphore(value: 0)
+        let releaseCapture = DispatchSemaphore(value: 0)
+        defer {
+            releaseConnectivityDrain.signal()
+            releaseCapture.signal()
+        }
+        transportQueue.dispatchAsync { _ = releaseConnectivityDrain.wait(timeout: .now() + 10) }
+        reachability.triggerNetworkReachable()
+        transportQueue.dispatchAsync { _ = releaseCapture.wait(timeout: .now() + 10) }
+        sut.send(envelope: fixture.eventEnvelope)
+
+        let flushRegistered = DispatchSemaphore(value: 0)
+        sut.setStartFlushCallback { flushRegistered.signal() }
+        let flushReturned = DispatchSemaphore(value: 0)
+        var result: SentryFlushResult?
+        var requestsAtReturn = -1
+        DispatchQueue.global().async {
+            result = sut.flush(self.fixture.flushTimeout)
+            requestsAtReturn = self.fixture.requestManager.requests.count
+            flushReturned.signal()
+        }
+        XCTAssertEqual(.success, flushRegistered.wait(timeout: .now() + 5))
+
+        // -- Act --
+        releaseConnectivityDrain.signal()
+        // Gives an early return the chance to happen while the capture is still unstored.
+        let returnedBeforeCapture = flushReturned.wait(timeout: .now() + 1) == .success
+        releaseCapture.signal()
+        if !returnedBeforeCapture {
+            XCTAssertEqual(.success, flushReturned.wait(timeout: .now() + fixture.flushTimeout + 5))
+        }
+
+        // -- Assert --
+        XCTAssertEqual(.success, result)
+        XCTAssertEqual(1, requestsAtReturn, "A successful flush must not return before the captured envelope is sent")
+    }
+
     func testSendsWhenNetworkComesBack() {
         givenNoInternetConnection()
 
