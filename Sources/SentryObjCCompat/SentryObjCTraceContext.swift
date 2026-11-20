@@ -1,10 +1,9 @@
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
+@_spi(Private) internal import SentrySwift
 #else
-internal import Sentry
+@_spi(Private) internal import Sentry
 #endif
-internal import _SentryPrivate
 import Foundation
 
 @objc(SentryObjCTraceContext) public final class SentryObjCTraceContext: NSObject {
