@@ -1,6 +1,5 @@
 #import "SentryAttachment.h"
 #import "SentryClient+ReplayAndFeedback.h"
-#import "SentryEvent+Private.h"
 #import "SentryId+Private.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
@@ -13,25 +12,26 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryCurrentScopeStorage *)currentScopeStorage;
 - (SentryTransportAdapter *)transportAdapter;
 
-- (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
-- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:
-                              (nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryEvent))prepareEvent:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+       alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 isFatalEvent:(BOOL)isFatalEvent
+                 currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
 
 - (nullable SentryTraceContext *)
     getTraceStateWithEvent:(SentryEvent *)event
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
               currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
 
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments;
+- (NSArray<SentryAttachment *> *)
+    processAttachmentsForEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
+                   attachments:(NSArray<SentryAttachment *> *)attachments;
 
 @end
 

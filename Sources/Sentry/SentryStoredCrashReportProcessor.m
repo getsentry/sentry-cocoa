@@ -1,7 +1,9 @@
 #import "SentryStoredCrashReportProcessor.h"
 
 #import "SentryCrashReportConverter.h"
-#import "SentryEvent.h"
+#import "SentryHub+Private.h"
+#import "SentryHub.h"
+#import "SentryId.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 

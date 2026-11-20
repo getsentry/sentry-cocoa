@@ -501,7 +501,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(false, exception?.mechanism?.handled)
         XCTAssertEqual("watchdog_termination", exception?.mechanism?.type)
         
-        let appContext = try XCTUnwrap(fatalEvent.context?["app"] as? [String: Any])
+        let appContext = try XCTUnwrap(contextEntry(fatalEvent.context?["app"]))
         XCTAssertEqual(true, appContext["in_foreground"] as? Bool)
     }
 

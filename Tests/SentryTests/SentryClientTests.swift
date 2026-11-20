@@ -417,7 +417,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: event, scope: fixture.scope)
 
         let sentEvent = try lastSentEventWithAttachment()
-        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(sentEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertEqual(viewName?.first, "ClientTestViewController")
     }
 
@@ -435,7 +435,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: event, scope: scope)
 
         let sentEvent = try lastSentEventWithAttachment()
-        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(sentEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertEqual(viewName?.first, "TestScreen")
     }
 
@@ -462,7 +462,7 @@ final class SentryClientTests: XCTestCase {
         let _ = group.wait(timeout: .now() + 1)
 
         let sentEvent = try lastSentEventWithAttachment()
-        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(sentEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertNil(viewName)
     }
     // swiftlint:enable avoid_dispatch_groups_in_tests
@@ -475,7 +475,7 @@ final class SentryClientTests: XCTestCase {
         let event = try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?)
         fixture.getSut().capture(event: event, scope: fixture.scope)
         let sentEvent = try lastSentEventWithAttachment()
-        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(sentEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertEqual(viewName?.first, "ClientTestViewController")
     }
 
@@ -492,7 +492,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: event, scope: scope)
 
         let lastEvent = try lastSentEventWithAttachment()
-        let viewName = lastEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(lastEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertEqual(viewName?.first, "TransactionScreen")
     }
 
@@ -503,7 +503,7 @@ final class SentryClientTests: XCTestCase {
         event.viewNames = ["AnotherScreen"]
         fixture.getSut().capture(event: event, scope: fixture.scope)
         let sentEvent = try lastSentEventWithAttachment()
-        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(sentEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertEqual(viewName?.first, "AnotherScreen")
     }
 
@@ -516,7 +516,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: event, scope: fixture.scope)
 
         let sentEvent = try lastSentEventWithAttachment()
-        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        let viewName = (contextEntry(sentEvent.context?["app"]))?["view_names"] as? [String]
         XCTAssertNil(viewName)
     }
 #endif
@@ -754,13 +754,13 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(event.dist, "45")
         // Only the attributes known for the diagnostic are sent. The running kernel version,
         // jailbreak state, app name, build type and app start time are left out.
-        let osContext = try XCTUnwrap(event.context?["os"])
+        let osContext = try XCTUnwrap(contextEntry(event.context?["os"]))
         XCTAssertEqual(osContext["name"] as? String, "iOS")
         XCTAssertEqual(osContext["version"] as? String, "18.6.2")
         XCTAssertEqual(osContext["build"] as? String, "22G100")
         XCTAssertNil(osContext["kernel_version"])
         XCTAssertNil(osContext["rooted"])
-        let appContext = try XCTUnwrap(event.context?["app"])
+        let appContext = try XCTUnwrap(contextEntry(event.context?["app"]))
         XCTAssertEqual(appContext["app_identifier"] as? String, "io.sentry.app")
         XCTAssertEqual(appContext["app_version"] as? String, "1.2.3")
         XCTAssertEqual(appContext["app_build"] as? String, "45")
@@ -772,7 +772,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(appContext["in_foreground"])
         XCTAssertNil(appContext["is_active"])
         XCTAssertNil(appContext["view_names"])
-        let deviceContext = try XCTUnwrap(event.context?["device"])
+        let deviceContext = try XCTUnwrap(contextEntry(event.context?["device"]))
         XCTAssertEqual(deviceContext["model"] as? String, "iPhone17,1")
         XCTAssertEqual(deviceContext["arch"] as? String, "arm64e")
         XCTAssertNil(deviceContext[SentryDeviceContextFreeMemoryKey])
@@ -810,10 +810,10 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(event.tags, ["tag": "value"])
         XCTAssertEqual(event.breadcrumbs?.count, 1)
         XCTAssertEqual(event.user?.email, "user@sentry.io")
-        let appContext = try XCTUnwrap(event.context?["app"])
+        let appContext = try XCTUnwrap(contextEntry(event.context?["app"]))
         XCTAssertEqual(appContext["app_version"] as? String, "2.0.0")
         XCTAssertEqual(appContext["build_type"] as? String, "app store")
-        let deviceContext = try XCTUnwrap(event.context?["device"])
+        let deviceContext = try XCTUnwrap(contextEntry(event.context?["device"]))
         XCTAssertEqual(deviceContext["model"] as? String, "iPhone17,1")
         XCTAssertEqual(deviceContext[SentryDeviceContextFreeMemoryKey] as? Int, 123_456)
         XCTAssertEqual(capture.attachments, [TestData.dataAttachment])
@@ -1267,7 +1267,7 @@ final class SentryClientTests: XCTestCase {
 
         let actual = try lastSentEventWithAttachment()
         let context = try XCTUnwrap(actual.context)
-        let userInfo = try XCTUnwrap(context["user info"])
+        let userInfo = try XCTUnwrap(contextEntry(context["user info"]))
         XCTAssertEqual(url.absoluteString, userInfo["url"] as? String)
     }
 
@@ -1706,11 +1706,11 @@ final class SentryClientTests: XCTestCase {
         let event = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, event.eventId)
 
-        let deviceContext = try XCTUnwrap(event.context?["device"] as? [String: Any])
+        let deviceContext = try XCTUnwrap(contextEntry(event.context?["device"]))
         XCTAssertEqual(deviceContext.count, 1)
         XCTAssertEqual(deviceContext["something"] as? String, "else")
 
-        let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
+        let appContext = try XCTUnwrap(contextEntry(event.context?["app"]))
         XCTAssertEqual(appContext.count, 1)
         XCTAssertEqual(appContext["something"] as? String, "else")
     }
@@ -1811,13 +1811,13 @@ final class SentryClientTests: XCTestCase {
         sut.capture(event: TestData.event)
 
         let actual = try lastSentEvent()
-        let eventFreeMemory = actual.context?["device"]?[SentryDeviceContextFreeMemoryKey] as? Int
+        let eventFreeMemory = (contextEntry(actual.context?["device"]))?[SentryDeviceContextFreeMemoryKey] as? Int
         XCTAssertEqual(eventFreeMemory, 123_456)
 
-        let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
+        let eventAppMemory = (contextEntry(actual.context?["app"]))?["app_memory"] as? Int
         XCTAssertEqual(eventAppMemory, 234_567)
 
-        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? Int
+        let cpuCoreCount = (contextEntry(actual.context?["device"]))?["processor_count"] as? Int
         XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)
     }
 
@@ -1826,7 +1826,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: TestData.event)
 
         let actual = try lastSentEvent()
-        let deviceContext = try XCTUnwrap(actual.context?["device"] as? [String: Any])
+        let deviceContext = try XCTUnwrap(contextEntry(actual.context?["device"]))
         let orientation = try XCTUnwrap(deviceContext["orientation"] as? String)
         XCTAssertEqual(orientation, "portrait")
 
@@ -1847,10 +1847,10 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: TestData.event)
 
         let actual = try lastSentEvent()
-        let orientation = actual.context?["device"]?["orientation"] as? String
+        let orientation = (contextEntry(actual.context?["device"]))?["orientation"] as? String
         XCTAssertEqual(orientation, "landscape")
 
-        let charging = try XCTUnwrap(actual.context?["device"]?["charging"] as? Bool)
+        let charging = try XCTUnwrap((contextEntry(actual.context?["device"]))?["charging"] as? Bool)
         XCTAssertFalse(charging)
     }
 #endif
@@ -1859,7 +1859,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(event: TestData.event)
 
         let actual = try lastSentEvent()
-        let culture = actual.context?["culture"]
+        let culture = contextEntry(actual.context?["culture"])
 
             let expectedCalendar = fixture.locale.localizedString(for: fixture.locale.calendar.identifier)
             XCTAssertEqual(culture?["calendar"] as? String, expectedCalendar)
@@ -1879,14 +1879,14 @@ final class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
         let actual = try lastSentEvent()
-        XCTAssertEqual(expectedValue, actual.context?["user info"]?["key"] as? String)
+        XCTAssertEqual(expectedValue, (contextEntry(actual.context?["user info"]))?["key"] as? String)
     }
 
 #if os(iOS) || os(tvOS)
     func testCaptureEvent_CallsEventContextEnricher() throws {
         let event = TestData.event
-        let contextData: [String: [String: Any]] = ["existing": ["key-1": "value-1"]]
-        event.context = contextData
+        let contextData: [String: Any] = ["existing": ["key-1": "value-1"]]
+        event.storeContext(contextData)
 
         var enrichedContext = contextData
         enrichedContext["app"] = ["in_foreground": true]
@@ -1899,7 +1899,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(passedContext["existing"] as? [String: String], ["key-1": "value-1"])
 
         let actual = try lastSentEvent()
-        let appContext = try XCTUnwrap(actual.context?["app"] as? [String: Any])
+        let appContext = try XCTUnwrap(contextEntry(actual.context?["app"]))
         XCTAssertEqual(appContext["in_foreground"] as? Bool, true)
     }
 
@@ -1969,7 +1969,7 @@ final class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         let actual = try lastSentEventWithAttachment()
         let context = try XCTUnwrap(actual.context)
-        let userInfo = try XCTUnwrap(context["user info"])
+        let userInfo = try XCTUnwrap(contextEntry(context["user info"]))
         XCTAssertEqual(expectedValue, userInfo["key"] as? String)
     }
 
@@ -2049,7 +2049,7 @@ final class SentryClientTests: XCTestCase {
         let sut = fixture.getSut(configureOptions: { options in
             options.beforeSendTransaction = { event, _ in
                 callbackCalled = true
-                return event.context?["trace"]?["op"] as? String == "ui.action.click" ? nil : event
+                return (contextEntry(event.context?["trace"]))?["op"] as? String == "ui.action.click" ? nil : event
             }
         })
 
@@ -2078,7 +2078,7 @@ final class SentryClientTests: XCTestCase {
         var callbackTrace: [String: Any]?
         let sut = fixture.getSut(configureOptions: { options in
             options.beforeSend = { event in
-                callbackTrace = event.context?["trace"]
+                callbackTrace = contextEntry(event.context?["trace"])
                 return event
             }
         })
@@ -3292,7 +3292,7 @@ final class SentryClientTests: XCTestCase {
     func testCaptureFeedback_whenEventProcessorInvalidatesMessage_shouldNotSend() {
         let sut = fixture.getSut()
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
-            var feedbackContext = event.context?["feedback"] ?? [:]
+            var feedbackContext = (contextEntry(event.context?["feedback"])) ?? [:]
             feedbackContext["message"] = "   "
             event.context?["feedback"] = feedbackContext
             return event
@@ -3307,7 +3307,7 @@ final class SentryClientTests: XCTestCase {
     func testCaptureFeedback_whenEventProcessorAddsInvalidAssociatedEventId_shouldNotSend() {
         let sut = fixture.getSut()
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
-            var feedbackContext = event.context?["feedback"] ?? [:]
+            var feedbackContext = (contextEntry(event.context?["feedback"])) ?? [:]
             feedbackContext["associated_event_id"] = "not-a-uuid"
             event.context?["feedback"] = feedbackContext
             return event
@@ -3335,7 +3335,7 @@ final class SentryClientTests: XCTestCase {
     func testCaptureFeedback_whenEventProcessorReplacesMessageWithNonString_shouldNotSend() {
         let sut = fixture.getSut()
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
-            var feedbackContext = event.context?["feedback"] ?? [:]
+            var feedbackContext = (contextEntry(event.context?["feedback"])) ?? [:]
             feedbackContext["message"] = 1
             event.context?["feedback"] = feedbackContext
             return event
@@ -3350,7 +3350,7 @@ final class SentryClientTests: XCTestCase {
     func testCaptureFeedback_whenEventProcessorAddsNonStringAssociatedEventId_shouldNotSend() {
         let sut = fixture.getSut()
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
-            var feedbackContext = event.context?["feedback"] ?? [:]
+            var feedbackContext = (contextEntry(event.context?["feedback"])) ?? [:]
             feedbackContext["associated_event_id"] = 1
             event.context?["feedback"] = feedbackContext
             return event
@@ -3365,7 +3365,7 @@ final class SentryClientTests: XCTestCase {
     func testCaptureFeedback_whenEventProcessorAddsZeroUUIDAssociatedEventId_shouldSend() {
         let sut = fixture.getSut()
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
-            var feedbackContext = event.context?["feedback"] ?? [:]
+            var feedbackContext = (contextEntry(event.context?["feedback"])) ?? [:]
             feedbackContext["associated_event_id"] = "00000000-0000-0000-0000-000000000000"
             event.context?["feedback"] = feedbackContext
             return event
@@ -3384,7 +3384,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertFalse(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
         let invocation = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
         let event: Event = invocation.0
-        let feedbackContext = try XCTUnwrap(event.context?["feedback"])
+        let feedbackContext = try XCTUnwrap(contextEntry(event.context?["feedback"]))
         XCTAssertEqual(feedbackContext["message"] as? String, fixture.feedback.message)
         XCTAssertEqual(feedbackContext["name"] as? String, fixture.feedback.name)
         XCTAssertEqual(feedbackContext["contact_email"] as? String, fixture.feedback.email)
@@ -4570,7 +4570,7 @@ extension SentryClientTests {
     }
 
     private func assertFeatureFlags(on event: Event) throws {
-        let flags = try XCTUnwrap(event.context?["flags"])
+        let flags = try XCTUnwrap(contextEntry(event.context?["flags"]))
         let values = try XCTUnwrap(flags["values"] as? [[String: Any]])
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
@@ -4665,7 +4665,11 @@ extension SentryClientTests {
             self.callback = callback
         }
 
-        func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
+        func processAttachments(_ attachments: [Attachment], for event: Any) -> [Attachment] {
+            guard let event = event as? Event else {
+                XCTFail("Expected an Event")
+                return attachments
+            }
             return callback(attachments, event)
         }
     }

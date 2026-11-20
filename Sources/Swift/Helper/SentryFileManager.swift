@@ -192,7 +192,7 @@ internal import _SentryPrivate
     }
     
     @objc public func readAppHangEvent() -> Event? {
-        helper.readAppHangEvent()
+        helper.readAppHangEvent() as? Event
     }
     
     @objc public func appHangEventExists() -> Bool {

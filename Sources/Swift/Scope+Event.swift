@@ -112,12 +112,12 @@ extension Scope {
             newContext.removeValue(forKey: "flags")
         }
         guard let eventContext = event.context else {
-            event.context = newContext
+            event.storeContext(newContext.mapValues { $0 as Any })
             return
         }
         let merged = NSMutableDictionary(dictionary: newContext)
         mergeEntries(from: eventContext as NSDictionary, into: merged)
-        event.context = merged as? [String: [String: Any]] ?? bridgedContext(merged)
+        event.storeContext(anyDictionary(merged))
     }
 
     /// Overlays this scope onto an event that already has data from another scope.
@@ -202,15 +202,14 @@ extension Scope {
         guard !overlayContext.isEmpty else {
             return
         }
-        var merged = event.context ?? [:]
-        let mergedDictionary = NSMutableDictionary(dictionary: merged)
+        let mergedDictionary = NSMutableDictionary(dictionary: event.context ?? [:])
         mergeEntries(from: overlayContext as NSDictionary, into: mergedDictionary)
-        merged = mergedDictionary as? [String: [String: Any]] ?? bridgedContext(mergedDictionary)
+        var merged = anyDictionary(mergedDictionary)
         let isRegularEvent = event.type == nil || event.type == SentryEnvelopeItemTypes.event
         if !isRegularEvent {
             merged.removeValue(forKey: "flags")
         }
-        event.context = merged
+        event.storeContext(merged)
     }
 
     private func overlaySpan(on event: Event) {
