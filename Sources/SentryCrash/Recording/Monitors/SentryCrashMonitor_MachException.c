@@ -483,14 +483,17 @@ handleExceptions(void *const userData)
         const thread_t crashedThread = isIdentityProtected
             ? threadWithID(exceptionMessage.identityProtected.threadID)
             : exceptionMessage.standard.thread.name;
-        bool hasThreadContext = false;
+        // Fill the context even without a thread: it is uninitialized stack storage, and the
+        // report writer reads it through offendingMachineContext.
+        const bool contextFilled
+            = sentrycrashmc_getContextForThread(crashedThread, machineContext, true);
+        const bool hasThreadContext = crashedThread != THREAD_NULL && contextFilled;
         if (crashedThread == THREAD_NULL) {
             // No thread here matches when the exception came from another task, such as a
             // forked child that inherited our ports. Not covered by tests: it needs a child
             // to crash while the monitor is installed.
             SENTRY_ASYNC_SAFE_LOG_ERROR("Could not find the thread that raised the exception.");
-        } else if (sentrycrashmc_getContextForThread(crashedThread, machineContext, true)) {
-            hasThreadContext = true;
+        } else if (hasThreadContext) {
             sentrycrashsc_initWithMachineContext(
                 &g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
             SENTRY_ASYNC_SAFE_LOG_TRACE("Fault address %p, instruction address %p",
