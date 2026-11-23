@@ -9,6 +9,14 @@
     self.lastScope = scope;
 }
 
+- (void)captureTransaction:(SentryTransaction *)transaction
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
+    [self captureTransaction:transaction withScope:scope];
+    self.lastAdditionalEnvelopeItems = additionalEnvelopeItems;
+}
+
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     self.envelopeCount++;

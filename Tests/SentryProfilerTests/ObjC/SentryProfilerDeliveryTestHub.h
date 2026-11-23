@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) SentryTransaction *lastTransaction;
 @property (nonatomic, strong, nullable) SentryScope *lastScope;
 @property (nonatomic, strong, nullable) SentryEnvelope *lastEnvelope;
+@property (nonatomic, copy, nullable) NSArray<SentryEnvelopeItem *> *lastAdditionalEnvelopeItems;
 @end
 
 NS_ASSUME_NONNULL_END
