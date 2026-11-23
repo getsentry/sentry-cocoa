@@ -262,13 +262,23 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
     func testGetRequest_CompareSentryTraceHeader() throws {
+        // -- Arrange --
         try ensureTestServerIsRunning()
 
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try Data("unrelated file read".utf8).write(to: fileURL)
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(at: fileURL)) }
 
-        startSDK()
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
+
+        // Framework file reads must not add unrelated spans to this network-only test.
+        _ = try NSData(contentsOf: fileURL, options: .uncached)
 
         let expect = expectation(description: "Request completed")
         // Cancelling the task in defer can trigger the completion handler again.
@@ -284,9 +294,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         defer { dataTask.cancel() }
 
+        // -- Act --
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
+        // -- Assert --
         let children = Dynamic(transaction).children as [SentrySpanInternal]?
 
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
