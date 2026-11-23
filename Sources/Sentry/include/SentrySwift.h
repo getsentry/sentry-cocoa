@@ -34,7 +34,9 @@
 // dependency scanning can run before header generation, and cached headers can outlive a mode
 // switch.
 #    if SWIFT_PACKAGE
-#        if SDK_V10 || SENTRY_BUILD_XCFRAMEWORK
+#        if SENTRY_BUILD_XCFRAMEWORK && SENTRY_NO_UI_FRAMEWORK
+@import SentryWithoutUIKit;
+#        elif SDK_V10 || SENTRY_BUILD_XCFRAMEWORK
 @import Sentry;
 #        else
 @import SentrySwift;

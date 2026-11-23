@@ -50,8 +50,6 @@ Select the shipping basename with `SPM_XCFRAMEWORK_VARIANT` (or `--variant` in t
 | V10        | SentryV10                              | Static  | Sentry               | Yes                            |
 | V10        | SentryV10-Dynamic                      | Dynamic | Sentry               | Yes                            |
 
-SwiftPM currently builds the ordinary dynamic, arm64e dynamic, and static variants. The two no-UI rows describe the remaining shipping targets.
-
 | Platform (deployment target) | Device / desktop base architectures | Simulator architectures |
 | ---------------------------- | ----------------------------------- | ----------------------- |
 | iOS 15, tvOS 15              | arm64                               | arm64, x86_64           |
@@ -66,9 +64,9 @@ SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 ```
 
-The producer sets `SENTRY_BUILD_XCFRAMEWORK=1`. Consumers do not set flags or change their imports. Output is `XCFrameworkBuildPath/SPM/<generation>/<variant>.xcframework.zip`, with intermediates under `build/<variant>/`. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
+The producer sets `SENTRY_BUILD_XCFRAMEWORK=1` and, for the no-UI variants, selects the `NoUIFramework` package trait (Swift 6.1+) and compiles the actual `SentryWithoutUIKit` module. Consumers do not set flags or change their imports. Output is `XCFrameworkBuildPath/SPM/<generation>/<variant>.xcframework.zip`, with intermediates under `build/<variant>/`. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
 
-Use the same [isolated binary consumer](../scripts/test-xcframework-variant.sh) on corresponding unpacked Xcode and SwiftPM products. By default it requires all ten slices. For a partial local build, pass the exact SDK list: it checks the module name, architectures, deployment targets, linkage and mergeability, links each architecture, and runs the native macOS binary to check Objective-C category availability. A missing required slice or failing consumer is a release blocker, not a supported matrix exclusion.
+Use the same [isolated binary consumer](../scripts/test-xcframework-variant.sh) on corresponding unpacked Xcode and SwiftPM products. By default it requires all ten slices. For a partial local build, pass the exact SDK list: it checks the module name, architectures, deployment targets, linkage and mergeability, links each architecture, and runs the native macOS binary to check Objective-C category availability. For no-UI variants it also checks that a native macOS process loads neither AppKit nor SwiftUI, and that an Objective-C client without modules sees only implemented declarations and can link the public version globals. The Xcode-project no-UI header and version-export discrepancies are tracked in [#9715](https://github.com/getsentry/sentry-cocoa/issues/9715). A missing required slice or failing consumer is a release blocker, not a supported matrix exclusion.
 
 ```bash
 make build-xcframework-spm SPM_XCFRAMEWORK_VARIANT=Sentry SDKS=macosx FOR_AGENTS=true

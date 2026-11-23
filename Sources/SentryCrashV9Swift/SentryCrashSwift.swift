@@ -1,6 +1,8 @@
 #if !SDK_V10
 #if SWIFT_PACKAGE
-#if SENTRY_BUILD_XCFRAMEWORK
+#if SENTRY_BUILD_XCFRAMEWORK && SENTRY_NO_UI_FRAMEWORK
+@_spi(Private) import SentryWithoutUIKit
+#elseif SENTRY_BUILD_XCFRAMEWORK
 @_spi(Private) import Sentry
 #else
 @_spi(Private) import SentrySwift

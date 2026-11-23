@@ -21,7 +21,9 @@ let envSelectsV10 = envFlag("SDK_V10")
 // Packaging changes the module name, never the SDK implementation or crash backend.
 let buildXCFramework = envFlag("SENTRY_BUILD_XCFRAMEWORK")
 let sourceUsesSentryModule = envSelectsV10 || buildXCFramework
-let sentrySwiftTargetName = sourceUsesSentryModule ? "Sentry" : "SentrySwift"
+// No-UI binaries have a distinct module identity; renaming the bundle after linking is insufficient.
+let buildNoUIFramework = buildXCFramework && !envSelectsV10 && envFlag("SENTRY_BUILD_NO_UI_XCFRAMEWORK")
+let sentrySwiftTargetName = buildNoUIFramework ? "SentryWithoutUIKit" : (sourceUsesSentryModule ? "Sentry" : "SentrySwift")
 let frameworkSwiftSettings: [SwiftSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK")] : []
 let frameworkCSettings: [CSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK", to: "1")] : []
 let frameworkCxxSettings: [CXXSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK", to: "1")] : []
@@ -494,10 +496,10 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: buildXCFramework ? xcframeworkProducts : products,
-    traits: [
-        .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
+    traits: Set([
+        Trait(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
         .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production.")
-    ],
+    ] + (buildNoUIFramework ? [.default(enabledTraits: ["NoUIFramework"])] : [])),
     dependencies: packageDependencies,
     targets: buildXCFramework ? xcframeworkTargets : targets,
     swiftLanguageModes: [.v5],

@@ -129,6 +129,11 @@ DT_XROS="$(read_xcconfig_value_or_exit --key XROS_DEPLOYMENT_TARGET --file "$dep
 SYSTEM_LIBS=( z c++ )
 REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
 CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
+if [[ "$FRAMEWORK_NAME" == SentryWithoutUIKit ]]; then
+    # Even a weak link to PDFKit or WebKit loads AppKit transitively when it is installed.
+    REQUIRED_FRAMEWORKS=( Foundation CoreData )
+    CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration MetricKit )
+fi
 
 target_suffix_for_sdk() {
     case "$1" in
@@ -322,7 +327,7 @@ done
 
 log_info "  SDK:             $SDK"
 log_info "  Static lib:      $STATIC_LIB"
-log_info "  Weak frameworks: ${weak_frameworks[*]}"
+log_info "  Weak frameworks: ${weak_frameworks[*]:-none}"
 
 # --- Build linker flags ---
 linker_flags=()
@@ -331,6 +336,12 @@ linker_flags+=( -Xlinker -rpath -Xlinker "@executable_path/Frameworks" )
 linker_flags+=( -Xlinker -force_load -Xlinker "$STATIC_LIB" )
 linker_flags+=( -Xlinker -compatibility_version -Xlinker 1 )
 linker_flags+=( -Xlinker -current_version -Xlinker 1 )
+if [[ "$FRAMEWORK_NAME" == SentryWithoutUIKit ]]; then
+    # Xcode generates version globals from the target name; the public C declarations use Sentry.
+    for symbol in VersionNumber VersionString; do
+        linker_flags+=( -Xlinker -alias -Xlinker "_${FRAMEWORK_NAME}$symbol" -Xlinker "_Sentry$symbol" )
+    done
+fi
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi
@@ -340,7 +351,8 @@ fi
 for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
     linker_flags+=( -framework "$fw" )
 done
-for fw in "${weak_frameworks[@]}"; do
+# The no-UI watch SDK has no weak frameworks. Bash 3.2 treats an empty array as unset under -u.
+for fw in "${weak_frameworks[@]+"${weak_frameworks[@]}"}"; do
     linker_flags+=( -Xlinker -weak_framework -Xlinker "$fw" )
 done
 for lib in "${SYSTEM_LIBS[@]}"; do
@@ -381,6 +393,13 @@ xcrun dsymutil "$binary_path" -o "$dsym_path"
 log_info "  Stripping debug symbols from binary"
 xcrun strip -x "$binary_path"
 
+if [[ "$FRAMEWORK_NAME" == SentryWithoutUIKit ]]; then
+    dependencies="$(xcrun otool -arch all -L "$binary_path")"
+    if grep -Eq '/(UIKit|AppKit|SwiftUI)\.framework/|/libswift(UIKit|AppKit|SwiftUI)\.dylib' <<< "$dependencies"; then
+        log_error "Unexpected UI dependency in $binary_path: $dependencies"
+        exit 1
+    fi
+fi
 end_group
 
 log_info "Dynamic slice $SDK built: $FW_DIR"

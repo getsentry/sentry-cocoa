@@ -30,6 +30,8 @@ case "$variant" in
     Sentry|SentryV10) static=true ;;
     Sentry-Dynamic) arm64e=false ;;
     SentryV10-Dynamic|Sentry-Dynamic-WithARM64e) ;;
+    Sentry-WithoutUIKitOrAppKit) module=SentryWithoutUIKit; arm64e=false ;;
+    Sentry-WithoutUIKitOrAppKit-WithARM64e) module=SentryWithoutUIKit ;;
     *) log_error "Unknown shipping SDK: $variant"; exit 1 ;;
 esac
 if [[ "$sdks" == AllSDKs ]]; then
@@ -41,7 +43,7 @@ manifest="$(plutil -convert json -o - "$framework/Info.plist")"
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
-cp "$SCRIPT_DIR/../Tests/ShippingVariantConsumer/main.swift" "$work/"
+cp "$SCRIPT_DIR/../Tests/ShippingVariantConsumer/"{main.swift,no-ui.m} "$work/"
 cd "$work"
 for sdk in "${expected[@]}"; do
     # Release deployment targets; device and simulator platforms are distinct contracts.
@@ -101,6 +103,30 @@ for sdk in "${expected[@]}"; do
         args=(-target "$target" -F "$sdk" -sdk "$sdk_path" -module-cache-path "cache-$sdk")
         if [[ "$sdk" == maccatalyst ]]; then args+=(-Fsystem "$sdk_path/System/iOSSupport/System/Library/Frameworks"); fi
         xcrun --sdk "$sys_sdk" swiftc "${args[@]}" main.swift -framework "$module" -Xlinker -rpath -Xlinker "@executable_path/$sdk" -o consumer
-        if [[ "$sdk" == macosx && "$arch" == "$(uname -m)" ]]; then ./consumer; fi
+        if [[ "$module" == SentryWithoutUIKit ]]; then
+            libs="$(xcrun otool -arch "$arch" -L "$binary" consumer)"
+            if grep -Eq '/(UIKit|AppKit|SwiftUI)\.framework/|/libswift(UIKit|AppKit|SwiftUI)\.dylib' <<< "$libs"; then
+                log_error "Unexpected UI linkage: $libs"; exit 1
+            fi
+        fi
+        if [[ "$sdk" == macosx && "$arch" == "$(uname -m)" ]]; then
+            if [[ "$module" == SentryWithoutUIKit ]]; then
+                # otool only lists direct links. A weak-linked framework can still load AppKit transitively.
+                DYLD_PRINT_LIBRARIES=1 ./consumer 2>loaded-images.log || { cat loaded-images.log >&2; exit 1; }
+                grep -Fq '/SentryWithoutUIKit.framework/' loaded-images.log || { log_error 'Missing dyld image trace'; exit 1; }
+                if grep -E '/(UIKit|AppKit|SwiftUI)\.framework/' loaded-images.log >&2; then
+                    log_error 'No-UI consumer loaded a UI framework'; exit 1
+                fi
+            else
+                ./consumer
+            fi
+        fi
+        if [[ "$module" == SentryWithoutUIKit ]]; then
+            clang_args=(-target "$target" -isysroot "$sdk_path" -F "$sdk" -fno-modules)
+            if [[ "$sdk" == maccatalyst ]]; then clang_args+=(-iframework "$sdk_path/System/iOSSupport/System/Library/Frameworks"); fi
+            xcrun --sdk "$sys_sdk" clang "${clang_args[@]}" no-ui.m -framework Foundation -framework "$module" \
+                -Wl,-rpath,"@executable_path/$sdk" -o objc-consumer
+            if [[ "$sdk" == macosx && "$arch" == "$(uname -m)" ]]; then ./objc-consumer; fi
+        fi
     done
 done

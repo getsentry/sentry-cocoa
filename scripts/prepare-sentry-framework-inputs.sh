@@ -9,11 +9,13 @@ source "$SCRIPT_DIR/ci-utils.sh"
 SOURCE_HEADERS_DIR="$SCRIPT_DIR/../Sources/Sentry/Public"
 SWIFT_ARCHIVE=""
 OUTPUT_DIR=""
+module=Sentry
 linkage=dynamic
 
 usage() {
     log_info "Usage: $0"
     log_info "  -t, --product-type <type>     static or dynamic (default)"
+    log_info "  -m, --module <name>           Compiled module: Sentry (default) or SentryWithoutUIKit"
     log_info "  -a, --swift-archive <path>    Source archive containing Sentry Swift artifacts (required)"
     log_info "  -o, --output-dir <path>       Staging directory for Headers, Modules, Resources (required)"
     log_info "Use the same SDK_V10 environment setting as the source archive."
@@ -23,6 +25,7 @@ usage() {
 while [[ $# -gt 0 ]]; do
     [[ $# -ge 2 && -n "$2" && "$2" != -* ]] || usage
     case $1 in
+        -m|--module) module="$2" ;;
         -t|--product-type) linkage="$2" ;;
         -a|--swift-archive) SWIFT_ARCHIVE="$2" ;;
         -o|--output-dir) OUTPUT_DIR="$2" ;;
@@ -32,9 +35,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$SWIFT_ARCHIVE" && -n "$OUTPUT_DIR" ]] || usage
+[[ "$module" == Sentry || "$module" == SentryWithoutUIKit ]] || usage
 [[ "$linkage" == static || "$linkage" == dynamic ]] || usage
 swift_products="$SWIFT_ARCHIVE/Products/Swift"
-if [ ! -d "$swift_products/Sentry.swiftmodule" ] || [ ! -f "$swift_products/Sentry-Swift.h" ]; then
+if [ ! -d "$swift_products/$module.swiftmodule" ] || [ ! -f "$swift_products/$module-Swift.h" ]; then
     log_error "Missing Swift artifacts for Sentry in $SWIFT_ARCHIVE"
     exit 1
 fi
@@ -63,7 +67,14 @@ validate_output_location() {
 
 prepare_headers() {
     local header
-    cp "$SOURCE_HEADERS_DIR"/*.h "$headers_dir/"
+    if [[ "$module" == SentryWithoutUIKit ]]; then
+        # Resolve UI gates in each shipped header, including direct imports without Clang modules.
+        for header in "$SOURCE_HEADERS_DIR"/*.h; do
+            unifdef -x2 -DSENTRY_NO_UI_FRAMEWORK=1 -o "$headers_dir/${header##*/}" "$header"
+        done
+    else
+        cp "$SOURCE_HEADERS_DIR"/*.h "$headers_dir/"
+    fi
     {
         # Configure V10 before any public declarations, without consumer compiler flags.
         if [ "${SDK_V10:-0}" = 1 ]; then
@@ -71,25 +82,25 @@ prepare_headers() {
             printf '#import <Sentry/SentryV10Configuration.h>\n'
         fi
         for header in "$SOURCE_HEADERS_DIR"/*.h; do
-            printf '#import <Sentry/%s>\n' "${header##*/}"
+            printf '#import <%s/%s>\n' "$module" "${header##*/}"
         done
     } > "$headers_dir/SentryHeaders.h"
 }
 
 prepare_modules() {
     local interface has_interface=false
-    for interface in "$swift_products/Sentry.swiftmodule"/*.swiftinterface; do
+    for interface in "$swift_products/$module.swiftmodule"/*.swiftinterface; do
         [ -f "$interface" ] || continue
         [[ "$interface" != *.package.swiftinterface ]] || continue
         # Never rename the compiled Swift module. Only fold its public Clang module into Sentry.
-        if ! grep -Eq -- '-module-name Sentry( |$)' "$interface"; then
-            log_error "Swift module name does not match Sentry: $interface"
+        if ! grep -Eq -- "-module-name $module( |$)" "$interface"; then
+            log_error "Swift module name does not match $module: $interface"
             exit 1
         fi
         # Keep public and SPI interfaces, not serialized modules with producer-only search paths.
         # Swift 6.4 qualifies module types with ::; preserve either compiler spelling.
-        sed -E 's/(^|[^[:alnum:]_])SentryHeaders([.]|::|$)/\1Sentry\2/g' \
-            "$interface" > "$modules_dir/Sentry.swiftmodule/${interface##*/}"
+        sed -E "s/(^|[^[:alnum:]_])SentryHeaders([.]|::|$)/\\1${module}\\2/g" \
+            "$interface" > "$modules_dir/$module.swiftmodule/${interface##*/}"
         has_interface=true
     done
     if [ "$has_interface" = false ]; then
@@ -98,12 +109,14 @@ prepare_modules() {
     fi
 
     # Import declarations directly: importing the parent module here would create a cycle.
-    sed 's|@import SentryHeaders;|#import <Sentry/SentryHeaders.h>|' \
-        "$swift_products/Sentry-Swift.h" > "$headers_dir/Sentry-Swift.h"
+    sed "s|@import SentryHeaders;|#import <$module/SentryHeaders.h>|" \
+        "$swift_products/$module-Swift.h" > "$headers_dir/$module-Swift.h"
     # The Swift submodule exposes Swift declarations to ObjC without reimporting them into Swift.
-    # Static clients need these libraries at final link, without passing consumer flags.
-    awk -v linkage="$linkage" '
-        { print }
+    # The dynamic producer links these system libraries itself. Static clients need
+    # them at final link; advertise them through the module rather than consumer flags.
+    awk -v module="$module" -v linkage="$linkage" '
+        /^(framework )?module / { sub(/module Sentry/, "module " module) }
+        { sub(/Sentry-Swift[.]h/, module "-Swift.h"); print }
         /^framework module / && linkage == "static" { print "  link \"c++\""; print "  link \"z\"" }
     ' "$SCRIPT_DIR/../Sources/Resources/SentrySPM.modulemap" > "$modules_dir/module.modulemap"
 }
@@ -120,7 +133,7 @@ trap 'rm -rf "$prepared_dir"' EXIT
 headers_dir="$prepared_dir/Headers"
 modules_dir="$prepared_dir/Modules"
 resources_dir="$prepared_dir/Resources"
-mkdir -p "$headers_dir" "$modules_dir/Sentry.swiftmodule" "$resources_dir"
+mkdir -p "$headers_dir" "$modules_dir/$module.swiftmodule" "$resources_dir"
 
 prepare_headers
 prepare_modules
