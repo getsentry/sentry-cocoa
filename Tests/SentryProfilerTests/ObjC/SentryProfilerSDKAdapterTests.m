@@ -23,11 +23,16 @@
 @property (nonatomic, copy) NSString *message;
 @property (nonatomic, copy) NSString *file;
 @property (nonatomic) NSUInteger line;
+@property (nonatomic, copy) dispatch_block_t onShouldLog;
+@property (nonatomic, copy) void (^onLog)(NSString *message);
 @end
 
 @implementation TestProfilingLogger
 - (BOOL)shouldLog:(SentryProfilingLogLevel)level
 {
+    if (self.onShouldLog != nil) {
+        self.onShouldLog();
+    }
     return self.enabled;
 }
 - (void)log:(SentryProfilingLogLevel)level
@@ -39,6 +44,9 @@
     self.message = message;
     self.file = file;
     self.line = line;
+    if (self.onLog != nil) {
+        self.onLog(message);
+    }
 }
 @end
 
@@ -134,6 +142,34 @@
     }
 
     // -- Assert --
+    XCTAssertNil(SentryProfilingLog.logger);
+}
+
+- (void)testProfilingLogger_whenOwnerReleasesLoggerDuringFiltering_shouldKeepLoggerThroughEmission
+{
+    // -- Arrange --
+    NSMutableArray<NSString *> *messages = [NSMutableArray array];
+    __block TestProfilingLogger *owner = nil;
+    __weak TestProfilingLogger *weakLogger = nil;
+    @autoreleasepool {
+        owner = [[TestProfilingLogger alloc] init];
+        owner.enabled = YES;
+        owner.onShouldLog = ^{
+            SentryProfilingLog.logger = nil;
+            owner = nil;
+        };
+        owner.onLog = ^(NSString *message) { [messages addObject:message]; };
+        weakLogger = owner;
+        SentryProfilingLog.logger = owner;
+
+        // -- Act --
+        SENTRY_PROFILING_LOG_WARN(@"retained through emission");
+    }
+
+    // -- Assert --
+    XCTAssertNil(owner);
+    XCTAssertEqualObjects(messages, (@[ @"retained through emission" ]));
+    XCTAssertNil(weakLogger);
     XCTAssertNil(SentryProfilingLog.logger);
 }
 
