@@ -24,7 +24,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
-        return .init(delayDuration: objcResult.delayDuration, framesContributingToDelayCount: objcResult.framesContributingToDelayCount)
+        // The Objective-C tracker reports a negative duration when it can't calculate the delay.
+        guard objcResult.delayDuration >= 0 else {
+            return .unavailable
+        }
+        return .delay(duration: objcResult.delayDuration, framesContributingToDelayCount: objcResult.framesContributingToDelayCount)
     }
 }
 #endif
@@ -108,7 +112,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     var applicationOverride: SentryApplication?
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
@@ -118,7 +122,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
 #endif
     @objc public func application() -> SentryApplication? {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     let `override` = self.applicationOverride
     if let `override` {
         return `override`
@@ -169,11 +173,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryCrashV9Backend.capture(exception: exception, dependencies: self)
     }
 #endif // !SDK_V10
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     var activeCrashReporterStateOverride: SentryCrashReporterState?
 #endif
     @objc public var activeCrashReporterState: SentryCrashReporterState {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
         if let activeCrashReporterStateOverride {
             return activeCrashReporterStateOverride
         }
@@ -196,7 +200,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _eventSourceCoordinator: SentryEventSourceCoordinator?
     lazy var eventSourceCoordinator: SentryEventSourceCoordinator = getLazyVar(\._eventSourceCoordinator) {
-        SentryEventSourceCoordinator(downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()))
+        SentryEventSourceCoordinator(
+            downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()),
+            fatalRunRecordStore: fileManager.map { SentryFatalRunRecordStore(fileManager: $0, dateProvider: dateProvider) },
+            dateProvider: dateProvider
+        )
     }
     private var _crashHandlerEventSource: SentryCrashHandlerEventSource?
     @objc public lazy var crashHandlerEventSource: SentryCrashHandlerEventSource = getLazyVar(\._crashHandlerEventSource) {
@@ -365,8 +373,23 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
         let sentryAutoTransactionMaxDuration = 500.0
         let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
-        let frameSource = SentryDisplayLinkFrameSource(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider)
-        return SentryFramesTracker(frameSource: frameSource, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+        return SentryFramesTracker(frameSource: makeFrameSource(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
+    }
+
+    func makeFrameSource() -> SentryFrameSource {
+        makeFrameSource(options: startOptions)
+    }
+
+    func makeFrameSource(options: Options?) -> SentryFrameSource {
+        // UIUpdateLink lets the tracker observe frames without waking up the app for every frame.
+        // It isn't available on Mac Catalyst.
+        #if !targetEnvironment(macCatalyst)
+        if #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *), options?.experimental.enableUIUpdateLinkFramesTracking == true {
+            let uiUpdateObserver = SentryUIUpdateLinkObserver(notificationCenter: notificationCenterWrapper, dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
+            return SentryUpdateLinkFrameSource(dateProvider: dateProvider, runLoopObserver: SentryMainRunLoopActivityObserver(), uiUpdateObserver: uiUpdateObserver)
+        }
+        #endif
+        return SentryDisplayLinkFrameSource(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider)
     }
 
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
@@ -653,11 +676,11 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #if !SDK_V10
 extension SentryDependencyContainer: WindowFactoryProvider {
     var windowFactory: SentryUserFeedbackWindowFactory {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
         if let override = windowFactoryOverride {
             return override
         }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
         return SentryUserFeedbackWidget.defaultWindowFactory
     }
 }
@@ -820,6 +843,7 @@ extension SentryDependencyContainer: NSFileManagerSwizzlingProvider { }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol FramesTrackingProvider {
     var framesTracker: SentryFramesTracker { get }
+    func makeFrameSource(options: Options?) -> SentryFrameSource
 }
 
 extension SentryDependencyContainer: FramesTrackingProvider { }

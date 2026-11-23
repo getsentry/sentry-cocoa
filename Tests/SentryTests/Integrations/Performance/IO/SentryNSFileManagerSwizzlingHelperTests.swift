@@ -3,9 +3,9 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+@_spi(Private) import SentryTestUtils
 import _SentryPrivate
 import Foundation
-import SentryTestUtils
 import XCTest
 
 // MARK: - Tests
@@ -65,6 +65,46 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
 
         XCTAssertTrue(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
     }
+
+#if DEBUG
+    func testStop_whenOutsideTests_shouldPreserveLaterSwizzle() throws {
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
+            throw XCTSkip("FileManager swizzling requires iOS 18, macOS 15, or tvOS 18")
+        }
+
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        let originalProcessInfo = container.processInfoWrapper
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.environment = [:]
+        container.processInfoWrapper = processInfo
+        let selector = NSSelectorFromString("createFileAtPath:contents:attributes:")
+        let method = try XCTUnwrap(class_getInstanceMethod(FileManager.self, selector))
+        let original = method_getImplementation(method)
+        swizzle()
+        var invocations = 0
+        let replacement: @convention(block) (FileManager, NSString, NSData?, NSDictionary?) -> Bool = { _, _, _, _ in
+            invocations += 1
+            return false
+        }
+        let replacementIMP = imp_implementationWithBlock(replacement)
+        method_setImplementation(method, replacementIMP)
+        defer {
+            method_setImplementation(method, original)
+            imp_removeBlock(replacementIMP)
+            container.processInfoWrapper = originalProcessInfo
+        }
+
+        // -- Act --
+        SentryNSFileManagerSwizzlingHelper.stop()
+        let success = FileManager.default.createFile(atPath: filePath, contents: testData, attributes: nil)
+
+        // -- Assert --
+        XCTAssertFalse(success)
+        XCTAssertEqual(invocations, 1)
+    }
+
+#endif
 
     // MARK: - Create File Tests
 

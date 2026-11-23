@@ -133,7 +133,7 @@ import UIKit
         redactBuilder.setRedactContainerClass(containerClass)
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     func getRedactBuilder() -> SentryUIRedactBuilder {
         redactBuilder
     }

@@ -13,6 +13,7 @@
 #    import "SentryFileManagerHelper.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilingCancellation.h"
 #    import "SentryTraceProfiler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -29,13 +30,13 @@
 @end
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 @interface SentryTraceProfiler (SentryTestStateWrapper)
 
 + (nullable SentryProfiler *)getCurrentProfiler;
 
 @end
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 @interface SentryContinuousProfiler (SentryTestStateWrapper)
 
@@ -60,14 +61,14 @@ void
 wrapper_resetProfilingState(void)
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    extern NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+    extern id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 
     _sentry_threadUnsafe_traceProfileTimeoutTimer = nil;
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
     [[SentryTraceProfiler getCurrentProfiler] stopForReason:SentryProfilerTruncationReasonNormal];
     sentry_resetConcurrencyTracking();
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
     removeAppLaunchProfilingConfigFile();
     [SentryLaunchProfiling stopAndDiscardLaunchProfileTracerWithHub:nil];

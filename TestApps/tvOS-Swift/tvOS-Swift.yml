@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -64,8 +62,6 @@ targets:
     configFiles:
       Debug: App/Configurations/tvOS-Swift.xcconfig
       Release: App/Configurations/tvOS-Swift.xcconfig
-      Test: App/Configurations/tvOS-Swift.xcconfig
-      TestCI: App/Configurations/tvOS-Swift.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -151,8 +147,6 @@ targets:
     configFiles:
       Debug: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
       Release: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
-      Test: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
-      TestCI: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -226,8 +220,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/tvOS-Swift-UITests.xcconfig
       Release: UITests/Configurations/tvOS-Swift-UITests.xcconfig
-      Test: UITests/Configurations/tvOS-Swift-UITests.xcconfig
-      TestCI: UITests/Configurations/tvOS-Swift-UITests.xcconfig
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
@@ -260,8 +252,6 @@ targets:
     configFiles:
       Debug: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
       Release: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
-      Test: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
-      TestCI: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
     info:
       path: AppSBSwift-UITests/Configurations/Info.plist
       properties: {}
@@ -274,7 +264,7 @@ schemes:
         tvOS-Swift: all
         tvOS-Swift-UITests: test
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/tvOS-Swift_Base.xctestplan
   tvOS-SBSwift:
@@ -285,6 +275,6 @@ schemes:
         tvOS-Swift: all
         tvOS-Swift-UITests: test
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/tvOS-SBSwift_Base.xctestplan

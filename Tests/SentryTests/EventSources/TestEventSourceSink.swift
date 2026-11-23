@@ -7,7 +7,7 @@
 /// Records the reports the event sources submit, without capturing them.
 final class TestEventSourceSink: SentryEventSourceSink {
     var isAvailable = true
-    private(set) var submittedReports: [SentryEventSourceReport] = []
+    var submittedReports: [SentryEventSourceReport] = []
 
     func submit(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult {
         guard isAvailable else {
@@ -26,7 +26,16 @@ final class TestEventSourceSink: SentryEventSourceSink {
 enum TestEventSources {
     /// The coordinator in front of the sink that captures on the SDK's current hub.
     static func hubSink() -> SentryEventSourceCoordinator {
-        SentryEventSourceCoordinator(downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()))
+        // The same parts the dependency container gives its coordinator, so a run a test reports
+        // through this coordinator is known to the container's coordinator too.
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        return SentryEventSourceCoordinator(
+            downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()),
+            fatalRunRecordStore: dependencies.fileManager.map {
+                SentryFatalRunRecordStore(fileManager: $0, dateProvider: dependencies.dateProvider)
+            },
+            dateProvider: dependencies.dateProvider
+        )
     }
 
     /// The crash handler's event source, submitting to ``hubSink()``.

@@ -2869,6 +2869,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableUIViewControllerInitSwizzling",
     "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
@@ -5837,6 +5844,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "pebibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -6167,6 +6188,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "resume",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -7092,6 +7127,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableTimeToFullDisplayTracing:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUIUpdateLinkFramesTracking:",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
@@ -10569,6 +10611,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {
