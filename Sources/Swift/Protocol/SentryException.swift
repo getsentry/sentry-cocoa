@@ -7,23 +7,26 @@ import Foundation
 open class Exception: NSObject {
 
     /// The name of the exception.
-    public var value: String?
+    open var value: String?
 
     /// Type of the exception.
-    public var type: String?
+    open var type: String?
 
     /// Additional information about the exception.
-    public var mechanism: Mechanism?
+    open var mechanism: Mechanism?
 
     /// Can be set to define the module.
-    public var module: String?
+    open var module: String?
 
     /// An optional value which refers to a thread in an event's threads.
-    public var threadId: NSNumber?
+    open var threadId: NSNumber?
 
     /// Stacktrace containing frames of this exception.
-    public var stacktrace: SentryStacktrace?
+    open var stacktrace: SentryStacktrace?
 
+    // Do not declare `init()`. `SentrySerializable` still requires it, and leaving
+    // it undeclared makes the generated header mark both `-init` and `+new`
+    // unavailable. A `required` `@objc` declaration leaves `NSObject`'s `+new` callable.
     /// Creates an exception with a value and a type.
     ///
     /// At least one of value or type must be non-nil. This is asserted in debug builds.
@@ -35,16 +38,6 @@ open class Exception: NSObject {
         super.init()
         self.value = value
         self.type = type
-    }
-
-    /// Unavailable. Exceptions are created with a value, a type, or both.
-    ///
-    /// `public` is required because this class is `open`. `@nonobjc` keeps
-    /// `@objcMembers` from publishing the initializer.
-    @nonobjc
-    @available(*, unavailable)
-    public required override init() {
-        fatalError("init() is unavailable")
     }
 
 #if SDK_V10

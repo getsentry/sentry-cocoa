@@ -3,7 +3,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
-#import "SentryException.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
