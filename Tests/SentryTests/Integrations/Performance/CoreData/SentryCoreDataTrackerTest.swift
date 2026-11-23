@@ -374,7 +374,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(result === expectedResult)
         XCTAssertEqual(calls, 1)
-        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations, 0)
+        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations.count, 0)
         XCTAssertNil(SentryNoOpSpan.shared().frames)
     }
 
@@ -461,7 +461,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(result)
         XCTAssertEqual(calls, 1)
-        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations, 0)
+        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations.count, 0)
         XCTAssertNil(SentryNoOpSpan.shared().frames)
     }
 

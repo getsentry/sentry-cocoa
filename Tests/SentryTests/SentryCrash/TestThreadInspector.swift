@@ -12,7 +12,7 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
     var allThreads: [SentryThread]?
     var getCurrentThreadsInvocations = 0
     var getCurrentThreadsWithStackTraceInvocations = 0
-    var stacktraceForCurrentThreadInvocations = 0
+    let stacktraceForCurrentThreadInvocations = Invocations<Void>()
 
     static var instance: TestDefaultThreadInspector {
         // We need something to pass to the super initializer, because the empty initializer has been marked unavailable.
@@ -28,7 +28,7 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {
-        stacktraceForCurrentThreadInvocations += 1
+        stacktraceForCurrentThreadInvocations.record(Void())
         return allThreads?.first?.stacktrace ?? TestData.thread.stacktrace
     }
 
@@ -47,14 +47,14 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
 class TestThreadInspector: SentryThreadInspector {
 
     var allThreads: [SentryThread]?
-    var stacktraceForCurrentThreadInvocations = 0
+    let stacktraceForCurrentThreadInvocations = Invocations<Void>()
 
     static var instance: TestThreadInspector {
         return TestThreadInspector(options: SentryDependencyContainer.sharedInstance().startOptions)
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {
-        stacktraceForCurrentThreadInvocations += 1
+        stacktraceForCurrentThreadInvocations.record(Void())
         return allThreads?.first?.stacktrace ?? TestData.thread.stacktrace
     }
 
