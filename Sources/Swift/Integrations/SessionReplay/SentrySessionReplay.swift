@@ -260,7 +260,12 @@ private struct SessionSegmentState {
 
     public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
-        stopCaptureScheduler()
+        // A replay that isn't capturing was already paused or stopped, and its last segment ends there.
+        // Cutting another one would cover the time since with the last frame.
+        guard stopCaptureScheduler() else {
+            SentrySDKLog.debug("[Session Replay] Session replay is not running, not preparing a pause segment")
+            return
+        }
         touchTracker?.disable()
 
         let pauseDate = dateProvider.date()
@@ -632,7 +637,9 @@ private struct SessionSegmentState {
         return true
     }
 
-    private func stopCaptureScheduler() {
+    /// Stops capturing. Returns whether capture was running.
+    @discardableResult
+    private func stopCaptureScheduler() -> Bool {
         let token = state.withLock { (state: inout State) -> NSObject? in
             state.captureSchedulerGeneration += 1
             let token = state.captureSchedulerToken
@@ -641,8 +648,9 @@ private struct SessionSegmentState {
             return token
         }
 
-        guard let token = token else { return }
+        guard let token = token else { return false }
         captureScheduler.stop(token: token)
+        return true
     }
 
     /// Tuning constants for the screenshot capture pacing and adaptive backoff policy.
