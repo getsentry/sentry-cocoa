@@ -388,11 +388,14 @@
     [SentrySDKInternal setCurrentHub:origin];
     TestProfilerDeliveryBackend *backend = [[TestProfilerDeliveryBackend alloc] init];
     NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
-    [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
-                                  data:state
-                               metrics:^{ return @ { }; }
+    [backend
+        captureProfileChunkWithID:[[SentryProfilingId alloc]
+                                      initWithUUID:[[NSUUID alloc] initWithUUIDString:
+                                                           @"01234567-89AB-CDEF-0123-456789ABCDEF"]]
+                             data:state
+                          metrics:^{ return @ { }; }
 #    if SENTRY_HAS_UIKIT
-                                frames:nil
+                           frames:nil
 #    endif
     ];
     SentryProfilerDeliveryTestHub *replacement =
@@ -427,11 +430,14 @@
     [SentrySDKInternal setCurrentHub:origin];
     TestProfilerDeliveryBackend *backend = [[TestProfilerDeliveryBackend alloc] init];
     NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
-    [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
-                                  data:state
-                               metrics:^{ return @ { }; }
+    [backend
+        captureProfileChunkWithID:[[SentryProfilingId alloc]
+                                      initWithUUID:[[NSUUID alloc] initWithUUIDString:
+                                                           @"01234567-89AB-CDEF-0123-456789ABCDEF"]]
+                             data:state
+                          metrics:^{ return @ { }; }
 #    if SENTRY_HAS_UIKIT
-                                frames:nil
+                           frames:nil
 #    endif
     ];
     [origin close];
