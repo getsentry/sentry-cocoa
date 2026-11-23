@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# Relink a pre-built static library as a dynamic framework slice with its headers,
-# modules and resources. SDK shipping variants can also request a mergeable dylib.
+# Package one static-library slice with headers, modules and resources. By default
+# relink it as a dylib (also used by SentryObjC); SDK shipping variants can instead
+# request a mergeable dylib or a static framework with category retention.
 
 set -euo pipefail
 
@@ -31,7 +32,7 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
-    log_info "  -t, --product-type <type>     SDK release linkage: dynamic. Adds merge metadata except on watchOS (device and simulator)."
+    log_info "  -t, --product-type <type>     SDK release linkage: static or dynamic. Dynamic adds merge metadata except on watchOS (device and simulator)."
     log_info "                                Omit for the existing SentryObjC dynamic framework, which does not request merge metadata."
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
@@ -106,7 +107,7 @@ if [ -n "$RESOURCES_DIR" ] && [ ! -d "$RESOURCES_DIR" ]; then
 fi
 
 case "$PRODUCT_TYPE" in
-    ""|dynamic) ;;
+    ""|static|dynamic) ;;
     *) log_error "Unknown product type: $PRODUCT_TYPE"; exit 1 ;;
 esac
 
@@ -285,6 +286,24 @@ read -r -a archs <<< "$archive_archs"
 target_suffix="$(target_suffix_for_sdk "$SDK")"
 link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
 trap 'rm -rf "$link_dir"' EXIT
+
+if [[ "$PRODUCT_TYPE" == static ]]; then
+    # A normal archive lookup does not pull in ObjC category-only members. Fold the
+    # target objects into one member per architecture, not a consumer-side -ObjC flag.
+    libraries=()
+    for arch in "${archs[@]}"; do
+        xcrun clang -target "$arch-$target_suffix" -isysroot "$sysroot" -nostdlib \
+            -Wl,-r,-keep_private_externs -Xlinker -force_load -Xlinker "$STATIC_LIB" -o "$link_dir/$arch.o"
+        xcrun libtool -static -o "$link_dir/$arch.a" "$link_dir/$arch.o"
+        libraries+=("$link_dir/$arch.a")
+    done
+    xcrun lipo -create "${libraries[@]}" -output "$binary_path"
+    # Match the Xcode static bundle's App Store workaround; object deployment targets stay unchanged.
+    plutil -replace MinimumOSVersion -string 100.0 "$resources_dir/Info.plist"
+    log_info "Static framework slice built: $FW_DIR"
+    end_group
+    exit 0
+fi
 
 fw_search_path="$sysroot/System/Library/Frameworks"
 catalyst_fw_path=""

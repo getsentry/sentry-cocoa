@@ -50,9 +50,11 @@ fi
 
 scheme=Sentry
 framework_name=Sentry
+linkage=dynamic
 with_arm64e=false
 export SENTRY_BUILD_XCFRAMEWORK=1
 case "$generation/$variant" in
+    v9/Sentry|v10/SentryV10) linkage=static; with_arm64e=true ;;
     v9/Sentry-Dynamic) ;;
     v10/SentryV10-Dynamic|v9/Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
     *) log_error "Not a shipping $generation SDK variant: $variant"; exit 1 ;;
@@ -86,23 +88,30 @@ for sdk in "${sdks[@]}"; do
         --output-dir "$work"
     prepared="$work/prepared/$sdk"
     "$SCRIPT_DIR/prepare-sentry-framework-inputs.sh" \
+        --product-type "$linkage" \
         --swift-archive "$work/archive/$scheme/$sdk.xcarchive" \
         --output-dir "$prepared"
+    lib="$work/lib/$scheme/$sdk/lib$scheme-Debug.a"
+    if [[ "$linkage" == static ]]; then
+        lib="$work/lib/$scheme/$sdk/lib$scheme.a"
+    fi
     "$SCRIPT_DIR/build-dynamic-framework.sh" \
         --sdk "$sdk" \
         --framework-name "$framework_name" \
         --version "$version" \
         --output-dir "$work" \
-        --product-type dynamic \
-        --static-lib "$work/lib/$scheme/$sdk/lib$scheme-Debug.a" \
+        --product-type "$linkage" \
+        --static-lib "$lib" \
         --headers "$prepared/Headers" \
         --modules "$prepared/Modules" \
         --resources "$prepared/Resources"
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
+assembly_args=()
+if [[ "$linkage" == dynamic ]]; then assembly_args+=(--require-debug-symbols); fi
 "$SCRIPT_DIR/assemble-xcframework.sh" \
     --sdks "$xcframework_sdks" \
     --framework-template "$work/framework/$framework_name/SDK_NAME/$framework_name.framework" \
     --output "$OUTPUT_DIR/$variant.xcframework" \
-    --require-debug-symbols
+    "${assembly_args[@]+"${assembly_args[@]}"}"

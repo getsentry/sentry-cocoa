@@ -50,7 +50,7 @@ Select the shipping basename with `SPM_XCFRAMEWORK_VARIANT` (or `--variant` in t
 | V10        | SentryV10                              | Static  | Sentry               | Yes                            |
 | V10        | SentryV10-Dynamic                      | Dynamic | Sentry               | Yes                            |
 
-SwiftPM currently builds the ordinary dynamic variants and `Sentry-Dynamic-WithARM64e`. The static and no-UI rows describe the remaining shipping targets.
+SwiftPM currently builds the ordinary dynamic, arm64e dynamic, and static variants. The two no-UI rows describe the remaining shipping targets.
 
 | Platform (deployment target) | Device / desktop base architectures | Simulator architectures |
 | ---------------------------- | ----------------------------------- | ----------------------- |
@@ -59,7 +59,7 @@ SwiftPM currently builds the ordinary dynamic variants and `Sentry-Dynamic-WithA
 | watchOS 9                    | arm64, arm64_32                     | arm64, x86_64           |
 | visionOS 1                   | arm64                               | arm64, x86_64           |
 
-The slice architectures above are checked against the published V9 `9.35.0` static XCFramework inventory, including x86_64 on the visionOS simulator. Deployment targets are the [configured minima](../Sources/Configuration/DeploymentTargets.xcconfig); an SDK can impose a higher minimum for an individual architecture (for example, watchOS 26 for LP64 watches with Xcode 27). Add arm64e only as indicated in the product table, including for Catalyst. Dynamic slices are mergeable except on watchOS (device and simulator). `SentrySwiftUI` is tracked separately in [#9652](https://github.com/getsentry/sentry-cocoa/issues/9652); `SentryObjC` uses its existing separate packagers.
+The slice architectures above are checked against the published V9 `9.35.0` static XCFramework inventory, including x86_64 on the visionOS simulator. Deployment targets are the [configured minima](../Sources/Configuration/DeploymentTargets.xcconfig); an SDK can impose a higher minimum for an individual architecture (for example, watchOS 26 for LP64 watches with Xcode 27). Add arm64e only as indicated in the product table, including for Catalyst. Dynamic slices are mergeable except on watchOS (device and simulator). Static slices contain a static archive, not a dylib; the producer retains Objective-C categories so consumers need no new linker flags. The static bundle's App Store `MinimumOSVersion` workaround does not change the objects' deployment targets. `SentrySwiftUI` is tracked separately in [#9652](https://github.com/getsentry/sentry-cocoa/issues/9652); `SentryObjC` uses its existing separate packagers.
 
 ```bash
 SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
@@ -68,7 +68,12 @@ SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 
 The producer sets `SENTRY_BUILD_XCFRAMEWORK=1`. Consumers do not set flags or change their imports. Output is `XCFrameworkBuildPath/SPM/<generation>/<variant>.xcframework.zip`, with intermediates under `build/<variant>/`. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
 
-Use the same [isolated binary consumer](../scripts/test-xcframework-variant.sh) on corresponding unpacked Xcode and SwiftPM products. By default it requires all ten slices. For a partial local build, pass the exact SDK list: it checks the module name, architectures, deployment targets, linkage and mergeability, links each architecture, and runs the native macOS binary. A missing required slice or failing consumer is a release blocker, not a supported matrix exclusion.
+Use the same [isolated binary consumer](../scripts/test-xcframework-variant.sh) on corresponding unpacked Xcode and SwiftPM products. By default it requires all ten slices. For a partial local build, pass the exact SDK list: it checks the module name, architectures, deployment targets, linkage and mergeability, links each architecture, and runs the native macOS binary to check Objective-C category availability. A missing required slice or failing consumer is a release blocker, not a supported matrix exclusion.
+
+```bash
+make build-xcframework-spm SPM_XCFRAMEWORK_VARIANT=Sentry SDKS=macosx FOR_AGENTS=true
+./scripts/test-xcframework-variant.sh --xcframework XCFrameworkBuildPath/SPM/v9/Sentry.xcframework --sdks macosx
+```
 
 Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
 

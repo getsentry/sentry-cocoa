@@ -24,8 +24,10 @@ done
 framework="$(cd "$framework" && pwd)"
 variant="$(basename "$framework" .xcframework)"
 module=Sentry
+static=false
 arm64e=true
 case "$variant" in
+    Sentry|SentryV10) static=true ;;
     Sentry-Dynamic) arm64e=false ;;
     SentryV10-Dynamic|Sentry-Dynamic-WithARM64e) ;;
     *) log_error "Unknown shipping SDK: $variant"; exit 1 ;;
@@ -73,10 +75,16 @@ for sdk in "${expected[@]}"; do
     for arch in "${archs[@]}"; do
         log_info "Checking $variant: $sdk/$arch"
         commands="$(xcrun otool -arch "$arch" -l "$binary")"
-        grep -q 'cmd LC_ID_DYLIB' <<< "$commands" || { log_error "Not a dylib: $binary"; exit 1; }
-        if [[ "$sdk" != watch* ]] && ! grep -q 'cmd LC_ATOM_INFO' <<< "$commands"; then
-            log_error "Missing mergeable metadata: $binary ($arch)"; exit 1
+        if [[ "$static" == true ]]; then
+            archive="$(xcrun otool -arch "$arch" -a "$binary")"
+            grep -q '^Archive :' <<< "$archive" || { log_error "Not a static archive: $binary"; exit 1; }
+        else
+            grep -q 'cmd LC_ID_DYLIB' <<< "$commands" || { log_error "Not a dylib: $binary"; exit 1; }
+            if [[ "$sdk" != watch* ]] && ! grep -q 'cmd LC_ATOM_INFO' <<< "$commands"; then
+                log_error "Missing mergeable metadata: $binary ($arch)"; exit 1
+            fi
         fi
+        # Static archives may contain dependency objects with lower deployment targets.
         highest="$(awk '$1 == "minos" { print $2 }' <<< "$commands" | sort -V | tail -1)"
         platforms="$(awk '$1 == "platform" { print $2 }' <<< "$commands" | sort -u)"
         expected_min=$minimum
