@@ -15,6 +15,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryDefines.h>
 #    import <Sentry/SentryDeprecated.h>
 #    import <Sentry/SentryError.h>
+#    import <Sentry/SentryEvent.h>
 #    import <Sentry/SentryException.h>
 #    import <Sentry/SentryFrame.h>
 #    import <Sentry/SentryGeo.h>
