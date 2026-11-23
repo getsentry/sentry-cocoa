@@ -15,6 +15,10 @@ import Foundation
         self.wrapped = Box(wrapped)
     }
 
+    @objc public var currentProfilerId: String? {
+        wrapped.value.currentProfilerId
+    }
+
     @objc public func start(for traceId: SentryObjCId) -> UInt64 {
         wrapped.value.start(for: traceId.wrapped)
     }
