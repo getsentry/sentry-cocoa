@@ -15,8 +15,13 @@
 
 ### Fixes
 
-- Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
 - Count app hangs the app recovered from in the current session's error count, as the sessions specification requires for error events captured with `captureEvent`. Sessions with such an app hang are now reported as errored. Fatal app hangs still mark the session as abnormal (#9696)
+- Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
+- Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
+
+### Internal
+
+- Expose `SentrySDK.internal.profiling.currentProfilerId` to hybrid SDKs so they can link their spans to Cocoa profiles (#9712)
 
 ## 9.35.0
 
