@@ -7,7 +7,7 @@ main(void)
     @autoreleasepool {
         // Exercise either producer's binary without starting integrations or sending network
         // requests.
-#if !SDK_V10
+#if !SENTRY_TEST_V10
         [SentrySDK close];
 #endif
         if (!(SentryVersionNumber > 0 && SentryVersionString[0] != '\0' &&
