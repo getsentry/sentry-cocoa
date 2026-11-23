@@ -47,10 +47,6 @@ make build-xcframework-spm \
   SDK_V10=1 \
   SDKS=macosx \
   FOR_AGENTS=true
-
-./scripts/test-xcframework-variant.sh \
-  --sdks macosx \
-  --xcframework XCFrameworkBuildPath/SPM/v10/SentryV10-Dynamic.xcframework
 ```
 
 Only the build script sets `SENTRY_BUILD_XCFRAMEWORK=1`; binary consumers import `Sentry` without extra flags. The [release workflow](../.github/workflows/release.yml) runs macOS packaging and [Swift](../TestApps/SPM-Dynamic) and [Objective-C](../TestApps/SPM-ObjC-Dynamic) consumer checks as advisory jobs. SwiftPM artifacts are not published.

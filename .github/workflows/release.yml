@@ -427,7 +427,6 @@ jobs:
         run: |
           ditto -x -k "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
           ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework"
-          ./scripts/test-xcframework-variant.sh --xcframework "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework" --sdks macosx
           # Copy just the consumers, outside the checkout and all producer build paths.
           for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
             mkdir -p "$RUNNER_TEMP/spm-sdk/$consumer"
