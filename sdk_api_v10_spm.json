@@ -380,6 +380,16 @@
         "printedName": "Darwin"
       },
       {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Foundation",
+        "printedName": "Foundation"
+      },
+      {
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
@@ -461,16 +471,6 @@
         "moduleName": "Sentry",
         "name": "Sentry.PrivatesHeader",
         "printedName": "Sentry.PrivatesHeader"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
-        "name": "Sentry.Sentry",
-        "printedName": "Sentry.Sentry"
       },
       {
         "declAttributes": [
@@ -679,16 +679,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryProfilingConditionals",
-        "printedName": "Sentry.SentryProfilingConditionals"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryRequest",
         "printedName": "Sentry.SentryRequest"
       },
@@ -811,16 +801,6 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentryUser",
         "printedName": "Sentry.SentryUser"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
-        "name": "Sentry.SentryV10Configuration",
-        "printedName": "Sentry.SentryV10Configuration"
       },
       {
         "declAttributes": [
