@@ -46,6 +46,8 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
 fi
 end_group
 
+export SDK_V10=0
+
 # Build both frameworks at once, as they depend on each other
 begin_group "Build Sentry-Dynamic XCFramework"
 log_info "Building Sentry-Dynamic slice"
@@ -98,6 +100,7 @@ begin_group "Diff SentryObjC vs SentryObjCCompat"
 end_group
 
 # V10 API extraction uses the KSCrash-backed target that V10 ships.
+export SDK_V10=1
 
 begin_group "Build Sentry V10 XCFramework"
 "$SCRIPT_DIR/build-xcframework-v10.sh" \
@@ -130,3 +133,36 @@ begin_group "Diff SentryObjC vs SentryObjCCompat (V10)"
     --compat sdk_api_objccompat_v10.json \
     --output sdk_api_objc_v10.diff.json
 end_group
+
+export SDK_V10=0
+SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM"
+
+begin_group "Build Sentry SwiftPM XCFramework"
+"$SCRIPT_DIR/build-xcframework-variant-spm.sh" \
+    --sdks iphoneos --output-dir "$SPM_BUILD_DIR"
+end_group
+
+begin_group "Extract SwiftPM Public API"
+"$SCRIPT_DIR/extract-swift-api.sh" \
+    --module Sentry \
+    --output sdk_api_spm.json \
+    --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
+end_group
+
+export SDK_V10=1
+SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM-V10"
+
+begin_group "Build Sentry V10 SwiftPM XCFramework"
+"$SCRIPT_DIR/build-xcframework-variant-spm.sh" \
+    --sdks iphoneos --output-dir "$SPM_BUILD_DIR"
+end_group
+
+begin_group "Extract V10 SwiftPM Public API"
+"$SCRIPT_DIR/extract-swift-api.sh" \
+    --module Sentry \
+    --output sdk_api_v10_spm.json \
+    --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
+end_group
+
+# SentrySwiftUI's package target still uses the released binary.
+log_info "Skipping SentrySwiftUI SwiftPM: no source-backed package target is available yet."
