@@ -47,6 +47,7 @@ cat > "$WORK_DIR/tools/xcodebuild" <<'SH'
 set -euo pipefail
 [ "${1:-}" = -list ] && exit 0
 [ "${1:-}" = archive ] || exit 1
+printf '%s\n' "$@" > "$ARCHIVE_ARGS"
 while [[ $# -gt 0 ]]; do
     if [ "$1" = -scheme ]; then
         [ "$2" = "$EXPECTED_SCHEME" ] || exit 1
@@ -107,10 +108,11 @@ xcrun lipo -create "$WORK_DIR/objects/dependency-matching.o" "$WORK_DIR/objects/
 #   target_object: fixture defining the required architecture set.
 #   scheme: archived scheme and output library name.
 #   architecture_target: target name used for the archived <target>.o file.
-#   fault: optional nm/strip fault injection; other cases use the real tools.
+#   remaining arguments: additional options for build-static-library.sh.
 run_case() {
     local name="$1" dependency="$2" expected_error="$3"
-    local target_object="$4" scheme="$5" architecture_target="$6" fault="${7:-}"
+    local target_object="$4" scheme="$5" architecture_target="$6" fault="${PACKAGING_FAULT:-}"
+    shift 6
     local root="$WORK_DIR/$name"
     local products="$root/archive/$scheme/watchos.xcarchive/Products/Objects"
 
@@ -135,7 +137,7 @@ run_case() {
     fi
 
     local status=0
-    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" PACKAGING_FAULT="$fault" \
+    PATH="$WORK_DIR/tools:$PATH" EXPECTED_SCHEME="$scheme" PACKAGING_FAULT="$fault" ARCHIVE_ARGS="$root/archive.args" \
         REAL_NM="$real_nm" REAL_STRIP="$real_strip" "$SCRIPT_DIR/build-static-library.sh" \
         --sdk watchos \
         --output-dir "$root" \
@@ -143,7 +145,7 @@ run_case() {
         --configuration Release \
         --scheme "$scheme" \
         --architecture-target "$architecture_target" \
-        > "$root/build.log" 2>&1 || status=$?
+        "$@" > "$root/build.log" 2>&1 || status=$?
     printf '%s\n' "$status" > "$root/build.exit-status"
 
     if [ -n "$expected_error" ]; then
@@ -220,14 +222,32 @@ run_case \
     SentryObjC \
     SentryObjCCompat
 
-# Preserve both architectures and both objects' symbols when their slices match.
+# Request both architectures explicitly. The order need not match lipo's output.
 run_case \
     matching-architectures \
     "$WORK_DIR/objects/dependency-matching.o" \
     '' \
     "$WORK_DIR/objects/target.o" \
     SentryObjC \
-    SentryObjCCompat
+    SentryObjCCompat \
+    --archs 'arm64_32 arm64'
+
+for setting in 'ARCHS=arm64_32 arm64' 'ONLY_ACTIVE_ARCH=NO'; do
+    if ! grep -Fxq "$setting" "$WORK_DIR/matching-architectures/archive.args"; then
+        log_error "xcodebuild archive did not receive '$setting'"
+        exit 1
+    fi
+done
+
+# The archive succeeded but its target contains only one of the requested slices.
+run_case \
+    requested-architecture-missing \
+    "$WORK_DIR/objects/dependency-matching.o" \
+    'requested [arm64_32 arm64], but SentryObjCCompat contains [arm64]' \
+    "$WORK_DIR/objects/target-arm64.o" \
+    SentryObjC \
+    SentryObjCCompat \
+    --archs 'arm64_32 arm64'
 
 # An arm64-only target must produce an arm64-only library even when its
 # dependency also contains arm64_32 and armv7k.
@@ -307,14 +327,13 @@ for fault in nm-error nm-partial-error nm-verification-error strip-error strip-n
         strip-error) expected_error='injected strip failure' ;;
         strip-noop) expected_error='Static library still contains debug-map references' ;;
     esac
-    run_case \
+    PACKAGING_FAULT="$fault" run_case \
         "$fault" \
         "$WORK_DIR/objects/dependency-extra.o" \
         "$expected_error" \
         "$WORK_DIR/objects/target-arm64.o" \
         SentrySPM \
-        SentrySwift \
-        "$fault"
+        SentrySwift
 done
 
 log_info 'All archive architecture and debug-map regressions passed.'
