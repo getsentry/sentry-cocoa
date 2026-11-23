@@ -43,8 +43,13 @@ SwiftPM uses the same dynamic artifact names as the [V9 Xcode release matrix](..
 The output is `XCFrameworkBuildPath/SPM/<generation>/<variant>.xcframework.zip`. For example, build and validate the V10 macOS slice:
 
 ```bash
-SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
-./scripts/test-xcframework-variant.sh --sdks macosx \
+make build-xcframework-spm \
+  SDK_V10=1 \
+  SDKS=macosx \
+  FOR_AGENTS=true
+
+./scripts/test-xcframework-variant.sh \
+  --sdks macosx \
   --xcframework XCFrameworkBuildPath/SPM/v10/SentryV10-Dynamic.xcframework
 ```
 

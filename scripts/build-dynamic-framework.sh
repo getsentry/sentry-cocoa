@@ -33,18 +33,14 @@ usage() {
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
     log_info "  -A, --archs <list>            Space-separated architectures to link (default: SDK-specific)"
-    log_info "  -M, --mergeable               Add mergeable metadata where supported (all SDKs except watchOS)"
+    log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h|--help) usage ;;
-        -M|--mergeable) MERGEABLE=true; shift; continue ;;
-    esac
-    if [[ $# -lt 2 || "$2" == --* ]]; then
+    if [[ "$1" != -h && "$1" != --help ]] && [[ $# -lt 2 || "$2" == --* ]]; then
         log_error "Missing value for $1"
         usage
     fi
@@ -56,12 +52,18 @@ while [[ $# -gt 0 ]]; do
         -v|--version)     VERSION="$2";      shift 2 ;;
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
         -A|--archs) ARCHS="$2"; shift 2 ;;
+        -M|--mergeable) MERGEABLE="$2"; shift 2 ;;
         -m|--modules) MODULES_DIR="$2"; shift 2 ;;
         -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
+        -h|--help)     usage ;;
         *)             log_error "Unknown argument: $1"; usage ;;
     esac
 done
 
+if [[ "$MERGEABLE" != true && "$MERGEABLE" != false ]]; then
+    log_error "--mergeable must be true or false"
+    usage
+fi
 if [ -z "$SDK" ]; then
     log_error "Error: --sdk is required"
     usage
@@ -130,17 +132,17 @@ CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo
 
 target_suffix_for_sdk() {
     case "$1" in
-        iphoneos) echo "apple-ios${DT_IOS}" ;;
-        iphonesimulator) echo "apple-ios${DT_IOS}-simulator" ;;
-        macosx) echo "apple-macos${DT_MACOS}" ;;
-        maccatalyst) echo "apple-ios${DT_IOS}-macabi" ;;
-        appletvos) echo "apple-tvos${DT_TVOS}" ;;
-        appletvsimulator) echo "apple-tvos${DT_TVOS}-simulator" ;;
-        watchos) echo "apple-watchos${DT_WATCHOS}" ;;
-        watchsimulator) echo "apple-watchos${DT_WATCHOS}-simulator" ;;
-        xros) echo "apple-xros${DT_XROS}" ;;
-        xrsimulator) echo "apple-xros${DT_XROS}-simulator" ;;
-        *) log_error "Unknown SDK: $1"; exit 1 ;;
+        iphoneos)          echo "apple-ios${DT_IOS}" ;;
+        iphonesimulator)   echo "apple-ios${DT_IOS}-simulator" ;;
+        macosx)            echo "apple-macos${DT_MACOS}" ;;
+        maccatalyst)       echo "apple-ios${DT_IOS}-macabi" ;;
+        appletvos)         echo "apple-tvos${DT_TVOS}" ;;
+        appletvsimulator)  echo "apple-tvos${DT_TVOS}-simulator" ;;
+        watchos)           echo "apple-watchos${DT_WATCHOS}" ;;
+        watchsimulator)    echo "apple-watchos${DT_WATCHOS}-simulator" ;;
+        xros)              echo "apple-xros${DT_XROS}" ;;
+        xrsimulator)       echo "apple-xros${DT_XROS}-simulator" ;;
+        *)                 log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
 
@@ -301,7 +303,7 @@ linker_flags+=( -Xlinker -current_version -Xlinker 1 )
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi
-if [[ "$MERGEABLE" == true && "$SDK" != watchos && "$SDK" != watchsimulator ]]; then
+if [[ "$MERGEABLE" == true ]]; then
     linker_flags+=( -Xlinker -make_mergeable )
 fi
 for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
@@ -315,8 +317,6 @@ for lib in "${SYSTEM_LIBS[@]}"; do
 done
 
 # --- Link per architecture ---
-# SentryObjC ships an arm64-only visionOS simulator slice unless overridden.
-if [[ -z "$ARCHS" && "$SDK" == xrsimulator ]]; then ARCHS=arm64; fi
 ARCHS="${ARCHS:-$(sdk_base_architectures "$SDK")}"
 read -r -a archs <<< "$ARCHS"
 target_suffix="$(target_suffix_for_sdk "$SDK")"

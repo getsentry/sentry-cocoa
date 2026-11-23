@@ -144,6 +144,7 @@ if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
             --framework-name SentryObjC \
             --version "$version" \
             --sdk "$sdk" \
+            --archs "$(if [[ "$sdk" == xrsimulator ]]; then echo arm64; fi)" \
             --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC-Debug.a" \
             --headers "$HEADERS_DIR" \
             --output-dir "$OUTPUT_DIR"

@@ -111,6 +111,7 @@ jobs:
             --framework-name SentryObjC \
             --version "$VERSION" \
             --sdk "$SDK" \
+            --archs "$(if [[ "$SDK" == xrsimulator ]]; then echo arm64; fi)" \
             --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
             --headers "Sources/SentryObjC/Public" \
             --output-dir XCFrameworkBuildPath

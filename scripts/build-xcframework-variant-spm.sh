@@ -88,13 +88,14 @@ for sdk in "${sdks[@]}"; do
     "$SCRIPT_DIR/prepare-sentry-framework-inputs.sh" \
         --swift-archive "$work/archive/$scheme/$sdk.xcarchive" \
         --output-dir "$prepared"
+    # The watchOS device and simulator linkers do not support -make_mergeable.
     "$SCRIPT_DIR/build-dynamic-framework.sh" \
         --sdk "$sdk" \
         --framework-name "$framework_name" \
         --version "$version" \
         --output-dir "$work" \
         --archs "$archs" \
-        --mergeable \
+        --mergeable "$([[ "$sdk" == watch* ]] && echo false || echo true)" \
         --static-lib "$work/lib/$scheme/$sdk/lib$scheme-Debug.a" \
         --headers "$prepared/Headers" \
         --modules "$prepared/Modules" \
