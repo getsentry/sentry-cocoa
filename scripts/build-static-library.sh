@@ -20,6 +20,7 @@ PACKAGE_PATH=""
 CONFIGURATION=""
 SCHEME=""
 ARCHITECTURE_TARGET=""
+ARCHS=""
 
 usage() {
     log_info "Usage: $0"
@@ -28,6 +29,7 @@ usage() {
     log_info "  -p, --package-path <path>         Swift Package root (required)"
     log_info "  -c, --configuration <name>        Xcode configuration (required)"
     log_info "  -s, --scheme <name>               Package scheme and output library name (required)"
+    log_info "  -A, --archs <list>                Xcode archive architectures (default: package settings)"
     log_info "  -a, --architecture-target <name>  Archived target whose architectures are required (required)"
     exit 1
 }
@@ -43,6 +45,7 @@ while [[ $# -gt 0 ]]; do
         -p|--package-path)   PACKAGE_PATH="$2";   shift 2 ;;
         -c|--configuration)  CONFIGURATION="$2";  shift 2 ;;
         -s|--scheme)         SCHEME="$2";         shift 2 ;;
+        -A|--archs) ARCHS="$2"; shift 2 ;;
         -a|--architecture-target) ARCHITECTURE_TARGET="$2"; shift 2 ;;
         -h|--help)        usage ;;
         *)                log_error "Unknown argument: $1"; usage ;;
@@ -129,6 +132,8 @@ log_info "  SDK:            $SDK"
 log_info "  Destination:    $destination"
 log_info "  Archive path:   $archive_path"
 
+architecture_settings=()
+if [[ -n "$ARCHS" ]]; then architecture_settings+=("ARCHS=$ARCHS" ONLY_ACTIVE_ARCH=NO); fi
 set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     -workspace "$PACKAGE_PATH" \
     -scheme "$SCHEME" \
@@ -137,6 +142,7 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     -archivePath "$archive_path" \
     -derivedDataPath "$DERIVED_DATA" \
     -clonedSourcePackagesDirPath "$DERIVED_DATA/SourcePackages" \
+    "${architecture_settings[@]+"${architecture_settings[@]}"}" \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
     VERSIONING_SYSTEM=apple-generic \
@@ -178,6 +184,14 @@ read -r -a target_archs <<< "$(xcrun lipo -archs "${target_objects[0]}")"
 if [ "${#target_archs[@]}" -eq 0 ]; then
     log_error "Could not read archived $ARCHITECTURE_TARGET architectures"
     exit 1
+fi
+
+if [[ -n "$ARCHS" ]]; then
+    read -r -a requested <<< "$ARCHS"
+    if [[ "$(printf '%s\n' "${requested[@]}" | sort)" != "$(printf '%s\n' "${target_archs[@]}" | sort)" ]]; then
+        log_error "$SDK: requested [$ARCHS], but $ARCHITECTURE_TARGET contains [${target_archs[*]}]"
+        exit 1
+    fi
 fi
 
 for object in "${objects[@]}"; do

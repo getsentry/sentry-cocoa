@@ -315,6 +315,8 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-variant.sh"
   - "scripts/build-xcframework-variant-spm.sh"
+  - "scripts/test-xcframework-variant.sh"
+  - "Tests/ShippingVariantConsumer/**"
   - "scripts/validate-xcframework*.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/assemble-xcframework.sh"

@@ -161,7 +161,7 @@ begin_group "Extract V10 SwiftPM Public API"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api_v10_spm.json \
-    --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
+    --framework-path "$SPM_BUILD_DIR/SentryV10-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
 # SentrySwiftUI's package target still uses the released binary.

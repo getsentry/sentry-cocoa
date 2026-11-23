@@ -1,10 +1,7 @@
 #!/bin/bash
 #
-# Builds a single dynamic framework slice.
-#
-# Takes a pre-built static library (from build-static-library.sh)
-# and re-links it as a dynamic library via swiftc, then packages the result
-# as a .framework bundle with headers and optional prepared modules and resources.
+# Relink a pre-built static library as a dynamic framework slice with its headers,
+# modules and resources. SDK shipping variants can also request a mergeable dylib.
 
 set -euo pipefail
 
@@ -13,6 +10,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 # shellcheck source=./tools.sh disable=SC1091
 source "$SCRIPT_DIR/tools.sh"
+# shellcheck source=./xcframework-utils.sh disable=SC1091
+source "$SCRIPT_DIR/xcframework-utils.sh"
 
 SDK=""
 STATIC_LIB=""
@@ -22,6 +21,7 @@ FRAMEWORK_NAME=""
 MODULES_DIR=""
 RESOURCES_DIR=""
 VERSION=""
+PRODUCT_TYPE=""
 
 usage() {
     log_info "Usage: $0"
@@ -31,6 +31,8 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
+    log_info "  -t, --product-type <type>     SDK release linkage: dynamic. Adds merge metadata except on watchOS (device and simulator)."
+    log_info "                                Omit for the existing SentryObjC dynamic framework, which does not request merge metadata."
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
@@ -48,6 +50,7 @@ while [[ $# -gt 0 ]]; do
         -o|--output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
         -v|--version)     VERSION="$2";      shift 2 ;;
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
+        -t|--product-type) PRODUCT_TYPE="$2"; shift 2 ;;
         -m|--modules) MODULES_DIR="$2"; shift 2 ;;
         -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
         -h|--help)     usage ;;
@@ -102,6 +105,11 @@ if [ -n "$RESOURCES_DIR" ] && [ ! -d "$RESOURCES_DIR" ]; then
     exit 1
 fi
 
+case "$PRODUCT_TYPE" in
+    ""|dynamic) ;;
+    *) log_error "Unknown product type: $PRODUCT_TYPE"; exit 1 ;;
+esac
+
 BUNDLE_SHORT_VERSION="${VERSION%%+*}"
 BUNDLE_VERSION="${BUNDLE_SHORT_VERSION%%-*}"
 
@@ -121,19 +129,19 @@ SYSTEM_LIBS=( z c++ )
 REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
 CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
 
-arch_targets_for_sdk() {
+target_suffix_for_sdk() {
     case "$1" in
-        iphoneos)          echo "arm64-apple-ios${DT_IOS}" ;;
-        iphonesimulator)   echo "arm64-apple-ios${DT_IOS}-simulator x86_64-apple-ios${DT_IOS}-simulator" ;;
-        macosx)            echo "arm64-apple-macos${DT_MACOS} x86_64-apple-macos${DT_MACOS}" ;;
-        maccatalyst)       echo "arm64-apple-ios${DT_IOS}-macabi x86_64-apple-ios${DT_IOS}-macabi" ;;
-        appletvos)         echo "arm64-apple-tvos${DT_TVOS}" ;;
-        appletvsimulator)  echo "arm64-apple-tvos${DT_TVOS}-simulator x86_64-apple-tvos${DT_TVOS}-simulator" ;;
-        watchos)           echo "arm64-apple-watchos${DT_WATCHOS} arm64_32-apple-watchos${DT_WATCHOS}" ;;
-        watchsimulator)    echo "arm64-apple-watchos${DT_WATCHOS}-simulator x86_64-apple-watchos${DT_WATCHOS}-simulator" ;;
-        xros)              echo "arm64-apple-xros${DT_XROS}" ;;
-        xrsimulator)       echo "arm64-apple-xros${DT_XROS}-simulator" ;;
-        *)                 log_error "Unknown SDK: $1"; exit 1 ;;
+        iphoneos) echo "apple-ios${DT_IOS}" ;;
+        iphonesimulator) echo "apple-ios${DT_IOS}-simulator" ;;
+        macosx) echo "apple-macos${DT_MACOS}" ;;
+        maccatalyst) echo "apple-ios${DT_IOS}-macabi" ;;
+        appletvos) echo "apple-tvos${DT_TVOS}" ;;
+        appletvsimulator) echo "apple-tvos${DT_TVOS}-simulator" ;;
+        watchos) echo "apple-watchos${DT_WATCHOS}" ;;
+        watchsimulator) echo "apple-watchos${DT_WATCHOS}-simulator" ;;
+        xros) echo "apple-xros${DT_XROS}" ;;
+        xrsimulator) echo "apple-xros${DT_XROS}-simulator" ;;
+        *) log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
 
@@ -265,6 +273,19 @@ else
     sysroot="$(xcrun --sdk "$SDK" --show-sdk-path)"
 fi
 
+# Relink the archive's actual architectures, including arm64e only when requested.
+if [[ -n "$PRODUCT_TYPE" ]]; then
+    archive_archs="$(xcrun lipo -archs "$STATIC_LIB")"
+elif [[ "$SDK" == xrsimulator ]]; then
+    archive_archs=arm64  # Preserve the separate SentryObjC producer's existing matrix.
+else
+    archive_archs="$(sdk_base_architectures "$SDK")"
+fi
+read -r -a archs <<< "$archive_archs"
+target_suffix="$(target_suffix_for_sdk "$SDK")"
+link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
+trap 'rm -rf "$link_dir"' EXIT
+
 fw_search_path="$sysroot/System/Library/Frameworks"
 catalyst_fw_path=""
 if [ "$SDK" = "maccatalyst" ]; then
@@ -294,6 +315,9 @@ linker_flags+=( -Xlinker -current_version -Xlinker 1 )
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi
+if [[ "$PRODUCT_TYPE" == dynamic && "$SDK" != watchos && "$SDK" != watchsimulator ]]; then
+    linker_flags+=( -Xlinker -make_mergeable )
+fi
 for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
     linker_flags+=( -framework "$fw" )
 done
@@ -305,15 +329,12 @@ for lib in "${SYSTEM_LIBS[@]}"; do
 done
 
 # --- Link per architecture ---
-read -r -a arch_targets <<< "$(arch_targets_for_sdk "$SDK")"
-link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
-trap 'rm -rf "$link_dir"' EXIT
 dummy_swift="$link_dir/empty.swift"
 echo "" > "$dummy_swift"
 
 arch_binaries=()
-for target in "${arch_targets[@]}"; do
-    arch="${target%%-*}"
+for arch in "${archs[@]}"; do
+    target="$arch-$target_suffix"
     log_info "  Linking arch: $arch ($target)"
 
     arch_output="$link_dir/$arch"
