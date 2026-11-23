@@ -1,0 +1,4 @@
+module SentryNativeUtils {
+    umbrella "."
+    export *
+}

@@ -1,0 +1,20 @@
+// Native utilities are implemented in Objective-C++ (.mm), never Swift.
+// Keep this target independent of Swift targets and the SDK implementation.
+#include "DeploymentTargets.xcconfig"
+
+MACH_O_TYPE = staticlib
+DEFINES_MODULE = YES
+PRODUCT_NAME = SentryNativeUtils
+PRODUCT_MODULE_NAME = SentryNativeUtils
+SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator xros xrsimulator
+TARGETED_DEVICE_FAMILY = 1,2,3,4,7
+SUPPORTS_MACCATALYST = YES
+ARCHS = $(ARCHS_STANDARD) arm64e
+ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
+SKIP_INSTALL = YES
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/SentryNativeUtils/include $(SRCROOT)/Sources/SentryNativeUtils/include
+MODULEMAP_FILE = $(SRCROOT)/Sources/SentryNativeUtils/include/module.modulemap
+OTHER_LDFLAGS =
+OTHER_LDFLAGS[sdk=watch*] =
+CODE_SIGN_IDENTITY =
+DEVELOPMENT_TEAM =

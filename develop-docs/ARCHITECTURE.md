@@ -11,6 +11,21 @@ At the highest level, the SDK is composed of a few key components:
 - **SentryScope**: holds metadata that is sent with every event, to assist in querying later
 - **SentryHub** and **SentryClient**: tie together configuration, features and scopes along with lower level machinery needed to store and transmit data
 
+### Native Library Boundaries
+
+The SDK links the native-only static libraries `SentryNativeUtils` and `SentryProfiling` in both Xcode and SwiftPM. `SentryNativeUtils` is an Objective-C++ utility library: implementations belong in `.mm` files, and the target must contain no Swift sources or depend on Swift targets. It owns the shared time helpers, while `SentryProfiling` owns the system-metrics value object and depends on native utilities. Both libraries are independent of SDK implementation code and KSCrash. Sampling and profiling orchestration remain SDK-owned.
+
+```mermaid
+flowchart TD
+    SDK["Sentry SDK"] --> Profiling["SentryProfiling"]
+    SDK --> NativeUtils["SentryNativeUtils"]
+    Profiling --> NativeUtils
+    ProfilingTests["SentryProfilingTests"] --> Profiling
+    NativeUtilsTests["SentryNativeUtilsTests"] --> NativeUtils
+```
+
+Each library compiles its own sources once. Xcode expresses the profiling-to-utilities relationship as a build dependency, with both archives linked by the SDK rather than embedding one archive inside the other. Their tests are SwiftPM targets, included in the V9 and V10 Base plans.
+
 ### Event Flow
 
 ```mermaid

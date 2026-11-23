@@ -1,6 +1,7 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 internal import _SentryPrivate
+internal import SentryNativeUtils
 import Foundation
 
 /// The frame source for OS versions that have `UIUpdateLink`.

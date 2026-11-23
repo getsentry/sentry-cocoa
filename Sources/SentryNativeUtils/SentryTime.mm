@@ -1,11 +1,6 @@
 #import "SentryTime.h"
 
 #import <Foundation/Foundation.h>
-#import <ctime>
-#import <mach/mach_time.h>
-
-#import "SentryAsyncSafeLog.h"
-#import "SentryMachLogging.hpp"
 
 uint64_t
 timeIntervalToNanoseconds(double seconds)

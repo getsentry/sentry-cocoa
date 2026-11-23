@@ -22,6 +22,22 @@
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "SentryNativeUtilsTests",
+        "name" : "SentryNativeUtilsTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryProfilingTests",
+        "name" : "SentryProfilingTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "SentryTestUtilsTests",
         "name" : "SentryTestUtilsTests"
       }

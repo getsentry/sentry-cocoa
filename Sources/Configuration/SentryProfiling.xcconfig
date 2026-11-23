@@ -1,0 +1,18 @@
+#include "DeploymentTargets.xcconfig"
+
+MACH_O_TYPE = staticlib
+DEFINES_MODULE = YES
+PRODUCT_NAME = SentryProfiling
+PRODUCT_MODULE_NAME = SentryProfiling
+SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator xros xrsimulator
+TARGETED_DEVICE_FAMILY = 1,2,3,4,7
+SUPPORTS_MACCATALYST = YES
+ARCHS = $(ARCHS_STANDARD) arm64e
+ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
+SKIP_INSTALL = YES
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/SentryProfiling/include $(SRCROOT)/Sources/SentryNativeUtils/include
+MODULEMAP_FILE = $(SRCROOT)/Sources/SentryProfiling/include/module.modulemap
+OTHER_LDFLAGS =
+OTHER_LDFLAGS[sdk=watch*] =
+CODE_SIGN_IDENTITY =
+DEVELOPMENT_TEAM =

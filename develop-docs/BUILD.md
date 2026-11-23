@@ -6,6 +6,14 @@ This document covers the build system and configuration details for the Sentry C
 
 - XCConfig files in `Sources/Configuration/` for SDK settings; settings should not be modified in pbxproj files
 
+## Native Library Targets
+
+`SentryNativeUtils` contains Objective-C++ utilities only, with no Swift sources or Swift target dependencies. Its C, Objective-C, and C++ headers allow native and Swift consumers to call the utilities without requiring Swift in the library itself.
+
+`SentryNativeUtils` and `SentryProfiling` have shared Xcode build schemes and target settings in `Sources/Configuration/`. Use `make build-native-utils` or `make build-profiling` to build all supported platforms. To build one platform, select the scheme with an existing build command, for example `make build-macos XCODE_SCHEME=SentryNativeUtils`.
+
+Tests run through SwiftPM, not Xcode test targets. `make test-native-utils` and `make test-profiling` select their suites across the platform matrix. A focused run uses the existing selectors, for example `make test-macos ONLY_TESTING=SentryNativeUtilsTests`. SwiftPM builds each test target's library dependencies automatically.
+
 ## SDK Test Configurations
 
 SDK tests use `Debug`, or `DebugV10` for V10 Xcode project builds. SwiftPM V10 tests also use `Debug`, with `SDK_V10=1` selecting the SDK implementation. Debug builds enable testability and SDK test helpers through `DEBUG`; no test traits or separate test configurations are required. Make/CI adds the [package test xcconfig](../Tests/Configuration/SwiftPM.xcconfig) for ABI and diagnostic checks. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Release builds exclude debug/test helpers. Do not explicitly enable `DEBUG` in production builds.

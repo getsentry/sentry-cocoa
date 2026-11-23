@@ -183,6 +183,7 @@ build: build-ios build-macos build-catalyst build-tvos build-visionos build-watc
 build-ios:
 	@echo "[MAKE] $@: Building for iOS"
 	./scripts/sentry-xcodebuild.sh \
+		--scheme "$(XCODE_SCHEME)" \
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
 		--device "$(IOS_DEVICE_NAME)" \
@@ -197,6 +198,7 @@ build-ios:
 build-macos:
 	@echo "[MAKE] $@: Building for macOS"
 	./scripts/sentry-xcodebuild.sh \
+		--scheme "$(XCODE_SCHEME)" \
 		--platform macOS \
 		--os latest \
 		--command build \
@@ -210,6 +212,7 @@ build-macos:
 build-catalyst:
 	@echo "[MAKE] $@: Building for Catalyst"
 	./scripts/sentry-xcodebuild.sh \
+		--scheme "$(XCODE_SCHEME)" \
 		--platform Catalyst \
 		--os latest \
 		--command build \
@@ -223,6 +226,7 @@ build-catalyst:
 build-tvos:
 	@echo "[MAKE] $@: Building for tvOS"
 	./scripts/sentry-xcodebuild.sh \
+		--scheme "$(XCODE_SCHEME)" \
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
 		--device "$(TVOS_DEVICE_NAME)" \
@@ -237,6 +241,7 @@ build-tvos:
 build-visionos:
 	@echo "[MAKE] $@: Building for visionOS"
 	./scripts/sentry-xcodebuild.sh \
+		--scheme "$(XCODE_SCHEME)" \
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
@@ -774,6 +779,16 @@ build-xcframework-v10-static:
 	done
 	@echo "[MAKE] $@: Compressing SentryV10.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryV10.xcframework"
+
+## Build the standalone native utility library on all platforms
+.PHONY: build-native-utils
+build-native-utils:
+	@"$(MAKE)" build XCODE_SCHEME=SentryNativeUtils
+
+## Build the standalone profiling library on all platforms
+.PHONY: build-profiling
+build-profiling:
+	@"$(MAKE)" build XCODE_SCHEME=SentryProfiling
 
 # ============================================================================
 # TEST APPS
@@ -1904,6 +1919,16 @@ test-testapp-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym VALIDATE_PRODUCT=YES \
 		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Run native utility package tests on all platforms
+.PHONY: test-native-utils
+test-native-utils:
+	@"$(MAKE)" test ONLY_TESTING=SentryNativeUtilsTests
+
+## Run profiling package tests on all platforms
+.PHONY: test-profiling
+test-profiling:
+	@"$(MAKE)" test ONLY_TESTING=SentryProfilingTests
 
 # ============================================================================
 # LINTING & FORMATTING

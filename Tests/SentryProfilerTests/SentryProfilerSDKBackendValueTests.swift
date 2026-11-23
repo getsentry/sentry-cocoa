@@ -6,6 +6,7 @@
 #endif
 @_spi(Private) @testable import SentryTestUtils
 import _SentryPrivate
+import SentryProfiling
 import XCTest
 
 final class SentryProfilerSDKBackendValueTests: XCTestCase {
