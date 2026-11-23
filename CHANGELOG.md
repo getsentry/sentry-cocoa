@@ -16,6 +16,11 @@
 ### Fixes
 
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
+- Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
+
+### Internal
+
+- Expose `SentrySDK.internal.profiling.currentProfilerId` to hybrid SDKs so they can link their spans to Cocoa profiles (#9712)
 
 ## 9.35.0
 

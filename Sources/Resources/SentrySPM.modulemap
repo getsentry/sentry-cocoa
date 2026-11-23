@@ -1,5 +1,5 @@
 framework module Sentry {
-  umbrella header "SentryHeaders.h"
+  umbrella header "Sentry.h"
   export *
   module * { export * }
 }

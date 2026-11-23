@@ -2400,6 +2400,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "currentProfilerId",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "customSamplingContext",
     "parent": "SentryObjCSamplingContext",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -10294,6 +10301,12 @@
     "name": "current",
     "parent": "SentryObjCThread",
     "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "currentProfilerId",
+    "parent": "SentryObjCInternalProfilingApi",
+    "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
