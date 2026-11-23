@@ -174,7 +174,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     /// Sends all pending crash reports. Called internally during initialization,
     /// and exposed for testing purposes.
     func sendAllSentryCrashReports() {
@@ -192,8 +192,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private func configureScope() {
         // We need to make sure to set always the scope to SentryCrash so we have it in
         // case of a crash
-        SentrySDKInternal.currentHub().configureScope { [weak self] outerScope in
-            guard let self = self, let options = self.options else { return }
+        SentrySDKInternal.currentHub().configureScopeObject { [weak self] outerScope in
+            guard let self = self, let outerScope = outerScope as? Scope, let options = self.options else { return }
 
             var userInfo = outerScope.serialize()
 
@@ -245,7 +245,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 #if !SDK_V10
     // Exposed to objc for the NotificationCenter in configureScope()
     @objc private func currentLocaleDidChange() {
-        SentrySDKInternal.currentHub().configureScope { scope in
+        SentrySDKInternal.currentHub().configureScopeObject { rawScope in
+            guard let scope = rawScope as? Scope else { return }
             var device: [String: Any]
             let contextDictionary = scope.contextDictionary
             if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
@@ -274,7 +275,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
         let isLowPowerMode = processInfo.isLowPowerModeEnabled
-        SentrySDKInternal.currentHub().configureScope { scope in
+        SentrySDKInternal.currentHub().configureScopeObject { rawScope in
+            guard let scope = rawScope as? Scope else { return }
             var device: [String: Any]
             let contextDictionary = scope.contextDictionary
             if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {

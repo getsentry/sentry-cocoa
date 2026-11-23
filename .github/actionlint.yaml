@@ -3,6 +3,8 @@ self-hosted-runner:
     - bitrise_pool_name:xcode-beta
     - bitrise_pool_name:sequoia
     - bitrise_pool_name:tahoe
+    # Official hosted-runner label not yet included in actionlint's built-in list.
+    - xcode-27
 
 paths:
   .github/workflows/*.yml:

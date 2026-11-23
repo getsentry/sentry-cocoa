@@ -28,7 +28,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryNSError.h>
 #    import <SentryWithoutUIKit/SentryRequest.h>
 #    import <SentryWithoutUIKit/SentrySampleDecision.h>
-#    import <SentryWithoutUIKit/SentryScope.h>
 #    import <SentryWithoutUIKit/SentrySerializable.h>
 #    import <SentryWithoutUIKit/SentrySpanContext.h>
 #    import <SentryWithoutUIKit/SentrySpanId.h>
@@ -38,7 +37,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryThread.h>
 #    import <SentryWithoutUIKit/SentryTraceContext.h>
 #    import <SentryWithoutUIKit/SentryTraceHeader.h>
-#    import <SentryWithoutUIKit/SentryTransactionContext.h>
 #    import <SentryWithoutUIKit/SentryUser.h>
 
 // Headers here are to be used by Hybrid SDKs

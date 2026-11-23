@@ -2,8 +2,9 @@
 # https://warden.sentry.dev
 #
 # The org-wide Warden workflow in getsentry/.github loads this file on top of
-# getsentry/.github/warden.toml. The org config already runs security-review on
-# every pull request, so this file only adds the remaining built-in reviews.
+# getsentry/.github/warden.toml. The org config already runs security-review and
+# integrity-review on every pull request, so this file only adds the remaining
+# built-in reviews.
 # Model and runtime settings are inherited from the org config.
 
 version = 1
@@ -18,15 +19,6 @@ reportOn = "medium"
 
 [[skills]]
 name = "code-review"
-
-[[skills.triggers]]
-type = "pull_request"
-actions = ["opened", "synchronize", "reopened", "labeled"]
-draft = false
-labels = ["Warden"]
-
-[[skills]]
-name = "integrity-review"
 
 [[skills.triggers]]
 type = "pull_request"

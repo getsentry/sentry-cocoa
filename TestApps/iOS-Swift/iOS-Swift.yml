@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -68,8 +66,6 @@ targets:
     configFiles:
       Debug: App/Configurations/iOS-Swift.xcconfig
       Release: App/Configurations/iOS-Swift.xcconfig
-      Test: App/Configurations/iOS-Swift.xcconfig
-      TestCI: App/Configurations/iOS-Swift.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -180,8 +176,6 @@ targets:
     configFiles:
       Debug: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
       Release: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
-      Test: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
-      TestCI: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -287,8 +281,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/iOS-Swift-UITests.xcconfig
       Release: UITests/Configurations/iOS-Swift-UITests.xcconfig
-      Test: UITests/Configurations/iOS-Swift-UITests.xcconfig
-      TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
@@ -329,8 +321,6 @@ targets:
     configFiles:
       Debug: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       Release: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
-      Test: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
-      TestCI: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
     info:
       path: ShareExtension/Configurations/Info.plist
       properties:
@@ -386,8 +376,6 @@ targets:
     configFiles:
       Debug: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       Release: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
-      Test: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
-      TestCI: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
     info:
       path: ActionExtension/Configurations/Info.plist
       properties:
@@ -442,8 +430,6 @@ targets:
     configFiles:
       Debug: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       Release: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
-      Test: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
-      TestCI: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
     info:
       path: IntentExtension/Configurations/Info.plist
       properties:
@@ -499,8 +485,6 @@ targets:
     configFiles:
       Debug: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
       Release: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
-      Test: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
-      TestCI: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
     info:
       path: NotificationServiceExtension/Configurations/Info.plist
       properties:
@@ -532,8 +516,6 @@ targets:
     configFiles:
       Debug: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
       Release: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
-      Test: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
-      TestCI: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
     info:
       path: KeyboardExtension/Configurations/Info.plist
       properties:
@@ -556,7 +538,7 @@ schemes:
       targets:
         iOS-Swift: all
     test:
-      config: Test
+      config: Debug
       testPlans:
         - path: ../../Plans/iOS-Swift_Base.xctestplan
   iOS-Swift-IntentExtension:

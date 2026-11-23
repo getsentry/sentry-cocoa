@@ -194,6 +194,8 @@ log_info "  Distribution architectures: ${target_archs[*]}"
 archive_dir="$LIB_DIR/$SDK"
 debug_static_lib="$archive_dir/lib${SCHEME}-Debug.a"
 static_lib="$archive_dir/lib${SCHEME}.a"
+# A failed cleaning attempt must not leave an earlier distributable looking current.
+rm -f "$static_lib"
 stripped_objects_dir="$archive_dir/stripped-objects"
 rm -rf "$stripped_objects_dir"
 mkdir -p "$stripped_objects_dir"
@@ -232,14 +234,35 @@ for object in "${objects[@]}"; do
     cp "$object" "$stripped_object"
     # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
     # retaining all linkable content, including Objective-C categories without global symbols.
-    if nm -arch all -ap "$stripped_object" 2> /dev/null | grep ' OSO ' > /dev/null; then
+    # Keep inspection outside the conditional so nm errors are fatal and remain visible.
+    nm_output="$(nm -arch all -ap "$stripped_object")"
+    if grep ' OSO ' <<< "$nm_output" > /dev/null; then
         strip -S "$stripped_object"
+    fi
+    # Apple strip skips linker cleanup for data-only arm64_32 objects (e.g. *_vers.o).
+    if [[ " ${target_archs[*]} " = *" arm64_32 "* ]]; then
+        cleaned_object="$stripped_object.arm64_32"
+        ld -r -S -keep_private_externs -arch arm64_32 "$object" -o "$cleaned_object"
+        if [ "$(xcrun lipo -archs "$stripped_object")" = arm64_32 ]; then
+            mv "$cleaned_object" "$stripped_object"
+        else
+            xcrun lipo "$stripped_object" -replace arm64_32 "$cleaned_object" -output "$stripped_object"
+        fi
     fi
     stripped_objects+=( "$stripped_object" )
 done
 
 log_info "  Static output: $static_lib"
-create_static_library "$static_lib" "${stripped_objects[@]}"
+# Publish only after verifying every distributed slice, preserving the debug intermediate.
+staged_static_lib="$architecture_libraries_dir/lib${SCHEME}.a"
+create_static_library "$staged_static_lib" "${stripped_objects[@]}"
+nm_output="$(nm -arch all -ap "$staged_static_lib")"
+if grep ' OSO ' <<< "$nm_output" > /dev/null; then
+    log_error "Static library still contains debug-map references after stripping: $staged_static_lib"
+    grep ' OSO ' <<< "$nm_output" >&2
+    exit 1
+fi
+mv "$staged_static_lib" "$static_lib"
 end_group
 
 # SwiftPM installs objects, but not its interfaces, generated headers or resource bundles.

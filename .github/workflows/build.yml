@@ -267,6 +267,9 @@ jobs:
         include:
           - name: iOS
             make-target: build-testapp-iOS-SwiftUI-SPM
+          - name: iOS C++ interop
+            make-target: build-testapp-iOS-SwiftUI-SPM
+            configuration: Debug-CxxInterop
           - name: watchOS
             make-target: build-testapp-watchOS-SwiftUI-SPM
           - name: tvOS
@@ -310,6 +313,7 @@ jobs:
       - name: Build Test App
         run: make ${{ matrix.make-target }}
         env:
+          IOS_SPM_BUILD_CONFIGURATION: ${{ matrix.configuration || 'Debug' }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
@@ -558,13 +562,11 @@ jobs:
 
       - name: Build for ${{ matrix.configuration }}
         env:
-          REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ARGS=(
             --platform "${{ matrix.platform }}"
-            --ref "${REF}"
             --command build
             --configuration "${{ matrix.configuration }}"
             --derived-data "${{ matrix.derived-data }}"
@@ -637,14 +639,12 @@ jobs:
 
       - name: Build for Debug
         env:
-          REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
             --command build \
             --device "$IOS_DEVICE_NAME" \
             --configuration Debug

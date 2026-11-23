@@ -65,7 +65,7 @@ public class SentryReachability: NSObject {
     private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
     private let observersLock = NSRecursiveLock()
     
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     @objc public var skipRegisteringActualCallbacks = false
     private var ignoreActualCallback = false
     
@@ -76,7 +76,7 @@ public class SentryReachability: NSObject {
     var currentPathMonitor: NWPathMonitor? {
         observersLock.synchronized { pathMonitor }
     }
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
     
     @objc(addObserver:)
     public func add(_ observer: SentryReachabilityObserver) {
@@ -99,12 +99,12 @@ public class SentryReachability: NSObject {
             return
         }
         
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
         if skipRegisteringActualCallbacks {
             SentrySDKLog.debug("Skip registering actual callbacks")
             return
         }
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
         
         self.currentConnectivity = nil
         // A monitor from an earlier observer can still be running: observers are held weakly, so
@@ -172,11 +172,11 @@ public class SentryReachability: NSObject {
     }
     
     private func stopMonitoring() {
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
         if skipRegisteringActualCallbacks {
             SentrySDKLog.debug("Skip stopping actual monitoring")
         }
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
         
         // Clean up NWPathMonitor
         if let monitor = pathMonitor {
@@ -220,12 +220,12 @@ public class SentryReachability: NSObject {
     private func pathUpdateHandler(_ path: NWPath) {
         SentrySDKLog.debug("SentryPathUpdateHandler called with path status: \(path.status)")
         
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
         if ignoreActualCallback {
             SentrySDKLog.debug("Ignoring actual callback.")
             return
         }
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
         
         let connectivity = connectivityFromPath(path)
         connectivityCallback(connectivity)
@@ -318,7 +318,7 @@ public class SentryReachability: NSObject {
 }
 
 // MARK: - Test utils
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
 extension SentryReachability {
     func setReachabilityIgnoreActualCallback(_ value: Bool) {
         SentrySDKLog.debug("Setting ignore actual callback to \(value)")
@@ -335,5 +335,5 @@ class SentryReachabilityTestHelper: NSObject {
         type.toString()
     }
 }
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#endif // DEBUG
 // swiftlint:enable missing_docs

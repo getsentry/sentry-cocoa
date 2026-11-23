@@ -7,8 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  Test: debug
-  TestCI: debug
   Release: release
 packages:
   Sentry:
@@ -59,8 +57,6 @@ targets:
     configFiles:
       Debug: App/Configurations/visionOS-Swift.xcconfig
       Release: App/Configurations/visionOS-Swift.xcconfig
-      Test: App/Configurations/visionOS-Swift.xcconfig
-      TestCI: App/Configurations/visionOS-Swift.xcconfig
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

@@ -13,7 +13,7 @@ final class SentryUIEventTrackerTransactionEventProcessor {
         self.idleTimeout = idleTimeout
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     var activeTransactions: [SentryTracer] {
         activeTransactionsStorage.withLock { $0 }
     }
@@ -60,7 +60,7 @@ extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.Ev
     private func startTransaction(action: String, operation: String) -> SentryTracer {
         let context = TransactionContext(
             name: action,
-            rawNameSource: SentryTransactionNameSource.component.rawValue,
+            nameSource: .component,
             operation: operation,
             origin: SentryTraceOriginAutoUiEventTracker
         )

@@ -1,5 +1,6 @@
 #import "SentryProfilerSerialization.h"
-#import "SentryInternalSerializable.h"
+#import "SentryDeviceContextKeys.h"
+#import "SentrySwift.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -21,13 +22,10 @@
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentryScope+Private.h"
-#    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTransactionContext+Private.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
 NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";
@@ -109,10 +107,10 @@ NSMutableDictionary<NSString *, id> *
 sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *_Nullable debugMeta, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *_Nullable gpuData
+    SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
@@ -143,13 +141,8 @@ sentry_serializedTraceProfileData(
     payload[@"profile"] = profile;
 
     payload[@"version"] = @"1";
-    NSMutableArray<NSDictionary<NSString *, id> *> *debugImages =
-        [[NSMutableArray<NSDictionary<NSString *, id> *> alloc] init];
-    for (SentryDebugMeta *debugImage in debugMeta) {
-        [debugImages addObject:[debugImage serialize]];
-    }
     if (debugImages.count > 0) {
-        payload[@"debug_meta"] = @ { @"images" : debugImages };
+        payload[@"debug_meta"] = @ { @"images" : SENTRY_UNWRAP_NULLABLE(NSArray, debugImages) };
     }
 
     payload[SENTRY_CONTEXT_OS_KEY] = @ {
@@ -176,7 +169,8 @@ sentry_serializedTraceProfileData(
 
     payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
-    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"environment"]
+        = ((SentryScope *)hub.scope).environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
 
     // add the gathered metrics
@@ -184,7 +178,8 @@ sentry_serializedTraceProfileData(
 
 #    if SENTRY_HAS_UIKIT
     if (gpuData != nil) {
-        SentryScreenFrames *_Nonnull frames = SENTRY_UNWRAP_NULLABLE(SentryScreenFrames, gpuData);
+        SentryProfilingFrameMeasurements *_Nonnull frames
+            = SENTRY_UNWRAP_NULLABLE(SentryProfilingFrameMeasurements, gpuData);
         NSMutableDictionary<NSString *, id> *mutableMetrics =
             [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
         NSArray<SentrySerializedMetricEntry *> *slowFrames
@@ -226,10 +221,10 @@ sentry_serializedTraceProfileData(
 NSMutableDictionary<NSString *, id> *
 sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *_Nullable debugMeta, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *_Nullable gpuData
+    SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
@@ -248,18 +243,14 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     payload[@"profile"] = profile;
 
     payload[@"version"] = @"2";
-    NSMutableArray<NSDictionary<NSString *, id> *> *debugImages =
-        [[NSMutableArray<NSDictionary<NSString *, id> *> alloc] init];
-    for (SentryDebugMeta *debugImage in debugMeta) {
-        [debugImages addObject:[debugImage serialize]];
-    }
     if (debugImages.count > 0) {
-        payload[@"debug_meta"] = @ { @"images" : debugImages };
+        payload[@"debug_meta"] = @ { @"images" : SENTRY_UNWRAP_NULLABLE(NSArray, debugImages) };
     }
 
     payload[@"chunk_id"] = [chunkID sentryIdString];
     payload[@"profiler_id"] = profileID.sentryIdString;
-    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"environment"]
+        = ((SentryScope *)hub.scope).environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
     payload[@"platform"] = SentryPlatformName;
 
@@ -273,7 +264,8 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 
 #    if SENTRY_HAS_UIKIT
     if (gpuData != nil) {
-        SentryScreenFrames *_Nonnull frames = SENTRY_UNWRAP_NULLABLE(SentryScreenFrames, gpuData);
+        SentryProfilingFrameMeasurements *_Nonnull frames
+            = SENTRY_UNWRAP_NULLABLE(SentryProfilingFrameMeasurements, gpuData);
         NSMutableDictionary<NSString *, id> *mutableMetrics =
             [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
         if (frames.slowFrameTimestamps.count > 0) {
@@ -313,10 +305,10 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState,
-    NSArray<SentryDebugMeta *> *debugImages, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *_Nullable gpuData
+    SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
@@ -342,14 +334,14 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 
     SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
         SENTRY_LOG_DEBUG(
             @"Writing profile to test file (profile ID %@, chunk ID %@", profileID, chunkID);
         sentry_writeProfileFile(JSONData, true /*continuous*/);
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
     SentryEnvelopeItem *envelopeItem =
         [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
@@ -366,9 +358,8 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
-    SentryDebugImageProvider *debugImageProvider
-        = SentryProfilerSDKAdapter.shared.debugImageProvider;
-    NSArray<SentryDebugMeta *> *images = [debugImageProvider getDebugImagesFromCache];
+    NSArray<NSDictionary<NSString *, id> *> *images =
+        [SentryProfilerSDKAdapter.shared serializedDebugImages];
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedTraceProfileData(
         profilingData, transaction.startSystemTime, transaction.endSystemTime,
         sentry_profilerTruncationReasonName(profiler.truncationReason),
@@ -392,7 +383,8 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : trace.traceId.sentryIdString,
     }];
-    NSNumber *_Nullable activeThreadId = [trace.transactionContext sentry_threadInfo].threadId;
+    SentryTransactionContext *transactionContext = trace.transactionContext;
+    NSNumber *_Nullable activeThreadId = [transactionContext sentry_threadInfo].threadId;
     if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
         transactionDict[@"active_thread_id"] = activeThreadId;
     }
@@ -408,12 +400,12 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
         return nil;
     }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
         sentry_writeProfileFile(JSONData, false /*continuous*/);
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
     return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
                                                data:JSONData
@@ -428,13 +420,11 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSD
         return nil;
     }
 
-    SentryDebugImageProvider *debugImageProvider
-        = SentryProfilerSDKAdapter.shared.debugImageProvider;
     return sentry_serializedTraceProfileData([profiler.state copyProfilingData], startSystemTime,
         endSystemTime, sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:startSystemTime
                                                                  and:endSystemTime],
-        [debugImageProvider getDebugImagesFromCache], hub
+        [SentryProfilerSDKAdapter.shared serializedDebugImages], hub
 #    if SENTRY_HAS_UIKIT
         ,
         profiler.screenFrameData

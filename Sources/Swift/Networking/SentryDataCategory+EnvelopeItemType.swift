@@ -26,6 +26,9 @@ extension SentryDataCategory {
         case SentryEnvelopeItemTypes.statsd: self = .metricBucket
         case SentryEnvelopeItemTypes.log: self = .logItem
         case SentryEnvelopeItemTypes.traceMetric: self = .traceMetric
+        // This SDK doesn't create span items yet, but hybrid SDKs like sentry-dart send streamed
+        // spans through it, so they need the span category for rate limits and client reports.
+        case SentryEnvelopeItemTypes.span: self = .span
         default: self = .default
         }
     }

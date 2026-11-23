@@ -1,7 +1,7 @@
 internal import _SentryPrivate
 import CoreData
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryCoreDataTrackerProtocol: AnyObject {
     func managedObjectContext(
         _ context: NSManagedObjectContext,

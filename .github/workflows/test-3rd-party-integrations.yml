@@ -62,7 +62,7 @@ jobs:
     name: Build XCFrameworks
     needs: files-changed
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: xcode-27
     timeout-minutes: 30
     steps:
       # === Checkout and independent preparation ===
@@ -77,7 +77,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "27"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -107,7 +107,7 @@ jobs:
     name: SPM Tests (${{matrix.trait}}) | ${{matrix.integration_dir}}
     needs: [files-changed, build-xcframeworks]
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on: ["bitrise_pool_name:sequoia"]
+    runs-on: xcode-27
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -138,7 +138,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "27"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator

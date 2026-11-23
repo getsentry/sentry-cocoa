@@ -8,7 +8,7 @@ typealias SentryRunLoopDelayTrackerObserverToken = UUID
 
 // In test/debug builds we use a protocol so that the tracker can be replaced with a mock.
 // In release builds the protocol indirection is eliminated via typealiases.
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryRunLoopDelayTracker {
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken)

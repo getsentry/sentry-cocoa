@@ -1,7 +1,7 @@
 // swiftlint:disable type_body_length file_length
 internal import _SentryPrivate
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#if DEBUG // Test support.
 protocol SentryNetworkTrackerProtocol: AnyObject {
     func enableNetworkTracking()
     func enableNetworkBreadcrumbs()

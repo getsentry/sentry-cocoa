@@ -2,12 +2,11 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 
 #        import "SentryDefines.h"
 #        import "SentryProfiler+Private.h"
 
-@class SentryDebugMeta;
 @class SentryHubInternal;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,15 +25,15 @@ SENTRY_EXTERN NSString *sentry_profilerTruncationReasonName(SentryProfilerTrunca
 SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *_Nullable debugMeta, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
 #        if SENTRY_HAS_UIKIT
     ,
-    SentryScreenFrames *_Nullable gpuData
+    SentryProfilingFrameMeasurements *_Nullable gpuData
 #        endif // SENTRY_HAS_UIKIT
 );
 
 NS_ASSUME_NONNULL_END
 
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
