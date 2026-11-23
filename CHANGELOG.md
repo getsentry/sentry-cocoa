@@ -17,6 +17,7 @@
 
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
 - Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
+- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h`, `SentrySamplingContext.h`, `SentryTransaction.h`, `SentryTransactionContext.h` and `SentryScope.h` as empty headers, so importing them by name, for example `#import <Sentry/SentryScope.h>`, compiles again. The first four were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
 
 ### Internal
 
