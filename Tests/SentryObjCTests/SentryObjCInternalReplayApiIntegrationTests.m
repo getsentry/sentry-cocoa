@@ -3,6 +3,19 @@
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 
+@interface SentryObjCInternalReplayApiIntegrationTestsScreenshotProvider
+    : NSObject <SentryObjCReplayScreenshotProvider>
+@end
+
+@implementation SentryObjCInternalReplayApiIntegrationTestsScreenshotProvider
+
+- (void)imageWithView:(UIView *)view onComplete:(void (^)(UIImage *))onComplete
+{
+    onComplete([[UIImage alloc] init]);
+}
+
+@end
+
 @interface SentryObjCInternalReplayApiIntegrationTests : XCTestCase
 @end
 
@@ -47,6 +60,34 @@
 
     // -- Assert (capture may return YES or NO depending on integration state) --
     (void)result;
+}
+
+#    pragma mark - setScreenshotProvider
+
+- (void)testSetScreenshotProvider_withReplayEnabled_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.internal.replay
+        setScreenshotProvider:[[SentryObjCInternalReplayApiIntegrationTestsScreenshotProvider alloc]
+                                  init]];
+}
+
+- (void)testSetScreenshotProvider_fromBackgroundThread_shouldNotCrash
+{
+    // -- Arrange --
+    SentryObjCInternalReplayApiIntegrationTestsScreenshotProvider *provider =
+        [[SentryObjCInternalReplayApiIntegrationTestsScreenshotProvider alloc] init];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Main queue drained"];
+
+    // -- Act --
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+        [SentryObjCSDK.internal.replay setScreenshotProvider:provider];
+        // The provider is set on the main queue, so this runs after it.
+        dispatch_async(dispatch_get_main_queue(), ^{ [expectation fulfill]; });
+    });
+
+    // -- Assert (no crash) --
+    [self waitForExpectations:@[ expectation ] timeout:1];
 }
 
 #    pragma mark - replayId

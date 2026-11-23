@@ -3561,6 +3561,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "imageWithView:onComplete:",
+    "parent": "SentryObjCReplayScreenshotProvider",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "images",
     "parent": "SentryObjCInternalDebugApi",
     "returnType": "NSArray<SentryObjCDebugMeta *> * _Nonnull",
@@ -8181,6 +8188,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setScreenshotProvider:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setSdk:",
     "parent": "SentryObjCEvent",
     "returnType": "void",
@@ -12697,6 +12711,10 @@
     "name": "week",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCProtocolDecl",
+    "name": "SentryObjCReplayScreenshotProvider"
   },
   {
     "kind": "TypedefDecl",

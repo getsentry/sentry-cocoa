@@ -1,12 +1,39 @@
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
+@_spi(Private) internal import SentrySwift
 #else
-internal import Sentry
+@_spi(Private) internal import Sentry
 #endif
 import Foundation
 
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+import UIKit
+
+@objc(SentryObjCReplayScreenshotProvider) public protocol SentryObjCReplayScreenshotProvider: NSObjectProtocol {
+    @objc(imageWithView:onComplete:) func image(view: UIView, onComplete: @escaping (UIImage) -> Void)
+}
+
+/// Hands a hybrid SDK's frames to Session Replay.
+///
+/// Reports no main-thread capture time: the provider delivers its frames asynchronously, and the wait
+/// until it does isn't main-thread work, so it mustn't make Session Replay back off from capturing.
+final class SentryObjCReplayScreenshotProviderAdapter: NSObject, SentryTimedViewScreenshotProvider {
+    private let provider: SentryObjCReplayScreenshotProvider
+
+    init(_ provider: SentryObjCReplayScreenshotProvider) {
+        self.provider = provider
+    }
+
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+        provider.image(view: view, onComplete: onComplete)
+    }
+
+    func timedImage(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
+        provider.image(view: view) { image in
+            onComplete(image, SentryViewPhotographerScreenshotMetadata(redactDuration: 0, renderDuration: 0, maskDuration: 0))
+        }
+    }
+}
 
 @objc(SentryObjCInternalReplayApi) public final class SentryObjCInternalReplayApi: NSObject {
     private let wrapped: Box<SentryInternalReplayApi>
@@ -45,6 +72,20 @@ import Foundation
 
     @objc public func stop() {
         wrapped.value.stop()
+    }
+
+    @objc public func setScreenshotProvider(_ provider: SentryObjCReplayScreenshotProvider) {
+        let adapter = SentryObjCReplayScreenshotProviderAdapter(provider)
+        let api = wrapped.value
+        // Session Replay reads its screenshot provider on the main thread without synchronization, so it's
+        // set there too. The main queue is FIFO: a replay start queued after this call still gets the provider.
+        if Thread.isMainThread {
+            api.configure(breadcrumbConverter: nil, screenshotProvider: adapter)
+        } else {
+            DispatchQueue.main.async {
+                api.configure(breadcrumbConverter: nil, screenshotProvider: adapter)
+            }
+        }
     }
 
     @objc public func capture() -> Bool {

@@ -3,6 +3,19 @@
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 
+@interface SentryObjCInternalReplayApiTestsScreenshotProvider
+    : NSObject <SentryObjCReplayScreenshotProvider>
+@end
+
+@implementation SentryObjCInternalReplayApiTestsScreenshotProvider
+
+- (void)imageWithView:(UIView *)view onComplete:(void (^)(UIImage *))onComplete
+{
+    onComplete([[UIImage alloc] init]);
+}
+
+@end
+
 @interface SentryObjCInternalReplayApiTests : XCTestCase
 @end
 
@@ -50,6 +63,15 @@
 
     // -- Assert --
     XCTAssertFalse(result);
+}
+
+#    pragma mark - setScreenshotProvider
+
+- (void)testSetScreenshotProvider_withoutReplay_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.internal.replay
+        setScreenshotProvider:[[SentryObjCInternalReplayApiTestsScreenshotProvider alloc] init]];
 }
 
 #    pragma mark - replayId
