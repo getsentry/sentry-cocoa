@@ -38,19 +38,20 @@ open class TraceContext: NSObject {
     /// Creates an empty trace context.
     ///
     /// Callers that have a trace id and public key should use an initializer that takes them.
-    public required override convenience init() {
-        self.init(
-            trace: SentryId.empty,
-            publicKey: "",
-            releaseName: nil,
-            environment: nil,
-            transaction: nil,
-            sampleRate: nil,
-            sampleRand: nil,
-            sampled: nil,
-            replayId: nil,
-            orgId: nil
-        )
+    /// This stays a non-required designated initializer, matching the previous Objective-C
+    /// `NSObject` `init`, so external subclasses can call `super.init()`.
+    public override init() {
+        traceId = SentryId.empty
+        publicKey = ""
+        releaseName = nil
+        environment = nil
+        transaction = nil
+        sampleRate = nil
+        sampleRand = nil
+        sampled = nil
+        replayId = nil
+        orgId = nil
+        super.init()
     }
 
     init(
@@ -293,10 +294,10 @@ open class TraceContext: NSObject {
     }
 }
 
-#if !SDK_V10
-extension TraceContext: SentrySerializable {}
-#endif
-
+// TraceContext does not conform to SentrySerializable in Swift. That protocol inherits NSObject,
+// so a non-final Swift class can only satisfy its initializer requirement with `required init()`.
+// The parameterless initializer stays non-required so external subclasses can call `super.init()`.
+// serialize() stays @objc. An Objective-C category adds the protocol for Objective-C.
+//
 // A public class cannot conform to SentryInternalSerializable: that protocol is imported
 // internally from _SentryPrivate, and Swift publishes every conformance of a public type.
-// serialize() stays @objc so Objective-C and Swift callers still invoke it directly.

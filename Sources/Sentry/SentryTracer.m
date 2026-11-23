@@ -16,6 +16,9 @@
 #import "SentrySpanInternal+Private.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
+#if !SDK_V10
+#    import "SentrySerializable.h"
+#endif // !SDK_V10
 #import "SentryTime.h"
 #import "SentryTracer+Private.h"
 #import <NSMutableDictionary+Sentry.h>
@@ -915,5 +918,15 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 }
 
 @end
+
+#if !SDK_V10
+// Swift cannot declare this conformance: SentrySerializable's NSObject initializer requirement
+// would make TraceContext.init() required and break external subclasses.
+@interface SentryTraceContext (SentrySerializableConformance) <SentrySerializable>
+@end
+
+@implementation SentryTraceContext (SentrySerializableConformance)
+@end
+#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_END

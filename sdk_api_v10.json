@@ -769,6 +769,16 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "Sentry.SentryTraceContext",
+        "printedName": "Sentry.SentryTraceContext"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "Sentry.SentryTraceHeader",
         "printedName": "Sentry.SentryTraceHeader"
       },
@@ -80335,11 +80345,10 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
-            "init_kind": "Convenience",
+            "init_kind": "Designated",
             "kind": "Constructor",
             "mangledName": "$s6Sentry12TraceContextCACycfc",
             "moduleName": "Sentry",
