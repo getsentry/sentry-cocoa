@@ -93,7 +93,8 @@ for sdk in "${sdks[@]}"; do
         --framework-name "$framework_name" \
         --version "$version" \
         --output-dir "$work" \
-        --product-type dynamic \
+        --archs "$archs" \
+        --mergeable \
         --static-lib "$work/lib/$scheme/$sdk/lib$scheme-Debug.a" \
         --headers "$prepared/Headers" \
         --modules "$prepared/Modules" \
