@@ -422,10 +422,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     return _traceContext;
 }
 
-- (NSArray *)children
+- (NSArray<SentrySpanInternal *> *)children
 {
     @synchronized(_children) {
-        return [_children copy];
+        return (NSArray<SentrySpanInternal *> *)[_children copy];
     }
 }
 

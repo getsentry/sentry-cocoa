@@ -82,17 +82,6 @@ extension SentrySpanInternal {
 
 extension SentryTracer {
     @nonobjc
-    var children: [any Span] {
-        childrenObject.compactMap { object in
-            guard let span = object as? Span else {
-                SentrySDKLog.error("Dropping a tracer child that is not a Span: \(type(of: object))")
-                return nil
-            }
-            return span
-        }
-    }
-
-    @nonobjc
     var shouldIgnoreWaitForChildrenCallback: ((any Span) -> Bool)? {
         get {
             guard let callback = shouldIgnoreWaitForChildrenCallbackObject else { return nil }

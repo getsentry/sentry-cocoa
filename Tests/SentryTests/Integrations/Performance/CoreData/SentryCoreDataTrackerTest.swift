@@ -447,8 +447,8 @@ private extension SentryCoreDataTrackerTests {
             return true
         }
 
-        let dbSpan = try XCTUnwrap(transaction.children.first)
-        
+        let dbSpan = try XCTUnwrap(transaction.children.first.flatMap { $0 as? Span })
+
         assertDataAndFrames(
             dbSpan: dbSpan,
             expectedOperation: SentrySpanOperationCoredataSaveOperation,
@@ -473,7 +473,7 @@ private extension SentryCoreDataTrackerTests {
 
         XCTAssertEqual(result.count, 1, file: file, line: line)
 
-        let dbSpan = try XCTUnwrap(transaction.children.first, file: file, line: line)
+        let dbSpan = try XCTUnwrap(transaction.children.first.flatMap { $0 as? Span }, file: file, line: line)
         XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1, file: file, line: line)
 
         assertDataAndFrames(

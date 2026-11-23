@@ -42,9 +42,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
     SENTRY_SWIFT_MIGRATION_ID(SentrySpan)) NS_SWIFT_NAME(shouldIgnoreWaitForChildrenCallbackObject);
 
 /**
- * All the spans that where created with this tracer but rootSpan.
+ * Spans created with this tracer, excluding the root span.
+ *
+ * Typed as @c SentrySpanInternal so Swift imports `[SentrySpanInternal]` instead of `[Any]`.
+ * `SentrySpanInternal` exposes @c spanDescription. This header cannot name the Swift Span
+ * protocol, so a public `[any Span]` property is not possible.
  */
-@property (nonatomic, readonly) NSArray *children NS_SWIFT_NAME(childrenObject);
+@property (nonatomic, readonly) NSArray<SentrySpanInternal *> *children;
 
 /**
  * A delegate that provides extra information for the transaction.
