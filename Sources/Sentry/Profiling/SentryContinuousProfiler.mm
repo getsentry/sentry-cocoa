@@ -74,13 +74,14 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
-    NSDictionary *_Nonnull serializedMetrics
-        = serializeContinuousProfileMetrics(metricProfilerState);
-    [SentryProfilerSDKAdapter.shared captureProfileChunkWithID:sentry_stringFromSentryID(profilerID)
-                                                          data:profilerState
-                                                       metrics:serializedMetrics
+    [SentryProfilerSDKAdapter.shared
+        captureProfileChunkWithID:sentry_stringFromSentryID(profilerID)
+                             data:profilerState
+                          metrics:^{
+                              return serializeContinuousProfileMetrics(metricProfilerState);
+                          }
 #    if SENTRY_HAS_UIKIT
-                                                        frames:screenFrameData
+                           frames:screenFrameData
 #    endif
     ];
 }

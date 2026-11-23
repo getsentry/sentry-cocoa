@@ -390,7 +390,7 @@
     NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
     [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
                                   data:state
-                               metrics:@{ }
+                               metrics:^{ return @ { }; }
 #    if SENTRY_HAS_UIKIT
                                 frames:nil
 #    endif
@@ -429,7 +429,7 @@
     NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
     [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
                                   data:state
-                               metrics:@{ }
+                               metrics:^{ return @ { }; }
 #    if SENTRY_HAS_UIKIT
                                 frames:nil
 #    endif
@@ -454,6 +454,44 @@
     XCTAssertEqual(replacement.envelopeCount, 0U);
 }
 
+- (void)testCaptureChunk_whenMetricsProvided_shouldSerializeOnlyDuringDispatch
+{
+    // -- Arrange --
+    SentryProfilerDeliveryTestHub *hub = [[SentryProfilerDeliveryTestHub alloc]
+        initWithClient:[[SentryClientInternal alloc] initWithOptions:[[SentryOptions alloc] init]]
+              andScope:nil];
+    [SentrySDKInternal setCurrentHub:hub];
+    TestProfilerDeliveryBackend *backend = [[TestProfilerDeliveryBackend alloc] init];
+    NSDictionary *state = [[[SentryProfilerState alloc] init] copyProfilingData];
+    __block NSUInteger serializations = 0;
+
+    // -- Act --
+    [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
+                                  data:state
+                               metrics:^{
+                                   serializations++;
+                                   return @ { };
+                               }
+#    if SENTRY_HAS_UIKIT
+                                frames:nil
+#    endif
+    ];
+
+    // -- Assert --
+    XCTAssertEqual(serializations, 0U);
+    XCTAssertEqual(hub.envelopeCount, 0U);
+    XCTAssertNotNil(backend.pendingBlock);
+
+    // -- Act --
+    if (backend.pendingBlock != nil) {
+        backend.pendingBlock();
+    }
+
+    // -- Assert --
+    XCTAssertEqual(serializations, 1U);
+    XCTAssertEqual(hub.envelopeCount, 1U);
+}
+
 - (void)testCaptureChunk_whenSnapshotProvided_shouldPreservePayloadAndEnvelopeIdentity
 {
     // -- Arrange --
@@ -476,7 +514,7 @@
     // -- Act --
     [adapter captureProfileChunkWithID:profileID
                                   data:state
-                               metrics:metrics
+                               metrics:^{ return metrics; }
 #    if SENTRY_HAS_UIKIT
                                 frames:nil
 #    endif
@@ -533,7 +571,7 @@
     // -- Act --
     [backend captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
                                   data:state
-                               metrics:@{ @"unsupported" : [NSDate date] }
+                               metrics:^{ return @ { @"unsupported" : [NSDate date] }; }
 #    if SENTRY_HAS_UIKIT
                                 frames:nil
 #    endif
@@ -558,7 +596,7 @@
     // -- Act --
     [adapter captureProfileChunkWithID:@"0123456789abcdef0123456789abcdef"
                                   data:state
-                               metrics:@{ }
+                               metrics:^{ return @ { }; }
 #    if SENTRY_HAS_UIKIT
                                 frames:nil
 #    endif

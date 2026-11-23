@@ -26,7 +26,7 @@
 
 - (void)captureProfileChunkWithID:(NSString *)profileID
                              data:(NSDictionary<NSString *, id> *)profileData
-                          metrics:(NSDictionary<NSString *, id> *)serializedMetrics
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
 #    if SENTRY_HAS_UIKIT
                            frames:(SentryProfilingFrameMeasurements *_Nullable)frames
 #    endif
@@ -43,6 +43,7 @@
         for (SentryDebugMeta *image in [debugImageProvider getDebugImagesFromCache]) {
             [images addObject:[image serialize]];
         }
+        NSDictionary<NSString *, id> *serializedMetrics = serializeMetrics();
         SentryId *identifier = [[SentryId alloc] initWithUUIDString:profileID];
         SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
             identifier, profileData, serializedMetrics, images, hub

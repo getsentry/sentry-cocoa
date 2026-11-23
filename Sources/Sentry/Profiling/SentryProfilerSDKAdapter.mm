@@ -40,14 +40,14 @@
 
 - (void)captureProfileChunkWithID:(NSString *)profileID
                              data:(NSDictionary<NSString *, id> *)profileData
-                          metrics:(NSDictionary<NSString *, id> *)serializedMetrics
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
 #    if SENTRY_HAS_UIKIT
                            frames:(SentryProfilingFrameMeasurements *_Nullable)frames
 #    endif
 {
     [self.target captureProfileChunkWithID:profileID
                                       data:profileData
-                                   metrics:serializedMetrics
+                                   metrics:serializeMetrics
 #    if SENTRY_HAS_UIKIT
                                     frames:frames
 #    endif
