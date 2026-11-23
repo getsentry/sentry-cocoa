@@ -139,10 +139,14 @@ if sourceUsesSentryModule {
     products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
 }
 
+// Binary consumers need the V9 crash SPI (including its mangled symbols) in Sentry.
+let packageV9CrashSPI = buildXCFramework && !envSelectsV10
 let sentrySwiftTarget: Target = .target(
     name: sentrySwiftTargetName,
     dependencies: ["_SentryPrivate", "SentryHeaders"] + kscrashSwiftDependencies,
-    path: "Sources/Swift",
+    path: packageV9CrashSPI ? "Sources" : "Sources/Swift",
+    exclude: packageV9CrashSPI ? ["Resources"] : [],
+    sources: packageV9CrashSPI ? ["Swift", "SentryCrashV9Swift"] : nil,
     cSettings: cSettings,
     swiftSettings: [
         .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
@@ -231,7 +235,7 @@ if !envSelectsV10 {
 
 // Package-wide builds schedule every regular target, not only product dependencies.
 // Keep both recorder targets out of the environment-selected V10 graph entirely.
-if !envSelectsV10 {
+if !envSelectsV10 && !buildXCFramework {
     targets += [
         .target(
             name: "SentryCrashV9Swift",
@@ -241,10 +245,15 @@ if !envSelectsV10 {
             swiftSettings: [
                 .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
             ] + v10SwiftSettings + frameworkSwiftSettings
-        ),
+        )
+    ]
+}
+if !envSelectsV10 {
+    let adapterDependencies: [Target.Dependency] = packageV9CrashSPI ? [] : ["SentryCrashV9Swift"]
+    targets += [
         .target(
             name: "SentryCrashV9",
-            dependencies: ["SentryCrashV9Swift", .target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
+            dependencies: adapterDependencies + [.target(name: sentrySwiftTargetName), "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
             path: "Sources",
             // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
             exclude: ["Resources"],

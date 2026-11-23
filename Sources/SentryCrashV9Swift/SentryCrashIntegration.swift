@@ -1,10 +1,6 @@
 #if !SDK_V10
-#if SWIFT_PACKAGE
-#if SENTRY_BUILD_XCFRAMEWORK
-@_spi(Private) import Sentry
-#else
+#if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 @_spi(Private) import SentrySwift
-#endif
 #endif
 internal import _SentryPrivate
 import Foundation
@@ -298,7 +294,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 }
 
-#if !SWIFT_PACKAGE
+#if !SWIFT_PACKAGE || SENTRY_BUILD_XCFRAMEWORK
 extension SentryCrashIntegration: SwiftIntegration {}
 #endif
 #endif // !SDK_V10
