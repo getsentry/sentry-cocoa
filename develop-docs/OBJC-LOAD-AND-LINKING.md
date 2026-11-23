@@ -90,12 +90,26 @@ Ordinary Debug consumers reach `SentryLaunchProfiling.startLaunchProfile` withou
 
 ## Verifying +load Behavior
 
+Build the source-linked CLI sample in Release mode from the repository root:
+
+```bash
+swift build --package-path TestApps/macOS-CLI -c release --product cli-with-spm
+```
+
+The following captures are from an arm64 macOS build. Symbol addresses and process IDs vary between builds and runs.
+
 ### Listing classes with +load
 
 Use `nm` to find all classes that implement `+load`:
 
 ```bash
-nm .build/release/cli-with-spm | grep '+\[.*load\]'
+nm TestApps/macOS-CLI/.build/release/cli-with-spm | grep '+\[.*load\]'
+```
+
+```text
+000000010079aa10 t +[SentryCrashDefaultMachineContextWrapper load]
+0000000100637d34 t +[SentrySDKInternal load]
+000000010063f7a8 t +[SentrySysctlObjC load]
 ```
 
 The output must include `+[SentrySDKInternal load]`.
@@ -105,7 +119,16 @@ The output must include `+[SentrySDKInternal load]`.
 Set the `OBJC_PRINT_LOAD_METHODS` environment variable to trace which `+load` methods the runtime invokes:
 
 ```bash
-OBJC_PRINT_LOAD_METHODS=YES .build/release/cli-with-spm 2>&1 | grep -i 'sentry'
+OBJC_PRINT_LOAD_METHODS=YES TestApps/macOS-CLI/.build/release/cli-with-spm 2>&1 | grep -i 'sentry'
+```
+
+```text
+objc[43377]: LOAD: class 'SentrySDKInternal' scheduled for +load
+objc[43377]: LOAD: class 'SentrySysctlObjC' scheduled for +load
+objc[43377]: LOAD: class 'SentryCrashDefaultMachineContextWrapper' scheduled for +load
+objc[43377]: LOAD: +[SentrySDKInternal load]
+objc[43377]: LOAD: +[SentrySysctlObjC load]
+objc[43377]: LOAD: +[SentryCrashDefaultMachineContextWrapper load]
 ```
 
 The runtime trace must include `+[SentrySDKInternal load]`.
@@ -115,7 +138,7 @@ The runtime trace must include `+[SentrySDKInternal load]`.
 Inspect the SDK-owned hook with:
 
 ```bash
-objdump -d --disassemble-symbols="+[SentrySDKInternal load]" .build/debug/cli-with-spm
+objdump -d --disassemble-symbols="+[SentrySDKInternal load]" TestApps/macOS-CLI/.build/release/cli-with-spm
 ```
 
 Release builds without internal UI-test support compile out the test guard and call `SentryLaunchProfiling.startLaunchProfile` directly. Debug builds and builds with internal UI-test support include the environment lookup, early return, and UI-test wipe-data handling.
