@@ -749,16 +749,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentrySpanProtocol",
-        "printedName": "Sentry.SentrySpanProtocol"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentrySpanStatus",
         "printedName": "Sentry.SentrySpanStatus"
       },
@@ -1030,7 +1020,7 @@
                     "kind": "TypeNominal",
                     "name": "Span",
                     "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
+                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -1042,7 +1032,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               }
             ],
             "kind": "TypeFunc",
@@ -1056,6 +1046,44 @@
         "name": "SentryBeforeSendSpanCallback",
         "printedName": "SentryBeforeSendSpanCallback",
         "usr": "c:@T@SentryBeforeSendSpanCallback"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Span",
+                    "printedName": "any Sentry.Span",
+                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(any Sentry.Span)?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Span",
+                "printedName": "any Sentry.Span",
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(any Sentry.Span) -> (any Sentry.Span)?"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A22BeforeSendSpanCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryBeforeSendSpanCallback",
+        "printedName": "SentryBeforeSendSpanCallback",
+        "usr": "s:6Sentry0A22BeforeSendSpanCallbacka"
       },
       {
         "children": [
@@ -22437,7 +22465,7 @@
                                     "kind": "TypeNominal",
                                     "name": "Span",
                                     "printedName": "any Sentry.Span",
-                                    "usr": "c:objc(pl)SentrySpan"
+                                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                                   }
                                 ],
                                 "kind": "TypeNominal",
@@ -22449,7 +22477,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Span",
                                 "printedName": "any Sentry.Span",
-                                "usr": "c:objc(pl)SentrySpan"
+                                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -22475,7 +22503,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC14beforeSendSpanSo0aE0_pSgSoAE_pcSgvg",
+                "mangledName": "$s6Sentry7OptionsC14beforeSendSpanAA0E0_pSgAaE_pcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -22496,7 +22524,7 @@
                                     "kind": "TypeNominal",
                                     "name": "Span",
                                     "printedName": "any Sentry.Span",
-                                    "usr": "c:objc(pl)SentrySpan"
+                                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                                   }
                                 ],
                                 "kind": "TypeNominal",
@@ -22508,7 +22536,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Span",
                                 "printedName": "any Sentry.Span",
-                                "usr": "c:objc(pl)SentrySpan"
+                                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -22539,7 +22567,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC14beforeSendSpanSo0aE0_pSgSoAE_pcSgvs",
+                "mangledName": "$s6Sentry7OptionsC14beforeSendSpanAA0E0_pSgAaE_pcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -22559,7 +22587,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Span",
                                 "printedName": "any Sentry.Span",
-                                "usr": "c:objc(pl)SentrySpan"
+                                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22571,7 +22599,7 @@
                             "kind": "TypeNominal",
                             "name": "Span",
                             "printedName": "any Sentry.Span",
-                            "usr": "c:objc(pl)SentrySpan"
+                            "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                           }
                         ],
                         "kind": "TypeFunc",
@@ -22599,7 +22627,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC14beforeSendSpanSo0aE0_pSgSoAE_pcSgvp",
+            "mangledName": "$s6Sentry7OptionsC14beforeSendSpanAA0E0_pSgAaE_pcSgvp",
             "moduleName": "Sentry",
             "name": "beforeSendSpan",
             "printedName": "beforeSendSpan",
@@ -30967,7 +30995,7 @@
                         "kind": "TypeNominal",
                         "name": "Span",
                         "printedName": "any Sentry.Span",
-                        "usr": "c:objc(pl)SentrySpan"
+                        "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -30982,7 +31010,7 @@
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry5ScopeC4spanSo0A4Span_pSgvg",
+                "mangledName": "$s6Sentry5ScopeC4spanAA4Span_pSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -30997,7 +31025,7 @@
                         "kind": "TypeNominal",
                         "name": "Span",
                         "printedName": "any Sentry.Span",
-                        "usr": "c:objc(pl)SentrySpan"
+                        "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -31017,7 +31045,7 @@
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry5ScopeC4spanSo0A4Span_pSgvs",
+                "mangledName": "$s6Sentry5ScopeC4spanAA4Span_pSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "objc_name": "setSpan:",
@@ -31032,7 +31060,7 @@
                     "kind": "TypeNominal",
                     "name": "Span",
                     "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
+                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -31047,7 +31075,7 @@
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry5ScopeC4spanSo0A4Span_pSgvp",
+            "mangledName": "$s6Sentry5ScopeC4spanAA4Span_pSgvp",
             "moduleName": "Sentry",
             "name": "span",
             "printedName": "span",
@@ -42302,7 +42330,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -42325,7 +42353,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction4name9operationSo0A4Span_pSS_SStF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction4name9operationAA4Span_pSS_SStF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithName:operation:",
@@ -42344,7 +42372,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -42367,7 +42395,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction4name9operation11bindToScopeSo0A4Span_pSS_SSSbtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction4name9operation11bindToScopeAA4Span_pSS_SSSbtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithName:operation:bindToScope:",
@@ -42380,7 +42408,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -42397,7 +42425,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContextSo0A4Span_pAA0dF0C_tF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContextAA4Span_pAA0dF0C_tF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:",
@@ -42416,7 +42444,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -42433,7 +42461,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScopeSo0A4Span_pAA0dF0C_SbtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScopeAA4Span_pAA0dF0C_SbtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:bindToScope:",
@@ -42471,7 +42499,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -42488,7 +42516,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pAA0dF0C_SbSDySSypGtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext11bindToScope014customSamplingF0AA4Span_pAA0dF0C_SbSDySSypGtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:bindToScope:customSamplingContext:",
@@ -42520,7 +42548,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -42537,7 +42565,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext014customSamplingF0So0A4Span_pAA0dF0C_SDySSypGtF",
+            "mangledName": "$s6Sentry0A3HubC16startTransaction18transactionContext014customSamplingF0AA4Span_pAA0dF0C_SDySSypGtF",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "objc_name": "startTransactionWithContext:customSamplingContext:",
@@ -63536,7 +63564,7 @@
                     "kind": "TypeNominal",
                     "name": "Span",
                     "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
+                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -63549,12 +63577,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO23getExtendedAppStartSpanSo0aG0_pSgyFZ",
+            "mangledName": "$s6Sentry0A3SDKO23getExtendedAppStartSpanAA0G0_pSgyFZ",
             "moduleName": "Sentry",
             "name": "getExtendedAppStartSpan",
             "printedName": "getExtendedAppStartSpan()",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO23getExtendedAppStartSpanSo0aG0_pSgyFZ"
+            "usr": "s:6Sentry0A3SDKO23getExtendedAppStartSpanAA0G0_pSgyFZ"
           },
           {
             "children": [
@@ -63721,7 +63749,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -63743,12 +63771,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction4name9operationSo0A4Span_pSS_SStFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction4name9operationAA4Span_pSS_SStFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(name:operation:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction4name9operationSo0A4Span_pSS_SStFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction4name9operationAA4Span_pSS_SStFZ"
           },
           {
             "children": [
@@ -63762,7 +63790,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -63784,12 +63812,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction4name9operation11bindToScopeSo0A4Span_pSS_SSSbtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction4name9operation11bindToScopeAA4Span_pSS_SSSbtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(name:operation:bindToScope:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction4name9operation11bindToScopeSo0A4Span_pSS_SSSbtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction4name9operation11bindToScopeAA4Span_pSS_SSSbtFZ"
           },
           {
             "children": [
@@ -63797,7 +63825,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -63813,12 +63841,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContextSo0A4Span_pAA0dF0C_tFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContextAA4Span_pAA0dF0C_tFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContextSo0A4Span_pAA0dF0C_tFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContextAA4Span_pAA0dF0C_tFZ"
           },
           {
             "children": [
@@ -63832,7 +63860,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -63848,12 +63876,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeSo0A4Span_pAA0dF0C_SbtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeAA4Span_pAA0dF0C_SbtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:bindToScope:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeSo0A4Span_pAA0dF0C_SbtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScopeAA4Span_pAA0dF0C_SbtFZ"
           },
           {
             "children": [
@@ -63886,7 +63914,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -63902,12 +63930,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pAA0dF0C_SbSDySSypGtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0AA4Span_pAA0dF0C_SbSDySSypGtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:bindToScope:customSamplingContext:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pAA0dF0C_SbSDySSypGtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext11bindToScope014customSamplingF0AA4Span_pAA0dF0C_SbSDySSypGtFZ"
           },
           {
             "children": [
@@ -63934,7 +63962,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -63950,12 +63978,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0So0A4Span_pAA0dF0C_SDySSypGtFZ",
+            "mangledName": "$s6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0AA4Span_pAA0dF0C_SDySSypGtFZ",
             "moduleName": "Sentry",
             "name": "startTransaction",
             "printedName": "startTransaction(transactionContext:customSamplingContext:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0So0A4Span_pAA0dF0C_SDySSypGtFZ"
+            "usr": "s:6Sentry0A3SDKO16startTransaction18transactionContext014customSamplingF0AA4Span_pAA0dF0C_SDySSypGtFZ"
           },
           {
             "children": [
@@ -64395,7 +64423,7 @@
                         "kind": "TypeNominal",
                         "name": "Span",
                         "printedName": "any Sentry.Span",
-                        "usr": "c:objc(pl)SentrySpan"
+                        "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -64407,12 +64435,12 @@
                 "declKind": "Accessor",
                 "isFromExtension": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A3SDKO4spanSo0A4Span_pSgvgZ",
+                "mangledName": "$s6Sentry0A3SDKO4spanAA4Span_pSgvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "s:6Sentry0A3SDKO4spanSo0A4Span_pSgvgZ"
+                "usr": "s:6Sentry0A3SDKO4spanAA4Span_pSgvgZ"
               }
             ],
             "children": [
@@ -64422,7 +64450,7 @@
                     "kind": "TypeNominal",
                     "name": "Span",
                     "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
+                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -64434,12 +64462,12 @@
             "declKind": "Var",
             "isFromExtension": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry0A3SDKO4spanSo0A4Span_pSgvpZ",
+            "mangledName": "$s6Sentry0A3SDKO4spanAA4Span_pSgvpZ",
             "moduleName": "Sentry",
             "name": "span",
             "printedName": "span",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO4spanSo0A4Span_pSgvpZ"
+            "usr": "s:6Sentry0A3SDKO4spanAA4Span_pSgvpZ"
           }
         ],
         "conformances": [
@@ -77213,178 +77241,135 @@
               }
             ],
             "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP17baggageHttpHeaderSSSgyF",
             "moduleName": "Sentry",
             "name": "baggageHttpHeader",
-            "objc_name": "baggageHttpHeader",
             "printedName": "baggageHttpHeader()",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)baggageHttpHeader"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)baggageHttpHeader"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP6finishyyF",
             "moduleName": "Sentry",
             "name": "finish",
-            "objc_name": "finish",
             "printedName": "finish()",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)finish"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)finish"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "SentrySpanStatus",
                 "printedName": "Sentry.SentrySpanStatus",
                 "usr": "c:@E@SentrySpanStatus"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP6finish6statusySo0aB6StatusV_tF",
             "moduleName": "Sentry",
             "name": "finish",
             "objc_name": "finishWithStatus:",
             "printedName": "finish(status:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)finishWithStatus:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)finishWithStatus:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP10removeData3keyySS_tF",
             "moduleName": "Sentry",
             "name": "removeData",
             "objc_name": "removeDataForKey:",
             "printedName": "removeData(key:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)removeDataForKey:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)removeDataForKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP9removeTag3keyySS_tF",
             "moduleName": "Sentry",
             "name": "removeTag",
             "objc_name": "removeTagForKey:",
             "printedName": "removeTag(key:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)removeTagForKey:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)removeTagForKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "children": [
                   {
@@ -77403,38 +77388,31 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP7setData5value3keyyypSg_SStF",
             "moduleName": "Sentry",
             "name": "setData",
             "objc_name": "setDataValue:forKey:",
             "printedName": "setData(value:key:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)setDataValue:forKey:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setDataValue:forKey:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "NSNumber",
@@ -77446,38 +77424,31 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP14setMeasurement4name5valueySS_So8NSNumberCtF",
             "moduleName": "Sentry",
             "name": "setMeasurement",
             "objc_name": "setMeasurement:value:",
             "printedName": "setMeasurement(name:value:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)setMeasurement:value:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setMeasurement:value:"
           },
           {
             "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "MeasurementUnit",
@@ -77495,66 +77466,64 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP14setMeasurement4name5value4unitySS_So8NSNumberCSo0aD4UnitCtF",
             "moduleName": "Sentry",
             "name": "setMeasurement",
             "objc_name": "setMeasurement:value:unit:",
             "printedName": "setMeasurement(name:value:unit:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)setMeasurement:value:unit:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setMeasurement:value:unit:"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP6setTag5value3keyySS_SStF",
             "moduleName": "Sentry",
             "name": "setTag",
             "objc_name": "setTagValue:forKey:",
             "printedName": "setTag(value:key:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)setTagValue:forKey:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setTagValue:forKey:"
           },
           {
             "children": [
@@ -77562,7 +77531,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -77572,21 +77541,20 @@
               }
             ],
             "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP10startChild9operationAaB_pSS_tF",
             "moduleName": "Sentry",
             "name": "startChild",
             "objc_name": "startChildWithOperation:",
             "printedName": "startChild(operation:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)startChildWithOperation:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)startChildWithOperation:"
           },
           {
             "children": [
@@ -77608,7 +77576,7 @@
                 "kind": "TypeNominal",
                 "name": "Span",
                 "printedName": "any Sentry.Span",
-                "usr": "c:objc(pl)SentrySpan"
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan"
               },
               {
                 "kind": "TypeNominal",
@@ -77618,21 +77586,20 @@
               }
             ],
             "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP10startChild9operation11descriptionAaB_pSS_SSSgtF",
             "moduleName": "Sentry",
             "name": "startChild",
             "objc_name": "startChildWithOperation:description:",
             "printedName": "startChild(operation:description:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)startChildWithOperation:description:"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)startChildWithOperation:description:"
           },
           {
             "children": [
@@ -77644,23 +77611,60 @@
               }
             ],
             "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.Span>",
             "kind": "Function",
+            "mangledName": "$s6Sentry4SpanP13toTraceHeaderSo0adE0CyF",
             "moduleName": "Sentry",
             "name": "toTraceHeader",
-            "objc_name": "toTraceHeader",
             "printedName": "toTraceHeader()",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)toTraceHeader"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)toTraceHeader"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "usr": "s:SD"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP4dataSDySSypGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)data"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77683,19 +77687,44 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP4dataSDySSypGvp",
             "moduleName": "Sentry",
             "name": "data",
-            "objc_name": "data",
             "printedName": "data",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)data"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)data"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP10isFinishedSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)isFinished"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -77705,19 +77734,73 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP10isFinishedSbvp",
             "moduleName": "Sentry",
             "name": "isFinished",
-            "objc_name": "isFinished",
             "printedName": "isFinished",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)isFinished"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)isFinished"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP9operationSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)operation"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP9operationSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setOperation:"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -77727,19 +77810,73 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP9operationSSvp",
             "moduleName": "Sentry",
             "name": "operation",
-            "objc_name": "operation",
             "printedName": "operation",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)operation"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)operation"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP6originSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)origin"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP6originSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setOrigin:"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -77749,19 +77886,89 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP6originSSvp",
             "moduleName": "Sentry",
             "name": "origin",
-            "objc_name": "origin",
             "printedName": "origin",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)origin"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)origin"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP06parentB2IdSo0abD0CSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)parentSpanId"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP06parentB2IdSo0abD0CSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setParentSpanId:"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77779,19 +77986,73 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP06parentB2IdSo0abD0CSgvp",
             "moduleName": "Sentry",
             "name": "parentSpanId",
-            "objc_name": "parentSpanId",
             "printedName": "parentSpanId",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)parentSpanId"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)parentSpanId"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySampleDecision",
+                    "printedName": "Sentry.SentrySampleDecision",
+                    "usr": "c:@E@SentrySampleDecision"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP7sampledSo0A14SampleDecisionVvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)sampled"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySampleDecision",
+                    "printedName": "Sentry.SentrySampleDecision",
+                    "usr": "c:@E@SentrySampleDecision"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP7sampledSo0A14SampleDecisionVvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setSampled:"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -77801,19 +78062,89 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP7sampledSo0A14SampleDecisionVvp",
             "moduleName": "Sentry",
             "name": "sampled",
-            "objc_name": "sampled",
             "printedName": "sampled",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)sampled"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)sampled"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP15spanDescriptionSSSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)spanDescription"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP15spanDescriptionSSSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setSpanDescription:"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77831,19 +78162,73 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP15spanDescriptionSSSgvp",
             "moduleName": "Sentry",
             "name": "spanDescription",
-            "objc_name": "spanDescription",
             "printedName": "spanDescription",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)spanDescription"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)spanDescription"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SpanId",
+                    "printedName": "Sentry.SpanId",
+                    "usr": "c:objc(cs)SentrySpanId"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP6spanIdSo0abD0Cvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)spanId"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SpanId",
+                    "printedName": "Sentry.SpanId",
+                    "usr": "c:objc(cs)SentrySpanId"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP6spanIdSo0abD0Cvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setSpanId:"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -77853,19 +78238,89 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP6spanIdSo0abD0Cvp",
             "moduleName": "Sentry",
             "name": "spanId",
-            "objc_name": "spanId",
             "printedName": "spanId",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)spanId"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)spanId"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Date",
+                        "printedName": "Foundation.Date",
+                        "usr": "s:10Foundation4DateV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.Date?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP14startTimestamp10Foundation4DateVSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)startTimestamp"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Date",
+                        "printedName": "Foundation.Date",
+                        "usr": "s:10Foundation4DateV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.Date?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP14startTimestamp10Foundation4DateVSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setStartTimestamp:"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77883,21 +78338,73 @@
               }
             ],
             "declAttributes": [
-              "Available",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
-            "intro_iOS": "8.0",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP14startTimestamp10Foundation4DateVSgvp",
             "moduleName": "Sentry",
             "name": "startTimestamp",
-            "objc_name": "startTimestamp",
             "printedName": "startTimestamp",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)startTimestamp"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)startTimestamp"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySpanStatus",
+                    "printedName": "Sentry.SentrySpanStatus",
+                    "usr": "c:@E@SentrySpanStatus"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP6statusSo0aB6StatusVvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)status"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySpanStatus",
+                    "printedName": "Sentry.SentrySpanStatus",
+                    "usr": "c:@E@SentrySpanStatus"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP6statusSo0aB6StatusVvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setStatus:"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -77907,19 +78414,58 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP6statusSo0aB6StatusVvp",
             "moduleName": "Sentry",
             "name": "status",
-            "objc_name": "status",
             "printedName": "status",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)status"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)status"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Swift.String]",
+                    "usr": "s:SD"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP4tagsSDyS2SGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)tags"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77943,19 +78489,89 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP4tagsSDyS2SGvp",
             "moduleName": "Sentry",
             "name": "tags",
-            "objc_name": "tags",
             "printedName": "tags",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)tags"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)tags"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Date",
+                        "printedName": "Foundation.Date",
+                        "usr": "s:10Foundation4DateV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.Date?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP9timestamp10Foundation4DateVSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)timestamp"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Date",
+                        "printedName": "Foundation.Date",
+                        "usr": "s:10Foundation4DateV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.Date?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP9timestamp10Foundation4DateVSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setTimestamp:"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77973,21 +78589,52 @@
               }
             ],
             "declAttributes": [
-              "Available",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
-            "intro_iOS": "8.0",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP9timestamp10Foundation4DateVSgvp",
             "moduleName": "Sentry",
             "name": "timestamp",
-            "objc_name": "timestamp",
             "printedName": "timestamp",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)timestamp"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)timestamp"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "TraceContext",
+                        "printedName": "Sentry.TraceContext",
+                        "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.TraceContext?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP12traceContextAA05TraceD0CSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)traceContext"
+              }
+            ],
             "children": [
               {
                 "children": [
@@ -77995,7 +78642,7 @@
                     "kind": "TypeNominal",
                     "name": "TraceContext",
                     "printedName": "Sentry.TraceContext",
-                    "usr": "c:objc(cs)SentryTraceContext"
+                    "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -78005,19 +78652,73 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP12traceContextAA05TraceD0CSgvp",
             "moduleName": "Sentry",
             "name": "traceContext",
-            "objc_name": "traceContext",
             "printedName": "traceContext",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)traceContext"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)traceContext"
           },
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryId",
+                    "printedName": "Sentry.SentryId",
+                    "usr": "c:objc(cs)SentryId"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP7traceIdSo0aD0Cvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)traceId"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryId",
+                    "printedName": "Sentry.SentryId",
+                    "usr": "c:objc(cs)SentryId"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Self where Self : Sentry.Span>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4SpanP7traceIdSo0aD0Cvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "usr": "c:@M@Sentry@objc(pl)SentrySpan(im)setTraceId:"
+              }
+            ],
             "children": [
               {
                 "kind": "TypeNominal",
@@ -78027,17 +78728,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "kind": "Var",
+            "mangledName": "$s6Sentry4SpanP7traceIdSo0aD0Cvp",
             "moduleName": "Sentry",
             "name": "traceId",
-            "objc_name": "traceId",
             "printedName": "traceId",
             "protocolReq": true,
-            "usr": "c:objc(pl)SentrySpan(py)traceId"
+            "usr": "c:@M@Sentry@objc(pl)SentrySpan(py)traceId"
           }
         ],
         "conformances": [
@@ -78063,17 +78763,17 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
           "ObjC"
         ],
         "declKind": "Protocol",
         "genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry4SpanP",
         "moduleName": "Sentry",
         "name": "Span",
         "objc_name": "SentrySpan",
         "printedName": "Span",
-        "usr": "c:objc(pl)SentrySpan"
+        "usr": "c:@M@Sentry@objc(pl)SentrySpan"
       },
       {
         "children": [
@@ -79735,7 +80435,7 @@
                 "kind": "TypeNominal",
                 "name": "TraceContext",
                 "printedName": "Sentry.TraceContext",
-                "usr": "c:objc(cs)SentryTraceContext"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
               }
             ],
             "declAttributes": [
@@ -79744,15 +80444,15 @@
               "Override"
             ],
             "declKind": "Constructor",
-            "implicit": true,
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry12TraceContextCACycfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "init",
             "overriding": true,
             "printedName": "init()",
-            "usr": "c:objc(cs)NSObject(im)init"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)init"
           },
           {
             "children": [
@@ -79765,18 +80465,17 @@
             ],
             "declAttributes": [
               "DiscardableResult",
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry12TraceContextC9toBaggageSo0aE0CyF",
             "moduleName": "Sentry",
             "name": "toBaggage",
-            "objc_name": "toBaggage",
             "printedName": "toBaggage()",
-            "usr": "c:objc(cs)SentryTraceContext(im)toBaggage"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)toBaggage"
           },
           {
             "accessors": [
@@ -79799,18 +80498,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC11environmentSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "environment",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)environment"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)environment"
               }
             ],
             "children": [
@@ -79830,17 +80527,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC11environmentSSSgvp",
             "moduleName": "Sentry",
             "name": "environment",
-            "objc_name": "environment",
             "printedName": "environment",
-            "usr": "c:objc(cs)SentryTraceContext(py)environment"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)environment"
           },
           {
             "accessors": [
@@ -79863,18 +80559,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC5orgIdSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "orgId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)orgId"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)orgId"
               }
             ],
             "children": [
@@ -79894,17 +80588,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC5orgIdSSSgvp",
             "moduleName": "Sentry",
             "name": "orgId",
-            "objc_name": "orgId",
             "printedName": "orgId",
-            "usr": "c:objc(cs)SentryTraceContext(py)orgId"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)orgId"
           },
           {
             "accessors": [
@@ -79919,18 +80612,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC9publicKeySSvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "publicKey",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)publicKey"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)publicKey"
               }
             ],
             "children": [
@@ -79942,17 +80633,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC9publicKeySSvp",
             "moduleName": "Sentry",
             "name": "publicKey",
-            "objc_name": "publicKey",
             "printedName": "publicKey",
-            "usr": "c:objc(cs)SentryTraceContext(py)publicKey"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)publicKey"
           },
           {
             "accessors": [
@@ -79975,18 +80665,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC11releaseNameSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "releaseName",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)releaseName"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)releaseName"
               }
             ],
             "children": [
@@ -80006,17 +80694,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC11releaseNameSSSgvp",
             "moduleName": "Sentry",
             "name": "releaseName",
-            "objc_name": "releaseName",
             "printedName": "releaseName",
-            "usr": "c:objc(cs)SentryTraceContext(py)releaseName"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)releaseName"
           },
           {
             "accessors": [
@@ -80039,18 +80726,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC8replayIdSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "replayId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)replayId"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)replayId"
               }
             ],
             "children": [
@@ -80070,17 +80755,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC8replayIdSSSgvp",
             "moduleName": "Sentry",
             "name": "replayId",
-            "objc_name": "replayId",
             "printedName": "replayId",
-            "usr": "c:objc(cs)SentryTraceContext(py)replayId"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)replayId"
           },
           {
             "accessors": [
@@ -80103,18 +80787,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC10sampleRandSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampleRand",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)sampleRand"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)sampleRand"
               }
             ],
             "children": [
@@ -80134,17 +80816,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC10sampleRandSSSgvp",
             "moduleName": "Sentry",
             "name": "sampleRand",
-            "objc_name": "sampleRand",
             "printedName": "sampleRand",
-            "usr": "c:objc(cs)SentryTraceContext(py)sampleRand"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)sampleRand"
           },
           {
             "accessors": [
@@ -80167,18 +80848,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC10sampleRateSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampleRate",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)sampleRate"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)sampleRate"
               }
             ],
             "children": [
@@ -80198,17 +80877,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC10sampleRateSSSgvp",
             "moduleName": "Sentry",
             "name": "sampleRate",
-            "objc_name": "sampleRate",
             "printedName": "sampleRate",
-            "usr": "c:objc(cs)SentryTraceContext(py)sampleRate"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)sampleRate"
           },
           {
             "accessors": [
@@ -80231,18 +80909,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC7sampledSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sampled",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)sampled"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)sampled"
               }
             ],
             "children": [
@@ -80262,17 +80938,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC7sampledSSSgvp",
             "moduleName": "Sentry",
             "name": "sampled",
-            "objc_name": "sampled",
             "printedName": "sampled",
-            "usr": "c:objc(cs)SentryTraceContext(py)sampled"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)sampled"
           },
           {
             "accessors": [
@@ -80287,18 +80962,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC7traceIdSo0aE0Cvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "traceId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)traceId"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)traceId"
               }
             ],
             "children": [
@@ -80310,17 +80983,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC7traceIdSo0aE0Cvp",
             "moduleName": "Sentry",
             "name": "traceId",
-            "objc_name": "traceId",
             "printedName": "traceId",
-            "usr": "c:objc(cs)SentryTraceContext(py)traceId"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)traceId"
           },
           {
             "accessors": [
@@ -80343,18 +81015,16 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry12TraceContextC11transactionSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "transaction",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTraceContext(im)transaction"
+                "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(im)transaction"
               }
             ],
             "children": [
@@ -80374,17 +81044,16 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry12TraceContextC11transactionSSSgvp",
             "moduleName": "Sentry",
             "name": "transaction",
-            "objc_name": "transaction",
             "printedName": "transaction",
-            "usr": "c:objc(cs)SentryTraceContext(py)transaction"
+            "usr": "c:@M@Sentry@objc(cs)SentryTraceContext(py)transaction"
           }
         ],
         "conformances": [
@@ -80445,13 +81114,14 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
           "ObjC"
         ],
         "declKind": "Class",
+        "hasMissingDesignatedInitializers": true,
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry12TraceContextC",
         "moduleName": "Sentry",
         "name": "TraceContext",
         "objc_name": "SentryTraceContext",
@@ -80460,7 +81130,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryTraceContext"
+        "usr": "c:@M@Sentry@objc(cs)SentryTraceContext"
       },
       {
         "children": [
@@ -80812,7 +81482,7 @@
                         "kind": "TypeNominal",
                         "name": "Span",
                         "printedName": "any Sentry.Span",
-                        "usr": "c:objc(pl)SentrySpan"
+                        "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -80827,7 +81497,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry11TransactionC5spansSaySo0A4Span_pGvg",
+                "mangledName": "$s6Sentry11TransactionC5spansSayAA4Span_pGvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -80842,7 +81512,7 @@
                         "kind": "TypeNominal",
                         "name": "Span",
                         "printedName": "any Sentry.Span",
-                        "usr": "c:objc(pl)SentrySpan"
+                        "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -80862,7 +81532,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry11TransactionC5spansSaySo0A4Span_pGvs",
+                "mangledName": "$s6Sentry11TransactionC5spansSayAA4Span_pGvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -80876,7 +81546,7 @@
                     "kind": "TypeNominal",
                     "name": "Span",
                     "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
+                    "usr": "c:@M@Sentry@objc(pl)SentrySpan"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -80892,7 +81562,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry11TransactionC5spansSaySo0A4Span_pGvp",
+            "mangledName": "$s6Sentry11TransactionC5spansSayAA4Span_pGvp",
             "moduleName": "Sentry",
             "name": "spans",
             "printedName": "spans",
