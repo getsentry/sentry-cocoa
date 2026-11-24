@@ -2,16 +2,12 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryHub+SwiftPrivate.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySDK+Private.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -32,10 +28,10 @@ std::mutex _threadUnsafe_gContinuousProfilerLock;
 /** @warning: Must be used from a synchronized context. */
 SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 
-NSTimer *_Nullable _chunkTimer;
+id<SentryProfilingCancellation> _Nullable _chunkTimer;
 
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
-SentryId *_profileSessionID;
+SentryProfilingId *_profileSessionID;
 
 /**
  * To avoid sending small chunks at the end of profiles, we let the current chunk run to the full
@@ -50,7 +46,7 @@ NSObject *_observerToken;
 void
 disableTimer()
 {
-    [_chunkTimer invalidate];
+    [_chunkTimer cancel];
     _chunkTimer = nil;
 }
 
@@ -70,39 +66,23 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         [profiler.metricProfiler copyAndClearMetricProfilerData];
 
 #    if SENTRY_HAS_UIKIT
-    SentryScreenFrames *screenFrameData = [SentryProfilerSDKAdapter.shared copyCurrentFrames];
+    SentryProfilingFrameMeasurements *screenFrameData =
+        [SentryProfilerSDKAdapter.shared copyFrameMeasurements];
     [SentryProfilerSDKAdapter.shared resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
-    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
-    SentryDebugImageProvider *const debugImageProvider
-        = SentryProfilerSDKAdapter.shared.debugImageProvider;
-
-    // Move the serialization work to a background queue to avoid potentially
-    // blocking the main thread. The serialization can take several milliseconds.
-    [SentryProfilerSDKAdapter.shared dispatchAsync:^{
-        // Closing the originating SDK must not redirect a pending chunk to a later client.
-        if (hub.getClient == nil) {
-            return;
-        }
-        NSDictionary *_Nonnull serializedMetrics
-            = serializeContinuousProfileMetrics(metricProfilerState);
-        SentryEnvelope *_Nullable envelope
-            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics,
-                sentry_getDebugImagesFromCache(debugImageProvider), hub
+    [SentryProfilerSDKAdapter.shared
+        captureProfileChunkWithID:profilerID
+                             data:profilerState
+                          metrics:^{
+                              return serializeContinuousProfileMetrics(metricProfilerState);
+                          }
 #    if SENTRY_HAS_UIKIT
-                ,
-                screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-            );
-        if (envelope == nil) {
-            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
-            return;
-        }
-        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
-    }];
+                           frames:screenFrameData
+#    endif
+    ];
 }
 
 void
@@ -145,7 +125,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
+        dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryProfilingId alloc] init]; });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
         profiler = _threadUnsafe_gContinuousCurrentProfiler;
 #    if SENTRY_HAS_UIKIT
@@ -183,7 +163,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         return;
     }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
     // we want to allow immediately stopping a continuous profile for a UI test, since those
     // currently only test launch profiles, and there is no reliable way to make the UI test
     // wait until the continuous profile chunk would finish (behavior introduced in
@@ -195,13 +175,13 @@ _sentry_unsafe_stopTimerAndCleanup()
         _sentry_unsafe_stopTimerAndCleanup();
         return;
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
     SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
     _stopCalled = YES;
 }
 
-+ (nullable SentryId *)currentProfilerID
++ (nullable SentryProfilingId *)currentProfilerID
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler.profilerId;
@@ -227,9 +207,9 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         _chunkTimer = [SentryProfilerSDKAdapter.shared
-            scheduledTimerWithInterval:kSentryProfilerChunkExpirationInterval
-                               repeats:YES
-                                 block:^{ [self timerExpiredForProfiler:profiler]; }];
+            scheduleTimerWithInterval:kSentryProfilerChunkExpirationInterval
+                              repeats:YES
+                                block:^{ [self timerExpiredForProfiler:profiler]; }];
     }];
 }
 
@@ -270,7 +250,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 
 #    pragma mark - Testing
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 + (nullable SentryProfiler *)profiler
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
@@ -282,7 +262,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     _sentry_threadUnsafe_transmitChunkEnvelope();
 }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 @end
 

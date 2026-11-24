@@ -37,6 +37,16 @@ public struct SentryInternalReplayApi {
         SentrySDK.replay.resume()
     }
 
+    /// Stops recording touch positions until ``resumeTouchTracking()`` is called.
+    public func pauseTouchTracking() {
+        SentrySDK.replay.pauseTouchTracking()
+    }
+
+    /// Resumes recording touch positions paused with ``pauseTouchTracking()``.
+    public func resumeTouchTracking() {
+        SentrySDK.replay.resumeTouchTracking()
+    }
+
     /// Flushes buffered replay data or starts a new replay session if Replay is inactive.
     public func flush() {
         SentrySDK.replay.flush()
@@ -101,7 +111,7 @@ public struct SentryInternalReplayApi {
         replayIntegrationProvider.getReplayIntegration()?.viewPhotographer.setRedactContainerClass(containerClass)
     }
 
-    /// Sets tags on the current replay session.
+    /// Sets tags on the current replay session and on every replay session started afterwards.
     public func setTags(_ tags: [String: Any]) {
         replayIntegrationProvider.getReplayIntegration()?.setReplayTags(tags)
     }

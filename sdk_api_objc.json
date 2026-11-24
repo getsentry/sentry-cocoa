@@ -2329,6 +2329,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "currentProfilerId",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "customButton",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "UIButton * _Nullable",
@@ -2849,6 +2856,13 @@
     "kind": "ObjCMethodDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -5773,6 +5787,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "pebibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -6092,6 +6120,20 @@
     "parent": "SentryObjCSDK",
     "returnType": "void",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -7070,6 +7112,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableTimeToFullDisplayTracing:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUIUpdateLinkFramesTracking:",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
@@ -10185,6 +10234,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "currentProfilerId",
+    "parent": "SentryObjCInternalProfilingApi",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "customButton",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "type": "UIButton * _Nullable"
@@ -10541,6 +10596,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

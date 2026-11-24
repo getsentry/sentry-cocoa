@@ -52,4 +52,43 @@ final class SentryIdentifierTests: XCTestCase {
         // -- Act & Assert --
         XCTAssertEqual("\(id)", "7")
     }
+
+    func testEncode_shouldEncodeTheRawValueAlone() throws {
+        // -- Arrange --
+        let holder = Holder(id: ID(rawValue: "id"), number: SentryIdentifier<Owner, Int>(rawValue: 7))
+
+        // -- Act --
+        let data = try JSONEncoder().encode(holder)
+
+        // -- Assert --
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(json["id"] as? String, "id")
+        XCTAssertEqual(json["number"] as? Int, 7)
+    }
+
+    func testDecode_whenValueIsTheRawValue_shouldReturnTheID() throws {
+        // -- Arrange --
+        let data = Data(#"{"id":"id","number":7}"#.utf8)
+
+        // -- Act --
+        let holder = try JSONDecoder().decode(Holder.self, from: data)
+
+        // -- Assert --
+        XCTAssertEqual(holder.id, ID(rawValue: "id"))
+        XCTAssertEqual(holder.number, SentryIdentifier<Owner, Int>(rawValue: 7))
+    }
+
+    func testDecode_whenValueHasAnotherType_shouldThrow() {
+        // -- Arrange --
+        let data = Data(#"{"id":7,"number":7}"#.utf8)
+
+        // -- Act & Assert --
+        XCTAssertThrowsError(try JSONDecoder().decode(Holder.self, from: data))
+    }
+
+    /// A type whose `Codable` conformance is synthesized from its IDs.
+    private struct Holder: Codable {
+        let id: ID
+        let number: SentryIdentifier<Owner, Int>
+    }
 }

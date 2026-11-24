@@ -55,6 +55,86 @@ final class SentryTraceProfilerTests: XCTestCase {
         super.tearDown()
     }
 
+    func testProfilingId_whenCreatedFromUUID_shouldUseCanonicalWireFormat() throws {
+        // -- Arrange --
+        let uuid = try XCTUnwrap(UUID(uuidString: "01234567-89AB-CDEF-0123-456789ABCDEF"))
+
+        // -- Act --
+        let identifier = SentryProfilingId(uuid: uuid)
+
+        // -- Assert --
+        XCTAssertEqual(identifier.stringValue, "0123456789abcdef0123456789abcdef")
+        XCTAssertEqual(identifier.description, identifier.stringValue)
+        XCTAssertNotEqual(SentryProfilingId(), SentryProfilingId())
+    }
+
+    func testProfilingId_whenUUIDsMatch_shouldHaveValueEqualityAndSupportDictionaryKeys() throws {
+        // -- Arrange --
+        let uuid = UUID()
+        let first = SentryProfilingId(uuid: uuid)
+        let second = SentryProfilingId(uuid: uuid)
+
+        // -- Act --
+        let values = NSDictionary(object: "profile", forKey: first)
+
+        // -- Assert --
+        XCTAssertFalse(first === second)
+        XCTAssertEqual(first, second)
+        XCTAssertEqual(first.hash, second.hash)
+        XCTAssertEqual(values[second] as? String, "profile")
+        XCTAssertTrue(first.copy() as AnyObject === first)
+        XCTAssertFalse(first.isEqual(first.stringValue))
+    }
+
+    func testStart_whenTraceIdentifiersHaveEqualValues_shouldShareProfilerUntilLastTraceFinishes() throws {
+        // -- Arrange --
+        let firstUUID = UUID()
+        let firstID = SentryProfilingId(uuid: firstUUID)
+        let secondID = SentryProfilingId()
+
+        // -- Act --
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: firstID))
+        let profiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: secondID))
+        let firstFinishedProfiler = sentry_profilerForFinishedTracer(SentryProfilingId(uuid: firstUUID))
+
+        // -- Assert --
+        XCTAssertTrue(firstFinishedProfiler === profiler)
+        XCTAssertTrue(profiler.isRunning())
+        XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 1)
+
+        // -- Act --
+        let lastFinishedProfiler = sentry_profilerForFinishedTracer(secondID)
+
+        // -- Assert --
+        XCTAssertTrue(lastFinishedProfiler === profiler)
+        XCTAssertFalse(profiler.isRunning())
+        XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 0)
+    }
+
+    func testContinuousRoots_whenDiscardedAndFinishedWithEqualIdentifiers_shouldStopAfterLastRoot() throws {
+        // -- Arrange --
+        let first = try XCTUnwrap(sentry_startProfilerForTrace(.continuous, SentryProfilingId()))
+        let second = try XCTUnwrap(sentry_startProfilerForTrace(.continuous, SentryProfilingId()))
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+
+        // -- Act --
+        sentry_discardProfilerCorrelatedToTrace(SentryProfilingId(uuid: first.uuid))
+        fixture.dateProvider.advance(by: 60)
+        try fixture.timerFactory.check()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        sentry_finishContinuousProfileForTrace(SentryProfilingId(uuid: second.uuid))
+        fixture.dateProvider.advance(by: 60)
+        try fixture.timerFactory.check()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
     func testTimeout_whenPreviousTraceIsDiscarded_shouldGiveReplacementItsOwnDeadline() throws {
         // -- Arrange --
         let firstID = try startTrace()
@@ -89,6 +169,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         try fixture.timerFactory.check()
         _ = try startTrace()
         let nextTimer = try XCTUnwrap(fixture.timerFactory.overrides?.timer)
+        let nextCancellation = try XCTUnwrap(_sentry_threadUnsafe_traceProfileTimeoutTimer)
 
         // -- Act --
         oldCallback(oldTimer.timer)
@@ -96,7 +177,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertTrue(nextTimer.isValid)
-        XCTAssertTrue(nextTimer === _sentry_threadUnsafe_traceProfileTimeoutTimer)
+        XCTAssertTrue(nextCancellation === _sentry_threadUnsafe_traceProfileTimeoutTimer)
     }
 
     func testScheduleTimeout_whenOldMainCallbackRunsAfterReplacement_shouldIgnoreIt() throws {
@@ -371,8 +452,10 @@ final class SentryTraceProfilerTests: XCTestCase {
         system.overrides.cpuUsage = 10
         system.overrides.memoryFootprintBytes = 100
         system.overrides.cpuEnergyUsage = 100
-        SentryMetricProfiler.setSystemWrapperOverride(system)
-        defer { SentryMetricProfiler.setSystemWrapperOverride(nil) }
+        let backend = try XCTUnwrap(SentryProfilerSDKAdapter.shared.target as? SentryDefaultProfilerSDKBackend)
+        let previousSystemWrapper = backend.systemWrapper
+        backend.systemWrapper = system
+        defer { backend.systemWrapper = previousSystemWrapper }
         let oldTracer = profiledTracer(named: "old")
         let oldProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
         fixture.dateProvider.advance(by: 30)
@@ -415,7 +498,7 @@ final class SentryTraceProfilerTests: XCTestCase {
     private func startTrace() throws -> SentryId {
         let traceID = SentryId()
         traceIDs.append(traceID)
-        XCTAssertTrue(SentryTraceProfiler.start(withTracer: traceID))
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: sentry_profilingIdFromSentryId(traceID)))
         return traceID
     }
 

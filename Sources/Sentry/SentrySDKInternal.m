@@ -6,12 +6,9 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryScope+Private.h"
-#import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
-#import "SentryTransactionContext.h"
 
 @class SentryAppStartMeasurement;
 
@@ -29,6 +26,7 @@ extern const void *_Nonnull sentry_cxa_throw_compatibility_linker_anchor(void)
 #    import "SentryContinuousProfiler.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerConfigurationBridge.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentrySDKInternal ()
@@ -111,7 +109,7 @@ static BOOL sdkStarted;
     @synchronized(currentHubLock) {
         localCurrentHub = currentHub;
     }
-    return localCurrentHub.scope.span;
+    return ((SentryScope *)localCurrentHub.scope).span;
 }
 
 + (BOOL)isEnabled
@@ -283,9 +281,9 @@ static BOOL sdkStarted;
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
-#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(DEBUG) // Test support.
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
-#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#endif // defined(DEBUG)
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
@@ -299,6 +297,9 @@ static BOOL sdkStarted;
     [PlaceholderNotificationCenterClass class];
     [PlaceholderOptionsDictionaryClass class];
     [PlaceholderReplayNetworkDetailsClass class];
+    [PlaceholderScopeEventClass class];
+    [PlaceholderScopeObserversClass class];
+    [PlaceholderScopeStateClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
@@ -365,7 +366,8 @@ static BOOL sdkStarted;
     [SentrySDKInternal.currentHub captureFatalEvent:event];
 }
 
-+ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (void)captureFatalEvent:(SentryEvent *)event
+                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     [SentrySDKInternal.currentHub captureFatalEvent:event withScope:scope];
 }
@@ -384,14 +386,17 @@ static BOOL sdkStarted;
     return [SentrySDKInternal captureEvent:event withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureEvent:(SentryEvent *)event
+            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+    SentryScope *scope =
+        [[SentryScope alloc] initWithScope:(SentryScope *)SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureEvent:event withScope:scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [SentrySDKInternal.currentHub captureEvent:event withScope:scope];
 }
@@ -410,19 +415,22 @@ static BOOL sdkStarted;
                                                       bindToScope:bindToScope];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
                                                          bindToScope:bindToScope];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
@@ -431,7 +439,8 @@ static BOOL sdkStarted;
                                                customSamplingContext:customSamplingContext];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
@@ -443,14 +452,16 @@ static BOOL sdkStarted;
     return [SentrySDKInternal captureError:error withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block
++ (SentryId *)captureError:(NSError *)error
+            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+    SentryScope *scope =
+        [[SentryScope alloc] initWithScope:(SentryScope *)SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureError:error withScope:scope];
 }
 
-+ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
++ (SentryId *)captureError:(NSError *)error withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [SentrySDKInternal.currentHub captureError:error withScope:scope];
 }
@@ -462,14 +473,16 @@ static BOOL sdkStarted;
 }
 
 + (SentryId *)captureException:(NSException *)exception
-                withScopeBlock:(void (^)(SentryScope *))block
+                withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+    SentryScope *scope =
+        [[SentryScope alloc] initWithScope:(SentryScope *)SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureException:exception withScope:scope];
 }
 
-+ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
++ (SentryId *)captureException:(NSException *)exception
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [SentrySDKInternal.currentHub captureException:exception withScope:scope];
 }
@@ -479,34 +492,45 @@ static BOOL sdkStarted;
     return [SentrySDKInternal captureMessage:message withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureMessage:(NSString *)message
+              withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+    SentryScope *scope =
+        [[SentryScope alloc] initWithScope:(SentryScope *)SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureMessage:message withScope:scope];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
++ (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
++ (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     return [SentrySDKInternal.currentHub captureEvent:event withScope:scope hint:hint];
 }
 
-+ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
++ (SentryId *)captureError:(NSError *)error
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     return [SentrySDKInternal.currentHub captureError:error withScope:scope hint:hint];
 }
 
-+ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
++ (SentryId *)captureException:(NSException *)exception
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                          hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     return [SentrySDKInternal.currentHub captureException:exception withScope:scope hint:hint];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
++ (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                        hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
     return [SentrySDKInternal.currentHub captureMessage:message withScope:scope hint:hint];
 }
@@ -569,7 +593,7 @@ static BOOL sdkStarted;
     [SentrySDKInternal.currentHub addBreadcrumb:crumb withHint:hint];
 }
 
-+ (void)configureScope:(void (^)(SentryScope *scope))callback
++ (void)configureScope:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))callback
 {
     [SentrySDKInternal.currentHub configureScope:callback];
 }
@@ -819,7 +843,7 @@ static BOOL sdkStarted;
 
 #if SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
@@ -827,7 +851,7 @@ static BOOL sdkStarted;
 }
 #endif // SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (NSArray<NSString *> *)trimmedInstalledIntegrationNames
 {

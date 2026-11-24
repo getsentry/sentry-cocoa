@@ -262,11 +262,16 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
     func testGetRequest_CompareSentryTraceHeader() throws {
+        // -- Arrange --
         try ensureTestServerIsRunning()
 
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
 
-        startSDK()
+        // Framework file reads must not add unrelated spans to this network-only test.
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
 
@@ -284,9 +289,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         defer { dataTask.cancel() }
 
+        // -- Act --
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
+        // -- Assert --
         let children = Dynamic(transaction).children as [SentrySpanInternal]?
 
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
@@ -300,7 +307,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         // -- Arrange --
         try ensureTestServerIsRunning()
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
-        startSDK()
+        // Framework file reads must not add unrelated spans to this network-only test.
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
         let transaction = try XCTUnwrap(
             SentrySDK.startTransaction(
                 name: "Test Transaction",
@@ -343,7 +354,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         // -- Arrange --
         try ensureTestServerIsRunning()
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
-        startSDK()
+        // Framework file reads must not add unrelated spans to this network-only test.
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
         let transaction = try XCTUnwrap(
             SentrySDK.startTransaction(
                 name: "Test Transaction",

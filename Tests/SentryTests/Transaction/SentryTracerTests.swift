@@ -36,7 +36,7 @@ class SentryTracerTests: XCTestCase {
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
-        var transactionContext: TransactionContext!
+        let transactionContext: TransactionContext
         
         let appStartOperation = "app.start"
         let appStartWarmOperation = "app.start.warm"
@@ -779,19 +779,24 @@ class SentryTracerTests: XCTestCase {
     }
 
     func test_startChildWithDelegate_SelfIsActive() {
+        // -- Arrange --
         let delegate = TracerDelegate()
-
         let sut = fixture.getSut()
         sut.delegate = delegate
-
         delegate.activeSpan = sut
-
         let child = sut.startChild(operation: fixture.transactionOperation)
+        let grandchild = child.startChild(operation: fixture.transactionOperation)
 
+        // -- Act --
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
+        let describedChild = sut.startChild(operation: fixture.transactionOperation, description: "sibling")
 
+        // -- Assert --
+        XCTAssertEqual(child.parentSpanId, sut.spanId)
+        XCTAssertEqual(grandchild.parentSpanId, child.spanId)
         XCTAssertEqual(secondChild.parentSpanId, sut.spanId)
-        XCTAssertEqual(secondChild.parentSpanId, child.parentSpanId)
+        XCTAssertEqual(describedChild.parentSpanId, sut.spanId)
+        XCTAssertEqual(sut.children.map(\.spanId), [child.spanId, grandchild.spanId, secondChild.spanId, describedChild.spanId])
     }
 
     #if os(iOS) || os(tvOS)

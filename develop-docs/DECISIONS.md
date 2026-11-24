@@ -44,6 +44,7 @@
 - [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
 - [41. Select SwiftPM V10 through the environment only](#41-select-swiftpm-v10-through-the-environment-only)
 - [42. Crash handler and MetricKit as parallel event sources](#42-crash-handler-and-metrickit-as-parallel-event-sources)
+- [43. Compile SDK test support under `DEBUG`](#43-compile-sdk-test-support-under-debug)
 
 ---
 
@@ -1065,3 +1066,27 @@ Related links:
 - [MetricKit crash fallback (#2627)](https://github.com/getsentry/sentry-cocoa/issues/2627)
 - [Watchdog termination stack traces (#7799)](https://github.com/getsentry/sentry-cocoa/issues/7799)
 - [Design issue (#9277)](https://github.com/getsentry/sentry-cocoa/issues/9277)
+
+## 43. Compile SDK test support under `DEBUG`
+
+Date: November 13, 2026
+Contributors: @philprime, @denrase, @noahsmartin, @itaybre
+
+Running the package tests from Xcode's UI with the `SentrySPM` scheme failed to compile. Many tests use SDK helpers, test-only initializers, and conditionally stripped protocols that were gated by `SENTRY_TEST || SENTRY_TEST_CI`. SwiftPM enables these only through the `_SentryTest`/`_SentryTestCI` package traits, and Xcode's package UI can't enable traits for tests ([Swift Forums](https://forums.swift.org/t/how-to-test-package-traits/78039/5)). `swift test --traits` works from the command line, but we want CMD+U, test diamonds, and the debugger in Xcode. The package-workspace migration ([#9601](https://github.com/getsentry/sentry-cocoa/pull/9601)) kept the existing test flags on purpose so the migration changed as little as possible, and its command-line workflow didn't hit the Xcode limitation.
+
+Short term, SDK test support compiles under `DEBUG`. [#9627](https://github.com/getsentry/sentry-cocoa/pull/9627) adds `DEBUG` to the existing guards and runs the `SentrySPM` Test action in Debug. [#9624](https://github.com/getsentry/sentry-cocoa/pull/9624) then makes `DEBUG` the only condition and removes `SENTRY_TEST`, `SENTRY_TEST_CI`, their package traits, and the Test/TestCI build configurations. One condition for local Xcode runs, package tests, and CI means fewer ways the same code can compile and behave differently. We prefer this over keeping a separate test flag, even though a test flag excludes the hooks from more builds.
+
+We accept that source-based consumers' Debug builds include these test hooks and debug-only behavior, such as synchronous V9 binary-image cache initialization and suppressing the original macOS `_crashOnException:` abort path. Release builds don't include them. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests).
+
+Long term, test-only code doesn't belong in production targets. `DEBUG` is an interim step, not the target design:
+
+- Test internal or public behavior, not private methods. If a test needs a private method, test it through the behavior that calls it or extract a type that owns it.
+- Tests may change interfaces, such as visibility through `@testable import`, but not logic. Don't add branches that make production code behave differently under test.
+- Replace test-only initializers, setters, and reset helpers with dependencies injected through [`SentryDependencyContainer`](../Sources/Swift/SentryDependencyContainer.swift) or initializers, following [decision 15](#15-dependency-injection-strategy).
+- Remove `DEBUG`-gated test support incrementally after the migration stack lands, starting with helpers that only expose state for assertions.
+
+Related links:
+
+- [Support package tests in Debug (#9627)](https://github.com/getsentry/sentry-cocoa/pull/9627)
+- [Remove SDK project test targets (#9613)](https://github.com/getsentry/sentry-cocoa/pull/9613)
+- [Use Debug for SDK test support (#9624)](https://github.com/getsentry/sentry-cocoa/pull/9624)

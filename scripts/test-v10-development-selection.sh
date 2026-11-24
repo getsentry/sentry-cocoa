@@ -80,7 +80,7 @@ for target in "${targets[@]}"; do
     record="$WORK_DIR/$target"
     mkdir -p "$record"
     env -u SDK_V10 PATH="$tools:$PATH" RECORD="$record" GIT_DIR="$REPO_GIT_DIR" GIT_WORK_TREE="$REPO_ROOT" make --no-print-directory \
-        -C "$fixture" -f "$REPO_ROOT/Makefile" "$target" GIT-REF=selection-test FOR_AGENTS=true \
+        -C "$fixture" -f "$REPO_ROOT/Makefile" "$target" FOR_AGENTS=true \
         > "$record/make.log" 2>&1
     for stage in generator build; do
         [[ "$(< "$record/$stage-env")" == 1 ]] || {

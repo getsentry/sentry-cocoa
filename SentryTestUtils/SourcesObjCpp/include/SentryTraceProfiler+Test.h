@@ -1,17 +1,19 @@
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryProfilingCancellation.h"
 
 #    import "SentryDefines.h"
 #    import "SentryTraceProfiler.h"
 
 @class SentryProfiler;
 
-SENTRY_EXTERN NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+SENTRY_EXTERN
+id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 
 @interface SentryTraceProfiler ()
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 
 + (SentryProfiler *_Nullable)getCurrentProfiler;
 
@@ -29,7 +31,7 @@ SENTRY_EXTERN NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
  */
 + (NSUInteger)currentProfiledTracers;
 
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 @end
 

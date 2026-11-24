@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 @_spi(Private) import SentrySwift
 #endif
 internal import _SentryPrivate
@@ -10,7 +10,7 @@ import Foundation
 /**
  * A wrapper around SentryCrash for testability.
  */
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
 @objc @_spi(Private)
 public class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     private let bridge: SentryCrashBridge

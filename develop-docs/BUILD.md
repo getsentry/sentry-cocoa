@@ -8,7 +8,7 @@ This document covers the build system and configuration details for the Sentry C
 
 ## SDK Test Configurations
 
-The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK test helpers through `SENTRY_TEST` or `SENTRY_TEST_CI` in [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig). Swift 6.1+ provides the opt-in `_SentryTest` and `_SentryTestCI` traits for local `swift test` invocations. Swift 6.0 and `xcodebuild` package-workspace tests continue to supply these flags explicitly at the call site; see [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Do not enable test traits or flags in normal package builds.
+SDK tests use `Debug`, or `DebugV10` for V10 Xcode project builds. SwiftPM V10 tests also use `Debug`, with `SDK_V10=1` selecting the SDK implementation. Debug builds enable testability and SDK test helpers through `DEBUG`; no test traits or separate test configurations are required. Make/CI adds the [package test xcconfig](../Tests/Configuration/SwiftPM.xcconfig) for ABI and diagnostic checks. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Release builds exclude debug/test helpers. Do not explicitly enable `DEBUG` in production builds.
 
 ## SwiftPM Test Targets
 
@@ -34,7 +34,49 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 ./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 
-`assemble-xcframework.sh` accepts per-SDK XCArchives (`--archive-template` and `--scheme`), standalone frameworks (`--framework-template`), or static libraries (`--library-template` and `--headers`). Each template substitutes `SDK_NAME` for each entry in `--sdks`. Standalone slices can use `--output` without a scheme. Assembly fails if the output already exists. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for the SwiftPM slice pipeline and its extra static-library validation.
+[assemble-xcframework.sh](../scripts/assemble-xcframework.sh) combines archives, frameworks, or static libraries. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for wrapper packaging.
+
+### SPM-built SDK frameworks
+
+Build a self-contained `Sentry-Dynamic.xcframework` from SwiftPM sources for either V9 or V10, matching the Xcode-project dynamic artifact name. The inner framework remains `Sentry.framework`. Swift binary consumers always use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
+
+```bash
+SDK_V10=0 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
+SDK_V10=1 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
+```
+
+The [build script](../scripts/build-xcframework-variant-spm.sh) automatically sets the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`, without changing the implementation or crash backend selected by `SDK_V10`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
+
+Output: `XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework.zip` or `XCFrameworkBuildPath/SPM/v10/Sentry-Dynamic.xcframework.zip`. The generation-specific directories keep intermediates and identically named artifacts separate. When overriding `SPM_XCFRAMEWORK_BUILD_PATH` (or the script’s `--output-dir`), use separate paths for each generation. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
+
+Both V9 binary producers compile the legacy Swift crash adapter into `Sentry` so existing `@_spi(Private) import Sentry` consumers retain their Swift symbol identities. The macOS V9 validation job checks this by compiling the [crash SPI consumer](../Tests/V9BinarySPIConsumer/main.swift) against the Xcode framework, then linking and running that object against the SwiftPM framework without recompiling.
+
+Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
+
+```bash
+for generation in v9 v10; do
+  for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
+    SENTRY_XCFRAMEWORK="../../XCFrameworkBuildPath/SPM/$generation/Sentry-Dynamic.xcframework" \
+      swift run --package-path "TestApps/$consumer" --configuration release "$consumer"
+  done
+done
+```
+
+The Swift-only [`SPM-Dynamic`](../TestApps/SPM-Dynamic) sample checks public API, SPI, and the privacy manifest from the loaded SDK bundle. The Objective-C-only [`SPM-ObjC-Dynamic`](../TestApps/SPM-ObjC-Dynamic) sample checks ordinary Objective-C imports, public API, and version exports. Both verify dynamic loading without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, both consume the existing `Sentry-Dynamic` product; use `swift run --build-system xcode --package-path "TestApps/$consumer" "$consumer"` for each sample as in the Release workflow.
+
+The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
+
+## Public API Generation
+
+`make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It updates the existing Xcode-framework and ObjC-wrapper snapshots and adds only `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks).
+
+The [API stability workflow](../.github/workflows/api-stability.yml) runs the same target and fails if a checked-in snapshot differs from the regenerated API.
+
+Both the Xcode and SwiftPM paths build iPhoneOS XCFrameworks, then use the same extractor on their packaged `Sentry` framework slices. SwiftPM artifacts are built in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`. Private SPI interfaces are removed before analysis. The complete generated JSON snapshots are the source of truth: for each generation, the command fails if the SwiftPM snapshot differs from its Xcode counterpart, including imports, attributes, and nested signatures.
+
+Both builds declare the Swift sampler callback alias, and the V9 crash callback belongs to the main SDK module. The source-only `SentryCrashV9Swift` adapter retains its old Swift entry point as a deprecated forwarder; the main SDK remains the sole owner of the C callback symbol. SwiftPM packaging reuses Xcode's `Sentry.h` umbrella and resolves V10 header conditionals with `unifdef`, matching `SentryV10.xcconfig`, without exposing configuration macros or extra public submodules.
+
+Source-backed SentrySwiftUI extraction is deferred; its package target still uses the released binary.
 
 ## Platform-Specific Build Notes
 
@@ -66,7 +108,7 @@ Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry
 | No `SDK_V10=1` | V9  | `SentrySPM` / `SentrySwift`   |
 | `SDK_V10=1`    | V10 | `Sentry` / `Sentry`           |
 
-Shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. Do not use `canImport` to select a version: cached modules can survive mode switches.
+For ordinary source builds, shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. The packaging-only mode above also selects `Sentry`, using explicit `SENTRY_BUILD_XCFRAMEWORK` compiler conditions for internal imports. Do not use `canImport` to select a version or module name: cached modules can survive mode switches.
 
 `make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
 
@@ -81,7 +123,7 @@ Run their regression tests before using the verifiers on your checkout:
 ./scripts/test-v10-development-selection.sh
 ```
 
-The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions. Run `./scripts/test-spm-crash-backend-selection.swift` separately for real consumer builds.
+The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions.
 
 ### 2. Check source ownership
 

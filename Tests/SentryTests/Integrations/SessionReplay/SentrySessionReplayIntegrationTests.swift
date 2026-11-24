@@ -766,7 +766,131 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         XCTAssertTrue(touchTracker.isEnabled)
     }
-    
+
+    func testPauseTouchTracking_whenSessionRunning_shouldStopTouchesAndKeepCapturing() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let touchTracker = try XCTUnwrap(sut.getTouchTracker())
+        XCTAssertTrue(touchTracker.isTracking)
+
+        // -- Act --
+        SentrySDK.replay.pauseTouchTracking()
+        waitForReplayCommand()
+
+        // -- Assert --
+        XCTAssertFalse(touchTracker.isTracking)
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isRunning)
+    }
+
+    func testPauseTouchTracking_whenBuffering_shouldStopTouchesAndKeepCapturing() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let touchTracker = try XCTUnwrap(sut.getTouchTracker())
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertFalse(sessionReplay.isFullSession)
+
+        // -- Act --
+        SentrySDK.replay.pauseTouchTracking()
+        waitForReplayCommand()
+
+        // -- Assert --
+        XCTAssertFalse(touchTracker.isTracking)
+        XCTAssertTrue(sessionReplay.isRunning)
+    }
+
+    func testResume_whenTouchTrackingPaused_shouldNotResumeTouchTracking() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let touchTracker = try XCTUnwrap(sut.getTouchTracker())
+        SentrySDK.replay.pauseTouchTracking()
+        SentrySDK.replay.pause()
+
+        // -- Act --
+        SentrySDK.replay.resume()
+        waitForReplayCommand()
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isRunning)
+        XCTAssertFalse(touchTracker.isTracking)
+    }
+
+    func testResumeTouchTracking_whenReplayPaused_shouldWaitForResume() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let touchTracker = try XCTUnwrap(sut.getTouchTracker())
+        SentrySDK.replay.pauseTouchTracking()
+        SentrySDK.replay.pause()
+
+        // -- Act --
+        SentrySDK.replay.resumeTouchTracking()
+        waitForReplayCommand()
+
+        // -- Assert --
+        XCTAssertFalse(touchTracker.isTracking)
+
+        // -- Act --
+        SentrySDK.replay.resume()
+        waitForReplayCommand()
+
+        // -- Assert --
+        XCTAssertTrue(touchTracker.isTracking)
+    }
+
+    func testPauseTouchTracking_whenNewReplayStarts_shouldKeepTouchTrackingPaused() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let touchTracker = try XCTUnwrap(sut.getTouchTracker())
+        let firstReplay = try XCTUnwrap(sut.sessionReplay)
+        SentrySDK.replay.pauseTouchTracking()
+        waitForReplayCommand()
+
+        // -- Act --
+        sut.stop()
+        sut.start()
+
+        // -- Assert --
+        let secondReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertNotIdentical(firstReplay, secondReplay)
+        XCTAssertTrue(secondReplay.isRunning)
+        XCTAssertFalse(touchTracker.isTracking)
+    }
+
+    func testPauseTouchTracking_whenCalledBeforeReplayStarts_shouldStartWithTouchTrackingPaused() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+        let touchTracker = try XCTUnwrap(sut.getTouchTracker())
+        XCTAssertNil(sut.sessionReplay)
+        SentrySDK.replay.pauseTouchTracking()
+        waitForReplayCommand()
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isRunning)
+        XCTAssertFalse(touchTracker.isTracking)
+    }
+
+    func testResumeTouchTracking_whenReplayRunning_shouldResumeTouchTracking() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let touchTracker = try XCTUnwrap(getSut().getTouchTracker())
+        SentrySDK.replay.pauseTouchTracking()
+
+        // -- Act --
+        SentrySDK.replay.resumeTouchTracking()
+        waitForReplayCommand()
+
+        // -- Assert --
+        XCTAssertTrue(touchTracker.isTracking)
+    }
+
     func testStopReplayAtEndOfSession() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
@@ -1532,6 +1656,39 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
+    }
+
+    func testSetCustomOptions_whenNoSessionRunning_shouldApplyToNextSession() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.stop()
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
+        sut.start()
+
+        // -- Assert --
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
+    }
+
+    func testSetCustomOptions_whenSessionRestarted_shouldApplyToNewSession() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
+        let firstSessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        // -- Act --
+        sut.stop()
+        sut.start()
+
+        // -- Assert --
+        let secondSessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertFalse(firstSessionReplay === secondSessionReplay)
+        XCTAssertEqual(secondSessionReplay.replayTags?["someOption"] as? String, "someValue")
     }
 
     func testShowMaskPreviewForDebug() throws {

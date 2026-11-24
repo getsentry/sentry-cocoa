@@ -1,5 +1,5 @@
 #if !SDK_V10
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 @_spi(Private) import SentrySwift
 #endif
 internal import _SentryPrivate

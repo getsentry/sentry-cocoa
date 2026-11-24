@@ -24,7 +24,7 @@ Depending on how you interact with building the SDK, it's likely that you'll typ
 - `@objc` signatures in Swift cannot use generics, structs, Swift enums, tuples, or non-`@objc` protocols. Using these features is fine on internal Swift and on public API that is already Swift-only.
 - This migration keeps `@objc` on converted public types and does not change the API they expose. Declare classes `open`. Do not use `final`. Nothing here is gated on `SDK_V10`.
 - Members from a `+Private.h` that `.m` files call become `@_spi(Private) @objc public`. Leave public API unmarked. Hybrid SPI is described in [`Sources/AGENTS.md`](../Sources/AGENTS.md).
-- Tests find `_SentryPrivate` through `HEADER_SEARCH_PATHS` in `Tests/Configuration/SentryTests.xcconfig`. Leave that path off `SentrySwiftUI`.
+- Package test targets declare `_SentryPrivate` as a dependency in the manifests. Keep private SDK imports out of `SentrySwiftUI`.
 
 ## Converting a public type
 
@@ -44,17 +44,18 @@ NS_SWIFT_NAME(User)
 open class User: NSObject {}
 ```
 
-Delete the public header `Sources/Sentry/Public/SentryUser.h`. Both umbrella headers import that file, so delete the matching line from each one.
+Do not delete the public header `Sources/Sentry/Public/SentryUser.h`. Apps that import it by name, such as `#import <Sentry/SentryUser.h>`, stop compiling when the file is gone, which is a breaking change. Replace its contents with a comment-only stub instead. The stub must not declare the class, because that would duplicate the Swift type.
 
 ```objc
-// Sources/Sentry/Public/Sentry.h
-#    import <Sentry/SentryUser.h>
+// Sources/Sentry/Public/SentryUser.h
+// SentryUser is implemented in Swift (`User`).
+// This header stays so existing `#import <Sentry/SentryUser.h>` and
+// `#import <SentryWithoutUIKit/SentryUser.h>` keep compiling.
+// It declares no interface, because declaring the class here would duplicate
+// the Swift type. Use `@import Sentry;` to get the class declaration.
 ```
 
-```objc
-// Sources/Sentry/Public/SentryWithoutUIKit.h
-#    import <SentryWithoutUIKit/SentryUser.h>
-```
+Keep the stub in the `Sentry` and `SentryWithoutUIKit` targets as a public header in `Sentry.xcodeproj`, and keep its import in both umbrella headers, `Sources/Sentry/Public/Sentry.h` and `Sources/Sentry/Public/SentryWithoutUIKit.h`. A public header that the umbrella header does not import triggers `-Wincomplete-umbrella`. The stubs are removed in the next major version.
 
 Members from `SentryUser+Private.h` that `.m` files call become `@_spi(Private) @objc public`:
 
@@ -88,11 +89,11 @@ When the value comes back to Swift, cast it in one extension for that class. Use
 guard let user = scope.userObject as? User else { return }
 ```
 
-`userObject` is in `Sources/Sentry/include/SentryScope+PrivateSwift.h`. After that property uses the macro, the cast above is how Swift reads it.
+Cast the `id` value in that one Swift extension. `Scope.userObject` is already `User?`, so callers of `Scope` do not cast it again.
 
 Run `make generate-public-api`. In `sdk_api.json` and `sdk_api_objc.json`, `User` keeps `objc_name` `SentryUser`. The diff should be that declaration moving from the Objective-C header to Swift, with no public members renamed or removed. Existing test plans still pass.
 
-Build `SentryObjC` and `SentryObjCCompat`. When the type is mirrored, the wrapper delegates to it. Updating that wrapper is a side effect of the conversion, not a separate goal. Update an example project only when it imports the deleted header. The wrapper for `User` looks like this:
+Build `SentryObjC` and `SentryObjCCompat`. When the type is mirrored, the wrapper delegates to it. Updating that wrapper is a side effect of the conversion, not a separate goal. Update an example project only when it relies on a declaration the header no longer provides. The wrapper for `User` looks like this:
 
 ```swift
 @objc(SentryObjCUser) public final class SentryObjCUser: NSObject {

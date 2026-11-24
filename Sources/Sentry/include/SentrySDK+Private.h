@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)captureFatalEvent:(SentryEvent *)event;
 
-+ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
++ (void)captureFatalEvent:(SentryEvent *)event
+                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
 
 #if SENTRY_HAS_UIKIT && !SDK_V10
 + (void)captureFatalAppHangEvent:(SentryEvent *)event;
@@ -85,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (nullable NSArray<NSString *> *)relevantViewControllersNames;
 

@@ -1,23 +1,11 @@
 #import "SentryCompiler.h"
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySampleDecision.h"
+#import "SentryProfilingId.h"
+#import "SentryProfilingTraceDecision.h"
 #import <Foundation/Foundation.h>
 
 @class SentryProfiler;
-
-@class SentryEnvelope;
-@class SentryEnvelopeItem;
-@class SentryHubInternal;
-@class SentryTransaction;
-@class SentryDispatchQueueWrapper;
-@class SentryTracerConfiguration;
-@class SentryProfileOptions;
-@class SentryId;
-#if SENTRY_HAS_UIKIT
-@class SentryAppStartMeasurement;
-#endif // SENTRY_HAS_UIKIT
-@class SentryTransactionContext;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -29,48 +17,36 @@ SENTRY_EXTERN_C_BEGIN
  * @Returns An ID to use as a unique, unchanging ID for the tracer that started the profiler. It's
  * different from the profiler's internal ID.
  */
-SentryId *_Nullable sentry_startProfilerForTrace(
-    SENTRY_SWIFT_MIGRATION_ID(SentryTracerConfiguration) configuration,
-    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext);
-
-/**
- * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
- * option configured.
- */
-SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
-    SentryHubInternal *hub, SentryDispatchQueueWrapper *dispatchQueue,
-    SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) transaction, BOOL isProfiling,
-    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
-#    if SENTRY_HAS_UIKIT
-    ,
-    SentryAppStartMeasurement *appStartMeasurement
-#    endif // SENTRY_HAS_UIKIT
-);
+SentryProfilingId *_Nullable sentry_startProfilerForTrace(
+    SentryProfilingTraceDecision decision, SentryProfilingId *traceID);
 
 /**
  * Associate the provided profiler and tracer so that profiling data may be retrieved by the tracer
  * when it is ready to transmit its envelope.
  */
-void sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *internalTraceId);
+void sentry_trackTransactionProfilerForTrace(
+    SentryProfiler *profiler, SentryProfilingId *internalTraceId);
+
+SENTRY_EXTERN void sentry_finishContinuousProfileForTrace(SentryProfilingId *profilerReferenceId);
 
 /**
  * For transactions that will be discarded, clean up the bookkeeping state associated with them to
  * reclaim the memory they're using.
  */
-void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInternal *hub);
+void sentry_discardProfilerCorrelatedToTrace(SentryProfilingId *internalTraceId);
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the
- * associated profiler, stop that profiler. Copy any recorded @c SentryScreenFrames data into the
- * profiler instance, and if this is the last profiler being tracked, reset the
+ * associated profiler, stop that profiler. Copy any recorded @c SentryProfilingFrameMeasurements
+ * data into the profiler instance, and if this is the last profiler being tracked, reset the
  * @c SentryFramesTracker data.
  */
-SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryProfilingId *internalTraceId);
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) // Test support.
 void sentry_resetConcurrencyTracking(void);
 NSUInteger sentry_currentProfiledTracers(void);
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG)
 
 SENTRY_EXTERN_C_END
 

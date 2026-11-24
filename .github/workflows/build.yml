@@ -88,7 +88,7 @@ jobs:
         continue-on-error: true
         run: xcrun simctl list runtimes -j > /dev/null
       - name: Setup Ruby
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1.343.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -267,6 +267,9 @@ jobs:
         include:
           - name: iOS
             make-target: build-testapp-iOS-SwiftUI-SPM
+          - name: iOS C++ interop
+            make-target: build-testapp-iOS-SwiftUI-SPM
+            configuration: Debug-CxxInterop
           - name: watchOS
             make-target: build-testapp-watchOS-SwiftUI-SPM
           - name: tvOS
@@ -310,6 +313,7 @@ jobs:
       - name: Build Test App
         run: make ${{ matrix.make-target }}
         env:
+          IOS_SPM_BUILD_CONFIGURATION: ${{ matrix.configuration || 'Debug' }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
@@ -558,13 +562,11 @@ jobs:
 
       - name: Build for ${{ matrix.configuration }}
         env:
-          REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ARGS=(
             --platform "${{ matrix.platform }}"
-            --ref "${REF}"
             --command build
             --configuration "${{ matrix.configuration }}"
             --derived-data "${{ matrix.derived-data }}"
@@ -637,14 +639,12 @@ jobs:
 
       - name: Build for Debug
         env:
-          REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
             --command build \
             --device "$IOS_DEVICE_NAME" \
             --configuration Debug

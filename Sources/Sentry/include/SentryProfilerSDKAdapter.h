@@ -1,30 +1,50 @@
 #import "SentryDefines.h"
+#import "SentryProfilingCancellation.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingConfiguration.h"
+#import "SentryProfilingFrameMeasurements.h"
+#import "SentryProfilingId.h"
+#import "SentryProfilingSystemMetrics.h"
+#import "SentryProfilingTimestamp.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-@class SentryDebugImageProvider;
-@class SentryDispatchFactory;
-@class SentryDispatchQueueWrapper;
-@class SentryScreenFrames;
-@class SentryTracer;
-@protocol SentryProcessInfoSource;
-@protocol SentryCurrentDateProvider;
-
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
+    ^SentryProfilingDebugImageSerialization)(void);
+
+typedef NSDictionary<NSString *, id> *_Nonnull (^SentryProfilingMetricSerialization)(void);
 
 @protocol SentryProfilerSDKBackend <NSObject>
 
-@property (nonatomic, readonly, nullable) id<SentryCurrentDateProvider> dateProvider;
-@property (nonatomic, readonly, nullable) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, readonly, nullable) SentryDispatchFactory *dispatchFactory;
-@property (nonatomic, readonly, nullable) id<SentryProcessInfoSource> processInfoWrapper;
+/** Serializes metrics and captures a detached chunk asynchronously on the SDK queue. */
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+    ;
+
+- (SentryProfilingConfiguration)configuration;
+- (SentryProfilingTimestamp)timestamp;
+- (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages;
+// Bind to the current provider without reading or serializing images until invoked.
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization;
+- (SentryProfilingSystemMetrics *_Nullable)systemMetrics;
+- (id<SentryProfilingCancellation> _Nullable)
+    scheduleMetricSamplingWithInterval:(uint64_t)intervalNanoseconds
+                                leeway:(uint64_t)leewayNanoseconds
+                                 block:(dispatch_block_t)block;
+- (id<SentryProfilingCancellation> _Nullable)scheduleTimerWithInterval:(NSTimeInterval)interval
+                                                               repeats:(BOOL)repeats
+                                                                 block:(dispatch_block_t)block;
 
 - (NSDate *_Nullable)date;
 - (uint64_t)systemTime;
 - (void)dispatchAsync:(dispatch_block_t)block;
-- (void)dispatchAsyncOnQueue:(SentryDispatchQueueWrapper *)queue block:(dispatch_block_t)block;
 - (void)dispatchAsyncOnMainIfNotMainThread:(dispatch_block_t)block;
 - (void)addObserver:(id)observer // OK: NotificationCenter accepts arbitrary observer objects.
            selector:(SEL)selector
@@ -33,23 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeObserver:(id)observer; // OK: Observer tokens and selector observers share this API.
 - (void)postNotification:(NSNotification *)notification;
 - (id _Nullable)addObserverForName:(NSNotificationName)name block:(dispatch_block_t)block;
-- (NSTimer *_Nullable)scheduledTimerWithInterval:(NSTimeInterval)interval
-                                         repeats:(BOOL)repeats
-                                           block:(dispatch_block_t)block;
-- (NSTimer *_Nullable)
-    scheduledTimerWithInterval:(NSTimeInterval)interval
-                        target:(id)target // OK: NSTimer invokes a selector on an arbitrary target.
-                      selector:(SEL)selector
-                      userInfo:(id _Nullable)userInfo
-                       repeats:(BOOL)repeats;
 @property (nonatomic) BOOL isTracingAppLaunch;
-@property (nonatomic, readonly, nullable) SentryTracer *launchTracer;
 
 #    if SENTRY_HAS_UIKIT
 - (void)startFramesTracker;
-- (void)stopFramesTracker;
+- (void)stopFramesTrackerIfUnused;
 - (void)resetProfilingTimestamps;
-- (SentryScreenFrames *_Nullable)copyCurrentFrames;
+- (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements;
 #    endif
 
 @end

@@ -5,12 +5,9 @@
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentrySampleDecision.h"
-#import "SentryScope+Private.h"
-#import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -86,31 +83,35 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
+- (nullable instancetype)initWithScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                               options:(SentryOptions *)options
 {
-    SentryTracer *tracer = [SentryTracer getTracer:scope.span];
+    SentryScope *typedScope = scope;
+    SentryTracer *tracer = [SentryTracer getTracer:typedScope.span];
     if (tracer == nil) {
         return nil;
     }
-    return [self initWithTracer:tracer scope:scope options:options];
+    return [self initWithTracer:tracer scope:typedScope options:options];
 }
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
-                                  scope:(nullable SentryScope *)scope
+                                  scope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                                 options:(SentryOptions *)options
 {
+    SentryScope *typedScope = scope;
     if (tracer.traceId == nil || options.parsedDsn == nil) {
         return nil;
     }
 
+    SentryTransactionContext *transactionContext = tracer.transactionContext;
     NSString *serializedSampleRand = nil;
-    NSNumber *sampleRand = [tracer.transactionContext sampleRand];
+    NSNumber *sampleRand = transactionContext.sampleRand;
     if (sampleRand != nil) {
         serializedSampleRand = [NSString stringWithFormat:@"%f", sampleRand.doubleValue];
     }
 
     NSString *serializedSampleRate = nil;
-    NSNumber *sampleRate = [tracer.transactionContext sampleRate];
+    NSNumber *sampleRate = transactionContext.sampleRate;
     if (sampleRate != nil) {
         serializedSampleRate = [NSString stringWithFormat:@"%f", sampleRate.doubleValue];
     }
@@ -123,11 +124,11 @@ NS_ASSUME_NONNULL_BEGIN
                        publicKey:SENTRY_UNWRAP_NULLABLE(NSString, options.parsedDsn.url.user)
                      releaseName:options.releaseName
                      environment:options.environment
-                     transaction:tracer.transactionContext.name
+                     transaction:transactionContext.name
                       sampleRate:serializedSampleRate
                       sampleRand:serializedSampleRand
                          sampled:sampled
-                        replayId:scope.replayId
+                        replayId:typedScope.replayId
                            orgId:options.effectiveOrgId];
 }
 

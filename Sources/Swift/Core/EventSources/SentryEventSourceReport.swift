@@ -17,7 +17,23 @@ struct SentryEventSourceReport {
         case fatal(attachmentPaths: [String], isRetainedOnFailure: Bool)
         /// The report describes something that doesn't end a session, or a run whose session the
         /// SDK can't tell anymore, so it is sent as a regular event.
-        case diagnostic(attachments: [Attachment])
+        ///
+        /// - Parameters:
+        ///   - attachments: The attachments sent with the event.
+        ///   - runEnd: How the run ended according to the report, or `nil` when the report doesn't
+        ///     describe the end of the run, such as a hang.
+        case diagnostic(attachments: [Attachment], runEnd: RunEnd?)
+    }
+
+    /// How a diagnostic says the run ended. Another source may have reported the same end as its
+    /// fatal event, which the sink tells by the run ID.
+    enum RunEnd {
+        /// The run ended with a crash, which the crash handler reports as its fatal event when it
+        /// recorded it.
+        case crash
+        /// The OS ended the run for its memory use, which the watchdog termination integration
+        /// reports as its fatal event when it detected it.
+        case memoryTermination
     }
 
     /// The pipeline the report came through. The sink processes the report the way this pipeline

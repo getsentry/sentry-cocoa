@@ -134,7 +134,7 @@ class XcodebuildWrapperTests(unittest.TestCase):
         for option, value in {
             "-derivedDataPath": str(self.derived),
             "-resultBundlePath": str(self.root / "results.xcresult"),
-            "-destination": "platform=macOS", "-parallel-testing-enabled": "NO",
+            "-destination": f"platform=macOS,arch={os.uname().machine}", "-parallel-testing-enabled": "NO",
         }.items():
             self.assertEqual(run[run.index(option) + 1], value)
         self.assertIn("CODE_SIGNING_ALLOWED=NO", run)
