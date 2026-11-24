@@ -26,6 +26,7 @@
 ### Internal
 
 - Expose `SentrySDK.internal.profiling.currentProfilerId` to hybrid SDKs so they can link their spans to Cocoa profiles (#9712)
+- Apply replay tags set by hybrid SDKs through `SentrySDK.internal.replay.setTags(_:)` to replay sessions started after the call, so the options event of a Flutter replay on iOS reports the Flutter masking options instead of the Cocoa defaults (#9732)
 
 ## 9.35.0
 
