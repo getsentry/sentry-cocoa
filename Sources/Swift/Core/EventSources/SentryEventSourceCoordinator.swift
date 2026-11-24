@@ -4,19 +4,6 @@ import Foundation
 import UIKit
 #endif
 
-/// Lets a source that reports late, such as MetricKit, ask the coordinator to hold the fatal
-/// reports of a source that reports early, such as the watchdog termination integration, so the
-/// late report can improve the early one before it is sent.
-protocol SentryEventSourceHoldPolicy: AnyObject {
-    /// Holds every fatal report of `source` that has a run ID for `duration`, or until the app
-    /// moves to the background or is launched again, whichever comes first. A held report is sent
-    /// as soon as a diagnostic of the same run arrives, enriched with it.
-    func hold(fatalReportsOf source: SentryEventSource, for duration: TimeInterval)
-    /// Sends the fatal reports of `source` right away again. A report held at this point stays
-    /// held until its deadline.
-    func stopHolding(fatalReportsOf source: SentryEventSource)
-}
-
 /// The one place between the event sources and the core SDK.
 ///
 /// Every source submits its reports here, and the coordinator decides what reaches the next sink.
@@ -27,16 +14,15 @@ protocol SentryEventSourceHoldPolicy: AnyObject {
 /// - A MetricKit crash diagnostic of a run the crash handler already reported is dropped, because
 ///   the crash handler's event already describes that crash. Other diagnostics always pass, as
 ///   the crash handler doesn't report hangs, CPU, disk write, launch or memory diagnostics.
-/// - A fatal report of a source that is held, see ``SentryEventSourceHoldPolicy``, is stored to
-///   disk instead of being sent, together with the crashed session of its run, which it is sent
-///   with later. A diagnostic of the same run that says how the
-///   run ended enriches it, see ``SentryHeldFatalReportEnrichment``, and sends it. When the
-///   deadline passes, the app moves to the background or the app is launched again first, the
-///   report is sent as it is.
+/// - A fatal report of a source that a ``SentryEventSourceOrchestrator`` holds is stored to disk
+///   instead of being sent, together with the crashed session of its run, which it is sent with
+///   later. A diagnostic of the orchestrator's awaited source that says how the same run ended is
+///   merged into it by the orchestrator, and the report is sent. When the deadline passes, the app
+///   moves to the background or the app is launched again first, the report is sent as it is.
 ///
 /// A diagnostic that arrives after the held report was sent is forwarded as its own event, so
 /// the reason MetricKit reports is never lost, even if it duplicates the event sent before.
-final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSourceHoldPolicy {
+final class SentryEventSourceCoordinator: SentryEventSourceSink {
     private let downstream: SentryEventSourceSink
     /// Records the runs that ended fatally, or `nil` when the SDK has nowhere to keep them, in
     /// which case every report passes.
@@ -47,10 +33,10 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let notificationCenter: SentryNSNotificationCenterWrapper
-    private let holdDurations = SentryMutex<[SentryEventSource: TimeInterval]>([:])
+    private let orchestrators = SentryMutex<[SentryEventSourceOrchestrator]>([])
     /// Serializes everything that reads, writes or sends the held report, so a diagnostic, the
     /// deadline and the background notification can't send it twice.
-    private let heldReportLock = SentryMutex(())
+    private let heldReportLock = SentryLock()
     /// The run whose report was held since this launch, which tells it from a report a previous
     /// launch left behind. Only read and written with `heldReportLock` taken.
     private let runHeldSinceLaunch = SentryMutex<SentryCurrentRun.ID?>(nil)
@@ -117,35 +103,38 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
         return result
     }
 
-    // MARK: - Hold policy
+    // MARK: - Orchestrators
 
-    func hold(fatalReportsOf source: SentryEventSource, for duration: TimeInterval) {
-        guard heldFatalReportStore != nil else {
-            SentrySDKLog.warning("Fatal reports of \(source.rawValue) can't be held without a place to keep them.")
+    /// Applies the orchestrators from now on, in place of the ones applied before. A report that is
+    /// held at this point stays held until its deadline.
+    ///
+    /// The SDK calls this before it installs the integrations, so the orchestrators are known before
+    /// the first source reports.
+    func use(_ orchestrators: [SentryEventSourceOrchestrator]) {
+        guard heldFatalReportStore != nil || orchestrators.isEmpty else {
+            SentrySDKLog.warning("Fatal reports of \(orchestrators.map { $0.heldSource.rawValue }.joined(separator: ", ")) can't be held without a place to keep them.")
             return
         }
-        holdDurations.withLock { $0[source] = duration }
-        observeBackground()
-        // Reading and sending the report a previous launch left behind is file and capture work,
-        // and the integration that asks for the hold is installed on the thread that starts the
-        // SDK, which is usually the main thread.
-        dispatchQueueWrapper.dispatchAsync { [weak self] in
-            self?.sendHeldReportOfPreviousLaunch()
+        self.orchestrators.withLock { $0 = orchestrators }
+        if !orchestrators.isEmpty {
+            observeBackground()
         }
     }
 
-    func stopHolding(fatalReportsOf source: SentryEventSource) {
-        holdDurations.withLock { $0[source] = nil }
+    /// Whether a fatal report is held, which this launch sends: either a previous launch left it
+    /// behind, or it is waiting for its deadline. Doesn't read the report.
+    var hasHeldReport: Bool {
+        heldFatalReportStore?.hasReport ?? false
     }
 
     /// Sends the report a previous launch held and left behind, because it ended before the
     /// deadline. A report held since this launch keeps waiting.
     ///
-    /// The SDK calls this at every start, because nothing else sends the report in a launch that
-    /// neither holds reports, for example after MetricKit diagnostics were disabled, nor reports
-    /// a fatal run.
+    /// The SDK calls this at every start, off the thread it starts on, because nothing else sends
+    /// the report in a launch that neither holds reports, for example after MetricKit diagnostics
+    /// were disabled, nor reports a fatal run.
     func sendHeldReportOfPreviousLaunch() {
-        heldReportLock.withLock { _ in
+        heldReportLock.withLock {
             guard let held = heldFatalReportStore?.read(), held.runId != runHeldSinceLaunch.withLock({ $0 }) else {
                 return
             }
@@ -155,25 +144,25 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
 
     /// Sends the held report as it is, when there is one.
     func sendHeldReport(because reason: String) {
-        heldReportLock.withLock { _ in
+        heldReportLock.withLock {
             sendHeldReportLocked(ofRun: nil, because: reason)
         }
     }
 
     // MARK: - Holding
 
-    /// Holds the report when its source is held, and returns the result for the source.
+    /// Holds the report when an orchestrator holds its source, and returns the result for the source.
     private func hold(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult? {
         guard case .fatal = report.kind,
               let runId = report.runId,
-              let duration = holdDurations.withLock({ $0[report.source] }),
+              let duration = orchestrators.withLock({ $0.first { $0.heldSource == report.source }?.holdDuration }),
               let store = heldFatalReportStore else {
             return nil
         }
         guard beforeAccepting() else {
             return .withdrawn
         }
-        let isStored = heldReportLock.withLock { _ in
+        let isStored = heldReportLock.withLock {
             // The sources that are held report once per launch, so a report still held here
             // belongs to an earlier run and can't wait for its diagnostic any longer.
             sendHeldReportLocked(ofRun: nil, because: "another report is held")
@@ -192,30 +181,31 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink, SentryEventSour
         }
         SentrySDKLog.debug("Holding the \(report.source.rawValue) report for run \(runId) for \(duration) seconds")
         dispatchQueueWrapper.dispatch(after: duration) { [weak self] in
-            self?.heldReportLock.withLock { _ in
+            self?.heldReportLock.withLock {
                 self?.sendHeldReportLocked(ofRun: runId, because: "its deadline passed")
             }
         }
         return .accepted
     }
 
-    /// Enriches the held report with a diagnostic of the same run and sends it, and returns the
+    /// Merges a diagnostic of the same run into the held report and sends it, and returns the
     /// result for the diagnostic's source, or `nil` when the diagnostic doesn't describe the end
-    /// of the held run.
+    /// of the held run or no orchestrator awaits its source for the held report.
     private func enrichHeldReport(with report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult? {
         guard case let .diagnostic(_, runEnd?) = report.kind,
               let runId = report.runId,
               let store = heldFatalReportStore else {
             return nil
         }
-        return heldReportLock.withLock { (_) -> SentryEventSourceSubmissionResult? in
-            guard let held = store.read(), held.runId == runId else {
+        return heldReportLock.withLock { () -> SentryEventSourceSubmissionResult? in
+            guard let held = store.read(), held.runId == runId,
+                  let orchestrator = orchestrators.withLock({ $0.first { $0.heldSource == held.source && $0.awaitedSource == report.source } }) else {
                 return nil
             }
             guard beforeAccepting() else {
                 return .withdrawn
             }
-            let event = SentryHeldFatalReportEnrichment.enrich(held, with: report, runEnd: runEnd)
+            let event = orchestrator.merge(held, report, runEnd)
             // The enriched report is stored before it is sent, so it isn't lost when the SDK
             // can't take it right now.
             store.store(SentryHeldFatalReport(runId: held.runId, source: held.source, event: event, session: held.session))

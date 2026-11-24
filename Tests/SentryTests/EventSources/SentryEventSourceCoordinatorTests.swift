@@ -310,7 +310,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenSourceIsHeld_shouldStoreFatalReportInsteadOfForwardingIt() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         let event = Event(level: .fatal)
         event.tags = ["previous": "run"]
 
@@ -332,7 +332,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         let session = givenCrashedSession()
         fileManager.storeCrashedSession(session)
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
@@ -347,7 +347,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         let sessionOfHeldRun = givenCrashedSession()
         fileManager.storeCrashedSession(sessionOfHeldRun)
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
         // The app crashed while the report was held, and the next launch stored the crashed
         // session of that run for the crash handler's event.
@@ -371,7 +371,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         let session = givenCrashedSession()
         fileManager.storeCrashedSession(session)
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: givenWatchdogTerminationEvent()))
 
         // -- Act --
@@ -388,7 +388,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenSourceIsHeld_shouldScheduleTheDeadline() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
@@ -401,7 +401,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenHeldReportHasNoRunId_shouldForwardIt() {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: nil))
@@ -414,7 +414,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenAnotherSourceIsHeld_shouldForwardFatalReport() {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .crashHandler, runId: "run-1"))
@@ -427,8 +427,8 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenHoldingStopped_shouldForwardFatalReport() {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
-        sut.stopHolding(fatalReportsOf: .watchdogTermination)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
+        sut.use([])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
@@ -441,7 +441,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenThereIsNoHeldReportStore_shouldForwardFatalReportOfHeldSource() {
         // -- Arrange --
         let sut = givenSut(fatalRunRecordStore: store, heldFatalReportStore: nil)
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
@@ -453,7 +453,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenSourceWithdrawsHeldReport_shouldNotStoreIt() {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         let result = sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1")) { false }
@@ -468,7 +468,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         // -- Arrange --
         downstream.isAvailable = false
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         let result = sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
@@ -482,7 +482,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         // -- Arrange --
         try givenHeldReportCantBeStored()
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         let report = givenFatalReport(source: .watchdogTermination, runId: "run-1")
 
         // -- Act --
@@ -501,7 +501,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         try givenHeldReportCantBeStored()
         fileManager.storeCrashedSession(givenCrashedSession())
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
@@ -517,7 +517,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         // -- Arrange --
         try givenHeldReportCantBeStored()
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Act --
         let result = sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1")) { false }
@@ -530,7 +530,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenAReportIsAlreadyHeld_shouldSendItBeforeHoldingTheNewOne() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
 
         // -- Act --
@@ -547,7 +547,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testDeadline_whenItPasses_shouldSendHeldReportUnchangedAndRecordRun() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         let event = Event(level: .fatal)
         event.tags = ["previous": "run"]
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: event))
@@ -574,7 +574,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testDeadline_whenHeldReportBelongsToAnotherRun_shouldNotSendIt() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
         let deadlineOfRun1 = try XCTUnwrap(dispatchQueueWrapper.dispatchAfterInvocations.first).block
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-2"))
@@ -591,7 +591,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testDeadline_whenDownstreamIsUnavailable_shouldKeepHeldReport() {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
         downstream.isAvailable = false
 
@@ -607,7 +607,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testBackground_whenAppMovesToBackground_shouldSendHeldReport() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
 
         // -- Act --
@@ -622,7 +622,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testBackground_whenAppMovesToBackground_shouldSendHeldReportOffTheMainThread() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
         dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
         let dispatchesBefore = dispatchQueueWrapper.dispatchAsyncInvocations.count
@@ -638,64 +638,18 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         XCTAssertNil(heldReportStore.read())
     }
 
-    func testHold_whenCalledTwice_shouldObserveBackgroundOnce() {
+    func testUse_whenCalledTwice_shouldObserveBackgroundOnce() {
         // -- Arrange --
         let sut = givenSut()
 
         // -- Act --
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 60)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
+        sut.use([.watchdogTerminationAwaitingMetricKit])
 
         // -- Assert --
         XCTAssertEqual(notificationCenter.addObserverWithBlockInvocations.count, 1)
     }
     #endif
-
-    func testHold_whenAPreviousRunLeftAHeldReport_shouldSendIt() throws {
-        // -- Arrange --
-        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
-        let sut = givenSut()
-
-        // -- Act --
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
-
-        // -- Assert --
-        XCTAssertEqual(downstream.submittedReports.count, 1)
-        XCTAssertEqual(try XCTUnwrap(downstream.submittedReports.first).runId, SentryCurrentRun.ID(rawValue: "run-1"))
-        XCTAssertNil(heldReportStore.read())
-        XCTAssertEqual(try XCTUnwrap(store.record(forRunId: SentryCurrentRun.ID(rawValue: "run-1"))).reportedBy, .watchdogTermination)
-    }
-
-    func testHold_whenAPreviousRunLeftAHeldReport_shouldSendItOffTheCallingThread() {
-        // -- Arrange --
-        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
-        dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
-        let sut = givenSut()
-
-        // -- Act --
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
-
-        // -- Assert --
-        XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
-        XCTAssertEqual(downstream.submittedReports.count, 0, "The SDK can start on the main thread, which must not send the report")
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        XCTAssertEqual(downstream.submittedReports.count, 1)
-        XCTAssertNil(heldReportStore.read())
-    }
-
-    func testHold_whenAReportWasHeldSinceLaunch_shouldKeepHoldingIt() {
-        // -- Arrange --
-        let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
-        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
-
-        // -- Act --
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
-
-        // -- Assert --
-        XCTAssertEqual(downstream.submittedReports.count, 0)
-        XCTAssertNotNil(heldReportStore.read())
-    }
 
     func testSendHeldReportOfPreviousLaunch_whenAPreviousLaunchLeftAHeldReportAndNothingIsHeld_shouldSendIt() throws {
         // -- Arrange --
@@ -715,7 +669,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSendHeldReportOfPreviousLaunch_whenAReportWasHeldSinceLaunch_shouldKeepHoldingIt() {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
 
         // -- Act --
@@ -729,9 +683,9 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenAReportWasHeldSinceLaunchAndHoldingStopped_shouldKeepHoldingItBeforeAFatalReport() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
-        sut.stopHolding(fatalReportsOf: .watchdogTermination)
+        sut.use([])
 
         // -- Act --
         sut.submit(givenFatalReport(source: .crashHandler, runId: "run-0"))
@@ -773,7 +727,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenWatchdogCrashDiagnosticDescribesHeldRun_shouldSendHeldReportWithItsStackTrace() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: givenWatchdogTerminationEvent()))
         let diagnostic = givenDiagnosticReport(runId: "run-1", runEnd: .crash(terminationReason: "Namespace SPRINGBOARD, Code 0x8badf00d"), event: givenMetricKitCrashEvent())
 
@@ -804,7 +758,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenOtherCrashDiagnosticDescribesHeldRun_shouldSendHeldReportAsThatCrash() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: givenWatchdogTerminationEvent()))
 
         // -- Act --
@@ -824,7 +778,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenMemoryDiagnosticDescribesHeldRun_shouldSendHeldReportAsWatchdogTermination() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: givenWatchdogTerminationEvent()))
 
         // -- Act --
@@ -840,7 +794,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenDiagnosticDescribesHeldRunAndDownstreamIsUnavailable_shouldKeepEnrichedReportHeld() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: givenWatchdogTerminationEvent()))
         downstream.isAvailable = false
 
@@ -860,7 +814,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenDiagnosticDescribesAnotherRunThanTheHeldOne_shouldForwardItAndKeepHolding() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
 
         // -- Act --
@@ -875,7 +829,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenDiagnosticOfHeldRunDoesNotEndIt_shouldForwardItAndKeepHolding() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
 
         // -- Act --
@@ -890,7 +844,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenDiagnosticOfHeldRunIsWithdrawn_shouldKeepHolding() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
 
         // -- Act --
@@ -905,7 +859,7 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
     func testSubmit_whenDiagnosticArrivesAfterHeldReportWasSent_shouldForwardItAsItsOwnEvent() throws {
         // -- Arrange --
         let sut = givenSut()
-        sut.hold(fatalReportsOf: .watchdogTermination, for: 30)
+        sut.use([.watchdogTerminationAwaitingMetricKit])
         sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
         dispatchQueueWrapper.invokeLastDispatchAfter()
         downstream.submittedReports.removeAll()

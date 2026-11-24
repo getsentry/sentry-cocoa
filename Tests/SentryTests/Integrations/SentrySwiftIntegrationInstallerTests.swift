@@ -21,6 +21,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
     override func tearDown() {
         SentrySDKInternal.setCurrentHub(nil)
+        SentrySDKInternal.fatalDetected = false
         // Installing creates dependencies the container keeps, such as the event source
         // coordinator, which must not reach the next test.
         SentryDependencyContainer.reset()
@@ -120,6 +121,103 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
     @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testInstall_whenAPreviousLaunchLeftAHeldReportAndNothingHoldsReports_shouldSendIt() throws {
         // -- Arrange --
+        let options = givenOptionsWithoutFatalSources()
+        let heldReportStore = try givenHeldReportStore(options: options)
+        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+        let client = try XCTUnwrap(TestClient(options: options))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        // -- Act --
+        SentrySwiftIntegrationInstaller.install(with: options)
+
+        // -- Assert --
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
+        XCTAssertNil(heldReportStore.read())
+    }
+
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
+    func testInstall_whenAPreviousLaunchLeftAHeldReport_shouldSetFatalDetected() throws {
+        // -- Arrange --
+        let options = givenOptionsWithoutFatalSources()
+        let heldReportStore = try givenHeldReportStore(options: options)
+        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+        let client = try XCTUnwrap(TestClient(options: options))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        // -- Act --
+        SentrySwiftIntegrationInstaller.install(with: options)
+
+        // -- Assert --
+        // The SDK reports that the last run didn't crash when no integration detected a fatal run
+        // while it was installed. The held report is a fatal event this launch sends.
+        XCTAssertTrue(SentrySDKInternal.fatalDetected)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
+    func testInstall_whenNoReportIsHeld_shouldNotSetFatalDetected() throws {
+        // -- Arrange --
+        let options = givenOptionsWithoutFatalSources()
+        _ = try givenHeldReportStore(options: options)
+        let client = try XCTUnwrap(TestClient(options: options))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        // -- Act --
+        SentrySwiftIntegrationInstaller.install(with: options)
+
+        // -- Assert --
+        XCTAssertFalse(SentrySDKInternal.fatalDetected)
+    }
+
+    #if os(iOS) || os(macOS) || os(visionOS)
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
+    func testInstall_whenMetricKitReportsRunEnds_shouldHoldWatchdogTerminations() throws {
+        // -- Arrange --
+        let options = givenOptionsWithoutFatalSources()
+        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
+        let heldReportStore = try givenHeldReportStore(options: options)
+        let client = try XCTUnwrap(TestClient(options: options))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        // -- Act --
+        SentrySwiftIntegrationInstaller.install(with: options)
+        SentryDependencyContainer.sharedInstance().eventSourceCoordinator.submit(SentryEventSourceReport(
+            source: .watchdogTermination,
+            kind: .fatal(attachmentPaths: [], isRetainedOnFailure: false),
+            runId: SentryCurrentRun.ID(rawValue: "run-1"),
+            event: Event(level: .fatal)
+        ))
+
+        // -- Assert --
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
+        XCTAssertEqual(try XCTUnwrap(heldReportStore.read()).runId, SentryCurrentRun.ID(rawValue: "run-1"))
+    }
+    #endif // os(iOS) || os(macOS) || os(visionOS)
+
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
+    func testInstall_whenMetricKitDoesNotReportRunEnds_shouldSendWatchdogTerminationsRightAway() throws {
+        // -- Arrange --
+        let options = givenOptionsWithoutFatalSources()
+        let heldReportStore = try givenHeldReportStore(options: options)
+        let client = try XCTUnwrap(TestClient(options: options))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        // -- Act --
+        SentrySwiftIntegrationInstaller.install(with: options)
+        SentryDependencyContainer.sharedInstance().eventSourceCoordinator.submit(SentryEventSourceReport(
+            source: .watchdogTermination,
+            kind: .fatal(attachmentPaths: [], isRetainedOnFailure: false),
+            runId: SentryCurrentRun.ID(rawValue: "run-1"),
+            event: Event(level: .fatal)
+        ))
+
+        // -- Assert --
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
+        XCTAssertNil(heldReportStore.read())
+    }
+
+    /// Options with which no integration reports a fatal run or waits for a late report of one.
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
+    private func givenOptionsWithoutFatalSources() -> Options {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentrySwiftIntegrationInstallerTests")
         options.enableAutoSessionTracking = false
@@ -131,8 +229,6 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
         options.enableCrashHandler = false
-        // Without MetricKit diagnostics no integration asks to hold reports, and without a crash
-        // or a watchdog termination no fatal report is submitted in this launch.
         #if canImport(MetricKit) && !os(tvOS)
         #if SDK_V10
         options.experimental.metrickit.enabledDiagnosticReports = []
@@ -140,22 +236,16 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableMetricKit = false
         #endif // SDK_V10
         #endif
+        return options
+    }
 
+    /// The store the installed SDK reads the held report from, with work dispatched to the SDK's
+    /// queue running right away.
+    private func givenHeldReportStore(options: Options) throws -> SentryHeldFatalReportStore {
         let fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper()))
-        defer { fileManager.deleteAllFolders() }
+        addTeardownBlock { fileManager.deleteAllFolders() }
         SentryDependencyContainer.sharedInstance().fileManager = fileManager
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let heldReportStore = SentryHeldFatalReportStore(fileManager: fileManager)
-        heldReportStore.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
-
-        let client = try XCTUnwrap(TestClient(options: options))
-        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
-
-        // -- Act --
-        SentrySwiftIntegrationInstaller.install(with: options)
-
-        // -- Assert --
-        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
-        XCTAssertNil(heldReportStore.read())
+        return SentryHeldFatalReportStore(fileManager: fileManager)
     }
 }

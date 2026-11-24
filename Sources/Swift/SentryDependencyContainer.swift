@@ -1027,13 +1027,6 @@ protocol CrashHandlerEventSourceProvider {
 }
 extension SentryDependencyContainer: CrashHandlerEventSourceProvider {}
 
-protocol EventSourceHoldPolicyProvider {
-    var eventSourceHoldPolicy: SentryEventSourceHoldPolicy { get }
-}
-extension SentryDependencyContainer: EventSourceHoldPolicyProvider {
-    var eventSourceHoldPolicy: SentryEventSourceHoldPolicy { eventSourceCoordinator }
-}
-
 protocol GlobalEventProcessorProvider {
     var globalEventProcessor: SentryGlobalEventProcessor { get }
 }

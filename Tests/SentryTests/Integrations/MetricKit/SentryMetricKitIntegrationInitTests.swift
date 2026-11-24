@@ -85,70 +85,55 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         XCTAssertEqual(record.threadCrumbAddresses.count, 32)
     }
 
-    func testInit_whenCrashDiagnosticsAreEnabled_shouldHoldWatchdogTerminations() throws {
+    func testReportsRunEnds_whenCrashDiagnosticsAreEnabled_shouldReturnTrue() {
         // -- Arrange --
         let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.experimental.metrickit.enabledDiagnosticReports = [.crash]
-        let dependencies = try givenDependencies(options: options)
-        defer { dependencies.fileManager?.deleteAllFolders() }
 
-        // -- Act --
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: dependencies))
-
-        // -- Assert --
-        XCTAssertEqual(dependencies.holdPolicy.heldSources, [.watchdogTermination: 30])
-        sut.uninstall()
-        XCTAssertEqual(dependencies.holdPolicy.heldSources, [:])
+        // -- Act & Assert --
+        XCTAssertTrue(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
     }
 
-    func testInit_whenMemoryExceptionDiagnosticsAreEnabled_shouldHoldWatchdogTerminations() throws {
+    func testReportsRunEnds_whenMemoryExceptionDiagnosticsAreEnabled_shouldReturnTrue() {
         // -- Arrange --
         let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.experimental.metrickit.enabledDiagnosticReports = [.memoryException]
-        let dependencies = try givenDependencies(options: options)
-        defer { dependencies.fileManager?.deleteAllFolders() }
 
-        // -- Act --
-        _ = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: dependencies))
-
-        // -- Assert --
-        XCTAssertEqual(dependencies.holdPolicy.heldSources, [.watchdogTermination: 30])
+        // -- Act & Assert --
+        XCTAssertTrue(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
     }
 
-    func testInit_whenOnlyOtherDiagnosticsAreEnabled_shouldNotHoldWatchdogTerminations() throws {
+    func testReportsRunEnds_whenOnlyOtherDiagnosticsAreEnabled_shouldReturnFalse() {
         // -- Arrange --
         let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
-        options.experimental.metrickit.enabledDiagnosticReports = [.hang]
-        let dependencies = try givenDependencies(options: options)
-        defer { dependencies.fileManager?.deleteAllFolders() }
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang, .cpuException, .diskWriteException, .appLaunch]
 
-        // -- Act --
-        _ = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: dependencies))
-
-        // -- Assert --
-        XCTAssertEqual(dependencies.holdPolicy.heldSources, [:])
+        // -- Act & Assert --
+        XCTAssertFalse(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
     }
 
-    func testInit_whenRunIdsCantBeRecorded_shouldNotHoldWatchdogTerminations() throws {
+    func testReportsRunEnds_whenOnlyMetricReportsAreEnabled_shouldReturnFalse() {
         // -- Arrange --
         let options = Options()
-        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
-        let dependencies = TestMetricKitDependencies(fileManager: nil)
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledMetricReports = [.exitForegroundWatchdog]
 
-        // -- Act --
-        _ = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: dependencies))
-
-        // -- Assert --
-        XCTAssertEqual(dependencies.holdPolicy.heldSources, [:])
+        // -- Act & Assert --
+        XCTAssertFalse(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
     }
 
-    private func givenDependencies(options: Options) throws -> TestMetricKitDependencies {
-        let fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper()))
-        return TestMetricKitDependencies(fileManager: fileManager)
+    #if !SDK_V10
+    func testReportsRunEnds_whenOnlyEnableMetricKitIsSet_shouldReturnFalse() {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = true
+
+        // -- Act & Assert --
+        // enableMetricKit alone captures CPU, disk write and hang diagnostics, none of which says
+        // how a run ended.
+        XCTAssertFalse(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
     }
+    #endif // !SDK_V10
 
     func testInit_whenDiagnosticsAreDisabled_shouldNotRecordTheRunId() throws {
         // -- Arrange --
@@ -237,32 +222,6 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         XCTAssertNil(sut)
 #endif
     }
-}
-
-/// Records which sources an integration asked to hold.
-private final class TestEventSourceHoldPolicy: SentryEventSourceHoldPolicy {
-    var heldSources: [SentryEventSource: TimeInterval] = [:]
-
-    func hold(fatalReportsOf source: SentryEventSource, for duration: TimeInterval) {
-        heldSources[source] = duration
-    }
-
-    func stopHolding(fatalReportsOf source: SentryEventSource) {
-        heldSources[source] = nil
-    }
-}
-
-private struct TestMetricKitDependencies: SysctlProvider, EventSourceSinkProvider, EventSourceHoldPolicyProvider, CurrentRunProvider, FileManagerProvider, DateProviderProvider, DispatchQueueWrapperProvider {
-    let sysctlWrapper = SentrySysctl()
-    let eventSourceSink: SentryEventSourceSink = TestEventSourceSink()
-    let holdPolicy = TestEventSourceHoldPolicy()
-    var eventSourceHoldPolicy: SentryEventSourceHoldPolicy { holdPolicy }
-    // The thread crumb is parked once per process for the run ID of the container's run, so
-    // another run ID would get no crumb and block the tests that need one.
-    let currentRun = SentryDependencyContainer.sharedInstance().currentRun
-    let fileManager: SentryFileManager?
-    let dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
-    let dispatchQueueWrapper: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 }
 
 #endif // os(iOS) || os(macOS) || os(visionOS)

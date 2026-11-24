@@ -58,6 +58,18 @@ private struct AnyIntegration {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
+        // Before any integration is installed, so the coordinator knows which reports to hold
+        // before the first source reports, in whichever order the integrations install.
+        let eventSourceCoordinator = dependencies.eventSourceCoordinator
+        eventSourceCoordinator.use(SentryEventSourceOrchestrator.enabled(for: options))
+        // A report that is still held is a fatal event this launch sends, like a crash or a
+        // watchdog termination an integration detects. Without this, the SDK reports that the
+        // last run didn't crash and then sends a fatal event without the callbacks for it. Only
+        // checks that the file exists, because this is usually the main thread.
+        if eventSourceCoordinator.hasHeldReport {
+            SentrySDKInternal.fatalDetected = true
+        }
+
         // The order of integrations here is important.
         // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
         // And SentrySessionReplayIntegration before SentryCrashIntegration.
@@ -91,13 +103,6 @@ private struct AnyIntegration {
             .init(SentryFileIOTrackingIntegration.self)
         ])
 
-        // SentryMetricKitIntegration before SentryWatchdogTerminationTrackingIntegration, so the
-        // event source coordinator knows whether to hold a watchdog termination for MetricKit
-        // before the watchdog termination integration reports one.
-        #if os(iOS) || os(macOS) || os(visionOS)
-        integrations.append(.init(SentryMetricKitIntegration.self))
-        #endif
-
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryAppStartTrackingIntegration.self))
         integrations.append(.init(SentryPerformanceTrackingIntegration.self))
@@ -118,6 +123,10 @@ private struct AnyIntegration {
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
 
+        #if os(iOS) || os(macOS) || os(visionOS)
+        integrations.append(.init(SentryMetricKitIntegration.self))
+        #endif
+
         #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryWebViewTracePropagationIntegration.self))
         #endif
@@ -132,7 +141,7 @@ private struct AnyIntegration {
         // are installed now. Otherwise it stays on disk when this launch neither holds reports
         // nor reports a fatal run. Off the calling thread, which is usually the main thread.
         dependencies.dispatchQueueWrapper.dispatchAsync {
-            dependencies.eventSourceCoordinator.sendHeldReportOfPreviousLaunch()
+            eventSourceCoordinator.sendHeldReportOfPreviousLaunch()
         }
     }
 }

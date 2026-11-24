@@ -1,7 +1,7 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourceSinkProvider & EventSourceHoldPolicyProvider & CurrentRunProvider & FileManagerProvider & DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
+final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourceSinkProvider & CurrentRunProvider & FileManagerProvider & DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
     
     /// Captures the enabled diagnostics, or `nil` when none is enabled.
     let diagnosticCapturer: SentryMXDiagnosticCapturer?
@@ -13,15 +13,6 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
     /// The `MXMetricManager` subscriber that receives the reports `MetricManager` doesn't
     /// deliver, or `nil` when `MetricManager` delivers every enabled report.
     let mxManager: SentryMXManager?
-    /// How long a watchdog termination waits for the diagnostic that explains it.
-    ///
-    /// MetricKit doesn't promise when, or whether, it delivers a diagnostic, so this only caps
-    /// the delay of a watchdog termination event. Dogfooding measures how long MetricKit takes
-    /// after a launch, and the value follows that.
-    static var watchdogTerminationHoldDuration: TimeInterval { 30 }
-    /// The hold policy the integration asked to hold watchdog terminations, or `nil` when it
-    /// can't match their diagnostics.
-    private let holdPolicy: SentryEventSourceHoldPolicy?
 
     init?(with options: Options, dependencies: Dependencies) {
         let enabledDiagnostics = Self.enabledDiagnostics(for: options)
@@ -30,7 +21,6 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
             return nil
         }
 
-        let runIdDecoder = enabledDiagnostics.isEmpty ? nil : Self.recordRunId(dependencies: dependencies)
         let diagnosticCapturer = enabledDiagnostics.isEmpty ? nil : SentryMXDiagnosticCapturer(
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
@@ -39,18 +29,8 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
             hangReportingMode: options.experimental.metrickit.hangReportingMode,
             processStartDate: dependencies.sysctlWrapper.processStartTimestamp,
             eventSourceSink: dependencies.eventSourceSink,
-            runIdDecoder: runIdDecoder
+            runIdDecoder: Self.recordRunId(dependencies: dependencies)
         )
-
-        // A watchdog termination is only worth holding when a diagnostic that explains it can
-        // arrive and be matched to its run: a crash diagnostic carries the watchdog's termination
-        // reason, and a memory exception diagnostic the memory limit.
-        if runIdDecoder != nil, !enabledDiagnostics.isDisjoint(with: [.crash, .memoryException]) {
-            holdPolicy = dependencies.eventSourceHoldPolicy
-            holdPolicy?.hold(fatalReportsOf: .watchdogTermination, for: Self.watchdogTerminationHoldDuration)
-        } else {
-            holdPolicy = nil
-        }
         let metricRecorder = enabledMetricReports.isEmpty ? nil : SentryMXMetricRecorder(
             enabledMetricReports: enabledMetricReports,
             releaseName: options.releaseName
@@ -113,7 +93,6 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
     func uninstall() {
         metricManager?.pauseReports()
         mxManager?.pauseReports()
-        holdPolicy?.stopHolding(fatalReportsOf: .watchdogTermination)
     }
 
     /// Whether `MetricManager` delivers diagnostics, which it does on xOS 27 and later.
@@ -153,6 +132,16 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
         }
         #endif // compiler(>=6.4)
         return nil
+    }
+
+    /// Whether the integration reports how runs ended with these options, which a crash
+    /// diagnostic does with the termination reason and a memory exception diagnostic with the
+    /// memory limit.
+    ///
+    /// ``SentryEventSourceOrchestrator`` asks this to tell whether a report that waits for MetricKit
+    /// can get an answer.
+    static func reportsRunEnds(with options: Options) -> Bool {
+        !enabledDiagnostics(for: options).isDisjoint(with: [.crash, .memoryException])
     }
 
     private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
