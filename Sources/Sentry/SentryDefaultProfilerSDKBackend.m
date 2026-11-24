@@ -1,10 +1,12 @@
 #import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryProfilerCancellation.h"
 #import "SentryProfilerConfigurationBridge.h"
+#import "SentryProfilerSerialization.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -20,6 +22,41 @@
 - (void)dealloc
 {
     [SentryProfilerSDKAdapter.shared removeTarget:self];
+}
+
+- (void)captureProfileChunkWithID:(NSString *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(NSDictionary<NSString *, id> *)serializedMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+{
+    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
+    SentryDebugImageProvider *const debugImageProvider
+        = SentryDependencyContainer.sharedInstance.debugImageProvider;
+    [self dispatchAsync:^{
+        // Closing the originating SDK must not redirect a pending chunk to a later client.
+        if (hub.getClient == nil) {
+            return;
+        }
+        NSMutableArray<NSDictionary<NSString *, id> *> *images = [NSMutableArray array];
+        for (SentryDebugMeta *image in [debugImageProvider getDebugImagesFromCache]) {
+            [images addObject:[image serialize]];
+        }
+        SentryId *identifier = [[SentryId alloc] initWithUUIDString:profileID];
+        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
+            identifier, profileData, serializedMetrics, images, hub
+#    if SENTRY_HAS_UIKIT
+            ,
+            frames
+#    endif
+        );
+        if (envelope == nil) {
+            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
+            return;
+        }
+        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
+    }];
 }
 
 - (SentryProfilingConfiguration)configuration

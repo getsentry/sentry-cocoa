@@ -440,10 +440,12 @@ jobs:
       - name: Build and run SPM consumers
         env:
           SENTRY_XCFRAMEWORK: ../Sentry-Dynamic.xcframework
+          SENTRY_TEST_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
         run: |
           status=0
           for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
-            swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
+            swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release \
+              -Xcc "-DSENTRY_TEST_V10=$SENTRY_TEST_V10" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
             tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
           done
           exit "$status"
@@ -766,7 +768,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@ff6e3c1592500a879b26161a413427bb8426bec1 # 3.12.1
+        uses: getsentry/craft@b2a6fa4904f37b46f34b82330e0f3bf02a40f681 # 3.13.0
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

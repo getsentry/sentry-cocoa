@@ -1341,6 +1341,44 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SamplingContext",
+                "printedName": "Sentry.SamplingContext",
+                "usr": "c:@M@Sentry@objc(cs)SentrySamplingContext"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.SamplingContext) -> Foundation.NSNumber?"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A21TracesSamplerCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryTracesSamplerCallback",
+        "printedName": "SentryTracesSamplerCallback",
+        "usr": "s:6Sentry0A21TracesSamplerCallbacka"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "Void",
                     "printedName": "()"
                   }
@@ -44331,6 +44369,59 @@
             "name": "start",
             "printedName": "start(for:)",
             "usr": "s:6Sentry0A20InternalProfilingApiV5start3fors6UInt64VSo0A2IdC_tF"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvp",
+            "moduleName": "Sentry",
+            "name": "currentProfilerId",
+            "printedName": "currentProfilerId",
+            "usr": "s:6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvp"
           }
         ],
         "conformances": [
