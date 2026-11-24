@@ -336,11 +336,11 @@ run_release_for_prs: &run_release_for_prs
   - "Package*.swift"
 
   # Test Apps
-  - "Tests/ShippingVariantConsumer/**"
   - "TestApps/macOS-ObjectiveC-Static-CMake/**"
   - "TestApps/macOS-SPM-CommandLine/**"
   - "TestApps/SPM-Dynamic/**"
   - "TestApps/SPM-ObjC-Dynamic/**"
+  - "TestApps/SPM-ObjC-NoUI/**"
   - "TestApps/SPM-ObjC-Static/**"
 
   # Build configuration

@@ -441,17 +441,18 @@ jobs:
         env:
           FRAMEWORK: ${{ matrix.artifact }}
         run: ./scripts/validate-xcframework-no-ui.sh --xcframework "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework"
-      - name: Run macOS NoUI consumer
+      - name: Run Objective-C no-UI consumer
         if: matrix.artifact == 'Sentry-WithoutUIKitOrAppKit'
         env:
           FRAMEWORK: ${{ matrix.artifact }}
         run: |
           work="$RUNNER_TEMP/spm-sdk"
           slice="$work/$FRAMEWORK.xcframework/macos-arm64_x86_64"
-          xcrun --sdk macosx clang -fno-modules -F "$slice" Tests/ShippingVariantConsumer/no-ui.m \
-            -framework Foundation -framework SentryWithoutUIKit -Wl,-rpath,"$slice" -o "$work/no-ui"
-          trace="$work/SPM-no-ui.log"
-          DYLD_PRINT_LIBRARIES=1 "$work/no-ui" 2>"$trace"
+          consumer=SPM-ObjC-NoUI
+          xcrun --sdk macosx clang -fno-modules -F "$slice" "TestApps/$consumer/Sources/$consumer/main.m" \
+            -framework Foundation -framework SentryWithoutUIKit -Wl,-rpath,"$slice" -o "$work/$consumer"
+          trace="$work/$consumer.log"
+          DYLD_PRINT_LIBRARIES=1 "$work/$consumer" 2>"$trace"
           grep -Fq '/SentryWithoutUIKit.framework/' "$trace" || { echo "NoUI framework missing from dyld trace" >&2; exit 1; }
           if grep -E '/(UIKit|AppKit|SwiftUI)\.framework/' "$trace"; then
             echo "NoUI consumer loaded a UI framework" >&2
