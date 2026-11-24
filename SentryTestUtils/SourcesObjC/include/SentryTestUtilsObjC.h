@@ -18,6 +18,7 @@
 #import "Wrappers/SentrySpanInternal+PrivateWrapper.h"
 #import "Wrappers/SentryTraceContext+PrivateWrapper.h"
 #import "Wrappers/SentryTracer+PrivateWrapper.h"
+#import "Wrappers/SentryTransactionContext+PrivateWrapper.h"
 
 // Existing helpers retain their paths until the test-support layout migration.
 #import "ExceptionCatcher.h"

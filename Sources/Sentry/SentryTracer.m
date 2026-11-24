@@ -20,6 +20,7 @@
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
+#import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -81,8 +82,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 }
 
-- (instancetype)initWithTransactionContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                               SentryTransactionContext))transactionContext
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHubInternal *)hub
 {
     return [self initWithTransactionContext:transactionContext
@@ -90,13 +90,11 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                               configuration:SentryTracerConfiguration.defaultConfiguration];
 }
 
-- (instancetype)initWithTransactionContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                               SentryTransactionContext))transactionContext
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHubInternal *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 {
-    SentryTransactionContext *context = transactionContext;
-    if (!(self = [super initWithContext:context
+    if (!(self = [super initWithContext:transactionContext
 #if SENTRY_HAS_UIKIT
                           framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
 #endif // SENTRY_HAS_UIKIT
@@ -109,7 +107,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     _dispatchQueue = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     _debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
 
-    self.transactionContext = context;
+    self.transactionContext = transactionContext;
     _children = [[NSMutableArray alloc] init];
     self.hub = hub;
     self.wasFinishCalled = NO;
@@ -153,24 +151,24 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryProfilingTraceDecision profilingDecision
-        = sentry_profilerTraceDecision(configuration, hub, context);
+        = sentry_profilerTraceDecision(configuration, hub, transactionContext);
     if (profilingDecision != SentryProfilingTraceDecisionNone) {
         _profilerReferenceID = sentry_startProfilerForTrace(
-            profilingDecision, sentry_profilingIdFromSentryId(context.traceId));
+            profilingDecision, sentry_profilingIdFromSentryId(transactionContext.traceId));
     }
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    if (context.parentSpanId == nil) {
+    if (transactionContext.parentSpanId == nil) {
         SENTRY_LOG_DEBUG(
             @"Started root span tracer with id: %@; profilerReferenceId: %@; span id: %@",
-            context.traceId.sentryIdString, _profilerReferenceID.stringValue,
+            transactionContext.traceId.sentryIdString, _profilerReferenceID.stringValue,
             self.spanId.sentrySpanIdString);
     } else {
         SENTRY_LOG_DEBUG(@"Started child span tracer with id: %@; profilerReferenceId: %@; span "
                          @"id: %@; parent span id: %@",
-            context.traceId.sentryIdString, _profilerReferenceID.stringValue,
-            self.spanId.sentrySpanIdString, context.parentSpanId.sentrySpanIdString);
+            transactionContext.traceId.sentryIdString, _profilerReferenceID.stringValue,
+            self.spanId.sentrySpanIdString, transactionContext.parentSpanId.sentrySpanIdString);
     }
 
     return self;
@@ -767,8 +765,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
-    SentryTransactionContext *transactionContext = self.transactionContext;
-    transaction.transaction = transactionContext.name;
+    transaction.transaction = self.transactionContext.name;
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpanInternal *)self frames]) {
