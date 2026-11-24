@@ -1,6 +1,9 @@
 @import XCTest;
+#import "SentryProfiler+Private.h"
 #import "SentryProfilerTestConditionals.h"
 #import "SentryProfilingSwiftHelpers.h"
+#import "SentrySDKInternal.h"
+#import <objc/runtime.h>
 #if SWIFT_PACKAGE
 #    import "SentrySwift.h"
 #else
@@ -13,6 +16,19 @@
 @implementation SentryProfilingSwiftHelpersTests
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
+
+- (void)testLaunchBootstrap_whenSDKIsLinked_shouldBeOwnedBySDKNotProfiler
+{
+    // -- Act --
+    Method sdkLoad = class_getClassMethod([SentrySDKInternal class], @selector(load));
+    Method profilerLoad = class_getClassMethod([SentryProfiler class], @selector(load));
+    Method inheritedLoad = class_getClassMethod([NSObject class], @selector(load));
+
+    // -- Assert --
+    XCTAssertNotEqual(sdkLoad, (Method)NULL);
+    XCTAssertNotEqual(sdkLoad, inheritedLoad);
+    XCTAssertEqual(profilerLoad, inheritedLoad);
+}
 
 - (void)testProfilingIdFromSentryId_whenConvertingSDKIdentifier_shouldPreserveUUID
 {
