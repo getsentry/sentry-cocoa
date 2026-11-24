@@ -19,8 +19,8 @@
  * transaction's end, to accurately describe what's happening in the log statement.
  */
 void
-_sentry_logSlicingFailureWithArray(
-    NSArray<SentrySample *> *array, uint64_t startSystemTime, uint64_t endSystemTime, BOOL start)
+_sentry_logSlicingFailureWithArray(NSArray<SentryProfilingSample *> *array,
+    uint64_t startSystemTime, uint64_t endSystemTime, BOOL start)
 {
     if (!SENTRY_CASSERT_RETURN(
             array.count > 0, @"Should not have attempted to slice an empty array.")) {
@@ -43,8 +43,8 @@ _sentry_logSlicingFailureWithArray(
         firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
 }
 
-NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
-    NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime)
+NSArray<SentryProfilingSample *> *_Nullable sentry_slicedProfileSamples(
+    NSArray<SentryProfilingSample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime)
 {
     if (samples.count == 0) {
         return nil;
@@ -53,7 +53,7 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     SENTRY_LOG_DEBUG(@"Finding relevant samples from %lu total.", (unsigned long)samples.count);
 
     NSUInteger firstIndex = [samples indexOfObjectPassingTest:^BOOL(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentryProfilingSample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         *stop = sample.absoluteTimestamp >= startSystemTime;
         return *stop;
     }];
@@ -67,8 +67,8 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
 
     NSUInteger lastIndex =
         [samples indexOfObjectWithOptions:NSEnumerationReverse
-                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                  BOOL *_Nonnull stop) {
+                              passingTest:^BOOL(SentryProfilingSample *_Nonnull sample,
+                                  NSUInteger idx, BOOL *_Nonnull stop) {
                                   *stop = sample.absoluteTimestamp <= endSystemTime;
                                   return *stop;
                               }];
