@@ -7,16 +7,55 @@
 #import "SentryProfilerCancellation.h"
 #import "SentryProfilerConfigurationBridge.h"
 #import "SentryProfilerDeliveryBridge.h"
+#import "SentryProfilingLog.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+@interface SentrySDKProfilingLogger : NSObject <SentryProfilingLogger>
+@end
+
+@implementation SentrySDKProfilingLogger
+- (BOOL)shouldLog:(SentryProfilingLogLevel)level
+{
+    switch (level) {
+    case SentryProfilingLogLevelDebug:
+        return debugEnabled();
+    case SentryProfilingLogLevelWarning:
+        return warnEnabled();
+    case SentryProfilingLogLevelError:
+        return errorEnabled();
+    }
+}
+
+- (void)log:(SentryProfilingLogLevel)level
+    message:(NSString *)message
+       file:(NSString *)file
+       line:(NSUInteger)line
+{
+    switch (level) {
+    case SentryProfilingLogLevelDebug:
+        logDebug(file.UTF8String, (int)line, @"%@", message);
+        break;
+    case SentryProfilingLogLevelWarning:
+        logWarn(file.UTF8String, (int)line, @"%@", message);
+        break;
+    case SentryProfilingLogLevelError:
+        logError(file.UTF8String, (int)line, @"%@", message);
+        break;
+    }
+}
+@end
+
 @implementation SentryDefaultProfilerSDKBackend {
     SentrySystemWrapper *_systemWrapper;
+    SentrySDKProfilingLogger *_profilingLogger;
 }
 - (void)activate
 {
+    _profilingLogger = [[SentrySDKProfilingLogger alloc] init];
+    SentryProfilingLog.logger = _profilingLogger;
     [SentryProfilerSDKAdapter.shared setTarget:self];
 }
 - (void)dealloc
