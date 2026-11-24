@@ -1,6 +1,5 @@
 #import "SentryClient+EventContext.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryMechanism.h"
 #import "SentrySwift.h"

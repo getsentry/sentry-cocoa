@@ -1,5 +1,4 @@
 #import "SentryClient+ErrorEvents.h"
-#import "SentryException.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"

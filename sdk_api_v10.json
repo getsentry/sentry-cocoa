@@ -8764,7 +8764,7 @@
                             "kind": "TypeNominal",
                             "name": "Exception",
                             "printedName": "Sentry.Exception",
-                            "usr": "c:objc(cs)SentryException"
+                            "usr": "c:@M@Sentry@objc(cs)SentryException"
                           }
                         ],
                         "kind": "TypeNominal",
@@ -8785,7 +8785,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry5EventC10exceptionsSaySo0A9ExceptionCGSgvg",
+                "mangledName": "$s6Sentry5EventC10exceptionsSayAA9ExceptionCGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -8802,7 +8802,7 @@
                             "kind": "TypeNominal",
                             "name": "Exception",
                             "printedName": "Sentry.Exception",
-                            "usr": "c:objc(cs)SentryException"
+                            "usr": "c:@M@Sentry@objc(cs)SentryException"
                           }
                         ],
                         "kind": "TypeNominal",
@@ -8828,7 +8828,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry5EventC10exceptionsSaySo0A9ExceptionCGSgvs",
+                "mangledName": "$s6Sentry5EventC10exceptionsSayAA9ExceptionCGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -8844,7 +8844,7 @@
                         "kind": "TypeNominal",
                         "name": "Exception",
                         "printedName": "Sentry.Exception",
-                        "usr": "c:objc(cs)SentryException"
+                        "usr": "c:@M@Sentry@objc(cs)SentryException"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -8867,7 +8867,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry5EventC10exceptionsSaySo0A9ExceptionCGSgvp",
+            "mangledName": "$s6Sentry5EventC10exceptionsSayAA9ExceptionCGSgvp",
             "moduleName": "Sentry",
             "name": "exceptions",
             "printedName": "exceptions",
@@ -10980,7 +10980,7 @@
                 "kind": "TypeNominal",
                 "name": "Exception",
                 "printedName": "Sentry.Exception",
-                "usr": "c:objc(cs)SentryException"
+                "usr": "c:@M@Sentry@objc(cs)SentryException"
               },
               {
                 "children": [
@@ -11012,17 +11012,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry9ExceptionC5value4typeACSSSg_AFtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithValue:type:",
             "printedName": "init(value:type:)",
-            "usr": "c:objc(cs)SentryException(im)initWithValue:type:"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(im)initWithValue:type:"
           },
           {
             "accessors": [
@@ -11045,34 +11045,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC9mechanismSo0A9MechanismCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "mechanism",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryException(im)mechanism"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)mechanism"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11086,20 +11073,25 @@
                     "name": "Optional",
                     "printedName": "Sentry.Mechanism?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC9mechanismSo0A9MechanismCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setMechanism:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryException(im)setMechanism:"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)setMechanism:"
               }
             ],
             "children": [
@@ -11119,17 +11111,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry9ExceptionC9mechanismSo0A9MechanismCSgvp",
             "moduleName": "Sentry",
             "name": "mechanism",
-            "objc_name": "mechanism",
             "printedName": "mechanism",
-            "usr": "c:objc(cs)SentryException(py)mechanism"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(py)mechanism"
           },
           {
             "accessors": [
@@ -11152,34 +11146,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC6moduleSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "module",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryException(im)module"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)module"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11193,20 +11174,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC6moduleSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setModule:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryException(im)setModule:"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)setModule:"
               }
             ],
             "children": [
@@ -11226,17 +11212,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry9ExceptionC6moduleSSSgvp",
             "moduleName": "Sentry",
             "name": "module",
-            "objc_name": "module",
             "printedName": "module",
-            "usr": "c:objc(cs)SentryException(py)module"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(py)module"
           },
           {
             "accessors": [
@@ -11259,34 +11247,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC10stacktraceSo0A10StacktraceCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "stacktrace",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryException(im)stacktrace"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)stacktrace"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11300,20 +11275,25 @@
                     "name": "Optional",
                     "printedName": "Sentry.SentryStacktrace?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC10stacktraceSo0A10StacktraceCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setStacktrace:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryException(im)setStacktrace:"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)setStacktrace:"
               }
             ],
             "children": [
@@ -11333,17 +11313,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry9ExceptionC10stacktraceSo0A10StacktraceCSgvp",
             "moduleName": "Sentry",
             "name": "stacktrace",
-            "objc_name": "stacktrace",
             "printedName": "stacktrace",
-            "usr": "c:objc(cs)SentryException(py)stacktrace"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(py)stacktrace"
           },
           {
             "accessors": [
@@ -11366,34 +11348,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC8threadIdSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "threadId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryException(im)threadId"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)threadId"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11407,20 +11376,25 @@
                     "name": "Optional",
                     "printedName": "Foundation.NSNumber?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC8threadIdSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setThreadId:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryException(im)setThreadId:"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)setThreadId:"
               }
             ],
             "children": [
@@ -11440,18 +11414,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
-              "NSCopying",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry9ExceptionC8threadIdSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "name": "threadId",
-            "objc_name": "threadId",
             "printedName": "threadId",
-            "usr": "c:objc(cs)SentryException(py)threadId"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(py)threadId"
           },
           {
             "accessors": [
@@ -11474,34 +11449,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC4typeSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "type",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryException(im)type"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)type"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11515,20 +11477,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC4typeSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setType:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryException(im)setType:"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)setType:"
               }
             ],
             "children": [
@@ -11548,17 +11515,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry9ExceptionC4typeSSSgvp",
             "moduleName": "Sentry",
             "name": "type",
-            "objc_name": "type",
             "printedName": "type",
-            "usr": "c:objc(cs)SentryException(py)type"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(py)type"
           },
           {
             "accessors": [
@@ -11581,34 +11550,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC5valueSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "value",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryException(im)value"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)value"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11622,20 +11578,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry9ExceptionC5valueSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setValue:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryException(im)setValue:"
+                "usr": "c:@M@Sentry@objc(cs)SentryException(im)setValue:"
               }
             ],
             "children": [
@@ -11655,17 +11616,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry9ExceptionC5valueSSSgvp",
             "moduleName": "Sentry",
             "name": "value",
-            "objc_name": "value",
             "printedName": "value",
-            "usr": "c:objc(cs)SentryException(py)value"
+            "usr": "c:@M@Sentry@objc(cs)SentryException(py)value"
           }
         ],
         "conformances": [
@@ -11726,13 +11689,13 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
-          "ObjC"
+          "ObjC",
+          "ObjCMembers"
         ],
         "declKind": "Class",
-        "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry9ExceptionC",
         "moduleName": "Sentry",
         "name": "Exception",
         "objc_name": "SentryException",
@@ -11741,7 +11704,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryException"
+        "usr": "c:@M@Sentry@objc(cs)SentryException"
       },
       {
         "children": [
