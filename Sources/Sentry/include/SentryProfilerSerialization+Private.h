@@ -2,12 +2,11 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    if defined(DEBUG) // Test support.
-
-#        import "SentryDefines.h"
-#        import "SentryProfiler+Private.h"
+#    import "SentryDefines.h"
+#    import "SentryProfiler+Private.h"
 
 @class SentryHubInternal;
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,18 +21,26 @@ SENTRY_EXTERN NSString *sentry_profilerTruncationReasonName(SentryProfilerTrunca
  * will have different structures/objects available, these parameters are the common elements
  * needed to construct the payload dictionary.
  */
-SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfileData(
+SENTRY_EXTERN NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
-#        if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     ,
     SentryProfilingFrameMeasurements *_Nullable gpuData
-#        endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
+);
+
+SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedContinuousProfileChunk(
+    SentryId *profileID, SentryId *chunkID, NSDictionary<NSString *, id> *profileData,
+    NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
+#    if SENTRY_HAS_UIKIT
+    ,
+    SentryProfilingFrameMeasurements *_Nullable gpuData
+#    endif
 );
 
 NS_ASSUME_NONNULL_END
-
-#    endif // defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

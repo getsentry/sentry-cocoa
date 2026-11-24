@@ -90,7 +90,6 @@ See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and eve
 - Keep independent fixes in separate pull requests and exclude unrelated commits or generated test artifacts
 - Follow [the pull request template](.github/pull_request_template.md) and check boxes only when supported by the work performed
 - Add `run-full-ci` only when the pull request is ready for comprehensive testing
-- After committing, include any `Agent transcript:` link from `git log main..HEAD` in the pull request description
 
 ## Documentation
 

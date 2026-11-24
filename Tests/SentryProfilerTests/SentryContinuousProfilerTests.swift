@@ -92,12 +92,10 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
-    /**
-     Given a running continuous profiler,
-     when time advances past the trace profiler's 30-second timeout but not the chunk boundary,
-     then sampling continues and no chunk is transmitted.
-     Continuous profiling must not inherit the trace profiler's timeout behavior.
-     */
+    // Given a running continuous profiler,
+    // when time advances past the trace profiler's 30-second timeout but not the chunk boundary,
+    // then sampling continues and no chunk is transmitted.
+    // Continuous profiling must not inherit the trace profiler's timeout behavior.
     func testTimer_whenTraceTimeoutHasElapsed_shouldKeepProfilingWithoutTransmittingChunk() throws {
         // -- Arrange --
         SentryContinuousProfiler.start()
@@ -131,8 +129,10 @@ final class SentryContinuousProfilerTests: XCTestCase {
 
     func testStop_whenChunkIsIncomplete_shouldCaptureRemainingSamplesAtChunkEnd() throws {
         // -- Arrange --
+        XCTAssertNil(SentrySDK.internal.profiling.currentProfilerId)
         SentryContinuousProfiler.start()
         defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let profilerId = try XCTUnwrap(SentrySDK.internal.profiling.currentProfilerId)
         let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
         let state = SentryProfilerState()
         profiler.state = state
@@ -149,6 +149,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try fixture.timeoutTimerFactory.check()
 
         // -- Assert --
+        XCTAssertEqual(SentrySDK.internal.profiling.currentProfilerId, profilerId)
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 1)
 
@@ -158,20 +159,21 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try fixture.timeoutTimerFactory.check()
 
         // -- Assert --
+        XCTAssertNil(SentrySDK.internal.profiling.currentProfilerId)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 2)
         let firstProfile = try XCTUnwrap(try capturedChunk(at: 0)["profile"] as? [String: Any])
-        let lastProfile = try XCTUnwrap(try capturedChunk(at: 1)["profile"] as? [String: Any])
+        let lastChunk = try capturedChunk(at: 1)
+        XCTAssertEqual(lastChunk["profiler_id"] as? String, profilerId)
+        let lastProfile = try XCTUnwrap(lastChunk["profile"] as? [String: Any])
         XCTAssertEqual(try sampleAddresses(in: firstProfile), [["0x0000000000000001"]])
         XCTAssertEqual(try sampleAddresses(in: lastProfile), [
             ["0x0000000000000002"], ["0x0000000000000003"], ["0x0000000000000004"]
         ])
     }
     
-    /**
-     Deferred serialization must not read images or capture envelopes until queued work runs.
-     This checks deferred dispatch, not which thread executes the work in production.
-     */
+    // Deferred serialization must not read images or capture envelopes until queued work runs.
+    // This checks deferred dispatch, not which thread executes the work in production.
     func testTransmitChunk_whenSerializationIsDeferred_shouldQueueSerialization() throws {
         // -- Arrange --
         let client = try XCTUnwrap(fixture.client)
@@ -213,12 +215,10 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    /**
-     Given a stop request waiting for the current chunk to finish,
-     when profiling starts again before that boundary,
-     then the pending stop is canceled and the same profiler, timer, and correlation ID remain.
-     A later stop request still transmits the final chunk and shuts down profiling.
-     */
+    // Given a stop request waiting for the current chunk to finish,
+    // when profiling starts again before that boundary,
+    // then the pending stop is canceled and the same profiler, timer, and correlation ID remain.
+    // A later stop request still transmits the final chunk and shuts down profiling.
     func testStart_whenStopIsPending_shouldKeepSameProfilerRunning() throws {
         // -- Arrange --
         SentryContinuousProfiler.start()
@@ -248,7 +248,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         let firstEnvelope = try XCTUnwrap(fixture.client?.captureEnvelopeInvocations.first)
         let firstItem = try XCTUnwrap(firstEnvelope.items.first)
         let firstChunk = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(firstItem.data)) as? [String: Any])
-        XCTAssertEqual(firstChunk["profiler_id"] as? String, initialProfiler.profilerId.sentryIdString)
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, initialProfiler.profilerId.stringValue)
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -272,13 +272,11 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
     }
     
-    /**
-     Given collected samples and debug-image metadata that cannot be serialized to JSON,
-     when chunk serialization fails,
-     then no envelope is captured and profiling continues.
-     When valid metadata and new samples are available for the next chunk,
-     then that chunk is captured, proving one serialization failure does not disable delivery.
-     */
+    // Given collected samples and debug-image metadata that cannot be serialized to JSON,
+    // when chunk serialization fails,
+    // then no envelope is captured and profiling continues.
+    // When valid metadata and new samples are available for the next chunk,
+    // then that chunk is captured, proving one serialization failure does not disable delivery.
     func testTransmitChunk_whenSerializationFails_shouldKeepProfilingAndCaptureNextChunk() throws {
         // -- Arrange --
         class UnserializableDebugMeta: DebugMeta {
@@ -398,8 +396,8 @@ extension SentryContinuousProfilerTests {
         XCTAssertNotEqual(firstID, secondID)
         XCTAssertNotEqual(SentryId(uuidString: firstID), SentryId.empty)
         XCTAssertNotEqual(SentryId(uuidString: secondID), SentryId.empty)
-        XCTAssertEqual(firstChunk["profiler_id"] as? String, profiler.profilerId.sentryIdString)
-        XCTAssertEqual(secondChunk["profiler_id"] as? String, profiler.profilerId.sentryIdString)
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, profiler.profilerId.stringValue)
+        XCTAssertEqual(secondChunk["profiler_id"] as? String, profiler.profilerId.stringValue)
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 2)
     }
 
@@ -423,8 +421,12 @@ extension SentryContinuousProfilerTests {
 
         // -- Assert --
         XCTAssertFalse(firstProfiler === nextProfiler)
-        XCTAssertEqual(firstChunk["profiler_id"] as? String, firstProfiler.profilerId.sentryIdString)
-        XCTAssertEqual(nextChunk["profiler_id"] as? String, firstProfiler.profilerId.sentryIdString)
+        let profileID = try XCTUnwrap(SentryContinuousProfiler.currentProfilerID())
+        XCTAssertEqual(profileID.stringValue, firstProfiler.profilerId.stringValue)
+        XCTAssertEqual(profileID.stringValue.count, 32)
+        XCTAssertTrue(profileID.stringValue.allSatisfy { "0123456789abcdef".contains($0) })
+        XCTAssertEqual(firstChunk["profiler_id"] as? String, firstProfiler.profilerId.stringValue)
+        XCTAssertEqual(nextChunk["profiler_id"] as? String, firstProfiler.profilerId.stringValue)
         XCTAssertNotEqual(firstChunk["chunk_id"] as? String, nextChunk["chunk_id"] as? String)
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 3)
     }

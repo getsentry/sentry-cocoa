@@ -8,7 +8,6 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilingSwiftHelpers.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -28,7 +27,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
 #    pragma mark - Public
 
-+ (BOOL)startWithTracer:(SentryId *)traceId
++ (BOOL)startWithTracer:(SentryProfilingId *)traceId
 {
     SentryProfiler *profiler;
     {
@@ -52,7 +51,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return NO;
         }
 
-        _threadUnsafe_gTraceProfiler.profilerId = sentry_getSentryId();
+        _threadUnsafe_gTraceProfiler.profilerId = [[SentryProfilingId alloc] init];
         sentry_trackTransactionProfilerForTrace(
             SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gTraceProfiler), traceId);
         profiler = _threadUnsafe_gTraceProfiler;

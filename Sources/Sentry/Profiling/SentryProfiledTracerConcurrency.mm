@@ -9,21 +9,11 @@
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
-#    import "SentryEvent+Private.h"
-#    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization.h"
-#    import "SentryProfilerState.h"
-#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentryTraceProfiler.h"
-#    import "SentryTracer+Private.h"
-
-#    if SENTRY_HAS_UIKIT
-#        import "SentryAppStartMeasurement.h"
-#    endif // SENTRY_HAS_UIKIT
 
 /**
  * a mapping of profilers to the number of tracers that started them that are still in-flight and
@@ -32,15 +22,15 @@
  * where a transaction may start a profiler that then times out, and then a new transaction starts a
  * new profiler, and we must keep the aborted one around until its associated transaction finishes.
  */
-static NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
+static NSMutableDictionary</* SentryProfiler.profileId */ SentryProfilingId *,
     /* number of in-flight tracers */ NSNumber *> *_gProfilersToTracers;
 
 /** provided for fast access to a profiler given a tracer */
-static NSMutableDictionary</* SentryTracer.internalTraceId */ NSString *, SentryProfiler *>
+static NSMutableDictionary</* SentryTracer.internalTraceId */ SentryProfilingId *, SentryProfiler *>
     *_gTracersToProfilers;
 
 /** Continuous roots tracked independently from legacy/hybrid trace-profiler references. */
-static NSMutableSet<NSString *> *_gInFlightRootSpanIds;
+static NSMutableSet<SentryProfilingId *> *_gInFlightRootSpanIds;
 
 namespace {
 
@@ -51,9 +41,9 @@ std::mutex _gStateLock;
  * @warning Must be called from a synchronized context.
  */
 void
-_unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
+_unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, SentryProfilingId *tracerKey)
 {
-    const auto profilerKey = sentry_stringFromSentryID(profiler.profilerId);
+    const auto profilerKey = profiler.profilerId;
     [_gTracersToProfilers removeObjectForKey:tracerKey];
     _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
     const auto remainingTracers = [_gProfilersToTracers[profilerKey] unsignedIntValue];
@@ -71,9 +61,9 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
  * @warning Must be called from a synchronized context.
  */
 void
-_unsafe_cleanUpContinuousProfilerV2(SentryId *profilerReferenceId)
+_unsafe_cleanUpContinuousProfilerV2(SentryProfilingId *profilerReferenceId)
 {
-    const auto tracerKey = sentry_stringFromSentryID(profilerReferenceId);
+    const auto tracerKey = profilerReferenceId;
     if (![_gInFlightRootSpanIds containsObject:tracerKey]) {
         return;
     }
@@ -88,20 +78,20 @@ _unsafe_cleanUpContinuousProfilerV2(SentryId *profilerReferenceId)
 }
 
 void
-sentry_trackRootSpanForContinuousProfilerV2(SentryId *profilerReferenceId)
+sentry_trackRootSpanForContinuousProfilerV2(SentryProfilingId *profilerReferenceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     // Backgrounding stops the sampler without ending its in-flight root spans.
     [SentryContinuousProfiler start];
     if (_gInFlightRootSpanIds == nil) {
-        _gInFlightRootSpanIds = [NSMutableSet<NSString *> set];
+        _gInFlightRootSpanIds = [NSMutableSet<SentryProfilingId *> set];
     }
-    [_gInFlightRootSpanIds addObject:sentry_stringFromSentryID(profilerReferenceId)];
+    [_gInFlightRootSpanIds addObject:profilerReferenceId];
 }
 
 void
-sentry_stopTrackingRootSpanForContinuousProfilerV2(SentryId *profilerReferenceId)
+sentry_stopTrackingRootSpanForContinuousProfilerV2(SentryProfilingId *profilerReferenceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
     _unsafe_cleanUpContinuousProfilerV2(profilerReferenceId);
@@ -110,12 +100,19 @@ sentry_stopTrackingRootSpanForContinuousProfilerV2(SentryId *profilerReferenceId
 } // namespace
 
 void
-sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *internalTraceId)
+sentry_finishContinuousProfileForTrace(SentryProfilingId *profilerReferenceId)
+{
+    sentry_stopTrackingRootSpanForContinuousProfilerV2(profilerReferenceId);
+}
+
+void
+sentry_trackTransactionProfilerForTrace(
+    SentryProfiler *profiler, SentryProfilingId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    const auto profilerKey = sentry_stringFromSentryID(profiler.profilerId);
-    const auto tracerKey = sentry_stringFromSentryID(internalTraceId);
+    const auto profilerKey = profiler.profilerId;
+    const auto tracerKey = internalTraceId;
 
     SENTRY_LOG_DEBUG(
         @"Tracking relationship between profiler id %@ and tracer id %@", profilerKey, tracerKey);
@@ -125,11 +122,13 @@ sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *inte
         @"Both structures must be initialized simultaneously.");
 
     if (_gProfilersToTracers == nil) {
-        _gProfilersToTracers = [NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
-            /* number of in-flight tracers */ NSNumber *>
-            dictionary];
+        _gProfilersToTracers =
+            [NSMutableDictionary</* SentryProfiler.profileId */ SentryProfilingId *,
+                /* number of in-flight tracers */ NSNumber *>
+                dictionary];
         _gTracersToProfilers =
-            [NSMutableDictionary</* SentryTracer.internalTraceId */ NSString *, SentryProfiler *>
+            [NSMutableDictionary</* SentryTracer.internalTraceId */ SentryProfilingId *,
+                SentryProfiler *>
                 dictionary];
     }
 
@@ -138,15 +137,14 @@ sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *inte
 }
 
 void
-sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInternal *hub)
+sentry_discardProfilerCorrelatedToTrace(SentryProfilingId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     // Root ownership survives background cleanup even when the sampler is stopped.
-    if (internalTraceId != nil &&
-        [_gInFlightRootSpanIds containsObject:sentry_stringFromSentryID(internalTraceId)]) {
-        SENTRY_LOG_DEBUG(@"Stopping tracking discarded tracer with profileReferenceId %@",
-            sentry_stringFromSentryID(internalTraceId));
+    if (internalTraceId != nil && [_gInFlightRootSpanIds containsObject:internalTraceId]) {
+        SENTRY_LOG_DEBUG(
+            @"Stopping tracking discarded tracer with profileReferenceId %@", internalTraceId);
         _unsafe_cleanUpContinuousProfilerV2(internalTraceId);
     } else if (internalTraceId != nil) {
 
@@ -155,7 +153,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
                              @"time they are being queried");
         }
 
-        const auto tracerKey = sentry_stringFromSentryID(internalTraceId);
+        const auto tracerKey = internalTraceId;
         const auto profiler = _gTracersToProfilers[tracerKey];
 
         if (profiler == nil) {
@@ -176,7 +174,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
     }
 }
 
-SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId)
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryProfilingId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -186,7 +184,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
         return nil;
     }
 
-    const auto tracerKey = sentry_stringFromSentryID(internalTraceId);
+    const auto tracerKey = internalTraceId;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
     if (profiler == nil) {
@@ -209,130 +207,22 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     return profiler;
 }
 
-void
-sentry_stopProfilerDueToFinishedTransaction(
-    SentryHubInternal *hub, SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction,
-    BOOL isProfiling, BOOL isLaunchTrace, BOOL continuousTraceProfiling,
-    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
-#    if SENTRY_HAS_UIKIT
-    ,
-    SentryAppStartMeasurement *appStartMeasurement
-#    endif // SENTRY_HAS_UIKIT
-)
+SentryProfilingId *_Nullable sentry_startProfilerForTrace(
+    SentryProfilingTraceDecision decision, SentryProfilingId *traceID)
 {
-    SentryTracer *trace = sentry_tracerForTransaction(transaction);
-    if ([SentryProfilerSDKAdapter.shared configuration].traceLaunchConfigured) {
-        if (isProfiling) {
-            SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
-            sentry_stopTrackingRootSpanForContinuousProfilerV2(trace.profilerReferenceID);
-        }
-        // The launch tracer is intentionally discarded by
-        // SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer. Other transactions finishing
-        // during the launch profiling window (e.g., manual transactions or app start transactions)
-        // must still be captured.
-        if (!isLaunchTrace) {
-            [hub captureTransaction:transaction withScope:hub.scope];
-        }
-        return;
-    }
-
-    if (isProfiling && continuousTraceProfiling) {
-        SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
-            sentry_stringFromSentryID(trace.profilerReferenceID));
-        sentry_stopTrackingRootSpanForContinuousProfilerV2(trace.profilerReferenceID);
-        [hub captureTransaction:transaction withScope:hub.scope];
-        return;
-    }
-
-    if (!isProfiling) {
-        [hub captureTransaction:transaction withScope:hub.scope];
-        return;
-    }
-
-    NSDate *startTimestamp;
-
-#    if SENTRY_HAS_UIKIT
-    if (appStartMeasurement != nil) {
-        startTimestamp = appStartMeasurement.runtimeInitTimestamp;
-    }
-#    endif // SENTRY_HAS_UIKIT
-
-    if (startTimestamp == nil) {
-        startTimestamp = traceStartTimestamp;
-    }
-    if (!SENTRY_CASSERT_RETURN(startTimestamp != nil,
-            @"A transaction with a profile should have a start timestamp already. We will "
-            @"assign the current time but this will be incorrect.")) {
-        startTimestamp = SentryProfilerSDKAdapter.shared.date;
-    }
-
-    // if we have an app start span, use its app start timestamp. otherwise use the tracer's
-    // start system time as we currently do
-    SENTRY_LOG_DEBUG(@"Tracer start time: %llu", startSystemTime);
-
-    [(NSObject *)transaction setValue:@(startSystemTime) forKey:@"startSystemTime"];
-#    if SENTRY_HAS_UIKIT
-    if (appStartMeasurement != nil) {
-        SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
-            appStartMeasurement.runtimeInitSystemTimestamp);
-        [(NSObject *)transaction setValue:@(appStartMeasurement.runtimeInitSystemTimestamp)
-                                   forKey:@"startSystemTime"];
-    }
-#    endif // SENTRY_HAS_UIKIT
-
-    SentryProfiler *_Nullable nullableProfiler
-        = sentry_profilerForFinishedTracer(trace.profilerReferenceID);
-    // Finishing a late tracer must not extend metrics from an aborted profiler.
-    if (nullableProfiler != nil
-        && nullableProfiler.truncationReason == SentryProfilerTruncationReasonNormal) {
-        [nullableProfiler.metricProfiler recordMetrics];
-    }
-    [(NSObject *)transaction setValue:@(SentryProfilerSDKAdapter.shared.systemTime)
-                               forKey:@"endSystemTime"];
-    if (!nullableProfiler) {
-        [hub captureTransaction:transaction withScope:hub.scope];
-        return;
-    }
-    SentryProfiler *_Nonnull profiler = SENTRY_UNWRAP_NULLABLE(SentryProfiler, nullableProfiler);
-
-    // This code can run on the main thread, and the profile serialization can take a couple of
-    // milliseconds. Therefore, we move this to a background thread to avoid potentially
-    // blocking the main thread.
-    dispatchAsync(^{
-        const auto profilingData = [profiler.state copyProfilingData];
-
-        const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-            hub, profiler, profilingData, transaction, startTimestamp);
-
-        if (!profileEnvelopeItem) {
-            [hub captureTransaction:transaction withScope:hub.scope];
-        } else {
-            [hub captureTransaction:transaction
-                              withScope:hub.scope
-                additionalEnvelopeItems:@[ SENTRY_UNWRAP_NULLABLE(
-                                            SentryEnvelopeItem, profileEnvelopeItem) ]];
-        }
-    });
-}
-
-SentryId *_Nullable sentry_startProfilerForTrace(SentryProfilingTraceDecision decision,
-    SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext) transactionContext)
-{
-    SentryTransactionContext *context = transactionContext;
     if (decision == SentryProfilingTraceDecisionContinuous) {
-        SentryId *profilerReferenceId = sentry_getSentryId();
+        SentryProfilingId *profilerReferenceId = [[SentryProfilingId alloc] init];
         SENTRY_LOG_DEBUG(
             @"Starting continuous profiler for root span tracer with profilerReferenceId %@",
-            sentry_stringFromSentryID(profilerReferenceId));
+            profilerReferenceId);
         sentry_trackRootSpanForContinuousProfilerV2(profilerReferenceId);
         return profilerReferenceId;
     }
     if (decision == SentryProfilingTraceDecisionTransaction) {
-        SentryId *internalID = sentry_getSentryId();
+        SentryProfilingId *internalID = [[SentryProfilingId alloc] init];
         if ([SentryTraceProfiler startWithTracer:internalID]) {
-            SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
-                sentry_stringFromSentryID(sentry_getTraceID(context)),
-                sentry_stringFromSentryID(internalID));
+            SENTRY_LOG_DEBUG(
+                @"Started profiler for trace %@ with internal id %@", traceID, internalID);
             return internalID;
         }
     }
