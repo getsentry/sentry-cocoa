@@ -105,6 +105,8 @@ typedef struct {
  * (mach_exception_raise_identity_protected in mach_exc.defs). It names the
  * thread by its ID and the task by an identity token instead of carrying their
  * control ports.
+ * See
+ * https://github.com/apple-oss-distributions/xnu/blob/ac9718fb1af618d5ce8678d0dc6e8a58f252216f/osfmk/mach/mach_exc.defs#L145
  */
 #        pragma pack(4)
 typedef struct {
@@ -244,7 +246,8 @@ restoreExceptionPorts(void)
  * apply, so the identity-protected behavior is always tried first. Rosetta
  * rejects it with KERN_INVALID_ARGUMENT and does not enforce the restrictions,
  * so translated processes fall back to EXCEPTION_DEFAULT. See
- * exception_is_identity_protected in xnu's osfmk/kern/ipc_tt.c.
+ * exception_is_identity_protected in xnu:
+ * https://github.com/apple-oss-distributions/xnu/blob/ac9718fb1af618d5ce8678d0dc6e8a58f252216f/osfmk/kern/ipc_tt.c#L3880
  */
 static kern_return_t
 setExceptionPort(const task_t task, const exception_mask_t mask)
