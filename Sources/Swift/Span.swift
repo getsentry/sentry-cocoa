@@ -1,12 +1,10 @@
 internal import _SentryPrivate
 import Foundation
 
-// The Xcode target imports this name from SentryDefines.h. SwiftPM's SentryHeaders
-// module only forward-declares the span protocol, so the importer drops the typedef.
-#if SWIFT_PACKAGE
+// Declare this alias in both builds: SwiftPM's Clang importer drops the Objective-C
+// typedef because SentryHeaders only forward-declares the span protocol.
 /// Drops or modifies a span before the SDK sends it. Return `nil` to drop the span.
 public typealias SentryBeforeSendSpanCallback = (any Span) -> (any Span)?
-#endif
 
 #if SDK_V10
 /// A span measuring one unit of work inside a transaction.
