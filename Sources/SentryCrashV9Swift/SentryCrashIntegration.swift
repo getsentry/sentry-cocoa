@@ -13,19 +13,19 @@ import Foundation
 import UIKit
 #endif
 
-// MARK: - C Callback Function
-
-/// Global function to finish and save transaction when a crash occurs.
-/// This function is called from C crash reporting code.
-@_cdecl("sentry_finishAndSaveTransaction")
+#if SWIFT_PACKAGE
+/// Compatibility entry point for callers importing the V9 crash adapter directly.
+/// Use the callback in the main SDK module for new code.
+@available(*, deprecated, message: "Use sentry_finishAndSaveTransaction() from the main SDK module instead.")
 public func sentry_finishAndSaveTransaction() {
-    guard let scope = SentrySDKInternal.currentHub().scopeObject as? Scope,
-          let span = scope.span as? SentrySpanInternal else {
-        SentryCrashV9Log.debug("No span found in current scope, skipping transaction finish and save")
-        return
-    }
-    span.tracer?.finishForCrash()
+    // Preserve the adapter's Swift symbol, but only the main SDK owns the @_cdecl symbol.
+    #if SENTRY_BUILD_XCFRAMEWORK
+    Sentry.sentry_finishAndSaveTransaction()
+    #else
+    SentrySwift.sentry_finishAndSaveTransaction()
+    #endif
 }
+#endif
 
 // MARK: - SentryCrashIntegration
 
@@ -294,7 +294,16 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     // MARK: - Tracing Configuration
 
     private func configureTracingWhenCrashing() {
-        sentrycrash_setSaveTransaction(sentry_finishAndSaveTransaction)
+        // A direct cross-module conversion of the @_cdecl function to a C function pointer
+        // makes Swift emit a second thunk with the same C symbol. Use a noncapturing closure.
+        #if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
+        sentrycrash_setSaveTransaction { SentrySwift.sentry_finishAndSaveTransaction() }
+        #elseif SWIFT_PACKAGE
+        sentrycrash_setSaveTransaction { Sentry.sentry_finishAndSaveTransaction() }
+        #else
+        // Xcode builds use either Sentry or SentryWithoutUIKit as the module name.
+        sentrycrash_setSaveTransaction { sentry_finishAndSaveTransaction() }
+        #endif
     }
 }
 

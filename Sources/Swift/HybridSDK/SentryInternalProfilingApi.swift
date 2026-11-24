@@ -15,6 +15,12 @@ public struct SentryInternalProfilingApi {
         self.dateProvider = dependencies.dateProvider
     }
 
+    /// The `profiler_id` used in chunks from the current continuous profiler, or `nil` when inactive.
+    /// A stop request keeps the ID available until the current chunk finishes.
+    public var currentProfilerId: String? {
+        SentryContinuousProfiler.currentProfilerID()?.sentryIdString
+    }
+
     /// Starts a profiler session for the given trace ID.
     /// Returns the system time when the profiler session started.
     public func start(for traceId: SentryId) -> UInt64 {
@@ -30,7 +36,7 @@ public struct SentryInternalProfilingApi {
 
     /// Discards the profiler session for the given trace ID without collecting data.
     public func discard(for traceId: SentryId) {
-        sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDKInternal.currentHub())
+        sentry_discardProfilerCorrelatedToTrace(traceId)
     }
 }
 

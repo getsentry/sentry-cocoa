@@ -289,6 +289,9 @@ jobs:
       - name: Test packaging failure handling
         if: matrix.sdk == 'macosx'
         run: ./scripts/test-v10-archive-audit-path.sh
+      - name: Test dynamic framework relinking
+        if: matrix.sdk == 'macosx'
+        run: ./scripts/test-build-dynamic-framework.sh
       - name: Test static library architectures
         if: matrix.sdk == 'watchos'
         run: ./scripts/test-static-library-archive-architectures.sh --work-dir "$RUNNER_TEMP/static-library-archive-architectures"

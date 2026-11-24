@@ -131,8 +131,10 @@ final class SentryContinuousProfilerTests: XCTestCase {
 
     func testStop_whenChunkIsIncomplete_shouldCaptureRemainingSamplesAtChunkEnd() throws {
         // -- Arrange --
+        XCTAssertNil(SentrySDK.internal.profiling.currentProfilerId)
         SentryContinuousProfiler.start()
         defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let profilerId = try XCTUnwrap(SentrySDK.internal.profiling.currentProfilerId)
         let profiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
         let state = SentryProfilerState()
         profiler.state = state
@@ -149,6 +151,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try fixture.timeoutTimerFactory.check()
 
         // -- Assert --
+        XCTAssertEqual(SentrySDK.internal.profiling.currentProfilerId, profilerId)
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 1)
 
@@ -158,10 +161,13 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try fixture.timeoutTimerFactory.check()
 
         // -- Assert --
+        XCTAssertNil(SentrySDK.internal.profiling.currentProfilerId)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(fixture.client?.captureEnvelopeInvocations.count, 2)
         let firstProfile = try XCTUnwrap(try capturedChunk(at: 0)["profile"] as? [String: Any])
-        let lastProfile = try XCTUnwrap(try capturedChunk(at: 1)["profile"] as? [String: Any])
+        let lastChunk = try capturedChunk(at: 1)
+        XCTAssertEqual(lastChunk["profiler_id"] as? String, profilerId)
+        let lastProfile = try XCTUnwrap(lastChunk["profile"] as? [String: Any])
         XCTAssertEqual(try sampleAddresses(in: firstProfile), [["0x0000000000000001"]])
         XCTAssertEqual(try sampleAddresses(in: lastProfile), [
             ["0x0000000000000002"], ["0x0000000000000003"], ["0x0000000000000004"]

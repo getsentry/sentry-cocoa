@@ -427,7 +427,6 @@ jobs:
         run: |
           ditto -x -k "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
           ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework"
-          ./scripts/test-xcframework-variant.sh --xcframework "$RUNNER_TEMP/spm-sdk/$FRAMEWORK.xcframework" --sdks macosx
           # Copy just the consumers, outside the checkout and all producer build paths.
           for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
             mkdir -p "$RUNNER_TEMP/spm-sdk/$consumer"
@@ -439,10 +438,12 @@ jobs:
       - name: Build and run SPM consumers
         env:
           SENTRY_XCFRAMEWORK: ../${{ matrix.artifact }}.xcframework
+          SENTRY_TEST_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
         run: |
           status=0
           for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
-            swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
+            swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release \
+              -Xcc "-DSENTRY_TEST_V10=$SENTRY_TEST_V10" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
             tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
           done
           exit "$status"
@@ -754,7 +755,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@2e29b0819113d334c15da3d8cac2138cb9dc111a # 3.9.0
+        uses: getsentry/craft@b2a6fa4904f37b46f34b82330e0f3bf02a40f681 # 3.13.0
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

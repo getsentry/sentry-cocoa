@@ -14,7 +14,18 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSArray<NSDictionary<NSString *, id> *> *_Nullable (
     ^SentryProfilingDebugImageSerialization)(void);
 
+typedef NSDictionary<NSString *, id> *_Nonnull (^SentryProfilingMetricSerialization)(void);
+
 @protocol SentryProfilerSDKBackend <NSObject>
+
+/** Serializes metrics and captures a detached chunk asynchronously on the SDK queue. */
+- (void)captureProfileChunkWithID:(NSString *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+    ;
 
 - (SentryProfilingConfiguration)configuration;
 - (SentryProfilingTimestamp)timestamp;

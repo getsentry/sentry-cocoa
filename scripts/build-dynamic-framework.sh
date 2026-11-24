@@ -1,8 +1,6 @@
 #!/bin/bash
 #
-# Package one static-library slice with headers, modules and resources. By default
-# relink it as a dylib (also used by SentryObjC); SDK shipping variants can instead
-# request a mergeable dylib or a static framework with category retention.
+# Package a static library as a framework, relinking it as a dylib by default.
 
 set -euo pipefail
 
@@ -11,8 +9,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 # shellcheck source=./tools.sh disable=SC1091
 source "$SCRIPT_DIR/tools.sh"
-# shellcheck source=./xcframework-utils.sh disable=SC1091
-source "$SCRIPT_DIR/xcframework-utils.sh"
 
 SDK=""
 STATIC_LIB=""
@@ -22,7 +18,9 @@ FRAMEWORK_NAME=""
 MODULES_DIR=""
 RESOURCES_DIR=""
 VERSION=""
-PRODUCT_TYPE=""
+ARCHS=""
+MERGEABLE=false
+PRODUCT_TYPE=dynamic
 
 usage() {
     log_info "Usage: $0"
@@ -32,8 +30,9 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
-    log_info "  -t, --product-type <type>     SDK release linkage: static or dynamic. Dynamic adds merge metadata except on watchOS (device and simulator)."
-    log_info "                                Omit for the existing SentryObjC dynamic framework, which does not request merge metadata."
+    log_info "  -t, --product-type <type>     Framework linkage: static or dynamic (default)"
+    log_info "  -A, --archs <list>            Space-separated architectures to link (required)"
+    log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
@@ -52,6 +51,8 @@ while [[ $# -gt 0 ]]; do
         -v|--version)     VERSION="$2";      shift 2 ;;
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
         -t|--product-type) PRODUCT_TYPE="$2"; shift 2 ;;
+        -A|--archs) ARCHS="$2"; shift 2 ;;
+        -M|--mergeable) MERGEABLE="$2"; shift 2 ;;
         -m|--modules) MODULES_DIR="$2"; shift 2 ;;
         -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
         -h|--help)     usage ;;
@@ -59,8 +60,25 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ "$MERGEABLE" != true && "$MERGEABLE" != false ]]; then
+    log_error "--mergeable must be true or false"
+    usage
+fi
+if [[ "$PRODUCT_TYPE" != static && "$PRODUCT_TYPE" != dynamic ]]; then
+    log_error "--product-type must be static or dynamic"
+    usage
+fi
+if [[ "$PRODUCT_TYPE" == static && "$MERGEABLE" == true ]]; then
+    log_error "--mergeable requires a dynamic framework"
+    usage
+fi
 if [ -z "$SDK" ]; then
     log_error "Error: --sdk is required"
+    usage
+fi
+read -r -a archs <<< "$ARCHS"
+if [[ ${#archs[@]} -eq 0 ]]; then
+    log_error "Error: --archs is required"
     usage
 fi
 if [ -z "$STATIC_LIB" ]; then
@@ -106,11 +124,6 @@ if [ -n "$RESOURCES_DIR" ] && [ ! -d "$RESOURCES_DIR" ]; then
     exit 1
 fi
 
-case "$PRODUCT_TYPE" in
-    ""|static|dynamic) ;;
-    *) log_error "Unknown product type: $PRODUCT_TYPE"; exit 1 ;;
-esac
-
 BUNDLE_SHORT_VERSION="${VERSION%%+*}"
 BUNDLE_VERSION="${BUNDLE_SHORT_VERSION%%-*}"
 
@@ -132,17 +145,17 @@ CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo
 
 target_suffix_for_sdk() {
     case "$1" in
-        iphoneos) echo "apple-ios${DT_IOS}" ;;
-        iphonesimulator) echo "apple-ios${DT_IOS}-simulator" ;;
-        macosx) echo "apple-macos${DT_MACOS}" ;;
-        maccatalyst) echo "apple-ios${DT_IOS}-macabi" ;;
-        appletvos) echo "apple-tvos${DT_TVOS}" ;;
-        appletvsimulator) echo "apple-tvos${DT_TVOS}-simulator" ;;
-        watchos) echo "apple-watchos${DT_WATCHOS}" ;;
-        watchsimulator) echo "apple-watchos${DT_WATCHOS}-simulator" ;;
-        xros) echo "apple-xros${DT_XROS}" ;;
-        xrsimulator) echo "apple-xros${DT_XROS}-simulator" ;;
-        *) log_error "Unknown SDK: $1"; exit 1 ;;
+        iphoneos)          echo "apple-ios${DT_IOS}" ;;
+        iphonesimulator)   echo "apple-ios${DT_IOS}-simulator" ;;
+        macosx)            echo "apple-macos${DT_MACOS}" ;;
+        maccatalyst)       echo "apple-ios${DT_IOS}-macabi" ;;
+        appletvos)         echo "apple-tvos${DT_TVOS}" ;;
+        appletvsimulator)  echo "apple-tvos${DT_TVOS}-simulator" ;;
+        watchos)           echo "apple-watchos${DT_WATCHOS}" ;;
+        watchsimulator)    echo "apple-watchos${DT_WATCHOS}-simulator" ;;
+        xros)              echo "apple-xros${DT_XROS}" ;;
+        xrsimulator)       echo "apple-xros${DT_XROS}-simulator" ;;
+        *)                 log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
 
@@ -184,6 +197,14 @@ supported_platforms_for_sdk() {
         *)                 log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
+
+# ld can ignore an incompatible archive and still link the empty Swift file successfully.
+for arch in "${archs[@]}"; do
+    if ! xcrun lipo "$STATIC_LIB" -verify_arch "$arch"; then
+        log_error "$STATIC_LIB is missing required architecture: $arch"
+        exit 1
+    fi
+done
 
 FW_DIR="$OUTPUT_DIR/framework/$FRAMEWORK_NAME/$SDK/$FRAMEWORK_NAME.framework"
 rm -rf "$FW_DIR"
@@ -274,22 +295,13 @@ else
     sysroot="$(xcrun --sdk "$SDK" --show-sdk-path)"
 fi
 
-# Relink the archive's actual architectures, including arm64e only when requested.
-if [[ -n "$PRODUCT_TYPE" ]]; then
-    archive_archs="$(xcrun lipo -archs "$STATIC_LIB")"
-elif [[ "$SDK" == xrsimulator ]]; then
-    archive_archs=arm64  # Preserve the separate SentryObjC producer's existing matrix.
-else
-    archive_archs="$(sdk_base_architectures "$SDK")"
-fi
-read -r -a archs <<< "$archive_archs"
 target_suffix="$(target_suffix_for_sdk "$SDK")"
 link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
 trap 'rm -rf "$link_dir"' EXIT
 
 if [[ "$PRODUCT_TYPE" == static ]]; then
-    # A normal archive lookup does not pull in ObjC category-only members. Fold the
-    # target objects into one member per architecture, not a consumer-side -ObjC flag.
+    # Fold category-only objects into the same archive member as the SDK symbols.
+    # This retains Objective-C categories without consumer-side linker flags.
     libraries=()
     for arch in "${archs[@]}"; do
         xcrun clang -target "$arch-$target_suffix" -isysroot "$sysroot" -nostdlib \
@@ -334,7 +346,7 @@ linker_flags+=( -Xlinker -current_version -Xlinker 1 )
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi
-if [[ "$PRODUCT_TYPE" == dynamic && "$SDK" != watchos && "$SDK" != watchsimulator ]]; then
+if [[ "$MERGEABLE" == true ]]; then
     linker_flags+=( -Xlinker -make_mergeable )
 fi
 for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
