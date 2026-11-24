@@ -64,6 +64,7 @@
 @interface SentryProfilerSDKAdapterTests : XCTestCase
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 @property (nonatomic, strong) id<SentryProfilingLogger> previousLogger;
+@property (nonatomic, weak) id<SentryProfilerSDKBackend> previousBackend;
 #endif
 @end
 
@@ -75,13 +76,38 @@
 {
     [super setUp];
     self.previousLogger = SentryProfilingLog.logger;
+    self.previousBackend = SentryProfilerSDKAdapter.shared.target;
 }
 
 - (void)tearDown
 {
-    SentryProfilingLog.logger = self.previousLogger;
+    // A container reset installs a new backend-owned logger that must remain active.
+    if (SentryProfilerSDKAdapter.shared.target == self.previousBackend) {
+        SentryProfilingLog.logger = self.previousLogger;
+    }
     self.previousLogger = nil;
+    self.previousBackend = nil;
     [super tearDown];
+}
+
+- (void)testTearDown_whenContainerReset_shouldKeepCurrentBackendLogger
+{
+    // -- Arrange --
+    [SentryDependencyContainer reset];
+    __weak id<SentryProfilingLogger> currentLogger;
+    @autoreleasepool {
+        SentryProfilerSDKAdapterTests *testCase = [[SentryProfilerSDKAdapterTests alloc] init];
+        [testCase setUp];
+        [SentryDependencyContainer reset];
+        currentLogger = SentryProfilingLog.logger;
+
+        // -- Act --
+        [testCase tearDown];
+    }
+
+    // -- Assert --
+    XCTAssertNotNil(currentLogger);
+    XCTAssertEqual(SentryProfilingLog.logger, currentLogger);
 }
 
 - (void)testProfilingLogger_whenNotConfigured_shouldNotEvaluateArguments
