@@ -19,7 +19,7 @@
 - Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
 - Preserve JSON null values in event extras, breadcrumb data, and other sanitized dictionaries instead of converting them to the string `"<null>"` (#9729)
 - Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h`, `SentrySamplingContext.h`, `SentryTransaction.h`, `SentryTransactionContext.h` and `SentryScope.h` as empty headers, so importing them by name, for example `#import <Sentry/SentryScope.h>`, compiles again. The first four were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
-- Skip Objective-C descriptor conformance checks for view controllers without a custom screen-name getter, avoiding potentially slow protocol walks on the main thread (#9737)
+- Skip Objective-C descriptor conformance checks for view controllers without a custom screen-name getter, avoiding potentially slow protocol walks on the main thread (#9738)
 
 ### Internal
 
