@@ -1,9 +1,9 @@
 internal import _SentryPrivate
 import Foundation
 
-// The Xcode target imports these names from SentryDefines.h. SwiftPM's SentryHeaders
-// module only forward-declares Event, so the importer drops the typedefs.
-#if SWIFT_PACKAGE
+// SwiftPM's header module does not import the SentryDefines.h block typedefs
+// that name Event. The aliases are unconditional so the Xcode and SwiftPM
+// API dumps publish the same names.
 /// Mutates an event before it is sent. Return `nil` to drop the event.
 public typealias SentryBeforeSendEventCallback = (Event) -> Event?
 
@@ -16,7 +16,6 @@ public typealias SentryBeforeCaptureViewHierarchyCallback = (Event) -> Bool
 #if !SDK_V10
 /// Called when the previous process terminated with a crash.
 public typealias SentryOnCrashedLastRunCallback = (Event) -> Void
-#endif
 #endif
 
 private let sentryEventPlatformName = "cocoa"

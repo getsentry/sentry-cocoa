@@ -919,7 +919,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               }
             ],
             "kind": "TypeFunc",
@@ -948,7 +948,37 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.Event) -> Swift.Bool"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A31BeforeCaptureScreenshotCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryBeforeCaptureScreenshotCallback",
+        "printedName": "SentryBeforeCaptureScreenshotCallback",
+        "usr": "s:6Sentry0A31BeforeCaptureScreenshotCallbacka"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               }
             ],
             "kind": "TypeFunc",
@@ -969,9 +999,39 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.Event) -> Swift.Bool"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A34BeforeCaptureViewHierarchyCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryBeforeCaptureViewHierarchyCallback",
+        "printedName": "SentryBeforeCaptureViewHierarchyCallback",
+        "usr": "s:6Sentry0A34BeforeCaptureViewHierarchyCallbacka"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "children": [
@@ -979,7 +1039,7 @@
                     "kind": "TypeNominal",
                     "name": "Event",
                     "printedName": "Sentry.Event",
-                    "usr": "c:objc(cs)SentryEvent"
+                    "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -999,6 +1059,44 @@
         "name": "SentryBeforeSendEventCallback",
         "printedName": "SentryBeforeSendEventCallback",
         "usr": "c:@T@SentryBeforeSendEventCallback"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Event",
+                    "printedName": "Sentry.Event",
+                    "usr": "c:@M@Sentry@objc(cs)SentryEvent"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.Event?",
+                "usr": "s:Sq"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.Event) -> Sentry.Event?"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A23BeforeSendEventCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryBeforeSendEventCallback",
+        "printedName": "SentryBeforeSendEventCallback",
+        "usr": "s:6Sentry0A23BeforeSendEventCallbacka"
       },
       {
         "children": [
@@ -7937,23 +8035,25 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               }
             ],
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override"
+              "Override",
+              "Required"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry5EventCACycfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "init",
             "overriding": true,
             "printedName": "init()",
-            "usr": "c:objc(cs)SentryEvent(im)init"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)init"
           },
           {
             "children": [
@@ -7967,21 +8067,21 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry5EventC5errorACs5Error_p_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithError:",
             "printedName": "init(error:)",
-            "usr": "c:objc(cs)SentryEvent(im)initWithError:"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)initWithError:"
           },
           {
             "children": [
@@ -7989,7 +8089,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -7999,17 +8099,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry5EventC5levelACSo0A5LevelV_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithLevel:",
             "printedName": "init(level:)",
-            "usr": "c:objc(cs)SentryEvent(im)initWithLevel:"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)initWithLevel:"
           },
           {
             "accessors": [
@@ -8040,34 +8140,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11breadcrumbsSaySo0A10BreadcrumbCGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "breadcrumbs",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)breadcrumbs"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)breadcrumbs"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -8089,20 +8176,25 @@
                     "name": "Optional",
                     "printedName": "[Sentry.Breadcrumb]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11breadcrumbsSaySo0A10BreadcrumbCGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setBreadcrumbs:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setBreadcrumbs:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setBreadcrumbs:"
               }
             ],
             "children": [
@@ -8130,152 +8222,24 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC11breadcrumbsSaySo0A10BreadcrumbCGSgvp",
             "moduleName": "Sentry",
             "name": "breadcrumbs",
-            "objc_name": "breadcrumbs",
             "printedName": "breadcrumbs",
-            "usr": "c:objc(cs)SentryEvent(py)breadcrumbs"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)breadcrumbs"
           },
           {
             "accessors": [
               {
                 "accessorKind": "get",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "ProtocolComposition",
-                                "printedName": "Any"
-                              },
-                              {
-                                "kind": "TypeNominal",
-                                "name": "String",
-                                "printedName": "Swift.String",
-                                "usr": "s:SS"
-                              }
-                            ],
-                            "kind": "TypeNominal",
-                            "name": "Dictionary",
-                            "printedName": "[Swift.String : Any]",
-                            "usr": "s:SD"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Dictionary",
-                        "printedName": "[Swift.String : [Swift.String : Any]]",
-                        "usr": "s:SD"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "[Swift.String : [Swift.String : Any]]?",
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "isOpen": true,
-                "kind": "Accessor",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "objc_name": "context",
-                "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)context"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "ProtocolComposition",
-                                "printedName": "Any"
-                              },
-                              {
-                                "kind": "TypeNominal",
-                                "name": "String",
-                                "printedName": "Swift.String",
-                                "usr": "s:SS"
-                              }
-                            ],
-                            "kind": "TypeNominal",
-                            "name": "Dictionary",
-                            "printedName": "[Swift.String : Any]",
-                            "usr": "s:SD"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Dictionary",
-                        "printedName": "[Swift.String : [Swift.String : Any]]",
-                        "usr": "s:SD"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "[Swift.String : [Swift.String : Any]]?",
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declAttributes": [
-                  "Dynamic",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "isOpen": true,
-                "kind": "Accessor",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setContext:",
-                "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setContext:"
-              }
-            ],
-            "children": [
-              {
                 "children": [
                   {
                     "children": [
@@ -8297,6 +8261,86 @@
                         "name": "Dictionary",
                         "printedName": "[Swift.String : Any]",
                         "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Any]?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "isOpen": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7contextSDySSypGSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)context"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ProtocolComposition",
+                            "printedName": "Any"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Any]",
+                        "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Any]?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "isOpen": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7contextSDySSypGSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setContext:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
                       },
                       {
                         "kind": "TypeNominal",
@@ -8307,28 +8351,30 @@
                     ],
                     "kind": "TypeNominal",
                     "name": "Dictionary",
-                    "printedName": "[Swift.String : [Swift.String : Any]]",
+                    "printedName": "[Swift.String : Any]",
                     "usr": "s:SD"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "[Swift.String : [Swift.String : Any]]?",
+                "printedName": "[Swift.String : Any]?",
                 "usr": "s:Sq"
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC7contextSDySSypGSgvp",
             "moduleName": "Sentry",
             "name": "context",
-            "objc_name": "context",
             "printedName": "context",
-            "usr": "c:objc(cs)SentryEvent(py)context"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)context"
           },
           {
             "accessors": [
@@ -8359,34 +8405,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC9debugMetaSaySo0a5DebugD0CGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "debugMeta",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)debugMeta"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)debugMeta"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -8408,20 +8441,25 @@
                     "name": "Optional",
                     "printedName": "[Sentry.DebugMeta]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC9debugMetaSaySo0a5DebugD0CGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setDebugMeta:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setDebugMeta:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setDebugMeta:"
               }
             ],
             "children": [
@@ -8449,17 +8487,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC9debugMetaSaySo0a5DebugD0CGSgvp",
             "moduleName": "Sentry",
             "name": "debugMeta",
-            "objc_name": "debugMeta",
             "printedName": "debugMeta",
-            "usr": "c:objc(cs)SentryEvent(py)debugMeta"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)debugMeta"
           },
           {
             "accessors": [
@@ -8482,34 +8522,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4distSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "dist",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)dist"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)dist"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -8523,20 +8550,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4distSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setDist:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setDist:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setDist:"
               }
             ],
             "children": [
@@ -8556,17 +8588,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC4distSSSgvp",
             "moduleName": "Sentry",
             "name": "dist",
-            "objc_name": "dist",
             "printedName": "dist",
-            "usr": "c:objc(cs)SentryEvent(py)dist"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)dist"
           },
           {
             "accessors": [
@@ -8589,34 +8623,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11environmentSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "environment",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)environment"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)environment"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -8630,20 +8651,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11environmentSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setEnvironment:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setEnvironment:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setEnvironment:"
               }
             ],
             "children": [
@@ -8663,17 +8689,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC11environmentSSSgvp",
             "moduleName": "Sentry",
             "name": "environment",
-            "objc_name": "environment",
             "printedName": "environment",
-            "usr": "c:objc(cs)SentryEvent(py)environment"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)environment"
           },
           {
             "accessors": [
@@ -8696,34 +8724,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC5errors5Error_pSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "error",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)error"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)error"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -8737,20 +8752,25 @@
                     "name": "Optional",
                     "printedName": "(any Swift.Error)?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC5errors5Error_pSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setError:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setError:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setError:"
               }
             ],
             "children": [
@@ -8770,17 +8790,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC5errors5Error_pSgvp",
             "moduleName": "Sentry",
             "name": "error",
-            "objc_name": "error",
             "printedName": "error",
-            "usr": "c:objc(cs)SentryEvent(py)error"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)error"
           },
           {
             "accessors": [
@@ -8795,53 +8817,45 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7eventIdSo0aD0Cvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "eventId",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)eventId"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)eventId"
               },
               {
                 "accessorKind": "set",
                 "children": [
                   {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
-                  {
                     "kind": "TypeNominal",
                     "name": "SentryId",
                     "printedName": "Sentry.SentryId",
                     "usr": "c:objc(cs)SentryId"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7eventIdSo0aD0Cvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setEventId:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setEventId:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setEventId:"
               }
             ],
             "children": [
@@ -8853,17 +8867,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC7eventIdSo0aD0Cvp",
             "moduleName": "Sentry",
             "name": "eventId",
-            "objc_name": "eventId",
             "printedName": "eventId",
-            "usr": "c:objc(cs)SentryEvent(py)eventId"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)eventId"
           },
           {
             "accessors": [
@@ -8894,34 +8909,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC10exceptionsSaySo0A9ExceptionCGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "exceptions",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)exceptions"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)exceptions"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -8943,20 +8945,25 @@
                     "name": "Optional",
                     "printedName": "[Sentry.Exception]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC10exceptionsSaySo0A9ExceptionCGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setExceptions:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setExceptions:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setExceptions:"
               }
             ],
             "children": [
@@ -8984,17 +8991,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC10exceptionsSaySo0A9ExceptionCGSgvp",
             "moduleName": "Sentry",
             "name": "exceptions",
-            "objc_name": "exceptions",
             "printedName": "exceptions",
-            "usr": "c:objc(cs)SentryEvent(py)exceptions"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)exceptions"
           },
           {
             "accessors": [
@@ -9030,34 +9039,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC5extraSDySSypGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "extra",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)extra"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)extra"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9084,20 +9080,25 @@
                     "name": "Optional",
                     "printedName": "[Swift.String : Any]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC5extraSDySSypGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setExtra:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setExtra:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setExtra:"
               }
             ],
             "children": [
@@ -9130,17 +9131,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC5extraSDySSypGSgvp",
             "moduleName": "Sentry",
             "name": "extra",
-            "objc_name": "extra",
             "printedName": "extra",
-            "usr": "c:objc(cs)SentryEvent(py)extra"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)extra"
           },
           {
             "accessors": [
@@ -9171,34 +9174,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11fingerprintSaySSGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "fingerprint",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)fingerprint"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)fingerprint"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9220,20 +9210,25 @@
                     "name": "Optional",
                     "printedName": "[Swift.String]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11fingerprintSaySSGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setFingerprint:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setFingerprint:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setFingerprint:"
               }
             ],
             "children": [
@@ -9261,17 +9256,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC11fingerprintSaySSGSgvp",
             "moduleName": "Sentry",
             "name": "fingerprint",
-            "objc_name": "fingerprint",
             "printedName": "fingerprint",
-            "usr": "c:objc(cs)SentryEvent(py)fingerprint"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)fingerprint"
           },
           {
             "accessors": [
@@ -9286,53 +9283,45 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC5levelSo0A5LevelVvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "level",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)level"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)level"
               },
               {
                 "accessorKind": "set",
                 "children": [
                   {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
-                  {
                     "kind": "TypeNominal",
                     "name": "SentryLevel",
                     "printedName": "Sentry.SentryLevel",
                     "usr": "c:@E@SentryLevel"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC5levelSo0A5LevelVvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setLevel:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setLevel:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setLevel:"
               }
             ],
             "children": [
@@ -9344,17 +9333,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC5levelSo0A5LevelVvp",
             "moduleName": "Sentry",
             "name": "level",
-            "objc_name": "level",
             "printedName": "level",
-            "usr": "c:objc(cs)SentryEvent(py)level"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)level"
           },
           {
             "accessors": [
@@ -9377,34 +9367,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC6loggerSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "logger",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)logger"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)logger"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9418,20 +9395,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC6loggerSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setLogger:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setLogger:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setLogger:"
               }
             ],
             "children": [
@@ -9451,17 +9433,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC6loggerSSSgvp",
             "moduleName": "Sentry",
             "name": "logger",
-            "objc_name": "logger",
             "printedName": "logger",
-            "usr": "c:objc(cs)SentryEvent(py)logger"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)logger"
           },
           {
             "accessors": [
@@ -9484,34 +9468,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7messageSo0A7MessageCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "message",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)message"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)message"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9525,20 +9496,25 @@
                     "name": "Optional",
                     "printedName": "Sentry.SentryMessage?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7messageSo0A7MessageCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setMessage:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setMessage:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setMessage:"
               }
             ],
             "children": [
@@ -9558,17 +9534,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC7messageSo0A7MessageCSgvp",
             "moduleName": "Sentry",
             "name": "message",
-            "objc_name": "message",
             "printedName": "message",
-            "usr": "c:objc(cs)SentryEvent(py)message"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)message"
           },
           {
             "accessors": [
@@ -9605,34 +9583,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7modulesSDyS2SGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "modules",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)modules"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)modules"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9660,20 +9625,25 @@
                     "name": "Optional",
                     "printedName": "[Swift.String : Swift.String]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7modulesSDyS2SGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setModules:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setModules:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setModules:"
               }
             ],
             "children": [
@@ -9707,17 +9677,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC7modulesSDyS2SGSgvp",
             "moduleName": "Sentry",
             "name": "modules",
-            "objc_name": "modules",
             "printedName": "modules",
-            "usr": "c:objc(cs)SentryEvent(py)modules"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)modules"
           },
           {
             "accessors": [
@@ -9732,53 +9704,45 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC8platformSSvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "platform",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)platform"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)platform"
               },
               {
                 "accessorKind": "set",
                 "children": [
                   {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
-                  {
                     "kind": "TypeNominal",
                     "name": "String",
                     "printedName": "Swift.String",
                     "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC8platformSSvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setPlatform:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setPlatform:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setPlatform:"
               }
             ],
             "children": [
@@ -9790,17 +9754,18 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC8platformSSvp",
             "moduleName": "Sentry",
             "name": "platform",
-            "objc_name": "platform",
             "printedName": "platform",
-            "usr": "c:objc(cs)SentryEvent(py)platform"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)platform"
           },
           {
             "accessors": [
@@ -9823,34 +9788,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11releaseNameSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "releaseName",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)releaseName"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)releaseName"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9864,20 +9816,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11releaseNameSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setReleaseName:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setReleaseName:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setReleaseName:"
               }
             ],
             "children": [
@@ -9897,17 +9854,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC11releaseNameSSSgvp",
             "moduleName": "Sentry",
             "name": "releaseName",
-            "objc_name": "releaseName",
             "printedName": "releaseName",
-            "usr": "c:objc(cs)SentryEvent(py)releaseName"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)releaseName"
           },
           {
             "accessors": [
@@ -9930,34 +9889,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7requestSo0A7RequestCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "request",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)request"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)request"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -9971,20 +9917,25 @@
                     "name": "Optional",
                     "printedName": "Sentry.SentryRequest?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7requestSo0A7RequestCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setRequest:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setRequest:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setRequest:"
               }
             ],
             "children": [
@@ -10004,17 +9955,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC7requestSo0A7RequestCSgvp",
             "moduleName": "Sentry",
             "name": "request",
-            "objc_name": "request",
             "printedName": "request",
-            "usr": "c:objc(cs)SentryEvent(py)request"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)request"
           },
           {
             "accessors": [
@@ -10050,34 +10003,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC3sdkSDySSypGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "sdk",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)sdk"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)sdk"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10104,20 +10044,25 @@
                     "name": "Optional",
                     "printedName": "[Swift.String : Any]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC3sdkSDySSypGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setSdk:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setSdk:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setSdk:"
               }
             ],
             "children": [
@@ -10150,17 +10095,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC3sdkSDySSypGSgvp",
             "moduleName": "Sentry",
             "name": "sdk",
-            "objc_name": "sdk",
             "printedName": "sdk",
-            "usr": "c:objc(cs)SentryEvent(py)sdk"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)sdk"
           },
           {
             "accessors": [
@@ -10183,34 +10130,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC10serverNameSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "serverName",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)serverName"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)serverName"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10224,20 +10158,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC10serverNameSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setServerName:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setServerName:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setServerName:"
               }
             ],
             "children": [
@@ -10257,17 +10196,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC10serverNameSSSgvp",
             "moduleName": "Sentry",
             "name": "serverName",
-            "objc_name": "serverName",
             "printedName": "serverName",
-            "usr": "c:objc(cs)SentryEvent(py)serverName"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)serverName"
           },
           {
             "accessors": [
@@ -10290,34 +10231,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC10stacktraceSo0A10StacktraceCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "stacktrace",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)stacktrace"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)stacktrace"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10331,20 +10259,25 @@
                     "name": "Optional",
                     "printedName": "Sentry.SentryStacktrace?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC10stacktraceSo0A10StacktraceCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setStacktrace:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setStacktrace:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setStacktrace:"
               }
             ],
             "children": [
@@ -10364,17 +10297,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC10stacktraceSo0A10StacktraceCSgvp",
             "moduleName": "Sentry",
             "name": "stacktrace",
-            "objc_name": "stacktrace",
             "printedName": "stacktrace",
-            "usr": "c:objc(cs)SentryEvent(py)stacktrace"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)stacktrace"
           },
           {
             "accessors": [
@@ -10397,34 +10332,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC14startTimestamp10Foundation4DateVSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "startTimestamp",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)startTimestamp"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)startTimestamp"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10438,20 +10360,25 @@
                     "name": "Optional",
                     "printedName": "Foundation.Date?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC14startTimestamp10Foundation4DateVSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setStartTimestamp:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setStartTimestamp:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setStartTimestamp:"
               }
             ],
             "children": [
@@ -10471,17 +10398,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC14startTimestamp10Foundation4DateVSgvp",
             "moduleName": "Sentry",
             "name": "startTimestamp",
-            "objc_name": "startTimestamp",
             "printedName": "startTimestamp",
-            "usr": "c:objc(cs)SentryEvent(py)startTimestamp"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)startTimestamp"
           },
           {
             "accessors": [
@@ -10518,34 +10447,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4tagsSDyS2SGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "tags",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)tags"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)tags"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10573,20 +10489,25 @@
                     "name": "Optional",
                     "printedName": "[Swift.String : Swift.String]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4tagsSDyS2SGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setTags:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setTags:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setTags:"
               }
             ],
             "children": [
@@ -10620,17 +10541,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC4tagsSDyS2SGSgvp",
             "moduleName": "Sentry",
             "name": "tags",
-            "objc_name": "tags",
             "printedName": "tags",
-            "usr": "c:objc(cs)SentryEvent(py)tags"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)tags"
           },
           {
             "accessors": [
@@ -10661,34 +10584,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7threadsSaySo0A6ThreadCGSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "threads",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)threads"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)threads"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10710,20 +10620,25 @@
                     "name": "Optional",
                     "printedName": "[Sentry.SentryThread]?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC7threadsSaySo0A6ThreadCGSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setThreads:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setThreads:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setThreads:"
               }
             ],
             "children": [
@@ -10751,17 +10666,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC7threadsSaySo0A6ThreadCGSgvp",
             "moduleName": "Sentry",
             "name": "threads",
-            "objc_name": "threads",
             "printedName": "threads",
-            "usr": "c:objc(cs)SentryEvent(py)threads"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)threads"
           },
           {
             "accessors": [
@@ -10784,34 +10701,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC9timestamp10Foundation4DateVSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "timestamp",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)timestamp"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)timestamp"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10825,20 +10729,25 @@
                     "name": "Optional",
                     "printedName": "Foundation.Date?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC9timestamp10Foundation4DateVSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setTimestamp:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setTimestamp:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setTimestamp:"
               }
             ],
             "children": [
@@ -10858,17 +10767,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC9timestamp10Foundation4DateVSgvp",
             "moduleName": "Sentry",
             "name": "timestamp",
-            "objc_name": "timestamp",
             "printedName": "timestamp",
-            "usr": "c:objc(cs)SentryEvent(py)timestamp"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)timestamp"
           },
           {
             "accessors": [
@@ -10891,34 +10802,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11transactionSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "transaction",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)transaction"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)transaction"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -10932,20 +10830,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC11transactionSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setTransaction:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setTransaction:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setTransaction:"
               }
             ],
             "children": [
@@ -10965,17 +10868,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC11transactionSSSgvp",
             "moduleName": "Sentry",
             "name": "transaction",
-            "objc_name": "transaction",
             "printedName": "transaction",
-            "usr": "c:objc(cs)SentryEvent(py)transaction"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)transaction"
           },
           {
             "accessors": [
@@ -10998,34 +10903,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4typeSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "type",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)type"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)type"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11039,20 +10931,25 @@
                     "name": "Optional",
                     "printedName": "Swift.String?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4typeSSSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setType:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setType:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setType:"
               }
             ],
             "children": [
@@ -11072,17 +10969,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC4typeSSSgvp",
             "moduleName": "Sentry",
             "name": "type",
-            "objc_name": "type",
             "printedName": "type",
-            "usr": "c:objc(cs)SentryEvent(py)type"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)type"
           },
           {
             "accessors": [
@@ -11105,34 +11004,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4userSo0A4UserCSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "user",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryEvent(im)user"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)user"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -11146,20 +11032,25 @@
                     "name": "Optional",
                     "printedName": "Sentry.User?",
                     "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry5EventC4userSo0A4UserCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setUser:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryEvent(im)setUser:"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent(im)setUser:"
               }
             ],
             "children": [
@@ -11179,17 +11070,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasInitialValue",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry5EventC4userSo0A4UserCSgvp",
             "moduleName": "Sentry",
             "name": "user",
-            "objc_name": "user",
             "printedName": "user",
-            "usr": "c:objc(cs)SentryEvent(py)user"
+            "usr": "c:@M@Sentry@objc(cs)SentryEvent(py)user"
           }
         ],
         "conformances": [
@@ -11250,13 +11143,14 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
-          "ObjC"
+          "ObjC",
+          "ObjCMembers"
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry5EventC",
         "moduleName": "Sentry",
         "name": "Event",
         "objc_name": "SentryEvent",
@@ -11265,7 +11159,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryEvent"
+        "usr": "c:@M@Sentry@objc(cs)SentryEvent"
       },
       {
         "children": [
@@ -21589,7 +21483,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -21615,7 +21509,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC23beforeCaptureScreenshotSbSo0A5EventCcSgvg",
+                "mangledName": "$s6Sentry7OptionsC23beforeCaptureScreenshotSbAA5EventCcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -21640,7 +21534,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -21671,7 +21565,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC23beforeCaptureScreenshotSbSo0A5EventCcSgvs",
+                "mangledName": "$s6Sentry7OptionsC23beforeCaptureScreenshotSbAA5EventCcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -21695,7 +21589,7 @@
                             "kind": "TypeNominal",
                             "name": "Event",
                             "printedName": "Sentry.Event",
-                            "usr": "c:objc(cs)SentryEvent"
+                            "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                           }
                         ],
                         "kind": "TypeFunc",
@@ -21723,7 +21617,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC23beforeCaptureScreenshotSbSo0A5EventCcSgvp",
+            "mangledName": "$s6Sentry7OptionsC23beforeCaptureScreenshotSbAA5EventCcSgvp",
             "moduleName": "Sentry",
             "name": "beforeCaptureScreenshot",
             "printedName": "beforeCaptureScreenshot",
@@ -21750,7 +21644,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -21776,7 +21670,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC26beforeCaptureViewHierarchySbSo0A5EventCcSgvg",
+                "mangledName": "$s6Sentry7OptionsC26beforeCaptureViewHierarchySbAA5EventCcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -21801,7 +21695,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeFunc",
@@ -21832,7 +21726,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC26beforeCaptureViewHierarchySbSo0A5EventCcSgvs",
+                "mangledName": "$s6Sentry7OptionsC26beforeCaptureViewHierarchySbAA5EventCcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -21856,7 +21750,7 @@
                             "kind": "TypeNominal",
                             "name": "Event",
                             "printedName": "Sentry.Event",
-                            "usr": "c:objc(cs)SentryEvent"
+                            "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                           }
                         ],
                         "kind": "TypeFunc",
@@ -21884,7 +21778,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC26beforeCaptureViewHierarchySbSo0A5EventCcSgvp",
+            "mangledName": "$s6Sentry7OptionsC26beforeCaptureViewHierarchySbAA5EventCcSgvp",
             "moduleName": "Sentry",
             "name": "beforeCaptureViewHierarchy",
             "printedName": "beforeCaptureViewHierarchy",
@@ -21905,7 +21799,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               },
                               {
                                 "children": [
@@ -21913,7 +21807,7 @@
                                     "kind": "TypeNominal",
                                     "name": "Event",
                                     "printedName": "Sentry.Event",
-                                    "usr": "c:objc(cs)SentryEvent"
+                                    "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                                   }
                                 ],
                                 "kind": "TypeNominal",
@@ -21945,7 +21839,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC10beforeSendSo0A5EventCSgAFcSgvg",
+                "mangledName": "$s6Sentry7OptionsC10beforeSendAA5EventCSgAFcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -21964,7 +21858,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               },
                               {
                                 "children": [
@@ -21972,7 +21866,7 @@
                                     "kind": "TypeNominal",
                                     "name": "Event",
                                     "printedName": "Sentry.Event",
-                                    "usr": "c:objc(cs)SentryEvent"
+                                    "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                                   }
                                 ],
                                 "kind": "TypeNominal",
@@ -22009,7 +21903,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC10beforeSendSo0A5EventCSgAFcSgvs",
+                "mangledName": "$s6Sentry7OptionsC10beforeSendAA5EventCSgAFcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -22027,7 +21921,7 @@
                             "kind": "TypeNominal",
                             "name": "Event",
                             "printedName": "Sentry.Event",
-                            "usr": "c:objc(cs)SentryEvent"
+                            "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                           },
                           {
                             "children": [
@@ -22035,7 +21929,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22069,7 +21963,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC10beforeSendSo0A5EventCSgAFcSgvp",
+            "mangledName": "$s6Sentry7OptionsC10beforeSendAA5EventCSgAFcSgvp",
             "moduleName": "Sentry",
             "name": "beforeSend",
             "printedName": "beforeSend",
@@ -22803,7 +22697,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22817,7 +22711,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               },
                               {
                                 "kind": "TypeNominal",
@@ -22848,7 +22742,7 @@
                 ],
                 "declKind": "Accessor",
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvg",
+                "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintAA5EventCSgAF_AA0F0CtcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -22867,7 +22761,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22881,7 +22775,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               },
                               {
                                 "kind": "TypeNominal",
@@ -22919,7 +22813,7 @@
                 "declKind": "Accessor",
                 "deprecated": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvs",
+                "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintAA5EventCSgAF_AA0F0CtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "objc_name": "setBeforeSendWithHint:",
@@ -22938,7 +22832,7 @@
                             "kind": "TypeNominal",
                             "name": "Event",
                             "printedName": "Sentry.Event",
-                            "usr": "c:objc(cs)SentryEvent"
+                            "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                           }
                         ],
                         "kind": "TypeNominal",
@@ -22952,7 +22846,7 @@
                             "kind": "TypeNominal",
                             "name": "Event",
                             "printedName": "Sentry.Event",
-                            "usr": "c:objc(cs)SentryEvent"
+                            "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                           },
                           {
                             "kind": "TypeNominal",
@@ -22983,7 +22877,7 @@
             ],
             "declKind": "Var",
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvp",
+            "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintAA5EventCSgAF_AA0F0CtcSgvp",
             "moduleName": "Sentry",
             "name": "beforeSendWithHint",
             "printedName": "beforeSendWithHint",
@@ -26767,7 +26661,7 @@
                                     "kind": "TypeNominal",
                                     "name": "Event",
                                     "printedName": "Sentry.Event",
-                                    "usr": "c:objc(cs)SentryEvent"
+                                    "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                                   }
                                 ],
                                 "kind": "TypeNominal",
@@ -26805,7 +26699,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_So0A5EventCSgtcSgvg",
+                "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_AA5EventCSgtcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -26838,7 +26732,7 @@
                                     "kind": "TypeNominal",
                                     "name": "Event",
                                     "printedName": "Sentry.Event",
-                                    "usr": "c:objc(cs)SentryEvent"
+                                    "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                                   }
                                 ],
                                 "kind": "TypeNominal",
@@ -26881,7 +26775,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_So0A5EventCSgtcSgvs",
+                "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_AA5EventCSgtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -26913,7 +26807,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Event",
                                 "printedName": "Sentry.Event",
-                                "usr": "c:objc(cs)SentryEvent"
+                                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -26953,7 +26847,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_So0A5EventCSgtcSgvp",
+            "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_AA5EventCSgtcSgvp",
             "moduleName": "Sentry",
             "name": "onLastRunStatusDetermined",
             "printedName": "onLastRunStatusDetermined",
@@ -34162,7 +34056,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -34179,7 +34073,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture5eventSo0A2IdCSo0A5EventC_tF",
+            "mangledName": "$s6Sentry0A6ClientC7capture5eventSo0A2IdCAA5EventC_tF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:",
@@ -34192,7 +34086,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -34215,7 +34109,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A6ClientC7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtF",
+            "mangledName": "$s6Sentry0A6ClientC7capture5event5scopeSo0A2IdCAA5EventC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:",
@@ -41589,7 +41483,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -41606,7 +41500,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5eventSo0A2IdCSo0A5EventC_tF",
+            "mangledName": "$s6Sentry0A3HubC7capture5eventSo0A2IdCAA5EventC_tF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:",
@@ -41619,7 +41513,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -41642,7 +41536,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture5event5scopeSo0A2IdCAA5EventC_AA5ScopeCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:",
@@ -41655,7 +41549,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -41684,7 +41578,7 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5event5scope4hintSo0A2IdCSo0A5EventC_AA5ScopeCAA4HintCtF",
+            "mangledName": "$s6Sentry0A3HubC7capture5event5scope4hintSo0A2IdCAA5EventC_AA5ScopeCAA4HintCtF",
             "moduleName": "Sentry",
             "name": "capture",
             "objc_name": "captureEvent:withScope:hint:",
@@ -45895,17 +45789,17 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               }
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGSo0A5EventC_tF",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGAA5EventC_tF",
             "moduleName": "Sentry",
             "name": "serialize",
             "printedName": "serialize(event:)",
-            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGSo0A5EventC_tF"
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGAA5EventC_tF"
           },
           {
             "children": [
@@ -62324,7 +62218,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62340,12 +62234,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5eventSo0A2IdCSo0A5EventC_tFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5eventSo0A2IdCAA5EventC_tFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5eventSo0A2IdCSo0A5EventC_tFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5eventSo0A2IdCAA5EventC_tFZ"
           },
           {
             "children": [
@@ -62359,7 +62253,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62375,12 +62269,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event16attachAllThreadsSo0A2IdCSo0A5EventC_SbtFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event16attachAllThreadsSo0A2IdCAA5EventC_SbtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:attachAllThreads:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event16attachAllThreadsSo0A2IdCSo0A5EventC_SbtFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event16attachAllThreadsSo0A2IdCAA5EventC_SbtFZ"
           },
           {
             "children": [
@@ -62419,7 +62313,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62435,12 +62329,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event16attachAllThreads5blockSo0A2IdCSo0A5EventC_SbyAA5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event16attachAllThreads5blockSo0A2IdCAA5EventC_SbyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:attachAllThreads:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event16attachAllThreads5blockSo0A2IdCSo0A5EventC_SbyAA5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event16attachAllThreads5blockSo0A2IdCAA5EventC_SbyAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -62473,7 +62367,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62489,12 +62383,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event5blockSo0A2IdCSo0A5EventC_yAA5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event5blockSo0A2IdCAA5EventC_yAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event5blockSo0A2IdCSo0A5EventC_yAA5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event5blockSo0A2IdCAA5EventC_yAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -62502,7 +62396,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62524,12 +62418,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event4hintSo0A2IdCSo0A5EventC_AA4HintCtFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event4hintSo0A2IdCAA5EventC_AA4HintCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:hint:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event4hintSo0A2IdCSo0A5EventC_AA4HintCtFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event4hintSo0A2IdCAA5EventC_AA4HintCtFZ"
           },
           {
             "children": [
@@ -62562,7 +62456,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62584,12 +62478,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCyAA5ScopeCctFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event4hint5blockSo0A2IdCAA5EventC_AA4HintCyAA5ScopeCctFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:hint:block:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCyAA5ScopeCctFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event4hint5blockSo0A2IdCAA5EventC_AA4HintCyAA5ScopeCctFZ"
           },
           {
             "children": [
@@ -62597,7 +62491,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62619,12 +62513,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event5scopeSo0A2IdCAA5EventC_AA5ScopeCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:scope:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event5scopeSo0A2IdCSo0A5EventC_AA5ScopeCtFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event5scopeSo0A2IdCAA5EventC_AA5ScopeCtFZ"
           },
           {
             "children": [
@@ -62632,7 +62526,7 @@
                 "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
+                "usr": "c:@M@Sentry@objc(cs)SentryEvent"
               },
               {
                 "kind": "TypeNominal",
@@ -62660,12 +62554,12 @@
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKO7capture5event5scope4hintSo0A2IdCSo0A5EventC_AA5ScopeCAA4HintCtFZ",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event5scope4hintSo0A2IdCAA5EventC_AA5ScopeCAA4HintCtFZ",
             "moduleName": "Sentry",
             "name": "capture",
             "printedName": "capture(event:scope:hint:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKO7capture5event5scope4hintSo0A2IdCSo0A5EventC_AA5ScopeCAA4HintCtFZ"
+            "usr": "s:6Sentry0A3SDKO7capture5event5scope4hintSo0A2IdCAA5EventC_AA5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -80966,7 +80860,6 @@
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC",
                   "Override"
                 ],
@@ -81018,7 +80911,6 @@
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC",
                   "Override"
                 ],
@@ -81064,7 +80956,6 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC",
               "Override"
             ],
@@ -81152,7 +81043,7 @@
           "ObjectiveC.NSObject",
           "Sentry.Event"
         ],
-        "superclassUsr": "c:objc(cs)SentryEvent",
+        "superclassUsr": "c:@M@Sentry@objc(cs)SentryEvent",
         "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
       },
       {
