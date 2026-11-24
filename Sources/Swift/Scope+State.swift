@@ -127,8 +127,18 @@ extension Scope {
             // Ring buffer so adding a breadcrumb stays O(1). The scope owns a snapshot so a caller
             // mutating the breadcrumb afterwards cannot race with a reader of the stored object.
             let snapshot = crumb.snapshotCopy()
-            breadcrumbArray[currentBreadcrumbIndex] = snapshot
-            currentBreadcrumbIndex = (currentBreadcrumbIndex + 1) % Int(maxBreadcrumbs)
+            let limit = Int(maxBreadcrumbs)
+            // Subscript assignment appends when the index equals count. A copied
+            // full ring used to start at that index and grow past the cap.
+            if currentBreadcrumbIndex >= limit {
+                currentBreadcrumbIndex %= limit
+            }
+            if currentBreadcrumbIndex < breadcrumbArray.count {
+                breadcrumbArray[currentBreadcrumbIndex] = snapshot
+            } else {
+                breadcrumbArray.add(snapshot)
+            }
+            currentBreadcrumbIndex = (currentBreadcrumbIndex + 1) % limit
             let serializedBreadcrumb = snapshot.serialize()
             notifyObservers { $0.addSerializedBreadcrumb(serializedBreadcrumb) }
         }

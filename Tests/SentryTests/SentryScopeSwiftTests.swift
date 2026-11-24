@@ -178,6 +178,41 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
 
+    func testInitWithScope_whenBreadcrumbBufferIsFull_shouldWrapOnNextAdd() {
+        // -- Arrange --
+        let maxBreadcrumbs = 3
+        let scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
+        for index in 0 ..< maxBreadcrumbs {
+            let crumb = Breadcrumb()
+            crumb.message = "\(index)"
+            scope.addBreadcrumb(crumb)
+        }
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+        let overflow = Breadcrumb()
+        overflow.message = "3"
+        cloned.addBreadcrumb(overflow)
+
+        // -- Assert --
+        XCTAssertEqual(cloned.breadcrumbs().compactMap(\.message), ["1", "2", "3"])
+        XCTAssertEqual(cloned.breadcrumbArray.count, maxBreadcrumbs)
+        XCTAssertEqual(scope.breadcrumbs().compactMap(\.message), ["0", "1", "2"])
+    }
+
+    func testInitWithScope_whenCurrentScreenIsSet_shouldCopyIt() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.currentScreen = "Checkout"
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(cloned.currentScreen, "Checkout")
+        XCTAssertEqual(scope.currentScreen, "Checkout")
+    }
+
     func testInitWithScope_whenFeatureFlagsChanged_shouldNotShareFutureMutations() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)

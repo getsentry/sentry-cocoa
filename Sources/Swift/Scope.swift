@@ -176,7 +176,9 @@ open class Scope: NSObject {
         }
         let crumbs = scope.breadcrumbs()
         breadcrumbArray = NSMutableArray(capacity: Int(scope.maxBreadcrumbs))
-        currentBreadcrumbIndex = crumbs.count
+        if scope.maxBreadcrumbs > 0 {
+            currentBreadcrumbIndex = crumbs.count % Int(scope.maxBreadcrumbs)
+        }
         breadcrumbArray.addObjects(from: crumbs)
         fingerprintArray.addObjects(from: scope.fingerprints())
         // Read the source attachments before taking this scope's mutex. Holding both mutexes
@@ -186,7 +188,6 @@ open class Scope: NSObject {
         attachmentStorage.withLock { $0.addObjects(from: copiedAttachments) }
         crashReportAttachmentStorage.withLock { $0.addObjects(from: copiedCrashReportAttachments) }
         attributesDictionary.addEntries(from: scope.attributes)
-
         propagationContext = scope.propagationContext
         maxBreadcrumbs = scope.maxBreadcrumbs
         // Read the source under its own lock, then write this scope's storage. Taking both
@@ -210,6 +211,8 @@ open class Scope: NSObject {
         }
         span = scope.span
         replayId = scope.replayId
+        // Storage, not the setter, so a copy does not notify observers again.
+        currentScreenStorage = scope.currentScreen
     }
 
     /// Sets the user sent with every event.
