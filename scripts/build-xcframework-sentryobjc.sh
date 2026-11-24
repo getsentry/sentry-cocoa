@@ -19,6 +19,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 # shellcheck source=./tools.sh disable=SC1091
 source "$SCRIPT_DIR/tools.sh"
+# shellcheck source=./xcframework-utils.sh disable=SC1091
+source "$SCRIPT_DIR/xcframework-utils.sh"
 
 OUTPUT_DIR="XCFrameworkBuildPath"
 SDKS="iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
@@ -140,11 +142,12 @@ fi
 if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
     version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
     for sdk in "${sdk_list[@]}"; do
+        archs="$(sdk_base_architectures "$sdk")"
         "$SCRIPT_DIR/build-dynamic-framework.sh" \
             --framework-name SentryObjC \
             --version "$version" \
             --sdk "$sdk" \
-            --archs "$(if [[ "$sdk" == xrsimulator ]]; then echo arm64; fi)" \
+            --archs "$archs" \
             --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC-Debug.a" \
             --headers "$HEADERS_DIR" \
             --output-dir "$OUTPUT_DIR"

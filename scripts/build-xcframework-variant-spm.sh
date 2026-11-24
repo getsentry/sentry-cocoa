@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build a shipping SDK variant from SwiftPM archive products.
+# Build SwiftPM SDK slices and assemble a self-contained dynamic XCFramework.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -51,6 +51,7 @@ fi
 scheme=Sentry
 framework_name=Sentry
 with_arm64e=false
+# Select the source module name without changing the SDK generation.
 export SENTRY_BUILD_XCFRAMEWORK=1
 case "$generation/$variant" in
     v9/Sentry-Dynamic) ;;
@@ -75,6 +76,8 @@ work="$OUTPUT_DIR/build/$variant"
 
 for sdk in "${sdks[@]}"; do
     archs="$(sdk_base_architectures "$sdk")"
+    # Match the shipped Sentry-Dynamic visionOS simulator slice, which includes x86_64 even though the simulator requires Apple silicon.
+    if [[ "$sdk" == xrsimulator ]]; then archs+=" x86_64"; fi
     if [[ "$with_arm64e" == true && "$sdk" != *simulator ]]; then archs+=" arm64e"; fi
     "$SCRIPT_DIR/build-static-library.sh" \
         --sdk "$sdk" \

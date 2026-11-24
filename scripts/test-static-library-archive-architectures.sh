@@ -109,6 +109,7 @@ xcrun lipo -create "$WORK_DIR/objects/dependency-matching.o" "$WORK_DIR/objects/
 #   scheme: archived scheme and output library name.
 #   architecture_target: target name used for the archived <target>.o file.
 #   remaining arguments: additional options for build-static-library.sh.
+#   PACKAGING_FAULT: optional nm/strip fault injection; other cases use the real tools.
 run_case() {
     local name="$1" dependency="$2" expected_error="$3"
     local target_object="$4" scheme="$5" architecture_target="$6" fault="${PACKAGING_FAULT:-}"
@@ -222,7 +223,8 @@ run_case \
     SentryObjC \
     SentryObjCCompat
 
-# Request both architectures explicitly. The order need not match lipo's output.
+# Preserve both architectures and both objects' symbols when their slices match.
+# The requested order need not match lipo's output.
 run_case \
     matching-architectures \
     "$WORK_DIR/objects/dependency-matching.o" \

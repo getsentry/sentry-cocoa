@@ -11,10 +11,10 @@ trap 'rm -rf "$work"' EXIT
 mkdir "$work/headers"
 echo 'int fixture(void);' > "$work/headers/Fixture.h"
 echo 'int fixture(void) { return 1; }' > "$work/fixture.c"
-xcrun --sdk macosx clang -target arm64-apple-macos12.0 -g -c "$work/fixture.c" -o "$work/fixture.o"
+xcrun --sdk macosx clang -arch arm64 -arch x86_64 -mmacosx-version-min=12.0 -g -c "$work/fixture.c" -o "$work/fixture.o"
 xcrun libtool -static -o "$work/libFixture.a" "$work/fixture.o"
 
-for mergeable in false true; do
+build_fixture() {
     "$SCRIPT_DIR/build-dynamic-framework.sh" \
         --sdk macosx \
         --framework-name Fixture \
@@ -22,8 +22,21 @@ for mergeable in false true; do
         --static-lib "$work/libFixture.a" \
         --headers "$work/headers" \
         --output-dir "$work" \
-        --archs arm64 \
-        --mergeable "$mergeable"
+        "$@"
+}
+
+if build_fixture || build_fixture --archs '' || build_fixture --archs ' '; then
+    log_error 'Relinking succeeded without a nonempty --archs list'
+    exit 1
+fi
+
+if build_fixture --archs 'arm64 arm64e'; then
+    log_error 'Relinking succeeded despite the archive lacking arm64e'
+    exit 1
+fi
+
+for mergeable in false true; do
+    build_fixture --archs arm64 --mergeable "$mergeable"
 
     binary="$work/framework/Fixture/macosx/Fixture.framework/Fixture"
     archs="$(xcrun lipo -archs "$binary")"

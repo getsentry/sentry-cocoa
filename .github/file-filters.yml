@@ -496,6 +496,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/tools.sh"
   - "scripts/assemble-xcframework-sentryobjc.sh"
   - "scripts/validate-xcframework*.sh"
+  - "scripts/xcframework-utils.sh"
   - "scripts/generate-testapp-v10.sh"
   - "scripts/test-v10-development-selection.sh"
   - "scripts/test-spm-v9-no-ui-framework.swift"

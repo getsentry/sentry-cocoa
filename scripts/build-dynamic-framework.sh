@@ -1,7 +1,10 @@
 #!/bin/bash
 #
-# Relink a pre-built static library as a dynamic framework slice with its headers,
-# modules and resources. SDK shipping variants can also request a mergeable dylib.
+# Builds a single dynamic framework slice.
+#
+# Takes a pre-built static library (from build-static-library.sh)
+# and re-links it as a dynamic library via swiftc, then packages the result
+# as a .framework bundle with headers and optional prepared modules and resources.
 
 set -euo pipefail
 
@@ -10,8 +13,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 # shellcheck source=./tools.sh disable=SC1091
 source "$SCRIPT_DIR/tools.sh"
-# shellcheck source=./xcframework-utils.sh disable=SC1091
-source "$SCRIPT_DIR/xcframework-utils.sh"
 
 SDK=""
 STATIC_LIB=""
@@ -32,7 +33,7 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
-    log_info "  -A, --archs <list>            Space-separated architectures to link (default: SDK-specific)"
+    log_info "  -A, --archs <list>            Space-separated architectures to link (required)"
     log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
@@ -66,6 +67,11 @@ if [[ "$MERGEABLE" != true && "$MERGEABLE" != false ]]; then
 fi
 if [ -z "$SDK" ]; then
     log_error "Error: --sdk is required"
+    usage
+fi
+read -r -a archs <<< "$ARCHS"
+if [[ ${#archs[@]} -eq 0 ]]; then
+    log_error "Error: --archs is required"
     usage
 fi
 if [ -z "$STATIC_LIB" ]; then
@@ -184,6 +190,14 @@ supported_platforms_for_sdk() {
         *)                 log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
+
+# ld can ignore an incompatible archive and still link the empty Swift file successfully.
+for arch in "${archs[@]}"; do
+    if ! xcrun lipo "$STATIC_LIB" -verify_arch "$arch"; then
+        log_error "$STATIC_LIB is missing required architecture: $arch"
+        exit 1
+    fi
+done
 
 FW_DIR="$OUTPUT_DIR/framework/$FRAMEWORK_NAME/$SDK/$FRAMEWORK_NAME.framework"
 rm -rf "$FW_DIR"
@@ -317,8 +331,6 @@ for lib in "${SYSTEM_LIBS[@]}"; do
 done
 
 # --- Link per architecture ---
-ARCHS="${ARCHS:-$(sdk_base_architectures "$SDK")}"
-read -r -a archs <<< "$ARCHS"
 target_suffix="$(target_suffix_for_sdk "$SDK")"
 link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
 trap 'rm -rf "$link_dir"' EXIT

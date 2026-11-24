@@ -107,11 +107,14 @@ jobs:
           SDK: ${{ matrix.sdk }}
           VERSION: ${{ env.VERSION }}
         run: |
+          source ./scripts/ci-utils.sh
+          source ./scripts/xcframework-utils.sh
+          archs="$(sdk_base_architectures "$SDK")"
           ./scripts/build-dynamic-framework.sh \
             --framework-name SentryObjC \
             --version "$VERSION" \
             --sdk "$SDK" \
-            --archs "$(if [[ "$SDK" == xrsimulator ]]; then echo arm64; fi)" \
+            --archs "$archs" \
             --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
             --headers "Sources/SentryObjC/Public" \
             --output-dir XCFrameworkBuildPath

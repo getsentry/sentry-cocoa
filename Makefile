@@ -533,14 +533,19 @@ build-xcframework-testapp:
 	@echo "[MAKE] $@: Building test app with xcodebuild"
 	xcodebuild -project "TestApps/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
-## Package a SwiftPM SDK shipping variant (see develop-docs/BUILD.md)
+## Package the SPM SDK as a dynamic XCFramework
+#
+# Both generations build the Sentry module. CI validates these artifacts
+# separately from the existing Xcode-project release products.
 SPM_XCFRAMEWORK_VARIANT ?= $(if $(filter 1,$(SDK_V10)),SentryV10-Dynamic,Sentry-Dynamic)
 SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM/$(if $(filter 1,$(SDK_V10)),v10,v9)
 .PHONY: build-xcframework-spm
 build-xcframework-spm:
 	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-variant-spm.sh --variant "$(SPM_XCFRAMEWORK_VARIANT)" --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
+	@echo "[MAKE] $@: Validating $(SPM_XCFRAMEWORK_VARIANT).xcframework"
 	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/$(SPM_XCFRAMEWORK_VARIANT).xcframework"
+	@echo "[MAKE] $@: Compressing $(SPM_XCFRAMEWORK_VARIANT).xcframework"
 	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/$(SPM_XCFRAMEWORK_VARIANT).xcframework"
 
 ## Build Sentry-Dynamic XCFramework
