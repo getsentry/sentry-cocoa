@@ -18,7 +18,7 @@ public struct SentryInternalProfilingApi {
     /// The `profiler_id` used in chunks from the current continuous profiler, or `nil` when inactive.
     /// A stop request keeps the ID available until the current chunk finishes.
     public var currentProfilerId: String? {
-        SentryContinuousProfiler.currentProfilerID()?.sentryIdString
+        SentryContinuousProfiler.currentProfilerID()?.stringValue
     }
 
     /// Starts a profiler session for the given trace ID.
