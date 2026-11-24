@@ -35,6 +35,7 @@ private func run(_ arguments: [String], in directory: URL, log: URL) throws -> S
 
     var environment = ProcessInfo.processInfo.environment
     environment.removeValue(forKey: "SDK_V10")
+    environment.removeValue(forKey: "SENTRY_BUILD_XCFRAMEWORK")
     process.environment = environment
 
     try process.run()
@@ -59,8 +60,8 @@ private func prepareSDK(root: URL, manifest: String) throws -> URL {
     _ = try run(["tar", "-xf", archive.path, "-C", sdk.path], in: root,
                 log: root.appendingPathComponent("extract-" + manifest + ".log"))
 
-    // Overlay only the fix's manifests; preserve unrelated working changes outside this snapshot.
-    for name in ["Package@swift-6.1.swift", "Package@swift-6.2.swift"] {
+    // Exercise local changes to module selection without copying generated build artifacts.
+    for name in ["Package@swift-6.1.swift", "Package@swift-6.2.swift", "Sources/Sentry/include/SentrySwift.h", "Sources/SentryCrashV9Swift"] {
         try files.removeItem(at: sdk.appendingPathComponent(name))
         try files.copyItem(at: repository.appendingPathComponent(name), to: sdk.appendingPathComponent(name))
     }
@@ -75,8 +76,10 @@ private func prepareSDK(root: URL, manifest: String) throws -> URL {
     return sdk
 }
 
-private func test(root: URL, sdk: URL, manifest: String, noUI: Bool, sdkPath: String) throws {
-    let name = manifest + (noUI ? "-no-ui" : "-ui")
+private func test(root: URL, sdk: URL, manifest: String, noUI: Bool, sdkPath: String, packaging: Bool = false) throws {
+    let name = manifest + (packaging ? "-packaging" : "") + (noUI ? "-no-ui" : "-ui")
+    let product = packaging ? "Sentry" : "SentrySPM"
+    let module = packaging ? "Sentry" : "SentrySwift"
     let consumer = root.appendingPathComponent(name)
     let traits = noUI ? ".defaults, \"NoUIFramework\"" : ".defaults"
 
@@ -88,18 +91,19 @@ private func test(root: URL, sdk: URL, manifest: String, noUI: Bool, sdkPath: St
         platforms: [.iOS(.v15)],
         dependencies: [.package(path: \(String(reflecting: sdk.path)), traits: [\(traits)])],
         targets: [.executableTarget(name: "RecorderConsumer", dependencies: [
-            .product(name: "SentrySPM", package: "\(sdk.lastPathComponent)")
+            .product(name: "\(product)", package: "\(sdk.lastPathComponent)")
         ])]
     )
     """, to: consumer.appendingPathComponent("Package.swift"))
 
     // Require SDK startup linkage, but never execute the simulator binary or install handlers.
-    try write("import SentrySwift\nSentrySDK.start { _ in }\n",
+    try write("import \(module)\nSentrySDK.start { _ in }\n",
               to: consumer.appendingPathComponent("Sources/RecorderConsumer/main.swift"))
 
     let build = consumer.appendingPathComponent("build")
-    let command = ["swift", "build", "--build-system", "native", "--package-path", consumer.path,
-                   "--scratch-path", build.path, "--triple", "arm64-apple-ios15.0-simulator", "--sdk", sdkPath]
+    let producer = packaging ? ["env", "SENTRY_BUILD_XCFRAMEWORK=Sentry"] : []
+    let command = producer + ["swift", "build", "--build-system", "native", "--package-path", consumer.path,
+                              "--scratch-path", build.path, "--triple", "arm64-apple-ios15.0-simulator", "--sdk", sdkPath]
     _ = try run(command, in: consumer, log: root.appendingPathComponent(name + "-build.log"))
 
     let binOutput = try run(command + ["--show-bin-path"], in: consumer,
@@ -180,6 +184,8 @@ do {
         // The UI-positive control must retain UIKit, proving these checks see recorder UI code.
         try test(root: root, sdk: sdk, manifest: manifest, noUI: false, sdkPath: sdkPath)
         try test(root: root, sdk: sdk, manifest: manifest, noUI: true, sdkPath: sdkPath)
+        // An explicit NoUIFramework trait must not rename the ordinary packaging module.
+        try test(root: root, sdk: sdk, manifest: manifest, noUI: true, sdkPath: sdkPath, packaging: true)
     }
 
     if work == nil { try files.removeItem(at: root) }

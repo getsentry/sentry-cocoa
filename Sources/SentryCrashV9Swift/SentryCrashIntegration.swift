@@ -1,6 +1,6 @@
 #if !SDK_V10
 #if SWIFT_PACKAGE
-#if SENTRY_BUILD_XCFRAMEWORK && SENTRY_NO_UI_FRAMEWORK
+#if SENTRY_MODULE_SENTRY_WITHOUT_UIKIT
 @_spi(Private) import SentryWithoutUIKit
 #elseif SENTRY_BUILD_XCFRAMEWORK
 @_spi(Private) import Sentry
@@ -21,7 +21,7 @@ import UIKit
 @available(*, deprecated, message: "Use sentry_finishAndSaveTransaction() from the main SDK module instead.")
 public func sentry_finishAndSaveTransaction() {
     // Preserve the adapter's Swift symbol, but only the main SDK owns the @_cdecl symbol.
-    #if SENTRY_BUILD_XCFRAMEWORK && SENTRY_NO_UI_FRAMEWORK
+    #if SENTRY_MODULE_SENTRY_WITHOUT_UIKIT
     SentryWithoutUIKit.sentry_finishAndSaveTransaction()
     #elseif SENTRY_BUILD_XCFRAMEWORK
     Sentry.sentry_finishAndSaveTransaction()
@@ -302,7 +302,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // makes Swift emit a second thunk with the same C symbol. Use a noncapturing closure.
         #if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
         sentrycrash_setSaveTransaction { SentrySwift.sentry_finishAndSaveTransaction() }
-        #elseif SWIFT_PACKAGE && SENTRY_NO_UI_FRAMEWORK
+        #elseif SWIFT_PACKAGE && SENTRY_MODULE_SENTRY_WITHOUT_UIKIT
         sentrycrash_setSaveTransaction { SentryWithoutUIKit.sentry_finishAndSaveTransaction() }
         #elseif SWIFT_PACKAGE
         sentrycrash_setSaveTransaction { Sentry.sentry_finishAndSaveTransaction() }

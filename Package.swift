@@ -19,7 +19,13 @@ func envFlag(_ name: String) -> Bool {
 
 let envSelectsV10 = envFlag("SDK_V10")
 // Packaging changes the module name, never the SDK implementation or crash backend.
-let buildXCFramework = envFlag("SENTRY_BUILD_XCFRAMEWORK")
+let xcframeworkModule = getenv("SENTRY_BUILD_XCFRAMEWORK").map { String(cString: $0) }
+// "1" is the original spelling for packaging the Sentry module.
+let buildXCFramework = xcframeworkModule == "1" || xcframeworkModule == "Sentry"
+if xcframeworkModule == "SentryWithoutUIKit" {
+    fputs("Building SentryWithoutUIKit requires Swift 6.1 or later for the NoUIFramework trait.\n", stderr)
+    exit(1)
+}
 let sourceUsesSentryModule = envSelectsV10 || buildXCFramework
 let sentrySwiftTargetName = sourceUsesSentryModule ? "Sentry" : "SentrySwift"
 let frameworkSwiftSettings: [SwiftSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK")] : []

@@ -52,18 +52,16 @@ scheme=Sentry
 framework_name=Sentry
 linkage=dynamic
 with_arm64e=false
-# Select the source module name without changing the SDK generation.
-export SENTRY_BUILD_XCFRAMEWORK=1 SENTRY_BUILD_NO_UI_XCFRAMEWORK=0
 case "$generation/$variant" in
     v9/Sentry|v10/SentryV10) linkage=static; with_arm64e=true ;;
     v9/Sentry-Dynamic) ;;
     v10/SentryV10-Dynamic|v9/Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
     v9/Sentry-WithoutUIKitOrAppKit|v9/Sentry-WithoutUIKitOrAppKit-WithARM64e)
         framework_name=SentryWithoutUIKit
-        export SENTRY_BUILD_NO_UI_XCFRAMEWORK=1
         if [[ "$variant" == *-WithARM64e ]]; then with_arm64e=true; fi ;;
     *) log_error "Not a shipping $generation SDK variant: $variant"; exit 1 ;;
 esac
+export SENTRY_BUILD_XCFRAMEWORK="$framework_name"
 
 case "$SDKS" in
     ""|AllSDKs) sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator ) ;;

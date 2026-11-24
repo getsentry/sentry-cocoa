@@ -19,14 +19,18 @@ func envFlag(_ name: String) -> Bool {
 
 let envSelectsV10 = envFlag("SDK_V10")
 // Packaging changes the module name, never the SDK implementation or crash backend.
-let buildXCFramework = envFlag("SENTRY_BUILD_XCFRAMEWORK")
+let xcframeworkModule = getenv("SENTRY_BUILD_XCFRAMEWORK").map { String(cString: $0) }
+// "1" is the original spelling for packaging the Sentry module.
+let buildNoUIFramework = !envSelectsV10 && xcframeworkModule == "SentryWithoutUIKit"
+let buildXCFramework = xcframeworkModule == "1" || xcframeworkModule == "Sentry" || buildNoUIFramework
 let sourceUsesSentryModule = envSelectsV10 || buildXCFramework
-// No-UI binaries have a distinct module identity; renaming the bundle after linking is insufficient.
-let buildNoUIFramework = buildXCFramework && !envSelectsV10 && envFlag("SENTRY_BUILD_NO_UI_XCFRAMEWORK")
 let sentrySwiftTargetName = buildNoUIFramework ? "SentryWithoutUIKit" : (sourceUsesSentryModule ? "Sentry" : "SentrySwift")
-let frameworkSwiftSettings: [SwiftSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK")] : []
-let frameworkCSettings: [CSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK", to: "1")] : []
-let frameworkCxxSettings: [CXXSetting] = buildXCFramework ? [.define("SENTRY_BUILD_XCFRAMEWORK", to: "1")] : []
+// Traits control UI code, not target names. Import the module actually present in the graph.
+let frameworkDefines = (buildXCFramework ? ["SENTRY_BUILD_XCFRAMEWORK"] : [])
+    + (buildNoUIFramework ? ["SENTRY_MODULE_SENTRY_WITHOUT_UIKIT"] : [])
+let frameworkSwiftSettings: [SwiftSetting] = frameworkDefines.map { .define($0) }
+let frameworkCSettings: [CSetting] = frameworkDefines.map { .define($0, to: "1") }
+let frameworkCxxSettings: [CXXSetting] = frameworkDefines.map { .define($0, to: "1") }
 // Xcode 16.4 can expose inactive trait-conditioned configuration targets. Keep V9's
 // graph deterministic here; older-toolchain V10 development uses SDK_V10=1 instead.
 let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []

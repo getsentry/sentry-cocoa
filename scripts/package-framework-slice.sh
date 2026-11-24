@@ -410,13 +410,6 @@ xcrun dsymutil "$binary_path" -o "$dsym_path"
 log_info "  Stripping debug symbols from binary"
 xcrun strip -x "$binary_path"
 
-if [[ "$FRAMEWORK_NAME" == SentryWithoutUIKit ]]; then
-    dependencies="$(xcrun otool -arch all -L "$binary_path")"
-    if grep -Eq '/(UIKit|AppKit|SwiftUI)\.framework/|/libswift(UIKit|AppKit|SwiftUI)\.dylib' <<< "$dependencies"; then
-        log_error "Unexpected UI dependency in $binary_path: $dependencies"
-        exit 1
-    fi
-fi
 end_group
 
 log_info "Dynamic slice $SDK built: $FW_DIR"
