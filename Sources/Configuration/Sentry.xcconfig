@@ -45,6 +45,8 @@ PROVISIONING_PROFILE_SPECIFIER =
 
 GCC_C_LANGUAGE_STANDARD = compiler-default
 
+OTHER_CFLAGS = -Wnullable-to-nonnull-conversion -Wnullability-completeness
+
 ENABLE_STRICT_OBJC_MSGSEND = NO
 
 CLANG_WARN_BOOL_CONVERSION = YES
