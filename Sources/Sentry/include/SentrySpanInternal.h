@@ -83,6 +83,14 @@ SENTRY_NO_INIT
 @property (readonly) BOOL isFinished;
 
 /**
+ * Finishes the span. Declared here because this header cannot import the Swift Span protocol,
+ * and Objective-C callers invoke these selectors directly. Hidden from Swift so they do not
+ * duplicate the protocol methods.
+ */
+- (void)finish NS_SWIFT_UNAVAILABLE("Use Span.finish()");
+- (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_UNAVAILABLE("Use Span.finish(status:)");
+
+/**
  * An arbitrary mapping of additional metadata of the span.
  */
 @property (readonly) NSDictionary<NSString *, id> *data;
