@@ -110,7 +110,8 @@ jobs:
           source ./scripts/ci-utils.sh
           source ./scripts/xcframework-utils.sh
           archs="$(sdk_base_architectures "$SDK")"
-          ./scripts/build-dynamic-framework.sh \
+          ./scripts/package-framework-slice.sh \
+            --product-type dynamic \
             --framework-name SentryObjC \
             --version "$VERSION" \
             --sdk "$SDK" \

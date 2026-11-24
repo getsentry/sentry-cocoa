@@ -143,7 +143,8 @@ if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
     version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
     for sdk in "${sdk_list[@]}"; do
         archs="$(sdk_base_architectures "$sdk")"
-        "$SCRIPT_DIR/build-dynamic-framework.sh" \
+        "$SCRIPT_DIR/package-framework-slice.sh" \
+            --product-type dynamic \
             --framework-name SentryObjC \
             --version "$version" \
             --sdk "$sdk" \

@@ -363,6 +363,8 @@ jobs:
         env:
           SDK_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
           SPM_XCFRAMEWORK_VARIANT: ${{ matrix.artifact }}
+        # macOS is enough for the advisory consumer tests. Before publishing SwiftPM-built
+        # artifacts, build with SDKS=AllSDKs so each ZIP contains every supported slice.
         run: make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
       # Only the distributable crosses the job boundary, never headers or build caches.
       # These validation artifacts are intentionally excluded from release-upload patterns.

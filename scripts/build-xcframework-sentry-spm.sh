@@ -102,7 +102,7 @@ for sdk in "${sdks[@]}"; do
         # The watchOS device and simulator linkers do not support -make_mergeable.
         mergeable=true
     fi
-    "$SCRIPT_DIR/build-dynamic-framework.sh" \
+    "$SCRIPT_DIR/package-framework-slice.sh" \
         --sdk "$sdk" \
         --framework-name "$framework_name" \
         --version "$version" \

@@ -1,11 +1,7 @@
 #!/bin/bash
 #
-# Builds a single dynamic framework slice.
-#
-# Takes a pre-built static library (from build-static-library.sh)
-# and re-links it as a dynamic library via swiftc, then packages the result
-# as a .framework bundle with headers and optional prepared modules and resources.
-# With --product-type static, packages a static framework instead.
+# Packages a prebuilt static library as one .framework slice with headers,
+# optional modules, and resources. Select static or dynamic linkage with --product-type.
 
 set -euo pipefail
 
@@ -25,7 +21,7 @@ RESOURCES_DIR=""
 VERSION=""
 ARCHS=""
 MERGEABLE=false
-PRODUCT_TYPE=dynamic
+PRODUCT_TYPE=""
 
 usage() {
     log_info "Usage: $0"
@@ -35,7 +31,7 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
-    log_info "  -t, --product-type <type>     Framework linkage: static or dynamic (default)"
+    log_info "  -t, --product-type <type>     Framework linkage: static or dynamic (required)"
     log_info "  -A, --archs <list>            Space-separated architectures to link (required)"
     log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
@@ -67,6 +63,10 @@ done
 
 if [[ "$MERGEABLE" != true && "$MERGEABLE" != false ]]; then
     log_error "--mergeable must be true or false"
+    usage
+fi
+if [[ -z "$PRODUCT_TYPE" ]]; then
+    log_error "--product-type is required"
     usage
 fi
 if [[ "$PRODUCT_TYPE" != static && "$PRODUCT_TYPE" != dynamic ]]; then

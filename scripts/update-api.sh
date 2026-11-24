@@ -148,7 +148,7 @@ export SDK_V10=0
 SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM"
 
 begin_group "Build Sentry SwiftPM XCFramework"
-"$SCRIPT_DIR/build-xcframework-variant-spm.sh" \
+"$SCRIPT_DIR/build-xcframework-sentry-spm.sh" \
     --sdks iphoneos --output-dir "$SPM_BUILD_DIR"
 end_group
 
@@ -164,7 +164,7 @@ export SDK_V10=1
 SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM-V10"
 
 begin_group "Build Sentry V10 SwiftPM XCFramework"
-"$SCRIPT_DIR/build-xcframework-variant-spm.sh" \
+"$SCRIPT_DIR/build-xcframework-sentry-spm.sh" \
     --sdks iphoneos --output-dir "$SPM_BUILD_DIR"
 end_group
 
