@@ -320,8 +320,8 @@ jobs:
 
   # Advisory SPM pipeline: runs beside releases, never as their prerequisite.
   # Promote these jobs to release gates only when switching release packaging.
-  package-spm-sdk:
-    name: Package ${{ matrix.artifact }} (SPM, advisory)
+  build-sdk-spm-built:
+    name: Build ${{ matrix.artifact }} (SPM-built, advisory)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     continue-on-error: true
@@ -391,13 +391,13 @@ jobs:
           echo "::warning title=Advisory SPM packaging::SPM SDK $GENERATION packaging failed. Xcode-project releases are unaffected."
           printf '### SPM SDK %s packaging failed (advisory)\n\nXcode-project releases are unaffected. See this job and its archive logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
 
-  validate-spm-sdk:
-    name: Validate ${{ matrix.artifact }} (SPM, advisory)
+  validate-sdk-spm-built:
+    name: Validate ${{ matrix.artifact }} (SPM-built, advisory)
     # A failed matrix leg must not suppress validation of another leg's artifact.
     if: >-
       always() && !cancelled() && needs.files-changed.result == 'success' &&
       (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
-    needs: [files-changed, package-spm-sdk]
+    needs: [files-changed, build-sdk-spm-built]
     continue-on-error: true
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
@@ -447,6 +447,13 @@ jobs:
           ./scripts/prepare-package.sh --remove-duplicate true --change-path true
           swift run --build-system xcode --package-path TestApps/SPM-ObjC-Static --configuration release \
             SPM-ObjC-Static 2>&1 | tee "$RUNNER_TEMP/spm-sdk/SPM-ObjC-Static.log"
+        shell: bash
+      # Reuses the Package.swift prepared above, matching the Xcode-built validate-spm job.
+      - name: Build Swift static consumer through the Sentry package product
+        if: ${{ !endsWith(matrix.artifact, '-Dynamic') }}
+        run: |
+          swift build --package-path TestApps/macOS-SPM-CommandLine 2>&1 \
+            | tee "$RUNNER_TEMP/spm-sdk/SPM-macOS-CommandLine.log"
         shell: bash
       - name: Build and run dynamic SPM consumers
         if: endsWith(matrix.artifact, '-Dynamic')
