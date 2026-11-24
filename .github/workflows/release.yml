@@ -477,8 +477,8 @@ jobs:
           echo "::warning title=Advisory SPM validation::SPM SDK $GENERATION consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
           printf '### SPM SDK %s consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
 
-  validate-spm-dynamic:
-    name: Validate SPM Dynamic
+  validate-spm-consumers:
+    name: Validate SPM Consumers
     runs-on: macos-15
     needs: [
       files-changed,
@@ -707,7 +707,7 @@ jobs:
         files-changed,
         validate-xcframework,
         validate-spm,
-        validate-spm-dynamic,
+        validate-spm-consumers,
         swift-build,
         duplication-tests,
         assemble-sentryobjc-static-xcframework,
@@ -793,7 +793,7 @@ jobs:
         assemble-sentryobjc-dynamic-xcframework,
         validate-xcframework,
         validate-spm,
-        validate-spm-dynamic,
+        validate-spm-consumers,
         swift-build,
         duplication-tests,
         run-full-ci-gate,
