@@ -289,6 +289,30 @@ sentrycrashcm_hasReservedThreads(void)
 #        pragma mark - Handler -
 // ============================================================================
 
+/** Blocks SIGPIPE and SIGTERM on the calling thread.
+ *
+ * The kernel sends these signals to the whole process, for example SIGPIPE
+ * after any thread writes to a closed pipe or socket, and delivers them to the
+ * first thread that does not block them. Without this, that can be an idle
+ * exception handler thread, and the crash report then blames its stack for a
+ * signal that other code caused. Blocking them here only moves delivery to
+ * another thread; the process-wide signal handler still reports them.
+ * Synchronous signals such as SIGSEGV stay unblocked so a crash of this thread
+ * is still reported.
+ */
+static void
+blockProcessDirectedSignals(void)
+{
+    sigset_t signals;
+    sigemptyset(&signals);
+    sigaddset(&signals, SIGPIPE);
+    sigaddset(&signals, SIGTERM);
+    int error = pthread_sigmask(SIG_BLOCK, &signals, NULL);
+    if (error != 0) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_sigmask: %s", SENTRY_STRERROR_R(error));
+    }
+}
+
 /** Our exception handler thread routine.
  * Wait for an exception message, uninstall our exception port, record the
  * exception information, and write a report.
@@ -302,6 +326,7 @@ handleExceptions(void *const userData)
 
     const char *threadName = (const char *)userData;
     pthread_setname_np(threadName);
+    blockProcessDirectedSignals();
     if (strcmp(threadName, kThreadSecondary) == 0) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("This is the secondary thread. Suspending.");
         thread_suspend((thread_t)sentrycrashthread_self());
