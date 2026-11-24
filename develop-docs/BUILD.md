@@ -69,7 +69,15 @@ The Swift-only [`SPM-Dynamic`](../TestApps/SPM-Dynamic) sample checks public API
 
 The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
-To build a static XCFramework instead, set `SPM_XCFRAMEWORK_VARIANT=Sentry` for V9 or `SPM_XCFRAMEWORK_VARIANT=SentryV10` for V10. Both retain Objective-C categories without extra consumer linker flags.
+To build a static XCFramework instead, set `SPM_XCFRAMEWORK_VARIANT=Sentry` for V9 or `SPM_XCFRAMEWORK_VARIANT=SentryV10` for V10. Neither needs `-ObjC` to retain SDK categories.
+
+The [Objective-C static consumer](../TestApps/SPM-ObjC-Static) uses the `Sentry` package product. CI swaps the Xcode-built and SwiftPM-built release zips under that product and checks that Sentry is linked into the executable and its `NSData` category is available.
+
+```bash
+swift run --build-system xcode --package-path TestApps/SPM-ObjC-Static SPM-ObjC-Static
+```
+
+For the separate `SentryObjC-Static` product in a pure Objective-C app, use the [documented app linker flags](https://docs.sentry.io/platforms/apple/install/swift-package-manager/#sentryobjc-static), as the [iOS Objective-C static sample](../TestApps/iOS-ObjectiveC-Static/App/Configurations/iOS-ObjectiveC-Static.xcconfig) does.
 
 ## Public API Generation
 
