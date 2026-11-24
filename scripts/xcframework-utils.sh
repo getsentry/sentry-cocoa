@@ -3,9 +3,9 @@
 
 sdk_base_architectures() {
     case "$1" in
-        iphoneos|appletvos|xros) echo arm64 ;;
+        iphoneos|appletvos|xros|xrsimulator) echo arm64 ;;
         watchos) echo "arm64 arm64_32" ;;
-        macosx|maccatalyst|iphonesimulator|appletvsimulator|watchsimulator|xrsimulator) echo "arm64 x86_64" ;;
+        macosx|maccatalyst|iphonesimulator|appletvsimulator|watchsimulator) echo "arm64 x86_64" ;;
         *) log_error "Unknown SDK: $1" >&2; return 1 ;;
     esac
 }

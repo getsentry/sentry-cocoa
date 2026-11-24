@@ -533,14 +533,19 @@ build-xcframework-testapp:
 	@echo "[MAKE] $@: Building test app with xcodebuild"
 	xcodebuild -project "TestApps/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
-## Package a SwiftPM SDK shipping variant (see develop-docs/BUILD.md)
+## Package the SPM SDK as a dynamic XCFramework
+#
+# Both generations build the Sentry module. CI validates these artifacts
+# separately from the existing Xcode-project release products.
 SPM_XCFRAMEWORK_VARIANT ?= $(if $(filter 1,$(SDK_V10)),SentryV10-Dynamic,Sentry-Dynamic)
 SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM/$(if $(filter 1,$(SDK_V10)),v10,v9)
 .PHONY: build-xcframework-spm
 build-xcframework-spm:
 	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant-spm.sh --variant "$(SPM_XCFRAMEWORK_VARIANT)" --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
+	./scripts/build-xcframework-sentry-spm.sh --variant "$(SPM_XCFRAMEWORK_VARIANT)" --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
+	@echo "[MAKE] $@: Validating $(SPM_XCFRAMEWORK_VARIANT).xcframework"
 	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/$(SPM_XCFRAMEWORK_VARIANT).xcframework"
+	@echo "[MAKE] $@: Compressing $(SPM_XCFRAMEWORK_VARIANT).xcframework"
 	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/$(SPM_XCFRAMEWORK_VARIANT).xcframework"
 
 ## Build Sentry-Dynamic XCFramework
@@ -652,7 +657,7 @@ build-xcframework-without-uikit-arm64e:
 .PHONY: build-xcframework-sentryobjc-static
 build-xcframework-sentryobjc-static:
 	@echo "[MAKE] $@: Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
+	./scripts/build-xcframework-sentryobjc-spm.sh --sdks "$(SDKS)"
 	@echo "[MAKE] $@: Validating SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 	@echo "[MAKE] $@: Validating SentryObjC static integration in SentryObjC-Static.xcframework"
@@ -675,7 +680,7 @@ build-xcframework-sentryobjc-static:
 .PHONY: build-xcframework-sentryobjc-dynamic
 build-xcframework-sentryobjc-dynamic:
 	@echo "[MAKE] $@: Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
+	./scripts/build-xcframework-sentryobjc-spm.sh --sdks "$(SDKS)" --variant dynamic
 	@echo "[MAKE] $@: Validating SentryObjC-Dynamic.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	@echo "[MAKE] $@: Compressing SentryObjC-Dynamic.xcframework"
@@ -696,7 +701,7 @@ build-xcframework-sentryobjc-dynamic:
 .PHONY: build-xcframework-sentryobjc-v10
 build-xcframework-sentryobjc-v10:
 	@echo "[MAKE] $@: Creating V10 SentryObjC xcframeworks (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant both --v10 \
+	./scripts/build-xcframework-sentryobjc-spm.sh --sdks "$(SDKS)" --variant both --v10 \
 		--output-dir XCFrameworkBuildPath/V10
 	@echo "[MAKE] $@: Validating SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
@@ -2177,6 +2182,7 @@ analyze:
 ## Generate public API documentation
 #
 # Updates V9/V10 framework and SwiftPM API snapshots.
+# Fails if the generated SwiftPM API differs from its Xcode counterpart.
 .PHONY: generate-public-api
 generate-public-api:
 	@echo "[MAKE] $@: Generating public API documentation"

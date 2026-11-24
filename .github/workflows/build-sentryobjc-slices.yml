@@ -107,10 +107,15 @@ jobs:
           SDK: ${{ matrix.sdk }}
           VERSION: ${{ env.VERSION }}
         run: |
-          ./scripts/build-dynamic-framework.sh \
+          source ./scripts/ci-utils.sh
+          source ./scripts/xcframework-utils.sh
+          archs="$(sdk_base_architectures "$SDK")"
+          ./scripts/package-framework-slice.sh \
+            --product-type dynamic \
             --framework-name SentryObjC \
             --version "$VERSION" \
             --sdk "$SDK" \
+            --archs "$archs" \
             --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
             --headers "Sources/SentryObjC/Public" \
             --output-dir XCFrameworkBuildPath

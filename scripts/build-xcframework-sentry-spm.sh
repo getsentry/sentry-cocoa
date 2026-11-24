@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build a shipping SDK variant from SwiftPM archive products.
+# Build SwiftPM SDK slices and assemble a self-contained dynamic or static XCFramework.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -52,6 +52,7 @@ scheme=Sentry
 framework_name=Sentry
 linkage=dynamic
 with_arm64e=false
+# Select the source module name without changing the SDK generation.
 export SENTRY_BUILD_XCFRAMEWORK=1 SENTRY_BUILD_NO_UI_XCFRAMEWORK=0
 case "$generation/$variant" in
     v9/Sentry|v10/SentryV10) linkage=static; with_arm64e=true ;;
@@ -81,6 +82,8 @@ work="$OUTPUT_DIR/build/$variant"
 
 for sdk in "${sdks[@]}"; do
     archs="$(sdk_base_architectures "$sdk")"
+    # Match the shipped Sentry-Dynamic visionOS simulator slice, which includes x86_64 even though the simulator requires Apple silicon.
+    if [[ "$sdk" == xrsimulator ]]; then archs+=" x86_64"; fi
     if [[ "$with_arm64e" == true && "$sdk" != *simulator ]]; then archs+=" arm64e"; fi
     "$SCRIPT_DIR/build-static-library.sh" \
         --sdk "$sdk" \
@@ -97,15 +100,21 @@ for sdk in "${sdks[@]}"; do
         --swift-archive "$work/archive/$scheme/$sdk.xcarchive" \
         --output-dir "$prepared"
     lib="$work/lib/$scheme/$sdk/lib$scheme-Debug.a"
+    mergeable=false
     if [[ "$linkage" == static ]]; then
         lib="$work/lib/$scheme/$sdk/lib$scheme.a"
+    elif [[ "$sdk" != watch* ]]; then
+        # The watchOS device and simulator linkers do not support -make_mergeable.
+        mergeable=true
     fi
-    "$SCRIPT_DIR/build-dynamic-framework.sh" \
+    "$SCRIPT_DIR/package-framework-slice.sh" \
         --sdk "$sdk" \
         --framework-name "$framework_name" \
         --version "$version" \
         --output-dir "$work" \
         --product-type "$linkage" \
+        --archs "$archs" \
+        --mergeable "$mergeable" \
         --static-lib "$lib" \
         --headers "$prepared/Headers" \
         --modules "$prepared/Modules" \

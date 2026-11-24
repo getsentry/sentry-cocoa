@@ -67,24 +67,20 @@ validate_output_location() {
 
 prepare_headers() {
     local header
+    # Use Xcode's umbrella and specialize the shipped headers, including direct imports.
+    local define=""
     if [[ "$module" == SentryWithoutUIKit ]]; then
-        # Resolve UI gates in each shipped header, including direct imports without Clang modules.
-        for header in "$SOURCE_HEADERS_DIR"/*.h; do
-            unifdef -x2 -DSENTRY_NO_UI_FRAMEWORK=1 -o "$headers_dir/${header##*/}" "$header"
-        done
-    else
-        cp "$SOURCE_HEADERS_DIR"/*.h "$headers_dir/"
+        define="-DSENTRY_NO_UI_FRAMEWORK=1"
+    elif [[ "${SDK_V10:-0}" == 1 ]]; then
+        define="-DSDK_V10=1"
     fi
-    {
-        # Configure V10 before any public declarations, without consumer compiler flags.
-        if [ "${SDK_V10:-0}" = 1 ]; then
-            cp "$SCRIPT_DIR/../Sources/SentryV10Configuration/include/SentryV10Configuration.h" "$headers_dir/"
-            printf '#import <Sentry/SentryV10Configuration.h>\n'
-        fi
+    if [[ -z "$define" ]]; then
+        cp "$SOURCE_HEADERS_DIR"/*.h "$headers_dir/"
+    else
         for header in "$SOURCE_HEADERS_DIR"/*.h; do
-            printf '#import <%s/%s>\n' "$module" "${header##*/}"
+            xcrun unifdef -x2 "$define" -o "$headers_dir/${header##*/}" "$header"
         done
-    } > "$headers_dir/SentryHeaders.h"
+    fi
 }
 
 prepare_modules() {
@@ -109,14 +105,14 @@ prepare_modules() {
     fi
 
     # Import declarations directly: importing the parent module here would create a cycle.
-    sed "s|@import SentryHeaders;|#import <$module/SentryHeaders.h>|" \
+    sed "s|@import SentryHeaders;|#import <$module/$module.h>|" \
         "$swift_products/$module-Swift.h" > "$headers_dir/$module-Swift.h"
     # The Swift submodule exposes Swift declarations to ObjC without reimporting them into Swift.
     # The dynamic producer links these system libraries itself. Static clients need
     # them at final link; advertise them through the module rather than consumer flags.
     awk -v module="$module" -v linkage="$linkage" '
         /^(framework )?module / { sub(/module Sentry/, "module " module) }
-        { sub(/Sentry-Swift[.]h/, module "-Swift.h"); print }
+        { sub(/"Sentry\.h"/, "\"" module ".h\""); sub(/Sentry-Swift[.]h/, module "-Swift.h"); print }
         /^framework module / && linkage == "static" { print "  link \"c++\""; print "  link \"z\"" }
     ' "$SCRIPT_DIR/../Sources/Resources/SentrySPM.modulemap" > "$modules_dir/module.modulemap"
 }
