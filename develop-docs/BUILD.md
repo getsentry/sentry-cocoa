@@ -49,7 +49,7 @@ The [build script](../scripts/build-xcframework-variant-spm.sh) automatically se
 
 Output: `XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework.zip` or `XCFrameworkBuildPath/SPM/v10/Sentry-Dynamic.xcframework.zip`. The generation-specific directories keep intermediates and identically named artifacts separate. When overriding `SPM_XCFRAMEWORK_BUILD_PATH` (or the script’s `--output-dir`), use separate paths for each generation. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
 
-Both V9 binary producers compile the legacy Swift crash adapter into `Sentry` so existing `@_spi(Private) import Sentry` consumers retain their Swift symbol identities.
+Both V9 binary producers compile the legacy Swift crash adapter into `Sentry` so existing `@_spi(Private) import Sentry` consumers retain their Swift symbol identities. The macOS V9 validation job checks this by compiling the [crash SPI consumer](../Tests/V9BinarySPIConsumer/main.swift) against the Xcode framework, then linking and running that object against the SwiftPM framework without recompiling.
 
 Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
 

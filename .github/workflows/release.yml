@@ -386,7 +386,7 @@ jobs:
     if: >-
       always() && !cancelled() && needs.files-changed.result == 'success' &&
       (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
-    needs: [files-changed, package-spm-sdk]
+    needs: [files-changed, package-spm-sdk, build-xcframework-variant-slices]
     continue-on-error: true
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
@@ -410,6 +410,14 @@ jobs:
         with:
           name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
           path: ${{ runner.temp }}/spm-sdk
+      - name: Download V9 Xcode slice
+        if: matrix.generation == 'v9'
+        id: download-xcode-slice
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        background: true
+        with:
+          name: xcframework-sentry-dynamic-slice-macosx
+          path: ${{ runner.temp }}/xcode-sdk
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -439,6 +447,17 @@ jobs:
             tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
           done
           exit "$status"
+      - wait: download-xcode-slice
+      - name: Relink V9 crash SPI consumer
+        if: matrix.generation == 'v9'
+        working-directory: ${{ runner.temp }}
+        run: |
+          ditto -x -k xcode-sdk/Sentry-Dynamic.xcarchive.zip xcode-sdk
+          xcode_slice=xcode-sdk/macosx.xcarchive/Products/Library/Frameworks
+          spm_slice=$(dirname "$PWD"/spm-sdk/Sentry-Dynamic.xcframework/macos-*/Sentry.framework)
+          xcrun --sdk macosx swiftc -F "$xcode_slice" -c "$GITHUB_WORKSPACE/Tests/V9BinarySPIConsumer/main.swift" -o consumer.o
+          xcrun --sdk macosx swiftc -F "$spm_slice" consumer.o -framework Sentry -Xlinker -rpath -Xlinker "$spm_slice" -o consumer
+          ./consumer
       - name: Upload consumer logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
