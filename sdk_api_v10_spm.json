@@ -749,6 +749,16 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "Sentry.SentrySpanProtocol",
+        "printedName": "Sentry.SentrySpanProtocol"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "Sentry.SentrySpanStatus",
         "printedName": "Sentry.SentrySpanStatus"
       },
