@@ -27,84 +27,84 @@ private let sentryEventPlatformName = "cocoa"
 open class Event: NSObject {
 
     /// Set by the initializer.
-    public var eventId: SentryId
+    open var eventId: SentryId
 
     /// Message of the event.
-    public var message: SentryMessage?
+    open var message: SentryMessage?
 
     /// The error of the event.
     ///
     /// This property is a convenience for ``Options/beforeSend``. It is not serialized. While
     /// preparing the event, the client copies this error and any underlying errors into
     /// ``exceptions``.
-    public var error: Error?
+    open var error: Error?
 
     /// When the event occurred.
-    public var timestamp: Date?
+    open var timestamp: Date?
 
     /// When the event started. Mostly useful for transactions.
-    public var startTimestamp: Date?
+    open var startTimestamp: Date?
 
     /// Severity of the event.
-    public var level: SentryLevel
+    open var level: SentryLevel
 
     /// Platform used for symbolication. Defaults to `cocoa`.
-    public var platform: String
+    open var platform: String
 
     /// Logger name.
-    public var logger: String?
+    open var logger: String?
 
     /// Server name.
-    public var serverName: String?
+    open var serverName: String?
 
     /// Release name. Filled in before the event is sent.
-    public var releaseName: String?
+    open var releaseName: String?
 
     /// Distribution. Filled in before the event is sent.
-    public var dist: String?
+    open var dist: String?
 
     /// Environment used for this event.
-    public var environment: String?
+    open var environment: String?
 
     /// Name of the transaction that caused this event.
-    public var transaction: String?
+    open var transaction: String?
 
     /// Event type, such as `transaction`.
-    public var type: String?
+    open var type: String?
 
     /// Arbitrary string tags shown with the event.
     ///
     /// For a ``Transaction`` read from `beforeSend`, this includes tracer tags.
     /// Tracer tags win. Swift subscript assignment calls the setter. Objective-C
     /// must assign the dictionary back onto the property.
-    public var tags: [String: String]?
+    open var tags: [String: String]?
 
     /// Arbitrary additional information sent with the event.
-    public var extra: [String: Any]?
+    open var extra: [String: Any]?
 
     /// Information about the SDK. Maintained automatically.
-    public var sdk: [String: Any]?
+    open var sdk: [String: Any]?
 
     /// Modules of the event.
-    public var modules: [String: String]?
+    open var modules: [String: String]?
 
     /// Fingerprint used to group the event.
-    public var fingerprint: [String]?
+    open var fingerprint: [String]?
 
     /// User associated with the event.
-    public var user: User?
+    open var user: User?
 
 #if SDK_V10
     /// Meta information. Maintained automatically.
     ///
     /// Entries are usually one dictionary per context type. Crash reports also store other JSON
     /// values, so this is a dictionary of arbitrary values rather than nested dictionaries.
-    public var context: [String: Any]?
+    open var context: [String: Any]?
 #else
     /// This object contains meta information.
     ///
     /// This is maintained automatically, and shouldn't normally need to be modified.
-    @nonobjc public var context: [String: [String: Any]]? {
+    @nonobjc open var context: [String: [String: Any]]? {
         get { nestedContext(from: contextDictionary) }
         set { contextDictionary = newValue as NSDictionary? }
     }
@@ -129,22 +129,22 @@ open class Event: NSObject {
     }
 
     /// Threads captured for a crash or a user-reported exception.
-    public var threads: [SentryThread]?
+    open var threads: [SentryThread]?
 
     /// Exceptions that led to the event, oldest first.
-    public var exceptions: [Exception]?
+    open var exceptions: [Exception]?
 
     /// Stack trace sent with the event, in addition to threads.
-    public var stacktrace: SentryStacktrace?
+    open var stacktrace: SentryStacktrace?
 
     /// Images loaded during runtime.
-    public var debugMeta: [DebugMeta]?
+    open var debugMeta: [DebugMeta]?
 
     /// Breadcrumbs available when the event occurred.
-    public var breadcrumbs: [Breadcrumb]?
+    open var breadcrumbs: [Breadcrumb]?
 
     /// HTTP request information.
-    public var request: SentryRequest?
+    open var request: SentryRequest?
 
     /// Whether this event is a fatal app termination, such as a crash, watchdog termination, or
     /// fatal app hang.
