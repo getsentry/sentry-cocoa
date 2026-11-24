@@ -1,32 +1,6 @@
 internal import _SentryPrivate
 import Foundation
 
-/// A fatal report the coordinator holds back, waiting for another source to report on the same
-/// run.
-struct SentryHeldFatalReport {
-    let runId: SentryCurrentRun.ID
-    let source: SentryEventSource
-    let event: Event
-    /// The crashed session of the run the report describes, or `nil` when that run had none.
-    ///
-    /// The SDK keeps one crashed session for the first fatal event of a launch. When the app
-    /// crashes while a report is held, the next launch replaces that session with the one of the
-    /// crashed run, so the held report keeps the session of its own run and is sent with it.
-    var session: SentrySession?
-
-    /// The report as the source submitted it. Attachments aren't kept, because the only source
-    /// that is held, the watchdog termination integration, has none.
-    var report: SentryEventSourceReport {
-        SentryEventSourceReport(
-            source: source,
-            kind: .fatal(attachmentPaths: [], isRetainedOnFailure: false),
-            runId: runId,
-            event: event,
-            crashedSession: .carried(session)
-        )
-    }
-}
-
 /// Persists the one fatal report the coordinator holds, so a relaunch or a kill while it waits
 /// doesn't lose it.
 ///
@@ -35,15 +9,8 @@ struct SentryHeldFatalReport {
 final class SentryHeldFatalReportStore {
     static let fileName = "held-fatal-report.json"
 
-    private enum Key {
-        static let runId = "run_id"
-        static let source = "source"
-        static let event = "event"
-        static let session = "session"
-    }
-
     private let fileManager: SentryFileManager
-    private let lock = SentryMutex(())
+    private let lock = SentryLock()
 
     init(fileManager: SentryFileManager) {
         self.fileManager = fileManager
@@ -69,6 +36,7 @@ final class SentryHeldFatalReportStore {
         }
         if report.session != nil {
             fileManager.deleteCrashedSession()
+            SentrySDKLog.debug("Moved the crashed session into the held \(report.source.rawValue) report for run \(report.runId)")
         }
         return true
     }
@@ -76,50 +44,46 @@ final class SentryHeldFatalReportStore {
     /// - Returns: Whether the report was stored.
     @discardableResult
     func store(_ report: SentryHeldFatalReport) -> Bool {
-        var json: [String: Any] = [
-            Key.runId: report.runId.rawValue,
-            Key.source: report.source.rawValue,
-            Key.event: report.event.serialize()
-        ]
-        if let session = report.session {
-            json[Key.session] = session.serializeForPersistence()
-        }
-        guard let data = SentrySerializationSwift.data(withJSONObject: json) else {
-            SentrySDKLog.error("Failed to serialize the held \(report.source.rawValue) report for run \(report.runId)")
+        let data: Data
+        do {
+            data = try encodeToJSONData(data: report)
+        } catch {
+            SentrySDKLog.error("Failed to encode the held \(report.source.rawValue) report for run \(report.runId): \(error)")
             return false
         }
-        return lock.withLock { _ in
-            fileManager.write(data, toPath: filePath)
+        guard lock.withLock({ fileManager.write(data, toPath: filePath) }) else {
+            SentrySDKLog.error("Failed to write the held \(report.source.rawValue) report for run \(report.runId) to \(filePath)")
+            return false
         }
+        SentrySDKLog.debug("Stored the held \(report.source.rawValue) report for run \(report.runId) \(report.session == nil ? "without a" : "with its") crashed session, \(data.count) bytes")
+        return true
+    }
+
+    /// Whether a report is held, without reading it.
+    ///
+    /// Cheap enough for the thread that starts the SDK, unlike ``read()``.
+    var hasReport: Bool {
+        FileManager.default.fileExists(atPath: filePath)
     }
 
     /// The held report, or `nil` when there is none or it can't be read anymore.
     func read() -> SentryHeldFatalReport? {
-        guard let data = lock.withLock({ _ in try? fileManager.readData(fromPath: filePath) }) else {
+        guard hasReport, let data = lock.withLock({ try? fileManager.readData(fromPath: filePath) }) else {
             return nil
         }
-        guard let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
-              let runId = json[Key.runId] as? String,
-              let source = (json[Key.source] as? String).flatMap(SentryEventSource.init(rawValue:)),
-              let eventJSON = json[Key.event] as? [String: Any],
-              let eventData = SentrySerializationSwift.data(withJSONObject: eventJSON),
-              let event = SentryEventDecoder.decodeEvent(jsonData: eventData) else {
-            SentrySDKLog.error("Failed to read the held fatal report, dropping it")
+        guard let report: SentryHeldFatalReport = decodeFromJSONData(jsonData: data) else {
+            SentrySDKLog.error("Failed to read the held fatal report of \(data.count) bytes, dropping it")
             delete()
             return nil
         }
-        // The event was complete when it was stored, so the scope of the current run must not add
-        // its breadcrumbs, which it does for an event without any.
-        event.breadcrumbs = event.breadcrumbs ?? []
-        let session = (json[Key.session] as? [String: Any])
-            .flatMap { SentrySerializationSwift.data(withJSONObject: $0) }
-            .flatMap { SentrySerializationSwift.session(with: $0) }
-        return SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: runId), source: source, event: event, session: session)
+        SentrySDKLog.debug("Read the held \(report.source.rawValue) report for run \(report.runId) \(report.session == nil ? "without a" : "with its") crashed session")
+        return report
     }
 
     func delete() {
-        lock.withLock { _ in
+        lock.withLock {
             fileManager.removeFile(atPath: filePath)
         }
+        SentrySDKLog.debug("Deleted the held fatal report")
     }
 }

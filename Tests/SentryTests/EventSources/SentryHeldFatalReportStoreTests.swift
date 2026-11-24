@@ -79,6 +79,114 @@ final class SentryHeldFatalReportStoreTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: sut.filePath))
     }
 
+    func testStore_whenReportHasEventAndSession_shouldWriteThemAsJSONObjectsUnderTheirKeys() throws {
+        // -- Arrange --
+        let event = Event(level: .fatal)
+        event.tags = ["previous": "run"]
+        let session = givenCrashedSession()
+
+        // -- Act --
+        sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: event, session: session))
+
+        // -- Assert --
+        let data = try fileManager.readData(fromPath: sut.filePath)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(Set(json.keys), ["run_id", "source", "event", "session"])
+        XCTAssertEqual(json["run_id"] as? String, "run-1")
+        XCTAssertEqual(json["source"] as? String, "watchdogTermination")
+        let storedEvent = try XCTUnwrap(json["event"] as? [String: Any])
+        XCTAssertEqual(storedEvent["event_id"] as? String, event.eventId.sentryIdString)
+        XCTAssertEqual(storedEvent["tags"] as? [String: String], ["previous": "run"])
+        let storedSession = try XCTUnwrap(json["session"] as? [String: Any])
+        XCTAssertEqual(storedSession["sid"] as? String, session.sessionId.uuidString)
+        XCTAssertEqual(storedSession["status"] as? String, "crashed")
+    }
+
+    func testStore_whenReportHasNoSession_shouldWriteNoSessionKey() throws {
+        // -- Act --
+        sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+
+        // -- Assert --
+        let data = try fileManager.readData(fromPath: sut.filePath)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(Set(json.keys), ["run_id", "source", "event"])
+    }
+
+    func testStore_whenEventHoldsAValueJSONCantRepresent_shouldReturnFalseAndStoreNothing() {
+        // -- Arrange --
+        let event = Event(level: .fatal)
+        event.extra = ["nan": Double.nan]
+
+        // -- Act --
+        let isStored = sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: event))
+
+        // -- Assert --
+        XCTAssertFalse(isStored)
+        XCTAssertFalse(sut.hasReport)
+    }
+
+    func testRead_whenFileLacksAKey_shouldReturnNilAndDeleteIt() throws {
+        // -- Arrange --
+        fileManager.write(Data(#"{"source":"watchdogTermination","event":{}}"#.utf8), toPath: sut.filePath)
+
+        // -- Act --
+        let read = sut.read()
+
+        // -- Assert --
+        XCTAssertNil(read)
+        XCTAssertFalse(sut.hasReport)
+    }
+
+    func testRead_whenSessionCantBeRead_shouldReturnReportWithoutSession() throws {
+        // -- Arrange --
+        sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal), session: givenCrashedSession()))
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: fileManager.readData(fromPath: sut.filePath)) as? [String: Any])
+        json["session"] = ["sid": 1]
+        fileManager.write(try JSONSerialization.data(withJSONObject: json), toPath: sut.filePath)
+
+        // -- Act --
+        let read = try XCTUnwrap(sut.read())
+
+        // -- Assert --
+        XCTAssertEqual(read.runId, SentryCurrentRun.ID(rawValue: "run-1"))
+        XCTAssertNil(read.session)
+    }
+
+    func testRead_whenReportWasStoredWithSession_shouldReturnSessionAsItWas() throws {
+        // -- Arrange --
+        let session = givenCrashedSession()
+        session.incrementErrors()
+        sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal), session: session))
+
+        // -- Act --
+        let read = try XCTUnwrap(try XCTUnwrap(sut.read()).session)
+
+        // -- Assert --
+        XCTAssertEqual(read.serializeForPersistence() as NSDictionary, session.serializeForPersistence() as NSDictionary)
+    }
+
+    func testHasReport_whenReportWasStored_shouldReturnTrue() {
+        // -- Arrange --
+        sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+
+        // -- Act & Assert --
+        XCTAssertTrue(sut.hasReport)
+    }
+
+    func testHasReport_whenNothingWasStored_shouldReturnFalse() {
+        // -- Act & Assert --
+        XCTAssertFalse(sut.hasReport)
+    }
+
+    func testHasReport_whenReportWasDeleted_shouldReturnFalse() {
+        // -- Arrange --
+        sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
+        sut.delete()
+
+        // -- Act & Assert --
+        XCTAssertFalse(sut.hasReport)
+    }
+
     func testStore_whenReportIsHeld_shouldReplaceIt() throws {
         // -- Arrange --
         sut.store(SentryHeldFatalReport(runId: SentryCurrentRun.ID(rawValue: "run-1"), source: .watchdogTermination, event: Event(level: .fatal)))
