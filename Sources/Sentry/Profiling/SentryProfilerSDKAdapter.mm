@@ -38,6 +38,22 @@
     }
 }
 
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+{
+    [self.target captureProfileChunkWithID:profileID
+                                      data:profileData
+                                   metrics:serializeMetrics
+#    if SENTRY_HAS_UIKIT
+                                    frames:frames
+#    endif
+    ];
+}
+
 - (SentryProfilingConfiguration)configuration
 {
     id<SentryProfilerSDKBackend> target = self.target;

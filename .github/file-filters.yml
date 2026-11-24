@@ -135,6 +135,10 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
 
+  # Source-backed crash adapter and configuration
+  - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
+
   # GH Actions
   - ".github/workflows/api-stability.yml"
   - ".github/file-filters.yml"
@@ -149,7 +153,18 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "scripts/assemble-xcframework.sh"
   - "scripts/xcframework-utils.sh"
   - "scripts/update-api.sh"
+  - "scripts/build-xcframework-v10.sh"
+  - "scripts/verify-v10-sentrycrash-objects.sh"
+  - "scripts/build-xcframework-variant-spm.sh"
+  - "scripts/build-static-library.sh"
+  - "scripts/prepare-sentry-framework-inputs.sh"
+  - "scripts/build-dynamic-framework.sh"
+  - "scripts/tools.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/extract-swift-api.sh"
   - "scripts/extract-objc-api.sh"
+  - "scripts/extract-objc-compat-api.sh"
+  - "scripts/generate-objc-compat-api-diff.sh"
   - "scripts/ci-diagnostics.sh"
 
   # API files
@@ -159,6 +174,8 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "sdk_api_v10.json"
   - "sdk_api_objc_v10.json"
   - "sdk_api_objc_v10.diff.json"
+  - "sdk_api_spm.json"
+  - "sdk_api_v10_spm.json"
 
   # Build configuration
   - "Makefile"
@@ -312,6 +329,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/generate_release_matrix.sh"
   - "scripts/xcframework-generated-run.sh"
   - "scripts/prepare-package.sh"
+  - "Tests/V9BinarySPIConsumer/**"
 
   # Project files
   - "Sentry.xcworkspace/**"

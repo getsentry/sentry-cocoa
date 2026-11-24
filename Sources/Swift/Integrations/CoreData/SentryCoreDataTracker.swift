@@ -35,14 +35,10 @@ final class SentryCoreDataTracker {
         error: NSErrorPointer,
         originalImp original: (NSFetchRequest<NSFetchRequestResult>, NSErrorPointer) -> NSArray?
     ) -> NSArray? {
-        let currentSpan = SentrySDKInternal.currentHub().scope.span
-        var fetchSpan: Span?
-        if let currentSpan {
-            fetchSpan = currentSpan.startChild(
-                operation: SentrySpanOperationCoredataFetchOperation,
-                description: description(from: request)
-            )
-        }
+        let fetchSpan = startChildOfCurrentSpan(
+            operation: SentrySpanOperationCoredataFetchOperation,
+            description: description(from: request)
+        )
 
         if let fetchSpan {
             fetchSpan.origin = SentryTraceOriginAutoDBCoreData
@@ -80,19 +76,17 @@ final class SentryCoreDataTracker {
         var saveSpan: Span?
         if context.hasChanges {
             let operations = groupEntitiesOperations(context)
-            if let currentSpan = SentrySDKInternal.currentHub().scope.span {
-                saveSpan = currentSpan.startChild(
-                    operation: SentrySpanOperationCoredataSaveOperation,
-                    description: description(for: operations, context: context)
-                )
-            }
+            saveSpan = startChildOfCurrentSpan(
+                operation: SentrySpanOperationCoredataSaveOperation,
+                description: description(for: operations, context: context)
+            )
 
             if let saveSpan {
                 saveSpan.origin = SentryTraceOriginAutoDBCoreData
                 SentrySDKLog.debug("SentryCoreDataTracker automatically started a new span with description: \(saveSpan), operation: \(saveSpan.operation), origin: \(saveSpan.origin)")
                 saveSpan.setData(value: operations, key: "operations")
             } else {
-                SentrySDKLog.error("managedObjectContext:save:originalImp: saveSpan is nil")
+                SentrySDKLog.debug("No active transaction bound to scope. Won't track Core Data save.")
             }
         }
 
@@ -105,6 +99,19 @@ final class SentryCoreDataTracker {
         }
 
         return result
+    }
+
+    /// Returns `nil` when there is no span on the scope or its transaction has already finished.
+    ///
+    /// A finished transaction only hands out the shared no-op span, which is never sent. Skipping it
+    /// avoids capturing a stack trace on the main thread for it and writing to an instance that is
+    /// shared between threads.
+    private func startChildOfCurrentSpan(operation: String, description: String) -> Span? {
+        guard let currentSpan = SentrySDKInternal.currentHub().scope.span else {
+            return nil
+        }
+        let child = currentSpan.startChild(operation: operation, description: description)
+        return child is SentryNoOpSpan ? nil : child
     }
 
     private func addExtraInfo(to span: Span, context: NSManagedObjectContext) {

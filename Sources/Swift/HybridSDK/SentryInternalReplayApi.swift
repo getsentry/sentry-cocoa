@@ -111,7 +111,7 @@ public struct SentryInternalReplayApi {
         replayIntegrationProvider.getReplayIntegration()?.viewPhotographer.setRedactContainerClass(containerClass)
     }
 
-    /// Sets tags on the current replay session.
+    /// Sets tags on the current replay session and on every replay session started afterwards.
     public func setTags(_ tags: [String: Any]) {
         replayIntegrationProvider.getReplayIntegration()?.setReplayTags(tags)
     }

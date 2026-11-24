@@ -91,7 +91,7 @@ jobs:
 
       # Bazel is required so `make update-versions` can regenerate
       # linters/SwiftLintCustomRules/MODULE.bazel.lock after bumping SwiftLint.
-      - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # v0.19.1
+      - uses: bazel-contrib/setup-bazel@f34d6a05eae3c24acab7fa54587492daeaeffdab # v0.19.2
         with:
           module-root: linters/SwiftLintCustomRules
           bazelisk-cache: true
@@ -115,7 +115,7 @@ jobs:
           git diff HEAD
 
       - name: Create pull request for clang-format version
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           token: ${{ steps.app_token.outputs.token }}
@@ -126,10 +126,9 @@ jobs:
           title: "chore(deps): Update clang-format version"
           sign-commits: true
           base: main
-          labels: run-full-ci
 
       - name: Create pull request for swiftlint version
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           token: ${{ steps.app_token.outputs.token }}
@@ -143,10 +142,9 @@ jobs:
           title: "chore(deps): Update swiftlint version"
           sign-commits: true
           base: main
-          labels: run-full-ci
 
       - name: Create pull request for xcodegen version
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           token: ${{ steps.app_token.outputs.token }}
@@ -157,7 +155,6 @@ jobs:
           title: "chore(deps): Update xcodegen version"
           sign-commits: true
           base: main
-          labels: run-full-ci
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
