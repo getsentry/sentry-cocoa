@@ -182,6 +182,30 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(span?.frames?.last, TestData.testFrame)
     }
 
+    func testWriteAtomically_whenTransactionFinished_shouldNotCaptureStacktrace() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test")
+        // A child span stays on the scope after its transaction finishes, and from then on it
+        // only hands out the shared no-op span.
+        SentrySDKInternal.currentHub().scope.span = transaction.startChild(operation: "child")
+        transaction.finish()
+        SentryNoOpSpan.shared().frames = nil
+        var calls = 0
+
+        // -- Act --
+        let result = sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
+            calls += 1
+            return true
+        }
+
+        // -- Assert --
+        XCTAssertTrue(result)
+        XCTAssertEqual(calls, 1)
+        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations.count, 0)
+        XCTAssertNil(SentryNoOpSpan.shared().frames)
+    }
+
     func testWriteAtomically_Background() {
         let sut = self.fixture.getSut()
         let expect = expectation(description: "Operation in background thread")

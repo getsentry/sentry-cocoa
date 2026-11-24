@@ -415,7 +415,7 @@ if !envSelectsV10 {
         ),
         .testTarget(
             name: "SentryProfilerTestsObjC",
-            dependencies: ["SentryObjCInternal", "SentryTestUtilsObjCpp"],
+            dependencies: ["SentryObjCInternal", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests/ObjC",
             cSettings: [
                 .headerSearchPath("../../../Sources/Sentry")

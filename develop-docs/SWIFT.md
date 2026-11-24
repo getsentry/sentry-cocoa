@@ -44,17 +44,18 @@ NS_SWIFT_NAME(User)
 open class User: NSObject {}
 ```
 
-Delete the public header `Sources/Sentry/Public/SentryUser.h`. Both umbrella headers import that file, so delete the matching line from each one.
+Do not delete the public header `Sources/Sentry/Public/SentryUser.h`. Apps that import it by name, such as `#import <Sentry/SentryUser.h>`, stop compiling when the file is gone, which is a breaking change. Replace its contents with a comment-only stub instead. The stub must not declare the class, because that would duplicate the Swift type.
 
 ```objc
-// Sources/Sentry/Public/Sentry.h
-#    import <Sentry/SentryUser.h>
+// Sources/Sentry/Public/SentryUser.h
+// SentryUser is implemented in Swift (`User`).
+// This header stays so existing `#import <Sentry/SentryUser.h>` and
+// `#import <SentryWithoutUIKit/SentryUser.h>` keep compiling.
+// It declares no interface, because declaring the class here would duplicate
+// the Swift type. Use `@import Sentry;` to get the class declaration.
 ```
 
-```objc
-// Sources/Sentry/Public/SentryWithoutUIKit.h
-#    import <SentryWithoutUIKit/SentryUser.h>
-```
+Keep the stub in the `Sentry` and `SentryWithoutUIKit` targets as a public header in `Sentry.xcodeproj`, and keep its import in both umbrella headers, `Sources/Sentry/Public/Sentry.h` and `Sources/Sentry/Public/SentryWithoutUIKit.h`. A public header that the umbrella header does not import triggers `-Wincomplete-umbrella`. The stubs are removed in the next major version.
 
 Members from `SentryUser+Private.h` that `.m` files call become `@_spi(Private) @objc public`:
 
@@ -92,7 +93,7 @@ Cast the `id` value in that one Swift extension. `Scope.userObject` is already `
 
 Run `make generate-public-api`. In `sdk_api.json` and `sdk_api_objc.json`, `User` keeps `objc_name` `SentryUser`. The diff should be that declaration moving from the Objective-C header to Swift, with no public members renamed or removed. Existing test plans still pass.
 
-Build `SentryObjC` and `SentryObjCCompat`. When the type is mirrored, the wrapper delegates to it. Updating that wrapper is a side effect of the conversion, not a separate goal. Update an example project only when it imports the deleted header. The wrapper for `User` looks like this:
+Build `SentryObjC` and `SentryObjCCompat`. When the type is mirrored, the wrapper delegates to it. Updating that wrapper is a side effect of the conversion, not a separate goal. Update an example project only when it relies on a declaration the header no longer provides. The wrapper for `User` looks like this:
 
 ```swift
 @objc(SentryObjCUser) public final class SentryObjCUser: NSObject {

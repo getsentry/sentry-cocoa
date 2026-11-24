@@ -42,6 +42,19 @@
 
 #    pragma mark - start
 
+- (void)testCurrentProfilerId_whenContinuousProfilerStarts_shouldReturnAnIdentifier
+{
+    // -- Arrange --
+    SentryObjCInternalProfilingApi *profiling = SentryObjCSDK.internal.profiling;
+    XCTAssertNil(profiling.currentProfilerId);
+
+    // -- Act --
+    [SentryObjCSDK startProfiler];
+
+    // -- Assert --
+    XCTAssertNotNil(profiling.currentProfilerId);
+}
+
 - (void)testStart_shouldReturnNonZero
 {
     // -- Arrange --
