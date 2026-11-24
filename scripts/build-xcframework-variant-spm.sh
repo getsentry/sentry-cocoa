@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build SwiftPM SDK slices and assemble a self-contained XCFramework.
+# Build SwiftPM SDK slices and assemble a self-contained dynamic or static XCFramework.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

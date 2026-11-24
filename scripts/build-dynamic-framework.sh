@@ -1,6 +1,11 @@
 #!/bin/bash
 #
-# Package a static library as a framework, relinking it as a dylib by default.
+# Builds a single dynamic framework slice.
+#
+# Takes a pre-built static library (from build-static-library.sh)
+# and re-links it as a dynamic library via swiftc, then packages the result
+# as a .framework bundle with headers and optional prepared modules and resources.
+# With --product-type static, packages a static framework instead.
 
 set -euo pipefail
 
