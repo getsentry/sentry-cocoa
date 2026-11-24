@@ -652,6 +652,16 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "Sentry.SentryHttpStatusCodeRange",
+        "printedName": "Sentry.SentryHttpStatusCodeRange"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "Sentry.SentryId",
         "printedName": "Sentry.SentryId"
       },
@@ -722,6 +732,16 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "Sentry.SentryReplayApi",
+        "printedName": "Sentry.SentryReplayApi"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "Sentry.SentryRequest",
         "printedName": "Sentry.SentryRequest"
       },
@@ -734,6 +754,26 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentrySampleDecision",
         "printedName": "Sentry.SentrySampleDecision"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentrySamplingContext",
+        "printedName": "Sentry.SentrySamplingContext"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryScope",
+        "printedName": "Sentry.SentryScope"
       },
       {
         "declAttributes": [
@@ -834,6 +874,26 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentryTraceHeader",
         "printedName": "Sentry.SentryTraceHeader"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryTransaction",
+        "printedName": "Sentry.SentryTransaction"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryTransactionContext",
+        "printedName": "Sentry.SentryTransactionContext"
       },
       {
         "declAttributes": [

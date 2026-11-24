@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC2100000000000000000064 /* SentryProfilerDeliveryBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */; };
+		FC2100000000000000000065 /* SentryProfilerDeliveryBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */; };
+		FC2100000000000000000066 /* SentryProfilerDeliveryBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */; };
+		FC2100000000000000000067 /* SentryProfilerDeliveryBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */; };
 		FC1100000000000000000064 /* SentryProfilingConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1100000000000000000001 /* SentryProfilingConfiguration.h */; };
 		FC1100000000000000000065 /* SentryProfilingConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1100000000000000000001 /* SentryProfilingConfiguration.h */; };
 		FC1100000000000000000066 /* SentryProfilingTraceDecision.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1100000000000000000002 /* SentryProfilingTraceDecision.h */; };
@@ -418,7 +422,6 @@
 		8453421228BE855D00C22EEC /* SentrySampleDecision.m in Sources */ = {isa = PBXBuildFile; fileRef = 8453421128BE855D00C22EEC /* SentrySampleDecision.m */; };
 		8453421628BE8A9500C22EEC /* SentrySpanStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 8453421528BE8A9500C22EEC /* SentrySpanStatus.m */; };
 		8454CF8D293EAF9A006AC140 /* SentryMetricProfiler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.m */; };
-		8459FCBE2BD73E820038E9C9 /* SentryProfilerSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */; };
 		8459FCC02BD73EB20038E9C9 /* SentryProfilerSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.m */; };
 		845C16D52A622A5B00EC9519 /* SentryTracer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 845C16D42A622A5B00EC9519 /* SentryTracer+Private.h */; };
 		848A45192BBF8D33006AAAEC /* SentryContinuousProfiler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 848A45182BBF8D33006AAAEC /* SentryContinuousProfiler.mm */; };
@@ -455,7 +458,6 @@
 		879900020000000000000051 /* SentryThreadCrumb.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000041 /* SentryThreadCrumb.c */; };
 		879900020000000000000052 /* SentryThreadCrumb.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000042 /* SentryThreadCrumb.h */; };
 		87FF3FC05644DE556004D3F0 /* SentrySpanContext+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 622C08D929E554B9002571D4 /* SentrySpanContext+Private.h */; };
-		8851DE04843B4094C1324DF6 /* SentryProfilerSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */; };
 		8987E911C2EC39A7BB6A7EA8 /* SentryThreadHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 03F84D1727DD414C008FE43F /* SentryThreadHandle.hpp */; };
 		8A4BEE4C420BB9E58AF9B7BD /* SentryProfiledTracerConcurrency.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84AF45A529A7FFA500FBB177 /* SentryProfiledTracerConcurrency.mm */; };
 		8AB30B9251E3A85DF104B576 /* SentryAsynchronousOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 635B3F371EBC6E2500A6176D /* SentryAsynchronousOperation.m */; };
@@ -823,6 +825,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilerDeliveryBridge.h; path = include/SentryProfilerDeliveryBridge.h; sourceTree = "<group>"; };
+		FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProfilerDeliveryBridge.m; sourceTree = "<group>"; };
 		FC1100000000000000000001 /* SentryProfilingConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilingConfiguration.h; path = ../include/SentryProfilingConfiguration.h; sourceTree = "<group>"; };
 		FC1100000000000000000002 /* SentryProfilingTraceDecision.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilingTraceDecision.h; path = ../include/SentryProfilingTraceDecision.h; sourceTree = "<group>"; };
 		FC1100000000000000000003 /* SentryProfilerConfigurationBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilerConfigurationBridge.h; path = include/SentryProfilerConfigurationBridge.h; sourceTree = "<group>"; };
@@ -1129,9 +1133,8 @@
 		8453421128BE855D00C22EEC /* SentrySampleDecision.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySampleDecision.m; sourceTree = "<group>"; };
 		8453421528BE8A9500C22EEC /* SentrySpanStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySpanStatus.m; sourceTree = "<group>"; };
 		8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SentryMetricProfiler.m; path = Sources/Sentry/SentryMetricProfiler.m; sourceTree = SOURCE_ROOT; };
-		8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryProfilerSerialization.h; path = Sources/Sentry/include/SentryProfilerSerialization.h; sourceTree = SOURCE_ROOT; };
 		8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryProfilerSerialization.m; sourceTree = "<group>"; };
-		8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryProfilerSerialization+Test.h"; path = "Sources/Sentry/include/SentryProfilerSerialization+Test.h"; sourceTree = SOURCE_ROOT; };
+		8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryProfilerSerialization+Private.h"; path = "Sources/Sentry/include/SentryProfilerSerialization+Private.h"; sourceTree = SOURCE_ROOT; };
 		845C16D42A622A5B00EC9519 /* SentryTracer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryTracer+Private.h"; path = "include/SentryTracer+Private.h"; sourceTree = "<group>"; };
 		846628B82DF0E52C00F11CD9 /* Brewfile-ci-format */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = "Brewfile-ci-format"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		848A45172BBF8D33006AAAEC /* SentryContinuousProfiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryContinuousProfiler.h; path = ../include/SentryContinuousProfiler.h; sourceTree = "<group>"; };
@@ -1849,6 +1852,8 @@
 				FA24E0292EBBF6F500EFD92E /* SentryOptionsObjC.h */,
 				FA3734832E0F07A20091EF24 /* SentryDependencyContainerSwiftHelper.h */,
 				FA3734852E0F092F0091EF24 /* SentryDependencyContainerSwiftHelper.m */,
+				FC2100000000000000000001 /* SentryProfilerDeliveryBridge.h */,
+				FC2100000000000000000002 /* SentryProfilerDeliveryBridge.m */,
 				FAE2DAB92E1F318900262307 /* SentryProfilingSwiftHelpers.h */,
 				FAE2DAB72E1F317900262307 /* SentryProfilingSwiftHelpers.m */,
 				84A898522E163072009A551E /* SentryProfileConfiguration.h */,
@@ -2261,9 +2266,8 @@
 				03F84D1B27DD414C008FE43F /* SentryMachLogging.hpp */,
 				844EDD6B2949387000C86F34 /* SentryMetricProfiler.h */,
 				8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.m */,
-				8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */,
 				8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.m */,
-				8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Test.h */,
+				8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Private.h */,
 				84AF45A429A7FFA500FBB177 /* SentryProfiledTracerConcurrency.h */,
 				84AF45A529A7FFA500FBB177 /* SentryProfiledTracerConcurrency.mm */,
 				840B7EF22BBF83DF008B8120 /* SentryProfiler+Private.h */,
@@ -2615,6 +2619,7 @@
 				03F84D2327DD414C008FE43F /* SentryThreadHandle.hpp in Headers */,
 				84A305572BC9EF8C00D84283 /* SentryTraceProfiler.h in Headers */,
 				E12A00000000000000000003 /* SentryProfilerSDKAdapter.h in Headers */,
+				FC2100000000000000000064 /* SentryProfilerDeliveryBridge.h in Headers */,
 				FC1100000000000000000064 /* SentryProfilingConfiguration.h in Headers */,
 				FC1100000000000000000066 /* SentryProfilingTraceDecision.h in Headers */,
 				FC1100000000000000000068 /* SentryProfilerConfigurationBridge.h in Headers */,
@@ -2638,7 +2643,6 @@
 				7B85DC1E24EFAFCD007D01D2 /* SentryClient+Private.h in Headers */,
 				A8AFFCCF2906C03700967CD7 /* SentryRequest.h in Headers */,
 				D82859442C3E753C009A28AA /* SentrySessionReplaySyncC.h in Headers */,
-				8459FCBE2BD73E820038E9C9 /* SentryProfilerSerialization.h in Headers */,
 				7BDB03B7251364F800BAE198 /* _SentryDispatchQueueWrapperInternal.h in Headers */,
 				D8603DD8284F894C000E1227 /* SentryBaggage.h in Headers */,
 				03F84D2127DD414C008FE43F /* SentrySamplingProfiler.hpp in Headers */,
@@ -2851,6 +2855,7 @@
 				8987E911C2EC39A7BB6A7EA8 /* SentryThreadHandle.hpp in Headers */,
 				B46A2CB892B3F7767E1B812D /* SentryTraceProfiler.h in Headers */,
 				E12A00000000000000000004 /* SentryProfilerSDKAdapter.h in Headers */,
+				FC2100000000000000000065 /* SentryProfilerDeliveryBridge.h in Headers */,
 				FC1100000000000000000065 /* SentryProfilingConfiguration.h in Headers */,
 				FC1100000000000000000067 /* SentryProfilingTraceDecision.h in Headers */,
 				FC1100000000000000000069 /* SentryProfilerConfigurationBridge.h in Headers */,
@@ -2872,7 +2877,6 @@
 				59694E25B1E54353758771E8 /* SentryClient+Private.h in Headers */,
 				F292CC41B7B16003698B3536 /* SentryRequest.h in Headers */,
 				8B3A74B24561CCF7F076D330 /* SentrySessionReplaySyncC.h in Headers */,
-				8851DE04843B4094C1324DF6 /* SentryProfilerSerialization.h in Headers */,
 				97B806D4B38B0461650771FD /* _SentryDispatchQueueWrapperInternal.h in Headers */,
 				E0935AC5D8D97B5753E73EEF /* SentryBaggage.h in Headers */,
 				B3DB353A357743BF495EAF19 /* SentrySamplingProfiler.hpp in Headers */,
@@ -3325,6 +3329,7 @@
 				63FE70E120DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp in Sources */,
 				84A305582BC9EF8C00D84283 /* SentryTraceProfiler.mm in Sources */,
 				E12A00000000000000000006 /* SentryProfilerSDKAdapter.mm in Sources */,
+				FC2100000000000000000066 /* SentryProfilerDeliveryBridge.m in Sources */,
 				FC110000000000000000006A /* SentryProfilerConfigurationBridge.m in Sources */,
 				FBE100000000000000000066 /* SentryDefaultProfilerSDKBackend.m in Sources */,
 				FBD100000000000000000066 /* SentryProfilingSystemMetrics.m in Sources */,
@@ -3499,6 +3504,7 @@
 				1C136A9834A8ED79A27D65CD /* SentryNoOpSpan.m in Sources */,
 				08E23DD492773BEB50BBBD76 /* SentryTraceProfiler.mm in Sources */,
 				E12A00000000000000000005 /* SentryProfilerSDKAdapter.mm in Sources */,
+				FC2100000000000000000067 /* SentryProfilerDeliveryBridge.m in Sources */,
 				FC110000000000000000006B /* SentryProfilerConfigurationBridge.m in Sources */,
 				FBE100000000000000000067 /* SentryDefaultProfilerSDKBackend.m in Sources */,
 				FBD100000000000000000067 /* SentryProfilingSystemMetrics.m in Sources */,
