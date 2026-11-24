@@ -488,7 +488,7 @@ class SentryTransactionTests: XCTestCase {
         SentrySDK.setStart(with: options)
         let transaction = fixture.getTransaction()
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         let serialized = transaction.serialize()
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let profileData = try XCTUnwrap(contexts["profile"] as? [String: Any])
