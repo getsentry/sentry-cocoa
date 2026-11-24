@@ -1,5 +1,7 @@
 #import "SentryProfilingSample.h"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 @implementation SentryProfilingSample
 
 - (instancetype)init
@@ -11,3 +13,5 @@
 }
 
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
