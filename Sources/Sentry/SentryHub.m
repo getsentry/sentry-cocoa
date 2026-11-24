@@ -325,8 +325,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
-                                withScope:(SentryScope *)scope
-                           crashedSession:(id _Nullable)crashedSession
+                                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                           crashedSession:
+                               (SENTRY_SWIFT_MIGRATION_ID(SentrySession)_Nullable)crashedSession
 {
     event.isFatalEvent = YES;
 
@@ -335,9 +336,9 @@ NS_ASSUME_NONNULL_BEGIN
         return SentryId.empty;
     }
 
-    if ([crashedSession isKindOfClass:[SentrySession class]]) {
+    if (crashedSession != nil) {
         return [client captureFatalEvent:event
-                             withSession:(SentrySession *)crashedSession
+                             withSession:(SentrySession *_Nonnull)crashedSession
                                withScope:scope];
     }
     return [client captureFatalEvent:event withScope:scope];

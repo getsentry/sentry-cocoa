@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
  * crashed session stored for the previous run stays where it is, for the fatal event of that run.
  */
 - (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
-                                withScope:(SentryScope *)scope
+                                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                            crashedSession:
                                (SENTRY_SWIFT_MIGRATION_ID(SentrySession)_Nullable)crashedSession
     NS_SWIFT_NAME(captureFatalEvent(_:scope:crashedSession:));
