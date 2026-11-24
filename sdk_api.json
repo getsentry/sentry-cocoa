@@ -57987,7 +57987,7 @@
                 "kind": "TypeNominal",
                 "name": "SentryReplayApi",
                 "printedName": "Sentry.SentryReplayApi",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayApi"
+                "usr": "c:objc(cs)SentryReplayApi"
               }
             ],
             "declAttributes": [
@@ -57996,306 +57996,410 @@
               "Override"
             ],
             "declKind": "Constructor",
+            "implicit": true,
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A9ReplayApiCACycfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "init",
             "overriding": true,
             "printedName": "init()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)init"
+            "usr": "c:objc(cs)NSObject(im)init"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC5flushyyF",
             "moduleName": "Sentry",
             "name": "flush",
+            "objc_name": "flush",
             "printedName": "flush()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)flush"
+            "usr": "c:objc(cs)SentryReplayApi(im)flush"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC15hideMaskPreviewyyF",
             "moduleName": "Sentry",
             "name": "hideMaskPreview",
+            "objc_name": "hideMaskPreview",
             "printedName": "hideMaskPreview()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)hideMaskPreview"
+            "usr": "c:objc(cs)SentryReplayApi(im)hideMaskPreview"
           },
           {
             "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
               {
                 "kind": "TypeNominal",
                 "name": "UIView",
                 "printedName": "UIKit.UIView",
                 "usr": "c:objc(cs)UIView"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC8maskViewyySo6UIViewCF",
             "moduleName": "Sentry",
             "name": "maskView",
+            "objc_name": "maskView:",
             "printedName": "maskView(_:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)maskView:"
+            "usr": "c:objc(cs)SentryReplayApi(im)maskView:"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC5pauseyyF",
             "moduleName": "Sentry",
             "name": "pause",
+            "objc_name": "pause",
             "printedName": "pause()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)pause"
+            "usr": "c:objc(cs)SentryReplayApi(im)pause"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC18pauseTouchTrackingyyF",
             "moduleName": "Sentry",
             "name": "pauseTouchTracking",
+            "objc_name": "pauseTouchTracking",
             "printedName": "pauseTouchTracking()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)pauseTouchTracking"
+            "usr": "c:objc(cs)SentryReplayApi(im)pauseTouchTracking"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC6resumeyyF",
             "moduleName": "Sentry",
             "name": "resume",
+            "objc_name": "resume",
             "printedName": "resume()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)resume"
+            "usr": "c:objc(cs)SentryReplayApi(im)resume"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC19resumeTouchTrackingyyF",
             "moduleName": "Sentry",
             "name": "resumeTouchTracking",
+            "objc_name": "resumeTouchTracking",
             "printedName": "resumeTouchTracking()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)resumeTouchTracking"
+            "usr": "c:objc(cs)SentryReplayApi(im)resumeTouchTracking"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC15showMaskPreviewyyF",
             "moduleName": "Sentry",
             "name": "showMaskPreview",
+            "objc_name": "showMaskPreview",
             "printedName": "showMaskPreview()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)showMaskPreview"
+            "usr": "c:objc(cs)SentryReplayApi(im)showMaskPreview"
           },
           {
             "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
               {
                 "kind": "TypeNominal",
                 "name": "CGFloat",
                 "printedName": "CoreGraphics.CGFloat",
                 "usr": "s:14CoreFoundation7CGFloatV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC15showMaskPreviewyy12CoreGraphics7CGFloatVF",
             "moduleName": "Sentry",
             "name": "showMaskPreview",
+            "objc_name": "showMaskPreview:",
             "printedName": "showMaskPreview(_:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)showMaskPreview:"
+            "usr": "c:objc(cs)SentryReplayApi(im)showMaskPreview:"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC5startyyF",
             "moduleName": "Sentry",
             "name": "start",
+            "objc_name": "start",
             "printedName": "start()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)start"
+            "usr": "c:objc(cs)SentryReplayApi(im)start"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC14startBufferingyyF",
             "moduleName": "Sentry",
             "name": "startBuffering",
+            "objc_name": "startBuffering",
             "printedName": "startBuffering()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)startBuffering"
+            "usr": "c:objc(cs)SentryReplayApi(im)startBuffering"
           },
           {
             "children": [
               {
-                "kind": "TypeNominal",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
                 "name": "Void",
-                "printedName": "()"
+                "printedName": "Swift.Void"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC4stopyyF",
             "moduleName": "Sentry",
             "name": "stop",
+            "objc_name": "stop",
             "printedName": "stop()",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)stop"
+            "usr": "c:objc(cs)SentryReplayApi(im)stop"
           },
           {
             "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
               {
                 "kind": "TypeNominal",
                 "name": "UIView",
                 "printedName": "UIKit.UIView",
                 "usr": "c:objc(cs)UIView"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A9ReplayApiC10unmaskViewyySo6UIViewCF",
             "moduleName": "Sentry",
             "name": "unmaskView",
+            "objc_name": "unmaskView:",
             "printedName": "unmaskView(_:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayApi(im)unmaskView:"
+            "usr": "c:objc(cs)SentryReplayApi(im)unmaskView:"
           }
         ],
         "conformances": [
@@ -58356,14 +58460,13 @@
           }
         ],
         "declAttributes": [
-          "ObjC",
-          "ObjCMembers"
+          "Dynamic",
+          "ObjC"
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
-        "mangledName": "$s6Sentry0A9ReplayApiC",
         "moduleName": "Sentry",
         "name": "SentryReplayApi",
         "objc_name": "SentryReplayApi",
@@ -58372,7 +58475,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:@M@Sentry@objc(cs)SentryReplayApi"
+        "usr": "c:objc(cs)SentryReplayApi"
       },
       {
         "children": [
@@ -65839,7 +65942,7 @@
                     "kind": "TypeNominal",
                     "name": "SentryReplayApi",
                     "printedName": "Sentry.SentryReplayApi",
-                    "usr": "c:@M@Sentry@objc(cs)SentryReplayApi"
+                    "usr": "c:objc(cs)SentryReplayApi"
                   }
                 ],
                 "declAttributes": [
@@ -65849,7 +65952,7 @@
                 "declKind": "Accessor",
                 "isFromExtension": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A3SDKC6replayAA0A9ReplayApiCvgZ",
+                "mangledName": "$s6Sentry0A3SDKC6replaySo0A9ReplayApiCvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -65862,7 +65965,7 @@
                 "kind": "TypeNominal",
                 "name": "SentryReplayApi",
                 "printedName": "Sentry.SentryReplayApi",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayApi"
+                "usr": "c:objc(cs)SentryReplayApi"
               }
             ],
             "declAttributes": [
@@ -65872,7 +65975,7 @@
             "declKind": "Var",
             "isFromExtension": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry0A3SDKC6replayAA0A9ReplayApiCvpZ",
+            "mangledName": "$s6Sentry0A3SDKC6replaySo0A9ReplayApiCvpZ",
             "moduleName": "Sentry",
             "name": "replay",
             "printedName": "replay",
