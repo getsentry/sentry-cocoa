@@ -559,7 +559,9 @@ run_thread_inspection_harness_for_prs:
   - ".github/workflows/run-full-ci-workflow.yml"
   - "Sources/Sentry/SentryThreadSnapshot.c"
   - "Sources/Sentry/SentryThreadSnapshotKSCrash.c"
+  - "Sources/SentryNativeUtils/SentryThreadSuspension.c"
   - "Sources/Sentry/include/SentryThreadSnapshot.h"
+  - "Sources/SentryNativeUtils/include/SentryThreadSuspension.h"
   - "Tests/ThreadInspectionHarness/**"
 
   # GH Actions

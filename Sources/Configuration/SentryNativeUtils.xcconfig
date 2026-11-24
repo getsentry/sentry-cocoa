@@ -1,0 +1,14 @@
+#include "DeploymentTargets.xcconfig"
+
+MACH_O_TYPE = staticlib
+DEFINES_MODULE = YES
+PRODUCT_NAME = SentryNativeUtils
+PRODUCT_MODULE_NAME = SentryNativeUtils
+ARCHS = $(ARCHS_STANDARD) arm64e
+ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
+SKIP_INSTALL = YES
+GCC_C_LANGUAGE_STANDARD = gnu11
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/SentryNativeUtils/include
+MODULEMAP_FILE = $(SRCROOT)/Sources/SentryNativeUtils/include/module.modulemap
+OTHER_LDFLAGS =
+OTHER_LDFLAGS[sdk=watch*] =

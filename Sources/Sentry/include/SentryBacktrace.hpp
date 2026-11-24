@@ -4,6 +4,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    include "SentryProfilingMemory.h"
 #    include "SentryStackBounds.hpp"
 #    include "SentryThreadHandle.hpp"
 #    include "SentryThreadMetadataCache.hpp"
@@ -38,6 +39,7 @@ namespace profiling {
      * additional frames that were not recorded because the `maxDepth` was too small.
      * @param maxDepth The maximum number of addresses to collect, this should
      * be less than or equal to the size of the buffer.
+     * @param memoryReader The async-safe C function used to validate each frame before reading it.
      * @param skip An optional number of stack frames to skip at the beginning.
      *
      * @return The actual number of addresses collected. Returns 0 if a backtrace
@@ -45,7 +47,8 @@ namespace profiling {
      */
     NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThread,
         const ThreadHandle &callingThread, std::uintptr_t *addresses, const StackBounds &bounds,
-        bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip = 0) noexcept;
+        bool *reachedEndOfStackPtr, std::size_t maxDepth, SentryProfilingMemoryReader memoryReader,
+        std::size_t skip = 0) noexcept;
 
     /**
      * Attempts to collect backtraces for every thread in the process, except the
@@ -56,9 +59,10 @@ namespace profiling {
      *
      * @param f The function to call for each entry.
      * @param cache The cache used to look up thread metadata.
+     * @param memoryReader The async-safe C function used to validate sampled memory.
      */
-    void enumerateBacktracesForAllThreads(
-        const std::function<void(const Backtrace &)> &f, ThreadMetadataCache *cache);
+    void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
+        ThreadMetadataCache *cache, SentryProfilingMemoryReader memoryReader);
 
 } // namespace profiling
 } // namespace sentry

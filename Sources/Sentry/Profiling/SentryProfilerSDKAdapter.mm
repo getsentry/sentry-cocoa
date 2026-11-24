@@ -76,6 +76,11 @@
     return [self.target debugImageSerialization];
 }
 
+- (SentryProfilingMemoryReader)memoryReader
+{
+    return [self.target memoryReader];
+}
+
 - (SentryProfilingSystemMetrics *_Nullable)systemMetrics
 {
     return [self.target systemMetrics];
