@@ -6,6 +6,7 @@
 #import "SentryLogC.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"

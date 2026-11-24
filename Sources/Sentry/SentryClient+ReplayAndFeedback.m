@@ -3,6 +3,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryId+Private.h"
 #import "SentryLogC.h"
+#import "SentryScope+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
@@ -14,20 +15,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryTransportAdapter *)transportAdapter;
 
 - (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
 - (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:
-                              (nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
+                          currentScope:(nullable SentryScope *)currentScope;
 
-- (nullable SentryTraceContext *)
-    getTraceStateWithEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-              currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
+- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
+                                           currentScope:(nullable SentryScope *)currentScope;
 
 - (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
                                                 attachments:
@@ -67,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
 {
     replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
                                                 withScope:scope
@@ -116,8 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                     currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope
+                            scope:(SentryScope *)scope
+                     currentScope:(nullable SentryScope *)currentScope
 {
     if ([self isDisabled]) {
         [self logDisabledMessage];
@@ -128,10 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
     feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
     feedbackEvent.type = SentryEnvelopeItemTypes.feedback;
 
-    SentryScope *typedScope = scope;
-    SentryScope *typedCurrentScope = currentScope;
-    NSString *replayId = serializedFeedback[@"replay_id"] ?: typedCurrentScope.replayId ?: typedScope.replayId;
-    NSUInteger optionalItems = (typedScope.span == nil ? 0 : 1) + (replayId == nil ? 0 : 1);
+    NSString *replayId = serializedFeedback[@"replay_id"] ?: currentScope.replayId ?: scope.replayId;
+    NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (replayId == nil ? 0 : 1);
     NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
     NSMutableDictionary *feedbackContext = [serializedFeedback mutableCopy];
     feedbackContext[@"replay_id"] = replayId;
@@ -168,8 +165,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                        currentScope:currentScope];
 
     NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
-    [allAttachments addObjectsFromArray:typedScope.attachments];
-    for (SentryAttachment *attachment in typedCurrentScope.attachments) {
+    [allAttachments addObjectsFromArray:scope.attachments];
+    for (SentryAttachment *attachment in currentScope.attachments) {
         if ([allAttachments indexOfObjectIdenticalTo:attachment] == NSNotFound) {
             [allAttachments addObject:attachment];
         }
@@ -187,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                            scope:(SentryScope *)scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];
     [self captureSerializedFeedback:serializedFeedback

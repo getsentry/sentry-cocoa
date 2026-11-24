@@ -1,4 +1,4 @@
-#import "SentrySwift.h"
+#import "SentryScope.h"
 
 @class SentryUser;
 @class SentryBreadcrumb;
