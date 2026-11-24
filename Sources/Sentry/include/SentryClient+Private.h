@@ -1,10 +1,10 @@
+#import "SentryClient+SwiftPrivate.h"
 #import "SentryClient.h"
 
 // These are forward declarations, the actual enums are implemented in Swift.
 typedef NS_ENUM(NSUInteger, SentryDataCategory);
 typedef NS_ENUM(NSUInteger, SentryDiscardReason);
 
-@class SentryAttachment;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
 @class SentryHint;
@@ -23,32 +23,9 @@ typedef NS_ENUM(NSUInteger, SentryDiscardReason);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryClientAttachmentProcessor <NSObject>
-
-- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(SentryEvent *)event;
-
-@end
-
-@interface SentryClientInternal (Attachments)
-
-- (void)populateHintAttachments:(SentryHint *)hint
-                          scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-          isFromPreviousProcess:(BOOL)isFromPreviousProcess;
-
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments;
-
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-
-@end
-
 @interface SentryClientInternal ()
 
-@property (nonatomic, strong)
-    NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
+@property (nonatomic, strong) NSMutableArray *attachmentProcessors;
 @property (nonatomic, strong) SentryDefaultThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
@@ -254,27 +231,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                    hint:(SentryHint *)hint;
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
-
-@end
-
-@interface SentryClientInternal (ReplayAndFeedback)
-
-- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
-           replayRecording:(SentryReplayRecording *)replayRecording
-                     video:(NSURL *)videoURL
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(_:replayRecording:video:with:));
-
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                     currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
-
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
 
 @end
 

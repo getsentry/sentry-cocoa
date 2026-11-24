@@ -532,16 +532,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryAttachment",
-        "printedName": "Sentry.SentryAttachment"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryBaggage",
         "printedName": "Sentry.SentryBaggage"
       },
@@ -2654,7 +2644,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "kind": "TypeNominal",
@@ -2670,17 +2660,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4data8filenameAC10Foundation4DataV_SStcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithData:filename:",
             "printedName": "init(data:filename:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithData:filename:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithData:filename:"
           },
           {
             "children": [
@@ -2688,7 +2678,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "kind": "TypeNominal",
@@ -2718,17 +2708,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4data8filename11contentTypeAC10Foundation4DataV_S2SSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithData:filename:contentType:",
             "printedName": "init(data:filename:contentType:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithData:filename:contentType:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithData:filename:contentType:"
           },
           {
             "children": [
@@ -2736,7 +2726,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "kind": "TypeNominal",
@@ -2762,7 +2752,7 @@
                 "kind": "TypeNominal",
                 "name": "SentryAttachmentType",
                 "printedName": "Sentry.SentryAttachmentType",
-                "usr": "c:@E@SentryAttachmentType"
+                "usr": "c:@M@Sentry@E@SentryAttachmentType"
               },
               {
                 "kind": "TypeNominal",
@@ -2772,17 +2762,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4data8filename11contentType010attachmentF0AC10Foundation4DataV_S2SSgAA0abF0Otcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithData:filename:contentType:attachmentType:",
             "printedName": "init(data:filename:contentType:attachmentType:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithData:filename:contentType:attachmentType:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithData:filename:contentType:attachmentType:"
           },
           {
             "children": [
@@ -2790,7 +2780,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "kind": "TypeNominal",
@@ -2800,17 +2790,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4pathACSS_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithPath:",
             "printedName": "init(path:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithPath:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithPath:"
           },
           {
             "children": [
@@ -2818,7 +2808,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "kind": "TypeNominal",
@@ -2834,17 +2824,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4path8filenameACSS_SStcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithPath:filename:",
             "printedName": "init(path:filename:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithPath:filename:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithPath:filename:"
           },
           {
             "children": [
@@ -2852,7 +2842,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "children": [
@@ -2882,17 +2872,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
-            "init_kind": "Designated",
+            "init_kind": "Convenience",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4path8filename11contentTypeACSS_S2SSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithPath:filename:contentType:",
             "printedName": "init(path:filename:contentType:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithPath:filename:contentType:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithPath:filename:contentType:"
           },
           {
             "children": [
@@ -2900,7 +2890,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "children": [
@@ -2920,7 +2910,7 @@
                 "kind": "TypeNominal",
                 "name": "SentryAttachmentType",
                 "printedName": "Sentry.SentryAttachmentType",
-                "usr": "c:@E@SentryAttachmentType"
+                "usr": "c:@M@Sentry@E@SentryAttachmentType"
               },
               {
                 "kind": "TypeNominal",
@@ -2936,17 +2926,17 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry10AttachmentC4path8filename11contentType010attachmentF0ACSS_S2SSgAA0abF0Otcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithPath:filename:contentType:attachmentType:",
             "printedName": "init(path:filename:contentType:attachmentType:)",
-            "usr": "c:objc(cs)SentryAttachment(im)initWithPath:filename:contentType:attachmentType:"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)initWithPath:filename:contentType:attachmentType:"
           },
           {
             "accessors": [
@@ -2957,22 +2947,21 @@
                     "kind": "TypeNominal",
                     "name": "SentryAttachmentType",
                     "printedName": "Sentry.SentryAttachmentType",
-                    "usr": "c:@E@SentryAttachmentType"
+                    "usr": "c:@M@Sentry@E@SentryAttachmentType"
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry10AttachmentC14attachmentTypeAA0abD0Ovg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "attachmentType",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryAttachment(im)attachmentType"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)attachmentType"
               }
             ],
             "children": [
@@ -2980,21 +2969,23 @@
                 "kind": "TypeNominal",
                 "name": "SentryAttachmentType",
                 "printedName": "Sentry.SentryAttachmentType",
-                "usr": "c:@E@SentryAttachmentType"
+                "usr": "c:@M@Sentry@E@SentryAttachmentType"
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry10AttachmentC14attachmentTypeAA0abD0Ovp",
             "moduleName": "Sentry",
             "name": "attachmentType",
-            "objc_name": "attachmentType",
             "printedName": "attachmentType",
-            "usr": "c:objc(cs)SentryAttachment(py)attachmentType"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(py)attachmentType"
           },
           {
             "accessors": [
@@ -3017,18 +3008,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry10AttachmentC11contentTypeSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "contentType",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryAttachment(im)contentType"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)contentType"
               }
             ],
             "children": [
@@ -3048,17 +3038,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry10AttachmentC11contentTypeSSSgvp",
             "moduleName": "Sentry",
             "name": "contentType",
-            "objc_name": "contentType",
             "printedName": "contentType",
-            "usr": "c:objc(cs)SentryAttachment(py)contentType"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(py)contentType"
           },
           {
             "accessors": [
@@ -3081,18 +3073,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry10AttachmentC4data10Foundation4DataVSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "data",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryAttachment(im)data"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)data"
               }
             ],
             "children": [
@@ -3112,17 +3103,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry10AttachmentC4data10Foundation4DataVSgvp",
             "moduleName": "Sentry",
             "name": "data",
-            "objc_name": "data",
             "printedName": "data",
-            "usr": "c:objc(cs)SentryAttachment(py)data"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(py)data"
           },
           {
             "accessors": [
@@ -3137,18 +3130,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry10AttachmentC8filenameSSvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "filename",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryAttachment(im)filename"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)filename"
               }
             ],
             "children": [
@@ -3160,17 +3152,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry10AttachmentC8filenameSSvp",
             "moduleName": "Sentry",
             "name": "filename",
-            "objc_name": "filename",
             "printedName": "filename",
-            "usr": "c:objc(cs)SentryAttachment(py)filename"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(py)filename"
           },
           {
             "accessors": [
@@ -3193,18 +3187,17 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
+                  "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "isOpen": true,
+                "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry10AttachmentC4pathSSSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "path",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryAttachment(im)path"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment(im)path"
               }
             ],
             "children": [
@@ -3224,17 +3217,19 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "isOpen": true,
+            "hasStorage": true,
+            "isLet": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry10AttachmentC4pathSSSgvp",
             "moduleName": "Sentry",
             "name": "path",
-            "objc_name": "path",
             "printedName": "path",
-            "usr": "c:objc(cs)SentryAttachment(py)path"
+            "usr": "c:@M@Sentry@objc(cs)SentryAttachment(py)path"
           }
         ],
         "conformances": [
@@ -3295,13 +3290,13 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
           "ObjC"
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry10AttachmentC",
         "moduleName": "Sentry",
         "name": "Attachment",
         "objc_name": "SentryAttachment",
@@ -3310,7 +3305,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryAttachment"
+        "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
       },
       {
         "children": [
@@ -15861,7 +15856,7 @@
                         "kind": "TypeNominal",
                         "name": "Attachment",
                         "printedName": "Sentry.Attachment",
-                        "usr": "c:objc(cs)SentryAttachment"
+                        "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -15876,7 +15871,7 @@
                 ],
                 "declKind": "Accessor",
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry4HintC11attachmentsSaySo0A10AttachmentCGvg",
+                "mangledName": "$s6Sentry4HintC11attachmentsSayAA10AttachmentCGvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -15891,7 +15886,7 @@
                         "kind": "TypeNominal",
                         "name": "Attachment",
                         "printedName": "Sentry.Attachment",
-                        "usr": "c:objc(cs)SentryAttachment"
+                        "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -15911,7 +15906,7 @@
                 ],
                 "declKind": "Accessor",
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry4HintC11attachmentsSaySo0A10AttachmentCGvs",
+                "mangledName": "$s6Sentry4HintC11attachmentsSayAA10AttachmentCGvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "objc_name": "setAttachments:",
@@ -15926,7 +15921,7 @@
                     "kind": "TypeNominal",
                     "name": "Attachment",
                     "printedName": "Sentry.Attachment",
-                    "usr": "c:objc(cs)SentryAttachment"
+                    "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -15941,7 +15936,7 @@
             ],
             "declKind": "Var",
             "kind": "Var",
-            "mangledName": "$s6Sentry4HintC11attachmentsSaySo0A10AttachmentCGvp",
+            "mangledName": "$s6Sentry4HintC11attachmentsSayAA10AttachmentCGvp",
             "moduleName": "Sentry",
             "name": "attachments",
             "printedName": "attachments",
@@ -30620,7 +30615,7 @@
                 "kind": "TypeNominal",
                 "name": "Attachment",
                 "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
+                "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
               },
               {
                 "kind": "TypeNominal",
@@ -30635,7 +30630,7 @@
             "funcSelfKind": "NonMutating",
             "isOpen": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry5ScopeC13addAttachmentyySo0aD0CF",
+            "mangledName": "$s6Sentry5ScopeC13addAttachmentyyAA0D0CF",
             "moduleName": "Sentry",
             "name": "addAttachment",
             "objc_name": "addAttachment:",
@@ -33113,7 +33108,7 @@
                     "kind": "TypeNominal",
                     "name": "SentryAttachmentType",
                     "printedName": "Sentry.SentryAttachmentType",
-                    "usr": "c:@E@SentryAttachmentType"
+                    "usr": "c:@M@Sentry@E@SentryAttachmentType"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -33123,14 +33118,13 @@
               }
             ],
             "declKind": "Constructor",
-            "implicit": true,
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$sSo20SentryAttachmentTypeV8rawValueABSgSi_tcfc",
+            "mangledName": "$s6Sentry0A14AttachmentTypeO8rawValueACSgSi_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "printedName": "init(rawValue:)",
-            "usr": "s:So20SentryAttachmentTypeV8rawValueABSgSi_tcfc"
+            "usr": "s:6Sentry0A14AttachmentTypeO8rawValueACSgSi_tcfc"
           },
           {
             "children": [
@@ -33142,13 +33136,12 @@
               }
             ],
             "declKind": "TypeAlias",
-            "implicit": true,
             "kind": "TypeAlias",
-            "mangledName": "$sSo20SentryAttachmentTypeV8RawValuea",
+            "mangledName": "$s6Sentry0A14AttachmentTypeO8RawValuea",
             "moduleName": "Sentry",
             "name": "RawValue",
             "printedName": "RawValue",
-            "usr": "s:So20SentryAttachmentTypeV8RawValuea"
+            "usr": "s:6Sentry0A14AttachmentTypeO8RawValuea"
           },
           {
             "children": [
@@ -33160,7 +33153,7 @@
                         "kind": "TypeNominal",
                         "name": "SentryAttachmentType",
                         "printedName": "Sentry.SentryAttachmentType",
-                        "usr": "c:@E@SentryAttachmentType"
+                        "usr": "c:@M@Sentry@E@SentryAttachmentType"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -33171,7 +33164,7 @@
                     "kind": "TypeNominal",
                     "name": "SentryAttachmentType",
                     "printedName": "Sentry.SentryAttachmentType",
-                    "usr": "c:@E@SentryAttachmentType"
+                    "usr": "c:@M@Sentry@E@SentryAttachmentType"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -33184,10 +33177,12 @@
             ],
             "declKind": "EnumElement",
             "kind": "Var",
+            "mangledName": "$s6Sentry0A14AttachmentTypeO05eventB0yA2CmF",
             "moduleName": "Sentry",
             "name": "eventAttachment",
+            "objc_name": "kSentryAttachmentTypeEventAttachment",
             "printedName": "eventAttachment",
-            "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeEventAttachment"
+            "usr": "c:@M@Sentry@E@SentryAttachmentType@kSentryAttachmentTypeEventAttachment"
           },
           {
             "children": [
@@ -33199,7 +33194,7 @@
                         "kind": "TypeNominal",
                         "name": "SentryAttachmentType",
                         "printedName": "Sentry.SentryAttachmentType",
-                        "usr": "c:@E@SentryAttachmentType"
+                        "usr": "c:@M@Sentry@E@SentryAttachmentType"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -33210,7 +33205,7 @@
                     "kind": "TypeNominal",
                     "name": "SentryAttachmentType",
                     "printedName": "Sentry.SentryAttachmentType",
-                    "usr": "c:@E@SentryAttachmentType"
+                    "usr": "c:@M@Sentry@E@SentryAttachmentType"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -33223,10 +33218,12 @@
             ],
             "declKind": "EnumElement",
             "kind": "Var",
+            "mangledName": "$s6Sentry0A14AttachmentTypeO10flamegraphyA2CmF",
             "moduleName": "Sentry",
             "name": "flamegraph",
+            "objc_name": "kSentryAttachmentTypeFlamegraph",
             "printedName": "flamegraph",
-            "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeFlamegraph"
+            "usr": "c:@M@Sentry@E@SentryAttachmentType@kSentryAttachmentTypeFlamegraph"
           },
           {
             "accessors": [
@@ -33241,13 +33238,12 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$sSo20SentryAttachmentTypeV8rawValueSivg",
+                "mangledName": "$s6Sentry0A14AttachmentTypeO8rawValueSivg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
-                "usr": "s:So20SentryAttachmentTypeV8rawValueSivg"
+                "usr": "s:6Sentry0A14AttachmentTypeO8rawValueSivg"
               }
             ],
             "children": [
@@ -33259,13 +33255,12 @@
               }
             ],
             "declKind": "Var",
-            "implicit": true,
             "kind": "Var",
-            "mangledName": "$sSo20SentryAttachmentTypeV8rawValueSivp",
+            "mangledName": "$s6Sentry0A14AttachmentTypeO8rawValueSivp",
             "moduleName": "Sentry",
             "name": "rawValue",
             "printedName": "rawValue",
-            "usr": "s:So20SentryAttachmentTypeV8rawValueSivp"
+            "usr": "s:6Sentry0A14AttachmentTypeO8rawValueSivp"
           },
           {
             "children": [
@@ -33277,7 +33272,7 @@
                         "kind": "TypeNominal",
                         "name": "SentryAttachmentType",
                         "printedName": "Sentry.SentryAttachmentType",
-                        "usr": "c:@E@SentryAttachmentType"
+                        "usr": "c:@M@Sentry@E@SentryAttachmentType"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -33288,7 +33283,7 @@
                     "kind": "TypeNominal",
                     "name": "SentryAttachmentType",
                     "printedName": "Sentry.SentryAttachmentType",
-                    "usr": "c:@E@SentryAttachmentType"
+                    "usr": "c:@M@Sentry@E@SentryAttachmentType"
                   }
                 ],
                 "kind": "TypeFunc",
@@ -33301,10 +33296,12 @@
             ],
             "declKind": "EnumElement",
             "kind": "Var",
+            "mangledName": "$s6Sentry0A14AttachmentTypeO13viewHierarchyyA2CmF",
             "moduleName": "Sentry",
             "name": "viewHierarchy",
+            "objc_name": "kSentryAttachmentTypeViewHierarchy",
             "printedName": "viewHierarchy",
-            "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeViewHierarchy"
+            "usr": "c:@M@Sentry@E@SentryAttachmentType@kSentryAttachmentTypeViewHierarchy"
           }
         ],
         "conformances": [
@@ -33374,20 +33371,17 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
-          "ObjC",
-          "Sendable",
-          "SynthesizedProtocol",
-          "SynthesizedProtocol"
+          "ObjC"
         ],
         "declKind": "Enum",
         "enumRawTypeName": "Int",
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A14AttachmentTypeO",
         "moduleName": "Sentry",
         "name": "SentryAttachmentType",
         "objc_name": "SentryAttachmentType",
         "printedName": "SentryAttachmentType",
-        "usr": "c:@E@SentryAttachmentType"
+        "usr": "c:@M@Sentry@E@SentryAttachmentType"
       },
       {
         "children": [
@@ -39337,7 +39331,7 @@
                         "kind": "TypeNominal",
                         "name": "Attachment",
                         "printedName": "Sentry.Attachment",
-                        "usr": "c:objc(cs)SentryAttachment"
+                        "usr": "c:@M@Sentry@objc(cs)SentryAttachment"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -39378,7 +39372,7 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A8FeedbackC7message4name5email6source17associatedEventId11attachmentsACSS_SSSgAjC0aB6SourceOSo0aI0CSgSaySo0A10AttachmentCGSgtcfc",
+            "mangledName": "$s6Sentry0A8FeedbackC7message4name5email6source17associatedEventId11attachmentsACSS_SSSgAjC0aB6SourceOSo0aI0CSgSayAA10AttachmentCGSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithMessage:name:email:source:associatedEventId:attachments:",
