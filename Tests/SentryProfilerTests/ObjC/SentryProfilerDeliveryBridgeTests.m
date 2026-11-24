@@ -669,7 +669,7 @@
         [mutableState.stacks addObject:@[ @0 ]];
         mutableState.threadMetadata[@"1"] = [@ { @"name" : @"main" } mutableCopy];
         for (NSNumber *timestamp in @[ @200, @300 ]) {
-            SentrySample *sample = [[SentrySample alloc] init];
+            SentryProfilingSample *sample = [[SentryProfilingSample alloc] init];
             sample.absoluteTimestamp = timestamp.unsignedLongLongValue;
             sample.threadID = 1;
             sample.stackIndex = @0;
