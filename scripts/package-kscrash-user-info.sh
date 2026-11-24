@@ -35,7 +35,15 @@ for arch in "${archs[@]}"; do
         cd "$dir"
         xcrun ar -x sdk.a KSCrash.o KSCrash+UserInfo.o
         xcrun ld -r -arch "$arch" -o KSCrashWithUserInfo.o KSCrash.o KSCrash+UserInfo.o
-        xcrun ar -d sdk.a KSCrash.o KSCrash+UserInfo.o
+        # SwiftPM can contribute the same recording objects more than once. Apple ar -d
+        # removes one occurrence per argument; a leftover KSCrash.o can win the final link.
+        members=()
+        while IFS= read -r member; do
+            case "$member" in
+                KSCrash.o|KSCrash+UserInfo.o) members+=("$member") ;;
+            esac
+        done < <(xcrun ar -t sdk.a)
+        xcrun ar -d sdk.a "${members[@]}"
         xcrun ar -rs sdk.a KSCrashWithUserInfo.o
     )
     outputs+=("$dir/sdk.a")
