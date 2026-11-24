@@ -48,7 +48,7 @@ class TestData {
         let event = Event(level: SentryLevel.info)
         
         event.breadcrumbs = [crumb]
-        event.context = context
+        event.storeContext(context.mapValues { $0 as Any })
         event.debugMeta = [debugMeta]
         event.dist = "dist"
         event.environment = "environment"

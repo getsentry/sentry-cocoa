@@ -1,5 +1,4 @@
 #import "SentryClient+Private.h"
-#import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
@@ -275,8 +274,9 @@ NS_ASSUME_NONNULL_BEGIN
     return sessionCopy;
 }
 
-- (void)captureFatalEvent:(SentryEvent *)event
+- (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     [self captureFatalEvent:event
                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
@@ -287,16 +287,18 @@ NS_ASSUME_NONNULL_BEGIN
  * currently no way to know which one belongs to the crashed session, so we send the session with
  * the first crash event we receive.
  */
-- (void)captureFatalEvent:(SentryEvent *)event
+- (void)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
+    SentryEvent *event = untypedEvent;
     [self captureFatalEventWithResult:event withScope:scope preserveCrashedSessionOnFailure:NO];
 }
 
-- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+- (SentryId *)captureFatalEventWithResult:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
 {
+    SentryEvent *event = untypedEvent;
     event.isFatalEvent = YES;
 
     SentryClientInternal *client = self.client;
@@ -339,8 +341,9 @@ NS_ASSUME_NONNULL_BEGIN
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
  * PreviousRunSessionFinalizer
  */
-- (void)captureFatalAppHangEvent:(SentryEvent *)event
+- (void)captureFatalAppHangEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     // We treat fatal app hang events similar to crashes.
     event.isFatalEvent = YES;
 
@@ -471,22 +474,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     return [self captureEvent:event
                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
+    SentryEvent *event = untypedEvent;
     return [self captureEvent:event withScope:scope additionalEnvelopeItems:@[]];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
+    SentryEvent *event = untypedEvent;
     SentryClientInternal *client = self.client;
     if (client != nil) {
         return [client captureEvent:event
@@ -694,10 +700,11 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
 {
+    SentryEvent *event = untypedEvent;
     SentryClientInternal *client = self.client;
     if (client != nil) {
         return [client captureEvent:event withScope:scope hint:hint];
@@ -738,8 +745,9 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureErrorEvent:(SentryEvent *)event
+- (SentryId *)captureErrorEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
 {
+    SentryEvent *event = untypedEvent;
     SentryScope *scope = self.scope;
     SentryClientInternal *client = self.client;
 
@@ -749,8 +757,10 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-- (SentryId *)captureErrorEvent:(SentryEvent *)event withHint:(id _Nullable)hint
+- (SentryId *)captureErrorEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                       withHint:(id _Nullable)hint
 {
+    SentryEvent *event = untypedEvent;
     SentryScope *scope = self.scope;
     SentryClientInternal *client = self.client;
 

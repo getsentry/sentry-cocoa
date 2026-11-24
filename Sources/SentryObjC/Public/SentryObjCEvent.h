@@ -95,12 +95,21 @@ NS_ASSUME_NONNULL_BEGIN
 /// Set the user for the event.
 @property (nonatomic, strong, nullable) SentryObjCUser *user;
 
+#if SDK_V10
+/**
+ * This object contains meta information.
+ * @warning This is maintained automatically, and shouldn't normally need to be modified.
+ * Values are usually dictionaries. Crash reports can also store other JSON values.
+ */
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *context;
+#else
 /**
  * This object contains meta information.
  * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, strong, nullable)
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *context;
+#endif
 
 /// Contains thread information if a crash occurred or for a user reported exception.
 @property (nonatomic, strong, nullable) NSArray<SentryObjCThread *> *threads;

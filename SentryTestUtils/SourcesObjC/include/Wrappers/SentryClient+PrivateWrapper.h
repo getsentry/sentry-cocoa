@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setFileManager:(SENTRY_SWIFT_MIGRATION_ID(SentryFileManager))fileManager
     NS_SWIFT_NAME(test_setFileManager(_:));
 #endif
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
+- (SentryId *)captureFatalEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                     withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
                       withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     NS_SWIFT_NAME(captureFatalEvent(_:with:with:));
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(capture(_:replayRecording:video:with:));
 - (void)storeEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope NS_SWIFT_NAME(store(_:));
 
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(event:scope:hint:));
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                         hint:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
-- (SentryId *)captureEvent:(SentryEvent *)event
+- (SentryId *)captureEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))event
                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray *)items
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));

@@ -229,10 +229,10 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(event.isFromPreviousProcess, true)
             XCTAssertEqual(event.releaseName, "io.sentry.app@1.0.0+10")
             XCTAssertEqual(event.dist, "10")
-            let appContext = try XCTUnwrap(event.context?["app"])
+            let appContext = try XCTUnwrap(contextEntry(event.context?["app"]))
             XCTAssertEqual(appContext["app_version"] as? String, "1.0.0")
             XCTAssertEqual(appContext["app_build"] as? String, "10")
-            let osContext = try XCTUnwrap(event.context?["os"])
+            let osContext = try XCTUnwrap(contextEntry(event.context?["os"]))
             XCTAssertEqual(osContext["version"] as? String, "27.0")
             XCTAssertEqual(osContext["build"] as? String, "24A100")
         }
@@ -261,13 +261,13 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
             let event = try XCTUnwrap(event)
-            XCTAssertEqual(event.context?["app"] as NSDictionary?, [
+            XCTAssertEqual(event.context?["app"] as? NSDictionary, [
                 "app_identifier": "io.sentry.app.extension",
                 "app_version": "1.0.0",
                 "app_build": "10",
                 "build_type": "test"
             ])
-            XCTAssertEqual(event.context?["device"] as NSDictionary?, ["model": "iPhone18,1", "low_power_mode": true])
+            XCTAssertEqual(event.context?["device"] as? NSDictionary, ["model": "iPhone18,1", "low_power_mode": true])
         }
     }
 
@@ -285,7 +285,7 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         // MetricKit doesn't tell which build type a non-TestFlight build had.
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertNil(event?.context?["app"]?["build_type"])
+            XCTAssertNil((contextEntry(event?.context?["app"]))?["build_type"])
         }
     }
 

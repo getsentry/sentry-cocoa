@@ -407,7 +407,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(event.releaseName, "my-release-name-test")
         XCTAssertEqual(event.environment, "testing-environment")
         XCTAssertEqual(event.dist, "adhoc")
-        let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
+        let appContext = try XCTUnwrap(contextEntry(event.context?["app"]))
         XCTAssertEqual(true, appContext["in_foreground"] as? Bool)
         XCTAssertEqual(true, appContext["is_active"] as? Bool)
     }

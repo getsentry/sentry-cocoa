@@ -55,10 +55,11 @@ NS_ASSUME_NONNULL_BEGIN
     [self.attachmentProcessors removeObject:attachmentProcessor];
 }
 
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments
+- (NSArray<SentryAttachment *> *)
+    processAttachmentsForEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryEvent))untypedEvent
+                   attachments:(NSArray<SentryAttachment *> *)attachments
 {
+    SentryEvent *event = untypedEvent;
     if (self.attachmentProcessors.count == 0) {
         return attachments;
     }
