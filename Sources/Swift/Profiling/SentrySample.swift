@@ -1,5 +1,6 @@
 import Foundation
 
+#if !SDK_V10
 // swiftlint:disable missing_docs
 
 /// A storage class to hold the data associated with a single profiler sample.
@@ -13,3 +14,4 @@ import Foundation
 }
 
 // swiftlint:enable missing_docs
+#endif
