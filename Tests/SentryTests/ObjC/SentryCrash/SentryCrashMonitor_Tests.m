@@ -37,13 +37,13 @@
 #    import <signal.h>
 #    import <stdatomic.h>
 
-static _Atomic(mach_port_t) g_sigpipeReceiver = MACH_PORT_NULL;
+static _Atomic(mach_port_t) g_signalReceiver = MACH_PORT_NULL;
 
 static void
-sentryCrashMonitorTests_recordSigpipeReceiver(int signum)
+sentryCrashMonitorTests_recordSignalReceiver(int signum)
 {
     (void)signum;
-    atomic_store(&g_sigpipeReceiver, pthread_mach_thread_np(pthread_self()));
+    atomic_store(&g_signalReceiver, pthread_mach_thread_np(pthread_self()));
 }
 
 /** Returns the primary mach exception handler thread once it has started, or NULL. */
@@ -98,6 +98,16 @@ sentryCrashMonitorTests_primaryExceptionHandlerThread(void)
 
 - (void)testMachExceptionHandlerThread_whenSIGPIPEIsSentToIt_shouldNotRunSignalHandler
 {
+    [self assertPrimaryExceptionHandlerBlocksSignal:SIGPIPE];
+}
+
+- (void)testMachExceptionHandlerThread_whenSIGTERMIsSentToIt_shouldNotRunSignalHandler
+{
+    [self assertPrimaryExceptionHandlerBlocksSignal:SIGTERM];
+}
+
+- (void)assertPrimaryExceptionHandlerBlocksSignal:(int)signum
+{
     // -- Arrange --
     SentryCrashMonitorAPI *api = sentrycrashcm_machexception_getAPI();
     bool wasEnabled = api->isEnabled();
@@ -118,24 +128,24 @@ sentryCrashMonitorTests_primaryExceptionHandlerThread(void)
     }
     usleep(50 * 1000);
 
-    atomic_store(&g_sigpipeReceiver, MACH_PORT_NULL);
+    atomic_store(&g_signalReceiver, MACH_PORT_NULL);
     struct sigaction action = { 0 };
-    action.sa_handler = sentryCrashMonitorTests_recordSigpipeReceiver;
+    action.sa_handler = sentryCrashMonitorTests_recordSignalReceiver;
     sigemptyset(&action.sa_mask);
     struct sigaction previousAction = { 0 };
-    XCTAssertEqual(sigaction(SIGPIPE, &action, &previousAction), 0);
+    XCTAssertEqual(sigaction(signum, &action, &previousAction), 0);
 
     // -- Act --
-    // A process-wide SIGPIPE cannot be aimed at one thread, so send it to the thread directly. A
-    // thread that blocks SIGPIPE keeps it pending instead of running the handler, which is also
-    // what makes the kernel deliver a process-wide SIGPIPE to another thread.
-    XCTAssertEqual(pthread_kill(primary, SIGPIPE), 0);
+    // Send the signal directly to the thread to test its mask independently of the kernel's
+    // choice of receiver for a process-wide signal. A blocked signal stays pending instead of
+    // running the handler.
+    XCTAssertEqual(pthread_kill(primary, signum), 0);
     usleep(200 * 1000);
 
     // -- Assert --
-    XCTAssertEqual(atomic_load(&g_sigpipeReceiver), (mach_port_t)MACH_PORT_NULL);
+    XCTAssertEqual(atomic_load(&g_signalReceiver), (mach_port_t)MACH_PORT_NULL);
 
-    XCTAssertEqual(sigaction(SIGPIPE, &previousAction, NULL), 0);
+    XCTAssertEqual(sigaction(signum, &previousAction, NULL), 0);
     api->setEnabled(wasEnabled);
 }
 
