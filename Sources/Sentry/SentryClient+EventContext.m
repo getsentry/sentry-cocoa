@@ -6,6 +6,7 @@
 #import "SentryMechanism.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
+#import "SentryTransaction+Private.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN

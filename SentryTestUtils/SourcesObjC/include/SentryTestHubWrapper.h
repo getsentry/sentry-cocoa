@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
 @import _SentryPrivate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,10 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
                          withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));
-
-- (void)wrapper_captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                         withScope:(SentryScope *)scope
-    NS_SWIFT_NAME(wrapper_capture(transaction:with:));
 
 - (void)wrapper_setSession:(nullable id)session;
 
