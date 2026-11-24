@@ -1,9 +1,8 @@
+#import "SentryNativeUtilsDefines.h"
 #import <stdbool.h>
 #import <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+SENTRY_EXTERN_C_BEGIN
 
 /**
  * Given a fractional amount of seconds in a @c double from a Cocoa API like @c -[NSDate
@@ -32,6 +31,4 @@ bool orderedChronologically(uint64_t a, uint64_t b);
  */
 uint64_t getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp);
 
-#ifdef __cplusplus
-}
-#endif
+SENTRY_EXTERN_C_END
