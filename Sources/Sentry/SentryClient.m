@@ -27,8 +27,6 @@
 #import "SentryNSError.h"
 #import "SentrySDK+Private.h"
 #import "SentrySanitizerUtils.h"
-#import "SentryScope+Private.h"
-#import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
@@ -208,30 +206,33 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return self.options;
 }
 
-- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                           currentScope:(nullable SentryScope *)currentScope
+- (nullable SentryTraceContext *)
+    getTraceStateWithEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+              currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope
 {
-    id<SentrySpan> currentScopeSpan = currentScope.span;
+    SentryScope *typedScope = scope;
+    SentryScope *typedCurrentScope = currentScope;
+    id<SentrySpan> currentScopeSpan = typedCurrentScope.span;
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
         span = [(SentryTransaction *)event trace];
     } else {
         // Even envelopes without transactions can contain the trace state, allowing Sentry to
         // eventually sample attachments belonging to a transaction.
-        span = currentScopeSpan ?: scope.span;
+        span = currentScopeSpan ?: typedScope.span;
     }
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
+        return [[SentryTraceContext alloc] initWithTracer:tracer scope:typedScope options:_options];
     }
 
     if (event.error || event.exceptions.count > 0) {
-        SentryId *traceId = currentScopeSpan.traceId ?: scope.propagationContext.traceId;
+        SentryId *traceId = currentScopeSpan.traceId ?: typedScope.propagationContext.traceId;
         return [[SentryTraceContext alloc] initWithTraceId:traceId
                                                    options:self.options
-                                                  replayId:scope.replayId];
+                                                  replayId:typedScope.replayId];
     }
 
     return nil;
@@ -247,7 +248,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendEnvelope:envelope];
 }
 
-- (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     SentryScope *cs = [self.currentScopeStorage scope];
     [self captureSerializedFeedback:[feedback serialize]
@@ -298,10 +300,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
+                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(SentryScope *_Nullable)currentScope
+                          currentScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope)_Nullable)currentScope
                                   hint:(SentryHint *)hint
 {
     NSParameterAssert(event);

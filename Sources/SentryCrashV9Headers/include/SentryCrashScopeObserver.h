@@ -28,7 +28,7 @@ SENTRY_NO_INIT
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras;
 
-- (void)setContext:(nullable NSDictionary<NSString *, id> *)context;
+- (void)setContext:(nullable NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)context;
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext;
 
@@ -39,6 +39,8 @@ SENTRY_NO_INIT
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint;
 
 - (void)setLevel:(SentryLevel)level;
+
+- (void)setAttributes:(nullable NSDictionary<NSString *, id> *)attributes;
 
 - (void)addSerializedBreadcrumb:(NSDictionary<NSString *, id> *)crumb;
 

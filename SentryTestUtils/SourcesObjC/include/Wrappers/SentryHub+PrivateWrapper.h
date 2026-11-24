@@ -7,14 +7,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryHubInternal (Test)
 
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
-                      andScope:(SentryScope *_Nullable)scope
+                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
       activeCrashReporterState:(SENTRY_SWIFT_MIGRATION_ID(
                                    id<SentryCrashReporterState>))activeCrashReporterState
               andDispatchQueue:(SENTRY_SWIFT_MIGRATION_ID(SentryDispatchQueueWrapper))dispatchQueue
     NS_SWIFT_NAME(init(testClient:andScope:activeCrashReporterState:andDispatchQueue:));
 
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
-                      andScope:(SentryScope *_Nullable)scope
+                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
       activeCrashReporterState:(SENTRY_SWIFT_MIGRATION_ID(
                                    id<SentryCrashReporterState>))activeCrashReporterState
           scopeContextEnricher:(SENTRY_SWIFT_MIGRATION_ID(

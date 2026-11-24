@@ -1,12 +1,10 @@
 internal import _SentryPrivate
 
-// The Xcode target imports this name from SentryDefines.h. SwiftPM's SentryHeaders
-// module only forward-declares SamplingContext, so the importer drops the typedef.
-#if SWIFT_PACKAGE
+// Declare this alias in both builds: SwiftPM's Clang importer drops the Objective-C
+// typedef because SentryHeaders only forward-declares SamplingContext.
 /// A sampler callback. Return a sample rate from 0.0 through 1.0, or `nil` when no
 /// sampling decision has been taken.
 public typealias SentryTracesSamplerCallback = (SamplingContext) -> NSNumber?
-#endif
 
 /// Sampling context for Sentry samples.
 @objc(SentrySamplingContext) 

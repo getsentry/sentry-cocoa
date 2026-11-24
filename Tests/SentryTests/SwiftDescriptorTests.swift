@@ -159,6 +159,78 @@ class SwiftDescriptorTests: XCTestCase {
         XCTAssertEqual(hiddenDescription, expectedDescription(for: hiddenView, attributes: "opaque = false; hidden = true"))
     }
 
+    func testGetViewControllerClassName_whenGetterIsAbsent_shouldSkipProtocolCheck() {
+        // -- Arrange --
+        let controller = NonDescriptorViewController()
+        controller.descriptorChecks = 0
+
+        // -- Act --
+        let names = (0..<3).map { _ in SwiftDescriptor.getViewControllerClassName(controller) }
+
+        // -- Assert --
+        XCTAssertEqual(names, Array(repeating: "NonDescriptorViewController", count: 3))
+        XCTAssertEqual(controller.descriptorChecks, 0)
+    }
+
+    func testGetViewControllerClassName_whenDescriptorNameChanges_shouldReadCurrentName() {
+        // -- Arrange --
+        let controller = DescriptorViewController()
+        controller.sentryName = "First screen"
+
+        // -- Act --
+        let firstName = SwiftDescriptor.getViewControllerClassName(controller)
+        controller.sentryName = "Second screen"
+        let secondName = SwiftDescriptor.getViewControllerClassName(controller)
+
+        // -- Assert --
+        XCTAssertEqual(firstName, "First screen")
+        XCTAssertEqual(secondName, "Second screen")
+    }
+
+    func testGetViewControllerClassName_whenDescriptorIsInherited_shouldUseCustomName() {
+        // -- Arrange --
+        let controller = InheritedDescriptorViewController()
+        controller.sentryName = "Inherited screen"
+
+        // -- Act --
+        let name = SwiftDescriptor.getViewControllerClassName(controller)
+
+        // -- Assert --
+        XCTAssertEqual(name, "Inherited screen")
+    }
+
+    func testGetViewControllerClassName_whenGetterExistsWithoutConformance_shouldUseClassName() {
+        // -- Arrange --
+        let controller = SelectorOnlyViewController()
+
+        // -- Act --
+        let name = SwiftDescriptor.getViewControllerClassName(controller)
+
+        // -- Assert --
+        XCTAssertEqual(name, "SelectorOnlyViewController")
+    }
+
+    private class NonDescriptorViewController: UIViewController {
+        var descriptorChecks = 0
+
+        override func conforms(to aProtocol: Protocol) -> Bool {
+            if NSStringFromProtocol(aProtocol) == NSStringFromProtocol(SentryUIViewControllerDescriptor.self) {
+                descriptorChecks += 1
+            }
+            return super.conforms(to: aProtocol)
+        }
+    }
+
+    private class DescriptorViewController: UIViewController, SentryUIViewControllerDescriptor {
+        var sentryName = "Custom screen"
+    }
+
+    private class InheritedDescriptorViewController: DescriptorViewController {}
+
+    private class SelectorOnlyViewController: UIViewController {
+        @objc var sentryName: String { "Not a descriptor" }
+    }
+
     private class PinCodeButton: UIButton {}
 #endif
 }

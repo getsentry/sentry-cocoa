@@ -2,16 +2,12 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryHub+SwiftPrivate.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySDK+Private.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -35,7 +31,7 @@ SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 id<SentryProfilingCancellation> _Nullable _chunkTimer;
 
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
-SentryId *_profileSessionID;
+SentryProfilingId *_profileSessionID;
 
 /**
  * To avoid sending small chunks at the end of profiles, we let the current chunk run to the full
@@ -77,34 +73,16 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
-    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
-    SentryProfilingDebugImageSerialization const serializeDebugImages =
-        [SentryProfilerSDKAdapter.shared debugImageSerialization];
-
-    // Move the serialization work to a background queue to avoid potentially
-    // blocking the main thread. The serialization can take several milliseconds.
-    [SentryProfilerSDKAdapter.shared dispatchAsync:^{
-        // Closing the originating SDK must not redirect a pending chunk to a later client.
-        if (hub.getClient == nil) {
-            return;
-        }
-        NSArray<NSDictionary<NSString *, id> *> *debugImages
-            = serializeDebugImages == nil ? nil : serializeDebugImages();
-        NSDictionary *_Nonnull serializedMetrics
-            = serializeContinuousProfileMetrics(metricProfilerState);
-        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
-            profilerID, profilerState, serializedMetrics, debugImages, hub
+    [SentryProfilerSDKAdapter.shared
+        captureProfileChunkWithID:profilerID
+                             data:profilerState
+                          metrics:^{
+                              return serializeContinuousProfileMetrics(metricProfilerState);
+                          }
 #    if SENTRY_HAS_UIKIT
-            ,
-            screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-        );
-        if (envelope == nil) {
-            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
-            return;
-        }
-        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
-    }];
+                           frames:screenFrameData
+#    endif
+    ];
 }
 
 void
@@ -147,7 +125,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
+        dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryProfilingId alloc] init]; });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
         profiler = _threadUnsafe_gContinuousCurrentProfiler;
 #    if SENTRY_HAS_UIKIT
@@ -203,7 +181,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     _stopCalled = YES;
 }
 
-+ (nullable SentryId *)currentProfilerID
++ (nullable SentryProfilingId *)currentProfilerID
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler.profilerId;
