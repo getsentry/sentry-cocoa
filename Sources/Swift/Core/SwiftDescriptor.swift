@@ -17,7 +17,10 @@ import UIKit
 #if canImport(UIKit) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc
     public static func getViewControllerClassName(_ object: UIViewController) -> String {
-        if let object = object as? SentryUIViewControllerDescriptor {
+        // Avoid the potentially expensive Objective-C protocol walk for controllers without
+        // a custom name getter. Keep the cast so the getter alone does not opt into customization.
+        if object.responds(to: #selector(getter: SentryUIViewControllerDescriptor.sentryName)),
+           let object = object as? SentryUIViewControllerDescriptor {
             return object.sentryName
         }
         return getObjectClassName(object)
