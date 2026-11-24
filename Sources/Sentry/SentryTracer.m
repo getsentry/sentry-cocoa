@@ -25,6 +25,7 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerConfigurationBridge.h"
 #    import "SentryProfilerDeliveryBridge.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
@@ -153,19 +154,22 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryProfilingTraceDecision profilingDecision
         = sentry_profilerTraceDecision(configuration, hub, context);
-    _profilerReferenceID = sentry_startProfilerForTrace(profilingDecision, context);
+    if (profilingDecision != SentryProfilingTraceDecisionNone) {
+        _profilerReferenceID = sentry_startProfilerForTrace(
+            profilingDecision, sentry_profilingIdFromSentryId(context.traceId));
+    }
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (context.parentSpanId == nil) {
         SENTRY_LOG_DEBUG(
             @"Started root span tracer with id: %@; profilerReferenceId: %@; span id: %@",
-            context.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            context.traceId.sentryIdString, _profilerReferenceID.stringValue,
             self.spanId.sentrySpanIdString);
     } else {
         SENTRY_LOG_DEBUG(@"Started child span tracer with id: %@; profilerReferenceId: %@; span "
                          @"id: %@; parent span id: %@",
-            context.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            context.traceId.sentryIdString, _profilerReferenceID.stringValue,
             self.spanId.sentrySpanIdString, context.parentSpanId.sentrySpanIdString);
     }
 
@@ -402,7 +406,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 
     SENTRY_LOG_DEBUG(@"Checking if tracer %@ (profileReferenceId %@) can be finished",
-        self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
+        self.traceId.sentryIdString, _profilerReferenceID.stringValue);
     [self canBeFinished];
 }
 
@@ -473,7 +477,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     SENTRY_LOG_DEBUG(@"Finished trace with tracer profilerReferenceId: %@ and status: %@",
-        self.profilerReferenceID.sentryIdString, sentry_spanStatusName(status));
+        self.profilerReferenceID.stringValue, sentry_spanStatusName(status));
     @synchronized(self) {
         self.wasFinishCalled = YES;
     }
@@ -529,7 +533,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 
     SENTRY_LOG_DEBUG(@"Can finish tracer %@ (profileReferenceId %@)", self.traceId.sentryIdString,
-        _profilerReferenceID.sentryIdString);
+        _profilerReferenceID.stringValue);
 
     [self finishInternal];
 }
@@ -559,7 +563,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                                    shouldCleanUp:YES];
     if (discardTransaction) {
         SENTRY_LOG_DEBUG(@"Discarding transaction for trace %@ (profileReferenceId %@)",
-            self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
+            self.traceId.sentryIdString, _profilerReferenceID.stringValue);
         return;
     }
 

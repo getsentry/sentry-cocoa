@@ -24,7 +24,7 @@
     [SentryProfilerSDKAdapter.shared removeTarget:self];
 }
 
-- (void)captureProfileChunkWithID:(NSString *)profileID
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
                              data:(NSDictionary<NSString *, id> *)profileData
                           metrics:(SentryProfilingMetricSerialization)serializeMetrics
 #    if SENTRY_HAS_UIKIT
@@ -44,7 +44,7 @@
             [images addObject:[image serialize]];
         }
         NSDictionary<NSString *, id> *serializedMetrics = serializeMetrics();
-        SentryId *identifier = [[SentryId alloc] initWithUUIDString:profileID];
+        SentryId *identifier = [[SentryId alloc] initWithUuid:profileID.uuid];
         SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
             identifier, profileData, serializedMetrics, images, hub
 #    if SENTRY_HAS_UIKIT
