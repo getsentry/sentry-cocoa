@@ -2181,6 +2181,7 @@ analyze:
 ## Generate public API documentation
 #
 # Updates V9/V10 framework and SwiftPM API snapshots.
+# Fails if the generated SwiftPM API differs from its Xcode counterpart.
 .PHONY: generate-public-api
 generate-public-api:
 	@echo "[MAKE] $@: Generating public API documentation"

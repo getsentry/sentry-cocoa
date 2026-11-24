@@ -1,23 +1,35 @@
+#import "SentryCompiler.h"
+#import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingDispatch.h"
+#import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDefines.h"
-
-@class SentryEnvelope;
-@class SentryDebugMeta;
-@class SentryEnvelopeItem;
 @class SentryHubInternal;
+@class SentryTransaction;
+@class SentryEnvelope;
+@class SentryEnvelopeItem;
+@class SentryProfiler;
 @class SentryId;
 @class SentryProfilingFrameMeasurements;
-@class SentryTransaction;
-@class SentryProfiler;
+#    if SENTRY_HAS_UIKIT
+@class SentryAppStartMeasurement;
+#    endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-#    if defined(__cplusplus)
-extern "C" {
+SENTRY_EXTERN_C_BEGIN
+
+SENTRY_EXTERN void sentry_finishProfiledTransaction(
+    SentryHubInternal *hub, SentryProfilingDispatch dispatchAsync, SentryTransaction *transaction,
+    BOOL isProfiling, BOOL isLaunchTrace, BOOL continuousTraceProfiling,
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+#    if SENTRY_HAS_UIKIT
+    ,
+    SentryAppStartMeasurement *_Nullable appStartMeasurement
 #    endif
+);
 
 SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
@@ -36,9 +48,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
     uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub);
 
-#    if defined(__cplusplus)
-}
-#    endif
+SENTRY_EXTERN_C_END
 
 NS_ASSUME_NONNULL_END
 

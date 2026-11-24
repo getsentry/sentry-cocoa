@@ -228,6 +228,49 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "kind": "TypeNameAlias",
+            "name": "Void",
+            "printedName": "Swift.Void"
+          }
+        ],
+        "declKind": "Func",
+        "funcSelfKind": "NonMutating",
+        "kind": "Function",
+        "moduleName": "Sentry",
+        "name": "sentry_finishAndSaveTransaction",
+        "printedName": "sentry_finishAndSaveTransaction()",
+        "usr": "c:@M@Sentry@F@sentry_finishAndSaveTransaction"
+      },
+      {
+        "children": [
+          {
+            "kind": "TypeNominal",
+            "name": "Void",
+            "printedName": "()"
+          }
+        ],
+        "declAttributes": [
+          "CDecl"
+        ],
+        "declKind": "Func",
+        "funcSelfKind": "NonMutating",
+        "kind": "Function",
+        "mangledName": "$s6Sentry31sentry_finishAndSaveTransactionyyF",
+        "moduleName": "Sentry",
+        "name": "sentry_finishAndSaveTransaction",
+        "printedName": "sentry_finishAndSaveTransaction()",
+        "usr": "c:(cm)sentry_finishAndSaveTransaction"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "NSDictionary",
                 "printedName": "Foundation.NSDictionary",
                 "usr": "c:objc(cs)NSDictionary"
@@ -380,6 +423,16 @@
         "printedName": "Darwin"
       },
       {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Foundation",
+        "printedName": "Foundation"
+      },
+      {
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
@@ -461,16 +514,6 @@
         "moduleName": "Sentry",
         "name": "Sentry.PrivatesHeader",
         "printedName": "Sentry.PrivatesHeader"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
-        "name": "Sentry.Sentry",
-        "printedName": "Sentry.Sentry"
       },
       {
         "declAttributes": [
@@ -609,6 +652,16 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "Sentry.SentryHttpStatusCodeRange",
+        "printedName": "Sentry.SentryHttpStatusCodeRange"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "Sentry.SentryId",
         "printedName": "Sentry.SentryId"
       },
@@ -679,8 +732,8 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryProfilingConditionals",
-        "printedName": "Sentry.SentryProfilingConditionals"
+        "name": "Sentry.SentryReplayApi",
+        "printedName": "Sentry.SentryReplayApi"
       },
       {
         "declAttributes": [
@@ -701,6 +754,26 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentrySampleDecision",
         "printedName": "Sentry.SentrySampleDecision"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentrySamplingContext",
+        "printedName": "Sentry.SentrySamplingContext"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryScope",
+        "printedName": "Sentry.SentryScope"
       },
       {
         "declAttributes": [
@@ -801,6 +874,26 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentryTraceHeader",
         "printedName": "Sentry.SentryTraceHeader"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryTransaction",
+        "printedName": "Sentry.SentryTransaction"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryTransactionContext",
+        "printedName": "Sentry.SentryTransactionContext"
       },
       {
         "declAttributes": [
@@ -44374,6 +44467,59 @@
             "name": "start",
             "printedName": "start(for:)",
             "usr": "s:6Sentry0A20InternalProfilingApiV5start3fors6UInt64VSo0A2IdC_tF"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvp",
+            "moduleName": "Sentry",
+            "name": "currentProfilerId",
+            "printedName": "currentProfilerId",
+            "usr": "s:6Sentry0A20InternalProfilingApiV17currentProfilerIdSSSgvp"
           }
         ],
         "conformances": [

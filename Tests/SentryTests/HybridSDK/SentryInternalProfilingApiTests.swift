@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
@@ -14,6 +15,24 @@ class SentryInternalProfilingApiTests: XCTestCase {
     private lazy var sut = SentryInternalProfilingApi(
         dependencies: MockProfilingDependencies(dateProvider: mockDateProvider)
     )
+
+    // MARK: - currentProfilerId
+
+    func testCurrentProfilerId_whenProfilerIsRunning_shouldReturnItsWireIdentifier() throws {
+        if sentry_threadSanitizerIsPresent() {
+            throw XCTSkip("Native profiling is disabled when Thread Sanitizer is attached.")
+        }
+        // -- Arrange --
+        SentryContinuousProfiler.start()
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+        let profilerId = try XCTUnwrap(SentryContinuousProfiler.currentProfilerID())
+
+        // -- Act --
+        let currentProfilerId = sut.currentProfilerId
+
+        // -- Assert --
+        XCTAssertEqual(currentProfilerId, profilerId.stringValue)
+    }
 
     // MARK: - start
 
