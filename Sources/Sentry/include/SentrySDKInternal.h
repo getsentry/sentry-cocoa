@@ -15,6 +15,7 @@
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
+@class SentryReplayApi;
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
@@ -40,6 +41,13 @@ SENTRY_NO_INIT
  * Indicates whether the SentrySDK is enabled.
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+/**
+ * API to control session replay
+ */
+@property (class, nonatomic, readonly) SentryReplayApi *replay;
+#endif
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
