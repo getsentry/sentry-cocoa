@@ -1,30 +1,13 @@
 #import "SentryProfilingSwiftHelpers.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryId+Private.h"
 #    import "SentrySwift.h"
 
-NSString *
-sentry_stringFromSentryID(SentryId *sentryID)
+SentryProfilingId *
+sentry_profilingIdFromSentryId(SentryId *sentryID)
 {
-    return sentryID.sentryIdString;
-}
-
-SentryId *
-sentry_getSentryId(void)
-{
-    return [[SentryId alloc] init];
-}
-
-SentryId *
-sentry_getTraceID(SentryTransactionContext *context)
-{
-    return context.traceId;
-}
-
-void
-sentry_startLaunchProfile(void)
-{
-    [SentryLaunchProfiling startLaunchProfile];
+    return [[SentryProfilingId alloc] initWithUUID:sentryID.uuid];
 }
 
 SentryTracer *_Nullable sentry_tracerForTransaction(id transaction)

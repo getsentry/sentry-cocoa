@@ -1,24 +1,20 @@
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingId.h"
 #import <Foundation/Foundation.h>
 
 @class SentryId;
 @class SentryTracer;
-@class SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-// The functions in this file exist to bridge ObjectiveC++ to Swift. When building with Swift
-// Package Manager you can’t import Swift into ObjectiveC++ so instead that code calls plain C
-// functions in this file which then uses Swift in their implementation.
+// SDK-side conversions keep SDK models out of the profiling implementation.
+// Plain C entry points also bridge Objective-C++ to Swift under Swift Package Manager.
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-NSString *sentry_stringFromSentryID(SentryId *sentryID);
-SentryId *sentry_getSentryId(void);
-SentryId *sentry_getTraceID(SentryTransactionContext *context);
-void sentry_startLaunchProfile(void);
+SentryProfilingId *sentry_profilingIdFromSentryId(SentryId *sentryID);
 SentryTracer *_Nullable sentry_tracerForTransaction(id transaction);
 
 #ifdef __cplusplus

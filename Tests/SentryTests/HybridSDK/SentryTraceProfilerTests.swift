@@ -15,6 +15,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         let queue = TestSentryDispatchQueueWrapper()
         let notifications = TestNSNotificationCenterWrapper()
         let timerFactory: TestSentryNSTimerFactory
+        let options: Options
         let client: TestClient
         let hub: SentryHubInternal
 
@@ -26,7 +27,7 @@ final class SentryTraceProfilerTests: XCTestCase {
             container.notificationCenterWrapper = notifications
             timerFactory = TestSentryNSTimerFactory(currentDateProvider: dateProvider)
             container.timerFactory = timerFactory
-            let options = Options()
+            options = Options()
             options.dsn = TestConstants.dsnForTestCase(type: SentryTraceProfilerTests.self)
             options.tracesSampleRate = 1
             client = try XCTUnwrap(TestClient(options: options))
@@ -53,6 +54,86 @@ final class SentryTraceProfilerTests: XCTestCase {
         // swiftlint:disable:next avoid_clear_test_state
         clearTestState()
         super.tearDown()
+    }
+
+    func testProfilingId_whenCreatedFromUUID_shouldUseCanonicalWireFormat() throws {
+        // -- Arrange --
+        let uuid = try XCTUnwrap(UUID(uuidString: "01234567-89AB-CDEF-0123-456789ABCDEF"))
+
+        // -- Act --
+        let identifier = SentryProfilingId(uuid: uuid)
+
+        // -- Assert --
+        XCTAssertEqual(identifier.stringValue, "0123456789abcdef0123456789abcdef")
+        XCTAssertEqual(identifier.description, identifier.stringValue)
+        XCTAssertNotEqual(SentryProfilingId(), SentryProfilingId())
+    }
+
+    func testProfilingId_whenUUIDsMatch_shouldHaveValueEqualityAndSupportDictionaryKeys() throws {
+        // -- Arrange --
+        let uuid = UUID()
+        let first = SentryProfilingId(uuid: uuid)
+        let second = SentryProfilingId(uuid: uuid)
+
+        // -- Act --
+        let values = NSDictionary(object: "profile", forKey: first)
+
+        // -- Assert --
+        XCTAssertFalse(first === second)
+        XCTAssertEqual(first, second)
+        XCTAssertEqual(first.hash, second.hash)
+        XCTAssertEqual(values[second] as? String, "profile")
+        XCTAssertTrue(first.copy() as AnyObject === first)
+        XCTAssertFalse(first.isEqual(first.stringValue))
+    }
+
+    func testStart_whenTraceIdentifiersHaveEqualValues_shouldShareProfilerUntilLastTraceFinishes() throws {
+        // -- Arrange --
+        let firstUUID = UUID()
+        let firstID = SentryProfilingId(uuid: firstUUID)
+        let secondID = SentryProfilingId()
+
+        // -- Act --
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: firstID))
+        let profiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: secondID))
+        let firstFinishedProfiler = sentry_profilerForFinishedTracer(SentryProfilingId(uuid: firstUUID))
+
+        // -- Assert --
+        XCTAssertTrue(firstFinishedProfiler === profiler)
+        XCTAssertTrue(profiler.isRunning())
+        XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 1)
+
+        // -- Act --
+        let lastFinishedProfiler = sentry_profilerForFinishedTracer(secondID)
+
+        // -- Assert --
+        XCTAssertTrue(lastFinishedProfiler === profiler)
+        XCTAssertFalse(profiler.isRunning())
+        XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 0)
+    }
+
+    func testContinuousRoots_whenDiscardedAndFinishedWithEqualIdentifiers_shouldStopAfterLastRoot() throws {
+        // -- Arrange --
+        let first = try XCTUnwrap(sentry_startProfilerForTrace(.continuous, SentryProfilingId()))
+        let second = try XCTUnwrap(sentry_startProfilerForTrace(.continuous, SentryProfilingId()))
+        defer { SentryContinuousProfiler.stopTimerAndCleanup() }
+
+        // -- Act --
+        sentry_discardProfilerCorrelatedToTrace(SentryProfilingId(uuid: first.uuid))
+        fixture.dateProvider.advance(by: 60)
+        try fixture.timerFactory.check()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // -- Act --
+        sentry_finishContinuousProfileForTrace(SentryProfilingId(uuid: second.uuid))
+        fixture.dateProvider.advance(by: 60)
+        try fixture.timerFactory.check()
+
+        // -- Assert --
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testTimeout_whenPreviousTraceIsDiscarded_shouldGiveReplacementItsOwnDeadline() throws {
@@ -271,6 +352,42 @@ final class SentryTraceProfilerTests: XCTestCase {
         XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), 0)
     }
 
+    func testCollect_whenSDKContextIsSet_shouldEnrichProfileAndPreferScopeEnvironment() throws {
+        // -- Arrange --
+        fixture.options.environment = "options-environment"
+        fixture.options.releaseName = "profiling-release"
+        fixture.hub.scope.setEnvironment("scope-environment")
+        let traceID = try startTrace()
+        let state = SentryProfilerState()
+        try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).state = state
+        appendSample(to: state, address: 0x1)
+        fixture.dateProvider.advance(by: 1)
+        appendSample(to: state, address: 0x2)
+
+        // -- Act --
+        let payload = try XCTUnwrap(SentrySDK.internal.profiling.collect(between: 0, and: 1_000_000_000, for: traceID))
+
+        // -- Assert --
+        XCTAssertEqual(payload["environment"] as? String, "scope-environment")
+        XCTAssertEqual(payload["release"] as? String, "profiling-release")
+        let profileID = try XCTUnwrap(payload["profile_id"] as? String)
+        XCTAssertNotEqual(SentryId(uuidString: profileID), SentryId.empty)
+        let os = try XCTUnwrap(payload["os"] as? [String: Any])
+        XCTAssertNotNil(os["name"])
+        XCTAssertNotNil(os["version"])
+        XCTAssertNotNil(os["build_number"])
+        let device = try XCTUnwrap(payload["device"] as? [String: Any])
+        XCTAssertEqual(device["manufacturer"] as? String, "Apple")
+        XCTAssertNotNil(device["architecture"])
+        XCTAssertNotNil(device["is_emulator"])
+#if SDK_V10
+        XCTAssertNil(device["locale"])
+#else
+        XCTAssertEqual(device["locale"] as? String, Locale.current.identifier)
+#endif
+        XCTAssertTrue(fixture.client.recordLostEvents.isEmpty)
+    }
+
     func testFinish_whenProfileHasTwoBoundarySamples_shouldCaptureProfileWithTransactionOnce() throws {
         // -- Arrange --
         let tracer = profiledTracer(named: "profiled")
@@ -418,7 +535,7 @@ final class SentryTraceProfilerTests: XCTestCase {
     private func startTrace() throws -> SentryId {
         let traceID = SentryId()
         traceIDs.append(traceID)
-        XCTAssertTrue(SentryTraceProfiler.start(withTracer: traceID))
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: sentry_profilingIdFromSentryId(traceID)))
         return traceID
     }
 

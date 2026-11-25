@@ -1,25 +1,102 @@
 #import "SentryDefaultProfilerSDKBackend.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentryProfilerCancellation.h"
 #import "SentryProfilerConfigurationBridge.h"
+#import "SentryProfilerDeliveryBridge.h"
+#import "SentryProfilingLog.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+@interface SentrySDKProfilingLogger : NSObject <SentryProfilingLogger>
+@end
+
+@implementation SentrySDKProfilingLogger
+- (BOOL)shouldLog:(SentryProfilingLogLevel)level
+{
+    switch (level) {
+    case SentryProfilingLogLevelDebug:
+        return debugEnabled();
+    case SentryProfilingLogLevelWarning:
+        return warnEnabled();
+    case SentryProfilingLogLevelError:
+        return errorEnabled();
+    }
+}
+
+- (void)log:(SentryProfilingLogLevel)level
+    message:(NSString *)message
+       file:(NSString *)file
+       line:(NSUInteger)line
+{
+    switch (level) {
+    case SentryProfilingLogLevelDebug:
+        logDebug(file.UTF8String, (int)line, @"%@", message);
+        break;
+    case SentryProfilingLogLevelWarning:
+        logWarn(file.UTF8String, (int)line, @"%@", message);
+        break;
+    case SentryProfilingLogLevelError:
+        logError(file.UTF8String, (int)line, @"%@", message);
+        break;
+    }
+}
+@end
+
 @implementation SentryDefaultProfilerSDKBackend {
     SentrySystemWrapper *_systemWrapper;
+    SentrySDKProfilingLogger *_profilingLogger;
 }
 - (void)activate
 {
+    _profilingLogger = [[SentrySDKProfilingLogger alloc] init];
+    SentryProfilingLog.logger = _profilingLogger;
     [SentryProfilerSDKAdapter.shared setTarget:self];
 }
 - (void)dealloc
 {
     [SentryProfilerSDKAdapter.shared removeTarget:self];
+}
+
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+{
+    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
+    SentryDebugImageProvider *const debugImageProvider
+        = SentryDependencyContainer.sharedInstance.debugImageProvider;
+    [self dispatchAsync:^{
+        // Closing the originating SDK must not redirect a pending chunk to a later client.
+        if (hub.getClient == nil) {
+            return;
+        }
+        NSMutableArray<NSDictionary<NSString *, id> *> *images = [NSMutableArray array];
+        for (SentryDebugMeta *image in [debugImageProvider getDebugImagesFromCache]) {
+            [images addObject:[image serialize]];
+        }
+        NSDictionary<NSString *, id> *serializedMetrics = serializeMetrics();
+        SentryId *identifier = [[SentryId alloc] initWithUuid:profileID.uuid];
+        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
+            identifier, profileData, serializedMetrics, images, hub
+#    if SENTRY_HAS_UIKIT
+            ,
+            frames
+#    endif
+        );
+        if (envelope == nil) {
+            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
+            return;
+        }
+        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
+    }];
 }
 
 - (SentryProfilingConfiguration)configuration

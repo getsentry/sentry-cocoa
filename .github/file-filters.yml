@@ -329,6 +329,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/generate_release_matrix.sh"
   - "scripts/xcframework-generated-run.sh"
   - "scripts/prepare-package.sh"
+  - "Tests/V9BinarySPIConsumer/**"
 
   # Project files
   - "Sentry.xcworkspace/**"

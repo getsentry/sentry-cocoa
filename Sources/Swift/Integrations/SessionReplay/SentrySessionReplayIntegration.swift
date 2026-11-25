@@ -43,6 +43,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     /// The id of the replay that is current, i.e. the one the global crash-sync info was last started
     /// for. Segments arrive on the processing queue, so this is guarded instead of reading `sessionReplay`.
     private let currentReplayId = SentryMutex<SentryId?>(nil)
+    /// Tags set by hybrid SDKs through ``setReplayTags(_:)``. Kept here because hybrid SDKs set them
+    /// during SDK init, before any replay session exists, and every new session must pick them up.
+    private let replayTags = SentryMutex<[String: Any]?>(nil)
 
     /// Getter to get the current application at runtime
     ///
@@ -353,6 +356,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         #if SDK_V10
         newSessionReplay.privacyOptions = privacyOptions
         #endif // SDK_V10
+        newSessionReplay.replayTags = replayTags.withLock { $0 }
         self.sessionReplay = newSessionReplay
         touchTracker?.enable()
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
@@ -524,6 +528,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func setReplayTags(_ tags: [String: Any]) {
         SentrySDKLog.debug("[Session Replay] Setting replay tags: \(tags)")
+        replayTags.withLock { $0 = tags }
         sessionReplay?.replayTags = tags
     }
 
