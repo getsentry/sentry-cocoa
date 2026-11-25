@@ -13,7 +13,6 @@
 - Add `SentrySDK.replay.pauseTouchTracking()` and `SentrySDK.replay.resumeTouchTracking()` to stop recording touch positions in Session Replay, for example while a PIN pad is on screen, while screenshots continue to be captured. The pause is independent of `pause()` and `resume()`, and also applies to replays started later in the same process (#9587)
 - Stop sending a MetricKit crash diagnostic for a crash the crash handler already reported in the same run, so enabling `.crash` in `enabledDiagnosticReports` no longer shows the same crash twice (#9584)
 - Add `SentryLogHandler(label:logLevel:)` to the SentrySwiftLog integration, which records the swift-log logger label as the `logger.name` attribute on every log (#9636)
-- Add a screenshot provider to the `SentryObjC` internal replay API, so hybrid SDKs such as Unity can supply Session Replay frames (#9739)
 
 ### Fixes
 
@@ -26,13 +25,13 @@
 - Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
 - Fix the `EXC_GUARD` crash in `SentrySDK.start` in apps that enable the Enhanced Security capability with additional runtime platform restrictions, by registering the Mach exception handler with the identity-protected exception behavior (#9705)
   - This changes the Mach exception message format for every app, not only apps with Enhanced Security. A crash handler installed after the SDK that forwards Mach exceptions to it by building the message itself must support `mach_exception_raise_identity_protected`; otherwise the SDK reports the crash through its signal handler instead of its Mach exception handler.
-- Session Replay no longer records an extra segment covering the time away when paused twice or stopped while paused (#9732)
 - Session Replay no longer records an extra segment covering the time away when paused twice or stopped while paused (#9739)
 
 ### Internal
 
 - Expose `SentrySDK.internal.profiling.currentProfilerId` to hybrid SDKs so they can link their spans to Cocoa profiles (#9712)
 - Apply replay tags set by hybrid SDKs through `SentrySDK.internal.replay.setTags(_:)` to replay sessions started after the call, so the options event of a Flutter replay on iOS reports the Flutter masking options instead of the Cocoa defaults (#9732)
+- Add a screenshot provider to the `SentryObjC` internal replay API, so hybrid SDKs such as Unity can supply Session Replay frames (#9739)
 
 ## 9.35.0
 
