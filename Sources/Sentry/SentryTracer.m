@@ -9,6 +9,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentrySanitizerUtils.h"
+#import "SentryScope+Private.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanDataKey.h"
@@ -116,8 +117,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     self.finishStatus = kSentrySpanStatusUndefined;
 
 #if SENTRY_HAS_UIKIT
-    [hub configureScope:^(SENTRY_SWIFT_MIGRATION_ID(SentryScope) scopeObject) {
-        SentryScope *scope = scopeObject;
+    [hub configureScope:^(SentryScope *scope) {
         if (scope.currentScreen != nil) {
             self->viewNames = @[ SENTRY_UNWRAP_NULLABLE(NSString, scope.currentScreen) ];
         }

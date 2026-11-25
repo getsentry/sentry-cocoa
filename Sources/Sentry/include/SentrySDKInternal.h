@@ -15,6 +15,7 @@
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
+@class SentryScope;
 @class SentryUser;
 @class SentryAttachment;
 @class SentryLogger;
@@ -68,8 +69,7 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a manually created event and sends it to Sentry. Maintains the global scope but mutates
@@ -80,8 +80,7 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
-    NS_SWIFT_NAME(capture(event:scopeBlockObject:));
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -166,8 +165,7 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureError:(NSError *)error
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(error:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
@@ -178,8 +176,7 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureError:(NSError *)error
-            withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
-    NS_SWIFT_NAME(capture(error:scopeBlockObject:));
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -198,8 +195,7 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureException:(NSException *)exception
-                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(exception:scope:));
+                     withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  * Captures an exception event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -210,8 +206,8 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureException:(NSException *)exception
-                withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
-    NS_SWIFT_NAME(capture(exception:scopeBlockObject:));
+                withScopeBlock:(void (^)(SentryScope *scope))block
+    NS_SWIFT_NAME(capture(exception:block:));
 
 /**
  * Captures a message event and sends it to Sentry.
@@ -230,8 +226,7 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(message:scope:));
+                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Captures a message event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -242,8 +237,8 @@ SENTRY_NO_INIT
  *
  */
 + (SentryId *)captureMessage:(NSString *)message
-              withScopeBlock:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))block
-    NS_SWIFT_NAME(capture(message:scopeBlockObject:));
+              withScopeBlock:(void (^)(SentryScope *scope))block
+    NS_SWIFT_NAME(capture(message:block:));
 
 /**
  * Captures a manually created event and sends it to Sentry with a user-provided hint.
@@ -253,7 +248,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
                       hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(event:scope:hint:));
 
@@ -265,7 +260,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureError:(NSError *)error
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
                       hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(error:scope:hint:));
 
@@ -277,7 +272,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureException:(NSException *)exception
-                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                     withScope:(SentryScope *)scope
                           hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(exception:scope:hint:));
 
@@ -289,7 +284,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                   withScope:(SentryScope *)scope
                         hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
 
@@ -318,8 +313,7 @@ SENTRY_NO_INIT
  * contextual data to events.
  * @param callback The callback for configuring the current Scope of the current Hub.
  */
-+ (void)configureScope:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))callback
-    NS_SWIFT_NAME(configureScopeObject(_:));
++ (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 #if !SDK_V10
 /**

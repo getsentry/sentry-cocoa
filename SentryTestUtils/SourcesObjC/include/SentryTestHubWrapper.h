@@ -12,15 +12,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTestHubWrapper : SentryHubInternal
 
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
-                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
+                      andScope:(SentryScope *_Nullable)scope;
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event
-                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                         withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));
 
 - (void)wrapper_captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                         withScope:(SentryScope *)scope
     NS_SWIFT_NAME(wrapper_capture(transaction:with:));
 
 - (void)wrapper_setSession:(nullable id)session;
