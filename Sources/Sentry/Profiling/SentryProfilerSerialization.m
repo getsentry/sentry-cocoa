@@ -4,8 +4,8 @@
 
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfilingLog.h"
 #    import "SentryProfilingSample.h"
 #    import "SentryTime.h"
 
@@ -29,7 +29,8 @@ _sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
         // This shouldn't happen as we would've filtered out any such samples, but we should still
         // guard against it before calling getDurationNs as a defensive measure
         if (!orderedChronologically(startSystemTime, sample.absoluteTimestamp)) {
-            SENTRY_LOG_WARN(@"Filtering sample as it came before start time to begin slicing.");
+            SENTRY_PROFILING_LOG_WARN(
+                @"Filtering sample as it came before start time to begin slicing.");
             return;
         }
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
@@ -100,7 +101,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData
     // sample for the start of the frame and another for the end. Otherwise we would only have a
     // stack frame with 0 duration, which wouldn't make sense.
     if ([samples count] < 2) {
-        SENTRY_LOG_DEBUG(@"Not enough samples in profile");
+        SENTRY_PROFILING_LOG_DEBUG(@"Not enough samples in profile");
         return nil;
     }
 
@@ -108,7 +109,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData
     NSArray<SentryProfilingSample *> *slicedSamples
         = sentry_slicedProfileSamples(samples, startSystemTime, endSystemTime);
     if (slicedSamples.count < 2) {
-        SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
+        SENTRY_PROFILING_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         return nil;
     }
     NSMutableDictionary<NSString *, id> *payload = [NSMutableDictionary<NSString *, id> dictionary];
