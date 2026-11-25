@@ -16442,7 +16442,7 @@
                 "kind": "TypeNominal",
                 "name": "HttpStatusCodeRange",
                 "printedName": "Sentry.HttpStatusCodeRange",
-                "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange"
+                "usr": "c:objc(cs)SentryHttpStatusCodeRange"
               },
               {
                 "kind": "TypeNominal",
@@ -16458,17 +16458,17 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry19HttpStatusCodeRangeC3min3maxACSi_Sitcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithMin:max:",
             "printedName": "init(min:max:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange(im)initWithMin:max:"
+            "usr": "c:objc(cs)SentryHttpStatusCodeRange(im)initWithMin:max:"
           },
           {
             "children": [
@@ -16476,7 +16476,7 @@
                 "kind": "TypeNominal",
                 "name": "HttpStatusCodeRange",
                 "printedName": "Sentry.HttpStatusCodeRange",
-                "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange"
+                "usr": "c:objc(cs)SentryHttpStatusCodeRange"
               },
               {
                 "kind": "TypeNominal",
@@ -16486,17 +16486,17 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry19HttpStatusCodeRangeC06statusD0ACSi_tcfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "initWithStatusCode:",
             "printedName": "init(statusCode:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange(im)initWithStatusCode:"
+            "usr": "c:objc(cs)SentryHttpStatusCodeRange(im)initWithStatusCode:"
           },
           {
             "accessors": [
@@ -16511,16 +16511,18 @@
                   }
                 ],
                 "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry19HttpStatusCodeRangeC3maxSivg",
                 "moduleName": "Sentry",
                 "name": "Get",
+                "objc_name": "max",
                 "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange(im)max"
+                "usr": "c:objc(cs)SentryHttpStatusCodeRange(im)max"
               }
             ],
             "children": [
@@ -16532,16 +16534,17 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry19HttpStatusCodeRangeC3maxSivp",
             "moduleName": "Sentry",
             "name": "max",
+            "objc_name": "max",
             "printedName": "max",
-            "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange(py)max"
+            "usr": "c:objc(cs)SentryHttpStatusCodeRange(py)max"
           },
           {
             "accessors": [
@@ -16556,16 +16559,18 @@
                   }
                 ],
                 "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
                 "isOpen": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry19HttpStatusCodeRangeC3minSivg",
                 "moduleName": "Sentry",
                 "name": "Get",
+                "objc_name": "min",
                 "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange(im)min"
+                "usr": "c:objc(cs)SentryHttpStatusCodeRange(im)min"
               }
             ],
             "children": [
@@ -16577,16 +16582,17 @@
               }
             ],
             "declAttributes": [
+              "Dynamic",
               "ObjC"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry19HttpStatusCodeRangeC3minSivp",
             "moduleName": "Sentry",
             "name": "min",
+            "objc_name": "min",
             "printedName": "min",
-            "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange(py)min"
+            "usr": "c:objc(cs)SentryHttpStatusCodeRange(py)min"
           }
         ],
         "conformances": [
@@ -16647,12 +16653,13 @@
           }
         ],
         "declAttributes": [
+          "Dynamic",
           "ObjC"
         ],
         "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
-        "mangledName": "$s6Sentry19HttpStatusCodeRangeC",
         "moduleName": "Sentry",
         "name": "HttpStatusCodeRange",
         "objc_name": "SentryHttpStatusCodeRange",
@@ -16661,7 +16668,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange"
+        "usr": "c:objc(cs)SentryHttpStatusCodeRange"
       },
       {
         "children": [
@@ -26345,7 +26352,7 @@
                         "kind": "TypeNominal",
                         "name": "HttpStatusCodeRange",
                         "printedName": "Sentry.HttpStatusCodeRange",
-                        "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange"
+                        "usr": "c:objc(cs)SentryHttpStatusCodeRange"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -26361,7 +26368,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC24failedRequestStatusCodesSayAA04HttpE9CodeRangeCGvg",
+                "mangledName": "$s6Sentry7OptionsC24failedRequestStatusCodesSaySo0a4HttpE9CodeRangeCGvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -26376,7 +26383,7 @@
                         "kind": "TypeNominal",
                         "name": "HttpStatusCodeRange",
                         "printedName": "Sentry.HttpStatusCodeRange",
-                        "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange"
+                        "usr": "c:objc(cs)SentryHttpStatusCodeRange"
                       }
                     ],
                     "kind": "TypeNominal",
@@ -26397,7 +26404,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC24failedRequestStatusCodesSayAA04HttpE9CodeRangeCGvs",
+                "mangledName": "$s6Sentry7OptionsC24failedRequestStatusCodesSaySo0a4HttpE9CodeRangeCGvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -26411,7 +26418,7 @@
                     "kind": "TypeNominal",
                     "name": "HttpStatusCodeRange",
                     "printedName": "Sentry.HttpStatusCodeRange",
-                    "usr": "c:@M@Sentry@objc(cs)SentryHttpStatusCodeRange"
+                    "usr": "c:objc(cs)SentryHttpStatusCodeRange"
                   }
                 ],
                 "kind": "TypeNominal",
@@ -26428,7 +26435,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC24failedRequestStatusCodesSayAA04HttpE9CodeRangeCGvp",
+            "mangledName": "$s6Sentry7OptionsC24failedRequestStatusCodesSaySo0a4HttpE9CodeRangeCGvp",
             "moduleName": "Sentry",
             "name": "failedRequestStatusCodes",
             "printedName": "failedRequestStatusCodes",
