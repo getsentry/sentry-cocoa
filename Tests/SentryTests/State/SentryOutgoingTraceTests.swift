@@ -42,7 +42,7 @@ final class SentryOutgoingTraceTests: XCTestCase {
             transactionContext: TransactionContext(name: "transaction", operation: "ui.load", sampled: .yes, sampleRate: nil, sampleRand: nil),
             hub: hub
         )
-        scope.span = tracer
+        scope.span = sentrySpan(from: tracer)
 
         // -- Act --
         let trace = SentryOutgoingTrace.current(scope: scope, options: options)

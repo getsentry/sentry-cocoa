@@ -4,7 +4,7 @@
 
 #    import "SentryDateUtils.h"
 #    import "SentryLogC.h"
-#    import "SentrySpanProtocol.h"
+#    import "SentrySwift.h"
 
 @implementation SentryAppStartTypeToString
 + (NSString *)convert:(SentryAppStartType)type
@@ -36,7 +36,8 @@
 
 - (NSTimeInterval)effectiveDuration
 {
-    NSDate *extendedEnd = self.extendedAppStartSpan.timestamp;
+    id<SentrySpan> extendedSpan = (id<SentrySpan>)self.extendedAppStartSpan;
+    NSDate *extendedEnd = extendedSpan.timestamp;
     if (extendedEnd != nil) {
         return [extendedEnd timeIntervalSinceDate:_appStartTimestamp];
     }

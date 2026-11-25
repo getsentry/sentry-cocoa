@@ -264,7 +264,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         #endif
         defer { span.finish() }
         let currentScope = SentrySDK.internal.scope.createScope()
-        currentScope.span = span
+        currentScope.span = sentrySpan(from: span)
         XCTAssertNil(span.tracer)
         XCTAssertNotEqual(span.traceId, SentrySDKInternal.currentHub().scope.propagationContextTraceId)
 
@@ -285,7 +285,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
     func testWithCurrentScope_whenSpanHasNoTracer_shouldNotInheritUnrelatedTransactionName() throws {
         // -- Arrange --
         let transaction = SentryTracer(transactionContext: TransactionContext(name: "hub transaction", operation: "test"), hub: nil)
-        SentrySDKInternal.currentHub().scope.span = transaction
+        SentrySDKInternal.currentHub().scope.span = sentrySpan(from: transaction)
         let context = SpanContext(operation: "test")
         #if os(iOS) || os(tvOS) || os(visionOS)
         let span = SentrySpanInternal(context: context, framesTracker: nil)
@@ -297,7 +297,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
             transaction.finish()
         }
         let currentScope = SentrySDK.internal.scope.createScope()
-        currentScope.span = span
+        currentScope.span = sentrySpan(from: span)
         XCTAssertNil(span.tracer)
         XCTAssertNotEqual(span.traceId, transaction.traceId)
 

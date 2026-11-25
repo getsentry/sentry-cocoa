@@ -130,7 +130,7 @@ static BOOL sdkStarted;
     SentryDependencyContainer.sharedInstance.startOptions = options;
 }
 
-+ (nullable id<SentrySpan>)span
++ (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySpan))span
 {
     // Snapshot under currentHubLock so ARC retains the hub before close() can nil the static
     // and free it; an unsynchronized read races with close() (use-after-free, see #8316).
@@ -430,47 +430,51 @@ static BOOL sdkStarted;
     return [SentrySDKInternal.currentHub captureEvent:event withScope:scope];
 }
 
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
++ (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithName:(NSString *)name
+                                                        operation:(NSString *)operation
 {
     return [SentrySDKInternal.currentHub startTransactionWithName:name operation:operation];
 }
 
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
++ (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithName:(NSString *)name
+                                                        operation:(NSString *)operation
+                                                      bindToScope:(BOOL)bindToScope
 {
     return [SentrySDKInternal.currentHub startTransactionWithName:name
                                                         operation:operation
                                                       bindToScope:bindToScope];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
++ (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithContext:
+    (SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext))transactionContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
-                                  bindToScope:(BOOL)bindToScope
++ (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithContext:
+                                             (SENTRY_SWIFT_MIGRATION_ID(
+                                                 SentryTransactionContext))transactionContext
+                                                         bindToScope:(BOOL)bindToScope
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
                                                          bindToScope:bindToScope];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
++ (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:
+                    (SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext))transactionContext
+                                bindToScope:(BOOL)bindToScope
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
                                                          bindToScope:bindToScope
                                                customSamplingContext:customSamplingContext];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
++ (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:
+                    (SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext))transactionContext
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
                                                customSamplingContext:customSamplingContext];

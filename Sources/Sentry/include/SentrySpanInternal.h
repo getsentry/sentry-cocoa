@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryInternalSerializable.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // This class used to be named SentrySpan, but it was renamed to SentrySpanInternal to avoid
 // confusion with the public SentrySpan protocol.
-@interface SentrySpanInternal : NSObject <SentrySpan, SentryInternalSerializable>
+@interface SentrySpanInternal : NSObject <SentryInternalSerializable>
 SENTRY_NO_INIT
 
 /**
@@ -82,6 +81,24 @@ SENTRY_NO_INIT
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
+
+/**
+ * Finishes the span. Declared here because this header cannot import the Swift Span protocol,
+ * and Objective-C callers invoke these selectors directly. Hidden from Swift so they do not
+ * duplicate the protocol methods.
+ */
+- (void)finish NS_SWIFT_UNAVAILABLE("Use Span.finish()");
+- (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_UNAVAILABLE("Use Span.finish(status:)");
+
+/**
+ * An arbitrary mapping of additional metadata of the span.
+ */
+@property (readonly) NSDictionary<NSString *, id> *data;
+
+/**
+ * Key-value pairs holding additional data about the span.
+ */
+@property (readonly) NSDictionary<NSString *, NSString *> *tags;
 
 /**
  * The Transaction this span is associated with.

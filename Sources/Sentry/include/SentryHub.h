@@ -5,8 +5,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySpanProtocol)
-
 @class SentryBreadcrumb;
 @class SentryClientInternal;
 @class SentryEvent;
@@ -64,9 +62,9 @@ SENTRY_NO_INIT
  * @param operation Short code identifying the type of operation the span is measuring.
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-    NS_SWIFT_NAME(startTransaction(name:operation:));
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithName:(NSString *)name
+                                                        operation:(NSString *)operation
+    NS_SWIFT_NAME(startTransactionObject(name:operation:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -75,19 +73,19 @@ SENTRY_NO_INIT
  * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
-    NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithName:(NSString *)name
+                                                        operation:(NSString *)operation
+                                                      bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransactionObject(name:operation:bindToScope:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
  * @param transactionContext The transaction context.
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithContext:
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithContext:
     (SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext))transactionContext
-    NS_SWIFT_NAME(startTransaction(transactionContext:));
+    NS_SWIFT_NAME(startTransactionObject(transactionContext:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -95,10 +93,11 @@ SENTRY_NO_INIT
  * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
-                                  bindToScope:(BOOL)bindToScope
-    NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:));
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startTransactionWithContext:
+                                             (SENTRY_SWIFT_MIGRATION_ID(
+                                                 SentryTransactionContext))transactionContext
+                                                         bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransactionObject(transactionContext:bindToScope:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -107,11 +106,12 @@ SENTRY_NO_INIT
  * @param customSamplingContext Additional information about the sampling context.
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-    NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:customSamplingContext:));
+- (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:
+                    (SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext))transactionContext
+                                bindToScope:(BOOL)bindToScope
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransactionObject(transactionContext:bindToScope:customSamplingContext:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -119,10 +119,11 @@ SENTRY_NO_INIT
  * @param customSamplingContext Additional information about the sampling context.
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                                  SentryTransactionContext))transactionContext
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-    NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
+- (SENTRY_SWIFT_MIGRATION_ID(
+    SentrySpan))startTransactionWithContext:
+                    (SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext))transactionContext
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransactionObject(transactionContext:customSamplingContext:));
 
 /**
  * Captures an error event and sends it to Sentry.

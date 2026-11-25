@@ -280,7 +280,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         tracer.finish()
 
-        fixture.scope.span = tracer
+        fixture.scope.span = sentrySpan(from: tracer)
 
         sut.urlSessionTaskResume(task)
 
@@ -294,7 +294,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
                                   hub: nil, configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
-        fixture.scope.span = tracer
+        fixture.scope.span = sentrySpan(from: tracer)
 
         sut.urlSessionTaskResume(task)
         tracer.finish()
@@ -309,7 +309,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
 
         try assertSpanDuration(span: span, expectedDuration: 5)
-        try assertSpanDuration(span: tracer, expectedDuration: 5)
+        try assertSpanDuration(span: sentrySpan(from: tracer), expectedDuration: 5)
     }
 
     func testCaptureCancelledRequest() throws {

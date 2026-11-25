@@ -617,12 +617,12 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             networkSpan = try XCTUnwrap(
                 children.first {
                     $0.toTraceHeader().value() == responseTraceHeader
-                },
+                }.flatMap { $0 as? Span },
                 file: file,
                 line: line
             )
         } else {
-            networkSpan = try XCTUnwrap(children.first, file: file, line: line)
+            networkSpan = try XCTUnwrap(children.first.flatMap { $0 as? Span }, file: file, line: line)
             XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)", file: file, line: line)
         }
         XCTAssertTrue(networkSpan.isFinished, file: file, line: line)
@@ -724,12 +724,12 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             networkSpan = try XCTUnwrap(
                 transaction.children.first {
                     $0.toTraceHeader().value() == responseTraceHeader
-                },
+                }.flatMap { $0 as? Span },
                 file: file,
                 line: line
             )
         } else {
-            networkSpan = try XCTUnwrap(transaction.children.first, file: file, line: line)
+            networkSpan = try XCTUnwrap(transaction.children.first.flatMap { $0 as? Span }, file: file, line: line)
             XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)", file: file, line: line)
         }
         XCTAssertTrue(networkSpan.isFinished, file: file, line: line)

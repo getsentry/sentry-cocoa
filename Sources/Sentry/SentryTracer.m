@@ -13,6 +13,7 @@
 #import "SentrySpanContext.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanId.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
@@ -321,7 +322,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
     if (self.delegate) {
         @synchronized(_children) {
-            span = [self.delegate getActiveSpan];
+            span = (id<SentrySpan>)[self.delegate getActiveSpan];
             // The root is never in _children. Avoid scanning the growing array for every
             // sibling span when the delegate keeps the root active.
             if (span == nil || span == self || ![_children containsObject:span]) {
@@ -356,9 +357,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     return [activeSpan startChildWithOperation:operation description:description];
 }
 
-- (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
-                               operation:(NSString *)operation
-                             description:(nullable NSString *)description
+- (SENTRY_SWIFT_MIGRATION_ID(SentrySpan))startChildWithParentId:(SentrySpanId *)parentId
+                                                      operation:(NSString *)operation
+                                                    description:(nullable NSString *)description
 {
     [self cancelIdleTimeout];
 
@@ -394,14 +395,14 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     return child;
 }
 
-- (void)spanFinished:(id<SentrySpan>)finishedSpan
+- (void)spanFinished:(SENTRY_SWIFT_MIGRATION_ID(SentrySpan))finishedSpan
 {
-    SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.spanId.sentrySpanIdString);
+    id<SentrySpan> span = finishedSpan;
+    SENTRY_LOG_DEBUG(@"Finished span %@", span.spanId.sentrySpanIdString);
     // Calling canBeFinished on self would end up in an endless loop because canBeFinished
     // calls finish again.
-    if (finishedSpan == self) {
-        SENTRY_LOG_DEBUG(
-            @"Cannot call finish on span with id %@", finishedSpan.spanId.sentrySpanIdString);
+    if (span == self) {
+        SENTRY_LOG_DEBUG(@"Cannot call finish on span with id %@", span.spanId.sentrySpanIdString);
         return;
     }
 
@@ -426,10 +427,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     return _traceContext;
 }
 
-- (NSArray<id<SentrySpan>> *)children
+- (NSArray<SentrySpanInternal *> *)children
 {
     @synchronized(_children) {
-        return [_children copy];
+        return (NSArray<SentrySpanInternal *> *)[_children copy];
     }
 }
 
@@ -906,7 +907,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 #endif // SENTRY_HAS_UIKIT
 
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan> _Nullable)span
++ (nullable SentryTracer *)getTracer:(SENTRY_SWIFT_MIGRATION_ID(SentrySpan)_Nullable)span
 {
     if (span == nil) {
         return nil;

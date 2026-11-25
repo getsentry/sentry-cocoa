@@ -2,6 +2,7 @@
 #import "SentryInternalSerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceHeader.h"
 

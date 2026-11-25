@@ -63,16 +63,16 @@ SENTRY_NO_INIT
 
 // MARK: - Internal Methods available for Swift Extension
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                                origin:(NSString *)origin
-                             operation:(NSString *)operation
-                  processDirectoryPath:(NSString *)processDirectoryPath;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySpan))spanForPath:(NSString *)path
+                                                       origin:(NSString *)origin
+                                                    operation:(NSString *)operation
+                                         processDirectoryPath:(NSString *)processDirectoryPath;
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                                origin:(NSString *)origin
-                             operation:(NSString *)operation
-                  processDirectoryPath:(NSString *)processDirectoryPath
-                                  size:(NSUInteger)size;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySpan))spanForPath:(NSString *)path
+                                                       origin:(NSString *)origin
+                                                    operation:(NSString *)operation
+                                         processDirectoryPath:(NSString *)processDirectoryPath
+                                                         size:(NSUInteger)size;
 
 @end
 
