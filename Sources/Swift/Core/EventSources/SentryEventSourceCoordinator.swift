@@ -145,11 +145,17 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink {
     /// Sends the held report as it is, when there is one.
     func sendHeldReport(because reason: String) {
         heldReportLock.withLock {
-            sendHeldReportLocked(ofRun: nil, because: reason)
+            _ = sendHeldReportLocked(ofRun: nil, because: reason)
         }
     }
 
     // MARK: - Holding
+
+    private enum HoldOutcome {
+        case held
+        case earlierReportStillHeld
+        case notStored
+    }
 
     /// Holds the report when an orchestrator holds its source, and returns the result for the source.
     private func hold(_ report: SentryEventSourceReport, beforeAccepting: () -> Bool) -> SentryEventSourceSubmissionResult? {
@@ -162,17 +168,28 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink {
         guard beforeAccepting() else {
             return .withdrawn
         }
-        let isStored = heldReportLock.withLock {
+        let outcome: HoldOutcome = heldReportLock.withLock {
             // The sources that are held report once per launch, so a report still held here
             // belongs to an earlier run and can't wait for its diagnostic any longer.
-            sendHeldReportLocked(ofRun: nil, because: "another report is held")
-            let isStored = store.storeTakingCrashedSession(SentryHeldFatalReport(runId: runId, source: report.source, event: report.event))
-            if isStored {
-                runHeldSinceLaunch.withLock { $0 = runId }
+            guard sendHeldReportLocked(ofRun: nil, because: "another report is held") else {
+                return .earlierReportStillHeld
             }
-            return isStored
+            guard store.storeTakingCrashedSession(SentryHeldFatalReport(runId: runId, source: report.source, event: report.event)) else {
+                return .notStored
+            }
+            runHeldSinceLaunch.withLock { $0 = runId }
+            return .held
         }
-        guard isStored else {
+        switch outcome {
+        case .held:
+            break
+        case .earlierReportStillHeld:
+            // Only one report is held, and storing this one would delete the earlier one, which
+            // the SDK couldn't take. So this one isn't held and goes on like a report of a
+            // source that isn't held, and the earlier one stays for the next time it can be sent.
+            SentrySDKLog.warning("The \(report.source.rawValue) report for run \(runId) isn't held, because an earlier held report couldn't be sent")
+            return forward(report) { true }
+        case .notStored:
             // A report that isn't on disk can't be sent at its deadline, so it is sent now, as it
             // is without a hold. The source already agreed to hand it over, and the crashed
             // session is still in its place for it.
@@ -182,7 +199,7 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink {
         SentrySDKLog.debug("Holding the \(report.source.rawValue) report for run \(runId) for \(duration) seconds")
         dispatchQueueWrapper.dispatch(after: duration) { [weak self] in
             self?.heldReportLock.withLock {
-                self?.sendHeldReportLocked(ofRun: runId, because: "its deadline passed")
+                _ = self?.sendHeldReportLocked(ofRun: runId, because: "its deadline passed")
             }
         }
         return .accepted
@@ -218,20 +235,24 @@ final class SentryEventSourceCoordinator: SentryEventSourceSink {
 
     /// Sends the held report when there is one and, with a run ID given, when it belongs to that
     /// run. The report stays held when the downstream sink can't take it.
-    private func sendHeldReportLocked(ofRun runId: SentryCurrentRun.ID?, because reason: String) {
+    ///
+    /// - Returns: Whether no report is held anymore, so another one can be stored.
+    @discardableResult
+    private func sendHeldReportLocked(ofRun runId: SentryCurrentRun.ID?, because reason: String) -> Bool {
         guard let store = heldFatalReportStore, let held = store.read() else {
-            return
+            return true
         }
         if let runId, held.runId != runId {
-            return
+            return false
         }
         let result = downstream.submit(held.report) { true }
         SentrySDKLog.debug("Held \(held.source.rawValue) report for run \(held.runId) was sent because \(reason) and \(result.logDescription)")
         guard result == .accepted else {
-            return
+            return false
         }
         store.delete()
         recordFatalRun(held.runId, reportedBy: held.source)
+        return true
     }
 
     private func observeBackground() {

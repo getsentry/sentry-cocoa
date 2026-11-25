@@ -542,6 +542,43 @@ final class SentryEventSourceCoordinatorTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(heldReportStore.read()).runId, SentryCurrentRun.ID(rawValue: "run-2"))
     }
 
+    func testSubmit_whenAHeldReportCantBeSent_shouldKeepItAndNotHoldTheNewOne() throws {
+        // -- Arrange --
+        let sut = givenSut()
+        sut.use([.watchdogTerminationAwaitingMetricKit])
+        let event = Event(level: .fatal)
+        event.tags = ["held": "first"]
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1", event: event))
+        downstream.isAvailable = false
+
+        // -- Act --
+        let result = sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-2"))
+
+        // -- Assert --
+        XCTAssertEqual(result, .unavailable, "The new report is handed on like one that isn't held")
+        let held = try XCTUnwrap(heldReportStore.read())
+        XCTAssertEqual(held.runId, SentryCurrentRun.ID(rawValue: "run-1"))
+        XCTAssertEqual(held.event.tags, ["held": "first"])
+    }
+
+    func testSubmit_whenAHeldReportCantBeSent_shouldSendItOnceDownstreamIsAvailable() throws {
+        // -- Arrange --
+        let sut = givenSut()
+        sut.use([.watchdogTerminationAwaitingMetricKit])
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-1"))
+        downstream.isAvailable = false
+        sut.submit(givenFatalReport(source: .watchdogTermination, runId: "run-2"))
+        downstream.isAvailable = true
+
+        // -- Act --
+        sut.sendHeldReport(because: "test")
+
+        // -- Assert --
+        XCTAssertEqual(downstream.submittedReports.count, 1)
+        XCTAssertEqual(try XCTUnwrap(downstream.submittedReports.first).runId, SentryCurrentRun.ID(rawValue: "run-1"))
+        XCTAssertNil(heldReportStore.read())
+    }
+
     // MARK: - Sending held reports
 
     func testDeadline_whenItPasses_shouldSendHeldReportUnchangedAndRecordRun() throws {
