@@ -23,6 +23,8 @@
 - Skip Objective-C descriptor conformance checks for view controllers without a custom screen-name getter, avoiding potentially slow protocol walks on the main thread (#9738)
 - Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
 - Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
+- Fix the `EXC_GUARD` crash in `SentrySDK.start` in apps that enable the Enhanced Security capability with additional runtime platform restrictions, by registering the Mach exception handler with the identity-protected exception behavior (#9705)
+  - This changes the Mach exception message format for every app, not only apps with Enhanced Security. A crash handler installed after the SDK that forwards Mach exceptions to it by building the message itself must support `mach_exception_raise_identity_protected`; otherwise the SDK reports the crash through its signal handler instead of its Mach exception handler.
 
 ### Internal
 
