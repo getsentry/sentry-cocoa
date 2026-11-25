@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryTraceHeader;
 @class SentryTracer;
 @class SentryTracerConfiguration;
+@class SentryTransactionContext;
 
 @protocol SentrySpan;
 
@@ -35,8 +36,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 @interface SentryTracer : SentrySpanInternal
 
-@property (nonatomic, strong) SENTRY_SWIFT_MIGRATION_ID(SentryTransactionContext)
-    transactionContext NS_SWIFT_NAME(transactionContextObject);
+@property (nonatomic, strong) SentryTransactionContext *transactionContext;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
@@ -59,8 +59,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
  */
-- (instancetype)initWithTransactionContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                               SentryTransactionContext))transactionContext
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHubInternal *)hub;
 
 /**
@@ -72,8 +71,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  *
  * @return SentryTracer
  */
-- (instancetype)initWithTransactionContext:(SENTRY_SWIFT_MIGRATION_ID(
-                                               SentryTransactionContext))transactionContext
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHubInternal *)hub
                              configuration:(SENTRY_SWIFT_MIGRATION_ID(
                                                SentryTracerConfiguration))configuration;
