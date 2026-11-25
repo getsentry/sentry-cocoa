@@ -101,6 +101,7 @@
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryURLRequestWrapper.h"
