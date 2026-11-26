@@ -34,6 +34,7 @@
 
 #if defined(DEBUG) // Test support.
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
+@property (nullable, nonatomic, copy) void (^flushWaitFinishedCallback)(void);
 #endif // defined(DEBUG)
 
 /**
@@ -182,6 +183,13 @@
 {
     _startFlushCallback = callback;
 }
+
+- (void)setFlushWaitFinishedCallback:(nullable void (^)(void))callback
+{
+    @synchronized(self) {
+        _flushWaitFinishedCallback = [callback copy];
+    }
+}
 #endif // defined(DEBUG)
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
@@ -224,6 +232,16 @@
     }];
 
     intptr_t result = dispatch_group_wait(flushGroup, dispatchTimeout);
+
+#if defined(DEBUG) // Test support.
+    void (^flushWaitFinishedCallback)(void);
+    @synchronized(self) {
+        flushWaitFinishedCallback = self.flushWaitFinishedCallback;
+    }
+    if (flushWaitFinishedCallback != nil) {
+        flushWaitFinishedCallback();
+    }
+#endif // defined(DEBUG)
 
     // Every `dispatch_group_enter` must have a corresponding `dispatch_group_leave`. If no drain
     // ended this flush, leave the group here. This never ends a later flush.
