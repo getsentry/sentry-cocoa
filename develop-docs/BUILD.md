@@ -23,9 +23,7 @@ There are two build configurations they can use for this: `DebugWithoutUIKit` an
 - They set `CLANG_MODULES_AUTOLINK` to `NO`. This avoids a load command being automatically inserted for any UIKit API that make their way into the type system during compilation of SDK sources.
 - `GCC_PREPROCESSOR_DEFINITIONS` has an additional setting `SENTRY_NO_UI_FRAMEWORK=1`. This is now part of the definition of `SENTRY_HAS_UIKIT` in `SentryDefines.h` that is used to conditionally compile out any code that would otherwise use UIKit API and cause UIKit to be automatically linked as described above. There is another macro `SENTRY_UIKIT_AVAILABLE` defined as `SENTRY_HAS_UIKIT` used to be, meaning simply that compilation is targeting a platform where UIKit is available to be used. This is used in headers we deliver in the framework bundle to compile out declarations that rely on UIKit, and their corresponding implementations are switched over `SENTRY_HAS_UIKIT` to either provide the logic for configurations that link UIKit, or to provide a stub delivering a default value (`nil`, `0.0`, `NO` etc) and a warning log for publicly facing things like SentryOptions, or debug log for internal things like SentryDependencyContainer.
 
-There are two jobs in `.github/workflows/build.yml` that will build each of the new configs and use `otool -L` to ensure that UIKit does not appear as a load command in the build products.
-
-This feature is experimental and is currently not compatible with SPM.
+SwiftPM consumers use the `NoUIFramework` trait. The [Build workflow](../.github/workflows/build.yml) builds and tests the V10 macOS CLI with that trait and verifies that its executable links neither AppKit nor UIKit.
 
 ## Build System Commands
 
@@ -91,7 +89,7 @@ Both builds declare the Swift sampler callback alias. SwiftPM packaging reuses X
 
 - Uses pre-built binaries for faster builds and mixed-language limitations
 - Binary distribution via git release assets
-- Not compatible with UIKit-free configurations
+- Use the `NoUIFramework` trait for source builds without UIKit/AppKit linkage
 
 ## Temporary V10 Development Verification
 
