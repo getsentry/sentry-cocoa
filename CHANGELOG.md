@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.36.0
 
 > [!TIP]
 > Try the new experimental option `options.experimental.enableUIUpdateLinkFramesTracking`. On iOS 18, tvOS 18 and visionOS 2 and later, it tracks frames without waking up your idle app for every frame, which reduces the impact of the SDK on the performance of your app. The option is disabled by default, so set it to `true` to opt in.
