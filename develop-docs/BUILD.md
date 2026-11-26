@@ -68,13 +68,16 @@ The [Release workflow](../.github/workflows/release.yml) runs macOS V9/V10 packa
 
 ## Public API Generation
 
-`make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It updates the existing Xcode-framework and ObjC-wrapper snapshots and adds only `sdk_api_spm.json` and `sdk_api_v10_spm.json` from the [SPM-built frameworks](#spm-built-sdk-frameworks).
+> [!NOTE]
+> The public API snapshots, including `sdk_api.json`, track SDK v10. SDK v9 is being removed incrementally and is no longer covered by API stability checks.
+
+`make generate-public-api` runs [`update-api.sh`](../scripts/update-api.sh) with Xcode 16. It generates API snapshots: `sdk_api.json` for the Xcode framework, `sdk_api_spm.json` for the [SPM-built framework](#spm-built-sdk-frameworks), and `sdk_api_objc.json` and `sdk_api_objc.diff.json` for the ObjC wrappers and their drift.
 
 The [API stability workflow](../.github/workflows/api-stability.yml) runs the same target and fails if a checked-in snapshot differs from the regenerated API.
 
-Both the Xcode and SwiftPM paths build iPhoneOS XCFrameworks, then use the same extractor on their packaged `Sentry` framework slices. SwiftPM artifacts are built in `DerivedData/API-SPM` and `DerivedData/API-SPM-V10`. Private SPI interfaces are removed before analysis. The complete generated JSON snapshots are the source of truth: for each generation, the command fails if the SwiftPM snapshot differs from its Xcode counterpart, including imports, attributes, and nested signatures.
+Both the Xcode and SwiftPM paths build iPhoneOS XCFrameworks, then use the same extractor on their packaged `Sentry` framework slices. SwiftPM artifacts are built in `DerivedData/API-SPM-V10`. Private SPI interfaces are removed before analysis. The complete generated JSON snapshots are the source of truth: the command fails if the SwiftPM snapshot differs from its Xcode counterpart, including imports, attributes, and nested signatures.
 
-Both builds declare the Swift sampler callback alias, and the V9 crash callback belongs to the main SDK module. The source-only `SentryCrashV9Swift` adapter retains its old Swift entry point as a deprecated forwarder; the main SDK remains the sole owner of the C callback symbol. SwiftPM packaging reuses Xcode's `Sentry.h` umbrella and resolves V10 header conditionals with `unifdef`, matching `SentryV10.xcconfig`, without exposing configuration macros or extra public submodules.
+Both builds declare the Swift sampler callback alias. SwiftPM packaging reuses Xcode's `Sentry.h` umbrella and resolves header conditionals with `unifdef`, matching `SentryV10.xcconfig`, without exposing configuration macros or extra public submodules.
 
 ## Platform-Specific Build Notes
 
