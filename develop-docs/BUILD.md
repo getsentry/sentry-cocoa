@@ -108,7 +108,7 @@ Use `SDK_V10=1` for V10 compiler settings, KSCrash dependencies, and the `Sentry
 
 For ordinary source builds, shared SDK and test code imports `SentrySwift` under `#if SWIFT_PACKAGE && !SDK_V10` and `Sentry` otherwise. The packaging-only mode above also selects `Sentry`, using explicit `SENTRY_BUILD_XCFRAMEWORK` compiler conditions for internal imports. Do not use `canImport` to select a version or module name: cached modules can survive mode switches.
 
-`make switch-v10`, `make build-testapp-v10-*`, and `make test-testapp-v10-macOS-CLI-Xcode` export the environment for generation and building. The generator selects the source product and sets app-target compiler definitions. Direct generator or Xcode invocations also need `SDK_V10=1`.
+Source-based test apps use V10 product references and app compiler definitions in their checked-in XcodeGen specs. The build and test commands for these apps set `SDK_V10=1` for SwiftPM. Project generation does not require this environment setting. Use `make xcode` to generate projects and open Xcode with the V10 package graph. Direct Xcode invocations also need `SDK_V10=1`. Binary-distribution validation and CrashE2E retain their separate generation coverage.
 
 ### 1. Test the verification scripts
 
@@ -118,10 +118,7 @@ Run their regression tests before using the verifiers on your checkout:
 ./scripts/test-v10-compiler-log.sh
 ./scripts/test-v10-empty-objects.sh
 ./scripts/test-v10-sentryobjc-slice-inventory.sh
-./scripts/test-v10-development-selection.sh
 ```
-
-The development-selection test exercises the real Make recipes and YAML patchers with stubbed Xcode commands; it does not build apps or close Xcode. It verifies environment propagation, source product names, and app compiler definitions.
 
 ### 2. Check source ownership
 

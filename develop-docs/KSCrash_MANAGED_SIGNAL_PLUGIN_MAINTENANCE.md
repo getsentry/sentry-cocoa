@@ -38,9 +38,10 @@ tests.
 ## Source synchronization rules
 
 The current dependency is the getsentry KSCrash fork at revision
-`e41302af9fbcf4d9cc6cc95933cb989a90941d37`: upstream `2.6.1` plus the
+`8b16841820e05e12c87f5298c231ce5bf740bd4a`: upstream `2.6.1` plus the
 [C++ terminate deadlock fix](https://github.com/kstenerud/KSCrash/pull/979)
-and unmap-safe runtime binary-image extraction.
+and unmap-safe runtime binary-image extraction, live C++ throw-stack capture,
+and C++ module import fixes.
 These changes do not alter the Signal-monitor implementation or supporting API.
 
 The Signal-monitor synchronization baseline remains upstream KSCrash `2.6.1`, revision
