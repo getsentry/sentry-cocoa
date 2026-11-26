@@ -7,9 +7,9 @@
 _Bad software is everywhere, and we're tired of it. Sentry is on a mission to help developers write better software faster, so we can get back to enjoying technology. If you want to join us [<kbd>**Check out our open positions**</kbd>](https://sentry.io/careers/)_
 
 > [!NOTE]
-> You are currently viewing the **`main`** branch which latest development version of **v9** release.
+> You are currently viewing the **`v9.x`** branch which contains the latest **v9** release.
 >
-> For the latest **v8** release, please switch to the [`v8.x` branch](https://github.com/getsentry/sentry-cocoa/tree/v8.x) and refer to the [v8 CHANGELOG](https://github.com/getsentry/sentry-cocoa/blob/v8.x/CHANGELOG.md).
+> For the upcoming **v10** release, please switch to the [`main` branch](https://github.com/getsentry/sentry-cocoa/tree/main) and refer to the [v10 CHANGELOG](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG_V10.md).
 
 # Official Sentry SDK for iOS / iPadOS / tvOS / macOS / watchOS <sup>(1)</sup> / visionOS
 
