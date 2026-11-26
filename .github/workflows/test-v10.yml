@@ -148,6 +148,9 @@ jobs:
           esac
           echo "make-target=$target" >> "$GITHUB_OUTPUT"
 
+      - name: Test coverage tooling
+        run: python3 scripts/test-package-test-coverage.py
+
       - name: Run V10 tests
         env:
           MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}

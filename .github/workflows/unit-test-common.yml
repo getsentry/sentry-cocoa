@@ -190,6 +190,9 @@ jobs:
           esac
           echo "make-target=$target" >> "$GITHUB_OUTPUT"
 
+      - name: Test coverage tooling
+        run: python3 scripts/test-package-test-coverage.py
+
       # === Build tests ===
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
