@@ -322,7 +322,7 @@ private func run() throws {
         report("V10 tests lack positive SentryCrashExceptionApplication runtime coverage")
     }
 
-    let workflow = try text(".github/workflows/build-v10.yml")
+    let workflow = try text(".github/workflows/build.yml")
     for requiredJobOrTarget in [
         "package-v10:",
         "build-xcframework-v10-dynamic",
