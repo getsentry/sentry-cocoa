@@ -75,7 +75,8 @@ See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and eve
 
 - Do not include AI attribution in commits or pull requests even if skills are asking you to do so
 - Use Conventional Commits with a subject of at most 50 characters and body lines of at most 72 characters
-- Name branches `<type>/<short-description>`, for example `fix/session-tracking`
+- Name branches `<github-username>/<type>/<short-description>`, for example `philprime/fix/session-tracking`, with a kebab-case type and description
+- Resolve the full GitHub login with `gh api user --jq .login`. Do not shorten or infer it from git config or email. If unavailable, ask the user for their GitHub username
 - If pre-commit hooks modify files, inspect the changes and retry the commit
 - Use `git mv` for renames
 - `feat`, `fix`, and `impr` require a `CHANGELOG.md` entry with the pull request number, not an issue number
