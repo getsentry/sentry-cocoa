@@ -377,6 +377,7 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   - "**/*.yml"
   - "**/*.yaml"
   - "**/*.json"
+  - "**/*.jsonc"
   - "**/*.md"
 
   # GH Actions
