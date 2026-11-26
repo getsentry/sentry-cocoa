@@ -1688,17 +1688,17 @@ test-testapp-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 # Get staged Swift files
 STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
 
-# Get staged Markdown, JSON, and YAML files
-STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|json|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
+# Get staged Markdown, JSON, JSONC, and YAML files
+STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|jsonc?|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged Markdown files
 STAGED_MARKDOWN_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.md$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged changelog files
-STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG(_V10)?\.md$$')
+STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG\.md$$')
 
-# Get staged JSON files
-STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.json$$' | awk '{printf "\"%s\" ", $$0}')
+# Get staged JSON and JSONC files
+STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.jsonc?$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged YAML files
 STAGED_YAML_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.ya?ml$$' | awk '{printf "\"%s\" ", $$0}')
@@ -1763,8 +1763,8 @@ lint:
 	"$(MAKE)" check-objc-standalone-extensions
 	@echo "[MAKE] $@: Linting Swift files with SwiftLint"
 	swiftlint --strict --quiet
-	@echo "[MAKE] $@: Running dprint check '**/*.{md,json,yaml,yml}'"
-	dprint check "**/*.{md,json,yaml,yml}"
+	@echo "[MAKE] $@: Running dprint check '**/*.{md,json,jsonc,yaml,yml}'"
+	dprint check "**/*.{md,json,jsonc,yaml,yml}"
 	@echo "[MAKE] $@: Running make check-changelog"
 	"$(MAKE)" check-changelog
 	@echo "[MAKE] $@: Linting GitHub Actions workflows with actionlint"
@@ -1876,17 +1876,17 @@ format-markdown-staged:
 		dprint fmt --allow-no-files $(STAGED_MARKDOWN_FILES); \
 	fi
 
-## Format JSON files
+## Format JSON and JSONC files
 #
-# Formats all JSON files using dprint.
+# Formats all JSON and JSONC files using dprint.
 .PHONY: format-json
 format-json:
-	@echo "[MAKE] $@: Running dprint fmt '**/*.json'"
-	dprint fmt "**/*.json"
+	@echo "[MAKE] $@: Running dprint fmt '**/*.{json,jsonc}'"
+	dprint fmt "**/*.{json,jsonc}"
 
-## Format staged JSON files
+## Format staged JSON and JSONC files
 #
-# Formats only staged JSON files using dprint.
+# Formats only staged JSON and JSONC files using dprint.
 .PHONY: format-json-staged
 format-json-staged:
 	@if [ -n "$(STAGED_JSON_FILES)" ]; then \
