@@ -309,6 +309,8 @@ targets += [
     .testTarget(
         name: "SentryTests",
         dependencies: [
+            .product(name: "Recording", package: "KSCrash"),
+            .product(name: "RecordingCore", package: "KSCrash"),
             .target(name: sentrySwiftTargetName), "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
             .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .visionOS]))
         ],
