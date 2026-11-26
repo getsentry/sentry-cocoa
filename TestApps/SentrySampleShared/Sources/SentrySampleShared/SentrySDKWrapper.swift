@@ -1,13 +1,7 @@
 // swiftlint:disable file_length function_body_length
 
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
-#if SDK_V10
 import SentryObjC
-#endif // SDK_V10
 
 #if !os(macOS)
 import UIKit
@@ -65,7 +59,6 @@ public struct SentrySDKWrapper {
     }
 
     public func configureDataCollection(_ options: Options) {
-#if SDK_V10
         options.dataCollection.userInfo = !SentrySDKOverrides.DataCollection.disableUserInfo.boolValue
         options.dataCollection.cookies = dataCollectionBehavior(
             mode: SentrySDKOverrides.DataCollection.cookiesMode.stringValue,
@@ -88,10 +81,8 @@ public struct SentrySDKWrapper {
             mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
             terms: SentrySDKOverrides.DataCollection.urlQueryParamsTerms.stringValue
         )
-#endif // SDK_V10
     }
 
-#if SDK_V10
     public func configureDataCollection(_ options: SentryObjCOptions) {
         options.dataCollection.userInfo = !SentrySDKOverrides.DataCollection.disableUserInfo.boolValue
         options.dataCollection.cookies = objcDataCollectionBehavior(
@@ -167,7 +158,6 @@ public struct SentrySDKWrapper {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty } ?? []
     }
-#endif // SDK_V10
 
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
@@ -192,7 +182,6 @@ public struct SentrySDKWrapper {
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.Replay.disable.boolValue {
-            #if SDK_V10
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: SentrySDKOverrides.Replay.sessionSampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.Replay.onErrorSampleRate.floatValue ?? 1,
@@ -200,17 +189,6 @@ public struct SentrySDKWrapper {
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
                 enableFastViewRendering: SentrySDKOverrides.Replay.enableFastViewRendering.boolValue
             )
-            #else
-            options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.Replay.sessionSampleRate.floatValue ?? 0,
-                onErrorSampleRate: SentrySDKOverrides.Replay.onErrorSampleRate.floatValue ?? 1,
-                maskAllText: !SentrySDKOverrides.Replay.disableMaskAllText.boolValue,
-                maskAllImages: !SentrySDKOverrides.Replay.disableMaskAllImages.boolValue,
-                enableViewRendererV2: !SentrySDKOverrides.Replay.disableViewRendererV2.boolValue,
-                // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
-                enableFastViewRendering: SentrySDKOverrides.Replay.enableFastViewRendering.boolValue
-            )
-            #endif // SDK_V10
 
             // Configure network detail capture for testing
             options.sessionReplay.networkDetailAllowUrls = [
@@ -243,7 +221,6 @@ public struct SentrySDKWrapper {
 
 #if !os(tvOS) && !os(watchOS)
         let enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
-#if SDK_V10
         if enableMetricKit {
             // Memory exceptions aren't captured by default, because watchdog termination tracking
             // reports them too. Capture both to compare them.
@@ -251,13 +228,6 @@ public struct SentrySDKWrapper {
         } else {
             options.experimental.metrickit.enabledDiagnosticReports = []
         }
-#else
-        if enableMetricKit {
-            // Unlike enableMetricKit, the report set also captures app launch and memory exception
-            // diagnostics.
-            options.experimental.metrickit.enabledDiagnosticReports = [.cpuException, .diskWriteException, .hang, .appLaunch, .memoryException]
-        }
-#endif // SDK_V10
         options.experimental.metrickit.enabledMetricReports = enableMetricKit ? .all : []
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         options.enableMetricKitRawPayload =
@@ -282,9 +252,6 @@ public struct SentrySDKWrapper {
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.UIEventTracking.disableTracing.boolValue
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.AppStart.disablePrewarmedTracing.boolValue
-#if !SDK_V10
-        options.enableStandaloneAppStartTracing = SentrySDKOverrides.AppStart.enableStandaloneTracing.boolValue
-#endif // !SDK_V10
         options.enableUIViewControllerTracing = !SentrySDKOverrides.UIViewControllerTracing.disable.boolValue
         options.experimental.enableUIViewControllerInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue
 
@@ -293,21 +260,11 @@ public struct SentrySDKWrapper {
         options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
         // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
         options.screenshot.enableFastViewRendering = SentrySDKOverrides.Screenshot.enableFastViewRendering.boolValue
-        #if SDK_V10
         options.privacy.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue && !SentrySDKOverrides.Replay.disableMaskAllImages.boolValue
         options.privacy.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue && !SentrySDKOverrides.Replay.disableMaskAllText.boolValue
-        #else
-        options.screenshot.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue
-        options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
-        #endif // SDK_V10
 
         options.attachViewHierarchy = !SentrySDKOverrides.ViewHierarchy.disableAttachment.boolValue
 #endif // !os(macOS) && !os(watchOS)
-
-        #if !SDK_V10
-        // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
-        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.AppHangs.disableTracking.boolValue
-        #endif // !SDK_V10
 
         // UI tests generate false OOMs
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.WatchdogTerminations.disableTracking.boolValue
@@ -362,14 +319,8 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         // Integration: Logs
-        #if !SDK_V10
-        options.enableLogs = !SentrySDKOverrides.Logs.disable.boolValue
-        #endif // !SDK_V10
 
         // Integration: Metrics
-        #if !SDK_V10
-        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
-        #endif // !SDK_V10
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric
@@ -388,18 +339,8 @@ public struct SentrySDKWrapper {
 
         options.enableFileManagerSwizzling = !SentrySDKOverrides.FileIO.disableFileManagerSwizzling.boolValue
 
-        #if SDK_V10
         options.enableUnhandledCPPExceptionsV2 =
             !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
-        #else
-        // Experimental features
-        options.experimental.enableUnhandledCPPExceptionsV2 =
-            !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
-        #endif // SDK_V10
-        #if !SDK_V10
-        options.experimental.enableWatchdogTerminationsV2 =
-            !SentrySDKOverrides.WatchdogTerminations.disableV2.boolValue
-        #endif // !SDK_V10
 #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         options.enableUncaughtNSExceptionReporting =
             !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue
@@ -530,32 +471,6 @@ public struct SentrySDKWrapper {
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
-#if !SDK_V10
-    func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        config.autoInject = false
-        config.layoutUIOffset = layoutOffset
-
-        guard !SentrySDKOverrides.Feedback.allDefaults.boolValue else { return }
-
-        if Locale.current.languageCode == "ar" { // arabic
-            config.labelText = "﷽"
-        } else if Locale.current.languageCode == "ur" { // urdu
-            config.labelText = "نستعلیق"
-        } else if Locale.current.languageCode == "he" { // hebrew
-            config.labelText = "עִבְרִית‎"
-        } else if Locale.current.languageCode == "hi" { // Hindi
-            config.labelText = "नागरि"
-        } else {
-            config.labelText = "Report Jank"
-        }
-
-        if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
-            config.labelText = nil
-        }
-        config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
-    }
-#endif // !SDK_V10
-
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
         config.useSentryUser = !SentrySDKOverrides.Feedback.noUserInjection.boolValue
         config.formTitle = "Jank Report"
@@ -602,11 +517,6 @@ extension SentrySDKWrapper {
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
         let shouldConfigureDeprecatedWidget = SentrySDKOverrides.Feedback.disableAutoInject.boolValue
         guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
-#if !SDK_V10
-            if shouldConfigureDeprecatedWidget {
-                config.configureWidget = configureFeedbackWidget(config:)
-            }
-#endif // !SDK_V10
             configureHooks(config: config)
             return
         }
@@ -614,20 +524,10 @@ extension SentrySDKWrapper {
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
         config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
         config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
-#if !SDK_V10
-        if shouldConfigureDeprecatedWidget {
-            config.configureWidget = configureFeedbackWidget(config:)
-        }
-#endif // !SDK_V10
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)
 
-#if !SDK_V10
-        if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
-            config.customButton = feedbackButton
-        }
-#endif // !SDK_V10
     }
 
     func configureHooks(config: SentryUserFeedbackConfiguration) {
@@ -777,19 +677,15 @@ extension SentrySDKWrapper {
 /// Always compiled so `@import SentrySampleShared` exposes the class even when the
 /// generated Swift header cannot import `SentryObjCOptions`.
 @objcMembers public final class SentrySampleDataCollectionConfiguration: NSObject {
-#if SDK_V10
     @objc(configureWithOptions:)
     public static func configure(options: Options) {
         SentrySDKWrapper.shared.configureDataCollection(options)
     }
-#endif // SDK_V10
 
     @objc(configureWithObjCOptions:)
     public static func configure(objcOptions: AnyObject) {
-#if SDK_V10
         guard let options = objcOptions as? SentryObjCOptions else { return }
         SentrySDKWrapper.shared.configureDataCollection(options)
-#endif // SDK_V10
     }
 }
 
