@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756)
+- Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756, #9770)
 
 ## 9.36.0
 
