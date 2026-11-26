@@ -168,11 +168,8 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   # API files
   - "sdk_api.json"
   - "sdk_api_objc.json"
-  - "sdk_api_v10.json"
-  - "sdk_api_objc_v10.json"
-  - "sdk_api_objc_v10.diff.json"
+  - "sdk_api_objc.diff.json"
   - "sdk_api_spm.json"
-  - "sdk_api_v10_spm.json"
 
   # Build configuration
   - "Makefile"
