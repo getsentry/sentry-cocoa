@@ -168,11 +168,8 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   # API files
   - "sdk_api.json"
   - "sdk_api_objc.json"
-  - "sdk_api_v10.json"
-  - "sdk_api_objc_v10.json"
-  - "sdk_api_objc_v10.diff.json"
+  - "sdk_api_objc.diff.json"
   - "sdk_api_spm.json"
-  - "sdk_api_v10_spm.json"
 
   # Build configuration
   - "Makefile"
@@ -377,6 +374,7 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   - "**/*.yml"
   - "**/*.yaml"
   - "**/*.json"
+  - "**/*.jsonc"
   - "**/*.md"
 
   # GH Actions
@@ -459,7 +457,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "SentryTestUtilsTests/**"
 
   # GH Actions
-  - ".github/workflows/build-v10.yml"
+  - ".github/workflows/build.yml"
   - ".github/workflows/test-v10.yml"
   - ".github/file-filters.yml"
 
@@ -491,14 +489,10 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/tools.sh"
   - "scripts/assemble-xcframework-sentryobjc.sh"
   - "scripts/validate-xcframework*.sh"
-  - "scripts/generate-testapp-v10.sh"
-  - "scripts/test-v10-development-selection.sh"
   - "scripts/test-spm-v9-no-ui-framework.swift"
   - "scripts/test-static-library-archive-architectures.sh"
   - "scripts/test-v10-archive-audit-path.sh"
   - "scripts/set-xcodegen-package-traits.sh"
-  - "scripts/set-xcodegen-compiler-flags.sh"
-  - "scripts/swap-xcodegen-product-name.sh"
   - "scripts/check-ui-framework-linkage.sh"
   - "scripts/prepare-package.sh"
 
@@ -599,6 +593,36 @@ run_build_for_prs: &run_build_for_prs
   - "Gemfile.lock"
   - "Makefile"
   - "Brewfile*"
+
+  # V10 build and packaging checks
+  - "Plans/**"
+  - "Tests/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsTests/**"
+  - ".github/workflows/test-v10.yml"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
+  - "scripts/verify-v10-sentrycrash-*.sh"
+  - "scripts/verify-v10-sentrycrash-source-contract.swift"
+  - "scripts/verify-v10-empty-objects.swift"
+  - "scripts/read-v10-compiler-evidence.swift"
+  - "scripts/test-v10-compiler-log.sh"
+  - "scripts/test-v10-empty-objects.sh"
+  - "scripts/test-v10-sentryobjc-slice-inventory.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/build-xcframework-v10.sh"
+  - "scripts/build-xcframework-sentryobjc.sh"
+  - "scripts/build-static-library.sh"
+  - "scripts/build-dynamic-framework.sh"
+  - "scripts/prepare-sentry-framework-inputs.sh"
+  - "scripts/assemble-xcframework.sh"
+  - "scripts/compress-xcframework.sh"
+  - "scripts/tools.sh"
+  - "scripts/assemble-xcframework-sentryobjc.sh"
+  - "scripts/validate-xcframework*.sh"
+  - "scripts/test-static-library-archive-architectures.sh"
+  - "scripts/test-v10-archive-audit-path.sh"
+  - "scripts/set-xcodegen-package-traits.sh"
 
 run_testflight_for_prs: &run_testflight_for_prs
   - ".github/workflows/run-full-ci-workflow.yml"
