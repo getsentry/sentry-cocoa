@@ -417,8 +417,12 @@ writeNSStringContents(const SentryCrashReportWriter *const writer, const char *c
 {
     const void *object = (const void *)objectAddress;
     char buffer[200];
-    if (sentrycrashobjc_copyStringContents(object, buffer, sizeof(buffer))) {
-        writer->addStringElement(writer, key, buffer);
+    int copied = sentrycrashobjc_copyStringContents(object, buffer, sizeof(buffer));
+    if (copied > 0) {
+        sentrycrashstring_trimTrailingIncompleteUTF8(buffer, copied);
+        if (sentrycrashstring_isValidUTF8String(buffer, sizeof(buffer))) {
+            writer->addStringElement(writer, key, buffer);
+        }
     }
 }
 
@@ -439,8 +443,12 @@ writeURLContents(const SentryCrashReportWriter *const writer, const char *const 
 {
     const void *object = (const void *)objectAddress;
     char buffer[200];
-    if (sentrycrashobjc_copyStringContents(object, buffer, sizeof(buffer))) {
-        writer->addStringElement(writer, key, buffer);
+    int copied = sentrycrashobjc_copyStringContents(object, buffer, sizeof(buffer));
+    if (copied > 0) {
+        sentrycrashstring_trimTrailingIncompleteUTF8(buffer, copied);
+        if (sentrycrashstring_isValidUTF8String(buffer, sizeof(buffer))) {
+            writer->addStringElement(writer, key, buffer);
+        }
     }
 }
 

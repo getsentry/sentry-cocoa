@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756)
+- Reject invalid UTF-8 sequences and trim truncated multi-byte UTF-8 characters when writing introspected memory strings in `SentryCrash`, preventing malformed crash report JSON (#9760)
 
 ## 9.36.0
 
