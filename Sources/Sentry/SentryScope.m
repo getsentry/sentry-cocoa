@@ -115,7 +115,10 @@ static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
         }
         NSArray<SentryBreadcrumb *> *crumbs = [scope breadcrumbs];
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:scope.maxBreadcrumbs];
-        _currentBreadcrumbIndex = crumbs.count;
+        // crumbs are oldest-first. A full ring has count == max, so the next write must
+        // wrap to 0 and overwrite the oldest crumb. A partial ring keeps count as the
+        // append slot. Skip the modulo when max is 0 to avoid division by zero.
+        _currentBreadcrumbIndex = _maxBreadcrumbs > 0 ? crumbs.count % _maxBreadcrumbs : 0;
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
