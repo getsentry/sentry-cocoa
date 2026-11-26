@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - v9.x
       - v8.x
       - release/**
 
