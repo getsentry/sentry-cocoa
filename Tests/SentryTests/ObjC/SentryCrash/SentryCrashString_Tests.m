@@ -272,6 +272,17 @@
     sentrycrashstring_trimTrailingIncompleteUTF8(NULL, 0);
 }
 
+- (void)testIsValidUTF8String_AllowsControlCharsLikeBackspaceAndFormFeed
+{
+    const char *string = "hello\bworld\f";
+    // Arbitrary-memory heuristic rejects non-printable control characters...
+    XCTAssertFalse(sentrycrashstring_isNullTerminatedUTF8String(string, 0, 100));
+    // ...but pure UTF-8 validation accepts them (for known NSString contents).
+    XCTAssertTrue(sentrycrashstring_isValidUTF8String(string, 100));
+    // Invalid UTF-8 is still rejected.
+    XCTAssertFalse(sentrycrashstring_isValidUTF8String("hello\xed\xa0\x80", 100));
+}
+
 - (void)testAddressToString
 {
     char buffer[32];

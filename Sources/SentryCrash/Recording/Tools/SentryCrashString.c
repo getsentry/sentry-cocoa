@@ -314,8 +314,9 @@ static const int g_printableControlChars[0x20] = {
     0,
 };
 
-bool
-sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, int maxLength)
+static bool
+isNullTerminatedUTF8String(
+    const void *memory, int minLength, int maxLength, bool requirePrintableControlChars)
 {
     const unsigned char *ptr = memory;
     const unsigned char *const end = ptr + maxLength;
@@ -358,12 +359,24 @@ sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, 
                 unlikely_if((*ptr & 0xc0) != 0x80) { return false; }
             }
         }
-        else unlikely_if(ch < 0x20 && !g_printableControlChars[ch])
+        else unlikely_if(requirePrintableControlChars && ch < 0x20 && !g_printableControlChars[ch])
         {
             return false;
         }
     }
     return false;
+}
+
+bool
+sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, int maxLength)
+{
+    return isNullTerminatedUTF8String(memory, minLength, maxLength, true);
+}
+
+bool
+sentrycrashstring_isValidUTF8String(const void *memory, int maxLength)
+{
+    return isNullTerminatedUTF8String(memory, 0, maxLength, false);
 }
 
 void
