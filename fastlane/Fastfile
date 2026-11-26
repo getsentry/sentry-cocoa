@@ -12,6 +12,7 @@ platform :ios do
   ios_swift_action_extension_infoplist_path = "./TestApps/iOS-Swift/ActionExtension/Configurations/Info.plist"
   ios_swift_notification_service_extension_infoplist_path = "./TestApps/iOS-Swift/NotificationServiceExtension/Configurations/Info.plist"
   ios_swift_keyboard_extension_infoplist_path = "./TestApps/iOS-Swift/KeyboardExtension/Configurations/Info.plist"
+  ios_swift_contact_provider_extension_infoplist_path = "./TestApps/iOS-Swift/ContactProviderExtension/Configurations/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, app_identifier: nil)
@@ -102,6 +103,11 @@ platform :ios do
       key: "CFBundleShortVersionString",
       value: new_version
     )
+    set_info_plist_value(
+      path: ios_swift_contact_provider_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
 
     sentryInfoPlistPath = "./Sources/Resources/Info.plist"
     set_info_plist_value(
@@ -132,7 +138,8 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.IntentExtension",
           "io.sentry.sample.iOS-Swift.ActionExtension",
           "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
-          "io.sentry.sample.iOS-Swift.KeyboardExtension"
+          "io.sentry.sample.iOS-Swift.KeyboardExtension",
+          "io.sentry.sample.iOS-Swift.ContactProviderExtension"
         ],
       )
     end
@@ -178,7 +185,8 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.IntentExtension",
           "io.sentry.sample.iOS-Swift.ActionExtension",
           "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
-          "io.sentry.sample.iOS-Swift.KeyboardExtension"
+          "io.sentry.sample.iOS-Swift.KeyboardExtension",
+          "io.sentry.sample.iOS-Swift.ContactProviderExtension"
         ]
       )
     end
@@ -211,6 +219,7 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.ActionExtension",
         "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
         "io.sentry.sample.iOS-Swift.KeyboardExtension",
+        "io.sentry.sample.iOS-Swift.ContactProviderExtension",
         "io.sentry.iOS-Swift-UITests.xctrunner"
       ],
     )
@@ -328,7 +337,8 @@ platform :ios do
       "io.sentry.sample.iOS-Swift.IntentExtension",
       "io.sentry.sample.iOS-Swift.ActionExtension",
       "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
-      "io.sentry.sample.iOS-Swift.KeyboardExtension"
+      "io.sentry.sample.iOS-Swift.KeyboardExtension",
+      "io.sentry.sample.iOS-Swift.ContactProviderExtension"
     ]
     sync_code_signing(
       type: "development",
@@ -348,7 +358,8 @@ platform :ios do
       "io.sentry.sample.iOS-Swift.IntentExtension",
       "io.sentry.sample.iOS-Swift.ActionExtension",
       "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
-      "io.sentry.sample.iOS-Swift.KeyboardExtension"
+      "io.sentry.sample.iOS-Swift.KeyboardExtension",
+      "io.sentry.sample.iOS-Swift.ContactProviderExtension"
     ]
     sync_code_signing(
       type: "development",

@@ -63,6 +63,7 @@ targets:
       - target: iOS-Swift-IntentExtension
       - target: iOS-Swift-NotificationServiceExtension
       - target: iOS-Swift-KeyboardExtension
+      - target: iOS-Swift-ContactProviderExtension
     configFiles:
       Debug: App/Configurations/iOS-Swift.xcconfig
       Release: App/Configurations/iOS-Swift.xcconfig
@@ -530,6 +531,55 @@ targets:
             RequestsOpenAccess: true
           NSExtensionPointIdentifier: com.apple.keyboard-service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
+  # ExtensionKit extension: declares its extension point in EXAppExtensionAttributes instead of NSExtension
+  iOS-Swift-ContactProviderExtension:
+    type: extensionkit-extension
+    platform: auto
+    sources:
+      # Sources
+      - path: ContactProviderExtension/Sources
+        type: group
+        group: ContactProviderExtension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: ContactProviderExtension/Resources
+        type: group
+        group: ContactProviderExtension
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: ContactProviderExtension/Configurations
+        type: group
+        group: ContactProviderExtension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
+    configFiles:
+      Debug: ContactProviderExtension/Configurations/iOS-Swift-ContactProviderExtension.xcconfig
+      Release: ContactProviderExtension/Configurations/iOS-Swift-ContactProviderExtension.xcconfig
+    info:
+      path: ContactProviderExtension/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: $(PRODUCT_NAME)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        EXAppExtensionAttributes:
+          EXExtensionPointIdentifier: com.apple.contact.provider.extension
 schemes:
   iOS-Swift:
     templates:
@@ -573,5 +623,12 @@ schemes:
       targets:
         iOS-Swift: all
         iOS-Swift-KeyboardExtension: all
+    run:
+      config: Debug
+  iOS-Swift-ContactProviderExtension:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-ContactProviderExtension: all
     run:
       config: Debug
