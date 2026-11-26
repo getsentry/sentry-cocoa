@@ -34,9 +34,14 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
 fi
 
 # Slices and Variants only needed on PRs
+#
+# The Sentry slices build the SentryV10 scheme, whose framework is still named Sentry, so the
+# variants below assemble them under the existing product names. SentryV10's xcconfig owns the
+# dynamic Mach-O type, hence "inherit". The Xcode project has no V10 configuration without UIKit
+# yet, so that variant still builds the V9 Sentry scheme.
 BASE_SLICES_JSON='[
-  {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic"},
-  {"name": "Sentry", "macho-type": "staticlib", "id": "sentry-static"},
+  {"name": "SentryV10", "macho-type": "inherit", "suffix": "-Dynamic", "id": "sentry-dynamic", "sdk-v10": true},
+  {"name": "SentryV10", "macho-type": "staticlib", "id": "sentry-static", "sdk-v10": true},
   {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"}
 ]'
 BASE_VARIANTS_JSON='[
