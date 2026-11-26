@@ -57,6 +57,11 @@
 - Capture MetricKit app launch diagnostics by default (#9441)
 - Enable `options.enableScopePersistence` by default to retain explicitly supplied user information across app launches. Clear the user on logout with `SentrySDK.setUser(nil)`, or set `options.enableScopePersistence = false` to disable retention. Restoration is asynchronous, so events captured before it completes may lack the retained identity (#9470)
 - Remove the deprecated standalone `SentrySwiftUI` module and package product. Remove the standalone dependency and use `import Sentry` for SwiftUI tracing, replay, and feedback (#9761).
+- Sentry-Dynamic.xcframework is no longer a mergeable-library (#8658)
+
+### Improvements
+
+- Reduce Sentry-Dynamic.xcframework binary size by ~7.6 MB per arm64 slice by removing unused mergeable-library metadata (LC_ATOM_INFO) (#8658)
 
 ### Fixes
 
