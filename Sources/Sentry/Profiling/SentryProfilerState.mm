@@ -1,4 +1,5 @@
 #import "SentryProfilerState.h"
+#import "SentryProfilingLog.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
@@ -8,7 +9,7 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSampleCreation.h"
-#    import "SentryProfilingSwiftHelpers.h"
+
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
@@ -32,7 +33,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     });
     NSString *_Nullable const symbolNSStr = [NSString stringWithUTF8String:symbol];
     if (symbolNSStr == nil) {
-        SENTRY_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
+        SENTRY_PROFILING_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
         return @"<unknown>";
     }
     NSTextCheckingResult *_Nullable match =
@@ -50,7 +51,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 - (instancetype)init
 {
     if (self = [super init]) {
-        _samples = [NSMutableArray<SentrySample *> array];
+        _samples = [NSMutableArray<SentryProfilingSample *> array];
         _stacks = [NSMutableArray<NSArray<NSNumber *> *> array];
         _frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         _threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
@@ -196,7 +197,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 - (NSDictionary<NSString *, id> *)copyProfilingDataNotThreadSafe
 {
-    NSMutableArray<SentrySample *> *const samples = [_mutableState.samples copy];
+    NSMutableArray<SentryProfilingSample *> *const samples = [_mutableState.samples copy];
     NSMutableArray<NSArray<NSNumber *> *> *const stacks = [_mutableState.stacks copy];
     NSMutableArray<NSDictionary<NSString *, id> *> *const frames = [_mutableState.frames copy];
 

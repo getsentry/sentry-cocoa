@@ -6,6 +6,7 @@
 #import "SentryProfilerSDKAdapter.h"
 #import "SentryProfilerState.h"
 #import "SentryProfilerTestConditionals.h"
+#import "SentryProfilingLog.h"
 #import "SentryProfilingSwiftHelpers.h"
 #import "SentrySDK+Private.h"
 #import <objc/runtime.h>
@@ -16,6 +17,39 @@
 #endif
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
+@interface TestProfilingLogger : NSObject <SentryProfilingLogger>
+@property (nonatomic) BOOL enabled;
+@property (nonatomic) SentryProfilingLogLevel level;
+@property (nonatomic, copy) NSString *message;
+@property (nonatomic, copy) NSString *file;
+@property (nonatomic) NSUInteger line;
+@property (nonatomic, copy) dispatch_block_t onShouldLog;
+@property (nonatomic, copy) void (^onLog)(NSString *message);
+@end
+
+@implementation TestProfilingLogger
+- (BOOL)shouldLog:(SentryProfilingLogLevel)level
+{
+    if (self.onShouldLog != nil) {
+        self.onShouldLog();
+    }
+    return self.enabled;
+}
+- (void)log:(SentryProfilingLogLevel)level
+    message:(NSString *)message
+       file:(NSString *)file
+       line:(NSUInteger)line
+{
+    self.level = level;
+    self.message = message;
+    self.file = file;
+    self.line = line;
+    if (self.onLog != nil) {
+        self.onLog(message);
+    }
+}
+@end
+
 @interface TestProfilingSDKBackend : SentryDefaultProfilerSDKBackend
 @end
 
@@ -28,11 +62,142 @@
 #endif
 
 @interface SentryProfilerSDKAdapterTests : XCTestCase
+#if SENTRY_PROFILER_TESTS_SUPPORTED
+@property (nonatomic, strong) id<SentryProfilingLogger> previousLogger;
+@property (nonatomic, weak) id<SentryProfilerSDKBackend> previousBackend;
+#endif
 @end
 
 @implementation SentryProfilerSDKAdapterTests
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
+
+- (void)setUp
+{
+    [super setUp];
+    self.previousLogger = SentryProfilingLog.logger;
+    self.previousBackend = SentryProfilerSDKAdapter.shared.target;
+}
+
+- (void)tearDown
+{
+    // A container reset installs a new backend-owned logger that must remain active.
+    if (SentryProfilerSDKAdapter.shared.target == self.previousBackend) {
+        SentryProfilingLog.logger = self.previousLogger;
+    }
+    self.previousLogger = nil;
+    self.previousBackend = nil;
+    [super tearDown];
+}
+
+- (void)testTearDown_whenContainerReset_shouldKeepCurrentBackendLogger
+{
+    // -- Arrange --
+    [SentryDependencyContainer reset];
+    __weak id<SentryProfilingLogger> currentLogger;
+    @autoreleasepool {
+        SentryProfilerSDKAdapterTests *testCase = [[SentryProfilerSDKAdapterTests alloc] init];
+        [testCase setUp];
+        [SentryDependencyContainer reset];
+        currentLogger = SentryProfilingLog.logger;
+
+        // -- Act --
+        [testCase tearDown];
+    }
+
+    // -- Assert --
+    XCTAssertNotNil(currentLogger);
+    XCTAssertEqual(SentryProfilingLog.logger, currentLogger);
+}
+
+- (void)testProfilingLogger_whenNotConfigured_shouldNotEvaluateArguments
+{
+    // -- Arrange --
+    SentryProfilingLog.logger = nil;
+    NSUInteger evaluations = 0;
+
+    // -- Act --
+    SENTRY_PROFILING_LOG_ERROR(@"%lu", ++evaluations);
+
+    // -- Assert --
+    XCTAssertEqual(evaluations, 0U);
+}
+
+- (void)testProfilingLogger_whenDisabled_shouldNotEvaluateArguments
+{
+    // -- Arrange --
+    TestProfilingLogger *logger = [[TestProfilingLogger alloc] init];
+    SentryProfilingLog.logger = logger;
+    NSUInteger evaluations = 0;
+
+    // -- Act --
+    SENTRY_PROFILING_LOG_DEBUG(@"%lu", ++evaluations);
+
+    // -- Assert --
+    XCTAssertEqual(evaluations, 0U);
+    XCTAssertNil(logger.message);
+}
+
+- (void)testProfilingLogger_whenEnabled_shouldForwardFormattedMessageAndLocation
+{
+    // -- Arrange --
+    TestProfilingLogger *logger = [[TestProfilingLogger alloc] init];
+    logger.enabled = YES;
+    SentryProfilingLog.logger = logger;
+    NSUInteger evaluations = 0;
+
+    // -- Act --
+    NSUInteger line = __LINE__ + 1;
+    SENTRY_PROFILING_LOG_WARN(@"sample %lu", ++evaluations);
+
+    // -- Assert --
+    XCTAssertEqual(evaluations, 1U);
+    XCTAssertEqual(logger.level, SentryProfilingLogLevelWarning);
+    XCTAssertEqualObjects(logger.message, @"sample 1");
+    XCTAssertEqualObjects(logger.file, @(__FILE__));
+    XCTAssertEqual(logger.line, line);
+}
+
+- (void)testProfilingLogger_whenOwnerReleasesLogger_shouldNotRetainIt
+{
+    // -- Arrange --
+    @autoreleasepool {
+        TestProfilingLogger *logger = [[TestProfilingLogger alloc] init];
+        SentryProfilingLog.logger = logger;
+        XCTAssertEqual(SentryProfilingLog.logger, logger);
+    }
+
+    // -- Assert --
+    XCTAssertNil(SentryProfilingLog.logger);
+}
+
+- (void)testProfilingLogger_whenOwnerReleasesLoggerDuringFiltering_shouldKeepLoggerThroughEmission
+{
+    // -- Arrange --
+    NSMutableArray<NSString *> *messages = [NSMutableArray array];
+    __block TestProfilingLogger *owner = nil;
+    __weak TestProfilingLogger *weakLogger = nil;
+    @autoreleasepool {
+        owner = [[TestProfilingLogger alloc] init];
+        owner.enabled = YES;
+        owner.onShouldLog = ^{
+            SentryProfilingLog.logger = nil;
+            owner = nil;
+        };
+        owner.onLog = ^(NSString *message) { [messages addObject:message]; };
+        weakLogger = owner;
+        SentryProfilingLog.logger = owner;
+
+        // -- Act --
+        SENTRY_PROFILING_LOG_WARN(@"retained through emission");
+    }
+
+    // -- Assert --
+    XCTAssertNil(owner);
+    XCTAssertEqualObjects(messages, (@[ @"retained through emission" ]));
+    XCTAssertNil(weakLogger);
+    XCTAssertNil(SentryProfilingLog.logger);
+}
 
 - (void)testLaunchProfiling_whenConfigurationMissing_shouldNotAccessDependencies
 {
@@ -51,8 +216,8 @@
 
     @try {
         // -- Act --
-        [SentryProfiler load];
-        sentry_startLaunchProfile();
+        [SentrySDKInternal load];
+        [SentryLaunchProfiling startLaunchProfile];
 
         // -- Assert --
         XCTAssertEqual(dependencyAccesses, 0U);

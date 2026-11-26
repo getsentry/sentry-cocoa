@@ -11,9 +11,6 @@
 #    import <SentryScopeSyncC.h>
 #    import <SentryUser.h>
 
-@interface SentryCrashScopeObserver () <SentryScopeObserver>
-@end
-
 @implementation SentryCrashScopeObserver
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
@@ -46,7 +43,7 @@
         syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setEnvironment(bytes); }];
 }
 
-- (void)setContext:(nullable NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)context
+- (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
     [self syncScope:context
         syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setContext(bytes); }];

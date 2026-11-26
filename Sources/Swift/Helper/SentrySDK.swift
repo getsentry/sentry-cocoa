@@ -38,10 +38,8 @@ extension SentrySDK {
     @objc
     #endif
     public static var replay: SentryReplayApi {
-        replayInstance
+        return SentrySDKInternal.replay
     }
-
-    private static let replayInstance = SentryReplayApi()
     #endif
 
     /// API to access Sentry logs

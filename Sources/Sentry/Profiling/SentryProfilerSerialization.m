@@ -1,26 +1,12 @@
-#import "SentryDeviceContextKeys.h"
 #import "SentryProfilerSerialization+Private.h"
-#import "SentrySwift.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryClient+Private.h"
-#    import "SentryDevice.h"
-#    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
-#    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
-#    import "SentryMetricProfiler.h"
 #    import "SentryProfileTimeseries.h"
-#    import "SentryProfiledTracerConcurrency.h"
-#    import "SentryProfiler+Private.h"
-#    import "SentryProfilerSDKAdapter.h"
-#    import "SentryProfilerSerialization+Private.h"
-#    import "SentryProfilerState.h"
-#    import "SentryProfilerTestHelpers.h"
-#    import "SentrySerialization.h"
-#    import "SentrySwift.h"
+#    import "SentryProfilingLog.h"
+#    import "SentryProfilingSample.h"
 #    import "SentryTime.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
@@ -35,15 +21,16 @@ NSString *const kSentryProfilerSerializationKeyFrameRates = @"screen_frame_rates
  * */
 NSArray<NSDictionary *> *
 _sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
-    NSArray<SentrySample *> *samples, uint64_t startSystemTime)
+    NSArray<SentryProfilingSample *> *samples, uint64_t startSystemTime)
 {
     NSMutableArray<NSDictionary *> *result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentryProfilingSample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         // This shouldn't happen as we would've filtered out any such samples, but we should still
         // guard against it before calling getDurationNs as a defensive measure
         if (!orderedChronologically(startSystemTime, sample.absoluteTimestamp)) {
-            SENTRY_LOG_WARN(@"Filtering sample as it came before start time to begin slicing.");
+            SENTRY_PROFILING_LOG_WARN(
+                @"Filtering sample as it came before start time to begin slicing.");
             return;
         }
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
@@ -67,11 +54,11 @@ _sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
  * serialized JSON mapping with their data.
  * */
 NSArray<NSDictionary *> *
-_sentry_serializedContinuousProfileSamples(NSArray<SentrySample *> *samples)
+_sentry_serializedContinuousProfileSamples(NSArray<SentryProfilingSample *> *samples)
 {
     NSMutableArray<NSDictionary *> *result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentryProfilingSample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         dict[@"timestamp"] = @(sample.absoluteNSDateInterval);
         dict[@"thread_id"] = sentry_stringForUInt64(sample.threadID);
@@ -102,31 +89,27 @@ sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages
 #    if SENTRY_HAS_UIKIT
     ,
     SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
+    NSMutableArray<SentryProfilingSample *> *const samples = profileData[@"profile"][@"samples"];
     // We need at least two samples to be able to draw a stack frame for any given function: one
     // sample for the start of the frame and another for the end. Otherwise we would only have a
     // stack frame with 0 duration, which wouldn't make sense.
     if ([samples count] < 2) {
-        SENTRY_LOG_DEBUG(@"Not enough samples in profile");
-        [hub.getClient recordLostEvent:SentryDataCategoryProfile
-                                reason:SentryDiscardReasonEventProcessor];
+        SENTRY_PROFILING_LOG_DEBUG(@"Not enough samples in profile");
         return nil;
     }
 
     // slice the profile data to only include the samples/metrics within the transaction
-    NSArray<SentrySample *> *slicedSamples
+    NSArray<SentryProfilingSample *> *slicedSamples
         = sentry_slicedProfileSamples(samples, startSystemTime, endSystemTime);
     if (slicedSamples.count < 2) {
-        SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
-        [hub.getClient recordLostEvent:SentryDataCategoryProfile
-                                reason:SentryDiscardReasonEventProcessor];
+        SENTRY_PROFILING_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         return nil;
     }
     NSMutableDictionary<NSString *, id> *payload = [NSMutableDictionary<NSString *, id> dictionary];
@@ -140,33 +123,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData
         payload[@"debug_meta"] = @ { @"images" : SENTRY_UNWRAP_NULLABLE(NSArray, debugImages) };
     }
 
-    payload[SENTRY_CONTEXT_OS_KEY] = @ {
-        @"name" : sentry_getOSName(),
-        @"version" : sentry_getOSVersion(),
-        @"build_number" : sentry_getOSBuildNumber()
-    };
-
-    bool isEmulated = sentry_isSimulatorBuild();
-    NSMutableDictionary *deviceDict = [[NSMutableDictionary alloc] initWithDictionary:@{
-        @"architecture" : sentry_getCPUArchitecture(),
-        @"is_emulator" : @(isEmulated),
-        @"manufacturer" : @"Apple",
-    }];
-#    if !SDK_V10
-    deviceDict[@"locale"] = NSLocale.currentLocale.localeIdentifier;
-#    endif
-    NSString *_Nullable deviceModel
-        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
-    if (deviceModel != nil) {
-        deviceDict[@"model"] = SENTRY_UNWRAP_NULLABLE(NSString, deviceModel);
-    }
-    payload[SENTRY_CONTEXT_DEVICE_KEY] = deviceDict;
-
-    payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
-    payload[@"environment"]
-        = ((SentryScope *)hub.scope).environmentString ?: hub.getClient.options.environment;
-    payload[@"release"] = hub.getClient.options.releaseName;
 
     // add the gathered metrics
     NSDictionary<NSString *, id> *metrics = serializedMetrics;
@@ -214,16 +171,16 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_serializedTraceProfileData
 }
 
 NSMutableDictionary<NSString *, id> *
-sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
+sentry_serializedContinuousProfileChunk(
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages, SentryHubInternal *hub
+    NSArray<NSDictionary<NSString *, id> *> *_Nullable debugImages
 #    if SENTRY_HAS_UIKIT
     ,
     SentryProfilingFrameMeasurements *_Nullable gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
+    NSMutableArray<SentryProfilingSample *> *const samples = profileData[@"profile"][@"samples"];
     // !!!: assumption: in trace profiling, we would avoid sending a payload with less than 2
     // samples. now, we may have previously sent a chunk with many samples, and then this chunk may
     // be the last of the continuous profiling session and it only has 1 sample. assuming we'll want
@@ -241,18 +198,6 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     if (debugImages.count > 0) {
         payload[@"debug_meta"] = @ { @"images" : SENTRY_UNWRAP_NULLABLE(NSArray, debugImages) };
     }
-
-    payload[@"chunk_id"] = [chunkID sentryIdString];
-    payload[@"profiler_id"] = profileID.sentryIdString;
-    payload[@"environment"]
-        = ((SentryScope *)hub.scope).environmentString ?: hub.getClient.options.environment;
-    payload[@"release"] = hub.getClient.options.releaseName;
-    payload[@"platform"] = SentryPlatformName;
-
-    NSMutableDictionary *clientInfo = [NSMutableDictionary dictionary];
-    clientInfo[@"name"] = SentryMeta.sdkName;
-    clientInfo[@"version"] = SentryMeta.versionString;
-    payload[@"client_sdk"] = clientInfo;
 
     // add the gathered metrics
     NSDictionary<NSString *, id> *metrics = serializedMetrics;

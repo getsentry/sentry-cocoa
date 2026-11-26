@@ -1204,10 +1204,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : sampler }];
 
-    SentryTransactionContext *transactionContext =
-        [[SentryTransactionContext alloc] initWithName:@"name" operation:@"operation"];
-    SentrySamplingContext *context =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
+    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
     XCTAssertEqual(options.tracesSampler(context), @1.0);
 }
 

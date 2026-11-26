@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756)
+- Reject invalid UTF-8 sequences and trim truncated multi-byte UTF-8 characters when writing introspected memory strings in `SentryCrash`, preventing malformed crash report JSON (#9760)
+- Fix `flush` returning success before envelopes captured just before it were stored, when a cache drain queued ahead of it, or left over from a flush that timed out, found no envelopes (#9706)
+
+## 9.36.0
+
 > [!TIP]
 > Try the new experimental option `options.experimental.enableUIUpdateLinkFramesTracking`. On iOS 18, tvOS 18 and visionOS 2 and later, it tracks frames without waking up your idle app for every frame, which reduces the impact of the SDK on the performance of your app. The option is disabled by default, so set it to `true` to opt in.
 
@@ -17,12 +25,14 @@
 ### Fixes
 
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
-- Fix `flush` returning success before envelopes captured just before it were stored, when a cache drain queued ahead of it, or left over from a flush that timed out, found no envelopes (#9706)
 - Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
 - Preserve JSON null values in event extras, breadcrumb data, and other sanitized dictionaries instead of converting them to the string `"<null>"` (#9729)
-- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h`, `SentrySamplingContext.h`, `SentryTransaction.h`, `SentryTransactionContext.h` and `SentryScope.h` as empty headers, so importing them by name, for example `#import <Sentry/SentryScope.h>`, compiles again. The first four were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
+- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h` and `SentrySamplingContext.h` as empty headers, so importing them by name, for example `#import <Sentry/SentrySamplingContext.h>`, compiles again. They were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
+- Skip Objective-C descriptor conformance checks for view controllers without a custom screen-name getter, avoiding potentially slow protocol walks on the main thread (#9738)
 - Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
 - Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
+- Fix the `EXC_GUARD` crash in `SentrySDK.start` in apps that enable the Enhanced Security capability with additional runtime platform restrictions, by registering the Mach exception handler with the identity-protected exception behavior (#9705)
+  - This changes the Mach exception message format for every app, not only apps with Enhanced Security. A crash handler installed after the SDK that forwards Mach exceptions to it by building the message itself must support `mach_exception_raise_identity_protected`; otherwise the SDK reports the crash through its signal handler instead of its Mach exception handler.
 
 ### Internal
 
