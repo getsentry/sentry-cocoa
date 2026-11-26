@@ -28,7 +28,7 @@ SwiftPM consumers use the `NoUIFramework` trait. The [Build workflow](../.github
 ## Build System Commands
 
 ```bash
-make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
+make build-xcframework-dynamic  # Build SentryV10-Dynamic XCFramework
 ./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 
