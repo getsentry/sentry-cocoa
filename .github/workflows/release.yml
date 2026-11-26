@@ -537,81 +537,12 @@ jobs:
       # === Build and validation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
-      # Xcode 16's default `swift build` can copy static Sentry from the unused
-      # SentrySwiftUI dependency instead of the requested dynamic binary. Use Xcode's
-      # build system and `swift run` to verify dynamic loading and resources at runtime.
-      # Newer SwiftPM defaults to SwiftBuild (verified with Xcode 27.1), which selects
-      # the correct binary. The legacy native build system remains affected.
       - name: Run Swift dynamic consumer
         run: swift run --build-system xcode SPM-Dynamic
         working-directory: TestApps/SPM-Dynamic
       - name: Run Objective-C dynamic consumer
         run: swift run --build-system xcode SPM-ObjC-Dynamic
         working-directory: TestApps/SPM-ObjC-Dynamic
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: failure()
-
-  swift-build:
-    name: Build Swift Static
-    runs-on: macos-15
-    needs: [
-      files-changed,
-      assemble-xcframework-variant,
-      assemble-sentryobjc-static-xcframework,
-      assemble-sentryobjc-dynamic-xcframework,
-    ]
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    steps:
-      # === Checkout and independent preparation ===
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        id: download-xcframeworks
-        background: true
-        with:
-          pattern: xcframework-${{github.sha}}-*
-          merge-multiple: true
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
-        with:
-          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
-          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
-      - name: Prepare Package.swift
-        shell: bash
-        run: |
-          ./scripts/prepare-package.sh \
-            --package-file Package.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-          ./scripts/prepare-package.sh \
-            --package-file Package@swift-6.1.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-          ./scripts/prepare-package.sh \
-            --package-file Package@swift-6.2.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-
-      # === Toolchain and simulator preparation ===
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "16"
-          resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
-
-      - name: Wait for XCFramework downloads
-        wait: download-xcframeworks
-
-      # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
-      - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -706,7 +637,6 @@ jobs:
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,
-        swift-build,
         duplication-tests,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
@@ -792,7 +722,6 @@ jobs:
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,
-        swift-build,
         duplication-tests,
         run-full-ci-gate,
       ]

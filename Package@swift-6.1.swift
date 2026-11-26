@@ -63,7 +63,6 @@ if !sourceUsesSentryModule {
         .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
         .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
         .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
-        .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
         .library(name: "SentryObjC-Dynamic", targets: ["SentryObjC-Dynamic"]),
         .library(name: "SentryObjC-Static", targets: ["SentryObjC-Static"])
     ]
@@ -112,15 +111,6 @@ if !sourceUsesSentryModule {
             name: "SentryObjC-Static",
             url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.36.0/SentryObjC-Static.xcframework.zip",
             checksum: "10a75264283974df9e9cabf9eeb21a826a7aa0c5a371774716c75af474af852d" //SentryObjC-Static
-        ),
-        .target(
-            name: "SentrySwiftUI",
-            dependencies: ["Sentry"],
-            path: "Sources/SentrySwiftUI",
-            exclude: ["module.modulemap"],
-            linkerSettings: [
-                .linkedFramework("Sentry")
-            ]
         ),
         .target(
             name: "SentryCppHelper",
@@ -174,7 +164,6 @@ let sentryObjCInternalExcludes = [
     "SentryCrashV9Swift",
     "SentryV10Configuration",
     "Swift",
-    "SentrySwiftUI",
     "Resources",
     "Configuration",
     "SentryCppHelper",
