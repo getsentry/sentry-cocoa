@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Reduce Sentry-Dynamic.xcframework binary size by ~7.6 MB per arm64 slice by removing unused mergeable-library metadata (LC_ATOM_INFO) (#8658)
+
 ## 9.36.0
 
 > [!TIP]
@@ -404,10 +410,6 @@
 ### Features
 
 - Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
-
-### Improvements
-
-- Reduce Sentry-Dynamic.xcframework binary size by ~7.6 MB per arm64 slice by removing unused mergeable-library metadata (LC_ATOM_INFO) (#8658)
 
 ### Fixes
 
