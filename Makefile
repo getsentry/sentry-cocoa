@@ -1903,7 +1903,7 @@ STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | g
 STAGED_MARKDOWN_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.md$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged changelog files
-STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG(_V10)?\.md$$')
+STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG\.md$$')
 
 # Get staged JSON files
 STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.json$$' | awk '{printf "\"%s\" ", $$0}')
