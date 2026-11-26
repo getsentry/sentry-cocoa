@@ -494,7 +494,7 @@ let packageDependencies: [Package.Dependency] = [
         path: "SentryTestUtilsDynamic",
         traits: [.trait(name: "NoUIFramework", condition: .when(traits: ["NoUIFramework"]))]
     ),
-    .package(url: "https://github.com/getsentry/KSCrash.git", revision: "6d9a0154d7b74bcd1ab43fe7af8cf4dd61df688f")
+    .package(url: "https://github.com/getsentry/KSCrash.git", revision: "c00af21aabcd2f84983abdcb2063c9446a524e74")
 ]
 
 let package = Package(
