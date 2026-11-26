@@ -28,6 +28,10 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Sources/Sentry/**"
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Module/**"
+  - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/Swift/**"
@@ -88,6 +92,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryCrashV9Headers/**"
   - "Sources/SentryCrashV9Module/**"
   - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/include/**"
@@ -116,6 +121,8 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
+  - "scripts/sentry-xcodebuild.sh"
+  - "scripts/build-package-test-fixture.sh"
 
   # Project files
   - "Package*.swift"
@@ -460,7 +467,6 @@ run_v10_for_prs: &run_v10_for_prs
 
   # GH Actions
   - ".github/workflows/build-v10.yml"
-  - ".github/workflows/test-v10.yml"
   - ".github/file-filters.yml"
 
   # Scripts & actions
@@ -558,7 +564,7 @@ run_thread_inspection_harness_for_prs:
   - "Tests/ThreadInspectionHarness/**"
 
   # GH Actions
-  - ".github/workflows/test-v10.yml"
+  - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
   - ".github/actions/setup-xcode/**"
   - ".github/actions/setup-git-access/**"

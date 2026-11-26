@@ -177,12 +177,12 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
         run: |
           case "$PLATFORM" in
-            iOS) target=test-ios ;;
-            macOS) target=test-macos ;;
-            Catalyst) target=test-catalyst ;;
-            tvOS) target=test-tvos ;;
-            visionOS) target=test-visionos ;;
-            watchOS) target=test-watchos ;;
+            iOS) target=test-ios-v10 ;;
+            macOS) target=test-macos-v10 ;;
+            Catalyst) target=test-catalyst-v10 ;;
+            tvOS) target=test-tvos-v10 ;;
+            visionOS) target=test-visionos-v10 ;;
+            watchOS) target=test-watchos-v10 ;;
             *)
               echo "::error::Unsupported unit-test platform: $PLATFORM"
               exit 1
@@ -240,7 +240,7 @@ jobs:
         run: |
           make "$MAKE_TARGET" \
             TEST_COMMAND=test-without-building \
-            TEST_PLAN=SentrySPM_Flaky \
+            TEST_PLAN=SentrySPM_Flaky_v10 \
             TEST_RESULT_BUNDLE=flaky-results.xcresult
 
       - name: Run tests
