@@ -333,37 +333,37 @@ jobs:
       matrix:
         include:
           - scheme: watchOS-Swift WatchKit App
-            make-target: build-testapp-v10-watchOS-Swift
+            make-target: build-testapp-watchOS-Swift
             platform: watchOS
           - scheme: macOS-SwiftUI
-            make-target: build-testapp-v10-macOS-SwiftUI
+            make-target: build-testapp-macOS-SwiftUI
             platform: macOS
           - scheme: iOS-Swift
-            make-target: build-testapp-v10-iOS-Swift
+            make-target: build-testapp-iOS-Swift
             platform: iOS
           - scheme: macOS-Swift
-            make-target: build-testapp-v10-macOS-Swift
+            make-target: build-testapp-macOS-Swift
             platform: macOS
           - scheme: tvOS-Swift
-            make-target: build-testapp-v10-tvOS-Swift
+            make-target: build-testapp-tvOS-Swift
             platform: tvOS
           - scheme: visionOS-Swift
-            make-target: build-testapp-v10-visionOS-Swift
+            make-target: build-testapp-visionOS-Swift
             platform: visionOS
           - scheme: iOS-SwiftUI
-            make-target: build-testapp-v10-iOS-SwiftUI
+            make-target: build-testapp-iOS-SwiftUI
             platform: iOS
           - scheme: iOS-ObjectiveC
-            make-target: build-testapp-v10-iOS-ObjectiveC
+            make-target: build-testapp-iOS-ObjectiveC
             platform: iOS
           - scheme: iOS-ObjectiveCpp-NoModules
-            make-target: build-testapp-v10-iOS-ObjectiveCpp-NoModules
+            make-target: build-testapp-iOS-ObjectiveCpp-NoModules
             platform: iOS
           - scheme: SPM
-            make-target: build-testapp-v10-SPM
+            make-target: build-testapp-SPM
             platform: macOS
           - scheme: DistributionSample
-            make-target: build-testapp-v10-DistributionSample
+            make-target: build-testapp-DistributionSample
             platform: macOS
     steps:
       # === Checkout and independent preparation ===
@@ -442,8 +442,6 @@ jobs:
           resolve-simulators: "false"
 
       - run: make init-ci-build
-      - name: Test V10 development selection
-        run: ./scripts/test-v10-development-selection.sh --work-dir "$RUNNER_TEMP/v10-development-selection"
       - name: Test V9 NoUI linkage
         run: ./scripts/test-spm-v9-no-ui-framework.swift --work-dir "$RUNNER_TEMP/v9-no-ui-framework"
       - name: Upload selection logs
@@ -452,12 +450,9 @@ jobs:
         with:
           name: selection-logs
           path: |
-            ${{ runner.temp }}/v10-development-selection/**/*.log
-            ${{ runner.temp }}/v10-development-selection/**/generated.yml
-            ${{ runner.temp }}/v10-development-selection/**/*-env
             ${{ runner.temp }}/v9-no-ui-framework/*.log
             ${{ runner.temp }}/v9-no-ui-framework/*.exit-status
-      - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+      - run: make xcode-ci-macOS-CLI-Xcode
 
       - name: Test CLI subprocesses
         run: |

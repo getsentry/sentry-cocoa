@@ -110,6 +110,10 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   iOS-ObjectiveCpp-NoModules:
     build:
