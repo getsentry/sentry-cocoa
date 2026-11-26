@@ -4,7 +4,7 @@ How `SentryObjC-Static.xcframework` and `SentryObjC-Dynamic.xcframework` are bui
 
 ## Why a dedicated build pipeline?
 
-The main Sentry SDK xcframeworks (Sentry-Dynamic, Sentry-Static, SentrySwiftUI) build slices by archiving Xcode project schemes. SentryObjC builds its slices through SwiftPM instead, but both pipelines assemble them with `assemble-xcframework.sh`.
+The main Sentry SDK xcframeworks (Sentry-Dynamic, Sentry-Static) build slices by archiving Xcode project schemes. SentryObjC builds its slices through SwiftPM instead, but both pipelines assemble them with `assemble-xcframework.sh`.
 
 SentryObjC cannot use the Xcode project slice builder because:
 
@@ -110,7 +110,7 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## Relationship to the generic pipeline
 
-The generic release matrix (`generate_release_matrix.sh` → `build-xcframework-variant-slices.yml` → `assemble-xcframework-variant.yml`) handles Sentry, SentrySwiftUI, and Sentry-WithoutUIKitOrAppKit. SentryObjC is **not** in that matrix because its slices need the SwiftPM build and re-link steps. Its parallel jobs use the same assembly command through `assemble-xcframework-sentryobjc.sh`.
+The generic release matrix (`generate_release_matrix.sh` → `build-xcframework-variant-slices.yml` → `assemble-xcframework-variant.yml`) handles Sentry and Sentry-WithoutUIKitOrAppKit. SentryObjC is **not** in that matrix because its slices need the SwiftPM build and re-link steps. Its parallel jobs use the same assembly command through `assemble-xcframework-sentryobjc.sh`.
 
 `validate-xcframework.sh` checks the shared XCFramework structure, architectures, symbols, and framework plists. SentryObjC static libraries additionally require `validate-xcframework-sentryobjc-static.sh` for debug-map and wrapper-symbol checks. The SentryObjC static build target and CI jobs invoke this explicitly, including release artifact validation and local V10 builds.
 

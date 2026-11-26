@@ -56,6 +56,7 @@
 - Remove `enableMetricKit`; the MetricKit integration is enabled by default and `options.experimental.metrickit.enabledDiagnosticReports` set to an empty set disables it (#9267)
 - Capture MetricKit app launch diagnostics by default (#9441)
 - Enable `options.enableScopePersistence` by default to retain explicitly supplied user information across app launches. Clear the user on logout with `SentrySDK.setUser(nil)`, or set `options.enableScopePersistence = false` to disable retention. Restoration is asynchronous, so events captured before it completes may lack the retained identity (#9470)
+- Remove the deprecated standalone `SentrySwiftUI` module and package product. Remove the standalone dependency and use `import Sentry` for SwiftUI tracing, replay, and feedback (#9761).
 
 ### Fixes
 

@@ -52,8 +52,7 @@ let files = [
 // This will enable publishing apps with SDK beta version.
 let restrictFiles = [
     "./Sources/Configuration/SDK.xcconfig",
-    "./Sources/Configuration/Versioning.xcconfig",
-    "./Sources/Configuration/SentrySwiftUI.xcconfig"
+    "./Sources/Configuration/Versioning.xcconfig"
 ]
 
 let args = CommandLine.arguments

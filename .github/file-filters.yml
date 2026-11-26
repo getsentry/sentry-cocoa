@@ -32,7 +32,6 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
   - "SentryTestUtils/**"
@@ -140,7 +139,6 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
 
   # Source-backed crash adapter and configuration
@@ -177,7 +175,6 @@ run_api_stability_for_prs: &run_api_stability_for_prs
 
   # API files
   - "sdk_api.json"
-  - "sdk_api_sentryswiftui.json"
   - "sdk_api_objc.json"
   - "sdk_api_v10.json"
   - "sdk_api_objc_v10.json"
@@ -299,7 +296,6 @@ run_release_for_prs: &run_release_for_prs
   - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
 
   # GH Actions
@@ -432,7 +428,6 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
   - "TestApps/**"
@@ -471,7 +466,6 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Plans/**"
   - "Tests/**"
@@ -652,7 +646,6 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "TestApps/iOS-Swift/**"
 
@@ -683,7 +676,6 @@ run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
 
   # GH Actions
@@ -728,7 +720,6 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   # Configuration files
   - "Sources/Configuration/SDK.xcconfig"
   - "Sources/Configuration/Versioning.xcconfig"
-  - "Sources/Configuration/SentrySwiftUI.xcconfig"
 
 run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
   - ".github/workflows/run-full-ci-workflow.yml"
@@ -758,7 +749,6 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
 
@@ -808,7 +798,6 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "TestApps/CrashE2E/**"
   - "TestApps/SwiftUICrashTest/**"
@@ -855,7 +844,6 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Sources/SentryDistributionTests/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Sources/SentryCrashV9Swift/**"
   - "Tests/**"
@@ -912,7 +900,6 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Sources/SentryCrashV9Swift/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "TestApps/**"
 
@@ -945,7 +932,6 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
   - "Sources/SentryCrash/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "3rd-party-integrations/**"
 
