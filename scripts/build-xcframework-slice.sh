@@ -61,6 +61,10 @@ if [[ -z "$build_path" || "$build_path" == / ]]; then
     exit 1
 fi
 product_name="${product_name:-$scheme$configuration_suffix}"
+if [[ "$configuration_suffix" == WithoutUIKit ]]; then
+    # SDK target xcconfigs do not configure SwiftPM's KSCrash targets.
+    extra_build_settings+=("OTHER_CFLAGS=\$(inherited) -DKSCRASH_DISABLE_UIKIT=1")
+fi
 
 log_info "Building XCFramework slice:"
 log_info "  SDK:                  $sdk"

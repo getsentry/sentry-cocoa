@@ -217,6 +217,9 @@ esac
 fi # RAW_DESTINATION check
 
 CONFIGURATION="${CONFIGURATION_OVERRIDE:-Debug}"
+if [[ "$CONFIGURATION" == *WithoutUIKit ]]; then
+    XCODEBUILD_ARGS+=("OTHER_CFLAGS=\$(inherited) -DKSCRASH_DISABLE_UIKIT=1")
+fi
 
 case $COMMAND in
 "build")

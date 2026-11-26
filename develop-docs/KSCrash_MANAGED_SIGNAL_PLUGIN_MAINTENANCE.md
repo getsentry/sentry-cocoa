@@ -41,7 +41,7 @@ The current dependency is the getsentry KSCrash fork at revision
 `c00af21aabcd2f84983abdcb2063c9446a524e74`: upstream `2.6.1` plus the
 [C++ terminate deadlock fix](https://github.com/kstenerud/KSCrash/pull/979)
 and unmap-safe runtime binary-image extraction, live C++ throw-stack capture,
-C++ module import fixes, crash reporting without UIKit, and link anchors that keep
+C++ module import fixes, opt-in UIKit-free crash reporting, and link anchors that keep
 the `KSCrash` categories in static builds without `-ObjC`.
 These changes do not alter the Signal-monitor implementation or supporting API.
 
