@@ -56,7 +56,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -105,6 +105,10 @@ targets:
         UIRequiredDeviceCapabilities:
           - arm64
         UIUserInterfaceStyle: Automatic
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   tvOS-SBSwift:
     type: application
     platform: auto
@@ -141,7 +145,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -191,6 +195,10 @@ targets:
         UIRequiredDeviceCapabilities:
           - arm64
         UIUserInterfaceStyle: Automatic
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   tvOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -223,6 +231,10 @@ targets:
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   tvOS-SBSwift-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -255,6 +267,10 @@ targets:
     info:
       path: AppSBSwift-UITests/Configurations/Info.plist
       properties: {}
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   tvOS-Swift:
     templates:

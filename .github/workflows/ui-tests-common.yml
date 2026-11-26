@@ -67,6 +67,8 @@ on:
         required: false
 jobs:
   common-ui-tests:
+    env:
+      SDK_V10: "1"
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
     runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) }}

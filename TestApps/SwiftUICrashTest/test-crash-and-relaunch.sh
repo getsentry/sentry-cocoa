@@ -144,12 +144,13 @@ log "This test crashes the app and validates that it can relaunch after a crash 
 
 log "🔨 Building SwiftUI Crash Test app for simulator 🔨"
 
-xcodebuild -workspace Sentry.xcworkspace \
+SDK_V10=1 xcodebuild -workspace Sentry.xcworkspace \
     -scheme SwiftUICrashTest \
     -destination "platform=iOS Simulator,id=$DEVICE_ID" \
     -derivedDataPath DerivedData \
     -configuration Debug \
     CODE_SIGNING_REQUIRED=NO \
+    "ARCHS=\$(ARCHS_STANDARD)" \
     build 2>&1 | tee raw-build.log | xcbeautify --preserve-unbeautified
 
 RUNTIME_VERSION_MM=$(echo "$ACTUAL_OS_VERSION" | awk -F. '{print $1"."$2}')
