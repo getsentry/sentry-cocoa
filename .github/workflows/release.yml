@@ -203,17 +203,12 @@ jobs:
           ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
           ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
-      # === Toolchain and simulator preparation ===
+      # === Toolchain preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Wait for XCFramework downloads
         wait: download-xcframeworks
@@ -243,8 +238,6 @@ jobs:
         run: make strip-xcframework-expected-signature
 
       # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
       - run: make build-xcframework-testapp
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -294,24 +287,17 @@ jobs:
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
 
-      # === Toolchain and simulator preparation ===
+      # === Toolchain preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Wait for XCFramework downloads
         wait: download-xcframeworks
 
       # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
       - run: swift build
         working-directory: TestApps/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -519,24 +505,17 @@ jobs:
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
 
-      # === Toolchain and simulator preparation ===
+      # === Toolchain preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Wait for XCFramework downloads
         wait: download-xcframeworks
 
       # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
       - name: Run Swift dynamic consumer
         run: swift run --build-system xcode SPM-Dynamic
         working-directory: TestApps/SPM-Dynamic
@@ -588,24 +567,17 @@ jobs:
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
 
-      # === Toolchain and simulator preparation ===
+      # === Toolchain preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Wait for XCFramework downloads
         wait: download-xcframeworks
 
       # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
         working-directory: TestApps/visionOS-SPM
       - name: Run CI Diagnostics
