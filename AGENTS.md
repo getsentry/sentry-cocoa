@@ -60,11 +60,10 @@ See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and eve
 | Platform-specific code                                        | Affected `make build-<platform>` target | Tests for that platform                 |
 | Public API or core (`SentryHub`, `SentryClient`, `SentrySDK`) | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
 | `SentryCrash` or C/C++                                        | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
-| `SentrySwiftUI`                                               | `make build-ios FOR_AGENTS=true`        | Targeted iOS tests                      |
 | Build system, `Package.swift`, or cross-platform code         | All affected platforms                  | `make test FOR_AGENTS=true`             |
 | Test app code                                                 | Affected test app                       | Affected UI tests when behavior changed |
 
-- Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json` or `sdk_api_sentryswiftui.json`
+- Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json`
 - Public APIs that require Objective-C support must also be exposed through `SentryObjC` and `SentryObjCCompat`
 - Treat changes to `@_spi(Private)` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
 - Event enrichment changes should be checked with Sentry MCP `search_events` when an environment is available

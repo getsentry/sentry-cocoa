@@ -58,7 +58,6 @@ end_group
 
 export SDK_V10=0
 
-# Build both frameworks at once, as they depend on each other
 begin_group "Build Sentry-Dynamic XCFramework"
 log_info "Building Sentry-Dynamic slice"
 "$SCRIPT_DIR/build-xcframework-slice.sh" --sdk iphoneos --scheme Sentry --suffix '-Dynamic' --mach-o-type mh_dylib
@@ -68,28 +67,11 @@ log_info "Assembling Sentry-Dynamic xcframework"
     --archive-template "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
-begin_group "Build SentrySwiftUI XCFramework"
-log_info "Building SentrySwiftUI slice"
-"$SCRIPT_DIR/build-xcframework-slice.sh" --sdk iphoneos --scheme SentrySwiftUI --mach-o-type mh_dylib
-
-log_info "Assembling SentrySwiftUI xcframework"
-"$SCRIPT_DIR/assemble-xcframework.sh" --scheme SentrySwiftUI --sdks iphoneos \
-    --archive-template "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
-end_group
-
 begin_group "Extract Public API"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api.json \
     --framework-path "./Sentry-Dynamic.xcframework/ios-arm64_arm64e"
-end_group
-
-begin_group "Extract SentrySwiftUI Public API"
-"$SCRIPT_DIR/extract-swift-api.sh" \
-    --module SentrySwiftUI \
-    --output sdk_api_sentryswiftui.json \
-    --framework-path "$(pwd)/SentrySwiftUI.xcframework/ios-arm64_arm64e" \
-    --framework-path "$(pwd)/Sentry-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
 begin_group "Extract SentryObjC Public API"
@@ -175,6 +157,3 @@ begin_group "Extract V10 SwiftPM Public API"
     --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
 check_api_parity sdk_api_v10.json sdk_api_v10_spm.json
 end_group
-
-# SentrySwiftUI's package target still uses the released binary.
-log_info "Skipping SentrySwiftUI SwiftPM: no source-backed package target is available yet."

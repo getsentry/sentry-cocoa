@@ -14,7 +14,7 @@ on:
       name:
         description: |-
           The Sentry project target to build an XCFramework slice for.
-          Possible values: Sentry, SentrySwiftUI.
+          Possible values: Sentry, SentryObjC.
         required: true
         type: string
 
@@ -122,19 +122,6 @@ jobs:
           INPUT_MACHO_TYPE: ${{ inputs.macho-type }}
           INPUT_CONFIG_SUFFIX: ${{ inputs.configuration-suffix }}
         run: ./scripts/build-xcframework-slice.sh --sdk "$MATRIX_SDK" --scheme "$INPUT_NAME" --suffix "$INPUT_SUFFIX" --mach-o-type "$INPUT_MACHO_TYPE" --configuration-suffix "$INPUT_CONFIG_SUFFIX"
-        shell: bash
-
-      # SentrySwiftUI depends on Sentry, which gets built as a byproduct.
-      # Remove it — consumers link Sentry separately.
-      # SentryObjC is NOT included here: it embeds its dependencies inside
-      # the framework bundle and needs them to stay.
-      - name: Remove Sentry.framework byproduct
-        if: inputs.name == 'SentrySwiftUI'
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-        run: |
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive

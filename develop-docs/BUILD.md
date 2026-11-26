@@ -76,8 +76,6 @@ Both the Xcode and SwiftPM paths build iPhoneOS XCFrameworks, then use the same 
 
 Both builds declare the Swift sampler callback alias, and the V9 crash callback belongs to the main SDK module. The source-only `SentryCrashV9Swift` adapter retains its old Swift entry point as a deprecated forwarder; the main SDK remains the sole owner of the C callback symbol. SwiftPM packaging reuses Xcode's `Sentry.h` umbrella and resolves V10 header conditionals with `unifdef`, matching `SentryV10.xcconfig`, without exposing configuration macros or extra public submodules.
 
-Source-backed SentrySwiftUI extraction is deferred; its package target still uses the released binary.
-
 ## Platform-Specific Build Notes
 
 ### visionOS Considerations
