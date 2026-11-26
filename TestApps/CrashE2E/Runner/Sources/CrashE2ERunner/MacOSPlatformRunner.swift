@@ -118,14 +118,14 @@ final class MacOSPlatformRunner {
             platform: "macos",
             artifactsDir: config.artifactsDir
         )
-        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
-            scenario: scenario, cacheRoot: cacheDir, platform: "macos")
         try StoredCrashReports.copyUndrained(
             from: cacheDir,
             platform: "macos",
             scenario: scenario,
             artifactsDir: config.artifactsDir
         )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario, cacheRoot: cacheDir, platform: "macos")
     }
 
     private func runCrashLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,
