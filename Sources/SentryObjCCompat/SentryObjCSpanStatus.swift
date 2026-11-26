@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -33,6 +33,17 @@ extension SentryObjCSpanStatus {
     }
     var underlying: SentrySpanStatus {
         SentrySpanStatus(rawValue: rawValue) ?? .undefined
+    }
+}
+
+@objc(SentryObjCSpanStatusName) public final class SentryObjCSpanStatusName: NSObject {
+    private override init() {
+        super.init()
+    }
+
+    @objc(nameForStatus:)
+    public static func name(for status: SentryObjCSpanStatus) -> String {
+        status.underlying.name
     }
 }
 

@@ -17,6 +17,17 @@ dependencies: [
 ]
 ```
 
+Then add the `SentryCocoaLumberjack` product to your target:
+
+```swift
+.target(
+    name: "MyApp",
+    dependencies: [
+        .product(name: "SentryCocoaLumberjack", package: "sentry-apple-cocoalumberjack")
+    ]
+)
+```
+
 ## Quick Start
 
 ```swift
@@ -26,7 +37,6 @@ import CocoaLumberjackSwift
 
 SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
-    options.enableLogs = true
 }
 
 DDLog.add(SentryCocoaLumberjackLogger(), with: .info)

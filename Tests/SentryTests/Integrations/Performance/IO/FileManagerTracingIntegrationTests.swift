@@ -1,6 +1,11 @@
 @_spi(Private) import SentryTestUtils
 // swiftlint:disable file_length
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class FileManagerSentryTracingIntegrationTests: XCTestCase {
@@ -134,6 +139,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         }
 
         func tearDown() throws {
+            // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
             clearTestState()
 
             // Delete files created by the test run

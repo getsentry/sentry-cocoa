@@ -1,7 +1,14 @@
+// swiftlint:disable file_length
+#if !SDK_V10
 #if os(iOS) || os(tvOS) || os(visionOS)
 
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import ObjectiveC
 import XCTest
 
@@ -75,6 +82,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -990,7 +998,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
     private func reportFrame() {
         advanceTime(bySeconds: self.frameDuration)
-        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
+        SentryDependencyContainer.sharedInstance().framesTracker.manualReportNewFrame()
     }
 }
 #endif // os(iOS) || os(tvOS)
+
+#endif // !SDK_V10

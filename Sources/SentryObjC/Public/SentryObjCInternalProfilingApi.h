@@ -17,6 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryObjCInternalProfilingApi : NSObject
 SENTRY_NO_INIT
 
+/// The @c profiler_id used in chunks from the current continuous profiler, or @c nil when inactive.
+/// A stop request keeps the ID available until the current chunk finishes.
+@property (nonatomic, readonly, copy, nullable) NSString *currentProfilerId;
+
 /// Starts a profiler session for the given trace ID.
 /// Returns the system time when the profiler session started.
 - (uint64_t)startFor:(SentryObjCId *)traceId;

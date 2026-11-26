@@ -6,6 +6,12 @@
 
 @implementation SentryObjCTraceHeaderTests
 
+- (void)testHttpHeaderField_shouldReturnSentryTrace
+{
+    // -- Assert --
+    XCTAssertEqualObjects(SentryObjCTraceHeader.httpHeaderField, @"sentry-trace");
+}
+
 #pragma mark - initWithTraceId:spanId:sampled:
 
 - (void)testInit_shouldReturnNonNil

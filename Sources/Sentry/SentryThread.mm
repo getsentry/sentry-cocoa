@@ -1,5 +1,6 @@
 #import "SentryThread.h"
 #import "NSMutableDictionary+Sentry.h"
+#import "SentryInternalSerializable.h"
 #include "SentryProfilingConditionals.h"
 #import "SentryStacktrace.h"
 

@@ -1,6 +1,4 @@
 #import "SentryHttpTransport.h"
-#import "SentryDiscardReasonMapper.h"
-#import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
@@ -23,9 +21,9 @@
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryReachability *reachability;
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(DEBUG)
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -97,7 +95,8 @@
 {
     if (connected) {
         SENTRY_LOG_DEBUG(@"Internet connection is back.");
-        [self sendAllCachedEnvelopes];
+        __weak SentryHttpTransport *weakSelf = self;
+        [self.dispatchQueue dispatchAsyncWithBlock:^{ [weakSelf sendAllCachedEnvelopes]; }];
     } else {
         SENTRY_LOG_DEBUG(@"Lost internet connection.");
     }
@@ -154,7 +153,7 @@
     }
 
     NSString *key = [NSString stringWithFormat:@"%@:%@",
-        [SentryDataCategoryMapper nameFor:category], nameForSentryDiscardReason(reason)];
+        [SentryDataCategoryMapper nameFor:category], [SentryDiscardReasonMapper nameFor:reason]];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
@@ -163,7 +162,7 @@
         }
 
         event =
-            [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+            [[SentryDiscardedEvent alloc] initWithReason:[SentryDiscardReasonMapper nameFor:reason]
                                                 category:[SentryDataCategoryMapper nameFor:category]
                                                 quantity:quantity];
 
@@ -171,12 +170,12 @@
     }
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(DEBUG) // Test support.
 - (void)setStartFlushCallback:(void (^)(void))callback
 {
     _startFlushCallback = callback;
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(DEBUG)
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
@@ -196,11 +195,11 @@
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(DEBUG) // Test support.
         if (self.startFlushCallback != nil) {
             self.startFlushCallback();
         }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(DEBUG)
     }
 
     // We are waiting for the dispatch group below, which we leave in finished sending. As
@@ -246,7 +245,9 @@
 {
     SENTRY_LOG_WARN(@"Envelope item dropped due to exceeding rate limit. Category: %@",
         [SentryDataCategoryMapper nameFor:dataCategory]);
-    [self recordLostEvent:dataCategory reason:SentryDiscardReasonRateLimitBackoff];
+    [self recordLostEnvelopeItem:envelopeItem
+                        category:dataCategory
+                          reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostTraceMetricBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
@@ -255,7 +256,9 @@
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory
 {
-    [self recordLostEvent:dataCategory reason:SentryDiscardReasonCacheOverflow];
+    [self recordLostEnvelopeItem:envelopeItem
+                        category:dataCategory
+                          reason:SentryDiscardReasonCacheOverflow];
     [self recordLostSpans:envelopeItem reason:SentryDiscardReasonCacheOverflow];
     [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonCacheOverflow];
     [self recordLostTraceMetricBytes:envelopeItem reason:SentryDiscardReasonCacheOverflow];
@@ -470,11 +473,26 @@
         }
         SentryDataCategory category =
             [SentryDataCategoryMapper categoryForEnvelopeItemType:itemType];
-        [self recordLostEvent:category reason:SentryDiscardReasonSendError];
+        [self recordLostEnvelopeItem:item category:category reason:SentryDiscardReasonSendError];
         [self recordLostSpans:item reason:SentryDiscardReasonSendError];
         [self recordLostLogBytes:item reason:SentryDiscardReasonSendError];
         [self recordLostTraceMetricBytes:item reason:SentryDiscardReasonSendError];
     }
+}
+
+- (void)recordLostEnvelopeItem:(SentryEnvelopeItem *)envelopeItem
+                      category:(SentryDataCategory)category
+                        reason:(SentryDiscardReason)reason
+{
+    // Logs and metrics batch multiple items into one envelope item, and the client report must
+    // count every batched item instead of the envelope item. See
+    // https://develop.sentry.dev/sdk/telemetry/client-reports/#quantity-of-discarded-envelopes
+    NSUInteger quantity = 1;
+    NSNumber *_Nullable itemCount = envelopeItem.itemCount;
+    if (itemCount != nil && itemCount.unsignedIntegerValue > 0) {
+        quantity = itemCount.unsignedIntegerValue;
+    }
+    [self recordLostEvent:category reason:reason quantity:quantity];
 }
 
 - (void)recordLostLogBytes:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason

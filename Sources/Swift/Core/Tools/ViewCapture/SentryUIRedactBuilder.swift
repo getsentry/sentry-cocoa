@@ -1,11 +1,11 @@
 // swiftlint:disable file_length type_body_length
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 internal import _SentryPrivate
 import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 import PDFKit
 import WebKit
 #endif
@@ -197,7 +197,7 @@ final class SentryUIRedactBuilder {
 
         Self.registerLiquidGlassLayers(options: options, into: &redactLayers)
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         redactClasses.insert(ClassIdentifier(objcType: PDFView.self))
         redactClasses.insert(ClassIdentifier(objcType: WKWebView.self))
 
@@ -258,7 +258,7 @@ final class SentryUIRedactBuilder {
     /// SF Symbols are rendered as CALayer sublayers without a backing UIView. This method populates
     /// the layer class set so `mapRedactRegion` can detect and mask them.
     private static func registerLiquidGlassLayers(options: SentryRedactOptions, into redactLayers: inout Set<String>) {
-        guard #available(iOS 26.0, tvOS 26.0, *) else { return }
+        guard #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) else { return }
 
         if options.maskAllText {
             // Replaces `SwiftUI.CGDrawingView` for text rendering.
@@ -405,7 +405,7 @@ final class SentryUIRedactBuilder {
         redactClassesIdentifiers.insert(ClassIdentifier(class: containerClass))
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     func isIgnoreContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
         return isIgnoreContainerClass(containerClass)
     }
@@ -538,7 +538,17 @@ final class SentryUIRedactBuilder {
         guard let image = imageView.image, image.size.width > 10 && image.size.height > 10  else {
             return false
         }
-        return image.imageAsset?.value(forKey: "_containingBundle") == nil
+        // Do not read imageAsset: its getter can lazily create an asset and change the layout
+        // size of archived images whose scale differs from their trait collection's display scale.
+        // Check symbols first to avoid allocating their description string on each replay frame.
+        if image.isSymbolImage {
+            return false
+        }
+
+        // The "named(" marker identifies bundle images without relying on private asset properties.
+        // This debug format is undocumented. If it changes, these images default to being masked.
+        // Rendering mode alone is not a safe exemption: template images can contain user content.
+        return !image.description.contains("named(")
     }
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
@@ -608,7 +618,7 @@ final class SentryUIRedactBuilder {
                     ))
                 }
             }
-        } else if #available(iOS 26.0, tvOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
+        } else if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
             // iOS 26+ (Liquid Glass): SwiftUI no longer wraps drawing content in UIView subclasses.
             // Text, images, and SF Symbols are rendered as CALayer sublayers without a backing UIView.
             // We detect these by matching the layer's class name against known drawing layer types.
@@ -733,7 +743,7 @@ final class SentryUIRedactBuilder {
             return true
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         // UISwitch uses UIImageView internally, which can be in the list of redacted views.
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
@@ -742,7 +752,7 @@ final class SentryUIRedactBuilder {
         if viewTypeId == "UISwitch" && containsIgnoreClassId(ClassIdentifier(classId: viewTypeId)) {
             return true
         }
-#endif // os(iOS)
+#endif // os(iOS) || os(visionOS)
 
         return false
     }

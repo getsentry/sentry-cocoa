@@ -1,10 +1,10 @@
 // swiftlint:disable missing_docs file_length
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider & ReplayRecoveryIdleGateProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -30,26 +30,28 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var currentScreenshotProvider: SentryViewScreenshotProvider?
     private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     private var previewView: SentryMaskingPreviewView?
+    #if SDK_V10
+    private let privacyOptions: SentryPrivacyOptions
+    #endif // SDK_V10
     private let dateProvider: SentryCurrentDateProvider
-    private let crashWrapper: SentryCrashReporter
+    private let debuggerStatusProvider: SentryDebuggerStatusProvider
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
-    /// Written by `pause`/`resume` (application lifecycle, usually the main thread) and read
-    /// from the reachability queue in `connectivityChanged`.
-    private let isApplicationStatePaused = SentryMutex<Bool>(false)
+    private let isManuallyPaused = SentryMutex(false)
+    /// The id of the replay that is current, i.e. the one the global crash-sync info was last started
+    /// for. Segments arrive on the processing queue, so this is guarded instead of reading `sessionReplay`.
+    private let currentReplayId = SentryMutex<SentryId?>(nil)
+    /// Tags set by hybrid SDKs through ``setReplayTags(_:)``. Kept here because hybrid SDKs set them
+    /// during SDK init, before any replay session exists, and every new session must pick them up.
+    private let replayTags = SentryMutex<[String: Any]?>(nil)
 
     /// Getter to get the current application at runtime
     ///
     /// When initializing the Sentry SDK from ``SwiftUI/App.init`` the ``UIKit/UIApplication.shared`` returns `nil`, therefore we need to
     /// dynamically get it later, even if the application is not changing during the life-time of the app
     private let getApplication: () -> SentryApplication?
-
-    /// We need to use this variable to identify whether rate limiting was ever activated for session replay
-    /// in this session, instead of always looking for the rate status in `SentryRateLimits`. This is the
-    /// easiest way to ensure segment 0 will always reach the server, because session replay needs segment 0.
-    private var rateLimited = false
 
     /// Indicates that session replay should start once the SDK can resolve a usable application
     /// window. This is needed because SDK startup can run before `UIApplication.shared` or a
@@ -63,11 +65,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - Initialization
 
     required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
-        guard options.sessionReplay.sessionSampleRate > 0 || options.sessionReplay.onErrorSampleRate > 0 else {
-            SentrySDKLog.debug("Not going to enable SentrySessionReplayIntegration because sample rates are 0.")
-            return nil
-        }
-
         self.init(nonOptionalWith: options, dependencies: dependencies)
     }
     
@@ -83,13 +80,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     init(nonOptionalWith options: Options, dependencies: SessionReplayIntegrationScope) {
         self.replayOptions = options.sessionReplay
+        #if SDK_V10
+        self.privacyOptions = options.privacy
+        #endif // SDK_V10
         self.experimentalOptions = options.experimental
         self.notificationCenter = dependencies.notificationCenterWrapper
         self.rateLimits = dependencies.rateLimits
         self.dateProvider = dependencies.dateProvider
         self.random = dependencies.random
         self.captureScheduler = dependencies.sessionReplayCaptureScheduler
-        self.crashWrapper = dependencies.crashWrapper
+        self.debuggerStatusProvider = dependencies.debuggerStatusProvider
         self.getApplication = dependencies.application
         self.breadcrumbConverter = dependencies.sessionReplayBreadcrumbConverter
 
@@ -98,12 +98,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             sharedDispatchQueue: dependencies.dispatchQueueWrapper
         )
         
-        self.viewPhotographer = Self.createViewPhotographer(options: options)
+        self.viewPhotographer = Self.createViewPhotographer(options: options, dateProvider: dependencies.dateProvider)
         (self.replayProcessingQueue, self.replayAssetWorkerQueue) = Self.createDispatchQueues(dependencies: dependencies)
         
         super.init()
 
-        isApplicationStatePaused.withLock { $0 = getApplication()?.mainThread_isActive == false }
         self.backgroundForegroundObserver = SentrySessionReplayBackgroundForegroundObserver(integration: self)
         
         self.replayRecovery = SessionReplayRecovery(
@@ -112,7 +111,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayProcessingQueue: replayProcessingQueue,
             replayAssetWorkerQueue: replayAssetWorkerQueue,
             replayFileManager: replayFileManager,
-            breadcrumbConverter: breadcrumbConverter
+            breadcrumbConverter: breadcrumbConverter,
+            idleGate: dependencies.replayRecoveryIdleGate
         )
         
         setupTouchTrackerIfNeeded(options: options)
@@ -134,8 +134,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         notificationCenter.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
         SentrySDKInternal.currentHub().unregisterSessionListener(self)
-        touchTracker = nil
         stopCurrentReplay()
+        touchTracker = nil
     }
 
     deinit {
@@ -145,7 +145,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     // MARK: - Initialization Helpers
     
-    private static func createViewPhotographer(options: Options) -> SentryViewPhotographer {
+    private static func createViewPhotographer(options: Options, dateProvider: SentryCurrentDateProvider) -> SentryViewPhotographer {
         var viewRenderer: SentryViewRenderer
         
         if options.sessionReplay.enableViewRendererV2 {
@@ -157,7 +157,17 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
         // just introduce another option without affecting the SDK user experience.
-        return SentryViewPhotographer(renderer: viewRenderer, redactOptions: options.sessionReplay, enableMaskRendererV2: options.sessionReplay.enableViewRendererV2)
+        #if SDK_V10
+        let redactOptions = options.privacy
+        #else
+        let redactOptions = options.sessionReplay
+        #endif // SDK_V10
+        return SentryViewPhotographer(
+            renderer: viewRenderer,
+            redactOptions: redactOptions,
+            enableMaskRendererV2: options.sessionReplay.enableViewRendererV2,
+            dateProvider: dateProvider
+        )
     }
     
     private static func createDispatchQueues(dependencies: SessionReplayIntegrationScope) -> (processing: SentryDispatchQueueWrapper, assetWorker: SentryDispatchQueueWrapper) {
@@ -181,20 +191,56 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private func registerEventProcessor(dependencies: SessionReplayIntegrationScope) {
         dependencies.globalEventProcessor.add { [weak self] event in
             guard let self = self else { return event }
+            // Feedback capture resolves its replay before processing, including the form's
+            // opening-time association. Do not replace it with the current session's ID.
+            if event.type == SentryEnvelopeItemTypes.feedback {
+                return event
+            }
             if event.isFatalEvent {
+                // A crash belongs to the previous session, which is recovered and sent separately.
+                // Don't register its trace on the current session's replay: the crash's persisted
+                // trace would be attached to the wrong (new) segment while the recovered replay
+                // never receives it.
                 self.replayRecovery?.resumePreviousSessionReplay(event)
-            } else {
+            } else if !event.isFromPreviousProcess {
+                // Events from a previous process, such as MetricKit diagnostics delivered on a
+                // later launch, weren't recorded by the current replay, so they get no replay
+                // context and don't register their trace on it.
+                //
+                // Associate the event's trace with the recording replay segment (#7964), so replays
+                // can be searched by trace ID. Skip replay_video events, which carry no trace of
+                // their own.
+                if event.type != SentryEnvelopeItemTypes.replayVideo,
+                    let traceId = traceId(for: event) {
+                    self.sessionReplay?.registerTraceId(traceId)
+                }
                 self.sessionReplay?.captureReplayFor(event: event)
             }
             return event
         }
     }
 
+    /// The trace ID an event belongs to, for associating it with the replay segment.
+    ///
+    /// Transactions are read from their own trace because, after the tracer leaves the scope,
+    /// the event's `context["trace"]` may hold the idle propagation trace instead. Other events
+    /// (e.g. errors) carry the correct trace in their context, populated by the scope before
+    /// processors run.
+    private func traceId(for event: Event) -> SentryId? {
+        if let transaction = event as? Transaction {
+            return transaction.trace.traceId
+        }
+        guard let hexString = event.context?["trace"]?["trace_id"] as? String else {
+            return nil
+        }
+        let traceId = SentryId(uuidString: hexString)
+        return traceId == SentryId.empty ? nil : traceId
+    }
+
     // MARK: - Session Listener
 
     public func sentrySessionStarted(session: SentrySession) {
         SentrySDKLog.debug("[Session Replay] Session started")
-        rateLimited = false
         startSession()
     }
 
@@ -262,13 +308,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc private func applicationDidBecomeActiveHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Application did become active, starting replay")
-        isApplicationStatePaused.withLock { $0 = false }
         runReplayForAvailableWindow()
     }
 
     @objc private func sceneDidActivateHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Scene is available, starting replay")
-        isApplicationStatePaused.withLock { $0 = false }
         runReplayForAvailableWindow()
     }
 
@@ -309,15 +353,29 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayMaker: replayMaker, breadcrumbConverter: breadcrumbConverter, touchTracker: touchTracker,
             dateProvider: dateProvider, delegate: self, captureScheduler: captureScheduler)
 
+        #if SDK_V10
+        newSessionReplay.privacyOptions = privacyOptions
+        #endif // SDK_V10
+        newSessionReplay.replayTags = replayTags.withLock { $0 }
         self.sessionReplay = newSessionReplay
+        touchTracker?.enable()
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
-        if isApplicationStatePaused.withLock({ $0 }) {
+        if isManuallyPaused.withLock({ $0 }) || getApplication()?.mainThread_isActive == false {
             newSessionReplay.pause()
         }
         
         if let replayId = newSessionReplay.sessionReplayId {
-            replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
+            // Under the lock, so a segment check in `sessionReplayNewSegment` can't interleave with the reset.
+            currentReplayId.withLock {
+                replayFileManager.saveCurrentSessionInfo(
+                    replayId,
+                    path: sessionDocs.path,
+                    options: replayOptions,
+                    replayType: fullSession ? .session : .buffer
+                )
+                $0 = replayId
+            }
         }
     }
     
@@ -367,49 +425,92 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     private func stopCurrentReplay() {
         sessionReplay?.pause()
+        touchTracker?.disable()
         removeBackgroundForegroundObservers()
+        // Clear the replay first because the replay ID getter falls back to it when the scope ID is nil.
+        // Reversing this order could briefly return the ID of the replay that just stopped.
         sessionReplay = nil
+        // Clear the scope's replayId so events captured after a manual stop() are not associated with a
+        // replay that is no longer recording. This mirrors sessionReplayEnded(), which is only reached on
+        // the maximum-duration teardown path and never for a manual stop().
+        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
     }
 
     // MARK: - API Exposed to ObjC
     
     @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
-        isApplicationStatePaused.withLock { $0 = true }
+        isManuallyPaused.withLock { $0 = true }
         sessionReplay?.pause()
     }
 
     @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
-        isApplicationStatePaused.withLock { $0 = false }
+        isManuallyPaused.withLock { $0 = false }
+        guard getApplication()?.mainThread_isActive != false else { return }
         sessionReplay?.resume()
+    }
+
+    /// The touch tracker lives as long as this integration, so the pause applies to every replay
+    /// started afterwards, and `start()`, `stop()`, and `resume()` don't clear it.
+    @objc public func pauseTouchTracking() {
+        SentrySDKLog.debug("[Session Replay] Pausing touch tracking")
+        touchTracker?.pause()
+    }
+
+    @objc public func resumeTouchTracking() {
+        SentrySDKLog.debug("[Session Replay] Resuming touch tracking")
+        touchTracker?.resume()
     }
 
     @objc public func start() {
         SentrySDKLog.debug("[Session Replay] Starting session")
-        if rateLimited {
-            SentrySDKLog.warning("[Session Replay] This session was rate limited. Not starting session replay until next app session")
-            return
-        }
-        if let replay = sessionReplay {
-            if !replay.isFullSession {
-                replay.captureReplay(replayType: .session)
+        start(fullSession: true)
+    }
+
+    @objc public func startBuffering() {
+        SentrySDKLog.debug("[Session Replay] Starting buffer")
+        start(fullSession: false)
+    }
+
+    @objc public func flush() {
+        SentrySDKLog.debug("[Session Replay] Flushing session")
+        guard let sessionReplay else {
+            if isPendingStart {
+                startedAsFullSession = true
+                return
             }
-            return
+            return start(fullSession: true, resetManualPause: false)
         }
-        startedAsFullSession = true
+        sessionReplay.flush()
+    }
+
+    private func start(fullSession: Bool, resetManualPause: Bool = true) {
+        guard sessionReplay == nil && !isPendingStart else { return }
+        if resetManualPause {
+            isManuallyPaused.withLock { $0 = false }
+        }
+        startedAsFullSession = fullSession
         isPendingStart = true
         runReplayForAvailableWindow()
     }
 
     @objc public func stop() {
         SentrySDKLog.debug("[Session Replay] Stopping session")
+        isManuallyPaused.withLock { $0 = false }
         cancelPendingStartAndStopCurrentReplay()
     }
 
     @objc @discardableResult public func captureReplay() -> Bool {
         SentrySDKLog.debug("[Session Replay] Capturing replay")
         return sessionReplay?.captureReplay() ?? false 
+    }
+
+    /// Samples and flushes the active replay for feedback, returning its association when captured.
+    @objc public func captureReplayForFeedback() -> SentryId? {
+        guard let sessionReplay = sessionReplay else { return nil }
+        guard sessionReplay.isFullSession || replayOptions.onErrorSampleRate > 0 else { return nil }
+        return sessionReplay.captureForFeedback()
     }
 
     @objc public func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {
@@ -427,12 +528,21 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func setReplayTags(_ tags: [String: Any]) {
         SentrySDKLog.debug("[Session Replay] Setting replay tags: \(tags)")
-        sessionReplay?.replayTags = tags 
+        replayTags.withLock { $0 = tags }
+        sessionReplay?.replayTags = tags
+    }
+
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// No-op when no replay is recording. Reachable from hybrid SDKs through
+    /// `SentrySDK.internal.replay.registerTraceId(_:)`.
+    @objc public func registerReplayTraceId(_ traceId: SentryId) {
+        sessionReplay?.registerTraceId(traceId)
     }
 
     @objc public func showMaskPreview(_ opacity: Float) {
         SentrySDKLog.debug("[Session Replay] Showing mask preview with opacity: \(opacity)")
-        guard crashWrapper.isBeingTraced else { 
+        guard debuggerStatusProvider.isBeingTraced else {
             SentrySDKLog.debug("[Session Replay] No tracing is active, not showing mask preview")
             return 
         }
@@ -440,7 +550,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             SentrySDKLog.debug("[Session Replay] No UIWindow available to display preview")
             return 
         }
+        #if SDK_V10
+        if previewView == nil { previewView = SentryMaskingPreviewView(redactOptions: privacyOptions) }
+        #else
         if previewView == nil { previewView = SentryMaskingPreviewView(redactOptions: replayOptions) }
+        #endif // SDK_V10
         previewView?.opacity = opacity
         previewView?.frame = window.bounds
         if let pv = previewView { window.addSubview(pv) }
@@ -459,29 +573,41 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
-            rateLimited = true
-            stop()
+            // A late segment of a stopped replay (e.g. flush then stop then start) must not stop the
+            // replay that replaced it, which may be buffering and would outlive the rate limit.
+            guard currentReplayId.withLock({ $0 == replayEvent.eventId }) else { return }
+            replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+                self?.cancelPendingStartAndStopCurrentReplay()
+            }
             return
         }
-        guard let timestamp = replayEvent.timestamp else { 
+        guard let timestamp = replayEvent.timestamp else {
             SentrySDKLog.warning("[Session Replay] Could not capture replay event, reason: timestamp is nil")
-            return 
+            return
         }
         SentrySDKInternal.currentHub().captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
-        sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
+        // Likewise, a late segment must not overwrite the crash info of the replay that replaced it.
+        currentReplayId.withLock {
+            guard $0 == replayEvent.eventId else { return }
+            sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
+        }
     }
 
     public func sessionReplayStarted(replayId: SentryId) {
         SentrySDKLog.debug("[Session Replay] Session replay started with replayId: \(replayId.sentryIdString)")
+        replayFileManager.updateCurrentReplayType(.session, replayId: replayId)
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 
     public func sessionReplayEnded() {
         SentrySDKLog.debug("[Session Replay] Session replay ended")
         isPendingStart = false
-        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
-        removeBackgroundForegroundObservers()
+        // Clear the replay first because the replay ID getter falls back to it when the scope ID is nil.
+        // Reversing this order could briefly return the ID of the replay that just ended.
         sessionReplay = nil
+        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
+        touchTracker?.disable()
+        removeBackgroundForegroundObservers()
     }
 
     public func breadcrumbsForSessionReplay() -> [Breadcrumb] {
@@ -497,15 +623,28 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - SentryReachabilityObserver
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
-        if connected {
-            sessionReplay?.resumeSessionMode(restartCaptureScheduler: !isApplicationStatePaused.withLock({ $0 }))
-        } else {
-            sessionReplay?.pauseSessionMode()
+        replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            guard let self else { return }
+            if connected {
+                let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
+                sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
+            } else {
+                sessionReplay?.pauseSessionMode()
+            }
         }
+    }
+
+    fileprivate func onAppBackgrounded() {
+        sessionReplay?.pause()
+    }
+
+    fileprivate func onAppForegrounded() {
+        guard !isManuallyPaused.withLock({ $0 }) else { return }
+        sessionReplay?.resume()
     }
     
     // MARK: - Test only
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     func replayDirectory() -> URL? { replayFileManager.replayDirectory() }
     
     func moveCurrentReplay() { replayFileManager.moveCurrentReplay() }
@@ -533,11 +672,11 @@ private final class SentrySessionReplayBackgroundForegroundObserver: NSObject {
     }
 
     @objc func pause(_ notification: Notification) {
-        integration?.pause()
+        integration?.onAppBackgrounded()
     }
 
     @objc func resume(_ notification: Notification) {
-        integration?.resume()
+        integration?.onAppForegrounded()
     }
 }
 

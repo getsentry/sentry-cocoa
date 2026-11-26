@@ -1,14 +1,11 @@
 #import "SentryClient+Private.h"
-#import "SentryEnvelopeItemHeader.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLevelMapper.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
-#import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
-#import "SentrySampling.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
@@ -16,8 +13,7 @@
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
-#import "SentryTracerConfiguration.h"
-#import "SentryTransaction.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,41 +23,68 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
+@property (nonatomic, strong) id<SentryCrashReporterState> activeCrashReporterState;
+@property (nonatomic, strong) id<SentryScopeContextEnricher> scopeContextEnricher;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
+
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SentryScope *)scope
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+
+- (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled;
 
 @end
 
 @implementation SentryHubInternal {
     NSObject *_sessionLock;
     NSObject *_integrationsLock;
+    NSCondition *_pendingTransactionCapturesCondition;
+    NSUInteger _pendingTransactionCaptureCount;
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
 {
     return [self initWithClient:client
-                       andScope:scope
-                andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
-               andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+                        andScope:scope
+        activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
+            scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
+                andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
+    return [self initWithClient:client
+                        andScope:scope
+        activeCrashReporterState:activeCrashReporterState
+            scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
+                andDispatchQueue:dispatchQueue];
+}
 
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SentryScope *)scope
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
     if (self = [super init]) {
         _client = client;
         _scope = scope;
-        _crashWrapper = crashWrapper;
+        _activeCrashReporterState = activeCrashReporterState;
+        _scopeContextEnricher = scopeContextEnricher;
         _dispatchQueue = dispatchQueue;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
+        _pendingTransactionCapturesCondition = [[NSCondition alloc] init];
+        _pendingTransactionCaptureCount = 0;
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
@@ -71,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         if (_scope) {
-            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
+            [_scopeContextEnricher enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
 
         __swiftLogger = [[SentryLogger alloc]
@@ -124,8 +147,8 @@ NS_ASSUME_NONNULL_BEGIN
         [self captureSession:session];
         newSession = session;
     }
-    [lastSession
-        endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+    [lastSession endSessionNormallyWithTimestamp:[SentryDependencyContainer.sharedInstance
+                                                         .dateProvider date]];
     [self captureSession:lastSession];
 
     [self notifySessionStarted:newSession];
@@ -150,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
     }
-    [currentSession endSessionExitedWithTimestamp:timestamp];
+    [currentSession endSessionNormallyWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
     [self notifySessionEnded:currentSession];
@@ -211,9 +234,8 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
-    // out more.
-    if (!self.crashWrapper.crashedLastLaunch) {
+    // The active crash integration handles the crashed session before auto session tracking.
+    if (!self.activeCrashReporterState.crashedLastLaunch) {
         if (timestamp == nil) {
             SENTRY_LOG_DEBUG(@"No timestamp to close session was provided. Closing as abnormal. "
                              @"Using session's start time %@",
@@ -221,8 +243,8 @@ NS_ASSUME_NONNULL_BEGIN
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         } else {
-            SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
+            SENTRY_LOG_DEBUG(@"Closing cached session normally.");
+            [session endSessionNormallyWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -270,11 +292,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
+    [self captureFatalEventWithResult:event withScope:scope preserveCrashedSessionOnFailure:NO];
+}
+
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+                                withScope:(SentryScope *)scope
+          preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
+{
     event.isFatalEvent = YES;
 
     SentryClientInternal *client = self.client;
     if (client == nil) {
-        return;
+        return SentryId.empty;
     }
 
     SentryFileManager *fileManager = [client fileManager];
@@ -284,18 +313,33 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous crash on disk. In this case,
     // we just send the crash event.
     if (crashedSession != nil) {
-        [client captureFatalEvent:event withSession:crashedSession withScope:scope];
-        [fileManager deleteCrashedSession];
-    } else {
-        [client captureFatalEvent:event withScope:scope];
+        SentryId *eventId = [client captureFatalEvent:event
+                                          withSession:crashedSession
+                                            withScope:scope];
+        if (!preserveCrashedSessionOnFailure ||
+            [self isFatalEventCaptureResultTerminal:eventId client:client]) {
+            [fileManager deleteCrashedSession];
+        }
+        return eventId;
     }
+
+    return [client captureFatalEvent:event withScope:scope];
 }
 
-#if SENTRY_HAS_UIKIT
+- (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client
+{
+    if (![eventId isEqual:SentryId.empty]) {
+        return YES;
+    }
+
+    return !client.isDisabled && self.client == client;
+}
+
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
- * SentryCrashIntegrationSessionHandler
+ * PreviousRunSessionFinalizer
  */
 - (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
@@ -325,7 +369,7 @@ NS_ASSUME_NONNULL_BEGIN
     [fileManager deleteAbnormalSession];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
@@ -348,13 +392,62 @@ NS_ASSUME_NONNULL_BEGIN
 
     // When a user calls finish on a transaction, which calls captureTransaction, the calling thread
     // here could be the main thread, which we only want to block as long as required. Therefore, we
-    // capture the transaction on a background thread.
+    // capture the transaction on a background thread. We keep track of pending captures so that
+    // flush and close can wait for them.
+    [self pendingTransactionCaptureStarted];
     __weak SentryHubInternal *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         [weakSelf captureEvent:transaction
                           withScope:scope
             additionalEnvelopeItems:additionalEnvelopeItems];
+        [weakSelf pendingTransactionCaptureFinished];
     }];
+}
+
+- (void)pendingTransactionCaptureStarted
+{
+    [_pendingTransactionCapturesCondition lock];
+    _pendingTransactionCaptureCount += 1;
+    [_pendingTransactionCapturesCondition unlock];
+}
+
+- (void)pendingTransactionCaptureFinished
+{
+    [_pendingTransactionCapturesCondition lock];
+    if (_pendingTransactionCaptureCount > 0) {
+        _pendingTransactionCaptureCount -= 1;
+    }
+    if (_pendingTransactionCaptureCount == 0) {
+        [_pendingTransactionCapturesCondition broadcast];
+    }
+    [_pendingTransactionCapturesCondition unlock];
+}
+
+/**
+ * Waits for transaction captures that are still pending on the background thread, so they reach
+ * the transport before flushing.
+ * @return The remaining timeout after waiting, or @c 0 if waiting timed out.
+ */
+- (NSTimeInterval)waitForPendingTransactionCaptures:(NSTimeInterval)timeout
+{
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:timeout];
+
+    [_pendingTransactionCapturesCondition lock];
+    if (_pendingTransactionCaptureCount > 0) {
+        SENTRY_LOG_DEBUG(@"Waiting for %lu pending transaction captures.",
+            (unsigned long)_pendingTransactionCaptureCount);
+    }
+    // waitUntilDate can return early, so we check the count again until the deadline passes.
+    while (_pendingTransactionCaptureCount > 0 &&
+        [_pendingTransactionCapturesCondition waitUntilDate:deadline]) { }
+    BOOL timedOut = _pendingTransactionCaptureCount > 0;
+    [_pendingTransactionCapturesCondition unlock];
+
+    if (timedOut) {
+        SENTRY_LOG_WARN(@"Waiting for pending transaction captures timed out.");
+        return 0.0;
+    }
+    return fmax(0.0, [deadline timeIntervalSinceNow]);
 }
 
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
@@ -486,8 +579,8 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentrySamplerDecision *tracesSamplerDecision
-        = sentry_sampleTrace(samplingContext, self.client.options);
+    SentrySamplerDecision *tracesSamplerDecision = [SentrySampling sampleTrace:samplingContext
+                                                                       options:self.client.options];
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:tracesSamplerDecision.decision
                                        sampleRate:tracesSamplerDecision.sampleRate
@@ -582,6 +675,42 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureEvent:event withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureError:error withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureException:exception withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureMessage:message withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
 - (SentryId *)captureErrorEvent:(SentryEvent *)event
 {
     SentryScope *scope = self.scope;
@@ -593,12 +722,25 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureErrorEvent:(SentryEvent *)event withHint:(id _Nullable)hint
+{
+    SentryScope *scope = self.scope;
+    SentryClientInternal *client = self.client;
+
+    if (client != nil) {
+        SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+        return [client captureEventIncrementingSessionErrorCount:event
+                                                       withScope:scope
+                                                            hint:resolvedHint];
+    }
+    return SentryId.empty;
+}
+
 - (void)captureFeedback:(SentryFeedback *)feedback
 {
-    SentryClientInternal *client = self.client;
-    if (client != nil) {
-        [client captureFeedback:feedback withScope:self.scope];
-    }
+    [self captureSerializedFeedback:[feedback serialize]
+                        withEventId:feedback.eventId.sentryIdString
+                        attachments:[feedback attachmentsForEnvelope]];
 }
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
@@ -607,6 +749,19 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        if (!client.isDisabled && serializedFeedback[@"replay_id"] == nil) {
+            SentrySessionReplayIntegration *replayIntegration
+                = (SentrySessionReplayIntegration *)[self
+                    getInstalledIntegration:SentrySessionReplayIntegration.class];
+            SentryId *replayId = [replayIntegration captureReplayForFeedback];
+            if (replayId != nil) {
+                NSMutableDictionary *feedbackWithReplay = [serializedFeedback mutableCopy];
+                feedbackWithReplay[@"replay_id"] = replayId.sentryIdString;
+                serializedFeedback = feedbackWithReplay;
+            }
+        }
+#endif
         [client captureSerializedFeedback:serializedFeedback
                               withEventId:feedbackEventId
                               attachments:feedbackAttachments
@@ -616,14 +771,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     SentryOptions *options = [[self client] options];
     if (options.maxBreadcrumbs < 1) {
         return;
     }
     SentryBreadcrumb *_Nullable nullableCrumb = crumb;
-    SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
-    if (callback != nil) {
-        nullableCrumb = callback(crumb);
+    if (options.beforeBreadcrumbWithHint != nil) {
+        SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, resolvedHint);
+    } else {
+        SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
+        if (callback != nil) {
+            nullableCrumb = callback(crumb);
+        }
     }
     if (nullableCrumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
@@ -654,12 +819,14 @@ NS_ASSUME_NONNULL_BEGIN
         if (_scope == nil) {
             SentryClientInternal *client = self.client;
             if (client != nil) {
-                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                _scope =
+                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs
+                                                maxFeatureFlags:client.options.maxFeatureFlags];
             } else {
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
+            [_scopeContextEnricher enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
         return SENTRY_UNWRAP_NULLABLE(SentryScope, _scope);
     }
@@ -783,6 +950,65 @@ NS_ASSUME_NONNULL_BEGIN
     [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
 }
 
+/**
+ * Needed by hybrid SDKs such as Flutter, where an unhandled exception doesn't terminate the
+ * process. Instead of ending the session as crashed, this keeps the session running and marks it,
+ * so it ends as unhandled.
+ *
+ * Session side effects are the same as -updateSessionForDroppedEventNonTerminating:;
+ * this method also sends the envelope.
+ */
+- (void)captureNonTerminatingEnvelope:(id)envelope
+{
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        return;
+    }
+
+    [client captureEnvelope:[self updateSessionStateForNonTerminatingEnvelope:envelope]];
+}
+
+- (SentryEnvelope *)updateSessionStateForNonTerminatingEnvelope:(SentryEnvelope *)envelope
+{
+    BOOL handled = YES;
+    if (![self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
+        return envelope;
+    }
+
+    SentrySession *currentSession = [self updateSessionForDroppedEventNonTerminating:!handled];
+    if (currentSession == nil) {
+        return envelope;
+    }
+
+    // The session stays open, so it's sent as an intermediate update with the incremented error
+    // count. It's sent again with its terminal status when it ends.
+    NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+        [[NSMutableArray alloc] initWithArray:envelope.items];
+    [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+    return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
+}
+
+/**
+ * Updates the current session for a non-terminating hybrid error.
+ * Does not capture an envelope. Hybrid SDKs should call this when an error is dropped by sampling.
+ */
+- (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled
+{
+    SentrySession *currentSession;
+    @synchronized(_sessionLock) {
+        // Marking before incrementing, because incrementing persists the session.
+        if (unhandled) {
+            [_session markPendingUnhandled];
+        }
+        currentSession = [self incrementSessionErrors];
+        if (currentSession != nil) {
+            SENTRY_LOG_DEBUG(@"Updating session for non-terminating event: %@",
+                [self createSessionDebugString:currentSession]);
+        }
+    }
+    return currentSession;
+}
+
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
                        startNewSession:(BOOL)startNewSession
 {
@@ -834,7 +1060,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSDictionary *_Nonnull eventJson
                 = SENTRY_UNWRAP_NULLABLE(NSDictionary, nullableEventJson);
 
-            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
+            SentryLevel level = [SentryLevelHelper levelForName:eventJson[@"level"]];
             if (level >= kSentryLevelError) {
                 *handled = [self eventContainsOnlyHandledErrors:eventJson];
                 return YES;
@@ -882,14 +1108,25 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)flush:(NSTimeInterval)timeout
 {
     SentryClientInternal *client = self.client;
-    if (client != nil) {
-        [client flush:timeout];
+    if (client == nil) {
+        return;
     }
+
+    // The time spent waiting for pending transaction captures counts against the timeout.
+    NSTimeInterval remainingTimeout = [self waitForPendingTransactionCaptures:timeout];
+    [client flush:remainingTimeout];
 }
 
 - (void)close
 {
-    [self.client close];
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        // A closed client doesn't capture anymore, so we wait for pending transaction captures
+        // first. The time spent waiting counts against the shutdownTimeInterval.
+        NSTimeInterval remainingTimeout =
+            [self waitForPendingTransactionCaptures:client.options.shutdownTimeInterval];
+        [client closeWithTimeout:remainingTimeout];
+    }
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
 }
 

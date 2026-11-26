@@ -1,0 +1,4 @@
+module _SentryCrashV9Headers {
+    header "SentryCrashV9.h"
+    export *
+}

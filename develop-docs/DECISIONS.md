@@ -37,6 +37,14 @@
 - [33. `SentryCrashBinaryImageCache` initializes off the main thread](#33-sentrycrashbinaryimagecache-initializes-off-the-main-thread)
 - [34. Session Replay Network Details: Body Capture Strategy](#34-session-replay-network-details-body-capture-strategy)
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
+- [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
+- [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
+- [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
+- [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
+- [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
+- [41. Select SwiftPM V10 through the environment only](#41-select-swiftpm-v10-through-the-environment-only)
+- [42. Crash handler and MetricKit as parallel event sources](#42-crash-handler-and-metrickit-as-parallel-event-sources)
+- [43. Compile SDK test support under `DEBUG`](#43-compile-sdk-test-support-under-debug)
 
 ---
 
@@ -136,7 +144,7 @@ We release experimental SentrySwiftUI cocoa package with the version 8.0.0 becau
 Date: March 20th, 2023
 Contributors: @brustolin, @philipphofmann
 
-Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
+Some private headers add a dependency of a public header, when those private headers are used in a test app project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
 
 ## 11. Tracking package managers
 
@@ -737,6 +745,8 @@ Related links:
 Date: June 30th, 2026
 Contributors: @NinjaLikesCheez, @philprime, @philipphofmann, @itaybre, @supervacuus
 
+> **Partially superseded by [decision 40](#40-develop-v10-on-main-then-branch-off-v9):** Backend selection is temporary until V9 branches off for maintenance. V10 continues on `main` with KSCrash alone; backend-version traits and legacy recorder sources are removed before its first release.
+
 We are migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x, with the new integration (`SentryKSCrashIntegration`) becoming the default crash handler in v10. `SentryCrash` will be removed entirely when the migration is complete.
 
 We chose to ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main` simultaneously (Option B), rather than keeping KSCrash work on a long-lived feature branch (Option A).
@@ -759,18 +769,324 @@ Cons:
 
 ### Option B: Dual integrations on `main` (chosen)
 
-The two integrations are mutually exclusive at compile time — only one is compiled into the binary. Which one is active is controlled by two guards:
-
-1. **`#if ENABLE_KSCRASH` compiler flag** — `SentryKSCrashIntegration` is compiled only when `ENABLE_KSCRASH` is set (which requires V10).
-2. **`ENABLE_KSCRASH` env var in `Package.swift`** — KSCrash is only downloaded and added as a dependency if `ENABLE_KSCRASH=1` when SPM runs.
+The integrations initially used a separate migration switch. At the V10 cutover, `SDK_V10` became the single switch: V10 builds compile and activate `SentryKSCrashIntegration`, while V9 builds continue to use `SentryCrashIntegration`. The Xcode `SentryV10` scheme builds the internal KSCrash-backed SDK and SwiftUI targets; V10 ObjC-wrapper builds use the source package instead of the V9-only Xcode dependency graph. For SwiftPM, setting the `SDK_V10` environment variable selects the source-built product and enables the V10 compiler settings and KSCrash target dependency. In trait-capable manifests, the `V10` trait enables the same compiler settings and target dependency.
 
 Pros:
 
 - Work ships incrementally to `main`; no merge conflict mess
-- Hybrid SDK consumers can test the KSCrash path and swap between the two more easily
-- The cutover becomes a single 'flip the switch' change
+- V10 exercises the crash reporter that it will ship by default
+- V9 does not compile or link the new KSCrash integration
 - Easier code review — changes land in small, reviewable chunks
 
-Cons:
+### V10 recorder compile-out contract
 
-- `#if ENABLE_KSCRASH` guards add a small amount of conditional-compilation mental noise for developers
+- Ownership boundary: `Sources/SentryCrash/**` is the legacy implementation; SDK-owned code outside that tree remains SDK-owned regardless of historical names.
+- Preserve each SDK use case before excluding its current implementation; use the [migration ledger](SENTRYCRASH_V10_MIGRATION_LEDGER.md) as the source-level responsibility inventory.
+- `SDK_V10` selects permanent V9/V10 backend implementations.
+- `SENTRY_DISABLE_SENTRYCRASH_V10` marks only unresolved V10 migration behavior.
+  - Every production marker has an explicit V10 path, `KSCRASH_TODO`, durable issue, ledger acceptance ID, and positive removal test.
+  - Reduced test assertions use the same issue and acceptance ID.
+  - Remove the marker after every temporary route is replaced or explicitly rejected.
+- SwiftPM selection:
+  - `SDK_V10=1` and the base-manifest route exclude legacy files.
+  - The `V10` trait compiles guarded legacy files as empty translation units because traits cannot change source exclusions.
+  - All routes build the full `SentryObjCInternal` target and enforce the same object contract.
+- Compatibility allowlist:
+  - `__sentry_cxa_throw` and `__sentry_cxa_rethrow` preserve the Unity/native ABI handoff.
+  - `SentryCrashExceptionApplication` remains public and must forward to the active backend.
+- Packaged headers must not declare excluded implementations or import a legacy implementation header.
+- Binary-image provider boundary:
+  - `SentryBinaryImageCache` remains the sole retained SDK cache and owns the provider lifecycle; its internal provider protocol uses only Sentry image models and primitive types (i.e., doesn't expose any types from KSCrash).
+  - V9 adapts the legacy callbacks. V10 uses a stateless pull adapter over KSCrash RecordingCore: initialize with idempotent `ksdl_init()`, read `ksbic_getImages()`, and add dyld explicitly with `ksbic_getDyldHeader()` and `ksbic_getDyldPath()`.
+  - The V10 adapter must not register KSCrash's image-added callback, because the C++ V2 throw swapper uses that slot for newly loaded images and there is no generic multi-subscribe API. Cache refresh before enumeration and after lookup misses discovers dynamic images without displacing that callback.
+  - SwiftPM manifests depend directly on `RecordingCore`. The Xcode `SentryV10` target keeps only its existing `Recording` product dependency and imports `KSCrashRecordingCore` transitively; adding both overlapping products causes Xcode package artifact collisions.
+- Memory and initial-context boundaries:
+  - `SentryExtraContextProvider` reads `SentryMemoryMetricsProvider` directly. The default provider preserves the existing host free-memory and current-task internal-plus-compressed-memory semantics in both V9 and V10.
+  - `SentryHub` invokes `SentryScopeContextEnricher` directly. The default SDK-owned enricher and system-info provider populate OS, device, app, and runtime contexts without importing or initializing SentryCrash.
+  - The system-info provider uses the binary-image cache for the main executable UUID and loaded-image jailbreak check, and preserves the existing device/app hash, build type, memory, model, architecture, and timestamp mappings.
+  - V10 intentionally omits the legacy `device.locale`; `culture.locale` remains its replacement. All other supported initial-context fields use shared V9/V10 policy.
+  - `SentryCrashReporter` and `SentryDefaultCrashReporter` are V9-only and do not expose memory, system-info, or scope-enrichment capabilities.
+- Active crash-state and reporter boundaries:
+  - Shared SDK consumers depend only on `SentryCrashReporterState`; V10 satisfies it with `SentryKSCrash.Query`.
+  - `SentryHub` receives active crash state directly. Watchdog logic receives active crash state and the SDK-owned `targetEnvironment(simulator)` value directly.
+  - The broad `SentryCrashReporter` protocol, its dependency-container factory, and `SentryDefaultCrashReporter` remain V9-only for legacy duration and introspection clients.
+  - V10 has no broad reporter facade or zero-value placeholder. The reporter-facade removal tracked by [#8800](https://github.com/getsentry/sentry-cocoa/issues/8800) deleted `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker.
+- Current-thread stack-capture boundary:
+  - V9 uses `SentryCrashStackCursor_SelfThread`; V10 uses `SentryKSCrash.CurrentThreadStackProvider` over KSCrash RecordingCore.
+  - SDK-side current-thread capture remains available when crash handling is disabled, and `swiftAsyncStacktraces` configures the active backend for both fatal and nonfatal captures.
+  - `SentryCrashStackCursor_Backtrace.c` and `SentryCrashStackCursor_SelfThread.m` are V9-only; all-thread V10 capture still temporarily retains the machine-context cursor path.
+- Exact retained Tool implementations and SDK clients:
+  - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
+  - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
+  - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
+  - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_MachineContext.c`: all-thread stack capture.
+  - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
+- View-hierarchy serialization boundary:
+  - `SentryViewHierarchyProviderHelper` uses an SDK-owned streaming JSON writer for both memory and file output. It preserves field order, escaping, floating-point formatting, depth truncation, and immediate output-error propagation without first building a Foundation object graph.
+  - File output uses the SDK-owned exact-write helper introduced for session replay. `SentryCrashJSONCodec.c` and `SentryCrashFileUtils.c` remain available to V9's recorder but are excluded from every V10 route.
+  - V9 invokes view-hierarchy attachment capture from SentryCrash's on-crash callback, in the context of whichever crash handler is processing the crash. The UIKit/Objective-C traversal is not async-signal-safe, and the C writer does not make the overall operation safe, but this execution context is a real reason to retain bounded streaming and avoid a second object graph.
+  - V10 does not reproduce that unsafe callback arrangement. Restoring fatal view-hierarchy attachments under [#8273](https://github.com/getsentry/sentry-cocoa/issues/8273) and [#8532](https://github.com/getsentry/sentry-cocoa/issues/8532) requires a proven post-report-writing or otherwise safe hook; do not invoke Swift, Objective-C, or UIKit from a signal handler merely to preserve V9's timing.
+  - The small C writer is currently a migration-scope, byte-parity, and constrained-execution-context choice, not a permanent conclusion that serialization architecturally requires C.
+  - Treat the writer, UIKit traversal, memory/file output adapters, and fatal-attachment hook as one Swift-modernization assessment cluster. A future Swift implementation is preferred when its execution context is proven safe and it retains streaming output, deterministic legacy-compatible bytes, immediate write-error propagation, bounded nesting, shared V9/V10 behavior, and does not build a second Foundation object graph or add main-thread work. The focused writer and provider fixtures define that replacement contract.
+- Process-time boundary:
+  - SDK-owned `SentrySysctlObjC` queries Darwin directly for system boot time and the current process start time, preserving microsecond precision and the epoch fallback on errors.
+  - KSCrash reads the same `kern.boottime` kernel value, so using its sysctl wrapper would not materially align boot-time semantics. Its `app_start_time` and `process_start_*` report fields describe System-monitor initialization, not the kernel process start used by Sentry app-start tracking.
+  - Keep these SDK timestamps backend-neutral for V10. Consolidating the duplicate Darwin queries behind a future upstream capability is optional follow-up work, not a V10 release blocker.
+  - `SentryCrashSysCtl.c` remains available to V9's legacy system monitor and is excluded from every V10 route.
+- Definition of done:
+  - No V10 source/object from `Sources/SentryCrash/**`, retained Tool, temporary reporter, or migration marker remains.
+  - Xcode, SwiftPM environment/trait/base-manifest, and dynamic/static products have the same KSCrash backend contract.
+  - Exact object, symbol, class, compatibility, scope-sync, and header audits pass.
+
+## 36. Breadcrumb persistence durability and caller latency
+
+Date: August 5, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @philipphofmann
+
+Reports of watchdog breadcrumb file writes causing app hangs showed that average filesystem write performance does not account for tail latency. We serialize and persist breadcrumbs on a serial utility queue so a blocked filesystem operation cannot block the thread adding a breadcrumb; see https://github.com/getsentry/sentry-cocoa/issues/7794.
+
+This preserves the order of completed persistence operations but can lose any breadcrumbs still queued when the OS abruptly terminates the process. Watchdog and OOM terminations do not provide a final callback in which the SDK can safely perform a synchronous flush, so a crash-time synchronous fallback cannot restore this durability guarantee. This aligns with the [crash-safe telemetry buffer guidance for abnormal process termination](https://develop.sentry.dev/sdk/foundations/processing/telemetry-processor/mobile-telemetry-processor/#abnormal-process-termination). We accept this trade-off to prevent breadcrumb persistence from causing an app hang.
+
+## 37. Strip DWARF from prebuilt SentryObjC static binaries
+
+Date: September 8, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @supervacuus
+
+`SentryObjC-Static.xcframework` contained debug-map entries that referenced object files in the CI build directory, but those object files were not included in the distributed artifact. Consumers therefore received warnings when generating their application's dSYM, and the references could not provide usable debug information. These DWARF references are distinct from the Mach-O symbol table required for linking.
+
+We decided to remove all DWARF debug information from the prebuilt static SentryObjC binary instead of embedding portable DWARF in every archived object file. A static library cannot ship a final reusable dSYM because addresses are assigned when the consumer links their application. Embedding portable DWARF would allow the consumer's linker to include SentryObjC debug information in the application's dSYM, but measurements showed a disproportionate distribution cost:
+
+| Artifact                |  Stripped | Full DWARF |          Increase |
+| ----------------------- | --------: | ---------: | ----------------: |
+| Raw logical XCFramework | 158.99 MB |  521.79 MB | 362.80 MB, 228.2% |
+| Compressed ZIP          |  37.99 MB |  138.08 MB | 100.09 MB, 263.4% |
+
+The compressed release artifact would be 3.63 times larger. SwiftPM downloads declared remote binary targets during package resolution, so this cost would affect every consumer rather than only users who need SentryObjC debug information. The existing prebuilt static Sentry framework already disables debug information due to the same class of non-redistributable module-debugging references.
+
+We accept that SentryObjC frames from this prebuilt static artifact cannot receive source-level DWARF symbolication, including file and line information or inline call frames. Linker symbols remain available when they survive the consumer's final link, allowing Symbolicator's Mach-O symbol-table fallback to provide function-name + offset symbolication. Dynamic frameworks continue to ship separate dSYMs. Consumers and downstream SDKs that require complete debug information should prefer building from source. If sufficient demand arises, we can reconsider publishing a separate debug-enabled binary artifact or repository without increasing downloads for all other users.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/8966
+- https://github.com/getsentry/sentry-cocoa/pull/8979
+- https://github.com/getsentry/sentry-cocoa/pull/8987
+- https://github.com/getsentry/sentry-cocoa/pull/3800
+
+## 38. Keep opt-out flags free of deprecation warnings
+
+Date: September 22, 2026
+Contributors: @philprime, @NinjaLikesCheez, @christophaigner
+
+We decided to remove the compiler deprecation annotations from `enableAppHangTracking` in the [Swift options](../Sources/Swift/Options.swift) and its Objective-C wrappers while keeping the documentation about App Hang tracking's deprecation and removal in v10.
+
+Deprecation warnings normally encourage users to stop using an API. App Hang tracking is enabled by default, however, so users must continue setting `enableAppHangTracking` to `false` to opt out until the next major release removes the feature. Removing that assignment would re-enable tracking. Enabling MetricKit does not replace the opt-out, so a compiler warning or automatic rename to `enableMetricKit` is not actionable migration guidance.
+
+Keep opt-out flags usable without compiler deprecation warnings while they remain necessary to disable a deprecated feature. Document the planned removal and recommended alternative instead. This change preserves the existing default and runtime behavior.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/9093
+
+## 39. Native SwiftPM test plans
+
+Date: September 22, 2026
+Contributors: @denrase, @NinjaLikesCheez
+
+The profiler migration needs method-level exclusions matching the Xcode project's Base plan. SwiftPM manifest exclusions operate on files, while command-line skips duplicate test selection in CI and local instructions. We use a checked-in `SentrySPM` scheme and native V9/V10 Base plans to keep selection in Xcode's supported test configuration instead.
+
+The plans include whole package test targets with static skips, enable coverage, pin English/US, and disable target parallelization. Invocations also disable parallel testing and pair `SDK_V10` with the matching plan. Profiler targets are included only in the V9 plan. Source-only preparation and opt-in compiler settings remain necessary; package schemes do not inherit the project's SDK configuration.
+
+Existing project Base, Flaky, and TestServer coverage remains unchanged. Until those suites move, shared Base skip-policy changes must be reflected in both project and package plans. We accept that small configuration duplication rather than introducing synchronization tooling. Further package test migrations should extend these plans rather than add CI selection logic.
+
+Related links:
+
+- [Package test commands](TEST.md#package-tests-with-xcodebuild)
+- [Shared package scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme)
+- [Profiler migration](https://github.com/getsentry/sentry-cocoa/pull/9086)
+
+## 40. Develop V10 on main, then branch off V9
+
+Date: October 5, 2026
+Contributors: Phil Niedertscheider, Itay Brenner, Mischan Toosarani-Hausberger
+
+We continue to develop V10 on `main` alongside V9, then create a V9 maintenance branch before releasing V10. V9 will keep SentryCrash; `main` will use KSCrash only. This changes parts of [decision 35](#35-kscrash-migration-strategy-dual-integrations-on-main): choosing between V9 and V10 is only for development, and V10 may compile files whose SentryCrash code is disabled.
+
+Until the branches split, V9 stays the default. Existing SwiftPM dependencies must keep working, whether they use defaults, only `NoUIFramework`, or disable default traits. Customers must not need a V9 trait or a different product/package to keep using V9.
+
+This development work must support the current and previous Xcode majors (27 and 26). Existing V9 builds on older Xcode versions, including Xcode 16, must keep working too. With the Swift 6.1 manifest, developers select V10 using `SDK_V10=1`. The Swift 6.2+ manifest also supports the `V10` trait. We won't add workarounds just to support that trait on older Xcode versions, where it exposed V10 configuration headers to V9 builds.
+
+Compiling a disabled SentryCrash file is acceptable; including its crash-recording code in a V10 binary or starting SentryCrash is not. Keep recorder code separate from shared SDK code. A `SentryCrash` name alone is not a reason to delete shared code or an API. Check the object files, final binaries, packaged headers and runtime behavior.
+
+Before the first V10 release:
+
+- Create the V9 maintenance branch.
+- Remove SentryCrash and the V9 adapters, headers, targets, startup code and tests from `main`.
+- Remove the V9/V10 selection flags and traits.
+- Simplify manifests, Xcode settings, test apps and CI for KSCrash only.
+- Delete tests and scripts needed only to select V9/V10 or check disabled SentryCrash files.
+- Keep API, behavior, NoUI, resource and packaging checks that still apply.
+
+Test both branches separately and verify that V10 no longer includes SentryCrash sources or dependencies.
+
+Related links:
+
+- [V10 backend isolation PR](https://github.com/getsentry/sentry-cocoa/pull/9182)
+- [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
+- [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
+- [V10 build checks](BUILD.md#temporary-v10-development-verification)
+
+## 41. Select SwiftPM V10 through the environment only
+
+Date: October 30, 2026
+Contributors: @denrase
+
+Superseding the SwiftPM selection in decisions [35](#35-kscrash-migration-strategy-dual-integrations-on-main) and [40](#40-develop-v10-on-main-then-branch-off-v9), use `SDK_V10=1` as the only V10 selector. Remove the development-only `V10` trait rather than keep a no-op compatibility marker, so compiler settings, dependencies, and products cannot diverge. V9 defaults and unrelated traits remain unchanged. Remove the environment selector at the V9 branch split.
+
+Related links:
+
+- [V10 selection PR](https://github.com/getsentry/sentry-cocoa/pull/9458)
+- [SwiftPM V10 selection](BUILD.md#swiftpm-v10-selection)
+
+## 42. Crash handler and MetricKit as parallel event sources
+
+Date: October 29, 2026
+Contributors: @itaybre, @philprime
+
+A run can end in a way the SDK only learns about on a later launch: a crash, or a kill by the OS, such as a watchdog or memory termination. Three places report it:
+
+- The crash handler, SentryCrash in V9 and KSCrash in V10, records the crashes it can catch, together with the app's state.
+- MetricKit reports crashes and kills by the OS on a later launch: a crash diagnostic with the exception and termination reason, such as `0x8badf00d` for the watchdog, or, on iOS 27 and later, a memory exception diagnostic.
+- The watchdog termination integration reports every foreground termination that nothing else explains as a `WatchdogTermination` without a stack trace. Some of these are crashes the crash handler couldn't record.
+
+Today they don't know about each other. Enabling MetricKit crash diagnostics sends every crash MetricKit reports in addition to the crash handler's report, and a watchdog termination has no stack trace even when MetricKit has one. See [#2627](https://github.com/getsentry/sentry-cocoa/issues/2627) and [#7799](https://github.com/getsentry/sentry-cocoa/issues/7799).
+
+We decided to treat the crash handler and MetricKit as parallel event sources for every run that ended fatally: crashes, watchdog and memory terminations and any other unexpected kill. Each source reports what it knows about a run, and the SDK links the reports through a run ID and merges them on the device into one event. Neither source replaces the other: the crash handler can't see a termination by the OS, such as a watchdog or memory termination, and MetricKit can't record the app's state.
+
+### Event sources and the core SDK
+
+The crash handler, MetricKit and the watchdog termination integration are event sources. A source only reports what it knows about how a run ended, and it doesn't depend on which other sources exist. Every report carries the ID of the run it describes, when the source can tell. Matching and merging happen in one place, between the sources and the core SDK. The core SDK, which is the hub, client, scope and transport, receives the merged event like any other fatal event and doesn't know which sources contributed to it. Replacing a source, such as SentryCrash with KSCrash or the watchdog heuristic with MetricKit, or adding a new one, then doesn't change the core SDK.
+
+### Matching the reports of a run
+
+MetricKit doesn't give diagnostics an identifier, so the reports of a run are linked through a run ID, a UUID the SDK creates once per launch. The run ID is the SDK's own, not the crash handler's, so it exists in V9 and V10 alike and doesn't depend on when the crash handler installs. Every source stores it at launch where it can read it back when it reports on that run:
+
+- The crash handler writes it into the user info of SentryCrash and KSCrash, which both store it in the crash report. The report processor reads it back when the report is sent.
+- The watchdog termination integration stores it in `SentryAppState`, which already describes the previous run.
+- MetricKit can't store anything, so the SDK encodes the run ID into the process in a way that shows up in the diagnostic. Two mechanisms exist, and a diagnostic uses the first that applies:
+
+| Matching                                | Available                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------ |
+| The run ID from reported states         | iOS and macOS 27 and later                                               |
+| The run ID from the thread crumb        | Every version, for diagnostics that carry the call stacks of all threads |
+| None, diagnostics keep today's behavior | Everything else                                                          |
+
+**Run ID from reported states.** On iOS and macOS 27 and later, the SDK reports a state in its own `StateReporting` domain at launch, with the run ID as stable metadata, and creates its `MetricManager` with that domain in `enabledStateReportingDomains`. MetricKit lists the reported states in each diagnostic's `DiagnosticReport.Environment.states`, so a diagnostic that carries a recorded run ID belongs to that run. State reporting is unavailable on visionOS.
+
+**Run ID from the thread crumb.** A thread crumb encodes a short message into the call stack of a parked thread: each character maps to its own function, and the functions call each other in the order of the message. A MetricKit crash diagnostic holds the call stacks of all threads, so it carries the message with it. At launch, the SDK parks a thread that spells the run ID and stores the hash of the frame addresses with the run ID. A diagnostic whose call stack tree contains a thread with these frames belongs to that run, which needs no symbolication on the device. The thread crumb needs neither state reporting nor the process ID, so it also covers visionOS and the versions before iOS 17 and macOS 14. It costs one parked thread per process. The SDK implements the thread crumb itself, modeled on KSCrash's `KSCrashThreadcrumb`, so that V9 and V10 share one encoder and decoder. KSCrash only encodes its own run ID inside its MetricKit monitor, which the SDK doesn't use.
+
+A diagnostic without a run ID is sent as its own event, as today: on iOS 15 and 16, where neither mechanism exists, when the thread crumb didn't arrive intact, and on the first launch after an update, when the previous run has no run ID yet. That can duplicate an event the crash handler already sent, which we accept, because dropping the diagnostic could lose a crash. The signal and exception type aren't used for matching, because a watchdog or memory termination has no signal the SDK could have recorded.
+
+MetricKit can deliver a diagnostic after more than one launch. The SDK keeps a small record of the last few runs that ended fatally, with their run ID and how the SDK reported them, and removes entries after seven days. A diagnostic that matches no entry is handled as today.
+
+### Merging the reports of a run
+
+The SDK merges on the device, because Sentry can't merge or update events after they are sent. For each run that ended fatally, by a crash or by a kill by the OS, it sends one event, built from what the sources reported:
+
+| Crash handler | Watchdog termination integration | MetricKit                                     | Event                                                        |
+| ------------- | -------------------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| Crash report  | Nothing                          | Crash diagnostic                              | The crash handler's event                                    |
+| Nothing       | Watchdog termination             | Matching crash or memory exception diagnostic | The watchdog termination event, enriched with the diagnostic |
+| Nothing       | Watchdog termination             | Nothing before the deadline                   | The watchdog termination event, unchanged                    |
+| Nothing       | Nothing                          | Crash diagnostic                              | The MetricKit event, as today                                |
+
+When the crash handler reported the matching run, a MetricKit crash diagnostic of that run doesn't create a second event, even with `.crash` in `enabledDiagnosticReports`. Hang, CPU, disk write, app launch and memory exception diagnostics always create their own event, because the crash handler doesn't report them.
+
+**Regular crashes.** A crash handler report and a MetricKit crash diagnostic describe the same crash when they belong to the same run:
+
+- At launch, the crash handler's report carries the run ID it was written with, so the SDK adds that run to the record as reported by the crash handler when the report is processed. This doesn't depend on either report format beyond the user info both crash handlers store.
+- A run has at most one crash handler report and one MetricKit crash diagnostic, so matching the run is enough. The signal, exception type and stack trace aren't compared, because a watchdog or memory termination has no signal to compare with.
+- The crash handler's event is sent at launch, before MetricKit delivers the diagnostic, and isn't enriched with it. The crash handler's report holds the app's state, so it stays the event that is sent.
+- A crash the crash handler missed while the app was in the background has no crash report and no watchdog termination event, so its run isn't in the record. The MetricKit crash diagnostic stays unmatched and is captured as today when `.crash` is enabled, which keeps a crash that would otherwise be lost.
+
+### Timing
+
+The sources report at different times: the crash handler and the watchdog termination integration at launch, and MetricKit afterwards. A crash handler event already has its stack trace and the app's state, so it is sent at launch. A watchdog termination event has no stack trace, so when the MetricKit integration is running on a version that can match diagnostics, the SDK holds it instead of sending it right away:
+
+- The event is built at launch as today, with the previous run's breadcrumbs, scope data and timestamp, and stored to disk with the previous run's run ID, its crashed session and a deadline.
+- When a matching crash or memory exception diagnostic arrives, the SDK enriches the stored event and sends it. MetricKit diagnostics that don't match stay unaffected.
+- When the deadline passes or the app moves to the background, the SDK sends the stored event unchanged. A stored event that's still on disk at the next launch is sent then, so a quick relaunch never loses it.
+- Without a running MetricKit integration, or on older versions, the event is sent right away as today.
+
+The deadline starts at 30 seconds and is internal. Dogfooding measures how long MetricKit takes to deliver diagnostics after a launch, and the value is adjusted to that. MetricKit doesn't promise when, or whether, it delivers a diagnostic: it can arrive on a later launch or not at all, so the deadline caps the delay regardless.
+
+MetricKit delivers diagnostics to the app independently of the "Share with App Developers" setting, which only controls what reaches Apple and the Xcode Organizer. Apple engineers confirmed this, and it matches the fact that Apple's MetricKit documentation and sessions never mention the setting while the Organizer sessions do. It isn't documented, so dogfooding checks it on a device with the setting off.
+
+### Enriching the watchdog termination event
+
+The enriched event keeps everything the watchdog termination event had: the previous run's breadcrumbs, user, tags, extras, contexts, fingerprint, timestamp and session. The diagnostic adds its threads, debug images and the termination reason. Whether the event stays a watchdog termination depends on the diagnostic:
+
+- A crash diagnostic with the watchdog termination reason, or a memory exception diagnostic, confirms the watchdog termination. The event keeps its `WatchdogTermination` type and mechanism and gets the diagnostic's stack trace and termination reason.
+- Any other crash diagnostic means the crash handler missed a crash. The event is sent as an `MXCrashDiagnostic` crash, like an enabled MetricKit crash diagnostic, but with the previous run's scope data.
+
+Watchdog terminations that get a stack trace group by that stack trace instead of falling into one group. We accept this, because one group for all watchdog terminations isn't actionable.
+
+A MetricKit crash diagnostic for a background run, which the watchdog termination integration doesn't report, is captured as today when `.crash` is enabled. It gets the previous run's scope data only when it matches the run directly before the current one, because the SDK keeps scope data for that run only.
+
+### Sessions
+
+The release health status doesn't change. The previous run's session already ends as crashed when the SDK detects a watchdog termination. Today it waits in a single location on disk until `captureFatalEvent` attaches it to the first fatal event. A held event can't rely on that location: when the app crashes during the hold, the next launch overwrites the crashed session with the one of the crashed run, and the crash handler's event takes it. The held event would then be sent without its session, and release health would miss a crashed session. So when the SDK holds the event, it moves the crashed session out of that location and stores it with the event. Both are sent together, whether the diagnostic arrives, the deadline passes or the next launch sends the stored event. When the matching diagnostic shows a missed crash instead of a watchdog termination, the session stays crashed. MetricKit events that don't match a stored watchdog termination are still captured as regular events, so they don't change the current session.
+
+### V9 and V10
+
+Matching and merging are the same in both versions. The run ID, the thread crumb and the reported states belong to the SDK, and the crash handler only has to store the run ID in its user info and keep it in the report, which SentryCrash and KSCrash both do. KSCrash's own run ID in `report.run_id` isn't used. The event sources differ only in the crash handler that converts the stored report.
+
+### Watchdog terminations from MetricKit only
+
+MetricKit reports why the OS terminated the app, with the termination reason and a stack trace. The watchdog termination integration only infers a termination, because nothing else explains why the run ended. In a later change, we plan to report watchdog terminations from MetricKit only and to retire that heuristic. This decision keeps the heuristic and enriches its event, because the MetricKit integration needs iOS 15 or macOS 12, its diagnostics aren't guaranteed to arrive for every termination, and arrive late, while the heuristic reports at the next launch. Dogfooding shows how many watchdog terminations MetricKit confirms, which decides whether the heuristic can go.
+
+### Rejected and deferred alternatives
+
+- **Sending the watchdog termination event right away and a second event for the diagnostic.** Sentry can't merge or update events, so the same termination would show up as two issues.
+- **Waiting for MetricKit without a deadline.** MetricKit can deliver a diagnostic on a later launch or never, so a watchdog termination could wait forever.
+- **Matching by timestamp only.** MetricKit timestamps describe the payload's window, which can hold several runs.
+- **Using KSCrash's run ID.** `kscrash_getRunID` exists in V10 only, is created in `kscrash_install` after the other integrations have started, and KSCrash encodes it into a thread crumb only inside its MetricKit monitor. That monitor would be a second MetricKit subscriber that turns crash diagnostics into KSCrash-format reports without removing duplicates, so the SDK doesn't use it. An SDK-owned run ID works in both versions.
+- **The process ID and the run's lifetime as a fallback, deferred.** MetricKit reports the process ID on iOS 17 and macOS 14 and later, so a diagnostic without a run ID could still be matched by the process ID and the time the run was alive. That is a second identity: the SDK would persist the process ID and start time of every run, track when the next run started and resolve reused process IDs. It only pays off for diagnostics whose thread crumb didn't arrive, so it waits until dogfooding shows how often that happens.
+
+### To verify during dogfooding
+
+- Whether crash and memory exception diagnostics carry the reported states, and whether one diagnostic can carry the states of several runs.
+- How `enabledStateReportingDomains` behaves when the app creates its own `MetricManager` with other domains.
+- That the Sentry domain doesn't change the metrics read from the full-day entry of metric reports.
+- Whether the thread crumb's frames arrive intact in crash diagnostics, including those of watchdog terminations, and which other diagnostics carry the call stacks of all threads. How often they don't decides whether the process ID fallback is needed.
+- How long MetricKit takes to deliver diagnostics after a launch, which decides the deadline.
+- That crash diagnostics arrive on a device with "Share with App Developers" turned off, and how many watchdog terminations of the heuristic MetricKit confirms, which decides whether the heuristic can be retired.
+
+Related links:
+
+- [MetricKit crash fallback (#2627)](https://github.com/getsentry/sentry-cocoa/issues/2627)
+- [Watchdog termination stack traces (#7799)](https://github.com/getsentry/sentry-cocoa/issues/7799)
+- [Design issue (#9277)](https://github.com/getsentry/sentry-cocoa/issues/9277)
+
+## 43. Compile SDK test support under `DEBUG`
+
+Date: November 13, 2026
+Contributors: @philprime, @denrase, @noahsmartin, @itaybre
+
+Running the package tests from Xcode's UI with the `SentrySPM` scheme failed to compile. Many tests use SDK helpers, test-only initializers, and conditionally stripped protocols that were gated by `SENTRY_TEST || SENTRY_TEST_CI`. SwiftPM enables these only through the `_SentryTest`/`_SentryTestCI` package traits, and Xcode's package UI can't enable traits for tests ([Swift Forums](https://forums.swift.org/t/how-to-test-package-traits/78039/5)). `swift test --traits` works from the command line, but we want CMD+U, test diamonds, and the debugger in Xcode. The package-workspace migration ([#9601](https://github.com/getsentry/sentry-cocoa/pull/9601)) kept the existing test flags on purpose so the migration changed as little as possible, and its command-line workflow didn't hit the Xcode limitation.
+
+Short term, SDK test support compiles under `DEBUG`. [#9627](https://github.com/getsentry/sentry-cocoa/pull/9627) adds `DEBUG` to the existing guards and runs the `SentrySPM` Test action in Debug. [#9624](https://github.com/getsentry/sentry-cocoa/pull/9624) then makes `DEBUG` the only condition and removes `SENTRY_TEST`, `SENTRY_TEST_CI`, their package traits, and the Test/TestCI build configurations. One condition for local Xcode runs, package tests, and CI means fewer ways the same code can compile and behave differently. We prefer this over keeping a separate test flag, even though a test flag excludes the hooks from more builds.
+
+We accept that source-based consumers' Debug builds include these test hooks and debug-only behavior, such as synchronous V9 binary-image cache initialization and suppressing the original macOS `_crashOnException:` abort path. Release builds don't include them. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests).
+
+Long term, test-only code doesn't belong in production targets. `DEBUG` is an interim step, not the target design:
+
+- Test internal or public behavior, not private methods. If a test needs a private method, test it through the behavior that calls it or extract a type that owns it.
+- Tests may change interfaces, such as visibility through `@testable import`, but not logic. Don't add branches that make production code behave differently under test.
+- Replace test-only initializers, setters, and reset helpers with dependencies injected through [`SentryDependencyContainer`](../Sources/Swift/SentryDependencyContainer.swift) or initializers, following [decision 15](#15-dependency-injection-strategy).
+- Remove `DEBUG`-gated test support incrementally after the migration stack lands, starting with helpers that only expose state for assertions.
+
+Related links:
+
+- [Support package tests in Debug (#9627)](https://github.com/getsentry/sentry-cocoa/pull/9627)
+- [Remove SDK project test targets (#9613)](https://github.com/getsentry/sentry-cocoa/pull/9613)
+- [Use Debug for SDK test support (#9624)](https://github.com/getsentry/sentry-cocoa/pull/9624)

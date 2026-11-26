@@ -1,6 +1,11 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import _SentryPrivate
+import ObjectiveC
 import XCTest
 
 // swiftlint:disable file_length type_body_length
@@ -119,6 +124,7 @@ class SentryTracerTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -178,6 +184,7 @@ class SentryTracerTests: XCTestCase {
         }
     }
     
+#if !SDK_V10
     func testFinish_ShouldIgnoreWaitForChildrenCallback() throws {
         let sut = fixture.getSut()
         
@@ -203,6 +210,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNotNil(sut.shouldIgnoreWaitForChildrenCallback, "We must not set the callback to nil because when iterating over the child spans in hasUnfinishedChildSpansToWaitFor this could lead to a crash when shouldIgnoreWaitForChildrenCallback is nil.")
     }
     
+#endif
+
     /// Reproduces a crash in hasUnfinishedChildSpansToWaitFor; see https://github.com/getsentry/sentry-cocoa/issues/3781
     /// We used to set the shouldIgnoreWaitForChildrenCallback to nil in finishInternal, which can lead
     /// to a crash when spans keep finishing while finishInternal is executed because
@@ -367,6 +376,37 @@ class SentryTracerTests: XCTestCase {
             child.finish()
         })
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
+    }
+
+    func testFinish_whenChildrenFinishConcurrently_shouldSetTimestampOnAllChildren() {
+        // -- Arrange --
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = SentryDispatchQueueWrapper()
+        defer { SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue }
+        let sut = fixture.getSut(waitForChildren: true)
+        let children = (0..<200).map { _ in sut.startChild(operation: fixture.transactionOperation) }
+
+        // -- Act --
+        // The last child to finish triggers finishInternal, which reads every child's
+        // timestamp in trimEndTimestamp while the other children may still be storing theirs.
+        let queue = DispatchQueue(label: "SentryTracerTests.concurrentChildren", attributes: .concurrent)
+        let childrenFinished = expectation(description: "children finished")
+        childrenFinished.expectedFulfillmentCount = children.count
+        childrenFinished.assertForOverFulfill = true
+        for child in children {
+            queue.async {
+                child.finish()
+                childrenFinished.fulfill()
+            }
+        }
+        sut.finish()
+        wait(for: [childrenFinished], timeout: 10)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isFinished)
+        for child in children {
+            XCTAssertTrue(child.isFinished)
+            XCTAssertNotNil(child.timestamp)
+        }
     }
 
     func testFinish_CheckDefaultStatus() throws {
@@ -739,19 +779,24 @@ class SentryTracerTests: XCTestCase {
     }
 
     func test_startChildWithDelegate_SelfIsActive() {
+        // -- Arrange --
         let delegate = TracerDelegate()
-
         let sut = fixture.getSut()
         sut.delegate = delegate
-
         delegate.activeSpan = sut
-
         let child = sut.startChild(operation: fixture.transactionOperation)
+        let grandchild = child.startChild(operation: fixture.transactionOperation)
 
+        // -- Act --
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
+        let describedChild = sut.startChild(operation: fixture.transactionOperation, description: "sibling")
 
+        // -- Assert --
+        XCTAssertEqual(child.parentSpanId, sut.spanId)
+        XCTAssertEqual(grandchild.parentSpanId, child.spanId)
         XCTAssertEqual(secondChild.parentSpanId, sut.spanId)
-        XCTAssertEqual(secondChild.parentSpanId, child.parentSpanId)
+        XCTAssertEqual(describedChild.parentSpanId, sut.spanId)
+        XCTAssertEqual(sut.children.map(\.spanId), [child.spanId, grandchild.spanId, secondChild.spanId, describedChild.spanId])
     }
 
     #if os(iOS) || os(tvOS)
@@ -937,7 +982,7 @@ class SentryTracerTests: XCTestCase {
     func testAppStartMeasurementHybridSDKModeEnabled_NotPutOnTransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        SentrySDK.internal.appStart.hybridSDKMode = true
         
         let sut = fixture.getSut()
         sut.finish()
@@ -1228,6 +1273,7 @@ class SentryTracerTests: XCTestCase {
 
 #endif // os(iOS) || os(tvOS)
     
+#if !SDK_V10
     func testMeasurementOnChildSpan_SetTwice_OverwritesMeasurement() throws {
         let name = "something"
         let value: NSNumber = -12.34
@@ -1251,6 +1297,32 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(unit.unit, try XCTUnwrap(measurement["unit"] as? String))
     }
 
+#endif
+
+#if SDK_V10
+    func testSetMeasurement_whenFinishingTransaction_shouldSerializeChildMeasurementsSeparately() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: "child")
+
+        // -- Act --
+        sut.setMeasurement(name: "count", value: 12)
+        child.setMeasurement(name: "count", value: 34)
+        child.finish()
+        sut.finish()
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first?.event)
+        let serialized = event.serialize()
+        let measurements = try XCTUnwrap(serialized["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(measurements, ["count": ["value": 12]])
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        let serializedChild = try XCTUnwrap(spans.first { $0["span_id"] as? String == child.spanId.sentrySpanIdString })
+        let childMeasurements = try XCTUnwrap(serializedChild["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(childMeasurements, ["count": ["value": 34]])
+    }
+#endif
+
     func testMeasurement_NameIsNil_MeasurementsGetsDiscarded() throws {
         // Arrange
         let sut = fixture.getSut()
@@ -1268,6 +1340,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(serializedTransaction?["measurements"])
     }
 
+#if !SDK_V10
     func testMeasurements_WriteFromDifferentThreads_SetsAllMeasurements() throws {
         // Arrange
         let iterations = 100
@@ -1309,6 +1382,8 @@ class SentryTracerTests: XCTestCase {
         }
     }
 
+#endif
+
     func testMeasurements_ReadWhileWritingOnDifferentThreads() throws {
         // Arrange
         let iterations = 100
@@ -1337,6 +1412,96 @@ class SentryTracerTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
 
+#if SDK_V10
+    func testFinish_whenChildrenAreUnfinished_shouldPreserveStatusAndOmitEndTimestamp() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(waitForChildren: false)
+        let unfinished = sut.startChild(operation: "unfinished")
+        let withStatus = sut.startChild(operation: "custom-status")
+        withStatus.status = .notFound
+        let finished = sut.startChild(operation: "finished")
+        advanceTime(bySeconds: 1)
+        finished.finish(status: .cancelled)
+        let finishedTimestamp = finished.timestamp
+        advanceTime(bySeconds: 1)
+
+        // -- Act --
+        sut.finish()
+
+        // -- Assert --
+        XCTAssertTrue(sut.isFinished)
+        XCTAssertFalse(unfinished.isFinished)
+        XCTAssertNil(unfinished.timestamp)
+        XCTAssertEqual(unfinished.status, .undefined)
+        XCTAssertFalse(withStatus.isFinished)
+        XCTAssertNil(withStatus.timestamp)
+        XCTAssertEqual(withStatus.status, .notFound)
+        XCTAssertEqual(finished.timestamp, finishedTimestamp)
+        XCTAssertEqual(finished.status, .cancelled)
+        assertOneTransactionCaptured(sut)
+
+        let transaction = try getSerializedTransaction()
+        let spans = try XCTUnwrap(transaction["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 3)
+        let unfinishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "unfinished" })
+        XCTAssertNil(unfinishedPayload["timestamp"])
+        XCTAssertNil(unfinishedPayload["status"])
+        let withStatusPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "custom-status" })
+        XCTAssertNil(withStatusPayload["timestamp"])
+        XCTAssertEqual(withStatusPayload["status"] as? String, "not_found")
+        let finishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "finished" })
+        XCTAssertEqual(finishedPayload["timestamp"] as? TimeInterval, finishedTimestamp?.timeIntervalSince1970)
+        XCTAssertEqual(finishedPayload["status"] as? String, "cancelled")
+    }
+
+    func testFinish_whenIgnoringUnfinishedChildren_shouldCaptureWithoutFinishingThem() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.shouldIgnoreWaitForChildrenCallback = { _ in true }
+        let child = sut.startChild(operation: "ignored")
+        child.status = .invalidArgument
+
+        // -- Act --
+        sut.finish()
+
+        // -- Assert --
+        assertOneTransactionCaptured(sut)
+        XCTAssertFalse(child.isFinished)
+        XCTAssertNil(child.timestamp)
+        XCTAssertEqual(child.status, .invalidArgument)
+        XCTAssertNotNil(sut.shouldIgnoreWaitForChildrenCallback)
+        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 1)
+        XCTAssertNil(spans.first?["timestamp"])
+        XCTAssertEqual(spans.first?["status"] as? String, "invalid_argument")
+    }
+
+    func testFinish_whenAutoTransactionHasUnfinishedChildren_shouldNotTrimEndTimestamp() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout)
+        let finished = sut.startChild(operation: "finished")
+        advanceTime(bySeconds: 1)
+        finished.finish()
+        advanceTime(bySeconds: 1)
+        let unfinished = sut.startChild(operation: "unfinished")
+        advanceTime(bySeconds: 1)
+        let expectedEndTimestamp = fixture.currentDateProvider.date()
+
+        // -- Act --
+        sut.finish()
+
+        // -- Assert --
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(sut.timestamp, expectedEndTimestamp)
+        XCTAssertFalse(unfinished.isFinished)
+        XCTAssertNil(unfinished.timestamp)
+        let transaction = try getSerializedTransaction()
+        XCTAssertEqual(transaction["timestamp"] as? TimeInterval, expectedEndTimestamp.timeIntervalSince1970)
+        let spans = try XCTUnwrap(transaction["spans"] as? [[String: Any]])
+        let unfinishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "unfinished" })
+        XCTAssertNil(unfinishedPayload["timestamp"])
+    }
+#else
     func testFinish_WithUnfinishedChildren() {
         let sut = fixture.getSut(waitForChildren: false)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
@@ -1366,6 +1531,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(sut.timestamp, child3.timestamp)
     }
     
+#endif
+
     func testFinishCallback_CalledWhenTracerFinishes() {
         let callbackExpectation = expectation(description: "FinishCallback called")
         
@@ -1482,6 +1649,33 @@ class SentryTracerTests: XCTestCase {
 
     #endif // os(iOS) || os(tvOS)
     
+    func testChildren_whenReadConcurrently_shouldWaitForMutationLock() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let childrenIvar = try XCTUnwrap(class_getInstanceVariable(SentryTracer.self, "_children"))
+        let children = try XCTUnwrap(object_getIvar(sut, childrenIvar))
+        let readStarted = DispatchSemaphore(value: 0)
+        let readFinished = DispatchSemaphore(value: 0)
+
+        objc_sync_enter(children)
+        DispatchQueue.global().async {
+            readStarted.signal()
+            _ = sut.children
+            readFinished.signal()
+        }
+        XCTAssertEqual(readStarted.wait(timeout: .now() + 1), .success)
+
+        // -- Act --
+        let readWhileLocked = readFinished.wait(timeout: .now() + 0.1)
+        objc_sync_exit(children)
+
+        // -- Assert --
+        XCTAssertEqual(readWhileLocked, .timedOut)
+        if readWhileLocked == .timedOut {
+            XCTAssertEqual(readFinished.wait(timeout: .now() + 1), .success)
+        }
+    }
+
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
         let sut = fixture.getSut(waitForChildren: false)
 

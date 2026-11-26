@@ -170,6 +170,54 @@ SENTRY_NO_INIT
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
+ * Captures a manually created event and sends it to Sentry with a user-provided hint.
+ * @param event The event to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(event:scope:hint:));
+
+/**
+ * Captures an error event and sends it to Sentry with a user-provided hint.
+ * @param error The error to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(error:scope:hint:));
+
+/**
+ * Captures an exception event and sends it to Sentry with a user-provided hint.
+ * @param exception The exception to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope
+                          hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(exception:scope:hint:));
+
+/**
+ * Captures a message event and sends it to Sentry with a user-provided hint.
+ * @param message The message to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope
+                        hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(message:scope:hint:));
+
+/**
  * Captures a new-style user feedback and sends it to Sentry.
  * @param feedback The user feedback to send to Sentry.
  */

@@ -1,9 +1,10 @@
 #import "SentryFileManagerHelper.h"
 #import "SentryDateUtils.h"
-#import "SentryEnvelopeItemHeader.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
@@ -52,7 +53,7 @@ createDirectoryIfNotExists(NSString *path, NSError **error)
     if (isErrorPathTooLong(*error)) {
         SENTRY_LOG_FATAL(@"Failed to create directory, path is too long: %@", path);
     }
-    *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
+    *error = sentry_errorWithUnderlyingError(kSentryErrorFileIO,
         [NSString stringWithFormat:@"Failed to create the directory at path %@.", path], *error);
     return NO;
 }
@@ -86,7 +87,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, copy) NSString *sentryPath;
 @property (nonatomic, copy) NSString *currentSessionFilePath;
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
+#if !SDK_V10
 @property (nonatomic, copy) NSString *abnormalSessionFilePath;
+#endif // !SDK_V10
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *previousAppStateFilePath;
 @property (nonatomic, copy) NSString *previousBreadcrumbsFilePathOne;
@@ -116,18 +119,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self removeFileAtPath:self.eventsPath];
 
         if (!createDirectoryIfNotExists(self.sentryPath, error)) {
-// Disabled fatal error logging in tests to reduce noise in test logs
-#if !SENTRY_TEST && !SENTRY_TEST_CI
             SENTRY_LOG_FATAL(@"Failed to create Sentry SDK working directory: %@", self.sentryPath);
-#endif
             return nil;
         }
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
-// Disabled fatal error logging in tests to reduce noise in test logs
-#if !SENTRY_TEST && !SENTRY_TEST_CI
             SENTRY_LOG_FATAL(
                 @"Failed to create Sentry SDK envelopes directory: %@", self.envelopesPath);
-#endif
             return nil;
         }
 
@@ -146,11 +143,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
 
     NSString *_Nullable nullableDsnHash = [options.parsedDsn getHash];
-#if !SENTRY_TEST && !SENTRY_TEST_CI
     if (nullableDsnHash == nil) {
         SENTRY_LOG_FATAL(@"No DSN provided, using base path for envelopes: %@", self.basePath);
     }
-#endif // !SENTRY_TEST && !SENTRY_TEST_CI
 
     // We decided against changing the `sentryPath` and use a null fallback instead, because this
     // has been broken for a long time and the impact of changing the base path can result in
@@ -167,8 +162,10 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"session.current"];
     self.crashedSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.crashed"];
+#if !SDK_V10
     self.abnormalSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.abnormal"];
+#endif // !SDK_V10
     self.lastInForegroundFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
     self.previousAppStateFilePath =
@@ -184,8 +181,10 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
     self.timezoneOffsetFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
+#if !SDK_V10
     self.appHangEventFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"app.hang.event.json"];
+#endif // !SDK_V10
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
@@ -198,15 +197,15 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - Envelope
 
-- (nullable NSString *)storeEnvelopeData:(NSData *)envelopeData
-                             currentTime:(NSTimeInterval)currentTime
+- (nullable NSString *)storeEnvelopeWithCurrentTime:(NSTimeInterval)currentTime
+                                        writeToPath:(BOOL (^)(NSString *path))writeToPath
 {
     @synchronized(self) {
         NSString *path = [self.envelopesPath
             stringByAppendingPathComponent:[self uniqueAscendingJsonName:currentTime]];
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
-        if (![self writeData:envelopeData toPath:path]) {
+        if (!writeToPath(path)) {
             SENTRY_LOG_WARN(@"Failed to store envelope.");
             return nil;
         }
@@ -303,6 +302,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     [self deleteSession:self.crashedSessionFilePath];
 }
 
+#if !SDK_V10
 - (void)storeAbnormalSessionData:(nullable NSData *)data
 {
     [self storeSessionData:data sessionFilePath:self.abnormalSessionFilePath];
@@ -317,6 +317,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 {
     [self deleteSession:self.abnormalSessionFilePath];
 }
+#endif // !SDK_V10
 
 #pragma mark - LastInForeground
 
@@ -524,7 +525,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-#pragma mark - AppHangs
+#if !SDK_V10
+#    pragma mark - AppHangs
 
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent
 {
@@ -568,6 +570,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self removeFileAtPath:self.appHangEventFilePath];
     }
 }
+#endif // !SDK_V10
 
 #pragma mark - File Operations
 
@@ -761,7 +764,7 @@ NSString *_Nullable sentryStaticBasePath(void)
     return sentryStaticBasePath;
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
 void
 removeSentryStaticBasePath(void)
 {
@@ -772,7 +775,8 @@ removeSentryStaticBasePath(void)
     }
     _non_thread_safe_removeFileAtPath((NSString *_Nonnull)basePath);
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(DEBUG) ||
+       // defined(SENTRY_UI_TEST_SUPPORT)
 
 #pragma mark - Profiling
 

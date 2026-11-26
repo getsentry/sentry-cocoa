@@ -1,6 +1,5 @@
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentrySwift.h"
-#import "SentryTransportAdapter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

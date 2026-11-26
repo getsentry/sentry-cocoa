@@ -1,6 +1,10 @@
 import Combine
 import Pulse
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 
 /// Automatically forwards Pulse log messages to Sentry's structured logging system.
 ///

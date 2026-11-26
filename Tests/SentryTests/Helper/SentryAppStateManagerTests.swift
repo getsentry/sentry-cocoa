@@ -1,10 +1,39 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS)
+import UIKit
+
 final class SentryAppStateManagerTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryAppStateManagerTests.self)
+
+    private final class MockDependencies: SentryAppStateManager.Dependencies {
+        let debuggerStatusProvider: SentryDebuggerStatusProvider
+        let fileManager: SentryFileManager?
+        let sysctlWrapper: SentrySysctl
+        let dispatchQueueWrapper: SentryDispatchQueueWrapper
+        let notificationCenterWrapper: SentryNSNotificationCenterWrapper
+        let currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "run-id"))
+
+        init(
+            debuggerStatusProvider: SentryDebuggerStatusProvider,
+            fileManager: SentryFileManager,
+            sysctlWrapper: SentrySysctl,
+            dispatchQueueWrapper: SentryDispatchQueueWrapper,
+            notificationCenterWrapper: SentryNSNotificationCenterWrapper
+        ) {
+            self.debuggerStatusProvider = debuggerStatusProvider
+            self.fileManager = fileManager
+            self.sysctlWrapper = sysctlWrapper
+            self.dispatchQueueWrapper = dispatchQueueWrapper
+            self.notificationCenterWrapper = notificationCenterWrapper
+        }
+    }
 
     private class Fixture {
 
@@ -13,6 +42,8 @@ final class SentryAppStateManagerTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let sysctl = TestSysctl()
+        let dependencies: MockDependencies
 
         init() throws {
             options = Options()
@@ -24,18 +55,17 @@ final class SentryAppStateManagerTests: XCTestCase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueue
             ))
+            dependencies = MockDependencies(
+                debuggerStatusProvider: sysctl,
+                fileManager: fileManager,
+                sysctlWrapper: sysctl,
+                dispatchQueueWrapper: dispatchQueue,
+                notificationCenterWrapper: notificationCenterWrapper
+            )
         }
 
         func getSut() -> SentryAppStateManager {
-            SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
-            return SentryAppStateManager(
-                releaseName: options.releaseName,
-                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
-                fileManager: fileManager,
-                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
-            )
+            SentryAppStateManager(releaseName: options.releaseName, dependencies: dependencies)
         }
     }
 
@@ -53,6 +83,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         super.tearDown()
         sut.stop(withForce: true)
         fixture.fileManager.deleteAppState()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -61,6 +92,31 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
+    }
+
+    func testBuildCurrentAppState_whenDebuggerAttached_shouldMarkStateAsDebugging() {
+        fixture.sysctl.internalIsBeingTraced = true
+
+        let appState = sut.buildCurrentAppState()
+
+        XCTAssertTrue(appState.isDebugging)
+    }
+
+    func testBuildCurrentAppState_shouldCarryRunIdOfCurrentRun() {
+        // -- Act --
+        let appState = sut.buildCurrentAppState()
+
+        // -- Assert --
+        XCTAssertEqual(appState.runId, fixture.dependencies.currentRun.id)
+    }
+
+    func testStart_shouldStoreAppStateWithRunIdOfCurrentRun() throws {
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        let storedAppState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertEqual(storedAppState.runId, fixture.dependencies.currentRun.id)
     }
 
     func testStartOnlyRunsLogicWhenStartCountBecomesOne() {
@@ -95,6 +151,72 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         let stateAfterStop = fixture.fileManager.readAppState()
         XCTAssertFalse(stateAfterStop!.isSDKRunning)
+    }
+
+    func testStopWithForce_whenStartCountAlreadyZero_shouldMarkSDKAsNotRunning() throws {
+        // -- Arrange --
+        // Mirrors SentrySDK.close() when only the watchdog termination tracker started the
+        // manager: uninstalling the integration stops it before close() forces the stop.
+        sut.start()
+        sut.stop()
+        XCTAssertEqual(sut.startCount, 0)
+        XCTAssertTrue(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+
+        // -- Act --
+        sut.stop(withForce: true)
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+        XCTAssertEqual(sut.startCount, 0)
+    }
+
+    func testStopWithForce_shouldMarkSDKAsNotRunningSynchronously() throws {
+        // -- Arrange --
+        // SentrySDK.start() can store a fresh app state right after close(). A pending async
+        // write would then mark the new session as not running.
+        fixture.dispatchQueue.dispatchAsyncExecutesBlock = false
+        sut.start()
+
+        // -- Act --
+        sut.stop(withForce: true)
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(fixture.fileManager.readAppState()).isSDKRunning)
+        XCTAssertEqual(fixture.dispatchQueue.dispatchAsyncCalled, 0)
+    }
+
+    func testDidBecomeActiveUpdatesAppState() {
+        // -- Arrange --
+        sut.start()
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didBecomeActiveNotification))
+
+        // -- Assert --
+        XCTAssertTrue(fixture.fileManager.readAppState()!.isActive)
+    }
+
+    func testWillResignActiveUpdatesAppState() {
+        // -- Arrange --
+        sut.start()
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didBecomeActiveNotification))
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
+
+        // -- Assert --
+        XCTAssertFalse(fixture.fileManager.readAppState()!.isActive)
+    }
+
+    func testWillTerminateUpdatesAppState() {
+        // -- Arrange --
+        sut.start()
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willTerminateNotification))
+
+        // -- Assert --
+        XCTAssertTrue(fixture.fileManager.readAppState()!.wasTerminated)
     }
 
     func testForcedStop() {

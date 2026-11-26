@@ -25,24 +25,26 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashDynamicLinker.h"
+#if !SDK_V10
 
-#include <limits.h>
-#include <mach-o/dyld.h>
-#include <mach-o/dyld_images.h>
-#include <mach-o/getsect.h>
-#include <mach-o/nlist.h>
-#include <string.h>
+#    include "SentryCrashDynamicLinker.h"
 
-#include "SentryAsyncSafeLog.h"
-#include "SentryCrashMemory.h"
-#include "SentryCrashPlatformSpecificDefines.h"
+#    include <limits.h>
+#    include <mach-o/dyld.h>
+#    include <mach-o/dyld_images.h>
+#    include <mach-o/getsect.h>
+#    include <mach-o/nlist.h>
+#    include <string.h>
 
-#ifndef SENTRYCRASHDL_MaxCrashInfoStringLength
-#    define SENTRYCRASHDL_MaxCrashInfoStringLength 1024
-#endif
+#    include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMemory.h"
+#    include "SentryCrashPlatformSpecificDefines.h"
 
-#pragma pack(8)
+#    ifndef SENTRYCRASHDL_MaxCrashInfoStringLength
+#        define SENTRYCRASHDL_MaxCrashInfoStringLength 1024
+#    endif
+
+#    pragma pack(8)
 typedef struct {
     unsigned version;
     const char *message;
@@ -53,8 +55,8 @@ typedef struct {
     void *reserved2;
     void *reserved3; // First introduced in version 5
 } crash_info_t;
-#pragma pack()
-#define SENTRYCRASHDL_SECT_CRASH_INFO "__crash_info"
+#    pragma pack()
+#    define SENTRYCRASHDL_SECT_CRASH_INFO "__crash_info"
 
 // Cache for dyld header information
 const struct mach_header *sentryDyldHeader = NULL;
@@ -338,3 +340,5 @@ sentrycrashdl_clearDyld(void)
 {
     sentryDyldHeader = NULL;
 }
+
+#endif // !SDK_V10

@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import Foundation
 
 // We must not subclass NSTimer, see https://developer.apple.com/documentation/foundation/nstimer#1770465.
@@ -82,6 +86,7 @@ public extension TestSentryNSTimerFactory {
     func fire() throws {
         guard var overrides = overrides else { throw TestTimerError.timerNotInitialized }
         overrides.lastFireDate = currentDateProvider.date()
+        self.overrides = overrides
         if let block = overrides.block {
             block(overrides.timer)
         } else if let invocationInfo = overrides.invocationInfo {

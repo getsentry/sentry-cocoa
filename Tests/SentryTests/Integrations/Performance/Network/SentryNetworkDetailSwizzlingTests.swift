@@ -1,7 +1,12 @@
 #if os(iOS) || os(tvOS)
 
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 /// Integration tests that verify the completion-handler swizzling for replay's
@@ -12,22 +17,26 @@ import XCTest
 /// and assert that the swizzled completion handler fires and populates
 /// network details on the resulting breadcrumb.
 ///
-/// Uses postman-echo.com so no local test server is required.
+/// These tests require the local test server and run in the Sentry_TestServer test plan.
 class SentryNetworkDetailSwizzlingTests: XCTestCase {
-    
-    private let echoURL = URL(string: "https://postman-echo.com/get")!
-    
-    override func tearDown() {
-        super.tearDown()
+
+    private let echoURL = URL(string: "http://localhost:8081/echo-sentry-trace")!
+
+    override class func setUp() {
+        super.setUp()
+        startSDK()
+    }
+
+    override class func tearDown() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
+        super.tearDown()
     }
 
     // MARK: - Tests
     /// Verifies the swizzle of `-[NSURLSession dataTaskWithRequest:completionHandler:]`
     /// captures response details into the breadcrumb.
     func testDataTaskWithRequest_completionHandler_capturesNetworkDetails() throws {
-        startSDK()
-        
         let transaction = SentrySDK.startTransaction(
             name: "Test", operation: "test", bindToScope: true
         )
@@ -35,6 +44,7 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
         let expect = expectation(description: "Request completed")
         expect.assertForOverFulfill = false
 
+        try ensureTestServerIsRunning()
         let session = URLSession(configuration: .default)
         let request = URLRequest(url: echoURL)
 
@@ -75,8 +85,6 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
     /// Verifies the swizzle of `-[NSURLSession dataTaskWithURL:completionHandler:]`
     /// captures response details into the breadcrumb.
     func testDataTaskWithURL_completionHandler_capturesNetworkDetails() throws {
-        startSDK()
-        
         let transaction = SentrySDK.startTransaction(
             name: "Test", operation: "test", bindToScope: true
         )
@@ -84,6 +92,7 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
         let expect = expectation(description: "Request completed")
         expect.assertForOverFulfill = false
 
+        try ensureTestServerIsRunning()
         let session = URLSession(configuration: .default)
 
         var receivedData: Data?
@@ -121,15 +130,26 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
     }
 
     // MARK: - Helpers
-    
-    private func startSDK() {
+
+    private static func startSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkDetailSwizzlingTests")
         options.tracesSampleRate = 1.0
         options.enableNetworkBreadcrumbs = true
-        options.sessionReplay.networkDetailAllowUrls = ["postman-echo.com"]
+        options.sessionReplay.networkDetailAllowUrls = ["localhost"]
         options.sessionReplay.networkCaptureBodies = true
         SentrySDK.start(options: options)
+    }
+
+    private func ensureTestServerIsRunning() throws {
+        let healthURL = try XCTUnwrap(URL(string: "http://localhost:8081/health"))
+        let healthExpectation = expectation(description: "Test server is running")
+        URLSession.shared.dataTask(with: healthURL) { data, _, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(String(data: data ?? Data(), encoding: .utf8), "OK")
+            healthExpectation.fulfill()
+        }.resume()
+        wait(for: [healthExpectation], timeout: 5)
     }
 
     /// Finds the most recent HTTP breadcrumb whose URL matches the given URL.

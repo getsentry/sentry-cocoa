@@ -5,7 +5,9 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 #import SENTRY_HEADER(SentrySpanProtocol)
 #import SENTRY_HEADER(SentryLevel)
 
@@ -23,7 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
  * https://docs.sentry.io/platforms/apple/enriching-events/scopes/#whats-a-scope-whats-a-hub
  */
 NS_SWIFT_NAME(Scope)
+#if SDK_V10
+@interface SentryScope : NSObject
+#else
 @interface SentryScope : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 /**
  * Returns current Span or Transaction.
@@ -121,7 +127,9 @@ NS_SWIFT_NAME(Scope)
 /**
  * Serializes the Scope to JSON
  */
+#if !SDK_V10
 - (NSDictionary<NSString *, id> *)serialize;
+#endif // !SDK_V10
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
@@ -139,6 +147,9 @@ NS_SWIFT_NAME(Scope)
 /**
  * Adds an attachment to the Scope's list of attachments. The SDK adds the attachment to every event
  * sent to Sentry.
+ * @note The SDK doesn't add scope attachments to fatal events, such as crashes or watchdog
+ * terminations, because those are captured on the next app launch and the scope's attachments
+ * belong to that later run. Use @c beforeSendWithHint to attach files to fatal events.
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
 - (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));

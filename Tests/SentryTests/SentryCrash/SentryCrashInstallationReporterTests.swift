@@ -1,5 +1,16 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class SentryCrashInstallationReporterTests: XCTestCase {
@@ -11,13 +22,14 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         super.tearDown()
         sentrycrash_deleteAllReports()
         sut.uninstall()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
     func testReportIsSentAndDeleted() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-1")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
@@ -33,7 +45,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testShouldCaptureCrashReportWithLegacyStorageInfo() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-legacy-storage-info")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-legacy-storage-info")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
@@ -51,7 +63,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/crash-report-without-device-context")
+        try givenStoredSentryCrashReport(resource: "Fixtures/crash-report-without-device-context")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
@@ -68,7 +80,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     func testFaultyReportIsNotSentAndDeleted() throws {
         givenSutWithStartedSDK()
 
-        try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
+        try givenStoredSentryCrashReport(resource: "Fixtures/Crash-faulty-report")
 
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 0)
@@ -89,13 +101,19 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         let hub = SentryHubInternal(client: testClient, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), dispatchQueue: TestSentryDispatchQueueWrapper())
+        sut = SentryCrashInstallationReporter(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
+            crashHandlerEventSource: TestEventSources.crashHandlerEventSource()
+        )
         let container = SentryDependencyContainer.sharedInstance()
-        sut.bridge = SentryCrashBridge(
+        sut.setBridgeObject(SentryCrashBridge(
             notificationCenterWrapper: container.notificationCenterWrapper,
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
-        )
+        ))
         // Reset global SentryCrash state so install() fully reinitializes the report store path,
         // even if a previous test class left g_installed = 1.
         sentrycrash_uninstall()
@@ -104,3 +122,5 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         sentrycrash_deleteAllReports()
     }
 }
+
+#endif // !SDK_V10

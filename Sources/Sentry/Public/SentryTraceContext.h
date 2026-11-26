@@ -5,7 +5,9 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,7 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryUser;
 
 NS_SWIFT_NAME(TraceContext)
+#if SDK_V10
+@interface SentryTraceContext : NSObject
+#else
 @interface SentryTraceContext : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)

@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs file_length type_body_length
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -17,7 +17,7 @@ import Foundation
         SentrySDK.isEnabled
     }
 
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     @objc public static var replay: SentryObjCReplayApi {
         SentryObjCReplayApi(SentrySDK.replay)
     }
@@ -65,14 +65,32 @@ import Foundation
 
     @objc(captureEvent:withScopeBlock:)
     @discardableResult public static func capture(event: SentryObjCEvent, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
-        SentryObjCId(SentrySDK.capture(event: event.wrapped) { scope in
-            block(SentryObjCScope(scope))
-        })
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, block: bridged(block)))
     }
 
     @objc(captureEvent:attachAllThreads:)
     @discardableResult public static func capture(event: SentryObjCEvent, attachAllThreads: Bool) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads))
+    }
+
+    @objc(captureEvent:attachAllThreads:scopeBlock:)
+    @discardableResult public static func capture(event: SentryObjCEvent, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads, block: bridged(block)))
+    }
+
+    @objc(captureEvent:withHint:)
+    @discardableResult public static func capture(event: SentryObjCEvent, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, hint: hint.wrapped))
+    }
+
+    @objc(captureEvent:withScope:hint:)
+    @discardableResult public static func capture(event: SentryObjCEvent, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @objc(captureEvent:withHint:scopeBlock:)
+    @discardableResult public static func capture(event: SentryObjCEvent, hint: SentryObjCHint, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, hint: hint.wrapped, block: bridged(block)))
     }
 
     @objc @discardableResult public static func startTransaction(name: String, operation: String) -> SentryObjCSpan {
@@ -115,14 +133,32 @@ import Foundation
 
     @objc(captureError:withScopeBlock:)
     @discardableResult public static func capture(error: Error, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
-        SentryObjCId(SentrySDK.capture(error: error) { scope in
-            block(SentryObjCScope(scope))
-        })
+        SentryObjCId(SentrySDK.capture(error: error, block: bridged(block)))
     }
 
     @objc(captureError:attachAllThreads:)
     @discardableResult public static func capture(error: Error, attachAllThreads: Bool) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(error: error, attachAllThreads: attachAllThreads))
+    }
+
+    @objc(captureError:attachAllThreads:scopeBlock:)
+    @discardableResult public static func capture(error: Error, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(error: error, attachAllThreads: attachAllThreads, block: bridged(block)))
+    }
+
+    @objc(captureError:withHint:)
+    @discardableResult public static func capture(error: Error, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(error: error, hint: hint.wrapped))
+    }
+
+    @objc(captureError:withScope:hint:)
+    @discardableResult public static func capture(error: Error, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(error: error, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @objc(captureError:withHint:scopeBlock:)
+    @discardableResult public static func capture(error: Error, hint: SentryObjCHint, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(error: error, hint: hint.wrapped, block: bridged(block)))
     }
 
     @objc(captureException:)
@@ -137,14 +173,32 @@ import Foundation
 
     @objc(captureException:withScopeBlock:)
     @discardableResult public static func capture(exception: NSException, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
-        SentryObjCId(SentrySDK.capture(exception: exception) { scope in
-            block(SentryObjCScope(scope))
-        })
+        SentryObjCId(SentrySDK.capture(exception: exception, block: bridged(block)))
     }
 
     @objc(captureException:attachAllThreads:)
     @discardableResult public static func capture(exception: NSException, attachAllThreads: Bool) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads))
+    }
+
+    @objc(captureException:attachAllThreads:scopeBlock:)
+    @discardableResult public static func capture(exception: NSException, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads, block: bridged(block)))
+    }
+
+    @objc(captureException:withHint:)
+    @discardableResult public static func capture(exception: NSException, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(exception: exception, hint: hint.wrapped))
+    }
+
+    @objc(captureException:withScope:hint:)
+    @discardableResult public static func capture(exception: NSException, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(exception: exception, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @objc(captureException:withHint:scopeBlock:)
+    @discardableResult public static func capture(exception: NSException, hint: SentryObjCHint, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(exception: exception, hint: hint.wrapped, block: bridged(block)))
     }
 
     @objc(captureMessage:)
@@ -159,14 +213,32 @@ import Foundation
 
     @objc(captureMessage:withScopeBlock:)
     @discardableResult public static func capture(message: String, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
-        SentryObjCId(SentrySDK.capture(message: message) { scope in
-            block(SentryObjCScope(scope))
-        })
+        SentryObjCId(SentrySDK.capture(message: message, block: bridged(block)))
     }
 
     @objc(captureMessage:attachAllThreads:)
     @discardableResult public static func capture(message: String, attachAllThreads: Bool) -> SentryObjCId {
         SentryObjCId(SentrySDK.capture(message: message, attachAllThreads: attachAllThreads))
+    }
+
+    @objc(captureMessage:attachAllThreads:scopeBlock:)
+    @discardableResult public static func capture(message: String, attachAllThreads: Bool, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(message: message, attachAllThreads: attachAllThreads, block: bridged(block)))
+    }
+
+    @objc(captureMessage:withHint:)
+    @discardableResult public static func capture(message: String, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(message: message, hint: hint.wrapped))
+    }
+
+    @objc(captureMessage:withScope:hint:)
+    @discardableResult public static func capture(message: String, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(message: message, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @objc(captureMessage:withHint:scopeBlock:)
+    @discardableResult public static func capture(message: String, hint: SentryObjCHint, block: @escaping (SentryObjCScope) -> Void) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(message: message, hint: hint.wrapped, block: bridged(block)))
     }
 
     @objc(captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:)
@@ -249,13 +321,17 @@ import Foundation
     }
     #endif
 
+    #if !SDK_V10
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
     @objc public static func pauseAppHangTracking() {
         SentrySDK.pauseAppHangTracking()
     }
 
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
     @objc public static func resumeAppHangTracking() {
         SentrySDK.resumeAppHangTracking()
     }
+    #endif
 
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
@@ -276,5 +352,9 @@ import Foundation
         SentrySDK.stopProfiler()
     }
     #endif
+
+    private static func bridged(_ block: @escaping (SentryObjCScope) -> Void) -> (Scope) -> Void {
+        { block(SentryObjCScope($0)) }
+    }
 }
 // swiftlint:enable file_length type_body_length missing_docs

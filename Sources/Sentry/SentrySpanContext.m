@@ -1,4 +1,6 @@
 #import "SentrySpanContext.h"
+#import "SentryDeprecated+Private.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanId.h"
@@ -104,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *mutabledictionary = @{
-        @"type" : SENTRY_TRACE_TYPE,
+        @"type" : SentrySpanTypeTrace,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"op" : self.operation,

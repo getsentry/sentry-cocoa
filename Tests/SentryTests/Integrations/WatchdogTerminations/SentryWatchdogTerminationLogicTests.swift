@@ -1,7 +1,12 @@
 #if os(iOS) || os(tvOS)
 
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class SentryWatchdogTerminationLogicTests: XCTestCase {
@@ -10,7 +15,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     private struct Fixture {
         let options: Options
-        let crashWrapper: TestSentryCrashWrapper
+        let crashReporterState = TestSentryCrashReporterState()
         let fileManager: SentryFileManager
         let sysctl: TestSysctl
         let dispatchQueue: TestSentryDispatchQueueWrapper
@@ -27,33 +32,36 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             dispatchQueue = TestSentryDispatchQueueWrapper()
             let dateProvider = TestCurrentDateProvider()
             fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue))
-            
-            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         }
         
-        func getSut(customCurrentAppState: SentryAppState? = nil) -> SentryWatchdogTerminationLogic {
+        func getSut(
+            customCurrentAppState: SentryAppState? = nil,
+            activeCrashReporterState: SentryCrashReporterState? = nil,
+            isSimulatorBuild: Bool = false
+        ) -> SentryWatchdogTerminationLogic {
+            let dependencies = SentryDependencyContainer.sharedInstance()
+            dependencies.fileManager = fileManager
+            dependencies.sysctlWrapper = sysctl
+            dependencies.dispatchQueueWrapper = dispatchQueue
             let appStateManager: SentryAppStateManager
             
             if let customState = customCurrentAppState {
                 appStateManager = SentryAppStateManager(
                     releaseName: options.releaseName,
-                    crashWrapper: crashWrapper,
-                    fileManager: fileManager,
-                    sysctlWrapper: sysctl,
-                    customBuildCurrentAppState: { customState }
+                    customBuildCurrentAppState: { customState },
+                    dependencies: dependencies
                 )
             } else {
                 appStateManager = SentryAppStateManager(
                     releaseName: options.releaseName,
-                    crashWrapper: crashWrapper,
-                    fileManager: fileManager,
-                    sysctlWrapper: sysctl
+                    dependencies: dependencies
                 )
             }
             
             return SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
+                activeCrashReporterState: activeCrashReporterState ?? crashReporterState,
+                isSimulatorBuild: isSimulatorBuild,
                 appStateManager: appStateManager
             )
         }
@@ -66,19 +74,19 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             isActive: Bool = true,
             wasTerminated: Bool = false,
             isSDKRunning: Bool = true,
-            isANROngoing: Bool = false
+            runId: SentryCurrentRun.ID? = nil
         ) -> SentryAppState {
             let appState = SentryAppState(
                 releaseName: releaseName,
                 osVersion: osVersion,
                 vendorId: vendorId,
                 isDebugging: isDebugging,
-                systemBootTimestamp: sysctl.systemBootTimestamp
+                systemBootTimestamp: sysctl.systemBootTimestamp,
+                runId: runId
             )
             appState.isActive = isActive
             appState.wasTerminated = wasTerminated
             appState.isSDKRunning = isSDKRunning
-            appState.isANROngoing = isANROngoing
             return appState
         }
         
@@ -99,6 +107,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAllFolders()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -134,9 +143,8 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     func testIsWatchdogTermination_whenSimulatorBuild_shouldReturnFalse() {
         // -- Arrange --
-        fixture.crashWrapper.internalIsSimulatorBuild = true
         fixture.storePreviousAppState(fixture.createAppState())
-        let sut = fixture.getSut()
+        let sut = fixture.getSut(isSimulatorBuild: true)
         
         // -- Act --
         let result = sut.isWatchdogTermination()
@@ -283,17 +291,22 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     // MARK: - Crash Last Launch
     
-    func testIsWatchdogTermination_whenCrashedLastLaunch_shouldReturnFalse() {
+    func testIsWatchdogTermination_whenActiveCrashReporterCrashedLastLaunch_shouldReturnFalse() {
         // -- Arrange --
-        fixture.crashWrapper.internalCrashedLastLaunch = true
+        let activeCrashReporterState = TestSentryCrashReporterState()
+        activeCrashReporterState.internalCrashedLastLaunch = true
         fixture.storePreviousAppState(fixture.createAppState())
         let currentAppState = fixture.createAppState()
-        let sut = fixture.getSut(customCurrentAppState: currentAppState)
+        let sut = fixture.getSut(
+            customCurrentAppState: currentAppState,
+            activeCrashReporterState: activeCrashReporterState
+        )
         
         // -- Act --
         let result = sut.isWatchdogTermination()
         
         // -- Assert --
+        XCTAssertFalse(fixture.crashReporterState.crashedLastLaunch)
         XCTAssertFalse(result)
     }
     
@@ -329,9 +342,12 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     // MARK: - ANR Ongoing
     
+    #if !SDK_V10
     func testIsWatchdogTermination_whenANROngoing_shouldReturnFalse() {
         // -- Arrange --
-        fixture.storePreviousAppState(fixture.createAppState(isANROngoing: true))
+        let previousAppState = fixture.createAppState()
+        previousAppState.isANROngoing = true
+        fixture.storePreviousAppState(previousAppState)
         let currentAppState = fixture.createAppState()
         let sut = fixture.getSut(customCurrentAppState: currentAppState)
         
@@ -341,6 +357,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(result)
     }
+    #endif // !SDK_V10
     
     // MARK: - SDK Started Multiple Times
     
@@ -371,6 +388,50 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
         
         // -- Assert --
         XCTAssertTrue(result)
+    }
+
+    // MARK: - Terminated Run App State
+
+    func testTerminatedRunAppState_whenAllConditionsMet_shouldReturnPreviousAppState() throws {
+        // -- Arrange --
+        let previousAppState = fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        fixture.storePreviousAppState(previousAppState)
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "current-run-id")))
+
+        // -- Act --
+        let result = sut.terminatedRunAppState()
+
+        // -- Assert --
+        let terminatedRunAppState = try XCTUnwrap(result)
+        XCTAssertEqual(terminatedRunAppState.runId, SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        XCTAssertEqual(terminatedRunAppState, previousAppState)
+    }
+
+    func testTerminatedRunAppState_whenPreviousAppStateHasNoRunId_shouldStillReturnIt() throws {
+        // -- Arrange --
+        fixture.storePreviousAppState(fixture.createAppState())
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState())
+
+        // -- Act --
+        let result = sut.terminatedRunAppState()
+
+        // -- Assert --
+        let terminatedRunAppState = try XCTUnwrap(result)
+        XCTAssertNil(terminatedRunAppState.runId)
+    }
+
+    func testTerminatedRunAppState_whenNotAWatchdogTermination_shouldReturnNil() {
+        // -- Arrange --
+        let previousAppState = fixture.createAppState(runId: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        previousAppState.wasTerminated = true
+        fixture.storePreviousAppState(previousAppState)
+        let sut = fixture.getSut(customCurrentAppState: fixture.createAppState())
+
+        // -- Act --
+        let result = sut.terminatedRunAppState()
+
+        // -- Assert --
+        XCTAssertNil(result)
     }
 }
 

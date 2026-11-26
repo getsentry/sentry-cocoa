@@ -25,41 +25,61 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMonitor_Signal.h"
-#include "SentryCrashID.h"
-#include "SentryCrashMachineContext.h"
-#include "SentryCrashMonitorContext.h"
-#include "SentryCrashSignalInfo.h"
-#include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryInternalCDefines.h"
+#if !SDK_V10
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMonitor_Signal.h"
+#    include "SentryCrashID.h"
+#    include "SentryCrashMachineContext.h"
+#    include "SentryCrashMonitorContext.h"
+#    include "SentryCrashSignalInfo.h"
+#    include "SentryCrashStackCursor_MachineContext.h"
+#    include "SentryInternalCDefines.h"
 
-#if SENTRY_HAS_SIGNAL
+#    include "SentryAsyncSafeLog.h"
 
-#    include <errno.h>
-#    include <signal.h>
-#    include <stdio.h>
-#    include <stdlib.h>
-#    include <string.h>
+#    if SENTRY_HAS_SIGNAL
+
+#        include <errno.h>
+#        include <pthread.h>
+#        include <signal.h>
+#        include <stdatomic.h>
+#        include <stdint.h>
+#        include <stdio.h>
+#        include <stdlib.h>
+#        include <string.h>
 
 // ============================================================================
-#    pragma mark - Globals -
+#        pragma mark - Types -
+// ============================================================================
+
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
+typedef struct SentryCrashIgnoreSignal {
+    _Atomic uintptr_t tid;
+    _Atomic int signum;
+    struct SentryCrashIgnoreSignal *next;
+} SentryCrashIgnoreSignal;
+#        endif
+
+// ============================================================================
+#        pragma mark - Globals -
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-static _Thread_local int tl_ignoreSignum = 0;
-#    endif
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
+static _Atomic(SentryCrashIgnoreSignal *) g_ignoreSignals = NULL;
+static pthread_key_t g_ignoreSignalKey;
+static bool g_ignoreSignalKeyCreated = false;
+static pthread_once_t g_ignoreSignalKeyOnce = PTHREAD_ONCE_INIT;
+#        endif
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
-#    if SENTRY_HAS_SIGNAL_STACK
+#        if SENTRY_HAS_SIGNAL_STACK
 /** Our custom signal stack. The signal handler will use this as its stack. */
 static stack_t g_signalStack = { 0 };
-#    endif
+#        endif
 
 /** Signal handlers that were installed before we installed ours. */
 static struct sigaction *g_previousSignalHandlers = NULL;
@@ -67,7 +87,7 @@ static struct sigaction *g_previousSignalHandlers = NULL;
 static char g_eventID[37];
 
 // ============================================================================
-#    pragma mark - Utility -
+#        pragma mark - Utility -
 // ============================================================================
 
 static void
@@ -83,8 +103,24 @@ restorePreviousSignalHandler(int sigNum)
     }
 }
 
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
+static void
+clearIgnoreSignal(void *value)
+{
+    SentryCrashIgnoreSignal *entry = value;
+    atomic_store_explicit(&entry->signum, 0, memory_order_relaxed);
+    atomic_store_explicit(&entry->tid, 0, memory_order_relaxed);
+}
+
+static void
+createIgnoreSignalKey(void)
+{
+    g_ignoreSignalKeyCreated = pthread_key_create(&g_ignoreSignalKey, clearIgnoreSignal) == 0;
+}
+#        endif
+
 // ============================================================================
-#    pragma mark - Callbacks -
+#        pragma mark - Callbacks -
 // ============================================================================
 
 /** Our custom signal handler.
@@ -102,17 +138,23 @@ restorePreviousSignalHandler(int sigNum)
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-    const int ignoreSignum = tl_ignoreSignum;
-    tl_ignoreSignum = 0;
-#    endif
+    bool ignoreSignal = false;
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    const uintptr_t tid = (uintptr_t)pthread_self();
+    SentryCrashIgnoreSignal *entry = atomic_load_explicit(&g_ignoreSignals, memory_order_acquire);
+    while (entry != NULL) {
+        if (atomic_load_explicit(&entry->tid, memory_order_relaxed) == tid) {
+            if (atomic_exchange_explicit(&entry->signum, 0, memory_order_relaxed) == sigNum) {
+                ignoreSignal = true;
+            }
+            break;
+        }
+        entry = entry->next;
+    }
+#        endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (g_isEnabled
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-        && sigNum != ignoreSignum
-#    endif
-    ) {
+    if (g_isEnabled && !ignoreSignal) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // Signal handlers preempt the crashing thread, so reentrancy can
@@ -141,11 +183,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
-    if (!g_isEnabled
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-        || sigNum == ignoreSignum
-#    endif
-    ) {
+    if (!g_isEnabled || ignoreSignal) {
         // Avoid re-entering this handler on raise().
         restorePreviousSignalHandler(sigNum);
     }
@@ -154,24 +192,24 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 }
 
 // ============================================================================
-#    pragma mark - API -
+#        pragma mark - API -
 // ============================================================================
 
 static bool
 installSignalHandler(void)
 {
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
     // Already installed by onPreload(). Reinstalling would overwrite
     // g_previousSignalHandlers with the managed runtime's handler instead
     // of the original system handler.
     if (g_previousSignalHandlers != NULL) {
         return true;
     }
-#    endif
+#        endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing signal handler.");
 
-#    if SENTRY_HAS_SIGNAL_STACK
+#        if SENTRY_HAS_SIGNAL_STACK
 
     if (g_signalStack.ss_size == 0) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Allocating signal stack area.");
@@ -199,7 +237,7 @@ installSignalHandler(void)
         SENTRY_ASYNC_SAFE_LOG_ERROR("signalstack: %s", SENTRY_STRERROR_R(errno));
         goto failed;
     }
-#    endif
+#        endif
 
     const int *fatalSignals = sentrycrashsignal_fatalSignals();
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
@@ -212,9 +250,9 @@ installSignalHandler(void)
 
     struct sigaction action = { { 0 } };
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-#    if SENTRY_HOST_APPLE && defined(__LP64__)
+#        if SENTRY_HOST_APPLE && defined(__LP64__)
     action.sa_flags |= SA_64REGSET;
-#    endif
+#        endif
     sigemptyset(&action.sa_mask);
     action.sa_sigaction = &handleSignal;
 
@@ -268,10 +306,10 @@ failed:
 static void
 uninstallSignalHandler(void)
 {
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
     // Keep the handlers installed to preserve the managed runtime's signal
     // chain. handleSignal() restores individual handlers before re-raising.
-#    else
+#        else
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Uninstalling signal handlers.");
 
     const int *fatalSignals = sentrycrashsignal_fatalSignals();
@@ -287,11 +325,11 @@ uninstallSignalHandler(void)
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
-#        if SENTRY_HAS_SIGNAL_STACK
+#            if SENTRY_HAS_SIGNAL_STACK
     g_signalStack = (stack_t) { 0 };
-#        endif
+#            endif
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers uninstalled.");
-#    endif
+#        endif
 }
 
 static void
@@ -325,35 +363,61 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
     }
 }
 
-#endif
+#    endif
 
 void
 sentrycrashcm_setEnableSigtermReporting(bool enabled)
 {
-#if SENTRY_HAS_SIGNAL
+#    if SENTRY_HAS_SIGNAL
     g_isSigtermReportingEnabled = enabled;
-#endif
+#    endif
 }
 
 void
 sentrycrashcm_signal_ignore_next(int signum)
 {
-#if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
-    tl_ignoreSignum = signum;
-#else
+#    if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
+    if (pthread_once(&g_ignoreSignalKeyOnce, createIgnoreSignalKey) != 0
+        || !g_ignoreSignalKeyCreated) {
+        return;
+    }
+
+    SentryCrashIgnoreSignal *entry = pthread_getspecific(g_ignoreSignalKey);
+    if (entry == NULL) {
+        // Intentional leak: signal handlers may still traverse list
+        entry = calloc(1, sizeof(*entry));
+        if (entry == NULL || pthread_setspecific(g_ignoreSignalKey, entry) != 0) {
+            free(entry);
+            return;
+        }
+
+        atomic_store_explicit(&entry->tid, (uintptr_t)pthread_self(), memory_order_relaxed);
+
+        SentryCrashIgnoreSignal *head
+            = atomic_load_explicit(&g_ignoreSignals, memory_order_relaxed);
+        do {
+            entry->next = head;
+        } while (!atomic_compare_exchange_weak_explicit(
+            &g_ignoreSignals, &head, entry, memory_order_release, memory_order_relaxed));
+    }
+
+    atomic_store_explicit(&entry->signum, signum, memory_order_relaxed);
+#    else
     (void)signum;
-#endif
+#    endif
 }
 
 SentryCrashMonitorAPI *
 sentrycrashcm_signal_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SENTRY_HAS_SIGNAL
+#    if SENTRY_HAS_SIGNAL
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
-#endif
+#    endif
     };
     return &api;
 }
+
+#endif // !SDK_V10

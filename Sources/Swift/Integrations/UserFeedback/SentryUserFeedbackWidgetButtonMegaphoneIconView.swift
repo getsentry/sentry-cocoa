@@ -1,3 +1,4 @@
+#if !SDK_V10
 import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 internal import _SentryPrivate
@@ -38,3 +39,4 @@ final class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
 }
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#endif // !SDK_V10

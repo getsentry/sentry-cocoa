@@ -68,6 +68,33 @@
     XCTAssertNoThrow([SentryObjCSDK.internal.envelope capture:envelope]);
 }
 
+#pragma mark - captureNonTerminating
+
+- (void)testCaptureNonTerminating_whenValidEnvelope_shouldNotThrow
+{
+    // -- Arrange --
+    SentryObjCEnvelopeHeader *header =
+        [[SentryObjCEnvelopeHeader alloc] initWithId:[[SentryObjCId alloc] init]];
+    NSData *itemData = [@"test" dataUsingEncoding:NSUTF8StringEncoding];
+    SentryObjCEnvelopeItem *item = [[SentryObjCEnvelopeItem alloc] initWithType:@"attachment"
+                                                                           data:itemData
+                                                                    addPlatform:NO];
+    SentryObjCEnvelope *envelope = [[SentryObjCEnvelope alloc] initWithHeader:header
+                                                                   singleItem:item];
+
+    // -- Act / Assert --
+    XCTAssertNoThrow([SentryObjCSDK.internal.envelope captureNonTerminating:envelope]);
+}
+
+#pragma mark - updateSessionForDroppedEventNonTerminating
+
+- (void)testUpdateSessionForDroppedEventNonTerminating_shouldNotThrow
+{
+    // -- Act / Assert --
+    XCTAssertNoThrow(
+        [SentryObjCSDK.internal.envelope updateSessionForDroppedEventNonTerminating:YES]);
+}
+
 #pragma mark - deserializeFrom
 
 - (void)testDeserializeFrom_whenValidData_shouldReturnEnvelope

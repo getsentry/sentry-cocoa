@@ -1,8 +1,17 @@
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 class SentryInternalScreenApiIntegrationTests: XCTestCase {
 
@@ -17,6 +26,7 @@ class SentryInternalScreenApiIntegrationTests: XCTestCase {
     }
 
     override func tearDown() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
     }

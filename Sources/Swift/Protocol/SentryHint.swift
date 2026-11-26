@@ -1,0 +1,111 @@
+internal import _SentryPrivate
+
+/// Provides metadata about the origin of an event or breadcrumb.
+///
+/// A hint flows alongside the event through the capture pipeline, giving ``Options/beforeSendWithHint``
+/// and ``Options/beforeBreadcrumbWithHint`` callbacks access to the raw source material that produced
+/// the event — such as the original `NSError` or `NSException` — and the list of attachments that will
+/// be sent with it. In the next major version, `beforeSendTransaction` receives the hint as well.
+///
+/// ## Thread Safety
+/// All property access is guarded by a mutex. It is safe to read and write from any queue.
+@objc(SentryHint)
+@objcMembers
+public final class Hint: NSObject {
+
+    private struct State {
+        var originalError: Error?
+        var originalException: NSException?
+        // Stores the wrapper instead of a `URLRequest`, so that setting a task's request doesn't
+        // bridge it. The SDK never reads `urlRequest`; only user callbacks do.
+        var urlRequest: SentryURLRequestWrapper?
+        var httpResponse: HTTPURLResponse?
+        var attachments: [Attachment] = []
+        var extra: [String: Any] = [:]
+    }
+
+    private let state = SentryMutex(State())
+
+    /// The original `Error` (typically an `NSError`) that triggered the event capture, if any.
+    public var originalError: Error? {
+        get { state.withLock { $0.originalError } }
+        set { state.withLock { $0.originalError = newValue } }
+    }
+
+    /// The original `NSException` that triggered the event capture, if any.
+    public var originalException: NSException? {
+        get { state.withLock { $0.originalException } }
+        set { state.withLock { $0.originalException = newValue } }
+    }
+
+    /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
+    public var urlRequest: URLRequest? {
+        get { state.withLock { $0.urlRequest }?.request }
+        set { state.withLock { $0.urlRequest = newValue.map(SentryURLRequestWrapper.init(request:)) } }
+    }
+
+    /// Sets ``urlRequest`` without copying the request until user code reads it.
+    ///
+    /// The network tracker passes a task's request here. Bridging that request to a `URLRequest`
+    /// copies it, which races with threads that write protocol properties into it and can crash
+    /// when the copy is released (#9307). Assigning `wrapper.request` to ``urlRequest`` would make
+    /// that copy on CFNetwork's queue for every network event. Storing the wrapper defers it to
+    /// the getter, which only runs when a `beforeSendWithHint` or `beforeBreadcrumbWithHint`
+    /// callback reads ``urlRequest``.
+    func setURLRequest(_ request: SentryURLRequestWrapper) {
+        state.withLock { $0.urlRequest = request }
+    }
+
+    /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.
+    public var httpResponse: HTTPURLResponse? {
+        get { state.withLock { $0.httpResponse } }
+        set { state.withLock { $0.httpResponse = newValue } }
+    }
+
+    /// The attachments that will be sent alongside the event.
+    ///
+    /// Before ``Options/beforeSendWithHint`` is invoked, the SDK pre-populates this list with the
+    /// attachments that will be sent with the event, such as the scope's attachments. The list left
+    /// in the hint when the callback returns is what the SDK sends, so attachments can be both
+    /// added and removed in the callback.
+    public var attachments: [Attachment] {
+        get { state.withLock { $0.attachments } }
+        set { state.withLock { $0.attachments = newValue } }
+    }
+
+    public override init() {
+        super.init()
+    }
+
+    /// Creates a hint pre-populated with the original error.
+    @objc public convenience init(error: Error) {
+        self.init()
+        state.withLock { $0.originalError = error }
+    }
+
+    /// Creates a hint pre-populated with the original exception.
+    @objc public convenience init(exception: NSException) {
+        self.init()
+        state.withLock { $0.originalException = exception }
+    }
+
+    // MARK: - Generic Key-Value Storage
+
+    /// Stores an arbitrary value in the hint, accessible by key.
+    @objc
+    public func setHintValue(_ value: Any, forKey key: String) {
+        state.withLock { $0.extra[key] = value }
+    }
+
+    /// Returns the value associated with the given key, or `nil` if not set.
+    @objc
+    public func hintValue(forKey key: String) -> Any? {
+        state.withLock { $0.extra[key] }
+    }
+
+    /// Removes the value for the given key.
+    @objc
+    public func removeHintValue(forKey key: String) {
+        state.withLock { _ = $0.extra.removeValue(forKey: key) }
+    }
+}

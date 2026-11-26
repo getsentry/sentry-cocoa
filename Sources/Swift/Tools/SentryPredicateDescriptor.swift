@@ -1,14 +1,11 @@
-// swiftlint:disable missing_docs
 import Foundation
 
 /// Used to transform an NSPredicate into a human-friendly string.
 /// This class is used for CoreData and omits variable values
 /// and doesn't convert CoreData unsupported instructions.
-@objc
-@_spi(Private) public final class SentryPredicateDescriptor: NSObject {
+final class SentryPredicateDescriptor {
 
-    @objc
-    public func predicateDescription(_ predicate: NSPredicate) -> String {
+    func predicateDescription(_ predicate: NSPredicate) -> String {
         if let compound = predicate as? NSCompoundPredicate {
             return compoundPredicateDescription(compound)
         }
@@ -117,4 +114,3 @@ import Foundation
         }
     }
 }
-// swiftlint:enable missing_docs

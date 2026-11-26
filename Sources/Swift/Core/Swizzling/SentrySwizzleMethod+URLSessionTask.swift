@@ -46,6 +46,15 @@ typealias SentryDataTaskRequestArguments = (URLRequest, SentryDataTaskCompletion
 /// The explicit arguments of `dataTask(with:completionHandler:)` when called with a URL.
 typealias SentryDataTaskURLArguments = (URL, SentryDataTaskCompletionHandler?)
 
+/// The Objective-C block convention used by URL session download task completion handlers.
+typealias SentryDownloadTaskCompletionHandler = @convention(block) (URL?, URLResponse?, Error?) -> Void
+
+/// The explicit arguments of `downloadTask(with:completionHandler:)` when called with a URL.
+typealias SentryDownloadTaskURLArguments = (URL, SentryDownloadTaskCompletionHandler?)
+
+/// The explicit arguments of `uploadTask(with:from:completionHandler:)` when called with body data.
+typealias SentryUploadTaskDataArguments = (URLRequest, Data?, SentryDataTaskCompletionHandler?)
+
 extension SentrySwizzleMethod where Arguments == SentryDataTaskRequestArguments, Result == URLSessionDataTask {
     /// Describes the method signature of `URLSession.dataTask(with:completionHandler:)` accepting a `URLRequest`.
     ///
@@ -62,6 +71,34 @@ extension SentrySwizzleMethod where Arguments == SentryDataTaskRequestArguments,
             signature: .init(
                 returnType: .object,
                 arguments: [.object, .selector, .object, .block]
+            )
+        )
+    }
+}
+
+extension SentrySwizzleMethod where Arguments == SentryDownloadTaskURLArguments, Result == URLSessionDownloadTask {
+    static func urlSessionDownloadTaskWithURL(_ receiver: Receiver.Type) -> Self {
+        .init(
+            selector: #selector(URLSession.downloadTask(with:completionHandler:)
+                as (URLSession) -> (URL, @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask),
+            receiver: receiver,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
+    }
+}
+
+extension SentrySwizzleMethod where Arguments == SentryUploadTaskDataArguments, Result == URLSessionUploadTask {
+    static func urlSessionUploadTaskWithData(_ receiver: Receiver.Type) -> Self {
+        .init(
+            selector: #selector(URLSession.uploadTask(with:from:completionHandler:)
+                as (URLSession) -> (URLRequest, Data?, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionUploadTask),
+            receiver: receiver,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .object, .block]
             )
         )
     }

@@ -3,22 +3,87 @@ import Foundation
 /// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
-    /**
-     * A more reliable way to report unhandled C++ exceptions.
-     *
-     * This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
-     *
-     * - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
-     * - Experiment: This is an experimental feature and is therefore disabled by default. We'll enable it by default in a future major release.
-     */
+    /// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
+    @nonobjc public let metrickit = SentryMetricKitOptions()
+
+    #if !SDK_V10
+    /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
+    ///
+    /// Hooking `__cxa_throw` has unresolved safety and symbolication concerns. When `false`,
+    /// unhandled C++ exceptions are still captured through `std::terminate` when crash handling
+    /// is enabled, but stacks may not identify the throw site.
+    ///
+    /// - Experiment: Disabled by default. Use and monitor this implementation with care.
+    ///   See https://github.com/getsentry/sentry-cocoa/issues/5309.
     public var enableUnhandledCPPExceptionsV2 = false
+    #endif // !SDK_V10
+
+    /// Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
+    /// Requires `Options.enableSwizzling` and an enabled network tracking feature.
+    /// Classic-loader instrumentation is unaffected by this option.
+    ///
+    /// Disabled by default while this experimental instrumentation is being tested.
+    /// Configure this option before starting the SDK. Installed swizzles remain for the process
+    /// lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
+    public var enableNewURLLoaderSwizzling = false
+
+    #if !SDK_V10
+    @nonobjc var enableWatchdogTerminationsV2Value = false
 
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-    public var enableWatchdogTerminationsV2 = false
+    /// - Deprecated: This option will be removed in v10, where the improved watchdog termination
+    ///   tracking mechanism is enabled by default.
+    public var enableWatchdogTerminationsV2: Bool {
+        get {
+            enableWatchdogTerminationsV2Value
+        }
+        @available(*, deprecated, message: "enableWatchdogTerminationsV2 is deprecated and will be removed in v10, where the improved watchdog termination tracking mechanism is enabled by default.")
+        set {
+            enableWatchdogTerminationsV2Value = newValue
+        }
+    }
+    #endif
 
     /**
-     * When enabled, the SDK sends a standalone app start transaction instead of attaching app
-     * start data to the first UIViewController transaction.
+     * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first
+     * time an instance of it is created, instead of eagerly discovering and swizzling every
+     * subclass when the SDK starts.
+     *
+     * By default, the SDK scans loaded binary images for all `UIViewController` subclasses at
+     * start and swizzles them up front. This realizes every subclass to inspect it, so the cost
+     * grows with the number of view controllers in the app - including ones it never uses - and it
+     * realizes `@available`-gated subclasses that reference newer-framework types, which crashes on
+     * OS versions below the gate.
+     *
+     * With this option, only classes the app actually instantiates are touched: a class that can't
+     * exist on the current OS is never instantiated, so it's never realized or swizzled. This cuts
+     * start-up work and avoids the gated-subclass crash while producing the same `ui.load`
+     * auto-instrumentation transactions.
+     *
+     * See https://github.com/getsentry/sentry-cocoa/issues/8548.
      */
-    public var enableStandaloneAppStartTracing = false
+    public var enableUIViewControllerInitSwizzling = false
+
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Tracks slow and frozen frames, frames delay, and time to display without waking up the app
+    /// for every frame.
+    ///
+    /// By default, the SDK tracks frames with a `CADisplayLink`, which makes the main thread wake up
+    /// for every frame of the display for as long as the app is active, even when nothing on screen
+    /// changes. With this option, the SDK observes the main run loop to measure how long the main
+    /// thread is blocked, and uses a `UIUpdateLink` to observe the UI updates UIKit produces anyway.
+    /// An idle app stays idle.
+    ///
+    /// The frame data is comparable to the default implementation: a frame counts as slow or frozen
+    /// when one piece of work blocks the main thread for longer than the duration of a frame, and
+    /// the total frame count assumes a frame for every refresh of the display outside of slow and
+    /// frozen frames, like the Android SDK does.
+    ///
+    /// Only has an effect on iOS 18, tvOS 18, and visionOS 2 and later. On older versions and on
+    /// Mac Catalyst the SDK keeps using a `CADisplayLink`. Configure this option before starting
+    /// the SDK.
+    ///
+    /// - Experiment: Disabled by default while this implementation is being tested.
+    public var enableUIUpdateLinkFramesTracking = false
+    #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 }

@@ -44,28 +44,6 @@ extension SentryDataCollection {
         /// denylist only).
         public var urlQueryParams: SentryDataCollection.KeyValueCollectionBehavior
 
-        /// Controls GraphQL document and variable collection.
-        ///
-        /// Defaults to ``SentryDataCollection/GraphQLCollectionOptions/init(document:variables:)`` with both
-        /// set to `true`.
-        public var graphql: SentryDataCollection.GraphQLCollectionOptions
-
-        /// Controls database query parameter collection.
-        ///
-        /// Defaults to ``SentryDataCollection/DatabaseCollectionOptions/init(queryParams:)`` with `queryParams`
-        /// set to `true`.
-        public var database: SentryDataCollection.DatabaseCollectionOptions
-
-        /// Include local variable values captured within stack frames.
-        ///
-        /// Defaults to `true`.
-        public var stackFrameVariables: Bool
-
-        /// Number of source code lines to include above and below each stack frame.
-        ///
-        /// Set to `0` to disable context lines. Defaults to `5`.
-        public var frameContextLines: UInt
-
         /// Creates a data collection configuration with spec-defined defaults.
         ///
         /// All parameters are optional and default to the values defined in the
@@ -77,30 +55,18 @@ extension SentryDataCollection {
         ///   - httpHeaders: HTTP header collection for request/response. Defaults to both `.denyList()`.
         ///   - httpBodies: Body types to collect. Defaults to `.all`; pass `[]` to disable.
         ///   - urlQueryParams: Query parameter collection behavior. Defaults to `.denyList()`.
-        ///   - graphql: GraphQL collection options. Defaults to both `true`.
-        ///   - database: Database collection options. Defaults to `queryParams: true`.
-        ///   - stackFrameVariables: Include stack frame local variables. Defaults to `true`.
-        ///   - frameContextLines: Source context lines above/below each frame. Defaults to `5`.
         public init(
             userInfo: Bool = true,
             cookies: SentryDataCollection.KeyValueCollectionBehavior = .denyList(),
             httpHeaders: SentryDataCollection.HttpHeaderCollectionOptions = .init(),
             httpBodies: SentryDataCollection.HttpBodyType = .all,
-            urlQueryParams: SentryDataCollection.KeyValueCollectionBehavior = .denyList(),
-            graphql: SentryDataCollection.GraphQLCollectionOptions = .init(),
-            database: SentryDataCollection.DatabaseCollectionOptions = .init(),
-            stackFrameVariables: Bool = true,
-            frameContextLines: UInt = 5
+            urlQueryParams: SentryDataCollection.KeyValueCollectionBehavior = .denyList()
         ) {
             self.userInfo = userInfo
             self.cookies = cookies
             self.httpHeaders = httpHeaders
             self.httpBodies = httpBodies
             self.urlQueryParams = urlQueryParams
-            self.graphql = graphql
-            self.database = database
-            self.stackFrameVariables = stackFrameVariables
-            self.frameContextLines = frameContextLines
         }
 
         /// Creates data collection options from a dictionary.
@@ -122,30 +88,6 @@ extension SentryDataCollection {
             if let urlQueryParams = SentryDictionaryDecoder.dictionary(dictionary, "urlQueryParams") {
                 self.urlQueryParams = SentryDataCollection.KeyValueCollectionBehavior(dictionary: urlQueryParams)
             }
-            if let graphql = SentryDictionaryDecoder.dictionary(dictionary, "graphql") {
-                self.graphql = SentryDataCollection.GraphQLCollectionOptions(dictionary: graphql)
-            }
-            if let database = SentryDictionaryDecoder.dictionary(dictionary, "database") {
-                self.database = SentryDataCollection.DatabaseCollectionOptions(dictionary: database)
-            }
-            if let stackFrameVariables = SentryDictionaryDecoder.bool(dictionary, "stackFrameVariables") {
-                self.stackFrameVariables = stackFrameVariables
-            }
-            if let frameContextLines = Self.frameContextLines(from: dictionary, defaultValue: self.frameContextLines) {
-                self.frameContextLines = frameContextLines
-            }
-        }
-
-        private static func frameContextLines(from dictionary: [String: Any], defaultValue: UInt) -> UInt? {
-            guard let value = dictionary["frameContextLines"], !(value is NSNull) else {
-                return nil
-            }
-
-            if let number = value as? NSNumber, SentryDictionaryDecoder.isBool(number) {
-                return number.boolValue ? defaultValue : 0
-            }
-
-            return SentryDictionaryDecoder.uint(dictionary, "frameContextLines")
         }
     }
 }

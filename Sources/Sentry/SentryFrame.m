@@ -1,5 +1,6 @@
 #import "SentryFrame.h"
 #import "NSMutableDictionary+Sentry.h"
+#import "SentryInternalSerializable.h"
 #import "SentrySanitizerUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN

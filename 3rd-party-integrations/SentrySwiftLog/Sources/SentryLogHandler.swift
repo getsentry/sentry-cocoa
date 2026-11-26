@@ -1,5 +1,9 @@
 import Logging
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 
 /// A `swift-log` handler that forwards log entries to Sentry's structured logging system.
 ///
@@ -21,6 +25,7 @@ import Sentry
 /// ```swift
 /// import Logging
 /// import Sentry
+/// import SentrySwiftLog
 ///
 /// // Initialize Sentry SDK
 /// SentrySDK.start { options in
@@ -28,8 +33,8 @@ import Sentry
 /// }
 ///
 /// // Register SentryLogHandler
-/// LoggingSystem.bootstrap { _ in
-///     return SentryLogHandler(logLevel: .trace)
+/// LoggingSystem.bootstrap { label in
+///     SentryLogHandler(label: label, logLevel: .trace)
 /// }
 ///
 /// // Create & use the logger
@@ -54,11 +59,39 @@ public struct SentryLogHandler: LogHandler {
     /// Defaults to `.info`.
     public var logLevel: Logger.Level
     
+    /// The label of the `Logger` this handler belongs to, sent as `logger.name`.
+    private let label: String?
+    
+    /// Creates a new SentryLogHandler for the logger with the given label.
+    ///
+    /// `swift-log` passes the label of each `Logger` to the factory closure of
+    /// `LoggingSystem.bootstrap`. Pass it on so every log entry records the
+    /// logger that wrote it as the `logger.name` attribute.
+    ///
+    /// ```swift
+    /// LoggingSystem.bootstrap { label in
+    ///     SentryLogHandler(label: label)
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - label: The label of the `Logger`, for example `com.example.app.network`.
+    ///   - logLevel: The minimum log level for messages to be sent to Sentry.
+    ///     Defaults to `.info`.
+    public init(label: String, logLevel: Logger.Level = .info) {
+        self.label = label
+        self.logLevel = logLevel
+    }
+    
     /// Creates a new SentryLogHandler with the specified log level.
+    ///
+    /// Log entries from a handler created this way don't include `logger.name`.
+    /// Use ``init(label:logLevel:)`` to record the logger label.
     ///
     /// - Parameter logLevel: The minimum log level for messages to be sent to Sentry.
     ///   Defaults to `.info`.
     public init(logLevel: Logger.Level = .info) {
+        self.label = nil
         self.logLevel = logLevel
     }
     
@@ -97,6 +130,9 @@ public struct SentryLogHandler: LogHandler {
         attributes["code.file.path"] = file
         attributes["code.function.name"] = function
         attributes["code.line.number"] = Int(line)
+        if let label, !label.isEmpty {
+            attributes["logger.name"] = label
+        }
         
         let allMetadata = self.metadata.merging(metadata ?? [:]) { _, new in
             new
@@ -105,26 +141,29 @@ public struct SentryLogHandler: LogHandler {
             attributes["swift-log.\(key)"] = "\(value)"
         }
         
-        // Call the appropriate SentryLog method based on level
-        let messageString = String(describing: message)
+        logInternal(String(describing: message), level: level, attributes: attributes)
+    }
+
+    /// Calls the `SentryLog` method that matches `level`.
+    private func logInternal(_ message: String, level: Logger.Level, attributes: [String: Any]) {
         let logger = SentrySDK.logger
-        
+
         switch level {
         case .trace:
-            logger.trace(messageString, attributes: attributes)
+            logger.trace(message, attributes: attributes)
         case .debug:
-            logger.debug(messageString, attributes: attributes)
+            logger.debug(message, attributes: attributes)
         case .info:
-            logger.info(messageString, attributes: attributes)
+            logger.info(message, attributes: attributes)
         case .notice:
             // Map notice to info as SentryLog doesn't have notice
-            logger.info(messageString, attributes: attributes)
+            logger.info(message, attributes: attributes)
         case .warning:
-            logger.warn(messageString, attributes: attributes)
+            logger.warn(message, attributes: attributes)
         case .error:
-            logger.error(messageString, attributes: attributes)
+            logger.error(message, attributes: attributes)
         case .critical:
-            logger.fatal(messageString, attributes: attributes)
+            logger.fatal(message, attributes: attributes)
         }
     }
     

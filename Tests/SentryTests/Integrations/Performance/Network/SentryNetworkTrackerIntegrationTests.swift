@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 /// Tests with a running test server to validate our swizzling doesn't break the HTTP requests are in
@@ -35,6 +40,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -90,19 +96,19 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         fixture.options.enableSwizzling = false
         startSDK()
         
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkBreadcrumbEnabled)
     }
     
     func testBreadcrumbDisabled() {
         fixture.options.enableNetworkBreadcrumbs = false
         startSDK()
         
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkBreadcrumbEnabled)
     }
     
     func testBreadcrumbEnabled() {
         startSDK()
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkBreadcrumbEnabled)
     }
     
     /**
@@ -160,38 +166,114 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
 
+    /// Runs a real request through our `resume` and `setState:` swizzles, which now take an
+    /// autoreleased reference to the task, and verifies the swizzled path still records a network
+    /// breadcrumb. A custom URLProtocol answers offline so the request completes deterministically.
+    /// The breadcrumb is recorded on the terminal `setState:` transition, which runs on a CFNetwork
+    /// thread that is not synchronized with the completion handler, so this polls for it. Its exact
+    /// count and data are platform dependent (the SDK swizzles more than one task class on iOS), so
+    /// this only asserts that a network breadcrumb was recorded.
+    func testResume_whenRequestCompletes_recordsHTTPBreadcrumb() throws {
+        // -- Arrange --
+        startSDK()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [RespondingRequestProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+
+        let url = try XCTUnwrap(URL(string: "https://request.test/ok"))
+        let completed = expectation(description: "Task completed")
+        let task = session.dataTask(with: url) { _, _, _ in completed.fulfill() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [completed], timeout: 5)
+
+        // -- Assert --
+        let scope = SentrySDKInternal.currentHub().scope
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        var httpBreadcrumbCount = 0
+        repeat {
+            let breadcrumbs = (Dynamic(scope).breadcrumbArray as [Breadcrumb]?) ?? []
+            httpBreadcrumbCount = breadcrumbs.filter { $0.category == "http" }.count
+            if httpBreadcrumbCount > 0 {
+                break
+            }
+            Thread.sleep(forTimeInterval: 0.01)
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        XCTAssertGreaterThan(httpBreadcrumbCount, 0)
+    }
+
+    /// Verifies the lifetime fix balances its retain: the `resume`/`setState:` swizzles take an
+    /// autoreleased reference to the task, so once the task completes and the autorelease pool
+    /// drains, the task is deallocated rather than leaked. A regression that retained without
+    /// autoreleasing would keep `weakTask` alive here.
+    func testResumeThenCancel_whenSwizzled_doesNotLeakTask() throws {
+        // -- Arrange --
+        startSDK()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingRequestProtocol.self]
+        let session = URLSession(configuration: configuration)
+
+        let url = try XCTUnwrap(URL(string: "https://request.test/hang"))
+        weak var weakTask: URLSessionTask?
+
+        // -- Act --
+        autoreleasepool {
+            let completed = expectation(description: "Task completed")
+            let task = session.dataTask(with: url) { _, _, _ in completed.fulfill() }
+            weakTask = task
+            task.resume()
+            task.cancel()
+            wait(for: [completed], timeout: 5)
+        }
+
+        // -- Assert --
+        // Invalidate so the session drops its own reference to the finished task.
+        session.invalidateAndCancel()
+        // The terminal setState: transition autoreleases the task on a CFNetwork thread whose pool
+        // this test does not drain, so deallocation can lag completion. Poll instead of asserting
+        // immediately; an unbalanced retain never releases and fails this wait. A short interval
+        // avoids busy-spinning and the ~1s penalty of XCTNSPredicateExpectation.
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while weakTask != nil && ProcessInfo.processInfo.systemUptime < deadline {
+            Thread.sleep(forTimeInterval: 0.01)
+        }
+        XCTAssertNil(weakTask)
+    }
+
     func testCaptureFailedRequestsDisabled_WhenSwizzlingDisabled() {
         fixture.options.enableSwizzling = false
         fixture.options.enableCaptureFailedRequests = true
         startSDK()
 
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isCaptureFailedRequestsEnabled)
     }
     
     func testCaptureFailedRequestsEnabled() {
         startSDK()
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isCaptureFailedRequestsEnabled)
     }
     
     func testCaptureFailedRequestsDisabled() {
         fixture.options.enableCaptureFailedRequests = false
         startSDK()
 
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isCaptureFailedRequestsEnabled)
     }
 
     func testGraphQLOperationTrackingEnabled() {
         fixture.options.enableGraphQLOperationTracking = true
         startSDK()
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isGraphQLOperationTrackingEnabled)
     }
 
     func testGraphQLOperationTrackingDisabled() {
         startSDK()
 
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isGraphQLOperationTrackingEnabled)
     }
     
     private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) throws {
@@ -253,6 +335,63 @@ class BlockAllRequestsProtocol: URLProtocol {
         } else {
             XCTFail("Couldn't block request because client was nil.")
         }
+    }
+
+    override func stopLoading() {
+
+    }
+}
+
+/// Keeps every request in flight without ever completing it, so the task stays in the `running`
+/// state until it is cancelled. Cancelling then drives the `running -> canceling` transition used by
+/// the tests above, entirely offline.
+class HangingRequestProtocol: URLProtocol {
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        return true
+    }
+
+    override class func canInit(with task: URLSessionTask) -> Bool {
+        return true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+
+    override func startLoading() {
+        // Intentionally empty: never notify the client so the request stays in flight until cancel.
+    }
+
+    override func stopLoading() {
+
+    }
+}
+
+/// Answers every request offline with a 200 response and an empty body, so the task completes
+/// through a single `running -> completed` transition without touching the network.
+class RespondingRequestProtocol: URLProtocol {
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        return true
+    }
+
+    override class func canInit(with task: URLSessionTask) -> Bool {
+        return true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+
+    override func startLoading() {
+        guard let client, let url = request.url,
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: nil) else {
+            return
+        }
+        client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client.urlProtocol(self, didLoad: Data())
+        client.urlProtocolDidFinishLoading(self)
     }
 
     override func stopLoading() {

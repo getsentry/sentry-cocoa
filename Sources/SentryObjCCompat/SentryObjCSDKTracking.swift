@@ -1,4 +1,4 @@
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -10,21 +10,21 @@ enum SentryObjCSDKTracking {
     private static var didSetObjCSDKName = false
 
     static func markStartedThroughObjCWrapper() {
-        guard PrivateSentrySDKOnly.getSdkName() == baseSDKName else {
+        guard SentrySDK.internal.sdk.name == baseSDKName else {
             return
         }
 
-        PrivateSentrySDKOnly.setSdkName(objcSDKName)
+        SentrySDK.internal.sdk.name = objcSDKName
         didSetObjCSDKName = true
     }
 
     static func markClosedThroughObjCWrapper() {
         guard didSetObjCSDKName,
-              PrivateSentrySDKOnly.getSdkName() == objcSDKName else {
+              SentrySDK.internal.sdk.name == objcSDKName else {
             return
         }
 
-        PrivateSentrySDKOnly.setSdkName(baseSDKName)
+        SentrySDK.internal.sdk.name = baseSDKName
         didSetObjCSDKName = false
     }
 }

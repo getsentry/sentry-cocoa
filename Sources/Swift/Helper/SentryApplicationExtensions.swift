@@ -27,9 +27,20 @@ import UIKit
     @objc public func relevantViewControllersNames() -> [String]? {
         internal_relevantViewControllersNames()
     }
-    
+
     @objc public var unsafeApplicationState: State {
-        applicationState
+        // ThreadsafeApplication reads this exactly once to determine its initial state, either inline when it is
+        // initialized on the main thread or from a block it dispatches to the main queue otherwise, and relies on
+        // notifications from there on. The remaining callers go through `mainThread_isActive`, which can run on
+        // any thread.
+        //
+        // We dispatch this to the main thread as Apple states it should be called from the main thread only
+        // and accept any slowdown as a one-time, limited affect.
+        var applicationState: State = .active
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            applicationState = self?.applicationState ?? .active
+        }, timeout: 0.01)
+        return applicationState
     }
     
     @objc public var mainThread_isActive: Bool {
@@ -49,6 +60,9 @@ extension SentryApplication {
 
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
+    //
+    // Runs on the main thread, so reading the delegate's `window` is safe. The crash-time path
+    // cannot and uses `collectWindowsOnCurrentThread()` instead.
     public func internal_getWindows() -> [UIWindow]? {
         var windows = Set<UIWindow>()
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
@@ -80,6 +94,27 @@ extension SentryApplication {
                 windows.insert(window)
             }
         }, timeout: 0.01)
+        return Array(windows)
+    }
+
+    /// Crash-time window access. Must not hop to main; KSCrash has suspended other threads.
+    ///
+    /// Reads the scene's windows directly instead of the delegate's `window`, whose Swift
+    /// `@MainActor` getter would trap when read off the main thread.
+    public func collectWindowsOnCurrentThread() -> [UIWindow] {
+        var windows = Set<UIWindow>()
+
+        for scene in connectedScenes where scene.activationState == .foregroundActive {
+            if let windowScene = scene as? UIWindowScene {
+                windows.formUnion(windowScene.windows)
+            }
+        }
+
+        // Fall back to the app delegate's window only for legacy, non-UIScene apps.
+        if windows.isEmpty, let optionalWindow = delegate?.window, let window = optionalWindow {
+            windows.insert(window)
+        }
+
         return Array(windows)
     }
     
@@ -151,7 +186,10 @@ extension SentryApplication {
                 // Sometimes a view controller is used as container for a navigation controller
                 // If the navigation is occupying the whole view controller we will consider this the
                 // case.
-                if isContainerViewController(childVC), childVC.isViewLoaded, childVC.view.frame == topVC.view.bounds {
+                if isContainerViewController(childVC),
+                   let childView = childVC.viewIfLoaded,
+                   let topView = topVC.viewIfLoaded,
+                   childView.frame == topView.bounds {
                     relevantChild = childVC
                     break
                 }

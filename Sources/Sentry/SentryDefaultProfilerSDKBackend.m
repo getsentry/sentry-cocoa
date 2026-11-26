@@ -1,0 +1,329 @@
+#import "SentryDefaultProfilerSDKBackend.h"
+#import "SentryClient+Private.h"
+#import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
+#import "SentryLogC.h"
+#import "SentryProfilerCancellation.h"
+#import "SentryProfilerConfigurationBridge.h"
+#import "SentryProfilerDeliveryBridge.h"
+#import "SentryProfilingLog.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+@interface SentrySDKProfilingLogger : NSObject <SentryProfilingLogger>
+@end
+
+@implementation SentrySDKProfilingLogger
+- (BOOL)shouldLog:(SentryProfilingLogLevel)level
+{
+    switch (level) {
+    case SentryProfilingLogLevelDebug:
+        return debugEnabled();
+    case SentryProfilingLogLevelWarning:
+        return warnEnabled();
+    case SentryProfilingLogLevelError:
+        return errorEnabled();
+    }
+}
+
+- (void)log:(SentryProfilingLogLevel)level
+    message:(NSString *)message
+       file:(NSString *)file
+       line:(NSUInteger)line
+{
+    switch (level) {
+    case SentryProfilingLogLevelDebug:
+        logDebug(file.UTF8String, (int)line, @"%@", message);
+        break;
+    case SentryProfilingLogLevelWarning:
+        logWarn(file.UTF8String, (int)line, @"%@", message);
+        break;
+    case SentryProfilingLogLevelError:
+        logError(file.UTF8String, (int)line, @"%@", message);
+        break;
+    }
+}
+@end
+
+@implementation SentryDefaultProfilerSDKBackend {
+    SentrySystemWrapper *_systemWrapper;
+    SentrySDKProfilingLogger *_profilingLogger;
+}
+- (void)activate
+{
+    _profilingLogger = [[SentrySDKProfilingLogger alloc] init];
+    SentryProfilingLog.logger = _profilingLogger;
+    [SentryProfilerSDKAdapter.shared setTarget:self];
+}
+- (void)dealloc
+{
+    [SentryProfilerSDKAdapter.shared removeTarget:self];
+}
+
+- (void)captureProfileChunkWithID:(SentryProfilingId *)profileID
+                             data:(NSDictionary<NSString *, id> *)profileData
+                          metrics:(SentryProfilingMetricSerialization)serializeMetrics
+#    if SENTRY_HAS_UIKIT
+                           frames:(SentryProfilingFrameMeasurements *_Nullable)frames
+#    endif
+{
+    SentryHubInternal *const hub = SentrySDKInternal.currentHub;
+    SentryDebugImageProvider *const debugImageProvider
+        = SentryDependencyContainer.sharedInstance.debugImageProvider;
+    [self dispatchAsync:^{
+        // Closing the originating SDK must not redirect a pending chunk to a later client.
+        if (hub.getClient == nil) {
+            return;
+        }
+        NSMutableArray<NSDictionary<NSString *, id> *> *images = [NSMutableArray array];
+        for (SentryDebugMeta *image in [debugImageProvider getDebugImagesFromCache]) {
+            [images addObject:[image serialize]];
+        }
+        NSDictionary<NSString *, id> *serializedMetrics = serializeMetrics();
+        SentryId *identifier = [[SentryId alloc] initWithUuid:profileID.uuid];
+        SentryEnvelope *_Nullable envelope = sentry_continuousProfileChunkEnvelope(
+            identifier, profileData, serializedMetrics, images, hub
+#    if SENTRY_HAS_UIKIT
+            ,
+            frames
+#    endif
+        );
+        if (envelope == nil) {
+            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
+            return;
+        }
+        [hub captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
+    }];
+}
+
+- (SentryProfilingConfiguration)configuration
+{
+    return sentry_profilerConfigurationSnapshot();
+}
+
+- (SentryProfilingTimestamp)timestamp
+{
+    id<SentryCurrentDateProvider> provider = SentryDependencyContainer.sharedInstance.dateProvider;
+    uint64_t systemTime = provider.systemTime;
+    NSTimeInterval dateInterval = provider.date.timeIntervalSince1970;
+    return (SentryProfilingTimestamp) { systemTime, dateInterval };
+}
+
+- (NSArray<NSDictionary<NSString *, id> *> *_Nullable)serializedDebugImages
+{
+    SentryProfilingDebugImageSerialization serialize = [self debugImageSerialization];
+    return serialize == nil ? nil : serialize();
+}
+
+- (SentryProfilingDebugImageSerialization _Nullable)debugImageSerialization
+{
+    SentryDebugImageProvider *provider
+        = SentryDependencyContainer.sharedInstance.debugImageProvider;
+    if (provider == nil) {
+        return nil;
+    }
+    return ^{
+        NSMutableArray<NSDictionary<NSString *, id> *> *images = [NSMutableArray array];
+        for (SentryDebugMeta *image in [provider getDebugImagesFromCache]) {
+            [images addObject:[image serialize]];
+        }
+        return [images copy];
+    };
+}
+
+- (SentrySystemWrapper *)systemWrapper
+{
+    @synchronized(self) {
+        if (_systemWrapper == nil) {
+            _systemWrapper = [[SentrySystemWrapper alloc]
+                initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+                                           .processorCount];
+        }
+        return _systemWrapper;
+    }
+}
+
+#    if defined(DEBUG) // Test support.
+- (void)setSystemWrapper:(SentrySystemWrapper *)systemWrapper
+{
+    @synchronized(self) {
+        _systemWrapper = systemWrapper;
+    }
+}
+#    endif
+
+- (SentryProfilingSystemMetrics *)systemMetrics
+{
+    SentrySystemWrapper *wrapper = self.systemWrapper;
+    NSError *cpuError = nil;
+    NSNumber *cpuUsage = [wrapper cpuUsageAndReturnError:&cpuError];
+    if (cpuError != nil) {
+        SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", cpuError);
+        cpuUsage = nil;
+    }
+
+    NSError *memoryError = nil;
+    NSNumber *memoryFootprint = [wrapper memoryFootprintBytesAndReturnError:&memoryError];
+    if (memoryError != nil) {
+        SENTRY_LOG_ERROR(@"Failed to read memory footprint: %@", memoryError);
+        memoryFootprint = nil;
+    }
+
+    NSNumber *energyUsage = nil;
+#    if defined(__arm__) || defined(__arm64__)
+    NSError *energyError = nil;
+    energyUsage = [wrapper cpuEnergyUsageAndReturnError:&energyError];
+    if (energyError != nil) {
+        SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", energyError);
+        energyUsage = nil;
+    }
+#    endif
+
+    return [[SentryProfilingSystemMetrics alloc] initWithCPUUsage:cpuUsage
+                                             memoryFootprintBytes:memoryFootprint
+                                                   cpuEnergyUsage:energyUsage];
+}
+
+- (id<SentryProfilingCancellation> _Nullable)
+    scheduleMetricSamplingWithInterval:(uint64_t)intervalNanoseconds
+                                leeway:(uint64_t)leewayNanoseconds
+                                 block:(dispatch_block_t)block
+{
+    SentryDispatchSourceWrapper *source = [SentryDependencyContainer.sharedInstance.dispatchFactory
+        sourceWithInterval:intervalNanoseconds
+                    leeway:leewayNanoseconds
+                 queueName:"io.sentry.metric-profiler"
+                attributes:dispatch_queue_attr_make_with_qos_class(
+                               DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
+              eventHandler:block];
+    if (source == nil) {
+        return nil;
+    }
+    return [[SentryProfilerCancellation alloc] initWithCancellation:^{ [source cancel]; }];
+}
+
+- (id<SentryProfilingCancellation> _Nullable)scheduleTimerWithInterval:(NSTimeInterval)interval
+                                                               repeats:(BOOL)repeats
+                                                                 block:(dispatch_block_t)block
+{
+    NSTimer *timer = [SentryDependencyContainer.sharedInstance.timerFactory
+        scheduledTimerWithTimeInterval:interval
+                               repeats:repeats
+                                 block:^(__unused NSTimer *firedTimer) { block(); }];
+    if (timer == nil) {
+        return nil;
+    }
+    return [[SentryProfilerCancellation alloc] initWithCancellation:^{ [timer invalidate]; }];
+}
+
+- (void)dispatchAsync:(dispatch_block_t)block
+{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:block];
+}
+
+- (NSDate *_Nullable)date
+{
+    return [SentryDependencyContainer.sharedInstance.dateProvider date];
+}
+
+- (uint64_t)systemTime
+{
+    return SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+}
+
+- (void)dispatchAsyncOnMainIfNotMainThread:(dispatch_block_t)block
+{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchAsyncOnMainQueueIfNotMainThread:block];
+}
+
+- (void)removeObserver:(id)object
+{
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:object
+                                                                                  name:nil
+                                                                                object:nil];
+}
+
+- (void)addObserver:(id)observer
+           selector:(SEL)selector
+               name:(NSNotificationName)name
+             object:(id _Nullable)object
+{
+    return [SentryDependencyContainer.sharedInstance.notificationCenterWrapper addObserver:observer
+                                                                                  selector:selector
+                                                                                      name:name
+                                                                                    object:object];
+}
+
+- (void)postNotification:(NSNotification *)notification
+{
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        postNotification:notification];
+}
+
+- (id _Nullable)addObserverForName:(NSNotificationName)name block:(dispatch_block_t)block
+{
+    return [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserverForName:name
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *_Nonnull notification) { block(); }];
+}
+
+- (BOOL)isTracingAppLaunch
+{
+    return SentryLaunchProfiling.isTracingAppLaunch;
+}
+
+- (void)setIsTracingAppLaunch:(BOOL)isTracingAppLaunch
+{
+    SentryLaunchProfiling.isTracingAppLaunch = isTracingAppLaunch;
+}
+
+#    if SENTRY_HAS_UIKIT
+
+- (void)startFramesTracker
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+}
+
+- (void)stopFramesTrackerIfUnused
+{
+    // Automatic performance tracing and app hang tracking may still need the frames tracker.
+    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    BOOL shouldStop = options == nil || !options.enableAutoPerformanceTracing;
+#        if !SDK_V10
+    BOOL appHangsDisabled = options != nil && [options isAppHangTrackingDisabled];
+    shouldStop = shouldStop && appHangsDisabled;
+#        endif
+    if (shouldStop) {
+        [SentryDependencyContainer.sharedInstance.framesTracker stop];
+    }
+}
+
+- (void)resetProfilingTimestamps
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+}
+
+- (SentryProfilingFrameMeasurements *_Nullable)copyFrameMeasurements
+{
+    SentryScreenFrames *frames
+        = SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
+    if (frames == nil) {
+        return nil;
+    }
+    return [[SentryProfilingFrameMeasurements alloc]
+        initWithSlowFrameTimestamps:frames.slowFrameTimestamps
+              frozenFrameTimestamps:frames.frozenFrameTimestamps
+                frameRateTimestamps:frames.frameRateTimestamps];
+}
+
+#    endif // SENTRY_HAS_UIKIT
+
+@end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

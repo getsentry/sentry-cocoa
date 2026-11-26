@@ -1,42 +1,49 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import Foundation
+import UIKit
 
 /// Manages file operations for Session Replay, including saving, moving, and cleaning up replay files.
 // Helps reducing the login in SentrySessionReplayIntegration
 struct SessionReplayFileManager {
-    
+
     private enum Constants {
         static let replayFolder = "replay"
         static let currentReplay = "replay.current"
         static let lastReplay = "replay.last"
     }
-    
+
     private let fileManager: SentryFileManager?
     private let sharedDispatchQueue: SentryDispatchQueueWrapper
-    
+
     init(fileManager: SentryFileManager?, sharedDispatchQueue: SentryDispatchQueueWrapper) {
         self.fileManager = fileManager
         self.sharedDispatchQueue = sharedDispatchQueue
     }
-    
+
     // MARK: - Directory Access
-    
+
     func replayDirectory() -> URL? {
         guard let sentryPath = fileManager?.sentryPath else { return nil }
         return URL(fileURLWithPath: sentryPath).appendingPathComponent(Constants.replayFolder)
     }
-    
+
     // MARK: - Session Info
-    
-    func saveCurrentSessionInfo(_ sessionId: SentryId, path: String, options: SentryReplayOptions) {
+
+    func saveCurrentSessionInfo(
+        _ sessionId: SentryId,
+        path: String,
+        options: SentryReplayOptions,
+        replayType: SentryReplayType
+    ) {
         SentrySDKLog.debug("[Session Replay] Saving current session info for session: \(sessionId) to path: \(path)")
-        
+
         let info: [String: Any] = [
             "replayId": sessionId.sentryIdString,
             "path": (path as NSString).lastPathComponent,
-            "errorSampleRate": options.onErrorSampleRate
+            "errorSampleRate": options.onErrorSampleRate,
+            "replayType": replayType.toString()
         ]
 
         guard let data = SentrySerializationSwift.data(withJSONObject: info) else {
@@ -53,9 +60,30 @@ struct SessionReplayFileManager {
             SentrySDKLog.error("[Session Replay] Failed to write session info to path: \(infoPath), error: \(error)")
         }
         let crashInfoPath = (path as NSString).appendingPathComponent("crashInfo")
-        sentrySessionReplaySync_start(crashInfoPath)
+        sentrySessionReplaySync_start(crashInfoPath, replayType.crashReplayType)
     }
-    
+
+    func updateCurrentReplayType(_ replayType: SentryReplayType, replayId: SentryId) {
+        sentrySessionReplaySync_updateReplayType(replayType.crashReplayType)
+        guard let replayDirectory = replayDirectory() else { return }
+        let infoURL = replayDirectory.appendingPathComponent(Constants.currentReplay)
+        sharedDispatchQueue.dispatchAsync {
+            guard let data = try? Data(contentsOf: infoURL),
+                  var info = SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any],
+                  info["replayId"] as? String == replayId.sentryIdString
+            else { return }
+
+            info["replayType"] = replayType.toString()
+            guard let updated = SentrySerializationSwift.data(withJSONObject: info) else { return }
+
+            do {
+                try updated.write(to: infoURL, options: .atomic)
+            } catch {
+                SentrySDKLog.error("[Session Replay] Failed to update current replay type: \(error)")
+            }
+        }
+    }
+
     func lastReplayInfo() -> [String: Any]? {
         guard let dir = replayDirectory() else { return nil }
         let lastReplayUrl = dir.appendingPathComponent(Constants.lastReplay)
@@ -65,9 +93,18 @@ struct SessionReplayFileManager {
         }
         return SentrySerialization.deserializeDictionary(fromJsonData: lastReplay) as? [String: Any]
     }
-    
+
+    func claimLastReplayInfo() {
+        SentrySDKLog.debug("[Session Replay] Attempting to claim last replay info")
+        guard let dir = replayDirectory() else {
+            SentrySDKLog.debug("[Session Replay] No replay directory found")
+            return
+        }
+        removeFileIfExists(at: dir.appendingPathComponent(Constants.lastReplay))
+    }
+
     // MARK: - Session Directory
-    
+
     func createSessionDirectory() -> URL? {
         guard let docs = replayDirectory() else {
             SentrySDKLog.error("[Session Replay] Could not get replay directory")
@@ -93,9 +130,9 @@ struct SessionReplayFileManager {
 
         return sessionDocs
     }
-    
+
     // MARK: - File Movement
-    
+
     func moveCurrentReplay() {
         SentrySDKLog.debug("[Session Replay] Moving current replay")
         guard let path = replayDirectory() else { return }
@@ -106,9 +143,9 @@ struct SessionReplayFileManager {
         removeFileIfExists(at: last)
         moveFileIfExists(from: current, to: last)
     }
-    
+
     // MARK: - Cleanup
-    
+
     func cleanUp() {
         SentrySDKLog.debug("[Session Replay] Cleaning up")
         guard let replayDir = replayDirectory(), let fileManager = fileManager else { return }
@@ -127,7 +164,7 @@ struct SessionReplayFileManager {
             self.removeOldReplayFiles(replayFiles, in: replayDir, excluding: lastReplayFolder, fileManager: fileManager)
         }
     }
-    
+
     private func removeOldReplayFiles(
         _ files: [String],
         in directory: URL,
@@ -149,9 +186,9 @@ struct SessionReplayFileManager {
             }
         }
     }
-    
+
     // MARK: - File Utilities
-    
+
     func removeFileIfExists(atPath path: String) {
         guard FileManager.default.fileExists(atPath: path) else { return }
         SentrySDKLog.debug("[Session Replay] Removing file at path: \(path)")
@@ -161,7 +198,7 @@ struct SessionReplayFileManager {
             SentrySDKLog.error("[Session Replay] Failed to remove file at path: \(path), error: \(error)")
         }
     }
-    
+
     func removeFileIfExists(at url: URL) {
         guard FileManager.default.fileExists(atPath: url.path) else {
             SentrySDKLog.debug("[Session Replay] No file to remove at path: \(url)")
@@ -174,7 +211,7 @@ struct SessionReplayFileManager {
             SentrySDKLog.error("[Session Replay] Failed to remove file at path: \(url), error: \(error)")
         }
     }
-    
+
     private func moveFileIfExists(from source: URL, to destination: URL) {
         guard FileManager.default.fileExists(atPath: source.path) else {
             SentrySDKLog.debug("[Session Replay] No file to move at path: \(source)")

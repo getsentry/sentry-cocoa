@@ -8,6 +8,7 @@
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+# - https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
 
 set -euo pipefail
 
@@ -41,6 +42,21 @@ run_with_timeout() {
 # Disable SC1091 because it won't work with pre-commit
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
+# On headless runners the host asks 'Allow "SimulatorTrampoline.xpc" to access your microphone?'
+# when a visionOS simulator boots. Until somebody answers, CoreAudio init inside the simulator
+# never returns, backboardd aborts with "RPC timeout" and crash-loops with a doubling respawn
+# delay, and every test that needs the render server blocks until the next respawn.
+# Answer the prompt in the background for 10 minutes, which covers boot retries.
+answer_microphone_prompt() {
+    local deadline=$((SECONDS + 600))
+    while [ $SECONDS -lt $deadline ]; do
+        if osascript -e 'tell application "System Events" to tell process "UserNotificationCenter" to click button "Allow" of window 1' > /dev/null 2>&1; then
+            log_info "Answered the host microphone permission prompt"
+        fi
+        sleep 2
+    done
+}
 
 usage() {
     cat <<EOF
@@ -142,7 +158,8 @@ begin_group "Device Discovery"
 log_info "Searching for simulator: $SIMULATOR running $PLATFORM_NAME $PLATFORM_VERSION"
 
 # simctl device headers use major.minor (e.g. "-- iOS 26.4 --") even for
-# hotfix versions like 26.4.1. Extract major.minor for section matching.
+# hotfix versions like 26.4.1. Use the section only to find a candidate, then
+# validate the booted device's exact runtime version below.
 VERSION_MM=$(echo "$PLATFORM_VERSION" | awk -F. '{print $1"."$2}')
 
 UDID=$(xcrun simctl list devices available | \
@@ -168,6 +185,14 @@ log_info "Booting simulator: $SIMULATOR - $PLATFORM_NAME $PLATFORM_VERSION (UDID
 
 MAX_BOOT_ATTEMPTS=5
 BOOT_TIMEOUT=180 # 3 minutes
+
+# Start the watcher once, before the first boot attempt, so it also covers boot retries.
+if [ "$PLATFORM_NAME" = "visionOS" ]; then
+    log_info "Watching for the host microphone permission prompt"
+    # Detach from the step's output so the step doesn't wait for the watcher to finish.
+    answer_microphone_prompt >> "${RUNNER_TEMP:-/tmp}/microphone-prompt.log" 2>&1 &
+    disown
+fi
 
 for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
     log_info "Boot attempt $attempt of $MAX_BOOT_ATTEMPTS"
@@ -196,15 +221,33 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Simulator boot command executed successfully"
     fi
     
-    # Open Simulator app UI (only on first attempt)
+    # Open the selected simulator UI on the first attempt so CI screenshots show relevant device state.
     if [ "$attempt" -eq 1 ]; then
-        log_info "Opening Simulator app UI"
-        SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
-        if ! open "$SIMULATOR_APP_PATH"; then
-            log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
-            exit 1
+        DEVELOPER_DIR="$(xcode-select -p)"
+        SIMULATOR_APP_PATH="$DEVELOPER_DIR/Applications/Simulator.app"
+        DEVICE_HUB_APP_PATH="$(dirname "$DEVELOPER_DIR")/Applications/DeviceHub.app"
+
+        if [ -d "$SIMULATOR_APP_PATH" ]; then
+            log_info "Opening Simulator app UI"
+            if ! open "$SIMULATOR_APP_PATH"; then
+                log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
+                exit 1
+            fi
+            log_info "Simulator app opened successfully"
+        elif [ -d "$DEVICE_HUB_APP_PATH" ]; then
+            log_info "Opening Device Hub for simulator $UDID"
+            if ! open "$DEVICE_HUB_APP_PATH"; then
+                log_error "Failed to open Device Hub at $DEVICE_HUB_APP_PATH"
+                exit 1
+            fi
+            if ! open "devices://device/open?id=$UDID"; then
+                log_error "Failed to focus simulator $UDID in Device Hub"
+                exit 1
+            fi
+            log_info "Device Hub opened successfully"
+        else
+            log_info "No simulator UI app is bundled with this Xcode; continuing with simctl"
         fi
-        log_info "Simulator app opened successfully"
     fi
     
     # Wait for simulator to fully boot with timeout
@@ -232,6 +275,16 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Will retry booting simulator..."
     fi
 done
+
+ACTUAL_PLATFORM_VERSION=$(xcrun simctl getenv "$UDID" SIMULATOR_RUNTIME_VERSION)
+if [ "$ACTUAL_PLATFORM_VERSION" != "$PLATFORM_VERSION" ]; then
+    log_error "Booted simulator $UDID runs $PLATFORM_NAME $ACTUAL_PLATFORM_VERSION, expected $PLATFORM_VERSION"
+    exit 1
+fi
+
+log_info "Validated simulator runtime: $PLATFORM_NAME $ACTUAL_PLATFORM_VERSION (UDID: $UDID)"
+set_output "device-udid" "$UDID"
+set_output "platform-version" "$ACTUAL_PLATFORM_VERSION"
 
 end_group
 

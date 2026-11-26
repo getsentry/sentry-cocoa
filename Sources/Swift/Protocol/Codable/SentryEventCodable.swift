@@ -57,7 +57,7 @@ extension SentryEventDecodable {
     
     private func writePropertiesFrom(container: KeyedDecodingContainer<CodingKeys>) throws {
         let eventIdAsString = try container.decode(String.self, forKey: .eventId)
-        SentryEventSwiftHelper.setEventIdString(eventIdAsString, event: self)
+        self.eventId = SentryId(uuidString: eventIdAsString)
         self.message = try container.decodeIfPresent(SentryMessageDecodable.self, forKey: .message)
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.startTimestamp = try container.decodeIfPresent(Date.self, forKey: .startTimestamp)

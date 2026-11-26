@@ -1,8 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
-#if os(iOS) || os(tvOS) || os(macOS)
+#if (os(iOS) || os(tvOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 private class MockDelegate: TelemetryBufferItemForwardingDelegate {
     var forwardItemsCallCount = 0
@@ -146,4 +150,4 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
         XCTAssertEqual(delegate.forwardItemsCallCount, 0)
     }
 }
-#endif // os(iOS) || os(tvOS) || os(macOS)
+#endif // (os(iOS) || os(tvOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK

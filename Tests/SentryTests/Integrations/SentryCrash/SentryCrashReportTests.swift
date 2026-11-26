@@ -1,5 +1,16 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+#endif
+#else
+@_spi(Private) @testable import Sentry
+#endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryCrashReportTests: XCTestCase {
@@ -35,6 +46,7 @@ class SentryCrashReportTests: XCTestCase {
         super.tearDown()
         
         deleteTestDir()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         sentrycrashbic_stopCache()
     }
@@ -306,3 +318,5 @@ class SentryCrashReportTests: XCTestCase {
     }
     // swiftlint:enable identifier_name
 }
+
+#endif // !SDK_V10

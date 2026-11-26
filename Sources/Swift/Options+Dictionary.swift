@@ -1,5 +1,13 @@
+// swiftlint:disable file_length
 import Foundation
 import ObjectiveC
+
+// This is needed because a file that only contains an @objc extension will get automatically stripped out
+// in static builds. We need to either use the -all_load linker flag (which has downsides of app size increases)
+// or make sure that every file containing objc categories/extensions also have a concrete type that
+// is referenced.
+// swiftlint:disable:next missing_docs
+@_spi(Private) @objc public final class PlaceholderOptionsDictionaryClass: NSObject { }
 
 extension Options {
     /// Initializes options from a dictionary, primarily for hybrid SDK configuration.
@@ -61,29 +69,47 @@ extension Options {
             self.enableCrashHandler = enableCrashHandler
         }
 
+        if let enableUnhandledCPPExceptionsV2 = boolValue(dictionary["enableUnhandledCPPExceptionsV2"]) {
+            #if SDK_V10
+            self.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+            #else
+            self.experimental.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+            #endif // SDK_V10
+        }
+
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if let enableUncaughtNSExceptionReporting = boolValue(dictionary["enableUncaughtNSExceptionReporting"]) {
             self.enableUncaughtNSExceptionReporting = enableUncaughtNSExceptionReporting
         }
         #endif
 
-        #if !os(watchOS)
+        // V10 intentionally ignores the "enableSigtermReporting" key: KSCrash treats SIGTERM as a
+        // clean exit and never reports it as a crash, so there is nothing to configure.
+        #if !os(watchOS) && !SDK_V10
         if let enableSigtermReporting = boolValue(dictionary["enableSigtermReporting"]) {
-            self.enableSigtermReporting = enableSigtermReporting
+            self._enableSigtermReporting = enableSigtermReporting
         }
-        #endif
+        #endif // !os(watchOS) && !SDK_V10
 
         if let maxBreadcrumbs = dictionary["maxBreadcrumbs"] as? NSNumber {
             self.maxBreadcrumbs = maxBreadcrumbs.uintValue
         }
 
+        if let maxFeatureFlags = dictionary["maxFeatureFlags"] as? NSNumber {
+            self.maxFeatureFlags = maxFeatureFlags.uintValue
+        }
+
+        #if !SDK_V10
         if let enableLogs = boolValue(dictionary["enableLogs"]) {
             self.enableLogs = enableLogs
         }
+        #endif // !SDK_V10
 
+        #if !SDK_V10
         if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
             self.enableMetrics = enableMetrics
         }
+        #endif // !SDK_V10
 
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {
             self.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
@@ -98,6 +124,9 @@ extension Options {
         }
 
         setBlock(dictionary["beforeSend"], forKey: "beforeSend")
+        #if SDK_V10
+        setBlock(dictionary["beforeSendTransaction"], forKey: "beforeSendTransaction")
+        #endif // SDK_V10
         setBlock(dictionary["beforeSendLog"], forKey: "beforeSendLog")
         setBlock(dictionary["beforeSendSpan"], forKey: "beforeSendSpan")
         setBlock(dictionary["beforeBreadcrumb"], forKey: "beforeBreadcrumb")
@@ -138,13 +167,19 @@ extension Options {
             self.attachStacktrace = attachStacktrace
         }
 
+        if let attachAllThreads = boolValue(dictionary["attachAllThreads"]) {
+            self.attachAllThreads = attachAllThreads
+        }
+
         if let maxAttachmentSize = dictionary["maxAttachmentSize"] as? NSNumber {
             self.maxAttachmentSize = maxAttachmentSize.uintValue
         }
 
+#if !SDK_V10
         if let sendDefaultPii = boolValue(dictionary["sendDefaultPii"]) {
             self.sendDefaultPii = sendDefaultPii
         }
+#endif // !SDK_V10
 
         if let enableAutoPerformanceTracing = boolValue(dictionary["enableAutoPerformanceTracing"]) {
             self.enableAutoPerformanceTracing = enableAutoPerformanceTracing
@@ -162,6 +197,9 @@ extension Options {
             self.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
         }
 
+        if let enableScopePersistence = boolValue(dictionary["enableScopePersistence"]) {
+            self.enableScopePersistence = enableScopePersistence
+        }
         setBlock(dictionary["initialScope"], forKey: "initialScope")
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -193,20 +231,37 @@ extension Options {
             self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         }
 
-        if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
-            self.enableReportNonFullyBlockingAppHangs = enableReportNonFullyBlockingAppHangs
+        if let enableUIUpdateLinkFramesTracking = boolValue(dictionary["enableUIUpdateLinkFramesTracking"]) {
+            self.experimental.enableUIUpdateLinkFramesTracking = enableUIUpdateLinkFramesTracking
         }
+
+        #if !SDK_V10
+        if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
+            self.enableReportNonFullyBlockingAppHangsValue = enableReportNonFullyBlockingAppHangs
+        }
+
+        if let enableStandaloneAppStartTracing = boolValue(dictionary["enableStandaloneAppStartTracing"]) {
+            self.enableStandaloneAppStartTracing = enableStandaloneAppStartTracing
+        }
+        #endif // !SDK_V10
         #endif
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if SDK_V10
+        if let privacy = dictionary["privacy"] as? [String: Any] {
+            self.privacy = SentryPrivacyOptions(dictionary: privacy)
+        }
+        #endif // SDK_V10
         if let sessionReplay = dictionary["sessionReplay"] as? [String: Any] {
             self.sessionReplay = SentryReplayOptions(dictionary: sessionReplay)
         }
         #endif
 
+        #if !SDK_V10
         if let enableAppHangTracking = boolValue(dictionary["enableAppHangTracking"]) {
             self.enableAppHangTracking = enableAppHangTracking
         }
+        #endif // !SDK_V10
 
         if let appHangTimeoutInterval = dictionary["appHangTimeoutInterval"] as? NSNumber {
             self.appHangTimeoutInterval = appHangTimeoutInterval.doubleValue
@@ -215,9 +270,20 @@ extension Options {
         if let enableNetworkTracking = boolValue(dictionary["enableNetworkTracking"]) {
             self.enableNetworkTracking = enableNetworkTracking
         }
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.webViewTracing = SentryWebViewTracingOptions(dictionary: dictionary["webViewTracing"])
+        #endif
 
         if let enableFileIOTracing = boolValue(dictionary["enableFileIOTracing"]) {
             self.enableFileIOTracing = enableFileIOTracing
+        }
+
+        if let enableDataSwizzling = boolValue(dictionary["enableDataSwizzling"]) {
+            self.enableDataSwizzling = enableDataSwizzling
+        }
+
+        if let enableFileManagerSwizzling = boolValue(dictionary["enableFileManagerSwizzling"]) {
+            self.enableFileManagerSwizzling = enableFileManagerSwizzling
         }
 
         if let tracesSampleRate = dictionary["tracesSampleRate"] as? NSNumber {
@@ -275,13 +341,17 @@ extension Options {
         }
 
         #if canImport(MetricKit) && !os(tvOS)
+        #if !SDK_V10
         if let enableMetricKit = boolValue(dictionary["enableMetricKit"]) {
             self.enableMetricKit = enableMetricKit
         }
+        #endif // !SDK_V10
 
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
+
+        self.experimental.metrickit.apply(optionsDictionary: dictionary)
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {
@@ -348,3 +418,4 @@ private let blockClass: AnyClass = {
     }
     return candidate
 }()
+// swiftlint:enable file_length

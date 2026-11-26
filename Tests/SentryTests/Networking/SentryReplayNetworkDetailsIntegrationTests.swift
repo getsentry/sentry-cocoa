@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
@@ -13,9 +17,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(details.method, "POST")
-        XCTAssertNil(details.statusCode)
-        XCTAssertNil(details.requestBodySize)
-        XCTAssertNil(details.responseBodySize)
     }
 
     // MARK: - Serialization Tests
@@ -56,7 +57,7 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             "request": {
                 "size": 100,
                 "headers": {
-                    "Authorization": "Bearer token",
+                    "Authorization": "\(SentryTestSetup.isV10 ? "[Filtered]" : "Bearer token")",
                     "Content-Type": "application/json"
                 },
                 "body": {
@@ -82,6 +83,146 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         """
 
         assertJSONEqual(result, expectedJSON: expectedJSON)
+    }
+
+    func testSerialize_whenReplaySelectsSensitiveRequestHeaders_shouldFilterValues() throws {
+#if !SDK_V10
+        throw XCTSkip("Test only runs with SDK_V10")
+#else
+        // -- Arrange --
+        let details = SentryReplayNetworkDetails(method: "GET")
+        details.setRequest(
+            size: nil,
+            bodyData: nil,
+            contentType: nil,
+            allHeaders: [
+                "Authorization": "Bearer secret",
+                "X-Auth-Token": "secret-token",
+                "X-API-Key": "api-key",
+                "X-Request-Id": "request-id"
+            ],
+            configuredHeaders: ["Authorization", "X-Auth-Token", "X-API-Key", "X-Request-Id"]
+        )
+
+        // -- Act --
+        let result = details.serialize()
+
+        // -- Assert --
+        let request = try XCTUnwrap(result["request"] as? [String: Any])
+        XCTAssertEqual(request["headers"] as? [String: String], [
+            "Authorization": "[Filtered]",
+            "X-API-Key": "[Filtered]",
+            "X-Auth-Token": "[Filtered]",
+            "X-Request-Id": "request-id"
+        ])
+#endif
+    }
+
+    func testSerialize_whenReplaySelectsCookie_shouldFilterSensitiveValues() throws {
+#if !SDK_V10
+        throw XCTSkip("Test only runs with SDK_V10")
+#else
+        // -- Arrange --
+        let details = SentryReplayNetworkDetails(method: "GET")
+        details.setRequest(
+            size: nil,
+            bodyData: nil,
+            contentType: nil,
+            allHeaders: ["Cookie": "theme=dark; session=secret"],
+            configuredHeaders: ["Cookie"]
+        )
+
+        // -- Act --
+        let result = details.serialize()
+
+        // -- Assert --
+        let request = try XCTUnwrap(result["request"] as? [String: Any])
+        XCTAssertNil(request["headers"])
+        XCTAssertEqual(request["cookies"] as? [String: String], [
+            "session": "[Filtered]",
+            "theme": "dark"
+        ])
+#endif
+    }
+
+    func testSerialize_whenResponseUpdatesOverlap_shouldPublishConsistentSnapshots() throws {
+        // -- Arrange --
+        let details = SentryReplayNetworkDetails(method: "POST")
+        let queue = DispatchQueue(
+            label: "SentryReplayNetworkDetailsIntegrationTests",
+            attributes: .concurrent
+        )
+        let writerReady = DispatchSemaphore(value: 0)
+        let readerReady = DispatchSemaphore(value: 0)
+        let readerObservedUpdate = DispatchSemaphore(value: 0)
+        let expectation = expectation(description: "Concurrent updates and serialization finish")
+        expectation.expectedFulfillmentCount = 2
+        expectation.assertForOverFulfill = true
+        let mismatches = SentryMutex(0)
+        let headers = Dictionary(uniqueKeysWithValues: (0..<100).map { ("Header-\($0)", "value") })
+        let configuredHeaders = Array(headers.keys)
+
+        // -- Act --
+        queue.async {
+            writerReady.signal()
+            XCTAssertEqual(readerReady.wait(timeout: .now() + 1), .success)
+
+            for index in 1...1_000 {
+                details.setResponse(
+                    statusCode: index,
+                    size: NSNumber(value: index),
+                    bodyData: nil,
+                    contentType: nil,
+                    allHeaders: headers,
+                    configuredHeaders: configuredHeaders
+                )
+            }
+
+            XCTAssertEqual(readerObservedUpdate.wait(timeout: .now() + 1), .success)
+            expectation.fulfill()
+        }
+
+        queue.async {
+            XCTAssertEqual(writerReady.wait(timeout: .now() + 1), .success)
+            readerReady.signal()
+
+            repeat {
+                let snapshot = details.serialize()
+                let statusCode = snapshot["statusCode"] as? NSNumber
+                let response = snapshot["response"] as? [String: Any]
+                let responseSize = response?["size"] as? NSNumber
+
+                if statusCode != responseSize {
+                    mismatches.withLock { $0 += 1 }
+                }
+
+                if statusCode?.intValue ?? 0 > 0 {
+                    readerObservedUpdate.signal()
+                    break
+                }
+            } while true
+
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 10)
+
+        details.setResponse(
+            statusCode: 1_001,
+            size: 1_001,
+            bodyData: nil,
+            contentType: nil,
+            allHeaders: nil,
+            configuredHeaders: nil
+        )
+
+        // -- Assert --
+        let finalSnapshot = details.serialize()
+        let finalStatusCode = try XCTUnwrap(finalSnapshot["statusCode"] as? NSNumber)
+        let finalResponse = try XCTUnwrap(finalSnapshot["response"] as? [String: Any])
+        XCTAssertEqual(mismatches.withLock { $0 }, 0)
+        XCTAssertGreaterThan(finalStatusCode.intValue, 0)
+        XCTAssertEqual(finalStatusCode, finalResponse["size"] as? NSNumber)
     }
 
     func testSerialize_withPartialData_shouldOnlyIncludeSetFields() {

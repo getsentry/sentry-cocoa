@@ -1,4 +1,9 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -14,7 +19,7 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 
         let anrTracker = SentryANRTracker(helper: SentryANRTrackerV1(
             timeoutInterval: 0.01,
-            crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            applicationStateProvider: TestSentryApplicationStateProvider(),
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             threadWrapper: SentryThreadWrapper()))
 
@@ -30,3 +35,4 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 }
 
 #endif // os(iOS) || os(tvOS)
+#endif // !SDK_V10

@@ -11,10 +11,10 @@ OUTPUT_DIR=""
 BUNDLE_NAME="SentryTests"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --derived-data-root <path>    DerivedData root (default: $HOME/Library/Developer/Xcode/DerivedData)"
-    log_notice "  --output-dir <path>           Output directory (required)"
-    log_notice "  --bundle-name <name>          Test bundle name without .xctest (default: SentryTests)"
+    log_info "Usage: $0"
+    log_info "  --derived-data-root <path>    DerivedData root (default: $HOME/Library/Developer/Xcode/DerivedData)"
+    log_info "  --output-dir <path>           Output directory (required)"
+    log_info "  --bundle-name <name>          Test bundle name without .xctest (default: SentryTests)"
     exit 1
 }
 

@@ -1,4 +1,9 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -9,6 +14,7 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryInternalProfilingApiIntegrationTests.self)
 
     override func tearDown() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
     }
@@ -26,6 +32,36 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
         if sentry_threadSanitizerIsPresent() {
             throw XCTSkip("Profiler does not run if thread sanitizer is attached.")
         }
+    }
+
+    // CPU-constrained CI runners can delay the sampling thread beyond any fixed sleep, so wait for
+    // the samples the serializer actually requires. A short polling interval avoids busy-spinning
+    // and is used instead of XCTNSPredicateExpectation, which was observed to add about one second
+    // to every profiling test before reevaluating its predicate.
+    private func waitForProfilerSamples() -> Bool {
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        repeat {
+            if let profiler = SentryTraceProfiler.getCurrentProfiler(),
+               let profile = profiler.state.copyProfilingData()["profile"] as? [String: Any],
+               let samples = profile["samples"] as? [Any],
+               samples.count >= 2 {
+                return true
+            }
+            Thread.sleep(forTimeInterval: 0.01)
+        } while ProcessInfo.processInfo.systemUptime < deadline
+
+        XCTFail("Profiler did not collect at least two samples")
+        return false
+    }
+
+    private func collectProfile(startTime: UInt64, traceId: SentryId) -> [String: Any]? {
+        guard waitForProfilerSamples() else {
+            return nil
+        }
+        let endTime = SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
+        return SentrySDK.internal.profiling.collect(
+            between: startTime, and: endTime, for: traceId
+        )
     }
 
     // MARK: - Accessor
@@ -81,12 +117,9 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let startTime = SentrySDK.internal.profiling.start(for: traceId)
-        Thread.sleep(forTimeInterval: 0.2)
 
         // -- Act --
-        let payload = SentrySDK.internal.profiling.collect(
-            between: startTime, and: startTime + 200_000_000, for: traceId
-        )
+        let payload = collectProfile(startTime: startTime, traceId: traceId)
 
         // -- Assert --
         XCTAssertNotNil(payload)
@@ -100,12 +133,9 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let startTime = SentrySDK.internal.profiling.start(for: traceId)
-        Thread.sleep(forTimeInterval: 0.2)
 
         // -- Act --
-        let payload = SentrySDK.internal.profiling.collect(
-            between: startTime, and: startTime + 200_000_000, for: traceId
-        )
+        let payload = collectProfile(startTime: startTime, traceId: traceId)
 
         // -- Assert --
         XCTAssertNotNil(payload?["profile_id"])
@@ -124,12 +154,9 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let startTime = SentrySDK.internal.profiling.start(for: traceId)
-        Thread.sleep(forTimeInterval: 0.2)
 
         // -- Act --
-        let payload = SentrySDK.internal.profiling.collect(
-            between: startTime, and: startTime + 200_000_000, for: traceId
-        )
+        let payload = collectProfile(startTime: startTime, traceId: traceId)
 
         // -- Assert --
         let transaction = try XCTUnwrap(payload?["transaction"] as? NSDictionary)
@@ -143,12 +170,9 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let startTime = SentrySDK.internal.profiling.start(for: traceId)
-        Thread.sleep(forTimeInterval: 0.2)
 
         // -- Act --
-        let payload = SentrySDK.internal.profiling.collect(
-            between: startTime, and: startTime + 200_000_000, for: traceId
-        )
+        let payload = collectProfile(startTime: startTime, traceId: traceId)
 
         // -- Assert --
         let debugMeta = try XCTUnwrap(payload?["debug_meta"] as? [String: Any])

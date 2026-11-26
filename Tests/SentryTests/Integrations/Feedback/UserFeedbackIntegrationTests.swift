@@ -1,5 +1,11 @@
+// swiftlint:disable file_length
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 #if os(iOS)
@@ -15,13 +21,16 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return window
     }
 
+    #if !SDK_V10
     private let mockWindowFactory: SentryUserFeedbackWindowFactory = { config in
         let window = SentryUserFeedbackWidget.Window(config: config, windowScene: mockWindowScene)
         return window
     }
+    #endif
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -33,16 +42,18 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     private struct TestDependencies: UserFeedbackIntegrationProvider {
         let screenshotSource: SentryScreenshotSource?
+        #if !SDK_V10
         var windowFactory: SentryUserFeedbackWindowFactory {
             SentryUserFeedbackWidget.defaultWindowFactory
         }
+        #endif
     }
 
     private func makeScreenshotSource() -> SentryScreenshotSource {
         let viewRenderer = SentryDefaultViewRenderer()
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: Options().screenshot,
+            redactOptions: TestRedactOptions(),
             enableMaskRendererV2: false)
         return SentryScreenshotSource(photographer: photographer)
     }
@@ -52,25 +63,36 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetAccessibilityLabel_whenLabelTextChangedBeforeAccess_shouldUseUpdatedLabelText() {
+    func testWidgetAccessibilityLabel_whenLabelTextChangedBeforeAccess_shouldUseUpdatedLabelText() throws {
+        #if SDK_V10
+        throw XCTSkip("Not available in SDK version 10")
+        #else
         let sut = SentryUserFeedbackWidgetConfiguration()
 
         sut.labelText = "Send Feedback"
 
         XCTAssertEqual(sut.widgetAccessibilityLabel, "Send Feedback")
+        #endif
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetAccessibilityLabel_whenExplicitlySetToNil_shouldRemainNil() {
+    func testWidgetAccessibilityLabel_whenExplicitlySetToNil_shouldRemainNil() throws {
+        #if SDK_V10
+        throw XCTSkip("Not available in SDK version 10")
+        #else
         let sut = SentryUserFeedbackWidgetConfiguration()
 
         sut.widgetAccessibilityLabel = nil
 
         XCTAssertNil(sut.widgetAccessibilityLabel)
+        #endif
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetConfiguration_whenDeprecatedPropertiesAreSet_shouldRoundTripValues() {
+    func testWidgetConfiguration_whenDeprecatedPropertiesAreSet_shouldRoundTripValues() throws {
+        #if SDK_V10
+        throw XCTSkip("Not available in SDK version 10")
+        #else
         let sut = SentryUserFeedbackWidgetConfiguration()
         let layoutOffset = UIOffset(horizontal: 10, vertical: 20)
         let windowLevel = UIWindow.Level.alert + 1
@@ -91,6 +113,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.location, [.top, .leading])
         XCTAssertEqual(sut.layoutUIOffset.horizontal, layoutOffset.horizontal)
         XCTAssertEqual(sut.layoutUIOffset.vertical, layoutOffset.vertical)
+        #endif
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
@@ -153,6 +176,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testGlobalConfigurationOrDefault_whenGlobalFeedbackNotConfigured_shouldPrepareDefaultConfiguration() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         let defaultConfig = SentryUserFeedbackConfiguration()
         var configureFormCalls = 0
@@ -225,6 +249,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testFeedbackForm_whenLocalConfigurationSetAndFeedbackIntegrationNotConfigured_shouldUseDefaults() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
 
         let sut = SentryUserFeedbackFormController { config in
@@ -533,6 +558,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testFeedbackAPI_onShake_whenFeedbackNotConfigured_shouldNotCrash() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
 
         SentrySDK.feedback.enableOnShake()
@@ -566,6 +592,45 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         withExtendedLifetime(window) { }
 #endif
+    }
+
+    func testScreenshotTrigger_whenRetinaImageRendered_shouldPreserveResolution() throws {
+        for enableMaskRendererV2 in [false, true] {
+            for scale: CGFloat in [2, 3] {
+                // -- Arrange --
+                let size = CGSize(width: 30, height: 20)
+                let window = makeWindow()
+                window.frame = CGRect(origin: .zero, size: size)
+                let viewController = TestPresentingViewController()
+                useFallbackPresenter(viewController, in: window)
+                let renderer = TestSentryViewRenderer()
+                let format = UIGraphicsImageRendererFormat()
+                format.scale = scale
+                renderer.mockedReturnValue = UIGraphicsImageRenderer(size: size, format: format).image { context in
+                    UIColor.red.setFill()
+                    context.fill(CGRect(origin: .zero, size: size))
+                }
+                let source = SentryScreenshotSource(photographer: SentryViewPhotographer(
+                    renderer: renderer,
+                    redactOptions: SentryRedactDefaultOptions(),
+                    enableMaskRendererV2: enableMaskRendererV2))
+                let config = SentryUserFeedbackConfiguration()
+                config.animations = false
+                config.showFormForScreenshots = true
+                let sut = SentryUserFeedbackIntegrationDriver(configuration: config, screenshotSource: source)
+
+                // -- Act --
+                NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+
+                // -- Assert --
+                let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+                let screenshot = try XCTUnwrap(form.screenshot)
+                XCTAssertEqual(screenshot.scale, scale)
+                XCTAssertEqual(try XCTUnwrap(screenshot.cgImage).width, Int(size.width * scale))
+                XCTAssertEqual(try XCTUnwrap(screenshot.cgImage).height, Int(size.height * scale))
+                withExtendedLifetime((sut, window)) { }
+            }
+        }
     }
 
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
@@ -869,7 +934,9 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let options = Options()
         options.configureUserFeedback = configure
         SentrySDK.setStart(with: options)
+        #if !SDK_V10
         SentryDependencyContainer.sharedInstance().windowFactoryOverride = mockWindowFactory
+        #endif
         let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
             with: options,
             dependencies: SentryDependencyContainer.sharedInstance()))
@@ -922,7 +989,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             self.screenshots = screenshots
             super.init(photographer: SentryViewPhotographer(
                 renderer: SentryDefaultViewRenderer(),
-                redactOptions: Options().screenshot,
+                redactOptions: TestRedactOptions(),
                 enableMaskRendererV2: false))
         }
 
@@ -979,3 +1046,4 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 }
 
 #endif
+// swiftlint:enable file_length

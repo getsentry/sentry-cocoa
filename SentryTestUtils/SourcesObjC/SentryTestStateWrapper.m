@@ -1,0 +1,80 @@
+#import "SentryTestStateWrapper.h"
+
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#else
+#    import "SentrySwift.h"
+#endif
+#import "SentryProfilingConditionals.h"
+#import "SentrySDKInternal.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryContinuousProfiler.h"
+#    import "SentryFileManagerHelper.h"
+#    import "SentryProfiledTracerConcurrency.h"
+#    import "SentryProfiler+Private.h"
+#    import "SentryProfilingCancellation.h"
+#    import "SentryTraceProfiler.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+@interface SentrySDKInternal (SentryTestStateWrapper)
+
++ (void)setCurrentHub:(nullable SentryHubInternal *)hub;
+
+@end
+
+@interface SentryPerformanceTracker (SentryTestStateWrapper)
+
+- (void)clear;
+
+@end
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if defined(DEBUG) // Test support.
+@interface SentryTraceProfiler (SentryTestStateWrapper)
+
++ (nullable SentryProfiler *)getCurrentProfiler;
+
+@end
+#    endif // defined(DEBUG)
+
+@interface SentryContinuousProfiler (SentryTestStateWrapper)
+
++ (void)stopTimerAndCleanup;
+
+@end
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+void
+wrapper_setCurrentHub(SentryHubInternal *_Nullable hub)
+{
+    [SentrySDKInternal setCurrentHub:hub];
+}
+
+void
+wrapper_clearPerformanceTracker(void)
+{
+    [SentryPerformanceTracker.shared clear];
+}
+
+void
+wrapper_resetProfilingState(void)
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    extern id<SentryProfilingCancellation> _Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+
+    _sentry_threadUnsafe_traceProfileTimeoutTimer = nil;
+
+#    if defined(DEBUG) // Test support.
+    [[SentryTraceProfiler getCurrentProfiler] stopForReason:SentryProfilerTruncationReasonNormal];
+    sentry_resetConcurrencyTracking();
+#    endif // defined(DEBUG)
+
+    removeAppLaunchProfilingConfigFile();
+    [SentryLaunchProfiling stopAndDiscardLaunchProfileTracerWithHub:nil];
+
+    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
+        [SentryContinuousProfiler stopTimerAndCleanup];
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}

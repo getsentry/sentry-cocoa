@@ -1,0 +1,40 @@
+{
+  "configurations": [
+    {
+      "id": "A451EF21-C702-4095-835C-4F189D10635A",
+      "name": "Configuration 1",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "codeCoverage": true,
+    "language": "en",
+    "region": "US",
+    "targetForVariableExpansion": {
+      "containerPath": "container:",
+      "identifier": "SentryObjCInternal",
+      "name": "SentryObjCInternal"
+    },
+    "uiTestingScreenshotsLifetime": "keepAlways",
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "parallelizable": false,
+      "selectedTests": [
+        "SentryNetworkDetailSwizzlingTests",
+        "SentryNetworkTrackerIntegrationTestServerTests/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
+        "SentryNetworkTrackerIntegrationTestServerTests/testGetCaptureFailedRequestsEnabled()",
+        "SentryNetworkTrackerIntegrationTestServerTests/testGetRequest_CompareSentryTraceHeader()",
+        "SentryNetworkTrackerIntegrationTestServerTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
+        "SentryNetworkTrackerIntegrationTestServerTests/testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot()"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryTests",
+        "name": "SentryTests"
+      }
+    }
+  ],
+  "version": 1
+}

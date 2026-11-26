@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -13,6 +17,7 @@ class SentryUIApplicationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -86,6 +91,74 @@ class SentryUIApplicationTests: XCTestCase {
         sut.scenes = [scene1]
 
         XCTAssertEqual(sut.getWindows()?.count, 0)
+    }
+
+    // MARK: - collectWindowsOnCurrentThread (crash-time)
+
+    func test_collectWindowsOnCurrentThread_readsSceneWindows() {
+        let scene1 = MockUIWindowScene()
+        scene1.mockWindows = [makeWindow()]
+
+        let sut = TestSentryUIApplication()
+        sut.scenes = [scene1]
+
+        XCTAssertEqual(sut.collectWindowsOnCurrentThread().count, 1)
+    }
+
+    func test_collectWindowsOnCurrentThread_multipleWindows() {
+        let scene1 = MockUIWindowScene()
+        scene1.mockWindows = [makeWindow(), makeWindow()]
+
+        let sut = TestSentryUIApplication()
+        sut.scenes = [scene1]
+
+        XCTAssertEqual(sut.collectWindowsOnCurrentThread().count, 2)
+    }
+
+    func test_collectWindowsOnCurrentThread_deduplicatesSharedWindow() {
+        let window = makeWindow()
+        let scene1 = MockUIWindowScene()
+        scene1.mockWindows = [window]
+        let scene2 = MockUIWindowScene()
+        scene2.mockWindows = [window]
+
+        let sut = TestSentryUIApplication()
+        sut.scenes = [scene1, scene2]
+
+        XCTAssertEqual(sut.collectWindowsOnCurrentThread().count, 1)
+    }
+
+    func test_collectWindowsOnCurrentThread_ignoresAppDelegateWhenSceneHasWindows() {
+        let scene1 = MockUIWindowScene()
+        scene1.mockWindows = [makeWindow()]
+
+        let delegate = TestApplicationDelegate()
+        delegate.window = makeWindow()
+
+        let sut = TestSentryUIApplication()
+        sut.scenes = [scene1]
+        sut.appDelegate = delegate
+
+        XCTAssertEqual(sut.collectWindowsOnCurrentThread().count, 1)
+    }
+
+    func test_collectWindowsOnCurrentThread_fallsBackToAppDelegateWhenNoSceneWindows() {
+        let delegate = TestApplicationDelegate()
+        delegate.window = makeWindow()
+
+        let sut = TestSentryUIApplication()
+        sut.appDelegate = delegate
+
+        XCTAssertEqual(sut.collectWindowsOnCurrentThread().count, 1)
+    }
+
+    func test_collectWindowsOnCurrentThread_noWindow() {
+        let scene1 = MockUIWindowScene()
+
+        let sut = TestSentryUIApplication()
+        sut.scenes = [scene1]
+
+        XCTAssertEqual(sut.collectWindowsOnCurrentThread().count, 0)
     }
 
     // MARK: - getKeyWindow

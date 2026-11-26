@@ -1,19 +1,20 @@
 #import "SentryProfilerState.h"
+#import "SentryProfilingLog.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
-#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryProfileDebugLoggerHelper.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerSampleCreation.h"
-#    import "SentryProfilingSwiftHelpers.h"
+
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
 
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 #        include <execinfo.h>
 #    endif
 
@@ -32,7 +33,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     });
     NSString *_Nullable const symbolNSStr = [NSString stringWithUTF8String:symbol];
     if (symbolNSStr == nil) {
-        SENTRY_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
+        SENTRY_PROFILING_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
         return @"<unknown>";
     }
     NSTextCheckingResult *_Nullable match =
@@ -50,7 +51,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 - (instancetype)init
 {
     if (self = [super init]) {
-        _samples = [NSMutableArray<SentrySample *> array];
+        _samples = [NSMutableArray<SentryProfilingSample *> array];
         _stacks = [NSMutableArray<NSArray<NSNumber *> *> array];
         _frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         _threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
@@ -73,9 +74,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        sentry_dispatchAsyncOnMainIfNotMainThread(
-            SentryDependencyContainerSwiftHelper.dispatchQueueWrapper,
-            ^{ [self cacheMainThreadID]; });
+        [SentryProfilerSDKAdapter.shared
+            dispatchAsyncOnMainIfNotMainThread:^{ [self cacheMainThreadID]; }];
     }
     return self;
 }
@@ -125,10 +125,12 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
             metadata[@"priority"] = @(backtrace.threadMetadata.priority);
         }
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
         const auto symbols
             = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                 static_cast<int>(backtrace.addresses.size()));
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG)
         const auto *backtraceFunctionNames = [NSMutableArray<NSString *> array];
 #    endif // defined(DEBUG)
 
@@ -141,12 +143,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             if (frameIndex == nil) {
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
                 const auto functionName
                     = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
                 frame[@"function"] = functionName;
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG)
                 [backtraceFunctionNames addObject:functionName];
-#    endif
+#    endif // defined(DEBUG)
                 const auto newFrameIndex = @(state.frames.count);
                 [stack addObject:newFrameIndex];
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
@@ -155,12 +159,13 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 [stack addObject:SENTRY_UNWRAP_NULLABLE(NSNumber, frameIndex)];
             }
         }
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
         free(symbols);
-#    endif // defined(DEBUG)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
         const auto sample = sentry_profilerSampleWithStack(stack, backtrace.absoluteTimestamp,
-            sentry_getDate().timeIntervalSince1970, backtrace.threadMetadata.threadID, state);
+            SentryProfilerSDKAdapter.shared.date.timeIntervalSince1970,
+            backtrace.threadMetadata.threadID, state);
 
 #    if defined(DEBUG)
         if (backtraceFunctionNames.count > 0) {
@@ -178,8 +183,21 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 - (NSDictionary<NSString *, id> *)copyProfilingData
 {
     std::lock_guard<std::mutex> l(_lock);
+    return [self copyProfilingDataNotThreadSafe];
+}
 
-    NSMutableArray<SentrySample *> *const samples = [_mutableState.samples copy];
+- (NSDictionary<NSString *, id> *)copyAndClearProfilingData
+{
+    std::lock_guard<std::mutex> l(_lock);
+    const auto snapshot = [self copyProfilingDataNotThreadSafe];
+    // !!!: Profile this reset to check whether it exceeds one sample interval (~9 ms).
+    _mutableState = [[SentryProfilerMutableState alloc] init];
+    return snapshot;
+}
+
+- (NSDictionary<NSString *, id> *)copyProfilingDataNotThreadSafe
+{
+    NSMutableArray<SentryProfilingSample *> *const samples = [_mutableState.samples copy];
     NSMutableArray<NSArray<NSNumber *> *> *const stacks = [_mutableState.stacks copy];
     NSMutableArray<NSDictionary<NSString *, id> *> *const frames = [_mutableState.frames copy];
 

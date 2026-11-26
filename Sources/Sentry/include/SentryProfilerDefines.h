@@ -37,7 +37,8 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitNanoJoules;
  * values either of type @c NSNumber for the reading value, or @c NSString for the timestamp (we
  * just encode @c uint64_t as a string since JSON doesn't officially support it).
  * @note: For continuous profiling, this will only contain @c NSNumber values because we will store
- * timestamps as milliseconds, so we don't have to send them to the backend as @c NSString .
+ * timestamps as seconds since the Unix epoch, so we don't have to send them to the backend as @c
+ * NSString .
  */
 typedef NSDictionary<NSString *, id /* <NSNumber, NSString> */> SentrySerializedMetricReading;
 

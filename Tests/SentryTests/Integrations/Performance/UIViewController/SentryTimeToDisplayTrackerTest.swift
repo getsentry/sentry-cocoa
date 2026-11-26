@@ -1,11 +1,14 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import Foundation
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(visionOS)
-class TestDelayedWrapper: SentryDelayedFramesTracker {}
-
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
@@ -62,6 +65,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -580,6 +584,37 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         // Assert
         XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0, "Frames tracker listener should be removed")
     }
+
+#if SDK_V10
+    func testReportDisplay_whenFinishingTransaction_shouldKeepSpanAndTransactionMeasurements() throws {
+        // -- Arrange --
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+        let tracer = try fixture.getTracer()
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
+        XCTAssertTrue(sut.start(for: tracer))
+        let initialSpan = try XCTUnwrap(sut.initialDisplaySpan as? SentrySpanInternal)
+        let fullSpan = try XCTUnwrap(sut.fullDisplaySpan as? SentrySpanInternal)
+
+        // -- Act --
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 10))
+        sut.reportFullyDisplayed()
+        fixture.displayLinkWrapper.normalFrame()
+        tracer.finish()
+
+        // -- Assert --
+        let initialMeasurements = try XCTUnwrap(initialSpan.serialize()["measurements"] as? [String: [String: Any]])
+        XCTAssertEqual(initialMeasurements["time_to_initial_display"]?["value"] as? NSNumber, 2_000)
+        XCTAssertEqual(initialMeasurements["time_to_initial_display"]?["unit"] as? String, "millisecond")
+        let fullMeasurements = try XCTUnwrap(fullSpan.serialize()["measurements"] as? [String: [String: Any]])
+        XCTAssertEqual(fullMeasurements["time_to_full_display"]?["value"] as? NSNumber, 3_000)
+        XCTAssertEqual(fullMeasurements["time_to_full_display"]?["unit"] as? String, "millisecond")
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
+        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
+    }
+#endif
 
     private func assertMeasurement(
         tracer: SentryTracer,

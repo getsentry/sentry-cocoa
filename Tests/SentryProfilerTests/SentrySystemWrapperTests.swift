@@ -1,6 +1,11 @@
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
+@_spi(Private) import Sentry
+#endif
 import XCTest
 
-#if os(iOS) || os(macOS)
 class SentrySystemWrapperTests: XCTestCase {
     private struct Fixture {
         lazy var systemWrapper = SentrySystemWrapper(processorCount: 4)
@@ -10,7 +15,7 @@ class SentrySystemWrapperTests: XCTestCase {
     // MARK: - cpuUsageWithError
 
     func testCPUUsage_shouldReturnNonNilValue() throws {
-        let cpuUsage = try XCTUnwrap(fixture.systemWrapper.cpuUsage())
+        let cpuUsage = try fixture.systemWrapper.cpuUsage()
         XCTAssertGreaterThanOrEqual(cpuUsage.floatValue, 0.0)
     }
 
@@ -47,18 +52,16 @@ class SentrySystemWrapperTests: XCTestCase {
 
     // MARK: - memoryFootprintBytes
 
-    func testMemoryFootprint_shouldReturnPositiveValue() {
-        var error: NSError?
-        let memoryFootprint = fixture.systemWrapper.memoryFootprintBytes(&error)
-        XCTAssertNil(error)
-        XCTAssertGreaterThan(memoryFootprint, 0)
+    func testMemoryFootprint_shouldReturnPositiveValue() throws {
+        let memoryFootprint = try fixture.systemWrapper.memoryFootprintBytes()
+        XCTAssertGreaterThan(memoryFootprint.uint64Value, 0)
     }
 
     // MARK: - cpuEnergyUsageWithError
 
 #if arch(arm64)
     func testCPUEnergyUsage_shouldReturnNonNilValue() throws {
-        let energyUsage = try XCTUnwrap(fixture.systemWrapper.cpuEnergyUsage())
+        let energyUsage = try fixture.systemWrapper.cpuEnergyUsage()
         XCTAssertGreaterThanOrEqual(energyUsage.uint64Value, 0)
     }
 
@@ -70,4 +73,4 @@ class SentrySystemWrapperTests: XCTestCase {
     // mach_task_self() which cannot be made to fail without resource exhaustion.
 #endif // arch(arm64)
 }
-#endif // os(iOS) || os(macOS)
+#endif

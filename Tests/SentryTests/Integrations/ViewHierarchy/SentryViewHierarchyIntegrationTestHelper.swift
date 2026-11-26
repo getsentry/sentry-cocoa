@@ -1,6 +1,14 @@
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @_spi(Private) import Sentry
+#endif
 
 /**
  * Function to call through to save a view hierarchy, which can be passed around
@@ -16,4 +24,4 @@ public func saveViewHierarchy(_ reportDirectoryPath: UnsafePointer<CChar>?) {
     SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)

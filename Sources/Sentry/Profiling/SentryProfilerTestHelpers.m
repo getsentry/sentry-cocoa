@@ -4,9 +4,7 @@
 
 #    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling.h"
 #    import "SentrySerialization.h"
-#    import "SentrySwift.h"
 
 BOOL
 sentry_threadSanitizerIsPresent(void)
@@ -22,7 +20,7 @@ sentry_threadSanitizerIsPresent(void)
     return NO;
 }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
 
 void
 sentry_writeProfileFile(NSData *JSONData, BOOL continuous)
@@ -69,6 +67,7 @@ sentry_writeProfileFile(NSData *JSONData, BOOL continuous)
         @"Failed to write profile data to path %@: %@", pathToWrite, error);
 }
 
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(DEBUG) ||
+           // defined(SENTRY_UI_TEST_SUPPORT)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

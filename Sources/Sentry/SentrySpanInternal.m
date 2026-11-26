@@ -1,6 +1,12 @@
 #import "SentryBaggage.h"
-#import "SentryCrashThread.h"
+#import "SentryInternalSerializable.h"
+#if SDK_V10
+#    import "SentryThreadSnapshot.h"
+#else
+#    import "SentryCrashThread.h"
+#endif
 #import "SentryDefaultThreadInspector.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -31,8 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySpanInternal {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
+#if SDK_V10
+    NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
+#endif
     NSObject *_stateLock;
     BOOL _isFinished;
+    NSDate *_Nullable _timestamp;
     uint64_t _startSystemTime;
 #if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
@@ -56,7 +66,11 @@ NS_ASSUME_NONNULL_BEGIN
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
 
+#if SDK_V10
+        uintptr_t currentThread = sentryThreadInspectionCurrentThread();
+#else
         SentryCrashThread currentThread = sentrycrashthread_self();
+#endif
         _data[SPAN_DATA_THREAD_ID] = @(currentThread);
 
         if ([NSThread isMainThread]) {
@@ -77,6 +91,9 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
+#if SDK_V10
+        _measurements = [[NSMutableDictionary alloc] init];
+#endif
         self.featureFlagBuffer = [SentryFeatureFlagBufferWrapper spanBuffer];
         _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
@@ -93,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _isContinuousProfiling = SentrySDKInternal.options != nil;
         if (_isContinuousProfiling) {
-            _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
+            _profileSessionID = SentryContinuousProfiler.currentProfilerID.stringValue;
             if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
                     addObserver:self
@@ -122,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)linkProfiler
 {
-    _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
+    _profileSessionID = SentryContinuousProfiler.currentProfilerID.stringValue;
     [self stopObservingContinuousProfiling];
 }
 
@@ -140,7 +157,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTracer:(SentryTracer *)tracer
                        context:(SentrySpanContext *)context
 #if SENTRY_HAS_UIKIT
-                 framesTracker:(nullable SentryFramesTracker *)framesTracker
+                 framesTracker:
+                     (nullable SENTRY_SWIFT_MIGRATION_ID(SentryFramesTracker))framesTracker
 {
     if (self = [self initWithContext:context framesTracker:framesTracker]) {
 #else
@@ -152,10 +170,10 @@ NS_ASSUME_NONNULL_BEGIN
 
         if (context.parentSpanId == nil) {
             SENTRY_LOG_DEBUG(@"Starting root span with tracer with profilerReferenceId %@",
-                tracer.profilerReferenceID.sentryIdString);
+                tracer.profilerReferenceID.stringValue);
         } else {
             SENTRY_LOG_DEBUG(@"Starting span with tracer with profilerReferenceId %@",
-                tracer.profilerReferenceID.sentryIdString);
+                tracer.profilerReferenceID.stringValue);
         }
     }
     return self;
@@ -217,13 +235,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
+#if SDK_V10
+    [self setMeasurement:name measurement:[[SentryMeasurementValue alloc] initWithValue:value]];
+#else
     [self.tracer setMeasurement:name value:value];
+#endif
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
+#if SDK_V10
+    [self setMeasurement:name
+             measurement:[[SentryMeasurementValue alloc] initWithValue:value unit:unit]];
+#else
     [self.tracer setMeasurement:name value:value unit:unit];
+#endif
 }
+
+#if SDK_V10
+- (void)setMeasurement:(NSString *)name measurement:(SentryMeasurementValue *)measurement
+{
+    // Objective-C callers can pass nil despite the nonnull contract.
+    if (name == nil) {
+        SENTRY_LOG_ERROR(@"The name of the measurement is nil. Discarding the measurement.");
+        return;
+    }
+
+    @synchronized(_measurements) {
+        _measurements[name] = measurement;
+    }
+}
+#endif
 
 - (NSDictionary<NSString *, id> *)tags
 {
@@ -249,6 +291,24 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+// The tracer reads the end timestamp of its children on the thread that finishes the
+// transaction while a child may still be finishing on another thread. Guard it with the same
+// lock as the finished flag so the strong reference is never read while being stored, and so a
+// span never reads as finished without its timestamp.
+- (nullable NSDate *)timestamp
+{
+    @synchronized(_stateLock) {
+        return _timestamp;
+    }
+}
+
+- (void)setTimestamp:(nullable NSDate *)timestamp
+{
+    @synchronized(_stateLock) {
+        _timestamp = timestamp;
+    }
+}
+
 - (void)finish
 {
     SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", self.spanId.sentrySpanIdString);
@@ -261,12 +321,20 @@ NS_ASSUME_NONNULL_BEGIN
     [self stopObservingContinuousProfiling];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     self.status = status;
+    // Fetch the date outside the lock so the date provider can't stall readers, but set the
+    // timestamp and the finished flag in one critical section: a reader that observes
+    // isFinished == YES must also observe a non-nil timestamp.
+    NSDate *now = [SentryDependencyContainer.sharedInstance.dateProvider date];
+    BOOL didSetTimestamp = NO;
     @synchronized(_stateLock) {
+        if (_timestamp == nil) {
+            _timestamp = now;
+            didSetTimestamp = YES;
+        }
         _isFinished = YES;
     }
-    if (self.timestamp == nil) {
-        self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
+    if (didSetTimestamp) {
+        SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", now,
             (unsigned long long)SentryDependencyContainer.sharedInstance.dateProvider.systemTime);
     }
 
@@ -308,7 +376,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     SENTRY_LOG_DEBUG(@"Marking span %@ as finished in tracer %@ (profileReferenceId %@)",
         _spanId.sentrySpanIdString, _tracer.traceId.sentryIdString,
-        _tracer.profilerReferenceID.sentryIdString);
+        _tracer.profilerReferenceID.stringValue);
     [self.tracer spanFinished:self];
 }
 
@@ -333,7 +401,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)serialize
 {
     NSMutableDictionary *mutableDictionary = @{
-        @"type" : SENTRY_TRACE_TYPE,
+        @"type" : SentrySpanTypeTrace,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"op" : self.operation,
@@ -362,11 +430,18 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (self.status != kSentrySpanStatusUndefined) {
-        [mutableDictionary setValue:nameForSentrySpanStatus(self.status)
+        [mutableDictionary setValue:sentry_spanStatusName(self.status)
                              forKey:kSentrySpanStatusSerializationKey];
     }
 
+#if SDK_V10
+    NSDate *timestamp = self.timestamp;
+    if (timestamp != nil) {
+        mutableDictionary[@"timestamp"] = @(timestamp.timeIntervalSince1970);
+    }
+#else
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
+#endif
 
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
@@ -395,6 +470,18 @@ NS_ASSUME_NONNULL_BEGIN
             mutableDictionary[@"tags"] = _tags.copy;
         }
     }
+
+#if SDK_V10
+    @synchronized(_measurements) {
+        if (_measurements.count > 0) {
+            NSMutableDictionary<NSString *, id> *measurements = [[NSMutableDictionary alloc] init];
+            for (NSString *name in _measurements) {
+                measurements[name] = [_measurements[name] serialize];
+            }
+            mutableDictionary[@"measurements"] = measurements;
+        }
+    }
+#endif
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profileSessionID != nil) {

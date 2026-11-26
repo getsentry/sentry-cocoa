@@ -1,3 +1,10 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
+import SentryTestUtils
 import XCTest
 
 final class SentryTracePropagationTests: XCTestCase {
@@ -170,11 +177,84 @@ final class SentryTracePropagationTests: XCTestCase {
         XCTAssertNil(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"))
     }
 
-    private func createSessionTask(method: String = "GET") throws -> URLSessionDownloadTaskMock {
+    func testAddBaggageHeader_whenCurrentRequestIsMutable_shouldNotMutateItInPlace() throws {
+        // -- Arrange --
+        let request = URLRequest(url: try XCTUnwrap(URL(string: "https://www.domain.com/api")))
+        let task = MutableRequestTaskMock(request: request)
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.setCurrentRequestCallCount, 1)
+        XCTAssertNil(task.initialCurrentRequest.value(forHTTPHeaderField: "sentry-trace"))
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
+    }
+
+    // MARK: - Trace propagation for download and upload tasks (issue #8519)
+
+    func testAddBaggageHeader_DownloadTask_AddsTraceHeaders() throws {
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api"))
+        let task = URLSessionDownloadTaskMock(request: URLRequest(url: url))
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
+    }
+
+    func testAddBaggageHeader_UploadTask_AddsTraceHeaders() throws {
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api"))
+        let task = URLSessionUploadTaskMock(request: URLRequest(url: url))
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
+    }
+
+    private func createSessionTask(method: String = "GET") throws -> URLSessionDataTaskMock {
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment"))
         var request = URLRequest(url: url)
         request.httpMethod = method
-        return URLSessionDownloadTaskMock(request: request)
+        return URLSessionDataTaskMock(request: request)
     }
 
 }

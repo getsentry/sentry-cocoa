@@ -11,6 +11,61 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeCompressionError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeCouldNotFindDirectory",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeEventNotSent",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeFileIO",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeInvalidCrashReportError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeInvalidDsnError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeJsonConversionError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeKernel",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeRequestError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeSentryCrashNotInstalledError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCErrorCodeUnknownError",
+    "parent": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCFeedbackSourceCustom",
     "parent": "SentryObjCFeedbackSource"
   },
@@ -93,6 +148,361 @@
     "kind": "EnumConstantDecl",
     "name": "SentryObjCLogLevelWarn",
     "parent": "SentryObjCLogLevel"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportAppLaunch",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportCPUException",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportCrash",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportDiskWriteException",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportHang",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportMemoryException",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitDiagnosticReportNone",
+    "parent": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitHangReportingModeFlamegraphAttachment",
+    "parent": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitHangReportingModeLegacy",
+    "parent": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAll",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAnimationHitchTimeRatio",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAnimationScrollHitchTimeRatio",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAnimationTotalAnimationTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAnimationTotalHitchTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAppTimeBackground",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAppTimeBackgroundAudio",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAppTimeBackgroundLocation",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportAppTimeForeground",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportCPUCumulativeInstructions",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportCPUCumulativeTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportCellularConditionTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskIOLogicalWrites",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceBinaryFileCount",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceBinaryFileSize",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceCacheFolderSize",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceCloneSize",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceDataFileCount",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceDataFileSize",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceTotalCapacity",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDiskSpaceTotalUsed",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportDisplayAveragePixelLuminance",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundAbnormal",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundBadAccess",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundCPUResourceLimit",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundIllegalInstruction",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundMemoryPressure",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundMemoryResourceLimit",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundNormal",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundSuspendedWithLockedFile",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundTaskTimeout",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitBackgroundWatchdog",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitForegroundAbnormal",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitForegroundBadAccess",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitForegroundIllegalInstruction",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitForegroundMemoryResourceLimit",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitForegroundNormal",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportExitForegroundWatchdog",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportGPUCumulativeTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchExtended",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchOptimizedTimeToFirstDraw",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchResumeTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLaunchTimeToFirstDraw",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLocationBestAccuracyForNavigationTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLocationBestAccuracyTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLocationHundredMetersTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLocationKilometerTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLocationNearestTenMetersTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportLocationThreeKilometersTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMemoryAverageSuspended",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMemoryPeakUsage",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMetalActiveDrawingDuration",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMetalFrameCount",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportMetalFramesPerSecond",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportNetworkCellularDownload",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportNetworkCellularUpload",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportNetworkWifiDownload",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportNetworkWifiUpload",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportNone",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCMetricKitMetricReportResponsivenessHangTime",
+    "parent": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCProfileLifecycleManual",
+    "parent": "SentryObjCProfileLifecycle"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCProfileLifecycleTrace",
+    "parent": "SentryObjCProfileLifecycle"
   },
   {
     "kind": "EnumConstantDecl",
@@ -290,6 +700,10 @@
   },
   {
     "kind": "EnumDecl",
+    "name": "SentryObjCErrorCode"
+  },
+  {
+    "kind": "EnumDecl",
     "name": "SentryObjCFeedbackSource"
   },
   {
@@ -303,6 +717,22 @@
   {
     "kind": "EnumDecl",
     "name": "SentryObjCLogLevel"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCProfileLifecycle"
   },
   {
     "kind": "EnumDecl",
@@ -348,6 +778,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCBaggage",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCBreadcrumb",
     "super": "NSObject",
     "has_inner": true
@@ -379,6 +815,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCEnvelopeItem",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCError",
     "super": "NSObject",
     "has_inner": true
   },
@@ -427,6 +869,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCGeo",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCHint",
     "super": "NSObject",
     "has_inner": true
   },
@@ -498,6 +946,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalScopeApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalScreenApi",
     "super": "NSObject",
     "has_inner": true
@@ -511,6 +965,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalSerializerApi",
     "super": "NSObject",
     "has_inner": true
   },
@@ -576,6 +1036,18 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCMetricKitOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCMetricOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCMetricValue",
     "super": "NSObject",
     "has_inner": true
@@ -600,7 +1072,7 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCPrivateSDKOnly",
+    "name": "SentryObjCProfileOptions",
     "super": "NSObject",
     "has_inner": true
   },
@@ -655,6 +1127,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCSpanId",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCSpanStatusName",
     "super": "NSObject",
     "has_inner": true
   },
@@ -721,6 +1199,18 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCUserFeedbackThemeConfiguration",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCWebViewTracing",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCWebViewTracingOptions",
     "super": "NSObject",
     "has_inner": true
   },
@@ -803,10 +1293,45 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "addSdkPackage:version:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
+    "name": "addScreenshotButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addScreenshotButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addTracePropagationToConfiguration:options:",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "BOOL",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addTracePropagationToUserContentController:options:",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "BOOL",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addTracePropagationToWebView:options:",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "BOOL",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "allowedHosts",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "NSArray<NSString *> * _Nonnull",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -828,13 +1353,6 @@
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalAppStartApi * _Nonnull",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "appStartMeasurementHybridSDKMode",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "BOOL",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -887,6 +1405,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "attachments",
+    "parent": "SentryObjCHint",
+    "returnType": "NSArray<SentryObjCAttachment *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "attributes",
     "parent": "SentryObjCLog",
     "returnType": "NSDictionary<NSString *,SentryObjCAttribute *> * _Nonnull",
@@ -896,6 +1421,13 @@
     "kind": "ObjCMethodDecl",
     "name": "attributes",
     "parent": "SentryObjCMetric",
+    "returnType": "NSDictionary<NSString *,SentryObjCAttributeContent *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "attributes",
+    "parent": "SentryObjCMetricOptions",
     "returnType": "NSDictionary<NSString *,SentryObjCAttributeContent *> * _Nonnull",
     "instance": true
   },
@@ -925,6 +1457,13 @@
     "name": "beforeBreadcrumb",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "beforeBreadcrumbWithHint",
+    "parent": "SentryObjCOptions",
+    "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -967,6 +1506,13 @@
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "beforeSendWithHint",
+    "parent": "SentryObjCOptions",
+    "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -1016,13 +1562,6 @@
     "name": "booleanArray:",
     "parent": "SentryObjCAttributeContent",
     "returnType": "instancetype _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "breadcrumbWithDictionary:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "SentryObjCBreadcrumb * _Nonnull",
     "instance": false
   },
   {
@@ -1118,13 +1657,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureEnvelope:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "captureError:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1153,6 +1685,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureError:attachAllThreads:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureError:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1168,6 +1721,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureError:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1209,6 +1776,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureEvent:attachAllThreads:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1224,6 +1812,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1265,6 +1867,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureException:attachAllThreads:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureException:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1280,6 +1903,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1342,6 +1979,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureMessage:attachAllThreads:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureMessage:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1363,10 +2021,31 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withScope:hint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureMessage:withScopeBlock:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -1408,6 +2087,13 @@
     "name": "clearFeatureFlags",
     "parent": "SentryObjCScope",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "cloneScope:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "SentryObjCScope * _Nonnull",
     "instance": true
   },
   {
@@ -1475,6 +2161,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "configureProfiling",
+    "parent": "SentryObjCOptions",
+    "returnType": "void (^ _Nullable)(SentryObjCProfileOptions * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "configureScope:",
     "parent": "SentryObjCHub",
     "returnType": "void",
@@ -1534,6 +2227,27 @@
     "name": "cornerRadius",
     "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
     "returnType": "CGFloat",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "count:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "count:value:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "count:value:options:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -1601,9 +2315,23 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "createScope",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "SentryObjCScope * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "current",
     "parent": "SentryObjCThread",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "currentProfilerId",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
@@ -1780,6 +2508,20 @@
     "parent": "SentryObjCMetricValue",
     "returnType": "instancetype _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "distribution:value:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "distribution:value:options:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2028,6 +2770,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableOnShake",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
@@ -2063,6 +2812,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableScopePersistence",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableScreenshot",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableSigtermReporting",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2071,6 +2834,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableSpotlight",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableStandaloneAppStartTracing",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -2086,6 +2856,20 @@
     "kind": "ObjCMethodDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableUIViewControllerInitSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -2140,6 +2924,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enabledDiagnosticReports",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "SentryObjCMetricKitDiagnosticReport",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enabledMetricReports",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "SentryObjCMetricKitMetricReport",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "endSession",
     "parent": "SentryObjCHub",
     "returnType": "void",
@@ -2165,13 +2963,6 @@
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalEnvelopeApi * _Nonnull",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "envelopeWithData:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "SentryObjCEnvelope * _Nullable",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2399,6 +3190,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "flush",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "flush",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "flush:",
     "parent": "SentryObjCClient",
     "returnType": "void",
@@ -2504,6 +3309,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "gauge:value:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "gauge:value:options:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "gaugeValue",
     "parent": "SentryObjCMetricValue",
     "returnType": "double",
@@ -2553,27 +3372,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "getExtraContext",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "NSDictionary * _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "getSdkName",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "NSString * _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "getSdkVersionString",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "NSString * _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "gibibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -2605,6 +3403,13 @@
     "name": "handled",
     "parent": "SentryObjCMechanism",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "hangReportingMode",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "SentryObjCMetricKitHangReportingMode",
     "instance": true
   },
   {
@@ -2651,6 +3456,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "hintValueForKey:",
+    "parent": "SentryObjCHint",
+    "returnType": "id _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "hour",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -2662,6 +3474,27 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "httpHeaderField",
+    "parent": "SentryObjCBaggage",
+    "returnType": "NSString * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "httpHeaderField",
+    "parent": "SentryObjCTraceHeader",
+    "returnType": "NSString * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "httpResponse",
+    "parent": "SentryObjCHint",
+    "returnType": "NSHTTPURLResponse * _Nullable",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2683,13 +3516,6 @@
     "parent": "SentryObjCInternalApi",
     "returnType": "void",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "ignoreNextSignal:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2806,6 +3632,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCBaggage",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -2842,6 +3675,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCEnvelopeItem",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCError",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -2898,6 +3738,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCGeo",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCHint",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -2967,6 +3814,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCInternalScreenApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -2982,6 +3836,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3051,6 +3912,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCMetricValue",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -3073,6 +3948,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCProfileOptions",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3129,6 +4011,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCSpanId",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCSpanStatusName",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3199,6 +4088,27 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithAllowedHosts:",
+    "parent": "SentryObjCWebViewTracingOptions",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3288,8 +4198,22 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithError:",
+    "parent": "SentryObjCHint",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithEvent:",
     "parent": "SentryObjCEnvelopeItem",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithException:",
+    "parent": "SentryObjCHint",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3680,13 +4604,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "installationID",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "NSString * _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "instructionAddress",
     "parent": "SentryObjCFrame",
     "returnType": "NSString * _Nullable",
@@ -3876,6 +4793,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "lifecycle",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "SentryObjCProfileLifecycle",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "lineNumber",
     "parent": "SentryObjCFrame",
     "returnType": "NSNumber * _Nullable",
@@ -3954,6 +4878,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "returnType": "NSUInteger",
     "instance": true
@@ -4061,6 +4992,13 @@
     "name": "method",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "metrickit",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "SentryObjCMetricKitOptions * _Nonnull",
     "instance": true
   },
   {
@@ -4184,6 +5122,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "nameForStatus:",
+    "parent": "SentryObjCSpanStatusName",
+    "returnType": "NSString * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "nameLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
@@ -4269,6 +5214,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCBaggage",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCClient",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4291,6 +5243,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCEnvelopeItem",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCError",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -4381,6 +5340,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalScreenApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4396,6 +5362,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -4458,6 +5431,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCMetricValue",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4507,6 +5487,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCSpanStatusName",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCStacktrace",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4541,9 +5528,30 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCWebViewTracing",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "none",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "nsErrorWithCode:description:",
+    "parent": "SentryObjCError",
+    "returnType": "NSError * _Nonnull",
     "instance": false
   },
   {
@@ -4667,6 +5675,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "originalError",
+    "parent": "SentryObjCHint",
+    "returnType": "NSError * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "originalException",
+    "parent": "SentryObjCHint",
+    "returnType": "NSException * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "outlineStyle",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "returnType": "SentryObjCUserFeedbackFormElementOutlineStyle * _Nonnull",
@@ -4745,6 +5767,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "pause",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pause",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -4755,6 +5784,20 @@
     "parent": "SentryObjCSDK",
     "returnType": "void",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pauseTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -4835,6 +5878,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "profileAppStarts",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "profiling",
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalProfilingApi * _Nonnull",
@@ -4891,6 +5941,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "registerTraceId:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "registers",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSDictionary<NSString *,NSString *> * _Nonnull",
@@ -4942,6 +5999,13 @@
     "kind": "ObjCMethodDecl",
     "name": "removeExtraForKey:",
     "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeHintValueForKey:",
+    "parent": "SentryObjCHint",
     "returnType": "void",
     "instance": true
   },
@@ -5039,6 +6103,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "resume",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resume",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -5049,6 +6120,20 @@
     "parent": "SentryObjCSDK",
     "returnType": "void",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resumeTouchTracking",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -5129,6 +6214,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "scope",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalScopeApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "scope",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "SentryObjCScope * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "screen",
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalScreenApi * _Nonnull",
@@ -5139,6 +6238,20 @@
     "name": "screenshot",
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalScreenshotApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "screenshotAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "screenshotErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
@@ -5213,6 +6326,41 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "serializeDebugMeta:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializeEvent:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializeScope:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializedContexts",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "NSDictionary<NSString *,NSDictionary<NSString *,id> *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializer",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalSerializerApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "serverName",
     "parent": "SentryObjCEvent",
     "returnType": "NSString * _Nullable",
@@ -5223,6 +6371,13 @@
     "name": "sessionReplay",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCReplayOptions * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "sessionSampleRate",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "float",
     "instance": true
   },
   {
@@ -5241,6 +6396,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setAddScreenshotButtonAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAddScreenshotButtonLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAllowedHosts:",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setAnimations:",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "void",
@@ -5252,13 +6428,6 @@
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setAppStartMeasurementHybridSDKMode:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -5285,6 +6454,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setAttachViewHierarchy:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAttachments:",
+    "parent": "SentryObjCHint",
     "returnType": "void",
     "instance": true
   },
@@ -5318,6 +6494,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setAttributes:",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setBackground:",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "returnType": "void",
@@ -5326,6 +6509,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setBeforeBreadcrumb:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBeforeBreadcrumbWithHint:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -5368,6 +6558,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setBeforeSendSpan:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendWithHint:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -5474,6 +6671,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setConfigureForm:",
     "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setConfigureProfiling:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -5829,6 +7033,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableNewURLLoaderSwizzling:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnablePersistingTracesWhenCrashing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -5857,6 +7068,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableScopePersistence:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableScreenshot:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableSigtermReporting:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -5865,6 +7090,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableSpotlight:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableStandaloneAppStartTracing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -5880,6 +7112,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableTimeToFullDisplayTracing:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUIUpdateLinkFramesTracking:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUIViewControllerInitSwizzling:",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
@@ -5929,6 +7175,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnabled:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnabledDiagnosticReports:",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnabledMetricReports:",
+    "parent": "SentryObjCMetricKitOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6123,6 +7383,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setHangReportingMode:",
+    "parent": "SentryObjCMetricKitOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setHeaders:",
     "parent": "SentryObjCRequest",
     "returnType": "void",
@@ -6132,6 +7399,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setHelpLink:",
     "parent": "SentryObjCMechanism",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setHintValue:forKey:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setHttpResponse:",
+    "parent": "SentryObjCHint",
     "returnType": "void",
     "instance": true
   },
@@ -6298,6 +7579,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setLifecycle:",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setLineNumber:",
     "parent": "SentryObjCFrame",
     "returnType": "void",
@@ -6309,13 +7597,6 @@
     "parent": "SentryObjCInternalApi",
     "returnType": "void",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setLogOutput:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -6369,6 +7650,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaxCacheItems:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMaxFeatureFlags:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -6641,6 +7929,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setOriginalError:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOriginalException:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setOutlineStyle:",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "returnType": "void",
@@ -6727,6 +8029,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setPreContext:",
     "parent": "SentryObjCFrame",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setProfileAppStarts:",
+    "parent": "SentryObjCProfileOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6851,24 +8160,31 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setSdk:",
-    "parent": "SentryObjCEvent",
+    "name": "setScope:",
+    "parent": "SentryObjCMetricOptions",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setSdkName:",
-    "parent": "SentryObjCPrivateSDKOnly",
+    "name": "setScreenshotAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
-    "instance": false
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setSdkName:andVersionString:",
-    "parent": "SentryObjCPrivateSDKOnly",
+    "name": "setScreenshotErrorText:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
-    "instance": false
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSdk:",
+    "parent": "SentryObjCEvent",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -6902,6 +8218,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setSessionReplay:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSessionSampleRate:",
+    "parent": "SentryObjCProfileOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7223,6 +8546,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setTimestamp:",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTimestamp:",
     "parent": "SentryObjCSpan",
     "returnType": "void",
     "instance": true
@@ -7233,13 +8563,6 @@
     "parent": "SentryObjCInternalApi",
     "returnType": "void",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setTrace:spanId:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -7341,6 +8664,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setUnit:",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setUnmaskedViewClasses:",
     "parent": "SentryObjCReplayOptions",
     "returnType": "void",
@@ -7350,6 +8680,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setUrl:",
     "parent": "SentryObjCRequest",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setUrlRequest:",
+    "parent": "SentryObjCHint",
     "returnType": "void",
     "instance": true
   },
@@ -7455,6 +8792,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setVersionString:",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setWebViewTracing:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7671,6 +9015,27 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "start",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "start",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "startBuffering",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "startBuffering",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -7839,6 +9204,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "stop",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "stop",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -7856,13 +9228,6 @@
     "parent": "SentryObjCInternalEnvelopeApi",
     "returnType": "void",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "storeEnvelope:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "void",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -8058,6 +9423,13 @@
     "name": "timestamp",
     "parent": "SentryObjCMetric",
     "returnType": "NSDate * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "timestamp",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "NSDate * _Nullable",
     "instance": true
   },
   {
@@ -8265,6 +9637,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "unit",
+    "parent": "SentryObjCMetricOptions",
+    "returnType": "SentryObjCUnit * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "unmaskView:",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
@@ -8279,9 +9658,23 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "updateSessionForDroppedEventNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "url",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "urlRequest",
+    "parent": "SentryObjCHint",
+    "returnType": "NSURLRequest * _Nullable",
     "instance": true
   },
   {
@@ -8332,13 +9725,6 @@
     "parent": "SentryObjCUser",
     "returnType": "NSString * _Nullable",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "userWithDictionary:",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "SentryObjCUser * _Nonnull",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -8454,6 +9840,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "webViewTracing",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCWebViewTracingOptions * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "week",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -8465,6 +9858,31 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "withCurrentScope:callback:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "addScreenshotButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "addScreenshotButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "allowedHosts",
+    "parent": "SentryObjCWebViewTracingOptions",
+    "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8483,12 +9901,6 @@
     "name": "appStart",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalAppStartApi * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "appStartMeasurementHybridSDKMode",
-    "parent": "SentryObjCPrivateSDKOnly",
-    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8534,6 +9946,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "attachments",
+    "parent": "SentryObjCHint",
+    "type": "NSArray<SentryObjCAttachment *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "attributes",
     "parent": "SentryObjCLog",
     "type": "NSDictionary<NSString *,SentryObjCAttribute *> * _Nonnull"
@@ -8542,6 +9960,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "attributes",
     "parent": "SentryObjCMetric",
+    "type": "NSDictionary<NSString *,SentryObjCAttributeContent *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "attributes",
+    "parent": "SentryObjCMetricOptions",
     "type": "NSDictionary<NSString *,SentryObjCAttributeContent *> * _Nonnull"
   },
   {
@@ -8561,6 +9985,12 @@
     "name": "beforeBreadcrumb",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeBreadcrumbWithHint",
+    "parent": "SentryObjCOptions",
+    "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8597,6 +10027,12 @@
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeSendWithHint",
+    "parent": "SentryObjCOptions",
+    "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8720,6 +10156,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "configureProfiling",
+    "parent": "SentryObjCOptions",
+    "type": "void (^ _Nullable)(SentryObjCProfileOptions * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "configureTheme",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "type": "void (^ _Nullable)(SentryObjCUserFeedbackThemeConfiguration * _Nonnull)"
@@ -8789,6 +10231,12 @@
     "name": "current",
     "parent": "SentryObjCThread",
     "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "currentProfilerId",
+    "parent": "SentryObjCInternalProfilingApi",
+    "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9080,6 +10528,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enablePersistingTracesWhenCrashing",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9104,6 +10558,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enableScopePersistence",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableScreenshot",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enableSigtermReporting",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9111,6 +10577,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableSpotlight",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableStandaloneAppStartTracing",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
@@ -9124,6 +10596,18 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUIUpdateLinkFramesTracking",
+    "parent": "SentryObjCExperimentalOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUIViewControllerInitSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {
@@ -9167,6 +10651,18 @@
     "name": "enabled",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enabledDiagnosticReports",
+    "parent": "SentryObjCMetricKitOptions",
+    "type": "SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enabledMetricReports",
+    "parent": "SentryObjCMetricKitOptions",
+    "type": "SentryObjCMetricKitMetricReport"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9410,6 +10906,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "hangReportingMode",
+    "parent": "SentryObjCMetricKitOptions",
+    "type": "SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "header",
     "parent": "SentryObjCEnvelope",
     "type": "SentryObjCEnvelopeHeader * _Nonnull"
@@ -9437,6 +10939,24 @@
     "name": "hour",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "httpHeaderField",
+    "parent": "SentryObjCBaggage",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "httpHeaderField",
+    "parent": "SentryObjCTraceHeader",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "httpResponse",
+    "parent": "SentryObjCHint",
+    "type": "NSHTTPURLResponse * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9526,12 +11046,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "installationID",
     "parent": "SentryObjCInternalSdkApi",
-    "type": "NSString * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "installationID",
-    "parent": "SentryObjCPrivateSDKOnly",
     "type": "NSString * _Nonnull"
   },
   {
@@ -9680,6 +11194,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "lifecycle",
+    "parent": "SentryObjCProfileOptions",
+    "type": "SentryObjCProfileLifecycle"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "lineNumber",
     "parent": "SentryObjCFrame",
     "type": "NSNumber * _Nullable"
@@ -9741,6 +11261,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
   },
@@ -9833,6 +11359,12 @@
     "name": "method",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "metrickit",
+    "parent": "SentryObjCExperimentalOptions",
+    "type": "SentryObjCMetricKitOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10094,6 +11626,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "originalError",
+    "parent": "SentryObjCHint",
+    "type": "NSError * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "originalException",
+    "parent": "SentryObjCHint",
+    "type": "NSException * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "outlineStyle",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "type": "SentryObjCUserFeedbackFormElementOutlineStyle * _Nonnull"
@@ -10223,6 +11767,12 @@
     "name": "preContext",
     "parent": "SentryObjCFrame",
     "type": "NSArray<NSString *> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "profileAppStarts",
+    "parent": "SentryObjCProfileOptions",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10418,6 +11968,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "scope",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalScopeApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "scope",
+    "parent": "SentryObjCMetricOptions",
+    "type": "SentryObjCScope * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "screen",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalScreenApi * _Nonnull"
@@ -10427,6 +11989,18 @@
     "name": "screenshot",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalScreenshotApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshotAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshotErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10484,6 +12058,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "serializer",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalSerializerApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "serverName",
     "parent": "SentryObjCEvent",
     "type": "NSString * _Nullable"
@@ -10493,6 +12073,12 @@
     "name": "sessionReplay",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCReplayOptions * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "sessionSampleRate",
+    "parent": "SentryObjCProfileOptions",
+    "type": "float"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10815,6 +12401,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "timestamp",
+    "parent": "SentryObjCMetricOptions",
+    "type": "NSDate * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "timestamp",
     "parent": "SentryObjCSpan",
     "type": "NSDate * _Nullable"
   },
@@ -10970,6 +12562,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "unit",
+    "parent": "SentryObjCMetricOptions",
+    "type": "SentryObjCUnit * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "unmaskedViewClasses",
     "parent": "SentryObjCReplayOptions",
     "type": "NSArray<Class> * _Nonnull"
@@ -10979,6 +12577,12 @@
     "name": "url",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "urlRequest",
+    "parent": "SentryObjCHint",
+    "type": "NSURLRequest * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11078,6 +12682,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "webViewTracing",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCWebViewTracingOptions * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "week",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
@@ -11092,6 +12702,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCAttachmentType",
     "type": "enum SentryObjCAttachmentType"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCErrorCode",
+    "type": "enum SentryObjCErrorCode"
   },
   {
     "kind": "TypedefDecl",
@@ -11112,6 +12727,26 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCLogLevel",
     "type": "enum SentryObjCLogLevel"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCMetricKitDiagnosticReport",
+    "type": "enum SentryObjCMetricKitDiagnosticReport"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCMetricKitHangReportingMode",
+    "type": "enum SentryObjCMetricKitHangReportingMode"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCMetricKitMetricReport",
+    "type": "enum SentryObjCMetricKitMetricReport"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCProfileLifecycle",
+    "type": "enum SentryObjCProfileLifecycle"
   },
   {
     "kind": "TypedefDecl",

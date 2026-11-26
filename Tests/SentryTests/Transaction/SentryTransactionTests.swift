@@ -1,5 +1,10 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+#endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryTransactionTests: XCTestCase {
@@ -50,6 +55,7 @@ class SentryTransactionTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -450,7 +456,7 @@ class SentryTransactionTests: XCTestCase {
         SentrySDK.setStart(with: options)
         let transaction = fixture.getTransaction()
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         let serialized = transaction.serialize()
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let profileData = try XCTUnwrap(contexts["profile"] as? [String: Any])

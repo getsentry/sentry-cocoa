@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 
@@ -10,12 +14,23 @@ final class SentryMXManagerTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
     private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
-        let sut = SentryMXManager(inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, disableCrashDiagnostics: disableCrashDiagnostics)
-        
+        let sut = SentryMXManager(
+            diagnosticCapturer: SentryMXDiagnosticCapturer(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                attachDiagnosticAsAttachment: false,
+                enabledDiagnostics: SentryMXManager.Diagnostic.all
+                    .subtracting(disableCrashDiagnostics ? [.crash] : []),
+                // Every payload counts as recorded by this process.
+                processStartDate: .distantPast,
+                eventSourceSink: TestEventSources.hubSink()
+            )
+        )
+
         return sut
     }
     
@@ -54,6 +69,8 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         var cpuDiagnostic: [MXCPUExceptionDiagnostic]?
         var diskWriteDiagnostic: [MXDiskWriteExceptionDiagnostic]?
         var hangDiagnostic: [MXHangDiagnostic]?
+        // MXAppLaunchDiagnostic needs iOS 16, which is newer than the test deployment target.
+        var appLaunchDiagnostics: [MXDiagnostic]?
         
         var timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date()
     }
@@ -75,6 +92,13 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
     override var hangDiagnostics: [MXHangDiagnostic]? {
         return overrides.hangDiagnostic
     }
+
+#if os(iOS) || os(visionOS)
+    @available(iOS 16.0, *)
+    override var appLaunchDiagnostics: [MXAppLaunchDiagnostic]? {
+        return overrides.appLaunchDiagnostics as? [MXAppLaunchDiagnostic]
+    }
+#endif // os(iOS) || os(visionOS)
     
     override var timeStampBegin: Date {
         return overrides.timeStampBegin

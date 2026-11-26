@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 
 public struct TestConstants {
     

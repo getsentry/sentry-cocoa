@@ -10,9 +10,16 @@ enum SentryRRWebEventType: Int {
     case custom = 5
 }
 
+#if SDK_V10
+@objc(SentryRRWebEvent)
+@_spi(Private) public protocol SentryRRWebEventProtocol: NSObjectProtocol {
+    func serialize() -> [String: Any]
+}
+#else
 @objc(SentryRRWebEvent)
 @_spi(Private) public protocol SentryRRWebEventProtocol: SentrySerializable {
 }
+#endif
 
 @objcMembers
 @_spi(Private) public class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {

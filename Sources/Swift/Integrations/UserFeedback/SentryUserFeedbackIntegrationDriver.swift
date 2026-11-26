@@ -14,14 +14,15 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     private weak var activeForm: SentryUserFeedbackFormController?
     private var isObservingShakeGesture = false
     let screenshotSource: SentryScreenshotSource
-    let windowFactory: SentryUserFeedbackWindowFactory
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #if !SDK_V10
     private var widget: SentryUserFeedbackWidget?
     private var shouldRestoreWidgetOnFormClose = false
     weak var customButton: UIButton?
+    let windowFactory: SentryUserFeedbackWindowFactory
     #endif
-
+    
+#if !SDK_V10
     init(
         configuration: SentryUserFeedbackConfiguration,
         screenshotSource: SentryScreenshotSource,
@@ -36,7 +37,6 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 
         configuration.applyConfigurationBuilders()
 
-        #if !SDK_V10
         if let customButton = configuration.customButton {
             self.customButton = customButton
             customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
@@ -59,11 +59,27 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
                 widget = SentryUserFeedbackWidget(config: configuration, delegate: self, windowFactory: windowFactory)
             }
         }
-        #endif
 
         observeScreenshots()
         observeShakeGesture()
     }
+    #else
+    init(
+        configuration: SentryUserFeedbackConfiguration,
+        screenshotSource: SentryScreenshotSource,
+        notificationCenter: SentryNSNotificationCenterWrapper = NotificationCenter.default
+    ) {
+        self.configuration = configuration
+        self.screenshotSource = screenshotSource
+        self.notificationCenter = notificationCenter
+        super.init()
+
+        configuration.applyConfigurationBuilders()
+
+        observeScreenshots()
+        observeShakeGesture()
+    }
+    #endif
 
     deinit {
         #if !SDK_V10

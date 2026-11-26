@@ -1,4 +1,5 @@
 #import "SentryClient.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
@@ -19,19 +20,20 @@
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
-#import "SentryTracerConfiguration.h"
-#import "SentryTransaction.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiledTracerConcurrency.h"
+#    import "SentryProfilerConfigurationBridge.h"
+#    import "SentryProfilerDeliveryBridge.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartMeasurement+Private.h"
 #    import "SentryAppStartMeasurementProvider.h"
-#    import "SentryBuildAppStartSpans.h"
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
@@ -149,19 +151,24 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, transactionContext);
+    SentryProfilingTraceDecision profilingDecision
+        = sentry_profilerTraceDecision(configuration, hub, transactionContext);
+    if (profilingDecision != SentryProfilingTraceDecisionNone) {
+        _profilerReferenceID = sentry_startProfilerForTrace(
+            profilingDecision, sentry_profilingIdFromSentryId(transactionContext.traceId));
+    }
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (transactionContext.parentSpanId == nil) {
         SENTRY_LOG_DEBUG(
             @"Started root span tracer with id: %@; profilerReferenceId: %@; span id: %@",
-            transactionContext.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            transactionContext.traceId.sentryIdString, _profilerReferenceID.stringValue,
             self.spanId.sentrySpanIdString);
     } else {
         SENTRY_LOG_DEBUG(@"Started child span tracer with id: %@; profilerReferenceId: %@; span "
                          @"id: %@; parent span id: %@",
-            transactionContext.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            transactionContext.traceId.sentryIdString, _profilerReferenceID.stringValue,
             self.spanId.sentrySpanIdString, transactionContext.parentSpanId.sentrySpanIdString);
     }
 
@@ -172,7 +179,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        sentry_discardProfilerCorrelatedToTrace(_profilerReferenceID, self.hub);
+        sentry_discardProfilerCorrelatedToTrace(_profilerReferenceID);
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     [self cancelDeadlineTimeout];
@@ -314,7 +321,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     if (self.delegate) {
         @synchronized(_children) {
             span = [self.delegate getActiveSpan];
-            if (span == nil || ![_children containsObject:span]) {
+            // The root is never in _children. Avoid scanning the growing array for every
+            // sibling span when the delegate keeps the root active.
+            if (span == nil || span == self || ![_children containsObject:span]) {
                 span = self;
             }
         }
@@ -396,7 +405,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 
     SENTRY_LOG_DEBUG(@"Checking if tracer %@ (profileReferenceId %@) can be finished",
-        self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
+        self.traceId.sentryIdString, _profilerReferenceID.stringValue);
     [self canBeFinished];
 }
 
@@ -418,7 +427,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 - (NSArray<id<SentrySpan>> *)children
 {
-    return [_children copy];
+    @synchronized(_children) {
+        return [_children copy];
+    }
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
@@ -465,7 +476,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     SENTRY_LOG_DEBUG(@"Finished trace with tracer profilerReferenceId: %@ and status: %@",
-        self.profilerReferenceID.sentryIdString, nameForSentrySpanStatus(status));
+        self.profilerReferenceID.stringValue, sentry_spanStatusName(status));
     @synchronized(self) {
         self.wasFinishCalled = YES;
     }
@@ -521,7 +532,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 
     SENTRY_LOG_DEBUG(@"Can finish tracer %@ (profileReferenceId %@)", self.traceId.sentryIdString,
-        _profilerReferenceID.sentryIdString);
+        _profilerReferenceID.stringValue);
 
     [self finishInternal];
 }
@@ -551,15 +562,21 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                                    shouldCleanUp:YES];
     if (discardTransaction) {
         SENTRY_LOG_DEBUG(@"Discarding transaction for trace %@ (profileReferenceId %@)",
-            self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
+            self.traceId.sentryIdString, _profilerReferenceID.stringValue);
         return;
     }
 
     SentryTransaction *transaction = [self toTransaction];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_stopProfilerDueToFinishedTransaction(
-        _hub, _dispatchQueue, transaction, _isProfiling, self.startTimestamp, _startSystemTime
+    SentryDispatchQueueWrapper *dispatchQueue = _dispatchQueue;
+    SentryProfilingDispatch dispatchAsync
+        = ^(dispatch_block_t block) { [dispatchQueue dispatchAsyncWithBlock:block]; };
+    BOOL isLaunchTrace = self == (SentryTracer *)SentryLaunchProfiling.launchTracer;
+    BOOL continuousTraceProfiling
+        = _isProfiling && sentry_profilerUsesTraceLifecycle([_hub getClient]);
+    sentry_finishProfiledTransaction(_hub, dispatchAsync, transaction, _isProfiling, isLaunchTrace,
+        continuousTraceProfiling, self.startTimestamp, _startSystemTime
 #    if SENTRY_HAS_UIKIT
         ,
         appStartMeasurement
@@ -667,7 +684,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         }
 
         for (id<SentrySpan> span in _children) {
+#if SDK_V10
+            // Crash snapshots still finalize children. For normal captures, Relay fills in
+            // missing end timestamps without the SDK changing unfinished spans.
+            if (!span.isFinished && !shouldCleanUp) {
+#else
             if (!span.isFinished) {
+#endif
                 [span finishWithStatus:unfinishedSpansFinishStatus];
 
                 // Unfinished children should have the same
@@ -690,6 +713,12 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
     @synchronized(_children) {
         for (id<SentrySpan> childSpan in _children) {
+#if SDK_V10
+            // Relay uses the transaction's end timestamp for unfinished children.
+            if (!childSpan.isFinished) {
+                return;
+            }
+#endif
             if (childSpan.timestamp &&
                 [oldest compare:SENTRY_UNWRAP_NULLABLE(NSDate, childSpan.timestamp)]
                     == NSOrderedAscending) {
@@ -717,8 +746,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     [self addFrameStatistics];
 
     NSArray<id<SentrySpan>> *appStartSpans = [self isStandaloneAppStartTransaction]
-        ? sentryBuildStandaloneAppStartSpans(self, appStartMeasurement)
-        : sentryBuildAppStartSpans(self, appStartMeasurement);
+        ? [SentryBuildAppStartSpans buildStandaloneAppStartSpansForTracer:self
+                                                      appStartMeasurement:appStartMeasurement]
+        : [SentryBuildAppStartSpans buildAppStartSpansForTracer:self
+                                            appStartMeasurement:appStartMeasurement];
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
@@ -803,14 +834,23 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             if (isStandalone) {
+                NSString *screen = [SentryAppStartMeasurementProvider consumeAppStartScreen];
                 [self setDataValue:durationMs forKey:vitalsType];
                 [self setDataValue:durationMs forKey:SentrySpanDataKeyAppVitalsStartValue];
                 [self setDataValue:appStartType forKey:SentrySpanDataKeyAppVitalsStartType];
                 [self setDataValue:@(appStartMeasurement.isPreWarmed)
                             forKey:SentrySpanDataKeyAppVitalsStartPrewarmed];
-                [self setDataValue:[SentryAppStartMeasurementProvider consumeAppStartScreen]
-                            forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                if (screen != nil) {
+                    [self setDataValue:screen forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                }
                 [self setDataValue:@"launch" forKey:SentrySpanDataKeyAppVitalsStartReason];
+
+                for (id<SentrySpan> span in transaction.spans) {
+                    [span setDataValue:appStartType forKey:SentrySpanDataKeyAppVitalsStartType];
+                    if (screen != nil) {
+                        [span setDataValue:screen forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                    }
+                }
             } else {
                 [self setMeasurement:legacyType value:durationMs];
             }

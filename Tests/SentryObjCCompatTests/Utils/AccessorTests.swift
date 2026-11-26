@@ -1,5 +1,5 @@
 @testable import SentryObjCCompat
-import SentryTestUtilsDynamic
+import SentryTestUtils
 import XCTest
 
 final class AccessorTests: XCTestCase {

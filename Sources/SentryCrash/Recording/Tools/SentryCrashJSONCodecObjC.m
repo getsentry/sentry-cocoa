@@ -25,15 +25,17 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashJSONCodecObjC.h"
+#if !SDK_V10
 
-#import "SentryCrashDate.h"
-#import "SentryCrashJSONCodec.h"
-#import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashJSONCodecObjC.h"
+
+#    import "SentryCrashDate.h"
+#    import "SentryCrashJSONCodec.h"
+#    import "SentryCrashNSErrorUtil.h"
 
 @interface SentryCrashJSONCodec ()
 
-#pragma mark Properties
+#    pragma mark Properties
 
 /** Callbacks from the C library */
 @property (nonatomic, readwrite, assign) SentryCrashJSONDecodeCallbacks *callbacks;
@@ -65,7 +67,7 @@
 /** If true, don't store nulls in objects */
 @property (nonatomic, readwrite, assign) bool ignoreNullsInObjects;
 
-#pragma mark Constructors
+#    pragma mark Constructors
 
 /** Convenience constructor.
  *
@@ -91,12 +93,12 @@
 
 @end
 
-#pragma mark -
-#pragma mark -
+#    pragma mark -
+#    pragma mark -
 
 @implementation SentryCrashJSONCodec
 
-#pragma mark Properties
+#    pragma mark Properties
 
 @synthesize topLevelContainer = _topLevelContainer;
 @synthesize currentContainer = _currentContainer;
@@ -109,7 +111,7 @@
 @synthesize ignoreNullsInArrays = _ignoreNullsInArrays;
 @synthesize ignoreNullsInObjects = _ignoreNullsInObjects;
 
-#pragma mark Constructors/Destructor
+#    pragma mark Constructors/Destructor
 
 + (SentryCrashJSONCodec *)codecWithEncodeOptions:(SentryCrashJSONEncodeOption)encodeOptions
                                    decodeOptions:(SentryCrashJSONDecodeOption)decodeOptions
@@ -157,7 +159,7 @@
     free(self.callbacks);
 }
 
-#pragma mark Utility
+#    pragma mark Utility
 
 static inline NSString *
 stringFromCString(const char *const string)
@@ -168,7 +170,7 @@ stringFromCString(const char *const string)
     return [NSString stringWithCString:string encoding:NSUTF8StringEncoding];
 }
 
-#pragma mark Callbacks
+#    pragma mark Callbacks
 
 static int
 onElement(SentryCrashJSONCodec *codec, NSString *name, id element)
@@ -410,7 +412,7 @@ encodeObject(
     return SentryCrashJSON_ERROR_INVALID_DATA;
 }
 
-#pragma mark Public API
+#    pragma mark Public API
 
 + (NSData *)encode:(id)object
            options:(SentryCrashJSONEncodeOption)encodeOptions
@@ -456,3 +458,5 @@ encodeObject(
 }
 
 @end
+
+#endif // !SDK_V10

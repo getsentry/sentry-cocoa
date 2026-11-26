@@ -171,6 +171,9 @@ sentry_getOSName(void)
 {
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
+#elif TARGET_OS_TV
+    // UIDevice.systemName sometimes returns the raw product name "Apple TVOS" instead of "tvOS".
+    return @"tvOS";
 #elif SENTRY_HAS_UIKIT
     return [UIDevice currentDevice].systemName;
 #elif TARGET_OS_WATCH

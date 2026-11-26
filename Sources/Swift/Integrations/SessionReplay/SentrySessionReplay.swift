@@ -1,6 +1,6 @@
 // swiftlint:disable file_length missing_docs
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 internal import _SentryPrivate
 import UIKit
 
@@ -101,7 +101,9 @@ private struct SessionSegmentState {
     public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
-    private var rootView: UIView?
+    /// Weak, because a pending video encoding can release the replay on a background thread, where a
+    /// UIView must not be deallocated. The app owns the window this points to.
+    private weak var rootView: UIView?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var lastScreenshotAt: Date?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
@@ -138,6 +140,24 @@ private struct SessionSegmentState {
 
     private let state = SentryMutex(State())
 
+    /// Maximum number of trace IDs retained for the current (not-yet-sent) segment, matching
+    /// sentry-java's `MAX_CONTEXT_VALUES`. At the cap the oldest ID is evicted so the most recent
+    /// registrations, including a buffered replay's triggering trace, are always kept.
+    static let maxTraceIds = 100
+
+    /// Trace IDs collected for the current (not-yet-sent) replay segment.
+    ///
+    /// Written from arbitrary threads: natively while enriching captured events and by hybrid
+    /// SDKs through `SentrySDK.internal.replay.registerTraceId(_:)`. Drained when a segment is
+    /// captured: in session mode each segment carries the traces registered since the previous one;
+    /// a buffer (on-error) flush that emits several segments at once attaches all buffered traces to
+    /// the first segment. Either way the replay is searchable by those trace IDs.
+    /// Guarded independently of `state` because it is a distinct concern with its own callers.
+    private let traceIdBuffer = SentryMutex<[SentryId]>([])
+
+    #if SDK_V10
+    var privacyOptions = SentryPrivacyOptions()
+    #endif // SDK_V10
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
     private let dateProvider: SentryCurrentDateProvider
@@ -153,6 +173,14 @@ private struct SessionSegmentState {
         state.withLock {
             $0.captureSchedulerToken != nil
         }
+    }
+
+    private var redactOptions: SentryRedactOptions {
+        #if SDK_V10
+        return privacyOptions
+        #else
+        return replayOptions
+        #endif // SDK_V10
     }
 
     public var screenshotProvider: SentryViewScreenshotProvider
@@ -233,6 +261,7 @@ private struct SessionSegmentState {
     public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
         stopCaptureScheduler()
+        touchTracker?.disable()
 
         let pauseDate = dateProvider.date()
         let shouldPreparePauseSegment = state.withLock { (state: inout State) -> Bool in
@@ -282,6 +311,7 @@ private struct SessionSegmentState {
             guard let self = self else { return }
 
             if self.startCaptureScheduler(expectedGeneration: schedulerGeneration) {
+                self.touchTracker?.enable()
                 self.resetCapturePacing(at: self.dateProvider.date())
             }
         }
@@ -300,6 +330,38 @@ private struct SessionSegmentState {
         resume()
     }
 
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// This is the single path shared by native auto-collection and the hybrid
+    /// `SentrySDK.internal.replay.registerTraceId(_:)` API. `SentryId.empty` is ignored, matching
+    /// sentry-java. Duplicate IDs are ignored; at most ``maxTraceIds`` are kept, evicting the oldest
+    /// so the most recent traces survive the cap. Safe to call from any thread.
+    func registerTraceId(_ traceId: SentryId) {
+        guard traceId != SentryId.empty else {
+            SentrySDKLog.debug("[Session Replay] Ignoring empty trace ID")
+            return
+        }
+        traceIdBuffer.withLock { buffer in
+            guard !buffer.contains(where: { $0 == traceId }) else { return }
+            // A buffer (on-error) replay accumulates trace IDs for the whole recording and only
+            // drains on flush, so at the cap we must evict the *oldest* rather than drop the new
+            // one: the triggering event's trace arrives last, and it is the ID used to find the
+            // replay. Keeping the most recent ``maxTraceIds`` guarantees that trace survives.
+            if buffer.count >= SentrySessionReplay.maxTraceIds {
+                let evicted = buffer.removeFirst()
+                SentrySDKLog.debug("[Session Replay] Reached maximum trace IDs for segment, evicting oldest: \(evicted.sentryIdString)")
+            }
+            buffer.append(traceId)
+        }
+    }
+
+#if DEBUG // Test support.
+    /// The trace IDs currently buffered for the not-yet-sent segment, as hex strings.
+    func getCollectedTraceIdsTestOnly() -> [String] {
+        traceIdBuffer.withLock { $0.map { $0.sentryIdString } }
+    }
+#endif
+
     public func captureReplayFor(event: Event) {
         SentrySDKLog.debug("[Session Replay] Capturing replay for event: \(event)")
         guard isRunning else {
@@ -313,7 +375,7 @@ private struct SessionSegmentState {
             return
         }
 
-        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay(replayType: .buffer) else {
+        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay() else {
             SentrySDKLog.debug("[Session Replay] Not capturing replay, reason: event is not an error or exceptions are empty")
             return
         }
@@ -323,11 +385,6 @@ private struct SessionSegmentState {
 
     @discardableResult
     public func captureReplay() -> Bool {
-        captureReplay(replayType: .buffer)
-    }
-
-    @discardableResult
-    func captureReplay(replayType: SentryReplayType) -> Bool {
         guard isRunning else {
             SentrySDKLog.debug("[Session Replay] Session replay is not running, not capturing replay")
             return false
@@ -342,6 +399,35 @@ private struct SessionSegmentState {
             return false
         }
 
+        captureReplayInternal(replayType: .buffer)
+        return true
+    }
+
+    @nonobjc func captureForFeedback() -> SentryId? {
+        // Serialize form and manual API triggers with the main-thread capture lifecycle.
+        runOnMainThreadSync {
+            guard isRunning else { return nil }
+            if isFullSession {
+                flush()
+            } else if !captureReplay() {
+                return nil
+            }
+            return sessionReplayId
+        }
+    }
+
+    func flush() {
+        if isFullSession {
+            guard isRunning else { return }
+            pause()
+            resume()
+            return
+        }
+
+        captureReplayInternal(replayType: .session)
+    }
+
+    private func captureReplayInternal(replayType: SentryReplayType) {
         // `lastScreenshotAt` is main-thread confined with the capture pacing state.
         let startedAt = runOnMainThreadSync { lastScreenshotAt }
         self.replayType = replayType
@@ -349,7 +435,6 @@ private struct SessionSegmentState {
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
         createAndCaptureInBackground(startedAt: replayStart, endedAt: dateProvider.date(), replayType: replayType)
-        return true
     }
 
     private func setEventContext(event: Event) {
@@ -413,7 +498,7 @@ private struct SessionSegmentState {
 
         let captureActivityReason = isInteractiveRunLoopMode
             ? nil
-            : rootView.flatMap { SentrySessionReplayCaptureGuard.captureActivityReason(rootView: $0, options: replayOptions) }
+            : rootView.flatMap { SentrySessionReplayCaptureGuard.captureActivityReason(rootView: $0, options: redactOptions) }
         let isInteractionCapture = isInteractiveRunLoopMode || captureActivityReason == .interaction
 
         guard shouldCaptureScreenshot(at: now, usesAdaptiveBackoff: !isInteractionCapture) else {
@@ -438,7 +523,7 @@ private struct SessionSegmentState {
             return
         }
 
-        guard takeScreenshot(timestamp: now, completion: { [weak self] captureDuration in
+        guard takeScreenshot(timestamp: now, completion: { [weak self] metadata in
             guard let self = self else { return }
             self.runOnMainThread { [weak self] in
                 guard let self = self else { return }
@@ -447,7 +532,7 @@ private struct SessionSegmentState {
                 if deferralDecision == .captureAfterDeferral {
                     self.adaptiveScreenshotInterval = 0
                 } else if !isInteractionCapture {
-                    self.updateAdaptiveScreenshotInterval(captureDuration)
+                    self.updateAdaptiveScreenshotInterval(metadata.mainThreadDuration)
                 }
 
                 let finishedAt = self.dateProvider.date()
@@ -566,9 +651,15 @@ private struct SessionSegmentState {
         static let captureDeferralInterval: TimeInterval = 0.25
         /// Captures taking at least this long double the adaptive screenshot interval;
         /// faster captures halve it again.
-        static let slowCaptureThreshold: TimeInterval = 0.05
+        ///
+        /// The threshold applies to main-thread capture cost only (redaction + render).
+        /// Real masked screens commonly spend 60-90 ms there, so 50 ms latched the interval
+        /// at the 5 s maximum and produced single-frame segments.
+        static let slowCaptureThreshold: TimeInterval = 0.15
         /// Upper bound for the adaptive screenshot interval.
-        static let maximumAdaptiveCaptureInterval: TimeInterval = 5
+        /// Kept well below the default session segment duration so a backed-off session still
+        /// captures multiple frames per segment.
+        static let maximumAdaptiveCaptureInterval: TimeInterval = 2
         /// Maximum time captures can be deferred due to animations before forcing a capture.
         static let maximumAnimationCaptureDeferralInterval: TimeInterval = 1
         /// Tolerance applied when comparing dates against capture deadlines, to absorb
@@ -712,8 +803,9 @@ private struct SessionSegmentState {
     ) {
         SentrySDKLog.debug("[Session Replay] Creating replay video started at date: \(startedAt), replayType: \(replayType)")
         // Creating a video is computationally expensive, therefore perform it on a background queue.
-        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: endedAt) { [weak self] videos in
-            guard let self = self else { return }
+        // Capture self strongly so a pending segment (e.g. from flush) is still sent when the replay
+        // is stopped and released before encoding finishes. The closure is released after it runs.
+        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: endedAt) { videos in
             SentrySDKLog.debug("[Session Replay] Created replay video with \(videos.count) segments")
             for video in videos {
                 self.processNewlyAvailableSegment(videoInfo: video, replayType: replayType)
@@ -752,6 +844,17 @@ private struct SessionSegmentState {
         replayEvent.timestamp = video.end
         replayEvent.urls = video.screens
 
+        // Drain the per-segment trace-id buffer so each segment reports only the traces seen
+        // during its window. Left nil (omitted from the payload) when no traces were collected.
+        let traceIds = traceIdBuffer.withLock { buffer -> [SentryId] in
+            let collected = buffer
+            buffer.removeAll()
+            return collected
+        }
+        if !traceIds.isEmpty {
+            replayEvent.traceIds = traceIds
+        }
+
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
         var events = breadcrumbConverter.convert(breadcrumbs, from: video.start, until: video.end)
@@ -766,7 +869,7 @@ private struct SessionSegmentState {
             if let customOptions = replayTags {
                 events.append(SentryRRWebOptionsEvent(timestamp: video.start, customOptions: customOptions))
             } else {
-                events.append(SentryRRWebOptionsEvent(timestamp: video.start, options: self.replayOptions))
+                events.append(SentryRRWebOptionsEvent(timestamp: video.start, options: self.replayOptions, redactOptions: self.redactOptions))
             }
         }
 
@@ -782,7 +885,7 @@ private struct SessionSegmentState {
         }
     }
 
-    private func takeScreenshot(timestamp: Date, completion: @escaping (TimeInterval) -> Void) -> Bool {
+    private func takeScreenshot(timestamp: Date, completion: @escaping (SentryViewPhotographerScreenshotMetadata) -> Void) -> Bool {
         guard let rootView = rootView else {
             SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil")
             return false
@@ -801,19 +904,34 @@ private struct SessionSegmentState {
 
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         let screenName = delegate?.currentScreenNameForSessionReplay()
-        let captureStart = dateProvider.systemTime()
-        screenshotProvider.image(view: rootView) { [weak self] screenshot in
+
+        let handleScreenshot: (UIImage, SentryViewPhotographerScreenshotMetadata) -> Void = { [weak self] screenshot, metadata in
             guard let self = self else { return }
 
-            let captureEnd = self.dateProvider.systemTime()
-            let captureDuration = captureEnd >= captureStart
-                ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
-                : 0
             SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
             self.state.withLock { _ in
                 self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             }
-            completion(captureDuration)
+            completion(metadata)
+        }
+
+        if let timedScreenshotProvider = screenshotProvider as? SentryTimedViewScreenshotProvider {
+            timedScreenshotProvider.timedImage(view: rootView) { screenshot, metadata in
+                handleScreenshot(screenshot, metadata)
+            }
+        } else {
+            let captureStart = dateProvider.systemTime()
+            screenshotProvider.image(view: rootView) { [dateProvider] screenshot in
+                let captureEnd = dateProvider.systemTime()
+                let captureDuration = captureEnd >= captureStart
+                    ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
+                    : 0
+                handleScreenshot(screenshot, SentryViewPhotographerScreenshotMetadata(
+                    redactDuration: captureDuration,
+                    renderDuration: 0,
+                    maskDuration: 0
+                ))
+            }
         }
         return true
     }

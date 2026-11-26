@@ -1,57 +1,20 @@
 #import "SentryProfilingConditionals.h"
+#import "SentryProfilingId.h"
 #import <Foundation/Foundation.h>
 
 @class SentryId;
-@class SentryProfileOptions;
-@class SentrySpanId;
-@class SentryClientInternal;
-@class SentryDispatchQueueWrapper;
-@class SentryScreenFrames;
-@class SentryTransactionContext;
+@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
-// The functions in this file exist to bridge ObjectiveC++ to Swift. When building with Swift
-// Package Manager you can’t import Swift into ObjectiveC++ so instead that code calls plain C
-// functions in this file which then uses Swift in their implementation.
+// SDK-side conversions keep SDK models out of the profiling implementation.
+// Plain C entry points also bridge Objective-C++ to Swift under Swift Package Manager.
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-BOOL sentry_isContinuousProfilingEnabled(SentryClientInternal *client);
-BOOL sentry_isProfilingCorrelatedToTraces(SentryClientInternal *client);
-SentryProfileOptions *_Nullable sentry_getProfiling(SentryClientInternal *client);
-NSString *sentry_stringFromSentryID(SentryId *sentryID);
-NSDate *sentry_getDate(void);
-uint64_t sentry_getSystemTime(void);
-SentryId *sentry_getSentryId(void);
-SentryProfileOptions *sentry_getSentryProfileOptions(void);
-BOOL sentry_isTraceLifecycle(SentryProfileOptions *options);
-float sentry_sessionSampleRate(SentryProfileOptions *options);
-BOOL sentry_profileAppStarts(SentryProfileOptions *options);
-SentrySpanId *_Nullable sentry_getParentSpanID(SentryTransactionContext *context);
-SentryId *sentry_getTraceID(SentryTransactionContext *context);
-BOOL sentry_isNotSampled(SentryTransactionContext *context);
-void sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block);
-void sentry_dispatchAsyncOnMainIfNotMainThread(
-    SentryDispatchQueueWrapper *wrapper, dispatch_block_t block);
-void sentry_addObserver(id observer, SEL selector, NSNotificationName name, _Nullable id object);
-void sentry_removeObserver(id observer);
-void sentry_postNotification(NSNotification *notification);
-id sentry_addObserverForName(NSNotificationName name, dispatch_block_t block);
-NSTimer *sentry_scheduledTimer(NSTimeInterval interval, BOOL repeats, dispatch_block_t block);
-NSTimer *sentry_scheduledTimerWithTarget(
-    NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats);
-
-#if SENTRY_HAS_UIKIT
-BOOL sentry_appHangsDisabled(void);
-BOOL sentry_autoPerformanceTracingDisabled(void);
-void sentry_startFramesTracker(void);
-void sentry_stopFramesTracker(void);
-void sentry_framesTrackerResetProfilingTimestamps(void);
-SentryScreenFrames *sentry_framesTrackerGetCurrentFrames(void);
-#endif // SENTRY_HAS_UIKIT
+SentryProfilingId *sentry_profilingIdFromSentryId(SentryId *sentryID);
 
 #ifdef __cplusplus
 }

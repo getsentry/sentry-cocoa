@@ -1,12 +1,14 @@
+import SentryTestUtilsObjC
 import XCTest
 
 extension XCTestCase {
     
     private func jsonDataOfResource(resource: String) throws -> Data {
-        let jsonPath = Bundle(for: type(of: self)).path(forResource: resource, ofType: "json")
+        let jsonPath = sentryTestResourceBundle(for: type(of: self)).path(forResource: resource, ofType: "json")
         return try Data(contentsOf: URL(fileURLWithPath: jsonPath ?? ""))
     }
     
+#if !SDK_V10
     func givenStoredSentryCrashReport(resource: String) throws {
         let jsonData = try jsonDataOfResource(resource: resource)
         jsonData.withUnsafeBytes { ( bytes: UnsafeRawBufferPointer) in
@@ -14,6 +16,7 @@ extension XCTestCase {
             sentrycrashcrs_addUserReport(pointer.baseAddress, Int32(jsonData.count))
         }
     }
+#endif
     
     func getCrashReport(resource: String) throws -> [String: Any] {
         let jsonData = try jsonDataOfResource(resource: resource)

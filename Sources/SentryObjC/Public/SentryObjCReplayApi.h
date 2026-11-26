@@ -12,6 +12,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// API for interacting with the Session Replay feature.
+///
+/// Replay lifecycle methods may be called from any thread. They return before the requested
+/// operation completes and execute serially in call order.
 @interface SentryObjCReplayApi : NSObject
 SENTRY_NO_INIT
 
@@ -21,16 +24,41 @@ SENTRY_NO_INIT
 /// Marks this view to not be masked during the redact step of session replay.
 - (void)unmaskView:(UIView *)view;
 
-/// Pauses the replay.
+/// Pauses the current replay until @c resume is called.
 - (void)pause;
 
-/// Resumes the ongoing replay.
+/// Resumes a replay paused with @c pause.
 - (void)resume;
 
-/// Start recording a session replay if not started.
+/**
+ * Stops recording touch positions until @c resumeTouchTracking is called.
+ *
+ * Screenshots continue to be captured and breadcrumbs are not affected. Use this while
+ * sensitive input, such as a PIN pad, is on screen.
+ *
+ * This is independent of @c pause and @c resume: @c resume does not resume touch tracking.
+ * The pause also applies to replays started later within the same process, so this method
+ * can be called before a replay is active.
+ */
+- (void)pauseTouchTracking;
+
+/**
+ * Resumes recording touch positions paused with @c pauseTouchTracking.
+ *
+ * If the replay is paused with @c pause, touch tracking resumes only after @c resume is called.
+ */
+- (void)resumeTouchTracking;
+
+/// Starts a new replay session. Does nothing if a replay is already active.
 - (void)start;
 
-/// Stop the current session replay recording.
+/// Starts Replay in buffer mode. Does nothing if a replay is already active.
+- (void)startBuffering;
+
+/// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+- (void)flush;
+
+/// Stops the current replay.
 - (void)stop;
 
 /**

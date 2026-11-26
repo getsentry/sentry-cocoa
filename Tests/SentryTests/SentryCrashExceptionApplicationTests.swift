@@ -1,8 +1,19 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
-#if os(macOS)
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
 private var exceptionHandlerCallCount = 0
 private func countingExceptionHandler(exception: NSException) {
@@ -19,6 +30,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
         crashReporter.uncaughtExceptionHandler = nil
         exceptionHandlerCallCount = 0
 
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         resetUserDefaults()
         UserDefaults.standard.removeObject(forKey: "NSApplicationCrashOnExceptions")
@@ -84,4 +96,6 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 }
 
-#endif // os(macOS)
+#endif // os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+
+#endif // !SDK_V10

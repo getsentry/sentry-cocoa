@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
 import Foundation
@@ -5,7 +6,7 @@ import Foundation
 import UIKit
 #endif
 
-typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & CrashWrapperProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder
+typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & DebuggerStatusProviderProvider & CrashReporterStateProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder
 
 final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationScope>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
@@ -13,7 +14,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     private let options: Options
     private let fileManager: SentryFileManager
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let crashWrapper: SentryCrashReporter
+    private let activeCrashReporterState: SentryCrashReporterState
     private let debugImageProvider: SentryDebugImageProvider
     private let threadInspector: SentryThreadInspector
     private let reportAppHangs = SentryMutex<Bool>(true)
@@ -26,7 +27,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         guard options.enableAppHangTracking && options.appHangTimeoutInterval > 0 else {
             return nil
         }
-        guard !dependencies.crashWrapper.isBeingTraced else {
+        guard !dependencies.debuggerStatusProvider.isBeingTraced else {
             return nil
         }
         // Extension detection
@@ -42,7 +43,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         }
         self.fileManager = fileManager
         self.dispatchQueueWrapper = dependencies.dispatchQueueWrapper
-        self.crashWrapper = dependencies.crashWrapper
+        self.activeCrashReporterState = dependencies.activeCrashReporterState
         self.debugImageProvider = dependencies.debugImageProvider
         self.threadInspector = dependencies.threadInspector
         self.options = options
@@ -177,7 +178,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
             guard let self else { return }
             guard let event = fileManager.readAppHangEvent() else { return }
             fileManager.deleteAppHangEvent()
-            if crashWrapper.crashedLastLaunch {
+            if activeCrashReporterState.crashedLastLaunch {
                 SentrySDK.capture(event: event, scope: Scope())
             } else {
                 if event.exceptions?.count != 1 {
@@ -204,3 +205,4 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     #endif
 }
 // swiftlint:enable missing_docs
+#endif

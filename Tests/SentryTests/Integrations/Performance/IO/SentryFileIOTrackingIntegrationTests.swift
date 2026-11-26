@@ -1,5 +1,13 @@
 import Foundation
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 
@@ -62,6 +70,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if deleteFileDirectory && FileManager.default.fileExists(atPath: fixture.fileDirectory.path) {
             try FileManager.default.removeItem(at: fixture.fileDirectory)
         }
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         SentrySDK.close()
     }
@@ -267,9 +276,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
     
     private func getBigFilePath() -> String? {
-        let bundle = Bundle(for: type(of: self))
+        let bundle = sentryTestResourceBundle(for: type(of: self))
         
-        return bundle.path(forResource: "Resources/fatal-error-binary-images-message2", ofType: "json")
+        return bundle.path(forResource: "Fixtures/fatal-error-binary-images-message2", ofType: "json")
         ?? bundle.path(forResource: "fatal-error-binary-images-message2", ofType: "json")
     }
     

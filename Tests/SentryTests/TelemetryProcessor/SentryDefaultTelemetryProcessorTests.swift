@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryDefaultTelemetryProcessorTests: XCTestCase {
@@ -181,6 +185,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let scheduler = TestTelemetryScheduler()
         let dateProvider = TestCurrentDateProvider()
         let itemForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
+        let timeoutFlush = expectation(description: "Real timeout flush")
 
         let logBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryLog>, SentryLog>(
             config: .init(
@@ -189,6 +194,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
                 maxBufferSizeBytes: 10_000,
                 capturedDataCallback: { data, count in
                     scheduler.capture(data: data, count: count, telemetryType: .log)
+                    timeoutFlush.fulfill()
                 }
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
@@ -200,14 +206,10 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
 
         let log = createTestLog(body: "Real timeout test log")
-        let expectation = XCTestExpectation(description: "Real timeout flush")
 
         // -- Act --
         sut.add(log: log)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [timeoutFlush], timeout: 2.0)
 
         // -- Assert --
         XCTAssertEqual(scheduler.captureInvocations.count, 1, "Timeout should trigger flush")

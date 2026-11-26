@@ -300,7 +300,7 @@ extension Dynamic {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 extension Dynamic {
@@ -316,4 +316,4 @@ extension Dynamic {
     public var asCATransform3D: CATransform3D? { unwrap() }
     #endif
 }
-#endif
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

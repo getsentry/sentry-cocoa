@@ -1,5 +1,8 @@
 #import "SentrySpanStatus.h"
+#import "SentryDeprecated+Private.h"
 
+// Deprecated public symbols. Internal callers use sentry_spanStatusName, whose
+// values are defined by SentrySpanStatus.name.
 NSString *const kSentrySpanStatusNameUndefined = @"undefined";
 NSString *const kSentrySpanStatusNameOk = @"ok";
 NSString *const kSentrySpanStatusNameDeadlineExceeded = @"deadline_exceeded";
@@ -22,42 +25,5 @@ NSString *const kSentrySpanStatusNameDataLoss = @"data_loss";
 NSString *
 nameForSentrySpanStatus(SentrySpanStatus status)
 {
-    switch (status) {
-    case kSentrySpanStatusUndefined:
-        return kSentrySpanStatusNameUndefined;
-    case kSentrySpanStatusOk:
-        return kSentrySpanStatusNameOk;
-    case kSentrySpanStatusDeadlineExceeded:
-        return kSentrySpanStatusNameDeadlineExceeded;
-    case kSentrySpanStatusUnauthenticated:
-        return kSentrySpanStatusNameUnauthenticated;
-    case kSentrySpanStatusPermissionDenied:
-        return kSentrySpanStatusNamePermissionDenied;
-    case kSentrySpanStatusNotFound:
-        return kSentrySpanStatusNameNotFound;
-    case kSentrySpanStatusResourceExhausted:
-        return kSentrySpanStatusNameResourceExhausted;
-    case kSentrySpanStatusInvalidArgument:
-        return kSentrySpanStatusNameInvalidArgument;
-    case kSentrySpanStatusUnimplemented:
-        return kSentrySpanStatusNameUnimplemented;
-    case kSentrySpanStatusUnavailable:
-        return kSentrySpanStatusNameUnavailable;
-    case kSentrySpanStatusInternalError:
-        return kSentrySpanStatusNameInternalError;
-    case kSentrySpanStatusUnknownError:
-        return kSentrySpanStatusNameUnknownError;
-    case kSentrySpanStatusCancelled:
-        return kSentrySpanStatusNameCancelled;
-    case kSentrySpanStatusAlreadyExists:
-        return kSentrySpanStatusNameAlreadyExists;
-    case kSentrySpanStatusFailedPrecondition:
-        return kSentrySpanStatusNameFailedPrecondition;
-    case kSentrySpanStatusAborted:
-        return kSentrySpanStatusNameAborted;
-    case kSentrySpanStatusOutOfRange:
-        return kSentrySpanStatusNameOutOfRange;
-    case kSentrySpanStatusDataLoss:
-        return kSentrySpanStatusNameDataLoss;
-    }
+    return sentry_spanStatusName(status);
 }

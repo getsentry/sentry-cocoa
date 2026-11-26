@@ -7,9 +7,9 @@
 _Bad software is everywhere, and we're tired of it. Sentry is on a mission to help developers write better software faster, so we can get back to enjoying technology. If you want to join us [<kbd>**Check out our open positions**</kbd>](https://sentry.io/careers/)_
 
 > [!NOTE]
-> You are currently viewing the **`main`** branch which latest development version of **v9** release.
+> You are currently viewing the **`main`** branch which contains the latest development version of the **v10** release.
 >
-> For the latest **v8** release, please switch to the [`v8.x` branch](https://github.com/getsentry/sentry-cocoa/tree/v8.x) and refer to the [v8 CHANGELOG](https://github.com/getsentry/sentry-cocoa/blob/v8.x/CHANGELOG.md).
+> For the latest **v9** release, please switch to the [`v9.x` branch](https://github.com/getsentry/sentry-cocoa/tree/v9.x) and refer to the [v9 CHANGELOG](https://github.com/getsentry/sentry-cocoa/blob/v9.x/CHANGELOG.md).
 
 # Official Sentry SDK for iOS / iPadOS / tvOS / macOS / watchOS <sup>(1)</sup> / visionOS
 
@@ -21,10 +21,46 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 
 # Installation
 
-SPM is the recommended way to include Sentry into your project.
-We also provide pre-built XCFrameworks on [our GitHub Releases page](https://github.com/getsentry/sentry-cocoa/releases).
+### Sentry Wizard (Recommended)
 
-To see all available installation options and how to integrate Sentry into your project, please refer to our [documentation](https://docs.sentry.io/platforms/apple/install/).
+The quickest way to get started:
+
+```bash
+brew install getsentry/tools/sentry-wizard && sentry-wizard -i ios
+```
+
+This patches your project and configures the SDK automatically.
+
+### Swift Package Manager (Compile from Source)
+
+Use this repository to build the SDK from source:
+
+**In Xcode:** File > Add Packages, then paste:
+
+```
+https://github.com/getsentry/sentry-cocoa.git
+```
+
+**In `Package.swift`:**
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.24.0"),
+],
+targets: [
+    .target(name: "YourApp", dependencies: [
+        .product(name: "SentrySPM", package: "sentry-cocoa"),
+    ]),
+]
+```
+
+### Pre-built XCFrameworks
+
+For pre-built static binaries via SPM, use the [sentry-apple-binaries](https://github.com/getsentry/sentry-apple-binaries) repository.
+
+You can also download XCFrameworks directly from [GitHub Releases](https://github.com/getsentry/sentry-cocoa/releases).
+
+For all installation options (Objective-C, dynamic linking, manual install), see the [full installation docs](https://docs.sentry.io/platforms/apple/install/).
 
 > [!NOTE]
 > CocoaPods support has been dropped. The last version available via CocoaPods is [9.19.1](https://github.com/getsentry/sentry-cocoa/releases/tag/9.19.1). Please migrate to SPM or XCFrameworks.
@@ -35,7 +71,7 @@ _Remember to call this as early in your application life cycle as possible_
 Ideally in `applicationDidFinishLaunching` in `AppDelegate`
 
 ```swift
-import Sentry
+import SentrySwift // The SentrySPM product. Use `import Sentry` with the pre-built XCFrameworks.
 
 // ....
 
@@ -45,20 +81,31 @@ SentrySDK.start { options in
 }
 ```
 
+For Objective-C, depend on the `SentryObjC` product instead of `SentrySPM` (or `SentryObjC-Static` / `SentryObjC-Dynamic` for the pre-built frameworks):
+
 ```objc
-@import Sentry;
+#import <SentryObjC/SentryObjC.h>
 
 // ....
 
-[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+[SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
     options.dsn = @"___PUBLIC_DSN___";
-    options.debug = @YES; // Helpful to see what's going on
+    options.debug = YES; // Helpful to see what's going on
 }];
 ```
 
 For more information checkout the [docs](https://docs.sentry.io/platforms/apple).
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
+
+# Logging Integrations
+
+Forward logs from popular logging libraries to [Sentry Logs](https://docs.sentry.io/platforms/apple/logs/). Each integration is a separate Swift package, so you only pull in the dependencies you use:
+
+- [swift-log](https://github.com/apple/swift-log): [sentry-apple-swift-log](https://github.com/getsentry/sentry-apple-swift-log)
+- [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack): [sentry-apple-cocoalumberjack](https://github.com/getsentry/sentry-apple-cocoalumberjack)
+- [Pulse](https://github.com/kean/Pulse): [sentry-apple-pulse](https://github.com/getsentry/sentry-apple-pulse)
+- [SwiftyBeaver](https://github.com/SwiftyBeaver/SwiftyBeaver): [sentry-apple-swiftybeaver](https://github.com/getsentry/sentry-apple-swiftybeaver)
 
 # Resources
 
@@ -67,3 +114,4 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 - [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.com/invite/sentry)
 - [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-sentry-green.svg)](https://github.com/getsentry/.github/blob/master/CODE_OF_CONDUCT.md)
 - [![Twitter Follow](https://img.shields.io/twitter/follow/sentry?label=sentry&style=social)](https://twitter.com/intent/follow?screen_name=sentry)
+- Check out product updates, deep dives, and tips on [the Sentry blog](https://blog.sentry.io/) and [our changelog](https://sentry.io/changelog/)

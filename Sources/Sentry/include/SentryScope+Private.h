@@ -20,6 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
 /**
+ * Attachments the SDK captured when the app crashed, added via @c addCrashReportAttachmentInPath:.
+ * Unlike @c attachments, these are sent with fatal events.
+ */
+@property (atomic, strong, readonly) NSArray<SentryAttachment *> *crashReportAttachments;
+
+/**
  * The propagation context has a setter, requiring it to be nonatomic
  */
 @property (nonatomic, strong) SentryPropagationContext *propagationContext;
@@ -63,6 +69,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
 
+/**
+ * Adds an attachment captured at crash time, such as a screenshot or the view hierarchy, to
+ * @c crashReportAttachments so it is sent with the fatal event of that crash.
+ */
 - (void)addCrashReportAttachmentInPath:(NSString *)filePath;
 
 @end

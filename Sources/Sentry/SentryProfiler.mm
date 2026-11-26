@@ -1,23 +1,15 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainerSwiftHelper.h"
-#    import "SentryFileManagerHelper.h"
-#    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling.h"
-#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryProfileConfiguration.h"
+#    import "SentryProfilerSDKAdapter.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySDK+Private.h"
+#    import "SentryProfilingLog.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryTime.h"
-#    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import <UIKit/UIKit.h>
@@ -25,91 +17,22 @@
 
 using namespace sentry::profiling;
 
-/**
- * The current configuration the profiler operates under for this session. Set when a launch profile
- * runs, and then is updated on SDK start.
- */
-static SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
-
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
-
-NSObject *
-sentry_profileConfigurationLock()
-{
-    // Function-local static lazily initializes this once and returns the same lock on every call.
-    static NSObject *lock = [[NSObject alloc] init];
-    return lock;
-}
 
 } // namespace
 
 #    pragma mark - Public
 
-SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void)
-{
-    @synchronized(sentry_profileConfigurationLock()) {
-        return sentry_profileConfiguration;
-    }
-}
-
-void
-sentry_setProfileConfiguration(SentryProfileConfiguration *_Nullable configuration)
-{
-    @synchronized(sentry_profileConfigurationLock()) {
-        sentry_profileConfiguration = configuration;
-    }
-}
-
-void
-sentry_reevaluateSessionSampleRate()
-{
-    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
-    [configuration reevaluateSessionSampleRate];
-}
-
 BOOL
 sentry_isLaunchProfileCorrelatedToTraces(void)
 {
-    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
-    if (nil == configuration) {
-        return NO;
-    }
-
-    SentryProfileOptions *_Nullable nullableOptions = configuration.profileOptions;
-    if (nil == nullableOptions) {
-        return YES;
-    }
-    SentryProfileOptions *_Nonnull options
-        = SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, nullableOptions);
-
-    return sentry_profileAppStarts(options) && sentry_isTraceLifecycle(options);
+    return [SentryProfilerSDKAdapter.shared configuration].launchProfileCorrelatedToTraces;
 }
 
 @implementation SentryProfiler {
     std::unique_ptr<SamplingProfiler> _samplingProfiler;
-}
-
-+ (void)load
-{
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-    // we want to allow starting a launch profile from here for UI tests, but not unit tests
-    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
-        return;
-    }
-
-    // the samples apps may want to wipe the data like before UI test case runs, or manually during
-    // development, to remove any launch config files that might be present before launching the app
-    // initially, however we need to make sure to remove stale versions of the file before it gets
-    // used to potentially start a launch profile that shouldn't have started, so we check here for
-    // this
-    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
-        removeSentryStaticBasePath();
-    }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-
-    sentry_startLaunchProfile();
 }
 
 - (instancetype)initWithMode:(SentryProfilerMode)mode
@@ -118,11 +41,11 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
-    sentry_startFramesTracker();
+    [SentryProfilerSDKAdapter.shared startFramesTracker];
 #    endif // SENTRY_HAS_UIKIT
 
     [self start];
@@ -132,8 +55,10 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 #    if SENTRY_HAS_UIKIT
     if (mode == SentryProfilerModeTrace) {
-        sentry_addObserver(
-            self, @selector(backgroundAbort), UIApplicationWillResignActiveNotification, nil);
+        [SentryProfilerSDKAdapter.shared addObserver:self
+                                            selector:@selector(backgroundAbort)
+                                                name:UIApplicationWillResignActiveNotification
+                                              object:nil];
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -145,47 +70,38 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 - (void)backgroundAbort
 {
     if (![self isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running.");
+        SENTRY_PROFILING_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to app moving to background.", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Stopping profiler %@ due to app moving to background.", self);
     [self stopForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
-    sentry_isTracingAppLaunch = NO;
+    [SentryProfilerSDKAdapter.shared setIsTracingAppLaunch:NO];
     [self.metricProfiler stop];
 
     if (![self isRunning]) {
-        SENTRY_LOG_DEBUG(@"Profiler is not currently running.");
+        SENTRY_PROFILING_LOG_DEBUG(@"Profiler is not currently running.");
         return;
     }
 
     self.truncationReason = reason;
 
 #    if SENTRY_HAS_UIKIT
-    // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the
-    // frames tracker, is YES, then we need to stop the frames tracker from running outside of
-    // profiles because it isn't needed for anything else
-
-    BOOL autoPerformanceTracingDisabled = sentry_autoPerformanceTracingDisabled();
-    BOOL appHangsDisabled = sentry_appHangsDisabled();
-
-    if (autoPerformanceTracingDisabled && appHangsDisabled) {
-        sentry_stopFramesTracker();
-    }
+    [SentryProfilerSDKAdapter.shared stopFramesTrackerIfUnused];
 #    endif // SENTRY_HAS_UIKIT
 
     _samplingProfiler->stopSampling();
-    SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
+    SENTRY_PROFILING_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
 - (void)start
 {
     if (sentry_threadSanitizerIsPresent()) {
-        SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
+        SENTRY_PROFILING_LOG_DEBUG(@"Disabling profiling when running with TSAN");
         return;
     }
 
@@ -195,7 +111,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         // we'll just bail and let the current one continue to do whatever it's already doing:
         // either currently sampling, or waiting to be queried and provide profile data to
         // SentryTracer for upload with transaction envelopes, so as not to lose that data.
-        SENTRY_LOG_WARN(
+        SENTRY_PROFILING_LOG_WARN(
             @"There is already a private profiler instance present, will not start a new one.");
         return;
     }
@@ -207,15 +123,15 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 #        endif // __has_feature(thread_sanitizer)
 #    endif // defined(__has_feature)
 
-    SENTRY_LOG_DEBUG(@"Starting profiler.");
+    SENTRY_PROFILING_LOG_DEBUG(@"Starting profiler.");
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self.state = state;
     _samplingProfiler = std::make_unique<SamplingProfiler>(
         [state](auto &backtrace) {
             Backtrace backtraceCopy = backtrace;
-            backtraceCopy.absoluteTimestamp = sentry_getSystemTime();
             @autoreleasepool {
+                backtraceCopy.absoluteTimestamp = SentryProfilerSDKAdapter.shared.systemTime;
                 [state appendBacktrace:backtraceCopy];
             }
         },

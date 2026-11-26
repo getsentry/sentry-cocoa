@@ -42,14 +42,14 @@ SentryCrash is the **backbone of the Sentry Cocoa SDK** -- it handles all crash 
 
 ## Component Overview
 
-| Metric                  | Value                                                                  |
-| ----------------------- | ---------------------------------------------------------------------- |
-| **Total files**         | 84 files (36 .h, 36 .c, 11 .m, 1 .cpp)                                 |
-| **Total lines of code** | ~21,400                                                                |
-| **Location**            | `Sources/SentryCrash/`                                                 |
-| **Languages**           | C (primary), Objective-C, C++, Swift (wrappers)                        |
-| **Test files**          | ~55 across `Tests/SentryTests/SentryCrash/`                            |
-| **Original source**     | [KSCrash](https://github.com/kstenerud/KSCrash) by Karl Stenerud (MIT) |
+| Metric                  | Value                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| **Total files**         | 84 files (36 .h, 36 .c, 11 .m, 1 .cpp)                                                     |
+| **Total lines of code** | ~21,400                                                                                    |
+| **Location**            | `Sources/SentryCrash/`                                                                     |
+| **Languages**           | C (primary), Objective-C, C++, Swift (wrappers)                                            |
+| **Test files**          | ~55 under `Tests/SentryTests/`: `SentryCrash/`, `ObjC/SentryCrash/`, `ObjCpp/SentryCrash/` |
+| **Original source**     | [KSCrash](https://github.com/kstenerud/KSCrash) by Karl Stenerud (MIT)                     |
 
 ---
 
@@ -137,15 +137,15 @@ Installations/:         221 lines  (1.0%)
 
 The SDK integrates with SentryCrash through these key files:
 
-| File                                                                           | Role                                                     |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| `Sources/Swift/Integrations/SentryCrash/SentryCrashIntegration.swift`          | Main integration, implements `SwiftIntegration` protocol |
-| `Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift` | Sentry-specific `SentryCrashInstallation` subclass       |
-| `Sources/Swift/SentryCrash/SentryCrashWrapper.swift`                           | Testability wrapper around C API                         |
-| `Sources/Sentry/SentryCrashReportConverter.m`                                  | Transforms raw crash reports → `SentryEvent`             |
-| `Sources/Sentry/SentryCrashReportSink.m`                                       | Implements `SentryCrashReportFilter` for Sentry          |
-| `Sources/Sentry/SentryCrashScopeObserver.m`                                    | Syncs SDK scope → SentryCrash via C interface            |
-| `Sources/Sentry/SentryScopeSyncC.c`                                            | C interface for scope synchronization at crash time      |
+| File                                                               | Role                                                                  |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `Sources/SentryCrashV9Swift/SentryCrashIntegration.swift`          | Main V9 integration, registered with the shared integration installer |
+| `Sources/SentryCrashV9Swift/SentryCrashInstallationReporter.swift` | Sentry-specific `SentryCrashInstallation` subclass                    |
+| `Sources/SentryCrashV9Swift/SentryCrashSwift.swift`                | V9 Swift/Objective-C adapter around the recorder API                  |
+| `Sources/Sentry/SentryCrashReportConverter.m`                      | Transforms raw crash reports → `SentryEvent`                          |
+| `Sources/Sentry/SentryCrashReportSink.m`                           | Implements `SentryCrashReportFilter` for Sentry                       |
+| `Sources/Sentry/SentryCrashScopeObserver.m`                        | Syncs SDK scope → SentryCrash via C interface                         |
+| `Sources/Sentry/SentryScopeSyncC.c`                                | C interface for scope synchronization at crash time                   |
 
 ### Initialization Sequence
 
@@ -155,13 +155,12 @@ SentrySDK.start(options:)
     → SentryCrashIntegration.init (if enableCrashHandler = true)
       ├── Create SentryCrashWrapper
       ├── Create SentryCrashScopeObserver
-      ├── Create SentryCrashIntegrationSessionHandler
       ├── startCrashHandler():
       │   ├── sentrycrashcm_setEnableSigtermReporting()
       │   ├── SentryCrashInstallationReporter.install(cacheDirectory)
       │   │   └── C: sentrycrash_install(appName, installPath)
       │   ├── sentrycrashcm_cppexception_enable_swap_cxa_throw() (if enabled)
-      │   ├── sessionHandler.endCurrentSessionIfRequired()
+      │   ├── PreviousRunSessionFinalizer.finalizeIfNeeded()
       │   └── installation.sendAllReports() ← sends pending crash reports
       ├── configureScope():
       │   ├── Serialize scope → crashReporter.userInfo → sentrycrash_setUserInfoJSON()
@@ -444,21 +443,32 @@ The tracking issue [sentry-cocoa #5619](https://github.com/getsentry/sentry-coco
 
 ## Managed Runtime Interop
 
-When sentry-cocoa is embedded in a managed runtime (e.g. .NET/Mono via sentry-dotnet), SentryCrash must install signal handlers **before** the managed runtime to ensure the correct chain order:
+When sentry-cocoa is embedded in a managed runtime (e.g. .NET/Mono via sentry-dotnet), its native crash backend must install signal handlers **before** the managed runtime to ensure the correct chain order:
 
 ```mermaid
 flowchart LR
-  Signal --> Runtime["Managed runtime"] --> SentryCrash --> System["System default"]
+  Signal --> Runtime["Managed runtime"] --> Reporter["SentryCrash / KSCrash"] --> System["System default"]
 ```
 
-This order allows the managed runtime to convert certain signals (e.g. `SIGSEGV` for null reference) into managed exceptions, while real native crashes are chained to SentryCrash.
+This order allows the managed runtime to convert certain signals (e.g. `SIGSEGV` for null reference) into managed exceptions, while real native crashes are chained to the active crash backend.
 
-The `SENTRY_CRASH_MANAGED_RUNTIME` compile flag, set by downstream SDKs, enables this behavior. The `onPreload()` constructor (`__attribute__((constructor))`) in `SentryCrashC.c` runs before `main()`, ensuring signal handlers are in place before the managed runtime initializes. Normal SDK initialization from managed code would be too late, as the runtime's handlers are already installed by that point. With this flag, the signal handler lifecycle changes:
+The `SENTRY_CRASH_MANAGED_RUNTIME` compile flag, set by downstream SDKs, enables this behavior. A constructor (`__attribute__((constructor))`) runs before `main()`, ensuring the active backend's signal handlers are in place before the managed runtime initializes. Normal SDK initialization from managed code would be too late, as the runtime's handlers are already installed by that point.
 
-- `installSignalHandler()` is a no-op if already installed, preventing `start()` from overwriting `g_previousSignalHandlers` with the managed runtime's handler.
-- `uninstallSignalHandler()` is a no-op, preserving the chain across `close()`/`start()` cycles. `g_isEnabled` controls whether crashes are processed or passed through.
-- When disabled, `handleSignal()` restores the previous handler for that signal before re-raising to avoid looping.
-- The constructor does not set `g_isEnabled`, so `enableCrashHandler = false` is respected.
+- V9's constructor in `SentryCrashC.c` preloads the SentryCrash signal monitor.
+- V10 uses a Sentry-owned replacement Signal plugin. Its constructor installs the early chain anchor,
+  and KSCrash installation adopts that state instead of enabling the built-in Signal monitor above
+  the runtime.
+- V10 disables KSCrash's built-in Mach monitor so faults reach the signal layer and the runtime can
+  convert managed faults first. Ordinary builds continue to use the Mach monitor.
+- Neither constructor enables recording, so pre-SDK signals and `enableCrashHandler = false` do not
+  produce reports.
+- `SentrySDK.close()` atomically suppresses persistence through KSCrash's `willWriteReport` callback
+  without removing process-lifetime handlers. Reinitialization reenables the same chain.
+- `ignoreNextSignal` delegates to the active backend's per-thread, one-shot suppression route,
+  preventing a managed exception that ends in a signal from also producing a native report.
+
+See [KSCrash Managed Signal Plugin Maintenance](KSCrash_MANAGED_SIGNAL_PLUGIN_MAINTENANCE.md) for the
+ownership boundary and KSCrash upgrade procedure.
 
 Related: [#6193](https://github.com/getsentry/sentry-cocoa/pull/6193), [sentry-dotnet#3954](https://github.com/getsentry/sentry-dotnet/issues/3954)
 
@@ -526,7 +536,7 @@ See AGENTS.md (Testing Instructions) for the convention: test class names follow
 
 - **Crash-time code** — Use `SENTRY_ASYNC_SAFE_LOG_*` macros in the crash path; ensure async-safe logging is enabled so output is visible (e.g. to stderr or the configured async-safe log destination). Do not use `NSLog` or `printf` in code that can run in signal context.
 - **Written reports** — Reports are stored under the installation path (cache directory passed to `sentrycrash_install()`). Inspect the JSON files written by `sentrycrashreport_writeStandardReport()` to verify report structure and field values; the format is described in [Crash Report Format and Data Structures](#crash-report-format-and-data-structures).
-- **Simulating a crash** — Use a sample app (e.g. in `Samples/`) and trigger a crash (e.g. `abort()`, uncaught NSException, or a null dereference) to exercise the full pipeline from detection to report write to next-launch send.
+- **Simulating a crash** — Use a test app (e.g. in `TestApps/`) and trigger a crash (e.g. `abort()`, uncaught NSException, or a null dereference) to exercise the full pipeline from detection to report write to next-launch send.
 
 **Adopting upstream KSCrash changes**
 
@@ -634,7 +644,7 @@ Some features are disabled or limited on certain OS versions (e.g. test disabled
 | **onCrash()**                                   | The global callback invoked when any monitor detects a crash. Implemented in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c); it writes the report, then runs best-effort callbacks (screenshots, view hierarchy, transaction).            |
 | **Freeze / unfreeze**                           | Cached data (thread list, system snapshot) is "frozen" at crash time so the report writer sees a consistent snapshot; it is "unfrozen" after the report is written. See [SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c). |
 | **Recrash**                                     | A second crash while handling the first (e.g. in the report writer). The context field `crashedDuringCrashHandling` is true; a minimal recrash report is written.                                                                                         |
-| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift).          |
+| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/SentryCrashV9Swift/SentryCrashInstallationReporter.swift).                      |
 | **Report filter**                               | Protocol for processing reports (e.g. before send). The SDK implements it in [SentryCrashReportSink.m](Sources/Sentry/SentryCrashReportSink.m) to convert and upload to Sentry.                                                                           |
 | **Stack cursor**                                | Abstraction for walking the stack (e.g. `SentryCrashStackCursor`). Used to fill thread backtraces in the report; can be backtrace-based or machine-context-based.                                                                                         |
 

@@ -13,15 +13,15 @@
 @class SentryObjCInternalBreadcrumbApi;
 @class SentryObjCInternalUserApi;
 @class SentryObjCInternalEnvelopeApi;
+@class SentryObjCInternalScopeApi;
+@class SentryObjCInternalSerializerApi;
 @class SentryObjCInternalSwizzleApi;
 @class SentryObjCInternalAppStartApi;
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
-#    if !TARGET_OS_VISION
+@class SentryObjCInternalScreenApi;
 @class SentryObjCInternalScreenshotApi;
 @class SentryObjCInternalViewHierarchyApi;
-@class SentryObjCInternalScreenApi;
-#    endif
 #endif
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 @class SentryObjCInternalReplayApi;
@@ -57,6 +57,12 @@ SENTRY_NO_INIT
 /// Envelope store, capture, and deserialization.
 @property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
 
+/// Current scope contexts in event wire format.
+@property (nonatomic, readonly) SentryObjCInternalScopeApi *scope;
+
+/// Serializer for events
+@property (nonatomic, readonly) SentryObjCInternalSerializerApi *serializer;
+
 /// Method swizzling.
 @property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;
 
@@ -67,16 +73,14 @@ SENTRY_NO_INIT
 /// Frame tracking performance metrics.
 @property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
 
-#    if !TARGET_OS_VISION
+/// Screen name tracking.
+@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
+
 /// Screenshot capture.
 @property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
 
 /// View hierarchy capture.
 @property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
-
-/// Screen name tracking.
-@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
-#    endif
 #endif
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED

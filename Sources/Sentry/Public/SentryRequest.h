@@ -5,11 +5,17 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SDK_V10
+@interface SentryRequest : NSObject
+#else
 @interface SentryRequest : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 /**
  * Optional: HTTP response body size.

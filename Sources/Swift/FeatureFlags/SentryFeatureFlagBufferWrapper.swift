@@ -17,7 +17,14 @@ public final class SentryFeatureFlagBufferWrapper: NSObject {
 
     @objc
     public static func scopeBuffer() -> SentryFeatureFlagBufferWrapper {
-        SentryFeatureFlagBufferWrapper(buffer: SentryFeatureFlagBuffer.scopeBuffer())
+        scopeBuffer(maxSize: defaultMaxScopeFeatureFlags)
+    }
+
+    /// Creates a scope buffer retaining at most `maxSize` unique evaluations.
+    /// `SentryScope` passes `Options.maxFeatureFlags` here.
+    @objc
+    public static func scopeBuffer(maxSize: Int) -> SentryFeatureFlagBufferWrapper {
+        SentryFeatureFlagBufferWrapper(buffer: SentryFeatureFlagBuffer.scopeBuffer(maxSize: maxSize))
     }
 
     @objc

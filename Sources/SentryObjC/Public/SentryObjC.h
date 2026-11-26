@@ -10,20 +10,24 @@
 // --- Enums (no dependencies) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttachmentType.h"
+#    import "SentryObjCError.h"
 #    import "SentryObjCFeedbackSource.h"
 #    import "SentryObjCLastRunStatus.h"
 #    import "SentryObjCLevel.h"
 #    import "SentryObjCLogLevel.h"
+#    import "SentryObjCProfileLifecycle.h"
 #    import "SentryObjCReplayQuality.h"
 #    import "SentryObjCSampleDecision.h"
 #    import "SentryObjCSpanStatus.h"
 #    import "SentryObjCTransactionNameSource.h"
 #else
 #    import <SentryObjC/SentryObjCAttachmentType.h>
+#    import <SentryObjC/SentryObjCError.h>
 #    import <SentryObjC/SentryObjCFeedbackSource.h>
 #    import <SentryObjC/SentryObjCLastRunStatus.h>
 #    import <SentryObjC/SentryObjCLevel.h>
 #    import <SentryObjC/SentryObjCLogLevel.h>
+#    import <SentryObjC/SentryObjCProfileLifecycle.h>
 #    import <SentryObjC/SentryObjCReplayQuality.h>
 #    import <SentryObjC/SentryObjCSampleDecision.h>
 #    import <SentryObjC/SentryObjCSpanStatus.h>
@@ -47,6 +51,7 @@
 
 // --- Leaf types (no wrapper dependencies) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCBaggage.h"
 #    import "SentryObjCDebugMeta.h"
 #    import "SentryObjCFrame.h"
 #    import "SentryObjCGeo.h"
@@ -60,6 +65,7 @@
 #    import "SentryObjCSpanId.h"
 #    import "SentryObjCTraceHeader.h"
 #else
+#    import <SentryObjC/SentryObjCBaggage.h>
 #    import <SentryObjC/SentryObjCDebugMeta.h>
 #    import <SentryObjC/SentryObjCFrame.h>
 #    import <SentryObjC/SentryObjCGeo.h>
@@ -79,6 +85,7 @@
 #    import "SentryObjCAttachment.h"
 #    import "SentryObjCBreadcrumb.h"
 #    import "SentryObjCException.h"
+#    import "SentryObjCHint.h"
 #    import "SentryObjCMechanism.h"
 #    import "SentryObjCStacktrace.h"
 #    import "SentryObjCThread.h"
@@ -87,6 +94,7 @@
 #    import <SentryObjC/SentryObjCAttachment.h>
 #    import <SentryObjC/SentryObjCBreadcrumb.h>
 #    import <SentryObjC/SentryObjCException.h>
+#    import <SentryObjC/SentryObjCHint.h>
 #    import <SentryObjC/SentryObjCMechanism.h>
 #    import <SentryObjC/SentryObjCStacktrace.h>
 #    import <SentryObjC/SentryObjCThread.h>
@@ -110,6 +118,9 @@
 #    import "SentryObjCScope.h"
 #    import "SentryObjCSpan.h"
 #    import "SentryObjCTraceContext.h"
+#    if SDK_V10
+#        import "SentryObjCTransaction.h"
+#    endif // SDK_V10
 #else
 #    import <SentryObjC/SentryObjCEvent.h>
 #    import <SentryObjC/SentryObjCFeedback.h>
@@ -117,6 +128,9 @@
 #    import <SentryObjC/SentryObjCScope.h>
 #    import <SentryObjC/SentryObjCSpan.h>
 #    import <SentryObjC/SentryObjCTraceContext.h>
+#    if SDK_V10
+#        import <SentryObjC/SentryObjCTransaction.h>
+#    endif // SDK_V10
 #endif
 
 // --- Attribute and log types ---
@@ -132,16 +146,12 @@
 
 // --- Data collection types ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
-#    import "SentryObjCDataCollectionDatabaseCollectionOptions.h"
-#    import "SentryObjCDataCollectionGraphQLCollectionOptions.h"
 #    import "SentryObjCDataCollectionHttpBodyType.h"
 #    import "SentryObjCDataCollectionHttpHeaderCollectionOptions.h"
 #    import "SentryObjCDataCollectionKeyValueCollectionBehavior.h"
 #    import "SentryObjCDataCollectionKeyValueCollectionMode.h"
 #    import "SentryObjCDataCollectionOptions.h"
 #else
-#    import <SentryObjC/SentryObjCDataCollectionDatabaseCollectionOptions.h>
-#    import <SentryObjC/SentryObjCDataCollectionGraphQLCollectionOptions.h>
 #    import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
 #    import <SentryObjC/SentryObjCDataCollectionHttpHeaderCollectionOptions.h>
 #    import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionBehavior.h>
@@ -149,10 +159,25 @@
 #    import <SentryObjC/SentryObjCDataCollectionOptions.h>
 #endif
 
+// --- MetricKit types ---
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCMetricKitDiagnosticReport.h"
+#    import "SentryObjCMetricKitMetricReport.h"
+#    import "SentryObjCMetricKitOptions.h"
+#else
+#    import <SentryObjC/SentryObjCMetricKitDiagnosticReport.h>
+#    import <SentryObjC/SentryObjCMetricKitMetricReport.h>
+#    import <SentryObjC/SentryObjCMetricKitOptions.h>
+#endif
+
 // --- Configuration ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCExperimentalOptions.h"
+#    import "SentryObjCMetricKitOptions.h"
+#    import "SentryObjCMetricOptions.h"
 #    import "SentryObjCOptions.h"
+#    import "SentryObjCPrivacyOptions.h"
+#    import "SentryObjCProfileOptions.h"
 #    import "SentryObjCReplayOptions.h"
 #    import "SentryObjCUserFeedbackConfiguration.h"
 #    import "SentryObjCUserFeedbackFormConfiguration.h"
@@ -160,7 +185,11 @@
 #    import "SentryObjCUserFeedbackThemeConfiguration.h"
 #else
 #    import <SentryObjC/SentryObjCExperimentalOptions.h>
+#    import <SentryObjC/SentryObjCMetricKitOptions.h>
+#    import <SentryObjC/SentryObjCMetricOptions.h>
 #    import <SentryObjC/SentryObjCOptions.h>
+#    import <SentryObjC/SentryObjCPrivacyOptions.h>
+#    import <SentryObjC/SentryObjCProfileOptions.h>
 #    import <SentryObjC/SentryObjCReplayOptions.h>
 #    import <SentryObjC/SentryObjCUserFeedbackConfiguration.h>
 #    import <SentryObjC/SentryObjCUserFeedbackFormConfiguration.h>
@@ -174,11 +203,13 @@
 #    import "SentryObjCFeedbackForm.h"
 #    import "SentryObjCMetricsApi.h"
 #    import "SentryObjCReplayApi.h"
+#    import "SentryObjCWebViewTracing.h"
 #else
 #    import <SentryObjC/SentryObjCFeedbackApi.h>
 #    import <SentryObjC/SentryObjCFeedbackForm.h>
 #    import <SentryObjC/SentryObjCMetricsApi.h>
 #    import <SentryObjC/SentryObjCReplayApi.h>
+#    import <SentryObjC/SentryObjCWebViewTracing.h>
 #endif
 
 // --- Internal API (hybrid SDK structured API) ---
@@ -191,9 +222,11 @@
 #    import "SentryObjCInternalPerformanceApi.h"
 #    import "SentryObjCInternalProfilingApi.h"
 #    import "SentryObjCInternalReplayApi.h"
+#    import "SentryObjCInternalScopeApi.h"
 #    import "SentryObjCInternalScreenApi.h"
 #    import "SentryObjCInternalScreenshotApi.h"
 #    import "SentryObjCInternalSdkApi.h"
+#    import "SentryObjCInternalSerializerApi.h"
 #    import "SentryObjCInternalSwizzleApi.h"
 #    import "SentryObjCInternalUserApi.h"
 #    import "SentryObjCInternalViewHierarchyApi.h"
@@ -206,9 +239,11 @@
 #    import <SentryObjC/SentryObjCInternalPerformanceApi.h>
 #    import <SentryObjC/SentryObjCInternalProfilingApi.h>
 #    import <SentryObjC/SentryObjCInternalReplayApi.h>
+#    import <SentryObjC/SentryObjCInternalScopeApi.h>
 #    import <SentryObjC/SentryObjCInternalScreenApi.h>
 #    import <SentryObjC/SentryObjCInternalScreenshotApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
+#    import <SentryObjC/SentryObjCInternalSerializerApi.h>
 #    import <SentryObjC/SentryObjCInternalSwizzleApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
 #    import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>
@@ -229,11 +264,9 @@
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCClient.h"
 #    import "SentryObjCHub.h"
-#    import "SentryObjCPrivateSDKOnly.h"
 #    import "SentryObjCSDK.h"
 #else
 #    import <SentryObjC/SentryObjCClient.h>
 #    import <SentryObjC/SentryObjCHub.h>
-#    import <SentryObjC/SentryObjCPrivateSDKOnly.h>
 #    import <SentryObjC/SentryObjCSDK.h>
 #endif

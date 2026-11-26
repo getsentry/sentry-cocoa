@@ -1,5 +1,10 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import Foundation
 import SentryTestUtils
 import UIKit
@@ -67,7 +72,7 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         let logOutput = TestLogOutput(logsToConsole: false)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         let exception = NSException(
             name: .invalidArgumentException,

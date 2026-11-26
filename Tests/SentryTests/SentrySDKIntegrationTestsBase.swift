@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import Foundation
 import XCTest
 
@@ -8,7 +13,7 @@ import XCTest
 class SentrySDKIntegrationTestsBase: XCTestCase {
     
     var currentDate = TestCurrentDateProvider()
-    var crashWrapper: TestSentryCrashWrapper!
+    var crashReporterState: TestSentryCrashReporterState!
     
     var options: Options {
         Options()
@@ -16,19 +21,26 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#if SDK_V10
+        crashReporterState = TestSentryCrashReporterState()
+#else
+        let crashReporter = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashReporterState = crashReporter
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashReporter
+#endif
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = crashReporterState
         currentDate = TestCurrentDateProvider()
     }
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
     func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
         let client = TestClient(options: options ?? self.options)
-        let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: crashReporterState, andDispatchQueue: SentryDispatchQueueWrapper())
         
         SentrySDK.setStart(with: self.options)
         SentrySDKInternal.setCurrentHub(hub)

@@ -75,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kSentryAttachmentTypeNameEventAttachment = @"event.attachment";
 NSString *const kSentryAttachmentTypeNameViewHierarchy = @"event.view_hierarchy";
+NSString *const kSentryAttachmentTypeNameFlamegraph = @"event.flamegraph";
 
 NSString *
 nameForSentryAttachmentType(SentryAttachmentType attachmentType)
@@ -82,6 +83,8 @@ nameForSentryAttachmentType(SentryAttachmentType attachmentType)
     switch (attachmentType) {
     case kSentryAttachmentTypeViewHierarchy:
         return kSentryAttachmentTypeNameViewHierarchy;
+    case kSentryAttachmentTypeFlamegraph:
+        return kSentryAttachmentTypeNameFlamegraph;
     default:
         return kSentryAttachmentTypeNameEventAttachment;
     }
@@ -92,6 +95,9 @@ typeForSentryAttachmentName(NSString *_Nullable name)
 {
     if ([name isEqualToString:kSentryAttachmentTypeNameViewHierarchy]) {
         return kSentryAttachmentTypeViewHierarchy;
+    }
+    if ([name isEqualToString:kSentryAttachmentTypeNameFlamegraph]) {
+        return kSentryAttachmentTypeFlamegraph;
     }
     return kSentryAttachmentTypeEventAttachment;
 }

@@ -17,6 +17,17 @@ dependencies: [
 ]
 ```
 
+Then add the `SentryPulse` product to your target:
+
+```swift
+.target(
+    name: "MyApp",
+    dependencies: [
+        .product(name: "SentryPulse", package: "sentry-apple-pulse")
+    ]
+)
+```
+
 ## Quick Start
 
 ```swift
@@ -26,7 +37,6 @@ import SentryPulse
 
 SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
-    options.enableLogs = true
 }
 
 SentryPulse.start()

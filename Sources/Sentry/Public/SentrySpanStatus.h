@@ -98,25 +98,45 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUndefined;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameOk;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameDeadlineExceeded;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnauthenticated;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNamePermissionDenied;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameNotFound;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameResourceExhausted;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameInvalidArgument;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnimplemented;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnavailable;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameInternalError;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnknownError;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameCancelled;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameAlreadyExists;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameFailedPrecondition;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameAborted;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameOutOfRange;
-FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameDataLoss;
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUndefined DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameOk DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameDeadlineExceeded DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnauthenticated DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNamePermissionDenied DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameNotFound DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameResourceExhausted DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameInvalidArgument DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnimplemented DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnavailable DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameInternalError DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUnknownError DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameCancelled DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameAlreadyExists DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameFailedPrecondition DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameAborted DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameOutOfRange DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
+FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameDataLoss DEPRECATED_MSG_ATTRIBUTE(
+    "Use SentrySpanStatus.name. This constant will be removed in a future major version.");
 
-NSString *nameForSentrySpanStatus(SentrySpanStatus status);
+NSString *nameForSentrySpanStatus(SentrySpanStatus status)
+    DEPRECATED_MSG_ATTRIBUTE("Use SentrySpanStatus.name. This function will be removed in a "
+                             "future major version.");
 
 NS_ASSUME_NONNULL_END

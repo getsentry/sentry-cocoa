@@ -11,6 +11,8 @@ public func sentry_sanitize_dictionary(_ dictionary: NSDictionary?) -> NSDiction
 
 private func sanitizeValue(_ rawValue: Any, depth: UInt) -> Any? {
     switch rawValue {
+    case is NSNull:
+        return rawValue
     case let string as String:
         return string
     case let number as NSNumber:

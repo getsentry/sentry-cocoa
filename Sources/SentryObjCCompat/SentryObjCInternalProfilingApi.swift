@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -13,6 +13,10 @@ import Foundation
 
     internal init(_ wrapped: SentryInternalProfilingApi) {
         self.wrapped = Box(wrapped)
+    }
+
+    @objc public var currentProfilerId: String? {
+        wrapped.value.currentProfilerId
     }
 
     @objc public func start(for traceId: SentryObjCId) -> UInt64 {

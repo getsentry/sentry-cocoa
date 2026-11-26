@@ -1,12 +1,12 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
 #endif
 import Foundation
 
-@objc(SentryObjCEvent) public final class SentryObjCEvent: NSObject {
+@objc(SentryObjCEvent) public class SentryObjCEvent: NSObject {
     internal let wrapped: Event
 
     internal init(_ wrapped: Event) {

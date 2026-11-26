@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -8,6 +8,10 @@ import Foundation
 
 @objc(SentryObjCTraceHeader) public final class SentryObjCTraceHeader: NSObject {
     internal let wrapped: TraceHeader
+
+    @objc public static var httpHeaderField: String {
+        TraceHeader.httpHeaderField
+    }
 
     internal init(_ wrapped: TraceHeader) {
         self.wrapped = wrapped

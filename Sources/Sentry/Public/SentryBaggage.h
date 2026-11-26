@@ -1,10 +1,15 @@
 #import <Foundation/Foundation.h>
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDeprecated.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDeprecated.h>
+#else
+#    import <SentryDeprecated.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryId;
-
-static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
 
 NS_SWIFT_NAME(Baggage)
 @interface SentryBaggage : NSObject

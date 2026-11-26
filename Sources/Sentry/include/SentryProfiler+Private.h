@@ -4,49 +4,22 @@
 
 #    import "SentryDefines.h"
 #    import "SentryProfilerDefines.h"
+#    import "SentryProfilingId.h"
 
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
-@class SentryId;
 @class SentryMetricProfiler;
-@class SentryOptions;
-@class SentryProfileConfiguration;
-@class SentryProfileOptions;
 @class SentryProfilerState;
-@class SentrySamplerDecision;
 @class SentryTransaction;
 
 #    if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
-@class SentryScreenFrames;
+@class SentryProfilingFrameMeasurements;
 #    endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef struct {
-    BOOL shouldProfile;
-    /** Only needed for trace launch profiling or continuous profiling v2 with trace lifecycle;
-     * unused with continuous profiling. */
-    SentrySamplerDecision *_Nullable tracesDecision;
-    SentrySamplerDecision *_Nullable profilesDecision;
-} SentryLaunchProfileDecision;
-/**
- * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
- * launch's profiling, stop tracer profiling if no automatic performance transaction is running,
- * start the continuous profiler if enabled and not profiling from launch.
- */
-SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub);
-
-SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void);
-
-SENTRY_EXTERN void sentry_setProfileConfiguration(
-    SentryProfileConfiguration *_Nullable configuration);
-
 SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
-
-SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(void);
-
-SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.
@@ -55,7 +28,7 @@ SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
  */
 @interface SentryProfiler : NSObject
 
-@property (strong, nonatomic) SentryId *profilerId;
+@property (strong, nonatomic) SentryProfilingId *profilerId;
 @property (strong, nonatomic) SentryProfilerState *state;
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
@@ -67,7 +40,7 @@ SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
  * transactions to finish. Once we move to continuous profiling only, this won't be needed as the
  * data can be directly marshaled to the serialization function.
  */
-@property (strong, nonatomic) SentryScreenFrames *screenFrameData;
+@property (strong, nonatomic, nullable) SentryProfilingFrameMeasurements *screenFrameData;
 #    endif // SENTRY_HAS_UIKIT
 
 SENTRY_NO_INIT

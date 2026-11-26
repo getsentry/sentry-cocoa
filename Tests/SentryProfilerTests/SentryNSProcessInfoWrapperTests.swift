@@ -1,3 +1,4 @@
+#if !SWIFT_PACKAGE || !SDK_V10
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
 
@@ -11,3 +12,4 @@ class SentryNSProcessInfoWrapperTests: XCTestCase {
         XCTAssertTrue((0...Int.max).contains(fixture.processInfoWrapper.processorCount))
     }
 }
+#endif

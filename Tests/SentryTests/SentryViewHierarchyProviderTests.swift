@@ -1,8 +1,13 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 class SentryViewHierarchyProviderTests: XCTestCase {
     private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
     private static let viewHierarchyMaxDepth = 90
@@ -10,9 +15,16 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
     private class Fixture {
         let uiApplication = TestSentryUIApplication()
+        let applicationDelegate = TestApplicationDelegate()
 
         var sut: SentryViewHierarchyProvider {
             return SentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.uiApplication })
+        }
+
+        func setCrashTimeWindow(_ window: UIWindow) {
+            applicationDelegate.window = window
+            uiApplication.appDelegate = applicationDelegate
+            uiApplication.windows = [window]
         }
     }
 
@@ -293,7 +305,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
         self.fixture.sut.saveViewHierarchy(path)
@@ -303,11 +315,27 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
     
+    func test_ViewHierarchy_memoryAndFileSerializersHaveParity() throws {
+        let window = makeWindow(frame: CGRect(x: 1.25, y: -2.5, width: 20.75, height: 30))
+        window.accessibilityIdentifier = "quoted \" identifier \\ newline\n😀"
+        fixture.setCrashTimeWindow(window)
+
+        let memoryData = try XCTUnwrap(fixture.sut.appViewHierarchy())
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .path
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(atPath: path)) }
+
+        XCTAssertTrue(fixture.sut.saveViewHierarchy(path))
+        XCTAssertEqual(try Data(contentsOf: URL(fileURLWithPath: path)), memoryData)
+        XCTAssertNoThrow(try JSONSerialization.jsonObject(with: memoryData))
+    }
+
     func test_ViewHierarchy_save_noIdentifier() throws {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
         let sut = self.fixture.sut
@@ -323,29 +351,105 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         XCTAssertFalse(self.fixture.sut.saveViewHierarchy(""))
     }
 
-    // Note: This test was removed because it relied on TestSentryViewHierarchyProviderHelper
-    // which attempted to override a private method (viewHierarchyFromView:intoContext:reportAccessibilityIdentifier:)
-    // that is not exposed in the public API. The error handling path exists in
-    // SentryViewHierarchyProviderHelper.m and is correct, but cannot be reliably tested
-    // without exposing internal implementation details.
-    func test_invalidSerialization() {
-        // This test verifies error handling when view hierarchy serialization fails.
-        // The error handling code path exists in SentryViewHierarchyProviderHelper.m
-        // and correctly handles serialization errors by returning nil from appViewHierarchy.
-        // However, we cannot reliably trigger this error condition in tests without
-        // exposing private implementation details or using function interposition,
-        // which is not reliable for statically linked code.
+#if SDK_V10
+    func testSaveViewHierarchy_whenOnlyGetWindowsHookIsSet_shouldNotUseIt() throws {
+        // -- Arrange --
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
+        fixture.uiApplication.windows = [window]
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(atPath: path)) }
 
-        // Test that valid serialization works (inverse test)
-        let result = SentryViewHierarchyProviderHelper.appViewHierarchy(from: [window], reportAccessibilityIdentifier: false)
-        XCTAssertNotNil(result, "Valid view hierarchy should serialize successfully")
+        // -- Act --
+        XCTAssertTrue(fixture.sut.saveViewHierarchy(path))
+
+        // -- Assert --
+        XCTAssertEqual(
+            try String(contentsOfFile: path),
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[]}"
+        )
+    }
+
+    func testSaveViewHierarchy_whenMainThreadBlocked_shouldWriteHierarchyFromCurrentThread() throws {
+        // -- Arrange --
+        XCTAssertTrue(Thread.isMainThread)
+
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
+        fixture.applicationDelegate.window = window
+        fixture.uiApplication.appDelegate = fixture.applicationDelegate
+
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("view-\(UUID().uuidString).json").path
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(atPath: path)) }
+        let sut = fixture.sut
+
+        final class SaveState: @unchecked Sendable {
+            let condition = NSCondition()
+            var mainIsWaiting = false
+            var saveDone = false
+            var saved = false
+        }
+        let state = SaveState()
+
+        // -- Act --
+        DispatchQueue.global(qos: .userInitiated).async {
+            state.condition.lock()
+            while !state.mainIsWaiting {
+                state.condition.wait()
+            }
+            state.condition.unlock()
+
+            let result = sut.saveViewHierarchy(path)
+
+            state.condition.lock()
+            state.saved = result
+            state.saveDone = true
+            state.condition.broadcast()
+            state.condition.unlock()
+        }
+
+        let deadline = Date().addingTimeInterval(1)
+        state.condition.lock()
+        state.mainIsWaiting = true
+        state.condition.broadcast()
+        while !state.saveDone {
+            if !state.condition.wait(until: deadline) {
+                state.condition.unlock()
+                XCTFail("saveViewHierarchy timed out while the main thread was blocked")
+                return
+            }
+        }
+        let didSave = state.saved
+        state.condition.unlock()
+
+        // -- Assert --
+        XCTAssertTrue(didSave)
+        let object = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: try Data(contentsOf: URL(fileURLWithPath: path))) as? [String: Any]
+        )
+        XCTAssertEqual(object["rendering_system"] as? String, "UIKIT")
+        let windows = try XCTUnwrap(object["windows"] as? [[String: Any]])
+        XCTAssertEqual(windows.count, 1)
+        XCTAssertEqual(windows.first?["identifier"] as? String, "WindowId")
+    }
+#endif // SDK_V10
+
+    func test_invalidSerializationReturnsNil() {
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        // Match the legacy serializer contract: unescaped JSON control characters other than the
+        // standard short escapes are rejected.
+        window.accessibilityIdentifier = "invalid\u{0001}identifier"
+
+        XCTAssertNil(SentryViewHierarchyProviderHelper.appViewHierarchy(
+            from: [window],
+            reportAccessibilityIdentifier: true
+        ))
     }
 
     func test_appViewHierarchyFromBackgroundTest() {

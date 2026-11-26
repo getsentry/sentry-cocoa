@@ -3,22 +3,27 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
+#import "SentryDeprecated+Private.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLevel.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
+#if SDK_V10
+#    import "SentryTransaction+Private.h"
+#endif // SDK_V10
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
+static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
 
 @interface SentryScope ()
 
@@ -26,6 +31,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 @property (atomic) NSUInteger currentBreadcrumbIndex;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
+
+/**
+ * Attachments the SDK captured at crash time, such as screenshots and the view hierarchy. These are
+ * kept apart from user attachments because fatal events must only carry attachments that belong to
+ * the crashed app run.
+ */
+@property (atomic, strong) NSMutableArray<SentryAttachment *> *crashReportAttachmentArray;
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
 
@@ -40,6 +52,8 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     NSObject *_observersLock;
     NSObject *_propagationContextLock;
     SentryFeatureFlagBufferWrapper *_featureFlagBuffer;
+    BOOL _userWasSet;
+    void (^_userPersistenceCallback)(SentryUser *_Nullable);
 }
 
 @synthesize span = _span;
@@ -57,6 +71,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         self.extraDictionary = [[NSMutableDictionary alloc] init];
         self.contextDictionary = [[NSMutableDictionary alloc] init];
         self.attachmentArray = [[NSMutableArray alloc] init];
+        self.crashReportAttachmentArray = [[NSMutableArray alloc] init];
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
         _featureFlagBuffer = [SentryFeatureFlagBufferWrapper scopeBuffer];
@@ -69,9 +84,19 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     return self;
 }
 
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+                       maxFeatureFlags:(NSInteger)maxFeatureFlags
+{
+    if (self = [self initWithMaxBreadcrumbs:maxBreadcrumbs]) {
+        _featureFlagBuffer =
+            [SentryFeatureFlagBufferWrapper scopeBufferWithMaxSize:MAX(0, maxFeatureFlags)];
+    }
+    return self;
+}
+
 - (instancetype)init
 {
-    return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
+    return [self initWithMaxBreadcrumbs:kSentryScopeDefaultMaxBreadcrumbs];
 }
 
 - (SentryFeatureFlagBufferWrapper *)featureFlagBuffer
@@ -94,11 +119,15 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
+        [_crashReportAttachmentArray addObjectsFromArray:[scope crashReportAttachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
-        self.userObject = scope.userObject.copy;
+        @synchronized(scope) {
+            self.userObject = scope.userObject.copy;
+            _userWasSet = scope->_userWasSet;
+        }
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
@@ -237,7 +266,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_attributesDictionary removeAllObjects];
     }
 
-    self.userObject = nil;
+    @synchronized(self) {
+        self.userObject = nil;
+        _userWasSet = YES;
+        if (_userPersistenceCallback != nil) {
+            _userPersistenceCallback(nil);
+        }
+    }
     self.distString = nil;
     self.environmentString = nil;
     self.levelEnum = kSentryLevelNone;
@@ -405,9 +440,32 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(self) {
         self.userObject = user;
+        _userWasSet = YES;
+        if (_userPersistenceCallback != nil) {
+            _userPersistenceCallback(user.copy);
+        }
 
         for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setUser:user];
+        }
+    }
+}
+
+- (void)configureUserPersistence:(void (^_Nullable)(SentryUser *_Nullable))callback
+{
+    @synchronized(self) {
+        _userPersistenceCallback = [callback copy];
+        if (callback != nil && _userWasSet) {
+            callback(self.userObject.copy);
+        }
+    }
+}
+
+- (void)restorePersistedUser:(SentryUser *)user
+{
+    @synchronized(self) {
+        if (_userPersistenceCallback != nil && !_userWasSet) {
+            [self setUser:user];
         }
     }
 }
@@ -487,14 +545,17 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (void)addCrashReportAttachmentInPath:(NSString *)filePath
 {
+    SentryAttachment *attachment;
     if ([filePath.lastPathComponent isEqualToString:@"view-hierarchy.json"]) {
-        [self addAttachment:[[SentryAttachment alloc]
-                                  initWithPath:filePath
-                                      filename:@"view-hierarchy.json"
-                                   contentType:@"application/json"
-                                attachmentType:kSentryAttachmentTypeViewHierarchy]];
+        attachment = [[SentryAttachment alloc] initWithPath:filePath
+                                                   filename:@"view-hierarchy.json"
+                                                contentType:@"application/json"
+                                             attachmentType:kSentryAttachmentTypeViewHierarchy];
     } else {
-        [self addAttachment:[[SentryAttachment alloc] initWithPath:filePath]];
+        attachment = [[SentryAttachment alloc] initWithPath:filePath];
+    }
+    @synchronized(_crashReportAttachmentArray) {
+        [_crashReportAttachmentArray addObject:attachment];
     }
 }
 
@@ -509,6 +570,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(_attachmentArray) {
         return _attachmentArray.copy;
+    }
+}
+
+- (NSArray<SentryAttachment *> *)crashReportAttachments
+{
+    @synchronized(_crashReportAttachmentArray) {
+        return _crashReportAttachmentArray.copy;
     }
 }
 
@@ -582,7 +650,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
-        [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
+        [serializedData setValue:[SentryLevelHelper nameForLevel:level] forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {
@@ -688,22 +756,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         event.level = level;
     }
 
-    id<SentrySpan> span;
-
-    if (self.span != nil) {
-        @synchronized(_spanLock) {
-            span = self.span;
-        }
-
-        // Span could be nil as we do the first check outside the synchronize
-        if (span != nil) {
-            if (![event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
-                [span isKindOfClass:[SentryTracer class]]) {
-                event.transaction = [[(SentryTracer *)span transactionContext] name];
-            }
-        }
-    }
-
     NSMutableDictionary *newContext = [self context].mutableCopy;
     BOOL isRegularEvent
         = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
@@ -718,10 +770,130 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
                                       intoDictionary:newContext];
     }
 
-    newContext[@"trace"] = [self buildTraceContext:span];
-
     event.context = newContext;
+    // The span getter acquires _spanLock, so this read needs no outer lock.
+    [self applySpan:self.span toEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
     return event;
+}
+
+- (void)overlayOnEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+{
+    if (!event) {
+        return;
+    }
+
+    NSDictionary<NSString *, NSString *> *overlayTags = [self tags];
+    if (overlayTags.count > 0) {
+        NSMutableDictionary *mergedTags =
+            [NSMutableDictionary dictionaryWithDictionary:event.tags ?: @{ }];
+        [mergedTags addEntriesFromDictionary:overlayTags];
+        event.tags = mergedTags;
+    }
+
+    NSDictionary<NSString *, id> *overlayExtras = [self extras];
+    if (overlayExtras.count > 0) {
+        NSMutableDictionary *mergedExtras =
+            [NSMutableDictionary dictionaryWithDictionary:event.extra ?: @{ }];
+        [mergedExtras addEntriesFromDictionary:overlayExtras];
+        event.extra = mergedExtras;
+    }
+
+    SentryUser *overlayUser = self.userObject.copy;
+    if (overlayUser != nil) {
+        event.user = overlayUser;
+    }
+
+    NSArray *overlayFingerprint = [self fingerprints];
+    if (overlayFingerprint.count > 0) {
+        event.fingerprint = [overlayFingerprint copy];
+    }
+
+    NSArray<SentryBreadcrumb *> *overlayBreadcrumbs = [self breadcrumbs];
+    if (overlayBreadcrumbs.count > 0) {
+        NSMutableArray *mergedBreadcrumbs =
+            [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
+        for (SentryBreadcrumb *crumb in overlayBreadcrumbs) {
+            if ([mergedBreadcrumbs indexOfObjectIdenticalTo:crumb] == NSNotFound) {
+                [mergedBreadcrumbs addObject:crumb];
+            }
+        }
+        if (mergedBreadcrumbs.count > maxBreadcrumbs) {
+            NSRange keepRange
+                = NSMakeRange(mergedBreadcrumbs.count - maxBreadcrumbs, maxBreadcrumbs);
+            event.breadcrumbs = [mergedBreadcrumbs subarrayWithRange:keepRange];
+        } else {
+            event.breadcrumbs = mergedBreadcrumbs;
+        }
+    }
+
+    NSString *overlayDist = self.distString;
+    if (overlayDist != nil) {
+        event.dist = overlayDist;
+    }
+
+    NSString *overlayEnvironment = self.environmentString;
+    if (overlayEnvironment != nil) {
+        event.environment = overlayEnvironment;
+    }
+
+    SentryLevel overlayLevel = self.levelEnum;
+    if (overlayLevel != kSentryLevelNone) {
+        event.level = overlayLevel;
+    }
+
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *overlayContext = [self context];
+    if (overlayContext.count > 0) {
+        NSMutableDictionary *mergedContext =
+            [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+        [SentryDictionary mergeEntriesFromDictionary:overlayContext intoDictionary:mergedContext];
+
+        BOOL isRegularEvent
+            = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
+        if (!isRegularEvent) {
+            [mergedContext removeObjectForKey:@"flags"];
+        }
+
+        event.context = mergedContext;
+    }
+
+    id<SentrySpan> span = self.span;
+    if (span != nil && !event.isFatalEvent
+        && ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        [self applySpan:span toEvent:event];
+    }
+}
+
+- (void)applySpan:(nullable id<SentrySpan>)span toEvent:(SentryEvent *)event
+{
+    NSMutableDictionary *context =
+        [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+    NSString *previousTraceId = context[@"trace"][@"trace_id"];
+#if SDK_V10
+    if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
+        [event isKindOfClass:[SentryTransaction class]]) {
+        // Transaction capture is asynchronous, so the scope may no longer hold its tracer.
+        // Use the same trace as transaction serialization, including in before-send callbacks.
+        context[@"trace"] = [((SentryTransaction *)event).trace serialize];
+    } else {
+        context[@"trace"] = [self buildTraceContext:span];
+    }
+#else
+    context[@"trace"] = [self buildTraceContext:span];
+#endif // SDK_V10
+    event.context = context;
+
+    if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        return;
+    }
+
+    SentryTracer *tracer = [SentryTracer getTracer:span];
+    if (tracer != nil) {
+        event.transaction = tracer.transactionContext.name;
+    } else if (span != nil && previousTraceId != nil
+        && ![previousTraceId isEqual:context[@"trace"][@"trace_id"]]) {
+        // A name from another trace must not survive when the new span has no tracer.
+        event.transaction = nil;
+    }
 }
 
 - (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
@@ -755,6 +927,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         @synchronized(_observersLock) {
             [self.observers addObject:observer];
         }
+    }
+}
+
+- (void)performWithBreadcrumbsLocked:(void(NS_NOESCAPE ^)(void))block
+{
+    @synchronized(_breadcrumbArray) {
+        block();
     }
 }
 
@@ -811,8 +990,14 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
+#if SDK_V10
+    // Public spans no longer require the SDK's internal serialization contract.
+    if ([span conformsToProtocol:@protocol(SentryInternalSerializable)]) {
+#else
     if (span != nil) {
-        NSDictionary *dict = [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
+#endif
+        NSDictionary *dict = [(id<SentryInternalSerializable>)SENTRY_UNWRAP_NULLABLE_VALUE(
+            id<SentrySpan>, span) serialize];
         if (dict[kSentryScopeSpanStatusSerializationKey] != nil) {
             return dict;
         }
@@ -824,7 +1009,8 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         // to any state other than undefined. Spans first have a default status of OK, but we don't
         // want to change this for the trace context status.
         NSMutableDictionary *mutableDict = [dict mutableCopy];
-        mutableDict[kSentryScopeSpanStatusSerializationKey] = kSentrySpanStatusNameOk;
+        mutableDict[kSentryScopeSpanStatusSerializationKey]
+            = sentry_spanStatusName(kSentrySpanStatusOk);
         return mutableDict;
 
     } else {
@@ -835,6 +1021,11 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 - (SentryId *)propagationContextTraceId
 {
     return self.propagationContext.traceId;
+}
+
+- (SentryTraceHeader *)propagationContextTraceHeader
+{
+    return self.propagationContext.traceHeader;
 }
 
 @end

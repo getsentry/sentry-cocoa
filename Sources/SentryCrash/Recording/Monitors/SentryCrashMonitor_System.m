@@ -25,27 +25,29 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashMonitor_System.h"
+#if !SDK_V10
 
-#import "SentryCrashCPU.h"
-#import "SentryCrashDate.h"
-#import "SentryCrashDynamicLinker.h"
-#import "SentryCrashMonitorContext.h"
-#import "SentryCrashSysCtl.h"
-#import "SentryInternalCDefines.h"
+#    import "SentryCrashMonitor_System.h"
 
-#import "SentryLogC.h"
+#    import "SentryCrashCPU.h"
+#    import "SentryCrashDate.h"
+#    import "SentryCrashDynamicLinker.h"
+#    import "SentryCrashMonitorContext.h"
+#    import "SentryCrashSysCtl.h"
+#    import "SentryInternalCDefines.h"
 
-#import "SentryDefines.h"
-#import "SentrySwift.h"
+#    import "SentryLogC.h"
 
-#import <CommonCrypto/CommonDigest.h>
-#include <mach-o/dyld.h>
-#include <mach/mach.h>
+#    import "SentryDefines.h"
+#    import "SentrySwift.h"
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif // SENTRY_HAS_UIKIT
+#    import <CommonCrypto/CommonDigest.h>
+#    include <mach-o/dyld.h>
+#    include <mach/mach.h>
+
+#    if SENTRY_HAS_UIKIT
+#        import <UIKit/UIKit.h>
+#    endif // SENTRY_HAS_UIKIT
 
 typedef struct {
     const char *systemName;
@@ -80,7 +82,7 @@ static SystemData g_systemData;
 static volatile bool g_isEnabled = false;
 
 // ============================================================================
-#pragma mark - Utility -
+#    pragma mark - Utility -
 // ============================================================================
 
 static const char *
@@ -292,10 +294,10 @@ getCPUArchForCPUType(cpu_type_t cpuType, cpu_subtype_t subType)
             return "armv7f";
         case CPU_SUBTYPE_ARM_V7K:
             return "armv7k";
-#ifdef CPU_SUBTYPE_ARM_V7S
+#    ifdef CPU_SUBTYPE_ARM_V7S
         case CPU_SUBTYPE_ARM_V7S:
             return "armv7s";
-#endif
+#    endif
         }
         break;
     }
@@ -340,11 +342,11 @@ isJailbroken(void)
 static bool
 isDebugBuild(void)
 {
-#ifdef DEBUG
+#    ifdef DEBUG
     return YES;
-#else
+#    else
     return NO;
-#endif
+#    endif
 }
 
 /** Check if this code is built for the simulator.
@@ -354,11 +356,11 @@ isDebugBuild(void)
 static bool
 isSimulatorBuild(void)
 {
-#if TARGET_OS_SIMULATOR
+#    if TARGET_OS_SIMULATOR
     return YES;
-#else
+#    else
     return NO;
-#endif
+#    endif
 }
 
 bool
@@ -374,9 +376,9 @@ sentrycrash_isSimulatorBuild(void)
 static NSString *
 getReceiptUrlPath(void)
 {
-#if SENTRY_HOST_IOS
+#    if SENTRY_HOST_IOS
     return [NSBundle mainBundle].appStoreReceiptURL.path;
-#endif
+#    endif
     return nil;
 }
 
@@ -391,13 +393,13 @@ getDeviceAndAppHash(void)
 {
     NSMutableData *data = nil;
 
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     UIDevice *currentDevice = [UIDevice currentDevice];
     if ([currentDevice respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
         [currentDevice.identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
     {
         data = [NSMutableData dataWithLength:6];
         sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);
@@ -493,7 +495,7 @@ getBuildType(void)
 }
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 static void
@@ -509,19 +511,19 @@ initialize(void)
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSDictionary *infoDict = [mainBundle infoDictionary];
 
-#if SENTRY_HOST_IOS
+#    if SENTRY_HOST_IOS
     g_systemData.systemName = "iOS";
-#elif SENTRY_HOST_TV
+#    elif SENTRY_HOST_TV
     g_systemData.systemName = "tvOS";
-#elif SENTRY_HOST_MAC
+#    elif SENTRY_HOST_MAC
     g_systemData.systemName = "macOS";
-#elif SENTRY_HOST_WATCH
+#    elif SENTRY_HOST_WATCH
     g_systemData.systemName = "watchOS";
-#elif SENTRY_HOST_VISION
+#    elif SENTRY_HOST_VISION
     g_systemData.systemName = "visionOS";
-#else
+#    else
     g_systemData.systemName = "unknown";
-#endif
+#    endif
 
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
     NSString *systemVersion;
@@ -540,13 +542,13 @@ initialize(void)
         g_systemData.model = "simulator";
     } else {
         // TODO: combine this into SentryDevice?
-#if SENTRY_HOST_MAC
+#    if SENTRY_HOST_MAC
         // MacOS has the machine in the model field, and no model
         g_systemData.machine = stringSysctl("hw.model");
-#else
+#    else
         g_systemData.machine = stringSysctl("hw.machine");
         g_systemData.model = stringSysctl("hw.model");
-#endif
+#    endif
     }
 
     g_systemData.kernelVersion = stringSysctl("kern.version");
@@ -593,7 +595,7 @@ static void
 addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 {
     if (g_isEnabled) {
-#define COPY_REFERENCE(NAME) eventContext->System.NAME = g_systemData.NAME
+#    define COPY_REFERENCE(NAME) eventContext->System.NAME = g_systemData.NAME
         COPY_REFERENCE(systemName);
         COPY_REFERENCE(systemVersion);
         COPY_REFERENCE(machine);
@@ -632,3 +634,5 @@ sentrycrashcm_system_getAPI(void)
         .addContextualInfoToEvent = addContextualInfoToEvent };
     return &api;
 }
+
+#endif // !SDK_V10

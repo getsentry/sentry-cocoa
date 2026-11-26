@@ -1,4 +1,10 @@
-import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryTraceContextTests: XCTestCase {
@@ -26,7 +32,9 @@ class SentryTraceContextTests: XCTestCase {
             options.dsn = SentryTraceContextTests.dsnAsString
             options.releaseName = releaseName
             options.environment = environment
+#if !SDK_V10
             options.sendDefaultPii = true
+#endif // !SDK_V10
             
             tracer = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil), hub: nil)
 
@@ -48,6 +56,7 @@ class SentryTraceContextTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     

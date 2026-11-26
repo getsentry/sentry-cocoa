@@ -2,6 +2,7 @@
 #    import <zlib.h>
 #endif
 
+#import "SentryDeprecated+Private.h"
 #import "SentryError.h"
 #import "SentryInternalDefines.h"
 #import "SentryNSDataUtils.h"
@@ -35,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
         &stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
     if (err != Z_OK) {
         if (error) {
-            *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");
+            *error
+                = sentry_errorWithDescription(kSentryErrorCompressionError, @"deflateInit2 error");
         }
         return nil;
     }

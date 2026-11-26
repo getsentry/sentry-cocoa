@@ -1,4 +1,12 @@
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @testable import Sentry
+#endif
 import XCTest
 
 final class SentryDictionaryDecoderTests: XCTestCase {
@@ -254,48 +262,5 @@ final class SentryDictionaryDecoderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result, ["one", "three"])
-    }
-}
-
-@objc(SentryDictionaryDecoderObjCHelper)
-final class SentryDictionaryDecoderObjCHelper: NSObject {
-    @objc(boolWithDictionary:key:)
-    static func bool(_ dictionary: NSDictionary, key: String) -> NSNumber? {
-        guard let result = SentryDictionaryDecoder.bool(swiftDictionary(dictionary), key) else {
-            return nil
-        }
-        return NSNumber(value: result)
-    }
-
-    @objc static func isBool(_ number: NSNumber) -> Bool {
-        SentryDictionaryDecoder.isBool(number)
-    }
-
-    @objc(uintWithDictionary:key:)
-    static func uint(_ dictionary: NSDictionary, key: String) -> NSNumber? {
-        guard let result = SentryDictionaryDecoder.uint(swiftDictionary(dictionary), key) else {
-            return nil
-        }
-        return NSNumber(value: result)
-    }
-
-    @objc(dictionaryWithDictionary:key:)
-    static func dictionary(_ dictionary: NSDictionary, key: String) -> NSDictionary? {
-        guard let result = SentryDictionaryDecoder.dictionary(swiftDictionary(dictionary), key) else {
-            return nil
-        }
-        return result as NSDictionary
-    }
-
-    @objc(stringsWithDictionary:key:)
-    static func strings(_ dictionary: NSDictionary, key: String) -> NSArray? {
-        guard let result = SentryDictionaryDecoder.strings(swiftDictionary(dictionary), key) else {
-            return nil
-        }
-        return result as NSArray
-    }
-
-    private static func swiftDictionary(_ dictionary: NSDictionary) -> [String: Any] {
-        dictionary as? [String: Any] ?? [:]
     }
 }

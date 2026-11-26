@@ -1,7 +1,17 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import Foundation
 
 class TestSysctl: SentrySysctl {
+
+    var internalIsBeingTraced = false
+
+    override var isBeingTraced: Bool {
+        internalIsBeingTraced
+    }
     
     private var internalSystemBootTimestamp: Date = Date(timeIntervalSinceReferenceDate: 0)
     

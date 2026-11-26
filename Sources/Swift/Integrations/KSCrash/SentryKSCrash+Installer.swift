@@ -1,6 +1,7 @@
-#if ENABLE_KSCRASH
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
+#if SDK_V10
+internal import _SentryPrivate
+internal import KSCrashRecording
+import Foundation
 
 extension SentryKSCrash {
     protocol Installing {
@@ -10,16 +11,25 @@ extension SentryKSCrash {
         ///   - monitors: Monitor types to enable.
         ///   - enableMemoryIntrospection: Whether to introspect memory contents during a crash.
         ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
+        ///   - enableSwiftAsyncStackTraces: Whether to stitch Swift async frames into current-thread captures.
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws
 
         /// Uninstall the crash handler for the current SDK lifecycle.
         func uninstall()
+
+        /// Processes all reports recorded during previous runs.
+        func sendAllReports(
+            reportProcessor: SentryStoredCrashReportProcessor,
+            dispatchQueue: SentryDispatchQueueWrapper,
+            processingSession: ReportProcessingSession
+        )
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
@@ -29,41 +39,234 @@ extension SentryKSCrash {
         /// Tracked separately from KSCrash's process-lifetime `reportStore`, which stays
         /// non-nil after `SentrySDK.close()`.
         var installed: Bool { get }
+
+        /// Total active time elapsed since the previous crash.
+        var activeDurationSinceLastCrash: TimeInterval { get }
+
+        /// Adds additional user information to the crash handler
+        func setUserInfo(_ userInfo: [String: Any])
+
+        /// Registers the crash-time screenshot writer on the attachments monitor.
+        /// Pass `nil` to disable screenshot capture.
+        func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?)
+
+        /// Registers the crash-time view-hierarchy writer on the attachments monitor.
+        /// Pass `nil` to disable view-hierarchy capture.
+        func setViewHierarchyProvider(_ provider: SentryKSCrashAttachmentsViewHierarchyWriter?)
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        /// The fatal NSException handler installed by the active crash backend.
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? { get }
+        #endif
     }
 
     /// Configures and installs a crash handler.
     final class Installer: SentryKSCrash.Installing {
         private(set) var installed = false
+        private var installPath: URL?
+        private let startupCrashFlush: SentryStartupCrashFlush
 
-        func install(
-            installPath: String,
-            monitors: UInt,
-            enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
-        ) throws {
-            let config = KSCrashConfiguration()
-            config.installPath = installPath
-            config.monitors = MonitorType(rawValue: monitors)
-            config.enableMemoryIntrospection = enableMemoryIntrospection
-            config.enableSwapCxaThrow = enableSwapCxaThrow
+        init(startupCrashFlush: SentryStartupCrashFlush) {
+            self.startupCrashFlush = startupCrashFlush
+        }
+
+        /// KSCrash copies plugins only on the first process-lifetime install, so this monitor
+        /// must outlive any single SDK lifecycle.
+        private static let attachmentsMonitor = SentryKSCrash.AttachmentsMonitor()
+
+        /// Replaces KSCrash's built-in Signal monitor so the constructor-installed handler stays
+        /// below Mono/.NET for the entire process lifetime.
+        private final class ManagedSignalMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
+            let api = sentrykscrash_managedSignal_getAPI()
+        }
+        private static let managedSignalMonitor = ManagedSignalMonitor()
+
+        static func configuredMonitors(
+            _ monitors: MonitorType,
+            managedRuntimeBuild: Bool
+        ) -> MonitorType {
+            guard managedRuntimeBuild else { return monitors }
+            // The plugin replaces Signal, while Mach must be disabled so the managed runtime
+            // receives faults before native crash capture.
+            return monitors.subtracting([.machException, .signal])
+        }
+
+        static func installCrashHandler(_ operation: () throws -> Void) throws {
+            // KSCrash activates monitors before install returns. Enable persistence first so a
+            // crash _during_ installation is not suppressed by the SDK lifecycle callback.
+            sentrykscrash_setReportPersistenceEnabled(true)
             do {
-                try KSCrash.shared.install(with: config)
+                try operation()
             } catch let error as NSError
                         where error.domain == "KSCrashErrorDomain" && error.code == 1 /* KSCrashInstallErrorAlreadyInstalled */ {
                 // KSCrash holds a process-lifetime C flag, so install() fails on every
-                // subsequent call within the same process (common during tests and SDK re-init).
-                // The crash handler is already running — treat this as success.
+                // subsequent call within the same process (usually tests and SDK re-init).
+                // The crash handler is already running, so we treat this as success.
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
+            } catch {
+                sentrykscrash_setReportPersistenceEnabled(false)
+                throw error
             }
+        }
+
+        func install(
+            installPath: String,
+            monitors: MonitorType,
+            enableMemoryIntrospection: Bool,
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
+        ) throws {
+            let config = KSCrashConfiguration()
+            config.installPath = installPath
+            let managedRuntimeBuild = sentrykscrash_isManagedRuntimeBuild()
+            config.monitors = Self.configuredMonitors(
+                monitors,
+                managedRuntimeBuild: managedRuntimeBuild
+            )
+            config.enableMemoryIntrospection = enableMemoryIntrospection
+            config.enableSwapCxaThrow = enableSwapCxaThrow
+            config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
+            config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
+            config.plugins = managedRuntimeBuild
+                ? [Self.attachmentsMonitor, Self.managedSignalMonitor]
+                : [Self.attachmentsMonitor]
+
+            config.willWriteReportCallback = sentrykscrash_willWriteReport
+            config.isWritingReportCallback = sentrykscrash_isWritingReport
+            config.didWriteReportCallback = sentrykscrash_didWriteReport
+
+            sentryThreadInspectionWillInstallCrashHandler()
+            var inspectionInstallationSucceeded = false
+            defer { sentryThreadInspectionDidInstallCrashHandler(inspectionInstallationSucceeded) }
+            try Self.installCrashHandler {
+                try KSCrash.shared.install(with: config)
+            }
+            self.installPath = URL(fileURLWithPath: installPath, isDirectory: true)
+            inspectionInstallationSucceeded = true
             installed = true
+            #if SENTRY_CRASH_E2E
+            SentryKSCrash.CrashE2ETestHook.installSyntheticAttachmentProviders()
+            SentryKSCrash.CrashE2ETestHook.installReplayCheckpointIfNeeded()
+            SentryKSCrash.CrashE2ETestHook.installFailingAttachmentProviderIfNeeded()
+            #endif
         }
 
         func uninstall() {
-            // KSCrash itself cannot be uninstalled in-process (process-lifetime).
+            guard installed else { return }
+            sentrykscrash_setReportPersistenceEnabled(false)
             installed = false
         }
 
+        func sendAllReports(
+            reportProcessor: SentryStoredCrashReportProcessor,
+            dispatchQueue: SentryDispatchQueueWrapper,
+            processingSession: ReportProcessingSession
+        ) {
+            guard let reportStore = KSCrash.shared.reportStore else {
+                SentrySDKLog.error("KSCrash report store is unavailable; retaining crash reports.")
+                return
+            }
+
+            reportStore.sink = SentryKSCrash.ReportFilter(
+                reportProcessor: reportProcessor,
+                dispatchQueue: dispatchQueue,
+                processingSession: processingSession
+            )
+            reportStore.reportCleanupPolicy = .onSuccess
+
+            // Delivery policy:
+            // - KSCrash applies .onSuccess cleanup to an entire send invocation.
+            // - ReportFilterCore returns nil errors for captured or permanently invalid reports,
+            //   allowing KSCrash to delete them.
+            // - ReportFilterCore returns retryable errors for reports that must remain on disk.
+            // Send one report per invocation so those decisions never retain an already captured
+            // report, then continue with the remaining report IDs regardless of each result while
+            // this integration's processing session remains active.
+            let installPath = self.installPath
+            let startupCrashFlush = self.startupCrashFlush
+            let reportStoreSender = SentryKSCrash.ReportStoreSender(
+                sendReport: { reportID, onCompletion in
+                    reportStore.sendReport(
+                        withID: reportID,
+                        includeCurrentRun: false
+                    ) { filteredReports, error in
+                        onCompletion(filteredReports?.count ?? 0, error)
+                    }
+                },
+                cleanupOrphanedSidecars: {
+                    reportStore.cleanupOrphanedRunSidecars()
+                    // KSCrash deletes reports and `.ksscr` markers, not Sentry-owned payload
+                    // dirs. Remaining report IDs still need their attachments for a later retry.
+                    if let installPath {
+                        SentryKSCrash.AttachmentsMonitor.Layout.removeOrphanedPayloadDirectories(
+                            at: installPath,
+                            keeping: Set(reportStore.reportIDs.map { $0.int64Value })
+                        )
+                    }
+                    #if SENTRY_CRASH_E2E
+                    SentryKSCrash.CrashE2ETestHook.markReportProcessingComplete()
+                    #endif
+                },
+                processingSession: processingSession
+            )
+            reportStoreSender.sendAllReports(
+                reportStore.reportIDs.map { $0.int64Value },
+                // Process startup crashes before regular reports can move delivery off-thread.
+                prioritizing: { reportID in
+                    guard let report = reportStore.report(for: reportID) else {
+                        return false
+                    }
+                    return SentryKSCrash.ReportFilterCore.isStartupCrash(report.value)
+                },
+                // Flush the completed startup phase once before regular delivery begins.
+                onPrioritizedReportsCompleted: {
+                    startupCrashFlush.flushAfterReplayRecoveryIdle()
+                }
+            )
+        }
+
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
+        var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? {
+            KSCrash.shared.uncaughtExceptionHandler
+        }
+        #endif
+
+        func setUserInfo(_ userInfo: [String: Any]) {
+            guard installed else {
+                SentrySDKLog.debug("KSCrash must be installed before calling setUserInfo(_:)")
+                return
+            }
+
+            for (key, value) in userInfo {
+                switch value {
+                case let value as String:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Int:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as UInt:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Double:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Bool:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Date:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                default:
+                    SentrySDKLog.debug("Dropping '\(key): \(value) as it's not a supported type")
+                }
+            }
+        }
+
+        func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?) {
+            Self.attachmentsMonitor.setScreenshotWriter(provider)
+        }
+
+        func setViewHierarchyProvider(_ provider: SentryKSCrashAttachmentsViewHierarchyWriter?) {
+            Self.attachmentsMonitor.setViewHierarchyWriter(provider)
+        }
     }
 }
 #endif

@@ -1,7 +1,6 @@
 #import "SentryCrashReportConverter.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
-#import "SentryCrashStackCursor.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
@@ -17,9 +16,15 @@
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
+#import <stdint.h>
 
 static NSString *const SentryCrashReportConverterErrorDomain
     = @"io.sentry.SentryCrashReportConverter";
+// Sentry SDKs before May 2023 could persist this sentinel between chained async stacks.
+static const uintptr_t SentryLegacyAsyncStackTraceMarker = UINTPTR_MAX - 1234;
+// Relay currently truncates exception values to 8192 characters and discards events
+// over 1MiB. 512 gives us enough characters to identify without too much bloat.
+const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 
 @interface SentryCrashReportConverter ()
 
@@ -53,8 +58,14 @@ static NSString *const SentryCrashReportConverterErrorDomain
         // Now sentry_sdk_scope contains scope data. To be backwards compatible, to still support
         // data from userInfo, and to not have to do many changes in here we merge both dictionaries
         // here. For more details please check out SentryCrashScopeObserver.
+        // V9 writes sentry_sdk_scope at the report root. KSCrash can only write it inside the
+        // already-open user object. Lift both locations so converted events match.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
+        NSDictionary *nestedScope = userContextUnMerged[@"sentry_sdk_scope"];
+        if ([nestedScope isKindOfClass:NSDictionary.class]) {
+            [userContextMerged addEntriesFromDictionary:nestedScope];
+        }
         [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{ }];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
@@ -341,7 +352,7 @@ static NSString *const SentryCrashReportConverterErrorDomain
         NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
         uintptr_t instructionAddress
             = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
-        if (instructionAddress == SentryCrashSC_ASYNC_MARKER) {
+        if (instructionAddress == SentryLegacyAsyncStackTraceMarker) {
             if (lastFrame != nil) {
                 lastFrame.stackStart = @(YES);
             }
@@ -507,10 +518,23 @@ static NSString *const SentryCrashReportConverterErrorDomain
     NSString *exceptionValue = exception.value;
     if (nil != self.diagnosis && self.diagnosis.length > 0 && exceptionValue != nil
         && ![self.diagnosis containsString:exceptionValue]) {
-        exception.value = [exceptionValue
+        exceptionValue = [exceptionValue
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
+    exception.value = [self truncatedExceptionValue:exceptionValue];
     return @[ exception ];
+}
+
+- (NSString *)truncatedExceptionValue:(NSString *)value
+{
+    if (value == nil || value.length <= SentryMaxCrashExceptionValueLength) {
+        return value;
+    }
+
+    NSRange range =
+        [value rangeOfComposedCharacterSequencesForRange:NSMakeRange(0,
+                                                             SentryMaxCrashExceptionValueLength)];
+    return [value substringWithRange:range];
 }
 
 - (void)addNSExceptionUserInfoToContext:(NSMutableDictionary *)context
@@ -705,9 +729,17 @@ static NSString *const SentryCrashReportConverterErrorDomain
 - (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type
 {
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:type];
-    if (nil != self.exceptionContext[@"mach"]) {
-        mechanism.handled = @(NO);
 
+    // SentryCrash only writes a report from a fatal monitor, so nothing here was handled.
+    mechanism.handled = @(NO);
+
+    // The type of a fabricated mach or signal exception is a platform label, not the identity of
+    // what went wrong, so it must not split Apple crashes from the same crash on other platforms.
+    if ([type isEqualToString:@"mach"] || [type isEqualToString:@"signal"]) {
+        mechanism.synthetic = @(YES);
+    }
+
+    if (nil != self.exceptionContext[@"mach"]) {
         SentryMechanismContext *meta = [[SentryMechanismContext alloc] init];
 
         NSMutableDictionary *machException = [[NSMutableDictionary alloc] init];

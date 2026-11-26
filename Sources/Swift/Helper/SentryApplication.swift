@@ -8,14 +8,14 @@ import UIKit
 
 @objc @_spi(Private) public protocol SentryApplication {
 
-    // This can only be accessed on the main thread
     var mainThread_isActive: Bool { get }
 
 #if !os(macOS) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
 
     /**
-     * Returns the application state available at @c UIApplication.sharedApplication.applicationState
-     * Must be called on the main thread.
+     * Returns the application state. If called off the main thread, dispatches synchronously
+     * to the main thread with a short timeout and returns @c .active as a fallback if the
+     * main thread does not respond in time.
      */
     var unsafeApplicationState: UIApplication.State { get }
 

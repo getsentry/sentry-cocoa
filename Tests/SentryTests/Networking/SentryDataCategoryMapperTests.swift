@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryDataCategoryMapperTests: XCTestCase {
@@ -15,6 +19,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(SentryDataCategory(itemType: "feedback"), .feedback)
         XCTAssertEqual(SentryDataCategory(itemType: "log"), .logItem)
         XCTAssertEqual(SentryDataCategory(itemType: "trace_metric"), .traceMetric)
+        XCTAssertEqual(SentryDataCategory(itemType: "span"), .span)
         XCTAssertEqual(SentryDataCategory(itemType: "unknown item type"), .default)
     }
 

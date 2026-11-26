@@ -1,0 +1,9 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-SwiftUI
+
+SUPPORTED_PLATFORMS = macosx
+
+MACOSX_DEPLOYMENT_TARGET = 12.0
+
+DEVELOPMENT_ASSET_PATHS = "App/Resources/Preview Content"

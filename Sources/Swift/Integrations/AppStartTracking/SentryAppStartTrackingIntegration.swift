@@ -7,7 +7,7 @@ final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTracke
 
     init?(with options: Options, dependencies: Dependencies) {
         // Check if the integration should be enabled based on hybrid SDK mode or tracing options
-        if !PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
+        if !SentrySDKInternal.appStartMeasurementHybridSDKMode {
             // If hybrid SDK mode is not enabled, check if tracing is enabled
             guard options.enableAutoPerformanceTracing && options.isTracingEnabled else {
                 SentrySDKLog.debug("Not going to enable \(Self.name) because enableAutoPerformanceTracing or isTracingEnabled is disabled.")

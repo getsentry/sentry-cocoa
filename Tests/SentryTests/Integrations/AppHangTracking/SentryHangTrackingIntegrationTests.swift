@@ -1,7 +1,14 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
+@available(*, deprecated, message: "Testing deprecated App Hang tracking")
 class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
@@ -13,6 +20,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let debugImageProvider = TestDebugImageProvider()
         let infoPlistWrapper = TestInfoPlistWrapper()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let sysctl = TestSysctl()
 
         private var originalExtensionDetector: SentryExtensionDetector!
 
@@ -57,6 +65,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().debugImageProvider = fixture.debugImageProvider
+        SentryDependencyContainer.sharedInstance().sysctlWrapper = fixture.sysctl
     }
     
     override func tearDownWithError() throws {
@@ -64,6 +73,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         try fixture.tearDownDI()
         
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
     }
@@ -97,13 +107,12 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(result)
     }
     
-    func test_appHangsTimeoutInterval_Zero() {
-        let options = Options()
-        options.enableAppHangTracking = true
+    func test_appHangsTimeoutInterval_Zero_ResetsToDefault() {
         options.appHangTimeoutInterval = 0
         
-        let result = hangTracker(with: options)
-        XCTAssertNil(result)
+        XCTAssertEqual(2.0, options.appHangTimeoutInterval)
+        givenInitializedTracker()
+        XCTAssertNotNil(sut)
     }
 
 #if os(macOS)
@@ -345,21 +354,40 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 #endif // os(iOS) || os(tvOS)
 
     func testDealloc_CallsUninstall() throws {
-        givenInitializedTracker()
-        
-        // // So ARC deallocates the SentryANRTrackingIntegration
-        func initIntegration() {
-            self.crashWrapper.internalIsBeingTraced = false
-            let _ = hangTracker(with: self.options)
+        // -- Arrange --
+        let threadWrapper = SentryTestThreadWrapper()
+        let sleepStarted = expectation(description: "Watchdog started")
+        let resumeSleep = DispatchSemaphore(value: 0)
+        let didSleep = SentryMutex(false)
+        threadWrapper.blockWhenSleeping = {
+            let firstSleep = didSleep.withLock { didSleep in
+                defer { didSleep = true }
+                return !didSleep
+            }
+            if firstSleep {
+                sleepStarted.fulfill()
+                resumeSleep.wait()
+            }
         }
-        
-        initIntegration()
-        
-        let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
-        
-        let listeners = try XCTUnwrap(Dynamic(tracker.helper).listeners.asObject as? NSHashTable<NSObject>)
-        
-        XCTAssertEqual(1, listeners.count)
+        SentryDependencyContainer.sharedInstance().threadWrapper = threadWrapper
+        givenInitializedTracker()
+        let tracker = try XCTUnwrap(sut?.tracker)
+        defer {
+            tracker.clear()
+            resumeSleep.signal()
+        }
+        wait(for: [sleepStarted], timeout: 5)
+        weak var releasedIntegration: SentryHangTrackingIntegration<SentryDependencyContainer>?
+        releasedIntegration = sut
+
+        // -- Act --
+        sut = nil
+        resumeSleep.signal()
+
+        // -- Assert --
+        XCTAssertNil(releasedIntegration)
+        wait(for: [threadWrapper.threadFinishedExpectation], timeout: 5)
+        XCTAssertTrue(threadWrapper.threads.isEmpty)
     }
     
 #if os(iOS) || os(tvOS)
@@ -650,17 +678,20 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(event.releaseName, "release-name-test")
     }
     
-    func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {
+    func testV2_ANRDetected_StopNotCalledAndActiveCrashReporterCrashed_SendsNormalAppHangEvent() throws {
         // Arrange
         setUpThreadInspector()
         givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
+        let activeCrashReporterState = TestSentryCrashReporterState()
+        activeCrashReporterState.internalCrashedLastLaunch = true
         
         // Act
-        givenInitializedTracker(crashedLastLaunch: true)
+        givenInitializedTracker(activeCrashReporterState: activeCrashReporterState)
         
         // Assert
+        XCTAssertFalse(crashReporterState.crashedLastLaunch)
         try assertEventWithScopeCaptured { event, scope, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             
@@ -760,7 +791,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -778,7 +809,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -795,7 +826,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -812,7 +843,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -829,7 +860,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -846,7 +877,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
 
@@ -866,7 +897,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         defer {
             XCTAssertNoThrow(try fixture.tearDownDI())
         }
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -875,7 +906,11 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNotNil(sut?.tracker, "Tracker should be initialized")
     }
     
-    private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false) {
+    private func givenInitializedTracker(
+        isBeingTraced: Bool = false,
+        crashedLastLaunch: Bool = false,
+        activeCrashReporterState: SentryCrashReporterState? = nil
+    ) {
         givenSdkWithHub()
         
         SentrySDK.configureScope { scope in
@@ -885,8 +920,10 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         crumb.message = "crumb"
         SentrySDK.addBreadcrumb(crumb)
         
-        self.crashWrapper.internalIsBeingTraced = isBeingTraced
-        self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
+        self.fixture.sysctl.internalIsBeingTraced = isBeingTraced
+        self.crashReporterState.internalCrashedLastLaunch = crashedLastLaunch
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride =
+            activeCrashReporterState ?? crashReporterState
         sut = hangTracker(with: self.options)
     }
     
@@ -895,13 +932,13 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         if addThreads {
             
-            let frame1 = Sentry.Frame()
+            let frame1 = Frame()
             
             let thread1 = SentryThread(threadId: 0)
             thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
             thread1.current = true
             
-            let frame2 = Sentry.Frame()
+            let frame2 = Frame()
             
             let thread2 = SentryThread(threadId: 1)
             thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
@@ -918,3 +955,4 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
     }
 }
+#endif // !SDK_V10

@@ -25,7 +25,9 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashNSErrorUtil.h"
+#if !SDK_V10
+
+#    import "SentryCrashNSErrorUtil.h"
 
 NSError *
 sentryErrorWithDomain(NSString *domain, NSInteger code, NSString *format, ...)
@@ -41,3 +43,5 @@ sentryErrorWithDomain(NSString *domain, NSInteger code, NSString *format, ...)
                            userInfo:[NSDictionary dictionaryWithObject:desc
                                                                 forKey:NSLocalizedDescriptionKey]];
 }
+
+#endif // !SDK_V10

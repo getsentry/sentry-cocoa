@@ -43,6 +43,67 @@ if [ -z "$PLATFORM" ]; then
     usage
 fi
 
+# Strips any patch component, e.g. 26.4.1 -> 26.4.
+major_minor() {
+    echo "$1" | awk -F. '{print $1"."$2}'
+}
+
+# Prints the names of the available devices in the given platform's runtime
+# with the given major.minor version, one per line. Runtime keys in
+# `simctl list devices -j` look like
+# com.apple.CoreSimulator.SimRuntime.tvOS-27-2.
+list_runtime_device_names() {
+    local platform="$1"
+    local runtime_key
+    runtime_key="com.apple.CoreSimulator.SimRuntime.$platform-$(echo "$2" | tr '.' '-')"
+    xcrun simctl list devices available -j 2>/dev/null \
+        | jq -r --arg key "$runtime_key" '.devices[$key] // [] | .[].name' || true
+}
+
+# Prints the newest "iPhone N Pro" (excluding Max/Plus) in the iOS runtime
+# with the given major.minor version, or nothing if there is none.
+find_newest_iphone_pro() {
+    list_runtime_device_names "iOS" "$1" \
+        | grep -E "^iPhone [0-9]+ Pro$" \
+        | sort -V \
+        | tail -n1 || true
+}
+
+# Prints "Apple TV" if the tvOS runtime with the given major.minor version has
+# it, otherwise the newest "Apple TV 4K (Nth generation)" (excluding 1080p
+# variants), or nothing if there is none. Runner images don't create the same
+# Apple TV models for every runtime, e.g. tvOS 27.2 only has 4th generation.
+find_apple_tv() {
+    local devices
+    devices=$(list_runtime_device_names "tvOS" "$1")
+    if grep -qx "Apple TV" <<<"$devices"; then
+        echo "Apple TV"
+        return
+    fi
+    grep -E "^Apple TV 4K \([0-9]+(st|nd|rd|th) generation\)$" <<<"$devices" \
+        | sort -V \
+        | tail -n1 || true
+}
+
+# Prints the exact versions of available iOS runtimes that share the given
+# major version and have a lower minor version, newest first.
+# E.g. for 27.2 this prints 27.1 and 27.0 if both are installed.
+# Partially loaded runtimes can report `version: null`; skip any version that
+# is not purely numeric so one bad entry doesn't abort jq for all runtimes.
+list_lower_minor_ios_runtimes() {
+    local major="$1"
+    local minor="$2"
+    xcrun simctl list runtimes -j 2>/dev/null \
+        | jq -r --argjson major "$major" --argjson minor "$minor" '
+            .runtimes[]
+            | select(.isAvailable == true and .platform == "iOS")
+            | .version
+            | select(type == "string" and test("^[0-9]+(\\.[0-9]+)*$"))
+            | (split(".") | map(tonumber)) as $parts
+            | select($parts[0] == $major and ($parts[1] // 0) < $minor)' \
+        | sort -ruV || true
+}
+
 if [ -n "$OS" ]; then
     TEST_OS="$OS"
 else
@@ -61,36 +122,72 @@ if [ -n "$DEVICE" ]; then
 else
     case "$PLATFORM" in
         iOS|Catalyst)
-            # Pick the newest "iPhone N Pro" (excluding Max/Plus) available in
-            # the resolved iOS runtime. `simctl list devices` groups by major.minor
-            # so strip any patch component before searching.
-            OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
-            TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
-                | awk -v platform="iOS" -v version="$OS_MM" '
-                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-                    in_section { if (/^-- /) exit; print }' \
-                | grep -E "iPhone [0-9]+ Pro \(" \
-                | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
-                | sort -V \
-                | tail -n1) || TEST_DEVICE=""
+            # Pick the newest "iPhone N Pro" available in the resolved iOS runtime.
+            OS_MM=$(major_minor "$TEST_OS")
+            TEST_DEVICE=$(find_newest_iphone_pro "$OS_MM")
+
+            # Runner images can ship a new minor runtime (e.g. iOS 27.1) without
+            # pre-created iPhone Pro simulators. Walk down the minor versions of
+            # the same major (27.1 -> 27.0) and use the first runtime that has
+            # one. TEST_OS is updated to the exact fallback runtime version so
+            # the runtime-loaded check, simulator boot, and xcodebuild
+            # destination all agree.
+            if [ -z "$TEST_DEVICE" ] && [ "$PLATFORM" = "iOS" ] \
+                && [[ "$OS_MM" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+                OS_MAJOR="${BASH_REMATCH[1]}"
+                OS_MINOR="${BASH_REMATCH[2]}"
+                while IFS= read -r FALLBACK_OS; do
+                    [ -n "$FALLBACK_OS" ] || continue
+                    TEST_DEVICE=$(find_newest_iphone_pro "$(major_minor "$FALLBACK_OS")")
+                    if [ -n "$TEST_DEVICE" ]; then
+                        log_warning "No iPhone Pro simulator for iOS $TEST_OS, falling back to $TEST_DEVICE on iOS $FALLBACK_OS"
+                        TEST_OS="$FALLBACK_OS"
+                        break
+                    fi
+                done < <(list_lower_minor_ios_runtimes "$OS_MAJOR" "$OS_MINOR")
+            fi
+
+            if [ -z "$TEST_DEVICE" ] && [ "$PLATFORM" = "iOS" ]; then
+                log_warning "No iPhone Pro simulator found for iOS $TEST_OS or a lower minor version of the same major"
+            fi
             ;;
         tvOS)
-            TEST_DEVICE="Apple TV"
+            TEST_DEVICE=$(find_apple_tv "$(major_minor "$TEST_OS")")
+            TEST_DEVICE="${TEST_DEVICE:-Apple TV}"
             ;;
         watchOS)
-            # Pick the newest Apple Watch available in the resolved watchOS runtime.
-            # Watch names include parenthetical sizes (e.g. "Apple Watch Ultra 3 (49mm)")
-            # so we strip from the UUID pattern `(XXXX-...) (State)` rather than the
-            # first `(`, which would lose the size.
+            # WatchKit schemes fail to match iPhone-paired watches by
+            # platform=watchOS Simulator,name=... (xcodebuild reports them as
+            # DVTiPhoneSimulator). Prefer unpaired watches from simctl pairs;
+            # fall back to the newest watch in the runtime if every watch is paired.
+            #
+            # OS=latest (the no --os default) is not a simctl runtime id, so
+            # resolve it to the newest watchOS runtime that has devices.
             OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
-            TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
-                | awk -v platform="watchOS" -v version="$OS_MM" '
-                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-                    in_section { if (/^-- /) exit; print }' \
-                | grep -E "Apple Watch" \
-                | sed -E 's/^[[:space:]]+//; s/ \([A-F0-9-]+\) \([A-Za-z]+\)[[:space:]]*$//' \
-                | sort -V \
-                | tail -n1) || TEST_DEVICE=""
+            devices_json=$(xcrun simctl list devices available -j 2>/dev/null || echo '{"devices":{}}')
+            if [[ ! "$OS_MM" =~ ^[0-9]+\.[0-9]+$ ]]; then
+                OS_MM=$(printf '%s\n' "$devices_json" \
+                    | jq -r '.devices | keys[] | select(test("watchOS-[0-9]+-[0-9]+")) | capture("watchOS-(?<v>[0-9]+-[0-9]+)") | .v' \
+                    | tr '-' '.' \
+                    | sort -V | tail -n1 || true)
+            fi
+            OS_KEY=$(echo "$OS_MM" | tr '.' '-')
+            paired_json=$(xcrun simctl list pairs -j 2>/dev/null \
+                | jq -c '[.pairs[].watch.udid] // []' 2>/dev/null \
+                || echo '[]')
+            TEST_DEVICE=$(printf '%s\n' "$devices_json" \
+                | jq -r --arg key "$OS_KEY" --argjson paired "$paired_json" '
+                    [
+                      .devices
+                      | to_entries[]
+                      | select(.key | endswith("watchOS-" + $key))
+                      | .value[]
+                      | select(.isAvailable != false)
+                      | {name, unpaired: ((.udid as $id | ($paired | index($id)) == null))}
+                    ] as $watches
+                    | ($watches | map(select(.unpaired)) | if length > 0 then . else $watches end)
+                    | .[].name
+                ' 2>/dev/null | sort -V | tail -n1 || true)
             ;;
         visionOS)
             TEST_DEVICE="Apple Vision Pro"

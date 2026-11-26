@@ -7,10 +7,16 @@ final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider
 
     init?(with options: Options, dependencies: Dependencies) {
         // Check hybrid SDK mode first - if enabled, always start frames tracking
-        if !PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode {
+        if !SentrySDKInternal.framesTrackingMeasurementHybridSDKMode {
             
             // Check if frames tracking should be enabled based on options
             let performanceDisabled = !options.enableAutoPerformanceTracing || !options.isTracingEnabled
+            #if SDK_V10
+            if performanceDisabled {
+                SentrySDKLog.debug("Not going to enable \(Self.name) because enableAutoPerformanceTracing and isTracingEnabled are disabled.")
+                return nil
+            }
+            #else
             let appHangsDisabled = options.isAppHangTrackingDisabled()
             let watchdogDisabled = !options.enableWatchdogTerminationTracking
 
@@ -31,9 +37,13 @@ final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider
 
                 return nil
             }
+            #endif // SDK_V10
         }
 
         tracker = dependencies.framesTracker
+        // A launch profile starts the tracker before the options are known, with the default
+        // frame source.
+        tracker.useFrameSource(dependencies.makeFrameSource(options: options))
         tracker.start()
     }
 

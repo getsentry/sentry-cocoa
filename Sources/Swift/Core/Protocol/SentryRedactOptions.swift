@@ -1,7 +1,9 @@
 import Foundation
 
 /// Options for configuring what content should be redacted in session replays.
+#if !SDK_V10
 @objc
+#endif // !SDK_V10
 public protocol SentryRedactOptions {
     /// Whether all text content should be masked. Defaults to `true`.
     var maskAllText: Bool { get }

@@ -1,5 +1,13 @@
 #if canImport(UIKit) && canImport(SwiftUI) && !SENTRY_NO_UI_FRAMEWORK && os(iOS)
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @testable import Sentry
+#endif
 import SwiftUI
 import XCTest
 
@@ -68,9 +76,14 @@ final class SentryUserFeedbackFormViewTests: XCTestCase {
 
     private func assertIsFeedbackModifier(_ view: some View) {
         let typeDescription = String(describing: view)
+        #if SWIFT_PACKAGE && !SDK_V10
+        let sdkModule = "SentrySwift"
+        #else
+        let sdkModule = "Sentry"
+        #endif
         let candidates = [
             "ModifiedContent<Text, SentryUserFeedbackFormModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryUserFeedbackFormModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, \(sdkModule).SentryUserFeedbackFormModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeDescription.contains($0) }),

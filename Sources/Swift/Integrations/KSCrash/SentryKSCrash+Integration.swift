@@ -1,27 +1,41 @@
-#if ENABLE_KSCRASH
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
+#if SDK_V10
 internal import _SentryPrivate
+internal import KSCrashRecording
 import Foundation
+
+/// Best-effort crash-time persistence of the span bound to the current scope.
+private let persistTraceWhenCrashing: @convention(c) () -> Void = {
+    let scope = SentrySDKInternal.currentHub().scope as Scope
+    guard let span = scope.getCastedInternalSpan() else {
+        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
+        return
+    }
+    span.tracer?.finishForCrash()
+}
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder & CurrentRunProvider & CrashHandlerEventSourceProvider
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
-    /// KSCrash unconditionally adds its Required monitors (System, AppState,
-    /// UserInfo, Resource) on top of whatever is passed here.
-    static let productionSafeMonitors: UInt = MonitorType([
+    /// KSCrash unconditionally adds its required infrastructure monitors on top of
+    /// the crash detectors passed here.
+    static let productionSafeMonitors: MonitorType = [
         .machException,
         .signal,
         .cppException,
         .nsException
-    ]).rawValue
+    ]
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
         private let installer: Dependencies.Installing
+        private var scopeConfiguration: SentryKSCrash.Scope.Configuration?
+        private let reportProcessingSession = ReportProcessingSession()
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        private let nsExceptionHandlerOwner = NSObject()
+        #endif
 
         // MARK: - Initialization
 
@@ -39,21 +53,73 @@ extension SentryKSCrash {
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
 
+            // SIGTERM is deliberately not configurable here. KSCrash catches and re-raises it as a
+            // clean exit without writing a report.
             do {
                 try installer.install(
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableMemoryIntrospection: options.enableMemoryIntrospection,
-                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
+                    enableSwapCxaThrow: options.enableUnhandledCPPExceptionsV2,
+                    enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )
             } catch {
                 SentrySDKLog.error("KSCrash install failed: \(error)")
                 return nil
             }
 
+            self.scopeConfiguration = SentryKSCrash.Scope.Configuration(
+                installer: installer,
+                options: options,
+                currentRun: dependencies.currentRun
+            )
+
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.setUncaughtExceptionHandler(
+                installer.uncaughtExceptionHandler,
+                owner: nsExceptionHandlerOwner
+            )
+            if options.enableSwizzling && options.enableUncaughtNSExceptionReporting {
+                SentryUncaughtNSExceptions.configureCrashOnExceptions()
+                SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+                SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+            }
+            #endif
+
+            configureTracingWhenCrashing(options)
+
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
             }
+
+            let finalizer = dependencies.getPreviousRunSessionFinalizer(
+                options: options,
+                crashedLastLaunch: installer.crashedLastLaunch,
+                activeDurationSinceLastCrash: installer.activeDurationSinceLastCrash
+            )
+            finalizer?.finalizeIfNeeded()
+
+            processStoredReports(options: options, dependencies: dependencies)
+        }
+
+        private func configureTracingWhenCrashing(_ options: Options) {
+            guard options.enablePersistingTracesWhenCrashing else { return }
+            sentrykscrash_setSaveTransaction(persistTraceWhenCrashing)
+        }
+
+        private func processStoredReports(options: Options, dependencies: Dependencies) {
+            let reportProcessor = SentryStoredCrashReportProcessor(
+                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
+                crashHandlerEventSource: dependencies.crashHandlerEventSource,
+                preserveCrashedSessionOnCaptureFailure: true
+            )
+            // The report filter dispatches regular reports itself. Keep this call synchronous so
+            // startup crashes can be captured and flushed before SDK initialization returns.
+            installer.sendAllReports(
+                reportProcessor: reportProcessor,
+                dispatchQueue: dependencies.dispatchQueueWrapper,
+                processingSession: reportProcessingSession
+            )
         }
 
         // MARK: - SwiftIntegration
@@ -62,6 +128,11 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
+            sentrykscrash_setSaveTransaction(nil)
+            reportProcessingSession.cancel()
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.clearUncaughtExceptionHandler(forOwner: nsExceptionHandlerOwner)
+            #endif
             installer.uninstall()
         }
 

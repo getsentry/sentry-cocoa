@@ -1,0 +1,5 @@
+#include "SentryObjCCommon.xcconfig"
+
+PRODUCT_MODULE_NAME = SentryObjCCompat
+PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.$(PRODUCT_MODULE_NAME)

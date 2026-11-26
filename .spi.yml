@@ -2,3 +2,5 @@ version: 1
 builder:
   configs:
     - scheme: Sentry
+external_links:
+  documentation: "https://docs.sentry.io/platforms/apple/"

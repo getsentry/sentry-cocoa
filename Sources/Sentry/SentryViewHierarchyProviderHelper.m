@@ -2,32 +2,48 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCrashFileUtils.h"
-#    import "SentryCrashJSONCodec.h"
+#    import "SentryFileIO.h"
+#    import "SentryJSONStreamWriter.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <unistd.h>
 
-// Must stay below SentryCrashJSONEncodeContext's 200-container budget: each view nesting
-// level opens two containers, the view object and its children array, so leave room to emit
-// the truncation marker before the encoder stack is exhausted.
+// Each view nesting level opens two containers: the view object and its children array.
+// Keep the traversal below the stream writer's fixed container budget and leave room for
+// the truncation marker.
 #    define SENTRY_VIEW_HIERARCHY_MAX_DEPTH 90
 
-static int
-writeJSONDataToFile(const char *const data, const int length, void *const userData)
+static bool
+writeJSONDataToFile(const char *const data, const size_t length, void *const userData)
 {
     const int fd = *((int *)userData);
-    const bool success = sentrycrashfu_writeBytesToFD(fd, data, length);
-    return success ? SentryCrashJSON_OK : SentryCrashJSON_ERROR_CANNOT_ADD_DATA;
+    return sentryFileIO_writeBytesToFD(fd, data, length);
 }
 
-static int
-writeJSONDataToMemory(const char *const data, const int length, void *const userData)
+static bool
+writeJSONDataToMemory(const char *const data, const size_t length, void *const userData)
 {
     NSMutableData *memory = ((__bridge NSMutableData *)userData);
     [memory appendBytes:data length:length];
-    return SentryCrashJSON_OK;
+    return true;
 }
+
+@interface SentryViewHierarchyProviderHelper ()
+
++ (BOOL)streamViewHierarchy:(NSArray<UIWindow *> *)windows
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
+                      addFunction:(SentryJSONStreamWriteFunc)addJSONDataFunc
+                         userData:(nullable void *)userData;
+
++ (BOOL)viewHierarchyFromView:(UIView *)view
+                       intoWriter:(SentryJSONStreamWriter *)writer
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
+                            depth:(NSUInteger)depth;
+
+@end
 
 @implementation SentryViewHierarchyProviderHelper
 
@@ -35,17 +51,17 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
                           windows:(NSArray<UIWindow *> *)windows
     reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
 {
-    const char *path = [filePath UTF8String];
+    const char *path = filePath.UTF8String;
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
         SENTRY_LOG_DEBUG(@"Could not open file %s for writing: %s", path, SENTRY_STRERROR_R(errno));
         return NO;
     }
 
-    BOOL result = [self processViewHierarchy:windows
-               reportAccessibilityIdentifier:reportAccessibilityIdentifier
-                                 addFunction:writeJSONDataToFile
-                                    userData:&fd];
+    const BOOL result = [self streamViewHierarchy:windows
+                    reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                                      addFunction:writeJSONDataToFile
+                                         userData:&fd];
 
     close(fd);
     return result;
@@ -56,123 +72,114 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 {
     NSMutableData *result = [[NSMutableData alloc] init];
 
-    if (![self processViewHierarchy:windows
+    if (![self streamViewHierarchy:windows
             reportAccessibilityIdentifier:reportAccessibilityIdentifier
                               addFunction:writeJSONDataToMemory
-                                 userData:(__bridge void *)(result)]) {
-
-        result = nil;
+                                 userData:(__bridge void *)result]) {
+        return nil;
     }
 
     return result;
 }
 
-#    define tryJson(code)                                                                          \
-        if ((result = (code)) != SentryCrashJSON_OK)                                               \
-            return result;
-
-+ (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
++ (BOOL)streamViewHierarchy:(NSArray<UIWindow *> *)windows
     reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
-                      addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
+                      addFunction:(SentryJSONStreamWriteFunc)addJSONDataFunc
                          userData:(void *const)userData
 {
+    if (addJSONDataFunc == NULL) {
+        return NO;
+    }
 
-    __block SentryCrashJSONEncodeContext JSONContext;
-    sentrycrashjson_beginEncode(&JSONContext, NO, addJSONDataFunc, userData);
+    SentryJSONStreamWriter writer;
+    sentryJSONStreamWriter_init(&writer, addJSONDataFunc, userData);
 
     SENTRY_LOG_DEBUG(@"Processing view hierarchy.");
 
-    int (^serializeJson)(void) = ^int() {
-        int result;
-        tryJson(sentrycrashjson_beginObject(&JSONContext, NULL));
-        tryJson(sentrycrashjson_addStringElement(
-            &JSONContext, "rendering_system", "UIKIT", SentryCrashJSON_SIZE_AUTOMATIC));
-        tryJson(sentrycrashjson_beginArray(&JSONContext, "windows"));
+    if (!sentryJSONStreamWriter_beginObject(&writer, NULL)
+        || !sentryJSONStreamWriter_addString(&writer, "rendering_system", "UIKIT")
+        || !sentryJSONStreamWriter_beginArray(&writer, "windows")) {
+        SENTRY_LOG_DEBUG(@"Could not create view hierarchy json: output rejected data");
+        return NO;
+    }
 
-        for (UIView *window in windows) {
-            tryJson([self viewHierarchyFromView:window
-                                    intoContext:&JSONContext
-                  reportAccessibilityIdentifier:reportAccessibilityIdentifier]);
+    for (UIView *window in windows) {
+        if (![self viewHierarchyFromView:window
+                                   intoWriter:&writer
+                reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                                        depth:0]) {
+            SENTRY_LOG_DEBUG(@"Could not create view hierarchy json: serialization failed");
+            return NO;
         }
+    }
 
-        tryJson(sentrycrashjson_endContainer(&JSONContext));
-
-        result = sentrycrashjson_endEncode(&JSONContext);
-        return result;
-    };
-
-    int result = serializeJson();
-    if (result != SentryCrashJSON_OK) {
-        SENTRY_LOG_DEBUG(
-            @"Could not create view hierarchy json: %s", sentrycrashjson_stringForError(result));
+    if (!sentryJSONStreamWriter_endContainer(&writer)
+        || !sentryJSONStreamWriter_endContainer(&writer)
+        || !sentryJSONStreamWriter_finish(&writer)) {
+        SENTRY_LOG_DEBUG(@"Could not create view hierarchy json: output rejected data");
         return NO;
     }
     return YES;
 }
 
-+ (int)viewHierarchyFromView:(UIView *)view
-                      intoContext:(SentryCrashJSONEncodeContext *)context
-    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
-{
-    return [self viewHierarchyFromView:view
-                           intoContext:context
-         reportAccessibilityIdentifier:reportAccessibilityIdentifier
-                                 depth:0];
-}
-
-+ (int)viewHierarchyFromView:(UIView *)view
-                      intoContext:(SentryCrashJSONEncodeContext *)context
++ (BOOL)viewHierarchyFromView:(UIView *)view
+                       intoWriter:(SentryJSONStreamWriter *)writer
     reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
                             depth:(NSUInteger)depth
 {
     SENTRY_LOG_DEBUG(@"Processing view hierarchy of view: %@", view);
 
-    int result = 0;
-    tryJson(sentrycrashjson_beginObject(context, NULL));
-    const char *viewClassName = [[SwiftDescriptor getObjectClassName:view] UTF8String];
-    tryJson(sentrycrashjson_addStringElement(
-        context, "type", viewClassName, SentryCrashJSON_SIZE_AUTOMATIC));
-
-    if (reportAccessibilityIdentifier && view.accessibilityIdentifier
-        && view.accessibilityIdentifier.length != 0) {
-        tryJson(sentrycrashjson_addStringElement(context, "identifier",
-            view.accessibilityIdentifier.UTF8String, SentryCrashJSON_SIZE_AUTOMATIC));
+    if (!sentryJSONStreamWriter_beginObject(writer, NULL)
+        || !sentryJSONStreamWriter_addString(
+            writer, "type", [SwiftDescriptor getObjectClassName:view].UTF8String)) {
+        return NO;
     }
 
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "width", view.frame.size.width));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "height", view.frame.size.height));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "x", view.frame.origin.x));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "y", view.frame.origin.y));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
-    tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
+    if (reportAccessibilityIdentifier && view.accessibilityIdentifier.length != 0
+        && !sentryJSONStreamWriter_addString(
+            writer, "identifier", view.accessibilityIdentifier.UTF8String)) {
+        return NO;
+    }
+
+    if (!sentryJSONStreamWriter_addDouble(writer, "width", view.frame.size.width)
+        || !sentryJSONStreamWriter_addDouble(writer, "height", view.frame.size.height)
+        || !sentryJSONStreamWriter_addDouble(writer, "x", view.frame.origin.x)
+        || !sentryJSONStreamWriter_addDouble(writer, "y", view.frame.origin.y)
+        || !sentryJSONStreamWriter_addDouble(writer, "alpha", view.alpha)
+        || !sentryJSONStreamWriter_addBool(writer, "visible", !view.hidden)) {
+        return NO;
+    }
 
     if ([view.nextResponder isKindOfClass:[UIViewController class]]) {
-        UIViewController *vc = (UIViewController *)view.nextResponder;
-        if (vc.view == view) {
-            const char *viewControllerClassName =
-                [[SwiftDescriptor getViewControllerClassName:vc] UTF8String];
-            tryJson(sentrycrashjson_addStringElement(context, "view_controller",
-                viewControllerClassName, SentryCrashJSON_SIZE_AUTOMATIC));
+        UIViewController *viewController = (UIViewController *)view.nextResponder;
+        if (viewController.view == view
+            && !sentryJSONStreamWriter_addString(writer, "view_controller",
+                [SwiftDescriptor getViewControllerClassName:viewController].UTF8String)) {
+            return NO;
         }
     }
 
-    tryJson(sentrycrashjson_beginArray(context, "children"));
+    if (!sentryJSONStreamWriter_beginArray(writer, "children")) {
+        return NO;
+    }
     if (depth >= SENTRY_VIEW_HIERARCHY_MAX_DEPTH && view.subviews.count > 0) {
-        tryJson(sentrycrashjson_beginObject(context, NULL));
-        tryJson(sentrycrashjson_addStringElement(
-            context, "type", "SentryTruncatedViewHierarchy", SentryCrashJSON_SIZE_AUTOMATIC));
-        tryJson(sentrycrashjson_endContainer(context));
+        if (!sentryJSONStreamWriter_beginObject(writer, NULL)
+            || !sentryJSONStreamWriter_addString(writer, "type", "SentryTruncatedViewHierarchy")
+            || !sentryJSONStreamWriter_endContainer(writer)) {
+            return NO;
+        }
     } else {
         for (UIView *child in view.subviews) {
-            tryJson([self viewHierarchyFromView:child
-                                    intoContext:context
-                  reportAccessibilityIdentifier:reportAccessibilityIdentifier
-                                          depth:depth + 1]);
+            if (![self viewHierarchyFromView:child
+                                       intoWriter:writer
+                    reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                                            depth:depth + 1]) {
+                return NO;
+            }
         }
     }
-    tryJson(sentrycrashjson_endContainer(context));
-    tryJson(sentrycrashjson_endContainer(context));
-    return result;
+    return sentryJSONStreamWriter_endContainer(writer)
+        && sentryJSONStreamWriter_endContainer(writer);
 }
 
 @end

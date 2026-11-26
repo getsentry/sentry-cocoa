@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -44,6 +49,7 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     // MARK: - AttachToTransactionStrategy
 
+    #if !SDK_V10
     func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
@@ -66,6 +72,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .warm)
     }
+    #endif
 
     // MARK: - StandaloneTransactionStrategy
 
@@ -161,7 +168,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     // MARK: - StandaloneTransactionStrategy Integration Tests
 
     private func setUpIntegrationHub() -> TestHub {
-        addTeardownBlock { clearTestState() }
+        addTeardownBlock { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         let dateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
@@ -255,6 +262,30 @@ class AppStartReportingStrategyTests: XCTestCase {
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = serialized["extra"] as? [String: Any]
         XCTAssertNil(extra?["app.vitals.start.screen"])
+    }
+
+    func testReport_whenScreenNameSet_shouldCopyTypeAndScreenOntoChildSpans() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold)
+        SentryAppStartMeasurementProvider.setAppStartScreen("MainViewController")
+        addTeardownBlock { SentryAppStartMeasurementProvider.reset() }
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: SentryExtendedAppLaunchManager()).report(measurement, traceId: SentryId())
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        try assertAppStartVitals(on: spans, type: "cold", screen: "MainViewController")
+    }
+
+    func testReport_whenNoScreenNameSet_shouldCopyTypeButNotScreenOntoChildSpans() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .warm)
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: SentryExtendedAppLaunchManager()).report(measurement, traceId: SentryId())
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        try assertAppStartVitals(on: spans, type: "warm", screen: nil)
     }
 
     func testReport_shouldSetStartReasonToLaunch() throws {
@@ -445,6 +476,43 @@ class AppStartReportingStrategyTests: XCTestCase {
         let end = span["timestamp"] as? TimeInterval ?? 0
         XCTAssertEqual(start, expectedStart, accuracy: 0.001, file: file, line: line)
         XCTAssertEqual(end, expectedEnd, accuracy: 0.001, file: file, line: line)
+    }
+
+    private func assertAppStartVitals(
+        on spans: [[String: Any]],
+        type: String,
+        screen: String?,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        XCTAssertFalse(spans.isEmpty, "Expected child spans", file: file, line: line)
+        for span in spans {
+            let data = span["data"] as? [String: Any]
+            let op = span["op"] as? String ?? ""
+            XCTAssertEqual(
+                data?["app.vitals.start.type"] as? String,
+                type,
+                "Missing or wrong type on \(op)",
+                file: file,
+                line: line
+            )
+            if let screen {
+                XCTAssertEqual(
+                    data?["app.vitals.start.screen"] as? String,
+                    screen,
+                    "Missing or wrong screen on \(op)",
+                    file: file,
+                    line: line
+                )
+            } else {
+                XCTAssertNil(
+                    data?["app.vitals.start.screen"],
+                    "Screen should be omitted on \(op)",
+                    file: file,
+                    line: line
+                )
+            }
+        }
     }
 }
 

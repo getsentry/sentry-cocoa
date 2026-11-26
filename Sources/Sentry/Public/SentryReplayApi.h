@@ -12,6 +12,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * API for controlling Session Replay.
+ *
+ * Replay lifecycle methods may be called from any thread. They return before the requested
+ * operation completes and execute serially in call order.
+ */
 @interface SentryReplayApi : NSObject
 
 /**
@@ -25,22 +31,59 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)unmaskView:(UIView *)view NS_SWIFT_NAME(unmaskView(_:));
 
 /**
- * Pauses the replay.
+ * Pauses the current replay until @c resume is called.
+ * Automatically started replays remain paused within the same process.
  */
 - (void)pause;
 
 /**
- * Resumes the ongoing replay.
+ * Resumes a replay paused with @c pause.
  */
 - (void)resume;
 
 /**
- * Start recording a session replay if not started.
+ * Stops recording touch positions until @c resumeTouchTracking is called.
+ *
+ * Screenshots continue to be captured and breadcrumbs are not affected. Use this while
+ * sensitive input, such as a PIN pad, is on screen.
+ *
+ * This is independent of @c pause and @c resume: @c resume does not resume touch tracking. The
+ * pause also applies to replays started later within the same process, so this method can be
+ * called before a replay is active.
+ */
+- (void)pauseTouchTracking;
+
+/**
+ * Resumes recording touch positions paused with @c pauseTouchTracking.
+ *
+ * If the replay is paused with @c pause, touch tracking resumes only after @c resume is called.
+ */
+- (void)resumeTouchTracking;
+
+/**
+ * Starts a new replay session. Does nothing if a replay is already active.
+ *
+ * This explicit start bypasses session sampling. Recording and delivery remain subject to
+ * active Replay rate limits.
  */
 - (void)start;
 
 /**
- * Stop the current session replay recording.
+ * Starts Replay in buffer mode. Does nothing if a replay is already active.
+ *
+ * The rolling buffer is sent when @c flush is called or when an error is captured and selected
+ * by the configured error sample rate. This explicit start bypasses session sampling.
+ */
+- (void)startBuffering;
+
+/**
+ * Sends buffered replay data to Sentry and continues recording in session mode. If Replay is
+ * inactive, starts a new replay session. This explicit operation bypasses error sampling.
+ */
+- (void)flush;
+
+/**
+ * Stops the current replay. A subsequent @c start or @c startBuffering call creates a new replay.
  */
 - (void)stop;
 

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://develop.sentry.dev/schemas/spec-compliance.json",
+  "sdk": "sentry-cocoa",
+  "last_updated": "2026-10-26",
+  "specs": {
+    "sdk/telemetry/attachments": {
+      "version": "0.0.0",
+      "sections": {
+        "flamegraph": "1.8.0"
+      }
+    },
+    "sdk/telemetry/feedbacks": {
+      "version": "0.0.0",
+      "sections": {
+        "input-validation": "1.5.0",
+        "session-replay-flush": "1.4.0",
+        "replay-widget-sampling-timing": "1.4.0",
+        "replay-manual-api-sampling-timing": "1.4.0"
+      }
+    },
+    "sdk/foundations/client/data-collection": {
+      "version": "0.10.0",
+      "sections": {
+        "configuration-surface": "0.10.0",
+        "collection-defaults": "0.10.0",
+        "sensitive-denylist": "0.10.0",
+        "integration-overrides": "0.10.0",
+        "user-set-data-scrubbing": "0.10.0",
+        "option-types": "0.10.0",
+        "datacollection-options": "0.10.0"
+      },
+      "non_applicable": {
+        "data-sensitivity-levels": "Conceptual taxonomy with no SDK implementation requirement."
+      }
+    },
+    "sdk/telemetry/metrics": {
+      "version": "0.0.0",
+      "sections": {
+        "user-attributes": "3.1.0",
+        "buffering": "3.1.0",
+        "tracing-association": "3.1.0",
+        "data-category-rate-limiting": "3.1.0",
+        "auto-emitted-metrics": "3.1.0",
+        "trace-metric-envelope": "3.1.0",
+        "metric-payload": "3.1.0",
+        "initialization-options": "3.1.0",
+        "metrics-module": "3.1.0"
+      },
+      "non_applicable": {
+        "browser-attributes": "Cocoa runs in native apps, not browsers, so there is no browser context to attach.",
+        "backend-attributes": "Cocoa is a client SDK; server.address applies to backend SDKs only."
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import XCTest
+
+final class SentryInternalScopeApiTests: XCTestCase {
+
+    func testSerializedContexts_whenScopeContainsContext_shouldReturnContextAndTrace() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["value": "test"], key: "hybrid")
+        let sut = SentryInternalScopeApi(dependencies: Dependencies(scope: scope))
+
+        // -- Act --
+        let contexts = sut.serializedContexts()
+
+        // -- Assert --
+        let hybrid = try XCTUnwrap(contexts["hybrid"])
+        XCTAssertEqual(hybrid["value"] as? String, "test")
+        XCTAssertNotNil(contexts["trace"])
+    }
+
+    private struct Dependencies: HubProvider, CurrentScopeStorageProvider {
+        let hub: Hub
+        let currentScopeStorage = SentryCurrentScopeStorage()
+
+        init(scope: Scope) {
+            hub = TestHub(scope: scope)
+        }
+    }
+
+    private final class TestHub: Hub {
+        let scope: Scope
+
+        init(scope: Scope) {
+            self.scope = scope
+        }
+
+        func configureScope(_ callback: @escaping (Scope) -> Void) {
+            callback(scope)
+        }
+
+        func storeEnvelope(_ envelope: SentryEnvelope) {}
+
+        func captureEnvelope(_ envelope: SentryEnvelope) {}
+
+        func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
+
+        func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
+
+        func captureErrorEvent(event: Event) {}
+        func captureErrorEvent(event: Event, hint: Hint) {}
+
+        func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        func getSessionReplayId() -> String? { nil }
+#endif
+
+        var currentOptions: Options? { nil }
+
+        var options: Options { Options() }
+    }
+}

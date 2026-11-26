@@ -5,7 +5,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * This needs to be in ObjC because it overrides the +load method
  */
+typedef NSTimeInterval (^SentrySystemTimestampProvider)(void);
+
 @interface SentrySysctlObjC : NSObject
+
+- (instancetype)
+    initWithSystemBootTimestampProvider:(SentrySystemTimestampProvider)systemBootTimestampProvider
+          processStartTimestampProvider:(SentrySystemTimestampProvider)processStartTimestampProvider
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * Returns the time the system was booted with a precision of microseconds.

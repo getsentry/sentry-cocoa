@@ -1,22 +1,140 @@
 @_spi(Private) import SentryTestUtils
-@testable import Sentry
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling
-/// `make run-test-server` on your terminal.
+/// `make -C test-server start-debug` on your terminal.
 /// Other tests validating the functionality of the SentryNetworkTrackerIntegration are located in SentryNetworkTrackerIntegrationTests.swift
 /// This test is excluded from the SentryBase test plan because it requires the test server to be running. We have an extra test plan SentryTestServer,
 /// so we can run this test in our CI isolated without having to have the test server running for all other tests.
 class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
+    override func tearDown() {
+        super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
+        clearTestState()
+    }
+
+#if compiler(>=6.1)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testDataTaskWithURL_whenUsingNewLoader_shouldCaptureReplayResponse() throws {
+        try assertNewLoaderReplayResponse(useURLRequest: false)
+    }
+
+    func testDataTaskWithRequest_whenUsingNewLoader_shouldCaptureReplayResponse() throws {
+        try assertNewLoaderReplayResponse(useURLRequest: true)
+    }
+#endif
+
+    func testDataTask_whenUsingClassicLoader_shouldTrackRequest() throws {
+        try assertNetworkTracking(usesClassicLoadingMode: true)
+    }
+
+    func testDataTask_whenUsingNewLoader_shouldTrackRequest() throws {
+        try assertNetworkTracking(usesClassicLoadingMode: false)
+    }
+
+    func testDownloadTask_whenUsingClassicLoader_shouldTrackRequest() throws {
+        try assertDownloadTracking(usesClassicLoadingMode: true)
+    }
+
+    func testDownloadTask_whenUsingNewLoader_shouldTrackRequest() throws {
+        try assertDownloadTracking(usesClassicLoadingMode: false)
+    }
+
+    func testUploadTask_whenUsingClassicLoader_shouldTrackRequest() throws {
+        try assertUploadTracking(usesClassicLoadingMode: true)
+    }
+
+    func testUploadTask_whenUsingNewLoader_shouldTrackRequest() throws {
+        try assertUploadTracking(usesClassicLoadingMode: false)
+    }
+
+    func testDataTaskWithoutCompletionHandler_whenUsingNewLoader_shouldNotCreateUnfinishedSpan() throws {
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let delegate = TaskCompletionDelegate(testCase: self)
+        let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let task = session.dataTask(with: url)
+
+        task.resume()
+        wait(for: [delegate.requestCompleted], timeout: 10)
+
+        XCTAssertTrue(transaction.children.isEmpty)
+    }
+
+    func testDataTask_whenUsingNewLoaderAndCancelled_shouldFinishCancelledSpan() throws {
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/delayed-response"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let task = session.dataTask(with: url) { _, _, error in
+            XCTAssertEqual((error as? URLError)?.code, .cancelled)
+            requestCompleted.fulfill()
+        }
+
+        task.resume()
+        task.cancel()
+        wait(for: [requestCompleted], timeout: 10)
+
+        let networkSpan = try XCTUnwrap(transaction.children.first)
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertEqual(networkSpan.status, .cancelled)
+    }
+
+#endif
+
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
+        // -- Arrange --
         try ensureTestServerIsRunning()
 
         let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-baggage-header"))
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try Data("unrelated file read".utf8).write(to: fileURL)
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(at: fileURL)) }
 
-        startSDK()
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
+
+        // Framework file reads must not add unrelated spans to this network-only test.
+        _ = try NSData(contentsOf: fileURL, options: .uncached)
 
         let expect = expectation(description: "Request completed")
         // Cancelling the task in defer can trigger the completion handler again.
@@ -36,9 +154,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         defer { dataTask.cancel() }
 
+        // -- Act --
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
+        // -- Assert --
         let children = try XCTUnwrap(Dynamic(transaction).children as [Span]?)
 
         XCTAssertEqual(children.count, 1) //Span was created in task resume swizzle.
@@ -50,12 +170,108 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(NSNumber(value: 200), networkSpan.data["http.response.status_code"] as? NSNumber)
     }
 
+    func testDataTask_whenResponseIsDelayed_shouldIncludeDelayInSpanDuration() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/delayed-response"))
+        let requestCompleted = expectation(description: "Request completed")
+        requestCompleted.assertForOverFulfill = false
+
+        startSDK()
+
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: url) { _, response, error in
+            self.assertNetworkError(error)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            requestCompleted.fulfill()
+        }
+        let taskCompleted = keyValueObservingExpectation(
+            for: task,
+            keyPath: "state"
+        ) { object, _ in
+            (object as? URLSessionTask)?.state == .completed
+        }
+        defer { session.finishTasksAndInvalidate() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted, taskCompleted], timeout: 10)
+
+        // -- Assert --
+        let networkSpan = try XCTUnwrap(transaction.children.first)
+        let spanStartedAt = try XCTUnwrap(networkSpan.startTimestamp)
+        let spanEndedAt = try XCTUnwrap(networkSpan.timestamp)
+        let spanDuration = spanEndedAt.timeIntervalSince(spanStartedAt)
+
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertGreaterThanOrEqual(spanDuration, 0.9)
+    }
+
+    func testDataTask_whenRequestCompletes_shouldCaptureNetworkBreadcrumb() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectation(description: "Request completed")
+        requestCompleted.assertForOverFulfill = false
+        let breadcrumbCaptured = expectation(description: "Network breadcrumb captured")
+        let capturedBreadcrumb = SentryMutex<Breadcrumb?>(nil)
+
+        startSDK {
+            $0.enableSwizzling = true
+            $0.enableNetworkBreadcrumbs = true
+            $0.beforeBreadcrumb = { breadcrumb in
+                guard breadcrumb.category == "http",
+                      (breadcrumb.data?["url"] as? String) == url.absoluteString else {
+                    return breadcrumb
+                }
+
+                capturedBreadcrumb.withLock { $0 = breadcrumb }
+                breadcrumbCaptured.fulfill()
+                return breadcrumb
+            }
+        }
+
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: url) { _, response, error in
+            self.assertNetworkError(error)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            requestCompleted.fulfill()
+        }
+        defer { session.finishTasksAndInvalidate() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted, breadcrumbCaptured], timeout: 10)
+
+        // -- Assert --
+        let breadcrumb = try XCTUnwrap(capturedBreadcrumb.withLock { $0 })
+        let data = try XCTUnwrap(breadcrumb.data)
+        let requestStart = try XCTUnwrap(data["request_start"] as? Date)
+        let requestEnd = try XCTUnwrap(breadcrumb.timestamp)
+
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(data["url"] as? String, url.absoluteString)
+        XCTAssertEqual(data["method"] as? String, "GET")
+        XCTAssertEqual(data["status_code"] as? Int, 200)
+        XCTAssertGreaterThan(requestEnd.timeIntervalSince(requestStart), 0)
+    }
+
     func testGetRequest_CompareSentryTraceHeader() throws {
+        // -- Arrange --
         try ensureTestServerIsRunning()
 
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
 
-        startSDK()
+        // Framework file reads must not add unrelated spans to this network-only test.
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
 
@@ -73,9 +289,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         defer { dataTask.cancel() }
 
+        // -- Act --
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
+        // -- Assert --
         let children = Dynamic(transaction).children as [SentrySpanInternal]?
 
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
@@ -83,6 +301,93 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         let expectedTraceHeader = networkSpan.toTraceHeader().value()
         XCTAssertEqual(expectedTraceHeader, response)
+    }
+
+    func testDownloadRequest_CompareSentryTraceHeader() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        // Framework file reads must not add unrelated spans to this network-only test.
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
+        let transaction = try XCTUnwrap(
+            SentrySDK.startTransaction(
+                name: "Test Transaction",
+                operation: "TEST",
+                bindToScope: true
+            ) as? SentryTracer
+        )
+        let requestCompleted = expectation(description: "Download request completed")
+        // Cancelling the task in defer can trigger the completion handler again.
+        requestCompleted.assertForOverFulfill = false
+        var response: String?
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let task = session.downloadTask(with: testTraceURL) { location, _, error in
+            self.assertNetworkError(error)
+            defer { requestCompleted.fulfill() }
+
+            guard let location else {
+                return XCTFail("Expected download location")
+            }
+
+            do {
+                response = String(data: try Data(contentsOf: location), encoding: .utf8)
+            } catch {
+                XCTFail("Failed to read download response: \(error)")
+            }
+        }
+        defer { task.cancel() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted], timeout: 10)
+
+        // -- Assert --
+        let children = Dynamic(transaction).children as [SentrySpanInternal]?
+        let networkSpan = try XCTUnwrap(children?.first)
+        XCTAssertEqual(networkSpan.toTraceHeader().value(), response)
+    }
+
+    func testUploadRequest_CompareSentryTraceHeader() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        // Framework file reads must not add unrelated spans to this network-only test.
+        startSDK {
+            $0.enableFileIOTracing = false
+            $0.enableDataSwizzling = false
+        }
+        let transaction = try XCTUnwrap(
+            SentrySDK.startTransaction(
+                name: "Test Transaction",
+                operation: "TEST",
+                bindToScope: true
+            ) as? SentryTracer
+        )
+        let requestCompleted = expectation(description: "Upload request completed")
+        // Cancelling the task in defer can trigger the completion handler again.
+        requestCompleted.assertForOverFulfill = false
+        var response: String?
+        var request = URLRequest(url: testTraceURL)
+        request.httpMethod = "POST"
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let task = session.uploadTask(with: request, from: Data("test".utf8)) { data, _, error in
+            self.assertNetworkError(error)
+            response = String(data: data ?? Data(), encoding: .utf8)
+            requestCompleted.fulfill()
+        }
+        defer { task.cancel() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted], timeout: 10)
+
+        // -- Assert --
+        let children = Dynamic(transaction).children as [SentrySpanInternal]?
+        let networkSpan = try XCTUnwrap(children?.first)
+        XCTAssertEqual(networkSpan.toTraceHeader().value(), response)
     }
 
     func testGetCaptureFailedRequestsEnabled() throws {
@@ -128,17 +433,341 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(statusCode, 400)
     }
 
-    private func assertNetworkError(_ error: Error?) {
-        if error != nil {
-            XCTFail("Failed to complete request : \(String(describing: error))")
+    func testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
+        let transport = startSDK(
+            envelopeCaptured: envelopeCaptured,
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction,
+            disableFramesTracking: true
+        ) {
+            self.configureEnvelopeSnapshotOptions($0)
+            $0.enableNetworkBreadcrumbs = false
         }
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Network Envelope Snapshot",
+            operation: "test.network",
+            bindToScope: true
+        ) as? SentryTracer)
+        let dataTask = URLSession.shared.dataTask(with: url) { _, _, error in
+            self.assertNetworkError(error)
+            requestCompleted.fulfill()
+        }
+        defer { dataTask.cancel() }
+
+        // -- Act --
+        dataTask.resume()
+        wait(for: [requestCompleted], timeout: 10)
+        transaction.finish()
+        wait(for: [envelopeCaptured], timeout: 10)
+
+        // -- Assert --
+        XCTAssertEqual(transport.sentEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
+        try NetworkEnvelopeSnapshot.assertMatches(
+            envelope: envelope,
+            resource: "successful-request-transaction",
+            testCase: self
+        )
+    }
+
+    func testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
+        let transport = startSDK(
+            envelopeCaptured: envelopeCaptured,
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event,
+            disableFramesTracking: true
+        ) {
+            self.configureEnvelopeSnapshotOptions($0)
+            $0.enableNetworkBreadcrumbs = false
+            $0.enableCaptureFailedRequests = true
+            $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
+        }
+        let dataTask = URLSession.shared.dataTask(with: url) { _, _, error in
+            self.assertNetworkError(error)
+            requestCompleted.fulfill()
+        }
+        defer { dataTask.cancel() }
+
+        // -- Act --
+        dataTask.resume()
+        wait(for: [requestCompleted, envelopeCaptured], timeout: 10)
+
+        // -- Assert --
+        XCTAssertEqual(transport.sentEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
+        try NetworkEnvelopeSnapshot.assertMatches(
+            envelope: envelope,
+            resource: "failed-request-event",
+            testCase: self
+        )
+    }
+
+#if compiler(>=6.1)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private func assertNewLoaderReplayResponse(
+        useURLRequest: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        // -- Arrange --
+        guard #available(iOS 18.4, tvOS 18.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+        startSDK { options in
+            options.enableNetworkBreadcrumbs = true
+            options.sessionReplay.networkDetailAllowUrls = ["localhost"]
+            options.sessionReplay.networkCaptureBodies = true
+            options.sessionReplay.networkResponseHeaders = ["Content-Type"]
+        }
+        let requestCompleted = expectation(description: "Request completed")
+        let completion: @Sendable (Data?, URLResponse?, Error?) -> Void = { data, response, error in
+            XCTAssertNil(error, file: file, line: line)
+            XCTAssertEqual(String(data: data ?? Data(), encoding: .utf8), "(NO-HEADER)", file: file, line: line)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200, file: file, line: line)
+            requestCompleted.fulfill()
+        }
+        let task = useURLRequest
+            ? session.dataTask(with: URLRequest(url: url), completionHandler: completion)
+            : session.dataTask(with: url, completionHandler: completion)
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted], timeout: 10)
+
+        // -- Assert --
+        let details = try XCTUnwrap(task.networkDetails, file: file, line: line).serialize()
+        XCTAssertEqual(details["statusCode"] as? Int, 200, file: file, line: line)
+        XCTAssertEqual(details["responseBodySize"] as? Int, Data("(NO-HEADER)".utf8).count, file: file, line: line)
+        let response = try XCTUnwrap(details["response"] as? [String: Any], file: file, line: line)
+        let headers = try XCTUnwrap(response["headers"] as? [String: String], file: file, line: line)
+        XCTAssertEqual(headers["Content-Type"], "text/plain; charset=utf-8", file: file, line: line)
+        let body = try XCTUnwrap(response["body"] as? [String: Any], file: file, line: line)
+        XCTAssertEqual(body["body"] as? String, SentryTestSetup.isV10 ? "[Filtered]" : "(NO-HEADER)", file: file, line: line)
+    }
+#endif
+
+    private func assertNetworkTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        // -- Arrange --
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(
+            URL(string: "http://localhost:8081/echo-sentry-trace"),
+            file: file,
+            line: line
+        )
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = usesClassicLoadingMode
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(
+            SentrySDK.startTransaction(
+                name: "Test Transaction",
+                operation: "TEST",
+                bindToScope: true
+            ) as? SentryTracer,
+            file: file,
+            line: line
+        )
+        let responseBody = SentryMutex<String?>(nil)
+        let task = session.dataTask(with: url) { data, _, error in
+            self.assertNetworkError(error, file: file, line: line)
+            responseBody.withLock { $0 = String(data: data ?? Data(), encoding: .utf8) }
+            requestCompleted.fulfill()
+        }
+        let taskCompleted = usesClassicLoadingMode ? keyValueObservingExpectation(
+            for: task,
+            keyPath: "state"
+        ) { object, _ in
+            (object as? URLSessionTask)?.state == .completed
+        } : nil
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted] + [taskCompleted].compactMap { $0 }, timeout: 10)
+
+        // -- Assert --
+        let children = transaction.children
+        let networkSpan: Span
+        if usesClassicLoadingMode {
+            let responseTraceHeader = responseBody.withLock { $0 }
+            networkSpan = try XCTUnwrap(
+                children.first {
+                    $0.toTraceHeader().value() == responseTraceHeader
+                },
+                file: file,
+                line: line
+            )
+        } else {
+            networkSpan = try XCTUnwrap(children.first, file: file, line: line)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)", file: file, line: line)
+        }
+        XCTAssertTrue(networkSpan.isFinished, file: file, line: line)
+        XCTAssertEqual(
+            networkSpan.data["http.response.status_code"] as? NSNumber,
+            200,
+            file: file,
+            line: line
+        )
+    }
+
+    private func assertDownloadTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        try assertTaskTracking(
+            usesClassicLoadingMode: usesClassicLoadingMode,
+            file: file,
+            line: line
+        ) { session, url, completion in
+            session.downloadTask(with: url) { location, _, error in
+                guard let location else {
+                    return completion(nil, error)
+                }
+                do {
+                    let data = try Data(contentsOf: location)
+                    completion(String(data: data, encoding: .utf8), error)
+                } catch {
+                    completion(nil, error)
+                }
+            }
+        }
+    }
+
+    private func assertUploadTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        try assertTaskTracking(
+            usesClassicLoadingMode: usesClassicLoadingMode,
+            file: file,
+            line: line
+        ) { session, url, completion in
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            return session.uploadTask(with: request, from: Data("test".utf8)) { data, _, error in
+                completion(data.flatMap { String(data: $0, encoding: .utf8) }, error)
+            }
+        }
+    }
+
+    private func assertTaskTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line,
+        makeTask: (URLSession, URL, @escaping (String?, Error?) -> Void) -> URLSessionTask
+    ) throws {
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(
+            URL(string: "http://localhost:8081/echo-sentry-trace"),
+            file: file,
+            line: line
+        )
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = usesClassicLoadingMode
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(
+            SentrySDK.startTransaction(
+                name: "Test Transaction",
+                operation: "TEST",
+                bindToScope: true
+            ) as? SentryTracer,
+            file: file,
+            line: line
+        )
+        let responseBody = SentryMutex<String?>(nil)
+        let task = makeTask(session, url) { body, error in
+            self.assertNetworkError(error, file: file, line: line)
+            responseBody.withLock { $0 = body }
+            requestCompleted.fulfill()
+        }
+
+        task.resume()
+        wait(for: [requestCompleted], timeout: 10)
+
+        let networkSpan: Span
+        if usesClassicLoadingMode {
+            let responseTraceHeader = responseBody.withLock { $0 }
+            networkSpan = try XCTUnwrap(
+                transaction.children.first {
+                    $0.toTraceHeader().value() == responseTraceHeader
+                },
+                file: file,
+                line: line
+            )
+        } else {
+            networkSpan = try XCTUnwrap(transaction.children.first, file: file, line: line)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)", file: file, line: line)
+        }
+        XCTAssertTrue(networkSpan.isFinished, file: file, line: line)
+        XCTAssertEqual(
+            networkSpan.data["http.response.status_code"] as? NSNumber,
+            200,
+            file: file,
+            line: line
+        )
+    }
+
+#endif
+
+    private func assertNetworkError(
+        _ error: Error?,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        if error != nil {
+            XCTFail(
+                "Failed to complete request : \(String(describing: error))",
+                file: file,
+                line: line
+            )
+        }
+    }
+
+    private func expectationAllowingOverFulfill(description: String) -> XCTestExpectation {
+        let expectation = expectation(description: description)
+        expectation.assertForOverFulfill = false
+        return expectation
     }
 
     // We can't use a XCTTestExpectation here because we want to retry multiple times.
     // If a XCTestExpectation times out, the test would fail.
     // swiftlint:disable avoid_dispatch_groups_in_tests
     private func ensureTestServerIsRunning() throws {
-        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8081/"))
+        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8081/health"))
 
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20
@@ -149,8 +778,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             var isReady = false
 
             group.enter()
-            let dataTask = session.dataTask(with: testUrl) { (_, response, error) in
-                if error == nil, let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            let dataTask = session.dataTask(with: testUrl) { data, response, error in
+                if error == nil,
+                    let httpResponse = response as? HTTPURLResponse,
+                    httpResponse.statusCode == 200,
+                    String(data: data ?? Data(), encoding: .utf8) == "OK" {
                     isReady = true
                 }
                 group.leave()
@@ -179,13 +811,108 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
     // swiftlint:enable avoid_dispatch_groups_in_tests
 
-    private func startSDK(function: String = #function, _ configureOptions: ((Options) -> Void)? = nil) {
+    private func configureEnvelopeSnapshotOptions(_ options: Options) {
+        // Match the snapshots regardless of build route or which test first resets package metadata.
+        SentrySdkPackage.resetPackageManager()
+        options.enableAutoSessionTracking = false
+        options.enableAutoBreadcrumbTracking = false
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        options.enableUIViewControllerTracing = false
+        options.enableUserInteractionTracing = false
+#endif
+        options.enableFileIOTracing = false
+        options.enableDataSwizzling = false
+        options.enableCoreDataTracing = false
+        options.releaseName = "io.sentry.network-envelope-snapshot@1.0.0+1"
+        options.environment = "test"
+    }
+
+    @discardableResult
+    private func startSDK(
+        function: String = #function,
+        envelopeCaptured: XCTestExpectation? = nil,
+        expectedEnvelopeItemType: String? = nil,
+        disableFramesTracking: Bool = false,
+        _ configureOptions: ((Options) -> Void)? = nil
+    ) -> EnvelopeCapturingTransport {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests.\(function)")
         options.tracesSampleRate = 1.0
+        options.experimental.enableNewURLLoaderSwizzling = true
 
         configureOptions?(options)
 
         SentrySDK.start(options: options)
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        if disableFramesTracking {
+            // The display-link callback makes frames.delay nondeterministic in strict snapshots.
+            SentryDependencyContainer.sharedInstance().framesTracker.stop()
+        }
+#endif
+
+        let transport = EnvelopeCapturingTransport(
+            expectation: envelopeCaptured,
+            expectedEnvelopeItemType: expectedEnvelopeItemType
+        )
+        let client = SentrySDKInternal.currentHub().client()
+        Dynamic(client).transportAdapter = SentryTransportAdapter(transports: [transport], options: options)
+        return transport
+    }
+
+#if compiler(>=6.1)
+    private final class TaskCompletionDelegate: NSObject, URLSessionTaskDelegate {
+        let requestCompleted: XCTestExpectation
+
+        init(testCase: XCTestCase) {
+            requestCompleted = testCase.expectation(description: "Request completed")
+        }
+
+        func urlSession(
+            _ session: URLSession,
+            task: URLSessionTask,
+            didCompleteWithError error: Error?
+        ) {
+            XCTAssertNil(error)
+            requestCompleted.fulfill()
+        }
+    }
+
+#endif
+
+    private final class EnvelopeCapturingTransport: NSObject, Transport {
+        let sentEnvelopes = Invocations<SentryEnvelope>()
+        private let expectation: XCTestExpectation?
+        private let expectedEnvelopeItemType: String?
+
+        init(expectation: XCTestExpectation?, expectedEnvelopeItemType: String?) {
+            self.expectation = expectation
+            self.expectedEnvelopeItemType = expectedEnvelopeItemType
+        }
+
+        func send(envelope: SentryEnvelope) {
+            if let expectedEnvelopeItemType,
+               !envelope.items.contains(where: { $0.header.type == expectedEnvelopeItemType }) {
+                return
+            }
+            sentEnvelopes.record(envelope)
+            expectation?.fulfill()
+        }
+
+        func store(_ envelope: SentryEnvelope) {}
+
+        func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {}
+
+        func recordLostEvent(
+            _ category: SentryDataCategory,
+            reason: SentryDiscardReason,
+            quantity: UInt
+        ) {}
+
+        func flush(_ timeout: TimeInterval) -> SentryFlushResult {
+            .success
+        }
+
+        func setStartFlushCallback(_ callback: @escaping () -> Void) {}
     }
 }

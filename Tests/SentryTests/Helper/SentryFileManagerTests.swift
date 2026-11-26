@@ -1,7 +1,12 @@
 // swiftlint:disable file_length
 
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class SentryFileManagerTests: XCTestCase {
@@ -101,10 +106,12 @@ class SentryFileManagerTests: XCTestCase {
     
     private var fixture: Fixture!
     private var sut: SentryFileManager!
+    private var originalDateProvider: SentryCurrentDateProvider!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
+        originalDateProvider = SentryDependencyContainer.sharedInstance().dateProvider
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
         
         sut = try fixture.getSut()
@@ -121,9 +128,73 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
         sut.deleteAppState()
+        #if !SDK_V10
         sut.deleteAbnormalSession()
+        #endif // !SDK_V10
+        SentryDependencyContainer.sharedInstance().dateProvider = originalDateProvider
     }
     
+    func testInit_whenWorkingDirectoryCannotBeCreated_shouldLogFatal() {
+        // -- Arrange --
+        let output = TestLogOutput()
+        SentrySDKLog.setLogOutput(output)
+        fixture.options.cacheDirectoryPath = "/dev/null"
+
+        // -- Act --
+        XCTAssertThrowsError(try SentryFileManager(
+            options: fixture.options,
+            dateProvider: fixture.currentDateProvider,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        ))
+
+        // -- Assert --
+        XCTAssertTrue(output.loggedMessages.contains {
+            $0.contains("[fatal]") && $0.contains("Failed to create Sentry SDK working directory:")
+        })
+    }
+
+    func testInit_whenEnvelopesDirectoryCannotBeCreated_shouldLogFatal() throws {
+        // -- Arrange --
+        let output = TestLogOutput()
+        SentrySDKLog.setLogOutput(output)
+        try FileManager.default.removeItem(atPath: sut.envelopesPath)
+        try Data().write(to: URL(fileURLWithPath: sut.envelopesPath))
+        defer {
+            do {
+                try FileManager.default.removeItem(atPath: sut.envelopesPath)
+            } catch {
+                XCTFail("Failed to remove envelopes file: \(error)")
+            }
+        }
+
+        // -- Act --
+        XCTAssertThrowsError(try SentryFileManager(
+            options: fixture.options,
+            dateProvider: fixture.currentDateProvider,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        ))
+
+        // -- Assert --
+        XCTAssertTrue(output.loggedMessages.contains {
+            $0.contains("[fatal]") && $0.contains("Failed to create Sentry SDK envelopes directory:")
+        })
+    }
+
+    func testInit_whenDSNIsMissing_shouldLogFatal() throws {
+        // -- Arrange --
+        let output = TestLogOutput()
+        SentrySDKLog.setLogOutput(output)
+        fixture.options.dsn = nil
+
+        // -- Act --
+        _ = try fixture.getSut()
+
+        // -- Assert --
+        XCTAssertTrue(output.loggedMessages.contains {
+            $0.contains("[fatal]") && $0.contains("No DSN provided, using base path for envelopes:")
+        })
+    }
+
     func testInitDoesNotOverrideDirectories() throws {
         sut.store(TestConstants.envelope)
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
@@ -174,13 +245,79 @@ class SentryFileManagerTests: XCTestCase {
         try compareEnvelopes(expectedData, actualData as Data, message: "Envelopes are not equal")
     }
     
-    func testStoreInvalidEnvelope_ReturnsNil() {
+    func testStore_whenEnvelopeHeaderIsInvalid_shouldReturnNilWithoutLeavingFiles() {
+        // -- Arrange --
         let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
         let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
-        
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
-        
-        XCTAssertNil(sut.store(envelope))
+
+        // -- Act --
+        let path = sut.store(envelope)
+
+        // -- Assert --
+        XCTAssertNil(path)
+        XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
+    }
+
+    func testStore_whenEnvelopeItemHeaderIsInvalid_shouldReturnNilWithoutLeavingFiles() {
+        // -- Arrange --
+        let itemHeader = SentryEnvelopeItemHeader(type: SentryInvalidJSONString() as String, length: 0)
+        let envelope = SentryEnvelope(
+            header: SentryEnvelopeHeader(id: SentryId()),
+            singleItem: SentryEnvelopeItem(header: itemHeader, data: Data())
+        )
+
+        // -- Act --
+        let path = sut.store(envelope)
+
+        // -- Assert --
+        XCTAssertNil(path)
+        XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
+    }
+
+    func testStore_whenSentryRootIsReadOnly_shouldStoreEnvelope() throws {
+        // -- Arrange --
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: sut.sentryPath)
+        defer {
+            XCTAssertNoThrow(try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: sut.sentryPath))
+        }
+
+        // -- Act --
+        let path = sut.store(TestConstants.envelope)
+
+        // -- Assert --
+        XCTAssertNotNil(path)
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+    }
+
+    func testStore_whenEnvelopeHasLargeAttachment_shouldStoreValidEnvelope() throws {
+        // -- Arrange --
+        let attachmentData = Data(repeating: 0x2A, count: 20 * 1_024 * 1_024)
+        let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.attachment, length: UInt(attachmentData.count))
+        let envelope = SentryEnvelope(
+            header: SentryEnvelopeHeader(id: SentryId()),
+            singleItem: SentryEnvelopeItem(header: itemHeader, data: attachmentData)
+        )
+
+        // -- Act --
+        let path = sut.store(envelope)
+
+        // -- Assert --
+        let storedData = try Data(contentsOf: URL(fileURLWithPath: XCTUnwrap(path)))
+        let storedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: storedData))
+        XCTAssertEqual(storedEnvelope.items.first?.data, attachmentData)
+    }
+
+    func testStore_whenFinalEnvelopeCannotBePublished_shouldReturnNilWithoutLeavingFiles() throws {
+        // -- Arrange --
+        try FileManager.default.removeItem(atPath: sut.envelopesPath)
+
+        // -- Act --
+        let path = sut.store(TestConstants.envelope)
+
+        // -- Assert --
+        XCTAssertNil(path)
+        XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
     }
     
     func testDeleteOldEnvelopes() throws {
@@ -528,6 +665,60 @@ class SentryFileManagerTests: XCTestCase {
         let actualSession = sut.readCrashedSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
     }
+
+    func testStoreAndReadCurrentSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        expectedSession.markPendingUnhandled()
+
+        // -- Act --
+        sut.storeCurrentSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readCurrentSession())
+
+        // -- Assert --
+        XCTAssertTrue(actualSession.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, actualSession.status)
+    }
+
+    func testStoreAndReadCurrentSession_whenNotPendingUnhandled_shouldNotBePendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        sut.storeCurrentSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readCurrentSession())
+
+        // -- Assert --
+        XCTAssertFalse(actualSession.pendingUnhandled)
+    }
+
+#if !SDK_V10
+    func testStoreAndReadAbnormalSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        expectedSession.markPendingUnhandled()
+
+        // -- Act --
+        sut.storeAbnormalSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readAbnormalSession())
+
+        // -- Assert --
+        XCTAssertTrue(actualSession.pendingUnhandled)
+    }
+#endif // !SDK_V10
+
+    func testStoreAndReadCrashedSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        expectedSession.markPendingUnhandled()
+
+        // -- Act --
+        sut.storeCrashedSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readCrashedSession())
+
+        // -- Assert --
+        XCTAssertTrue(actualSession.pendingUnhandled)
+    }
     
     func testStoreDeleteCurrentSession() {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
@@ -543,6 +734,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(actualSession)
     }
     
+    #if !SDK_V10
     func testStoreAbnormalSession() throws {
         // Arrange
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
@@ -615,6 +807,7 @@ class SentryFileManagerTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 10)
     }
+    #endif // !SDK_V10
     
     func testStoreAndReadTimestampLastInForeground() {
         let expectedTimestamp = TestCurrentDateProvider().date()
@@ -777,6 +970,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
     
+    #if !SDK_V10
     func testStoreWriteAppHangEvent() throws {
         // Arrange
         let event = TestData.event
@@ -855,6 +1049,7 @@ class SentryFileManagerTests: XCTestCase {
         // Assert
         XCTAssertNil(sut.readAppHangEvent())
     }
+    #endif // !SDK_V10
 
     func testSentryPathFromOptionsCacheDirectoryPath() throws {
         fixture.options.cacheDirectoryPath = "/var/tmp"
@@ -866,7 +1061,11 @@ class SentryFileManagerTests: XCTestCase {
 #if os(iOS) || os(tvOS)
     
     func testReadPreviousBreadcrumbs() throws {
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 2,
+            fileManager: sut,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
         let attributesProcessor = try SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
             scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: sut))
@@ -896,7 +1095,11 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 2,
+            fileManager: sut,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
         let attributesProcessor = try SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
             scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: sut))
@@ -1049,7 +1252,8 @@ class SentryFileManagerTests: XCTestCase {
         let result = createDirectoryIfNotExists(path, &error)
         // -- Assert -
         XCTAssertTrue(result)
-        XCTAssertEqual(logOutput.loggedMessages.count, 0)
+        let unexpectedLogMessage = "Failed to create directory, path is too long: \(path)"
+        XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains(unexpectedLogMessage) })
     }
 
     func testCreateDirectoryIfNotExists_pathTooLogError_shouldLogError() throws {
@@ -1066,7 +1270,7 @@ class SentryFileManagerTests: XCTestCase {
 
         // -- Assert -
         XCTAssertFalse(result)
-        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.domain, SentryError.domain)
         XCTAssertEqual(error?.code, 108)
 
         let expectedLogMessage = "Failed to create directory, path is too long: \(path)"
@@ -1087,9 +1291,10 @@ class SentryFileManagerTests: XCTestCase {
         let result = createDirectoryIfNotExists(path, &error)
         // -- Assert -
         XCTAssertFalse(result)
-        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.domain, SentryError.domain)
         XCTAssertEqual(error?.code, 108)
-        XCTAssertEqual(logOutput.loggedMessages.count, 0)
+        let unexpectedLogMessage = "Failed to create directory, path is too long: \(path)"
+        XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains(unexpectedLogMessage) })
     }
 
     func testReadDataFromPath_whenFileExistsAtPath_shouldReadData() throws {
@@ -1172,10 +1377,10 @@ extension SentryFileManagerTests {
         let config = sentry_persistedLaunchProfileConfigurationOptions()
 
         // -- Assert --
-        let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
-        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand]).doubleValue
-        let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate]).doubleValue
-        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand]).doubleValue
+        let actualTracesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRate]).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRand]).doubleValue
+        let actualProfilesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRate]).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRand]).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
         XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
@@ -1197,19 +1402,19 @@ extension SentryFileManagerTests {
         let expectedProfilesSampleRate = 0.34
         let expectedProfilesSampleRand = 0.66
         writeAppLaunchProfilingConfigFile([
-            kSentryLaunchProfileConfigKeyTracesSampleRate: expectedTracesSampleRate,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: expectedTracesSampleRand,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
+            SentryLaunchProfileConfigKey.tracesSampleRate: expectedTracesSampleRate,
+            SentryLaunchProfileConfigKey.tracesSampleRand: expectedTracesSampleRand,
+            SentryLaunchProfileConfigKey.profilesSampleRate: expectedProfilesSampleRate,
+            SentryLaunchProfileConfigKey.profilesSampleRand: expectedProfilesSampleRand
         ])
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         let config = NSDictionary(contentsOf: configURL)
 
-        let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
-        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
-        let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
-        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? NSNumber).doubleValue
+        let actualTracesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRate] as? NSNumber).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRand] as? NSNumber).doubleValue
+        let actualProfilesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRate] as? NSNumber).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRand] as? NSNumber).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
         XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
@@ -1228,20 +1433,20 @@ extension SentryFileManagerTests {
 
         // -- Act --
         writeAppLaunchProfilingConfigFile([
-            kSentryLaunchProfileConfigKeyTracesSampleRate: expectedTracesSampleRate,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: expectedTracesSampleRand,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
+            SentryLaunchProfileConfigKey.tracesSampleRate: expectedTracesSampleRate,
+            SentryLaunchProfileConfigKey.tracesSampleRand: expectedTracesSampleRand,
+            SentryLaunchProfileConfigKey.profilesSampleRate: expectedProfilesSampleRate,
+            SentryLaunchProfileConfigKey.profilesSampleRand: expectedProfilesSampleRand
         ])
         
         // -- Assert --
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         let config = NSDictionary(contentsOf: configURL)
 
-        let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
-        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
-        let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
-        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? NSNumber).doubleValue
+        let actualTracesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRate] as? NSNumber).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRand] as? NSNumber).doubleValue
+        let actualProfilesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRate] as? NSNumber).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRand] as? NSNumber).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
         XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
@@ -1322,10 +1527,10 @@ extension SentryFileManagerTests {
 
         // -- Act --
         let config: NSMutableDictionary = [
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.3,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.25,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.4
+            SentryLaunchProfileConfigKey.tracesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.3,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.25,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.4
         ]
         writeAppLaunchProfilingConfigFile(config)
 
@@ -1333,7 +1538,7 @@ extension SentryFileManagerTests {
         XCTAssertTrue(fm.fileExists(atPath: directoryURL.path))
         XCTAssertTrue(fm.fileExists(atPath: url.path))
         let written = NSDictionary(contentsOf: url)
-        XCTAssertEqual(written?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? Double, 0.5)
+        XCTAssertEqual(written?[SentryLaunchProfileConfigKey.tracesSampleRate] as? Double, 0.5)
     }
 
     func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
@@ -1451,10 +1656,10 @@ private extension SentryFileManagerTests {
         if exists {
             XCTAssertTrue(ensureLaunchProfileConfigDirectoryExists(), "Directory for launch profile config must exist before writing")
             let dict = [
-                kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate,
-                kSentryLaunchProfileConfigKeyTracesSampleRand: tracesSampleRand,
-                kSentryLaunchProfileConfigKeyProfilesSampleRate: profilesSampleRate,
-                kSentryLaunchProfileConfigKeyProfilesSampleRand: profilesSampleRand
+                SentryLaunchProfileConfigKey.tracesSampleRate: tracesSampleRate,
+                SentryLaunchProfileConfigKey.tracesSampleRand: tracesSampleRand,
+                SentryLaunchProfileConfigKey.profilesSampleRate: profilesSampleRate,
+                SentryLaunchProfileConfigKey.profilesSampleRand: profilesSampleRand
             ]
             try (dict as NSDictionary).write(to: url)
         } else {

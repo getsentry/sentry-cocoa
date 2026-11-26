@@ -25,11 +25,25 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashMonitor_NSException_StackCursor.h"
-#import "SentryCrashStackCursor_Backtrace.h"
-#import "SentryCrashStackCursor_SelfThread.h"
+#if !SDK_V10
 
-#import "SentryLogC.h"
+#    import "SentryCrashMonitor_NSException_StackCursor.h"
+#    import "SentryCrashStackCursor_Backtrace.h"
+#    import "SentryCrashStackCursor_SelfThread.h"
+
+#    include "SentryAsyncSafeLog.h"
+#    import <Foundation/Foundation.h>
+#    include <limits.h>
+
+#    if defined(DEBUG) // Test support.
+bool
+#    else
+static bool
+#    endif
+sentrycrashcm_nsexception_isValidFrameCount(size_t numFrames)
+{
+    return numFrames <= INT_MAX && numFrames <= SIZE_MAX / sizeof(uintptr_t);
+}
 
 uintptr_t *
 sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSException *exception)
@@ -38,18 +52,23 @@ sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSExce
     NSUInteger numFrames = addresses.count;
 
     if (numFrames == 0) {
-        // Happens when NSApplication.shared.reportException is called without raising the
-        // exception.
-        SENTRY_LOG_DEBUG(
-            @"callStackReturnAddresses is empty, capturing current thread stack trace");
+        // An exception reported through NSApplication.shared.reportException without being
+        // raised may not have a stack trace.
+        SENTRY_ASYNC_SAFE_LOG_WARN(
+            "callStackReturnAddresses is empty, capturing current thread stack trace");
+        sentrycrashsc_initSelfThread(cursor, 0);
+        return NULL;
+    }
+
+    if (!sentrycrashcm_nsexception_isValidFrameCount(numFrames)) {
+        SENTRY_ASYNC_SAFE_LOG_WARN("Exception backtrace is too large, capturing current thread");
         sentrycrashsc_initSelfThread(cursor, 0);
         return NULL;
     }
 
     uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
-    assert(callstack != NULL);
     if (callstack == NULL) {
-        SENTRY_LOG_DEBUG(@"Failed to allocate memory, capturing current thread");
+        SENTRY_ASYNC_SAFE_LOG_WARN("Failed to allocate memory, capturing current thread");
         sentrycrashsc_initSelfThread(cursor, 0);
         return NULL;
     }
@@ -60,3 +79,5 @@ sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSExce
     sentrycrashsc_initWithBacktrace(cursor, callstack, (int)numFrames, 0);
     return callstack;
 }
+
+#endif // !SDK_V10

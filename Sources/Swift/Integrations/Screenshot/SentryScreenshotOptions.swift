@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
+public final class SentryViewScreenshotOptions: NSObject {
     /**
      * Default values for the screenshot options.
      *
@@ -12,12 +12,14 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
         
+        #if !SDK_V10
         public static let maskAllText: Bool = true
         public static let maskAllImages: Bool = true
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
         public static let excludedViewClasses: Set<String> = []
         public static let includedViewClasses: Set<String> = []
+        #endif // !SDK_V10
     }
     
     // MARK: - Rendering
@@ -59,6 +61,7 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      */
     public var enableFastViewRendering: Bool
     
+    #if !SDK_V10
     // MARK: - Masking
     
     /**
@@ -171,6 +174,36 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         includedViewClasses.insert(viewType)
     }
 
+    #endif // !SDK_V10
+
+    #if SDK_V10
+    /// Initializes screenshot rendering options.
+    public convenience override init() {
+        self.init(enableViewRendererV2: DefaultValues.enableViewRendererV2,
+                  enableFastViewRendering: DefaultValues.enableFastViewRendering)
+    }
+
+    convenience init(dictionary: [String: Any]) {
+        self.init(
+            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue ?? DefaultValues.enableViewRendererV2,
+            enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue ?? DefaultValues.enableFastViewRendering
+        )
+    }
+
+    /// Initializes screenshot rendering options.
+    /// - Parameters:
+    ///   - enableViewRendererV2: Enables the faster view renderer.
+    ///   - enableFastViewRendering: Enables faster but incomplete view rendering.
+    public init(
+        enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
+        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering
+    ) {
+        self.enableViewRendererV2 = enableViewRendererV2
+        self.enableFastViewRendering = enableFastViewRendering
+        super.init()
+    }
+
+    #else
     /**
      * Initialize screenshot options disabled
      *
@@ -261,8 +294,16 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         super.init()
     }
     
+    #endif // SDK_V10
+
+    #if !SDK_V10
     public override var description: String {
         return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses), excludedViewClasses: \(excludedViewClasses), includedViewClasses: \(includedViewClasses))"
     }
+    #endif // !SDK_V10
 }
+
+#if !SDK_V10
+extension SentryViewScreenshotOptions: SentryRedactOptions {}
+#endif // !SDK_V10
 // swiftlint:enable missing_docs

@@ -15,6 +15,13 @@
         options.dsn = @"https://key@sentry.io/123";
         options.enableCrashHandler = NO;
         options.enableAutoPerformanceTracing = NO;
+#    if !SDK_V10
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        options.enableAppHangTracking = NO;
+#        pragma clang diagnostic pop
+#    endif // !SDK_V10
+        options.enableWatchdogTerminationTracking = NO;
         options.enableSwizzling = NO;
     }];
 }
@@ -58,13 +65,10 @@
 
 #    pragma mark - isFramesTrackingRunning
 
-- (void)testIsFramesTrackingRunning_defaultIsTrue
+- (void)testIsFramesTrackingRunning_defaultIsFalse
 {
-    // -- Arrange --
-    SentryObjCSDK.internal.performance.framesTrackingHybridSDKMode = NO;
-
     // -- Assert --
-    XCTAssertTrue(SentryObjCSDK.internal.performance.isFramesTrackingRunning);
+    XCTAssertFalse(SentryObjCSDK.internal.performance.isFramesTrackingRunning);
 }
 
 @end

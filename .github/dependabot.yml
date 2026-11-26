@@ -5,9 +5,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
-    labels:
-      - "run-full-ci"
-      - "dependencies"
+    # An empty list also disables Dependabot's default labels.
+    labels: []
     ignore:
       - dependency-name: fastlane
         versions:
@@ -17,22 +16,16 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    labels:
-      - "run-full-ci"
-      - "dependencies"
+    labels: []
 
   - package-ecosystem: "swift"
     directory: "/test-server"
     schedule:
       interval: weekly
-    labels:
-      - "run-full-ci"
-      - "dependencies"
+    labels: []
 
   - package-ecosystem: "swift"
-    directory: "/Samples/macOS-CLI"
+    directory: "/TestApps/macOS-CLI"
     schedule:
       interval: weekly
-    labels:
-      - "run-full-ci"
-      - "dependencies"
+    labels: []

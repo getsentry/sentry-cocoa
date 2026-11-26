@@ -4,6 +4,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
+#import "SentryNoOpSpan.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanDataKey.h"
@@ -200,6 +201,14 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                                                                description:spanDescription];
     if (ioSpan == nil) {
         SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
+        return nil;
+    }
+
+    // A finished transaction only hands out the shared no-op span, which is never sent. Return
+    // early so we don't capture a stack trace on the main thread for it or write to an instance
+    // that is shared between threads.
+    if ([ioSpan isKindOfClass:[SentryNoOpSpan class]]) {
+        SENTRY_LOG_DEBUG(@"Transaction already finished. Won't track file IO operation.");
         return nil;
     }
 

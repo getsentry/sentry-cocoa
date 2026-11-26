@@ -18,7 +18,8 @@ extension SentryUserFeedbackFormDelegate {
 /// A view controller that displays the Sentry user feedback form.
 ///
 /// If the managed User Feedback integration is installed, the SDK temporarily hides the feedback widget while this
-/// controller is visible.
+/// controller is visible. When the form opens, an active Session Replay is sampled and flushed
+/// using `onErrorSampleRate` in buffer mode, even if the user later cancels the form.
 ///
 /// - warning: This is an experimental feature and may still have bugs.
 @available(iOSApplicationExtension, unavailable)
@@ -34,6 +35,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
         case didClose
     }
     private var formLifecycleState: FormLifecycleState = .idle
+    private var openingReplayId: SentryId?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
@@ -182,12 +184,40 @@ extension SentryUserFeedbackFormController {
     }
 }
 
+// MARK: Error presentation
+extension SentryUserFeedbackFormController {
+    func makeErrorAlert(message: String) -> UIAlertController {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        return alert
+    }
+
+    func presentErrorAlert(message: String, completion: (() -> Void)? = nil) {
+        present(makeErrorAlert(message: message), animated: config.animations, completion: completion)
+    }
+
+    func makeScreenshotErrorAlert() -> UIAlertController {
+        return makeErrorAlert(message: config.formConfig.screenshotErrorText)
+    }
+
+    func presentScreenshotError() {
+        guard viewIfLoaded?.window != nil else { return }
+        present(makeScreenshotErrorAlert(), animated: config.animations)
+    }
+}
+
 // MARK: SentryUserFeedbackFormViewModelDelegate
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
+    func selectScreenshot() {
+        view.endEditing(true)
+        present(makeScreenshotPicker(), animated: config.animations)
+    }
+
     func submitFeedback() {
         switch viewModel.validate() {
         case .success:
             let feedback = viewModel.feedbackObject()
+            feedback.replayId = openingReplayId
             SentrySDKLog.debug("Sending user feedback")
             if let block = config.onSubmitSuccess {
                 block(feedback.dataDictionary())
@@ -196,22 +226,25 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
             dismiss(animated: config.animations)
         case .failure(let error):
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
-                let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: config.animations) { [config] in
+                presentErrorAlert(message: message) { [config] in
                     // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
                     config.onSubmitError?(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
                 }
             }
 
-            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
-                let errorDescription = error.errorDescription else {
+            guard let errorDescription = error.errorDescription else {
                 SentrySDKLog.warning("Unexpected error type.")
                 presentAlert(message: config.formConfig.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
 
-            presentAlert(message: errorDescription, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            switch error {
+            case .validationError(let missing, _):
+                presentAlert(message: errorDescription, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            case .messageTooLong:
+                viewModel.messageTextView.becomeFirstResponder()
+                presentAlert(message: errorDescription, errorCode: 1, info: [NSLocalizedDescriptionKey: errorDescription])
+            }
         }
     }
 
@@ -240,6 +273,11 @@ extension SentryUserFeedbackFormController {
 
         guard case .willOpen = formLifecycleState else { return }
         formLifecycleState = .didOpen
+        let replayIntegration = SentrySDKInternal.currentHub().getInstalledIntegration(SentrySessionReplayIntegration.self)
+            as? SentrySessionReplayIntegration
+        _ = replayIntegration?.captureReplayForFeedback()
+        // Match Android by retaining the buffer's ID even when sampling rejects capture.
+        openingReplayId = replayIntegration?.sessionReplay?.sessionReplayId
         config.onFormOpen?()
     }
 
@@ -288,6 +326,8 @@ extension SentryUserFeedbackFormController: UITextViewDelegate {
     /// Updates validation state when the feedback message changes.
     public func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
+        guard textView.markedTextRange == nil else { return }
+        viewModel.updateMessageCharacterCount()
         viewModel.updateSubmitButtonAccessibilityHint()
     }
 }

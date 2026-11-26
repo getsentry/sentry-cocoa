@@ -2,6 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryDefines.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLogC.h"
 #import "SentrySampleDecision.h"
 #import "SentryScope+Private.h"
@@ -115,8 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     NSString *sampled = nil;
     if (tracer.sampled != kSentrySampleDecisionUndecided) {
-        sampled
-            = tracer.sampled == kSentrySampleDecisionYes ? kSentryTrueString : kSentryFalseString;
+        sampled = tracer.sampled == kSentrySampleDecisionYes ? @"true" : @"false";
     }
 
     return [self initWithTraceId:tracer.traceId

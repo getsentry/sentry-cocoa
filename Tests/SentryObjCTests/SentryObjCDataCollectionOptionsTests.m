@@ -75,44 +75,18 @@
 #endif
 }
 
-- (void)testGraphql_whenDefault_shouldBeTrue
+- (void)testUnsupportedCategories_shouldNotBeExposed
 {
 #if !SDK_V10
     XCTSkip(@"Test skipped for SDK_V10");
 #else
     SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
-    XCTAssertTrue(options.graphql.document);
-    XCTAssertTrue(options.graphql.variables);
-#endif
-}
+    NSArray<NSString *> *selectors =
+        @[ @"database", @"frameContextLines", @"graphQL", @"graphql", @"stackFrameVariables" ];
 
-- (void)testDatabase_whenDefault_shouldBeTrue
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
-    XCTAssertTrue(options.database.queryParams);
-#endif
-}
-
-- (void)testStackFrameVariables_whenDefault_shouldBeTrue
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
-    XCTAssertTrue(options.stackFrameVariables);
-#endif
-}
-
-- (void)testFrameContextLines_whenDefault_shouldBeFive
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
-    XCTAssertEqual(options.frameContextLines, 5u);
+    for (NSString *selector in selectors) {
+        XCTAssertFalse([options respondsToSelector:NSSelectorFromString(selector)]);
+    }
 #endif
 }
 
@@ -211,28 +185,6 @@
     XCTAssertTrue(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeIncomingResponse);
     XCTAssertFalse(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeIncomingRequest);
     XCTAssertFalse(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeOutgoingResponse);
-#endif
-}
-
-- (void)testStackFrameVariables_whenSetToNo_shouldReturnFalse
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
-    options.stackFrameVariables = NO;
-    XCTAssertFalse(options.stackFrameVariables);
-#endif
-}
-
-- (void)testFrameContextLines_whenSetToZero_shouldReturnZero
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
-    options.frameContextLines = 0;
-    XCTAssertEqual(options.frameContextLines, 0u);
 #endif
 }
 

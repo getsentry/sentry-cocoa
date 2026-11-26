@@ -9,11 +9,37 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryObjCId;
+
 /// Session replay APIs for Sentry hybrid SDKs.
 ///
 /// These methods may change in any minor release without deprecation.
 @interface SentryObjCInternalReplayApi : NSObject
 SENTRY_NO_INIT
+
+/// Starts a new replay session if Replay is inactive.
+- (void)start;
+
+/// Starts Replay in buffer mode if Replay is inactive.
+- (void)startBuffering;
+
+/// Pauses the current replay.
+- (void)pause;
+
+/// Resumes a replay paused with @c pause.
+- (void)resume;
+
+/// Stops recording touch positions until @c resumeTouchTracking is called.
+- (void)pauseTouchTracking;
+
+/// Resumes recording touch positions paused with @c pauseTouchTracking.
+- (void)resumeTouchTracking;
+
+/// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+- (void)flush;
+
+/// Stops the current replay.
+- (void)stop;
 
 /// Captures a replay event. Returns @c YES if the replay was captured.
 - (BOOL)capture;
@@ -35,6 +61,9 @@ SENTRY_NO_INIT
 
 /// Sets tags on the current replay session.
 - (void)setTags:(NSDictionary<NSString *, id> *)tags;
+
+/// Registers a trace ID with the current replay segment.
+- (void)registerTraceId:(SentryObjCId *)traceId;
 
 @end
 

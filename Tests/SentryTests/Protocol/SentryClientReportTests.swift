@@ -1,21 +1,32 @@
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @_spi(Private) import Sentry
+#endif
 @_spi(Private) import SentryTestUtils
+#if !SWIFT_PACKAGE
 @testable import Sentry
+#endif
 import XCTest
 
 class SentryClientReportTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
     func testSerialize() throws {
         SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         
-        let event1 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: SentryDataCategory.transaction.name, quantity: 2)
-        let event2 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: SentryDataCategory.transaction.name, quantity: 3)
-        let event3 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
+        let event1 = SentryDiscardedEvent(reason: SentryDiscardReason.sampleRate.name, category: SentryDataCategory.transaction.name, quantity: 2)
+        let event2 = SentryDiscardedEvent(reason: SentryDiscardReason.beforeSend.name, category: SentryDataCategory.transaction.name, quantity: 3)
+        let event3 = SentryDiscardedEvent(reason: SentryDiscardReason.rateLimitBackoff.name, category: SentryDataCategory.error.name, quantity: 1)
         
         let report = SentryClientReport(discardedEvents: [event1, event2, event3], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         

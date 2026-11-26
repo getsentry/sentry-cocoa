@@ -6,7 +6,6 @@
 #    import "SentryProfilerDefines.h"
 
 @class SentryTransaction;
-@class SentrySystemWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,10 +67,8 @@ SENTRY_NO_INIT
  * payload for transmission.
  */
 - (NSDictionary *)copyMetricProfilerData;
-
-#    if SENTRY_TEST || SENTRY_TEST_CI
-+ (void)setSystemWrapperOverride:(SentrySystemWrapper *)value;
-#    endif
+/** Readings recorded after the snapshot remain available for the next chunk. */
+- (NSDictionary *)copyAndClearMetricProfilerData;
 
 @end
 

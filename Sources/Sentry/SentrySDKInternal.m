@@ -1,21 +1,26 @@
 #import "SentrySDKInternal.h"
-#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMeta.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
-#import "SentrySamplingContext.h"
+#import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+
+@class SentryAppStartMeasurement;
+
+#if SDK_V10
+// Keep the dlsym-only Unity C++ ABI compatibility symbols in static links.
+extern const void *_Nonnull sentry_cxa_throw_compatibility_linker_anchor(void)
+    __attribute__((visibility("hidden")));
+#endif
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -23,8 +28,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryFileManagerHelper.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerConfigurationBridge.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentrySDKInternal ()
@@ -41,6 +48,11 @@ static BOOL lastRunStatusCalled;
 static BOOL fatalDetected;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
+static void (^_Nullable sentryOnAppStartMeasurementAvailable)(SentryAppStartMeasurement *_Nullable);
+static BOOL sentryAppStartMeasurementHybridSDKMode;
+#if SENTRY_HAS_UIKIT
+static BOOL sentryFramesTrackingMeasurementHybridSDKMode;
+#endif // SENTRY_HAS_UIKIT
 static BOOL _detectedStartUpCrash;
 
 /**
@@ -53,6 +65,35 @@ static BOOL _detectedStartUpCrash;
  */
 static NSUInteger startInvocations;
 static NSDate *_Nullable startTimestamp = nil;
+static BOOL sdkStarted;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+// Keep the early hook in the SDK entry-point object so static links retain it.
++ (void)load
+{
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT) // Test support.
+    // XCTest's launch configuration distinguishes unit tests from ordinary Debug consumers.
+    // The UI-test marker still allows launch profiling in test apps.
+    NSDictionary<NSString *, NSString *> *environment = NSProcessInfo.processInfo.environment;
+    if (environment[@"XCTestConfigurationFilePath"] != nil
+        && environment[@"--io.sentry.ui-test.test-name"] == nil) {
+        return;
+    }
+
+    // the samples apps may want to wipe the data like before UI test case runs, or manually during
+    // development, to remove any launch config files that might be present before launching the app
+    // initially, however we need to make sure to remove stale versions of the file before it gets
+    // used to potentially start a launch profile that shouldn't have started, so we check here for
+    // this. This is runtime-gated and safe to compile in unconditionally.
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
+        removeSentryStaticBasePath();
+    }
+#    endif // defined(DEBUG)
+
+    [SentryLaunchProfiling startLaunchProfile];
+}
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 + (void)initialize
 {
@@ -60,6 +101,7 @@ static NSDate *_Nullable startTimestamp = nil;
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
         startInvocations = 0;
+        sdkStarted = NO;
         _detectedStartUpCrash = NO;
     }
 }
@@ -142,11 +184,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashReporterInstalled
 {
-#if ENABLE_KSCRASH
-    return SentryDependencyContainer.sharedInstance.kscrashQuery.installed;
-#else
-    return SentryDependencyContainer.sharedInstance.crashWrapper.installed;
-#endif
+    return SentryDependencyContainer.sharedInstance.activeCrashReporterState.installed;
 }
 
 + (BOOL)fatalDetected
@@ -167,8 +205,10 @@ static NSDate *_Nullable startTimestamp = nil;
     @synchronized(sentrySDKappStartMeasurementLock) {
         sentrySDKappStartMeasurement = value;
     }
-    if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
-        PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);
+
+    void (^callback)(SentryAppStartMeasurement *_Nullable) = self.onAppStartMeasurementAvailable;
+    if (callback != nil) {
+        callback(value);
     }
 }
 
@@ -181,6 +221,51 @@ static NSDate *_Nullable startTimestamp = nil;
         return sentrySDKappStartMeasurement;
     }
 }
+
++ (void (^_Nullable)(SentryAppStartMeasurement *_Nullable))onAppStartMeasurementAvailable
+{
+    @synchronized(self) {
+        return [sentryOnAppStartMeasurementAvailable copy];
+    }
+}
+
++ (void)setOnAppStartMeasurementAvailable:(void (^_Nullable)(
+                                              SentryAppStartMeasurement *_Nullable))callback
+{
+    @synchronized(self) {
+        sentryOnAppStartMeasurementAvailable = [callback copy];
+    }
+}
+
++ (BOOL)appStartMeasurementHybridSDKMode
+{
+    @synchronized(self) {
+        return sentryAppStartMeasurementHybridSDKMode;
+    }
+}
+
++ (void)setAppStartMeasurementHybridSDKMode:(BOOL)value
+{
+    @synchronized(self) {
+        sentryAppStartMeasurementHybridSDKMode = value;
+    }
+}
+
+#if SENTRY_HAS_UIKIT
++ (BOOL)framesTrackingMeasurementHybridSDKMode
+{
+    @synchronized(self) {
+        return sentryFramesTrackingMeasurementHybridSDKMode;
+    }
+}
+
++ (void)setFramesTrackingMeasurementHybridSDKMode:(BOOL)value
+{
+    @synchronized(self) {
+        sentryFramesTrackingMeasurementHybridSDKMode = value;
+    }
+}
+#endif // SENTRY_HAS_UIKIT
 
 /**
  * Not public, only for internal use.
@@ -216,6 +301,22 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+#if SDK_V10
+    (void)sentry_cxa_throw_compatibility_linker_anchor();
+#endif
+
+    BOOL alreadyStarted = NO;
+    @synchronized(currentHubLock) {
+        alreadyStarted = sdkStarted;
+        sdkStarted = YES;
+    }
+    if (alreadyStarted) {
+        SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
+                        @"close() may lead to undefined behavior.");
+    }
+
+    [self setStartOptions:options];
+
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
@@ -223,9 +324,9 @@ static NSDate *_Nullable startTimestamp = nil;
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
-#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(DEBUG) // Test support.
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
-#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#endif // defined(DEBUG)
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
@@ -236,6 +337,9 @@ static NSDate *_Nullable startTimestamp = nil;
     // These classes must be referenced somewhere for their files to not be stripped.
     [PlaceholderSentryApplication class];
     [PlaceholderProcessInfoClass class];
+    [PlaceholderNotificationCenterClass class];
+    [PlaceholderOptionsDictionaryClass class];
+    [PlaceholderReplayNetworkDetailsClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
@@ -246,13 +350,22 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryDependencyContainer.sharedInstance
             .scopePersistentStore moveAllCurrentStateToPreviousState];
 
-    SentryScope *scope
-        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+    SentryScope *scope = options.initialScope(
+        [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                    maxFeatureFlags:options.maxFeatureFlags]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchAsyncOnMainQueueIfNotMainThread:^{
             SENTRY_LOG_DEBUG(@"SDK main thread init started...");
+
+            // Earlier background starts may still have a pending hub installation. Detach the
+            // scope being replaced here, rather than the hub visible when start was called.
+            [SentrySDKInternal.currentHub.scope configureUserPersistence:nil];
+            if (options.enableScopePersistence) {
+                [SentryDependencyContainer.sharedInstance.scopePersistentStore
+                    startPersistingUserInScope:scope];
+            }
 
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
@@ -266,7 +379,6 @@ static NSDate *_Nullable startTimestamp = nil;
                                                                       andScope:scope];
             [SentrySDKInternal setCurrentHub:hub];
 
-            [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
             [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
             [SentrySDKInternal installIntegrations];
@@ -299,14 +411,14 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub captureFatalEvent:event withScope:scope];
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 + (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
     [SentrySDKInternal.currentHub captureFatalAppHangEvent:event];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
@@ -420,6 +532,26 @@ static NSDate *_Nullable startTimestamp = nil;
     return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
 }
 
++ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope hint:hint];
+}
+
++ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureError:error withScope:scope hint:hint];
+}
+
++ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureException:exception withScope:scope hint:hint];
+}
+
++ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope hint:hint];
+}
+
 /**
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
@@ -459,6 +591,11 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     if (![SentrySDKInternal isEnabled]) {
         // We must log with level fatal because only fatal messages get logged even when the SDK
         // isn't started. We've seen multiple times that users try to add a breadcrumb before
@@ -470,7 +607,7 @@ static NSDate *_Nullable startTimestamp = nil;
             @"the SDK before adding breadcrumbs.");
     }
 
-    [SentrySDKInternal.currentHub addBreadcrumb:crumb];
+    [SentrySDKInternal.currentHub addBreadcrumb:crumb withHint:hint];
 }
 
 + (void)configureScope:(void (^)(SentryScope *scope))callback
@@ -495,7 +632,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashedLastRun
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+    return SentryDependencyContainer.sharedInstance.activeCrashReporterState.crashedLastLaunch;
 }
 
 + (NSInteger)lastRunStatus
@@ -504,15 +641,9 @@ static NSDate *_Nullable startTimestamp = nil;
         return SentryLastRunStatusUnknown;
     }
 
-#if ENABLE_KSCRASH
-    if (SentryDependencyContainer.sharedInstance.kscrashQuery.crashedLastLaunch) {
+    if (SentryDependencyContainer.sharedInstance.activeCrashReporterState.crashedLastLaunch) {
         return SentryLastRunStatusDidCrash;
     }
-#else
-    if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
-        return SentryLastRunStatusDidCrash;
-    }
-#endif
     return SentryLastRunStatusDidNotCrash;
 }
 
@@ -555,6 +686,7 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub reportFullyDisplayed];
 }
 
+#if !SDK_V10
 + (void)pauseAppHangTracking
 {
     SentryHangTrackerIntegrationObjC *anrTrackingIntegration
@@ -572,6 +704,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [anrTrackingIntegration resumeAppHangTracking];
 }
+#endif
 
 + (void)flush:(NSTimeInterval)timeout
 {
@@ -594,6 +727,7 @@ static NSDate *_Nullable startTimestamp = nil;
         startTimestamp = nil;
 
         SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        [hub.scope configureUserPersistence:nil];
         [hub removeAllIntegrations];
 
         SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
@@ -612,7 +746,6 @@ static NSDate *_Nullable startTimestamp = nil;
         fatalDetected = NO;
         lastRunStatusCalled = NO;
 
-        [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
@@ -620,6 +753,10 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
         [SentryDependencyContainer reset];
+
+        @synchronized(currentHubLock) {
+            sdkStarted = NO;
+        }
     }];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }
@@ -665,11 +802,8 @@ static NSDate *_Nullable startTimestamp = nil;
         }
     }
 
-    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
-        SENTRY_LOG_WARN(@"There is already a profile session running.");
-        return;
-    }
-
+    // When the profiler already runs, this cancels a pending stop instead of starting a new
+    // session.
     [SentryContinuousProfiler start];
 }
 
@@ -726,7 +860,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #if SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
@@ -734,7 +868,7 @@ static NSDate *_Nullable startTimestamp = nil;
 }
 #endif // SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (NSArray<NSString *> *)trimmedInstalledIntegrationNames
 {

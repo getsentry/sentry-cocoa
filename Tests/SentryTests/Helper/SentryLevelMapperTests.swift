@@ -1,25 +1,29 @@
-@testable import Sentry
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryLevelMapperTests: XCTestCase {
-    func testSentryLevelForString_whenNilParameter_shouldReturnDefault() {
-        XCTAssertEqual(sentryLevelForString(nil), .error)
+    func testLevelForName_whenNilParameter_shouldReturnDefault() {
+        XCTAssertEqual(SentryLevelHelper.levelForName(nil), .error)
     }
 
-    func testSentryLevelForString_whenEmptyString_shouldReturnDefault() {
-        XCTAssertEqual(sentryLevelForString(""), .error)
+    func testLevelForName_whenEmptyString_shouldReturnDefault() {
+        XCTAssertEqual(SentryLevelHelper.levelForName(""), .error)
     }
 
-    func testSentryLevelForString_whenInvalidString_shouldReturnDefault() {
-        XCTAssertEqual(sentryLevelForString("invalid"), .error)
+    func testLevelForName_whenInvalidString_shouldReturnDefault() {
+        XCTAssertEqual(SentryLevelHelper.levelForName("invalid"), .error)
     }
 
-    func testSentryLevelForString_whenValidString_shouldReturnCorrectLevel() {
-        XCTAssertEqual(sentryLevelForString("none"), .none)
-        XCTAssertEqual(sentryLevelForString("debug"), .debug)
-        XCTAssertEqual(sentryLevelForString("info"), .info)
-        XCTAssertEqual(sentryLevelForString("warning"), .warning)
-        XCTAssertEqual(sentryLevelForString("error"), .error)
-        XCTAssertEqual(sentryLevelForString("fatal"), .fatal)
+    func testLevelForName_whenValidString_shouldReturnCorrectLevel() {
+        XCTAssertEqual(SentryLevelHelper.levelForName("none"), .none)
+        XCTAssertEqual(SentryLevelHelper.levelForName("debug"), .debug)
+        XCTAssertEqual(SentryLevelHelper.levelForName("info"), .info)
+        XCTAssertEqual(SentryLevelHelper.levelForName("warning"), .warning)
+        XCTAssertEqual(SentryLevelHelper.levelForName("error"), .error)
+        XCTAssertEqual(SentryLevelHelper.levelForName("fatal"), .fatal)
     }
 }

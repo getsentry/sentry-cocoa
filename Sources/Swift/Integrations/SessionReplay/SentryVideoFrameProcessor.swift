@@ -1,11 +1,12 @@
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 import AVFoundation
 import CoreGraphics
 import Foundation
 import UIKit
 
+// swiftlint:disable:next type_body_length
 class SentryVideoFrameProcessor {
     private enum AppendFrameResult {
         case success
@@ -63,6 +64,21 @@ class SentryVideoFrameProcessor {
         self.isFinished = false
     }
 
+    /// Cancels an in-flight render session.
+    ///
+    /// Marks the writer inputs as finished and cancels the writing session so AVFoundation
+    /// releases the `requestMediaDataWhenReady` block. That block retains this processor and,
+    /// through `videoFrames`, the in-memory frame images — without this, a stalled writer would
+    /// keep them alive indefinitely. Must be called on the asset worker queue to serialize with
+    /// `processFrames(videoWriterInput:onCompletion:)`.
+    func cancel() {
+        guard !isFinished else { return }
+        isFinished = true
+        SentrySDKLog.warning("[Session Replay] Cancelling stalled video render session")
+        videoWriter.inputs.forEach { $0.markAsFinished() }
+        videoWriter.cancelWriting()
+    }
+
     // swiftlint:disable function_body_length cyclomatic_complexity
     func processFrames(videoWriterInput: AVAssetWriterInput, onCompletion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
         guard !isFinished else { return }
@@ -99,7 +115,11 @@ class SentryVideoFrameProcessor {
             }
 
             let frame = videoFrames[frameIndex]
-            guard let image = UIImage(contentsOfFile: frame.imagePath) else {
+            // Prefer the in-memory image kept from capture; fall back to disk only for
+            // crash-recovered frames that were loaded without an image payload.
+            guard let image = frame.image
+                ?? UIImage(contentsOfFile: frame.imagePath)
+            else {
                 if lastAppendedImage != nil {
                     if let videoStart = videoStart {
                         let elapsed = max(0, frame.time.timeIntervalSince(videoStart))

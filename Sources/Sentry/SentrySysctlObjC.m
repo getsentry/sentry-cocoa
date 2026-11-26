@@ -1,13 +1,53 @@
 #import "SentrySysctlObjC.h"
-#import "SentryCrashSysCtl.h"
+#import "SentryLogC.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/sysctl.h>
 #include <time.h>
+#include <unistd.h>
 
 static NSDate *moduleInitializationTimestamp;
 static uint64_t runtimeInitSystemTimestamp;
 static NSDate *runtimeInit = nil;
+
+static NSTimeInterval
+sentryTimeInterval(struct timeval value)
+{
+    return value.tv_sec + value.tv_usec / 1E6;
+}
+
+static NSTimeInterval
+sentrySystemBootTimestamp(void)
+{
+    int mib[] = { CTL_KERN, KERN_BOOTTIME };
+    struct timeval value = { 0 };
+    size_t size = sizeof(value);
+
+    if (sysctl(mib, sizeof(mib) / sizeof(*mib), &value, &size, NULL, 0) != 0) {
+        SENTRY_LOG_ERROR(@"Could not get system boot time: %s", strerror(errno));
+        return 0;
+    }
+
+    return sentryTimeInterval(value);
+}
+
+static NSTimeInterval
+sentryCurrentProcessStartTimestamp(void)
+{
+    int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
+    struct kinfo_proc processInfo = { 0 };
+    size_t size = sizeof(processInfo);
+
+    if (sysctl(mib, sizeof(mib) / sizeof(*mib), &processInfo, &size, NULL, 0) != 0) {
+        SENTRY_LOG_ERROR(@"Could not get current process start time: %s", strerror(errno));
+        return 0;
+    }
+
+    return sentryTimeInterval(processInfo.kp_proc.p_un.__p_starttime);
+}
 
 /**
  * Constructor priority must be bounded between 101 and 65535 inclusive, see
@@ -26,6 +66,11 @@ sentryModuleInitializationHook(void)
     moduleInitializationTimestamp = [NSDate date];
 }
 
+@interface SentrySysctlObjC ()
+@property (nonatomic, copy) SentrySystemTimestampProvider systemBootTimestampProvider;
+@property (nonatomic, copy) SentrySystemTimestampProvider processStartTimestampProvider;
+@end
+
 @implementation SentrySysctlObjC
 
 + (void)load
@@ -39,6 +84,24 @@ sentryModuleInitializationHook(void)
     runtimeInitSystemTimestamp = [SentryDefaultCurrentDateProvider getAbsoluteTime];
 }
 
+- (instancetype)init
+{
+    return [self
+        initWithSystemBootTimestampProvider:^{ return sentrySystemBootTimestamp(); }
+        processStartTimestampProvider:^{ return sentryCurrentProcessStartTimestamp(); }];
+}
+
+- (instancetype)
+    initWithSystemBootTimestampProvider:(SentrySystemTimestampProvider)systemBootTimestampProvider
+          processStartTimestampProvider:(SentrySystemTimestampProvider)processStartTimestampProvider
+{
+    if (self = [super init]) {
+        _systemBootTimestampProvider = systemBootTimestampProvider;
+        _processStartTimestampProvider = processStartTimestampProvider;
+    }
+    return self;
+}
+
 - (NSDate *)runtimeInitTimestamp
 {
     return runtimeInit;
@@ -46,14 +109,12 @@ sentryModuleInitializationHook(void)
 
 - (NSDate *)systemBootTimestamp
 {
-    struct timeval value = sentrycrashsysctl_timeval(CTL_KERN, KERN_BOOTTIME);
-    return [NSDate dateWithTimeIntervalSince1970:value.tv_sec + value.tv_usec / 1E6];
+    return [NSDate dateWithTimeIntervalSince1970:self.systemBootTimestampProvider()];
 }
 
 - (NSDate *)processStartTimestamp
 {
-    struct timeval startTime = sentrycrashsysctl_currentProcessStartTime();
-    return [NSDate dateWithTimeIntervalSince1970:startTime.tv_sec + startTime.tv_usec / 1E6];
+    return [NSDate dateWithTimeIntervalSince1970:self.processStartTimestampProvider()];
 }
 
 - (uint64_t)runtimeInitSystemTimestamp

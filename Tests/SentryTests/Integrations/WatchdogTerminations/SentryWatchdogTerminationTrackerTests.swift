@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -11,11 +16,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashWrapper
+        let crashReporterState = TestSentryCrashReporterState()
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        var isSimulatorBuild = false
 
         let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
         let attributesProcessor: SentryWatchdogTerminationAttributesProcessor
@@ -30,7 +36,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             
             fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: currentDate, dispatchQueueWrapper: dispatchQueue))
 
-            breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
+            breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: Int(options.maxBreadcrumbs),
+                fileManager: fileManager,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
             scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
             attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
@@ -40,9 +50,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-            
-            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
+            let hub = SentryHubInternal(client: client, andScope: nil, activeCrashReporterState: crashReporterState, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDKInternal.setCurrentHub(hub)
         }
         
@@ -50,17 +58,19 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             return try getSut(fileManager: fileManager )
         }
         
-        func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            let appStateManager = SentryAppStateManager(
-                releaseName: options.releaseName,
-                crashWrapper: crashWrapper,
-                fileManager: fileManager,
-                sysctlWrapper: sysctl
-            )
+        func getSut(
+            fileManager: SentryFileManager,
+            eventSourceSink: SentryEventSourceSink = TestEventSources.hubSink()
+        ) throws -> SentryWatchdogTerminationTracker {
+            let dependencies = SentryDependencyContainer.sharedInstance()
+            dependencies.fileManager = fileManager
+            dependencies.sysctlWrapper = sysctl
+            dependencies.dispatchQueueWrapper = dispatchQueue
+            let appStateManager = SentryAppStateManager(releaseName: options.releaseName, dependencies: dependencies)
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
+                activeCrashReporterState: crashReporterState,
+                isSimulatorBuild: isSimulatorBuild,
                 appStateManager: appStateManager
             )
             let scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(
@@ -72,7 +82,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopePersistentStore: scopePersistentStore
+                scopePersistentStore: scopePersistentStore,
+                eventSourceSink: eventSourceSink
             )
         }
     }
@@ -93,6 +104,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.stop()
         fixture.client.fileManager.deleteAllFolders()
         
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -171,7 +183,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testIsDebugging_NoOOM() {
-        fixture.crashWrapper.internalIsBeingTraced = true
+        fixture.sysctl.internalIsBeingTraced = true
         sut.start()
         
         goToForeground()
@@ -183,8 +195,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
-    func testIsSimulatorBuild_NoOOM() {
-        fixture.crashWrapper.internalIsSimulatorBuild = true
+    func testIsSimulatorBuild_NoOOM() throws {
+        fixture.isSimulatorBuild = true
+        sut = try fixture.getSut()
         sut.start()
         
         goToForeground()
@@ -210,7 +223,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     func testCrashReport_NoOOM() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         givenPreviousAppState(appState: appState)
-        fixture.crashWrapper.internalCrashedLastLaunch = true
+        fixture.crashReporterState.internalCrashedLastLaunch = true
         
         sut.start()
         
@@ -238,6 +251,36 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
+    func testStart_whenWatchdogTermination_shouldSubmitFatalReportWithRunIdOfTerminatedRun() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        // The run that gets terminated persists its app state with its own run ID.
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        sut = try fixture.getSut(fileManager: fixture.fileManager, eventSourceSink: eventSourceSink)
+        sut.start()
+        goToForeground()
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        // The next run detects the termination and reports it under the terminated run's ID.
+        SentryDependencyContainer.sharedInstance().currentRun = SentryCurrentRun(id: SentryCurrentRun.ID(rawValue: "next-run-id"))
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertEqual(eventSourceSink.submittedReports.count, 1)
+        let report = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(report.source, .watchdogTermination)
+        XCTAssertEqual(report.event.exceptions?.first?.type, "WatchdogTermination")
+        XCTAssertEqual(report.runId, SentryCurrentRun.ID(rawValue: "terminated-run-id"))
+        guard case let .fatal(attachmentPaths, isRetainedOnFailure) = report.kind else {
+            return XCTFail("Expected a fatal report")
+        }
+        XCTAssertEqual(attachmentPaths, [])
+        XCTAssertFalse(isRetainedOnFailure)
+        // The tracker only reports the termination, the sink decides whether it is captured.
+        XCTAssertEqual(fixture.client.captureFatalEventInvocations.count, 0)
+    }
+
     func testSDKStartedTwice_NoOOM() {
         sut.start()
         goToForeground()
@@ -269,16 +312,26 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         try assertOOMEventSent()
     }
 
-    func testANR_NoOOM() {
+    func testStart_whenPreviousLaunchEndedDuringHang_shouldRespectSDKVersion() throws {
+        // -- Arrange --
         sut.start()
         goToForeground()
-        
-        update(appState: { appState in
-            appState.isANROngoing = true
-        })
+        var previousAppState = try XCTUnwrap(fixture.fileManager.readAppState()).serialize()
+        previousAppState["is_anr_ongoing"] = true
+        givenPreviousAppState(appState: try XCTUnwrap(SentryAppState(jsonObject: previousAppState)))
+        sut.stop()
+        sut = try fixture.getSut()
 
+        // -- Act --
         sut.start()
+
+        // -- Assert --
+        #if SDK_V10
+        try assertOOMEventSent()
+        XCTAssertTrue(SentrySDKInternal.fatalDetected)
+        #else
         assertNoOOMSent()
+        #endif
     }
 
     func testAppOOM_WithBreadcrumbs() throws {
@@ -428,13 +481,6 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
         fixture.fileManager.moveAppStateToPreviousAppState()
-    }
-    
-    private func update(appState: (SentryAppState) -> Void) {
-        if let currentAppState = fixture.fileManager.readAppState() {
-            appState(currentAppState)
-            fixture.fileManager.store(currentAppState)
-        }
     }
     
     private func assertOOMEventSent(expectedBreadcrumbs: Int = 0) throws {

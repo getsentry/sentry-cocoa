@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {
@@ -28,7 +32,7 @@ class SentryTransportInitializerTests: XCTestCase {
         let options = Options()
         options.dsn = SentryTransportInitializerTests.dsnAsString
     
-        let result = TransportInitializer.initTransports(
+        let result: [Transport] = TransportInitializer.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
@@ -38,6 +42,6 @@ class SentryTransportInitializerTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
         
         let firstTransport = result.first
-        XCTAssertEqual(firstTransport?.isKind(of: SentryHttpTransport.self), true)
+        XCTAssertEqual(firstTransport?.isKind(of: SentryHttpTransportWrapper.httpTransportClass()), true)
     }
 }

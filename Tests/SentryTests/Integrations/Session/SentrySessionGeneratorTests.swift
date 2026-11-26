@@ -1,5 +1,16 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentryCrashV9Swift
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 /**
@@ -144,7 +155,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let client = SentrySDKInternal.currentHub().getClient()
-        let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: client, andScope: nil, activeCrashReporterState: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
         SentrySDKInternal.setCurrentHub(hub)
         
         mockedCrashDependencies = MockCrashDependencies(crashWrapper: sentryCrash, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), fileManager: fileManager)
@@ -167,3 +178,5 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         delayNonBlocking(timeout: forSeconds)
     }
 }
+
+#endif // !SDK_V10

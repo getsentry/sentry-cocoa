@@ -1,6 +1,11 @@
 // swiftlint:disable file_length
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+#endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryScopeSwiftTests: XCTestCase {
@@ -228,6 +233,64 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 99)?["flag"] as? String, "flag-100")
     }
 
+    func testFeatureFlags_whenMaxFeatureFlagsConfigured_shouldRetainMostRecentFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 3)
+
+        // -- Act --
+        for index in 0..<5 {
+            scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 3)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-2")
+        XCTAssertEqual(values.element(at: 2)?["flag"] as? String, "flag-4")
+    }
+
+    func testFeatureFlags_whenMaxFeatureFlagsRaised_shouldRetainMoreThanTheDefault() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 2_000)
+
+        // -- Act --
+        for index in 0..<150 {
+            scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 150)
+    }
+
+    func testFeatureFlags_whenMaxFeatureFlagsIsZero_shouldNotRecordFlagsContext() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 0)
+
+        // -- Act --
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
+
+    func testInitWithScope_whenMaxFeatureFlagsConfigured_shouldPreserveLimitInCopy() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 2)
+        scope.addFeatureFlag(name: "first", result: true)
+        scope.addFeatureFlag(name: "second", result: true)
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+        cloned.addFeatureFlag(name: "third", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: cloned)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "third")
+    }
+
     func testApplyToEvent_whenScopeHasFeatureFlags_shouldApplyToRegularEvent() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)
@@ -357,7 +420,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "old")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "new")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.old"])
         XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.new"] as? Bool), true)
     }
@@ -377,7 +440,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.checkout"])
     }
 
@@ -399,11 +462,11 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "root")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "child")
 
-        let transactionData = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let transactionData = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(transactionData["flag.evaluation.root"] as? Bool), true)
         XCTAssertNil(transactionData["flag.evaluation.child"])
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap((try XCTUnwrap(child as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.root"])
         XCTAssertEqual(try XCTUnwrap(childData["flag.evaluation.child"] as? Bool), true)
     }
@@ -567,6 +630,53 @@ class SentryScopeSwiftTests: XCTestCase {
                        actual?.context as? [String: [String: String]])
     }
 
+    func testApplyToEvent_whenTransactionTracerIsUnbound_shouldPopulateTransactionTrace() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        tracer.finish(status: .cancelled)
+        let transaction = Transaction(trace: tracer, children: [])
+        transaction.context = ["custom": ["key": "value"]]
+        scope.span = tracer
+        scope.span = nil
+
+        // -- Act --
+        let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(actual?.context?["trace"])
+        XCTAssertEqual(trace["op"] as? String, "ui.action.click")
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["status"] as? String, "cancelled")
+        XCTAssertEqual(actual?.context?["custom"]?["key"] as? String, "value")
+#endif // !SDK_V10
+    }
+
+    func testApplyToEvent_whenAnotherSpanIsBound_shouldUseTransactionTrace() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        let transaction = Transaction(trace: tracer, children: [])
+        scope.span = SentryTracer(transactionContext: TransactionContext(name: "Other", operation: "other.operation"), hub: nil)
+
+        // -- Act --
+        let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(actual?.context?["trace"])
+        XCTAssertEqual(trace["op"] as? String, "ui.action.click")
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+#endif // !SDK_V10
+    }
+
     func testApplyToEvent_EventWithError_contextHasTrace() {
         let event = fixture.event
         event.exceptions = [Exception(value: "Error", type: "Exception")]
@@ -655,6 +765,36 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.clearAttachments()
         
         XCTAssertEqual(0, scope.attachments.count)
+    }
+
+    func testInitWithScope_whenCrashReportAttachmentsExist_shouldCopyThemSeparately() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.fileAttachment)
+        scope.addCrashReportAttachment(inPath: "/tmp/crash-screenshot.png")
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(cloned.attachments.count, 1)
+        XCTAssertEqual(cloned.attachments.first?.filename, TestData.fileAttachment.filename)
+        XCTAssertEqual(cloned.crashReportAttachments.count, 1)
+        XCTAssertEqual(cloned.crashReportAttachments.first?.path, "/tmp/crash-screenshot.png")
+    }
+
+    func testClearAttachments_whenCrashReportAttachmentsExist_shouldKeepThem() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.fileAttachment)
+        scope.addCrashReportAttachment(inPath: "/tmp/crash-screenshot.png")
+
+        // -- Act --
+        scope.clearAttachments()
+
+        // -- Assert --
+        XCTAssertEqual(scope.attachments.count, 0)
+        XCTAssertEqual(scope.crashReportAttachments.count, 1)
     }
     
     // With this test we test if modifications from multiple threads don't lead to a crash.
@@ -772,6 +912,28 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 
     // swiftlint:disable no_breadcrumb_data_setter
+#if SDK_V10
+    func testAddBreadcrumb_storesDefensiveCopy() {
+        let scope = Scope(maxBreadcrumbs: 5)
+        let crumb = Breadcrumb(level: .info, category: "ui")
+        crumb.message = "before"
+        (["key": "before"] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+
+        scope.addBreadcrumb(crumb)
+
+        crumb.message = "after"
+        (["key": "after"] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+
+        let stored = scope.breadcrumbs().first
+        XCTAssertNotNil(stored)
+        XCTAssertFalse(stored === crumb,
+            "Scope should store a copy, not the original object")
+        XCTAssertEqual(stored?.message, "before",
+            "Stored breadcrumb should not reflect mutations to the original")
+        XCTAssertEqual(stored?.data?["key"] as? String, "before",
+            "Stored breadcrumb data should not reflect mutations to the original")
+    }
+#else
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_storesDefensiveCopy() {
         let scope = Scope(maxBreadcrumbs: 5)
@@ -793,9 +955,57 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(stored?.data?["key"] as? String, "before",
             "Stored breadcrumb data should not reflect mutations to the original")
     }
+#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
+#if SDK_V10
+    func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
+        // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
+        // The ring buffer evicts old breadcrumbs when full. Without a defensive copy,
+        // the evicted breadcrumb's dealloc can race with a concurrent reader calling
+        // serialize on the same object, causing EXC_BAD_ACCESS.
+        let maxCrumbs = 5
+        let scope = Scope(maxBreadcrumbs: maxCrumbs)
+
+        let queue = DispatchQueue(label: "test.breadcrumb.race", attributes: .concurrent)
+        let expectation = expectation(description: "concurrent breadcrumb race")
+        expectation.expectedFulfillmentCount = 3
+
+        // Writer: continuously add breadcrumbs, forcing evictions
+        queue.async {
+            for i in 0..<2_000 {
+                let crumb = Breadcrumb(level: .info, category: "cat-\(i)")
+                crumb.message = "message-\(i)"
+                (["iteration": i, "padding": String(repeating: "x", count: 100)] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+                scope.addBreadcrumb(crumb)
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 1: continuously read and serialize breadcrumbs
+        queue.async {
+            for _ in 0..<2_000 {
+                let crumbs = scope.breadcrumbs()
+                for crumb in crumbs {
+                    _ = crumb.serialize()
+                }
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 2: continuously apply scope to events
+        queue.async {
+            for _ in 0..<1_000 {
+                let event = Event()
+                scope.applyTo(event: event, maxBreadcrumbs: UInt(maxCrumbs))
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 30)
+    }
+#else
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
         // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
@@ -842,6 +1052,7 @@ class SentryScopeSwiftTests: XCTestCase {
 
         wait(for: [expectation], timeout: 30)
     }
+#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     func testScopeObserver_passesDistinctCopyToObservers() {
@@ -1055,7 +1266,36 @@ class SentryScopeSwiftTests: XCTestCase {
             observer.crumbs
         )
     }
-    
+
+    func testPerformWithBreadcrumbsLocked_whenSeedingThenAddingObserver_shouldReplayExistingThenAcceptNewOnce() throws {
+        // -- Arrange --
+        let sut = Scope()
+        let existing = TestData.crumb
+        existing.message = "existing"
+        sut.addBreadcrumb(existing)
+        let observer = fixture.observer
+
+        // -- Act --
+        sut.performWithBreadcrumbsLocked {
+            for breadcrumb in sut.breadcrumbs() {
+                observer.addSerializedBreadcrumb(breadcrumb.serialize())
+            }
+            sut.add(observer)
+        }
+        let live = TestData.crumb
+        live.message = "live"
+        sut.addBreadcrumb(live)
+
+        // -- Assert --
+        XCTAssertEqual(
+            [
+                try XCTUnwrap(existing.serialize() as? [String: AnyHashable]),
+                try XCTUnwrap(live.serialize() as? [String: AnyHashable])
+            ],
+            observer.crumbs
+        )
+    }
+
     func testScopeObserver_clearBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer
@@ -1076,7 +1316,7 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.span = transaction
 
         let traceContext = try XCTUnwrap(observer.traceContext)
-        let serializedTransaction = transaction.serialize()
+        let serializedTransaction = (try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()
 
         var expectedKeys = Set(serializedTransaction.keys)
         // The transaction doesn't serialize the status when it's undefined, but the trace context sets it to OK.
@@ -1173,6 +1413,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scopeCrumbs?.count ?? 0)
     }
     
+#if !SDK_V10
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
         scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100) as Any)
@@ -1183,6 +1424,7 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setUser(user)
         })
     }
+#endif
 
     func testRemoveContextForKey_keyNotFound_shouldNotChangeContext() {
         // -- Arrange --
@@ -1318,6 +1560,54 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(actualSpan.spanId, span.spanId)
     }
 #endif // os(macOS)
+
+    #if SDK_V10
+    func testSerialize_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+
+        // -- Act --
+        let serialized = scope.serialize()
+
+        // -- Assert --
+        let trace = try XCTUnwrap(serialized["traceContext"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testApplyToEvent_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+        let event = Event()
+
+        // -- Act --
+        scope.applyTo(event: event, maxBreadcrumbs: 0)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(event.context?["trace"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testSerializeTransaction_whenChildIsCustom_shouldKeepOnlySDKSpans() throws {
+        // -- Arrange --
+        let tracer = try XCTUnwrap(fixture.transaction as? SentryTracer)
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"), framesTracker: nil)
+        #else
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"))
+        #endif
+        let transaction = Transaction(trace: tracer, children: [NotOfTypeSpan(), sdkSpan])
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 1)
+        XCTAssertEqual(spans.first?["span_id"] as? String, sdkSpan.spanId.sentrySpanIdString)
+    }
+    #endif
 
     func testGetCasedInternalSpan_SpanIsOfDifferentType() {
         // -- Arrange --
@@ -1543,6 +1833,222 @@ class SentryScopeSwiftTests: XCTestCase {
         func clearBreadcrumbs() {}
         func clear() {}
     }
+
+    // MARK: - overlayOnEvent
+
+    func testOverlay_tagsAreMerged_currentWins() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setTag(value: "global", key: "global_only")
+        globalScope.setTag(value: "global", key: "shared")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "current_only")
+        currentScope.setTag(value: "current", key: "shared")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.tags?["global_only"], "global")
+        XCTAssertEqual(event.tags?["current_only"], "current")
+        XCTAssertEqual(event.tags?["shared"], "current")
+    }
+
+    func testOverlay_extrasAreMerged_currentWins() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setExtra(value: "global", key: "shared")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setExtra(value: "current", key: "shared")
+        currentScope.setExtra(value: "current", key: "new")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.extra?["shared"] as? String, "current")
+        XCTAssertEqual(event.extra?["new"] as? String, "current")
+    }
+
+    func testOverlay_currentUserOverridesGlobal() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setUser(User(userId: "global"))
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setUser(User(userId: "current"))
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.user?.userId, "current")
+    }
+
+    func testOverlay_globalUserPreservedWhenCurrentNotSet() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setUser(User(userId: "global"))
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.user?.userId, "global")
+    }
+
+    func testOverlay_breadcrumbsAreMerged() {
+        let event = Event()
+        let globalScope = Scope()
+        let crumb1 = Breadcrumb()
+        crumb1.message = "global"
+        globalScope.addBreadcrumb(crumb1)
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        let crumb2 = Breadcrumb()
+        crumb2.message = "current"
+        currentScope.addBreadcrumb(crumb2)
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.breadcrumbs?.count, 2)
+        let messages = event.breadcrumbs?.compactMap(\.message)
+        XCTAssertTrue(messages?.contains("global") ?? false)
+        XCTAssertTrue(messages?.contains("current") ?? false)
+    }
+
+    func testOverlay_breadcrumbsRespectsMaxBreadcrumbs_dropsOldest() {
+        let event = Event()
+        let globalScope = Scope()
+        let crumb1 = Breadcrumb()
+        crumb1.message = "g1"
+        globalScope.addBreadcrumb(crumb1)
+        let crumb2 = Breadcrumb()
+        crumb2.message = "g2"
+        globalScope.addBreadcrumb(crumb2)
+        globalScope.applyTo(event: event, maxBreadcrumbs: 2)
+
+        let currentScope = Scope()
+        let crumb3 = Breadcrumb()
+        crumb3.message = "current"
+        currentScope.addBreadcrumb(crumb3)
+        currentScope.overlay(on: event, maxBreadcrumb: 2)
+
+        let messages = event.breadcrumbs?.compactMap(\.message) ?? []
+        XCTAssertEqual(messages.count, 2)
+        XCTAssertEqual(messages, ["g2", "current"], "Should drop oldest (g1) and keep most recent")
+    }
+
+    func testOverlay_clonedScope_breadcrumbsDeduplicatedByIdentity() {
+        let event = Event()
+        let globalScope = Scope()
+        let sharedCrumb = Breadcrumb()
+        sharedCrumb.message = "shared"
+        globalScope.addBreadcrumb(sharedCrumb)
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope(scope: globalScope)
+        let extraCrumb = Breadcrumb()
+        extraCrumb.message = "extra"
+        currentScope.addBreadcrumb(extraCrumb)
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        let messages = event.breadcrumbs?.compactMap(\.message) ?? []
+        XCTAssertEqual(messages.filter { $0 == "shared" }.count, 1)
+        XCTAssertTrue(messages.contains("extra"))
+    }
+
+    func testOverlay_fingerprintOverrides() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setFingerprint(["global"])
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setFingerprint(["current"])
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.fingerprint, ["current"])
+    }
+
+    func testOverlay_distOverrides() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setDist("global-dist")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setDist("current-dist")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.dist, "current-dist")
+    }
+
+    func testOverlay_environmentOverrides() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setEnvironment("production")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setEnvironment("staging")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.environment, "staging")
+    }
+
+    func testOverlay_levelOverrides() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setLevel(.warning)
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setLevel(.error)
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(event.level, .error)
+    }
+
+    func testOverlay_contextIsDeepMerged() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setContext(value: ["a": "1", "b": "2"], key: "shared")
+        globalScope.setContext(value: ["x": "y"], key: "global_only")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setContext(value: ["a": "overridden", "c": "3"], key: "shared")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        let shared = event.context?["shared"] as? [String: Any]
+        XCTAssertEqual(shared?["a"] as? String, "overridden")
+        XCTAssertEqual(shared?["b"] as? String, "2")
+        XCTAssertEqual(shared?["c"] as? String, "3")
+        XCTAssertNotNil(event.context?["global_only"])
+    }
+
+    func testOverlay_doesNotMutateGlobalScope() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setTag(value: "global", key: "key")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "key")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertEqual(globalScope.tags["key"], "global")
+    }
+
+    func testOverlay_doesNotMutateCurrentScope() {
+        let event = Event()
+        let globalScope = Scope()
+        globalScope.setTag(value: "global", key: "global_key")
+        globalScope.applyTo(event: event, maxBreadcrumbs: 100)
+
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "current_key")
+        currentScope.overlay(on: event, maxBreadcrumb: 100)
+
+        XCTAssertNil(currentScope.tags["global_key"])
+    }
 }
 
 // A minimal dummy Span implementation that is not SentrySpan.
@@ -1582,8 +2088,10 @@ private final class NotOfTypeSpan: NSObject, Span {
     func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
     func baggageHttpHeader() -> String? { return nil }
 
+    #if !SDK_V10
     // MARK: - SentrySerializable (no-op payload)
     func serialize() -> [String: Any] { return [:] }
+    #endif
 }
 
 private final class SubClassOfSentrySpanInternal: SentrySpanInternal {}

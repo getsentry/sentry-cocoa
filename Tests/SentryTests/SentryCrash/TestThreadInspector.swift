@@ -1,21 +1,34 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import Foundation
+import SentryTestUtils
 
 class TestDefaultThreadInspector: SentryDefaultThreadInspector {
 
     var allThreads: [SentryThread]?
     var getCurrentThreadsInvocations = 0
     var getCurrentThreadsWithStackTraceInvocations = 0
+    let stacktraceForCurrentThreadInvocations = Invocations<Void>()
 
     static var instance: TestDefaultThreadInspector {
         // We need something to pass to the super initializer, because the empty initializer has been marked unavailable.
         let inAppLogic = SentryInAppLogic(inAppIncludes: [])
         let crashStackEntryMapper = SentryCrashStackEntryMapper(inAppLogic: inAppLogic)
         let stacktraceBuilder = SentryStacktraceBuilder(crashStackEntryMapper: crashStackEntryMapper)
+        #if SDK_V10
+        return TestDefaultThreadInspector(stacktraceBuilder: stacktraceBuilder,
+            snapshotProvider: SentrySystemThreadSnapshotProvider(requiresCrashHandler: false))
+        #else
         return TestDefaultThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper())
+        #endif
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {
+        stacktraceForCurrentThreadInvocations.record(Void())
         return allThreads?.first?.stacktrace ?? TestData.thread.stacktrace
     }
 
@@ -34,12 +47,14 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
 class TestThreadInspector: SentryThreadInspector {
 
     var allThreads: [SentryThread]?
+    let stacktraceForCurrentThreadInvocations = Invocations<Void>()
 
     static var instance: TestThreadInspector {
         return TestThreadInspector(options: SentryDependencyContainer.sharedInstance().startOptions)
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {
+        stacktraceForCurrentThreadInvocations.record(Void())
         return allThreads?.first?.stacktrace ?? TestData.thread.stacktrace
     }
 

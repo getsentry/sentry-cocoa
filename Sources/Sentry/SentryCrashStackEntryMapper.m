@@ -21,27 +21,41 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+#if !SDK_V10
 - (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry
+{
+    return [self mapAddress:stackEntry.address];
+}
+#endif
+
+- (SentryFrame *)mapAddress:(uintptr_t)address
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
-    frame.instructionAddress = sentry_formatHexAddressUInt64(stackEntry.address);
+    frame.instructionAddress = sentry_formatHexAddressUInt64(address);
 
     // Get image from the cache.
-    SentryBinaryImageInfo *info = [SentryDependencyContainer.sharedInstance.binaryImageCache
-        imageByAddress:(uint64_t)stackEntry.address];
+    SentryBinaryImageCache *cache = SentryDependencyContainer.sharedInstance.binaryImageCache;
+    SentryBinaryImageInfo *info = [cache imageByAddress:(uint64_t)address];
 
     frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
     frame.package = info.name;
+#if SDK_V10
+    frame.inApp = @(
+        (info != nil && [cache isMainExecutableImage:info]) || [self.inAppLogic isInApp:info.name]);
+#else
     frame.inApp = @([self.inAppLogic isInApp:info.name]);
+#endif
 
     return frame;
 }
 
+#if !SDK_V10
 - (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
 {
     return [self sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry];
 }
+#endif
 
 @end
 

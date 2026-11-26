@@ -6,7 +6,9 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @c SentryDebugImage in a future version.
  */
 NS_SWIFT_NAME(DebugMeta)
+#if SDK_V10
+@interface SentryDebugMeta : NSObject
+#else
 @interface SentryDebugMeta : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 /**
  * Identifier of the dynamic library or executable. It is the value of the @c LC_UUID load command

@@ -1,49 +1,58 @@
+// swiftlint:disable function_body_length
 internal import _SentryPrivate
 import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
+#if !SDK_V10
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
+typealias WatchdogTerminationTrackingIntegrationANRSupport = SentryANRTrackerDelegate
+#else
+typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
+protocol WatchdogTerminationTrackingIntegrationANRSupport { }
+#endif
 
-final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
+final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, WatchdogTerminationTrackingIntegrationANRSupport {
 
     private let tracker: SentryWatchdogTerminationTracker
-    private let timeoutInterval: TimeInterval
+    #if !SDK_V10
     private let anrTracker: SentryANRTracker?
     private let appHangTracker: SentryAppHangTracker?
     private let appStateManager: SentryAppStateManager
-
     private var hasStartedHang: Bool = false
     private var appHangTrackerObserverToken: SentryAppHangTrackerObserverToken?
+    #endif
+    private let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
 
+    // swiftlint:disable:next function_body_length
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableWatchdogTerminationTracking else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableWatchdogTerminationTracking is disabled.")
             return nil
         }
-
         guard options.enableCrashHandler else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
             return nil
         }
-
         guard dependencies.processInfoWrapper.environment["XCTestConfigurationFilePath"] == nil else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because XCTestConfigurationFilePath is set.")
             return nil
         }
-
         if let identifier = dependencies.extensionDetector.getExtensionPointIdentifier(), identifier.isDisabledExtensionPointIdentifier {
             SentrySDKLog.debug("Not enabling watchdog termination tracking for extension: \(identifier)")
             return nil
         }
-
         guard let terminationTracker = dependencies.getWatchdogTerminationTracker(options) else {
             SentrySDKLog.fatal("Watchdog Termination tracker not available")
             return nil
         }
+        guard let breadcrumbProcessor = dependencies.getWatchdogTerminationBreadcrumbProcessor(options) else {
+            SentrySDKLog.fatal("Watchdog Termination breadcrumb processor not available")
+            return nil
+        }
 
         tracker = terminationTracker
-        timeoutInterval = options.appHangTimeoutInterval
+        #if !SDK_V10
         if options.experimental.enableWatchdogTerminationsV2 {
             appHangTracker = dependencies.appHangTracker
             anrTracker = nil
@@ -52,10 +61,13 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appHangTracker = nil
         }
         appStateManager = dependencies.appStateManager
+        #endif
+        self.breadcrumbProcessor = breadcrumbProcessor
 
         super.init()
 
         tracker.start()
+        #if !SDK_V10
         appHangTrackerObserverToken = appHangTracker?.addObserver(threshold: options.appHangTimeoutInterval) { [weak self] hang in
             guard let self else { return }
 
@@ -67,8 +79,12 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             }
         }
         anrTracker?.add(listener: self)
+        #endif
 
-        let scopeObserver = dependencies.getWatchdogTerminationScopeObserverWithOptions(options)
+        let scopeObserver = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            attributesProcessor: dependencies.watchdogTerminationAttributesProcessor
+        )
         SentrySDKInternal.currentHub().configureScope { outerScope in
             Self.syncWatchdogScopeObserver(scopeObserver, from: outerScope)
         }
@@ -98,14 +114,20 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
 
     func uninstall() {
         tracker.stop()
+        #if !SDK_V10
         anrTracker?.remove(listener: self)
+        #endif
+        breadcrumbProcessor.flushAndClose()
 
+        #if !SDK_V10
         guard let appHangTrackerObserverToken else {
             return
         }
         appHangTracker?.removeObserver(token: appHangTrackerObserverToken)
+        #endif
     }
 
+    #if !SDK_V10
     func hangStarted() {
         guard !hasStartedHang else { return }
 
@@ -122,7 +144,6 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         }
     }
 
-    // MARK: SentryANRTrackerDelegate
     func anrDetected(type: SentryANRType) {
         appStateManager.updateAppState { appState in
             appState.isANROngoing = true
@@ -134,6 +155,8 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appState.isANROngoing = false
         }
     }
+    #endif // !SDK_V10
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+// swiftlint:enable function_body_length

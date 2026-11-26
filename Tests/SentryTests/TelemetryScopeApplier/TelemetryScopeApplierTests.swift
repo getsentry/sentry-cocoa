@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class TelemetryScopeApplierTests: XCTestCase {
@@ -514,6 +518,91 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertEqual(item.attributesDict["custom.key"], .string("item.value"))
     }
 
+    // MARK: - Current Scope Attributes Tests
+
+    func testApplyToItem_withCurrentScope_shouldAddCurrentScopeAttributes() {
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["current.key": "current.value"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["current.key"], .string("current.value"))
+    }
+
+    func testApplyToItem_whenItemHasCurrentScopeKey_shouldKeepItemValue() {
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["custom.key": "current.value"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+        item.attributesDict["custom.key"] = .string("item.value")
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["custom.key"], .string("item.value"))
+    }
+
+    func testApplyToItem_whenCurrentScopeAndScopeShareKey_shouldPreferCurrentScopeValue() {
+        // -- Arrange --
+        var scope = TestScope(propagationContextTraceId: SentryId())
+        scope.attributes = ["shared.key": "global.value", "global.key": "global.value"]
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["shared.key": "current.value"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["shared.key"], .string("current.value"))
+        XCTAssertEqual(item.attributesDict["global.key"], .string("global.value"),
+                       "Non-conflicting global scope attributes should still be applied")
+    }
+
+    func testApplyToItem_whenCurrentScopeSetsReservedKey_shouldKeepSystemValue() {
+        // SDK-derived default attributes are authoritative; scope-provided values with the same
+        // key never override them, regardless of which scope they come from.
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["sentry.sdk.name": "fake-sdk-name"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["sentry.sdk.name"], .string(SentryMeta.sdkName))
+    }
+
+    func testApplyToItem_whenBothScopesHaveSpans_shouldUseCurrentScopeSpan() {
+        // -- Arrange --
+        let globalSpan = TestSpan(spanId: SentryId())
+        let currentSpan = TestSpan(spanId: SentryId())
+        let scope = TestScope(propagationContextTraceId: SentryId(), span: globalSpan)
+        let currentScope = TestScope(propagationContextTraceId: SentryId(), span: currentSpan)
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.traceId, currentSpan.traceId)
+        XCTAssertEqual(item.spanId, currentSpan.spanId)
+    }
+
     // MARK: - Default User ID Tests
 
     func testApplyToItem_withoutUserAndWithInstallationId_shouldAddInstallationIdAsUserId() {
@@ -781,6 +870,59 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["os.name"])
         XCTAssertNil(item.attributesDict["device.brand"])
         XCTAssertNil(item.attributesDict["user.id"])
+    }
+
+    // MARK: - Previous Process Attributes Tests
+
+    func testApplyPreviousProcessAttributes_shouldAddStableAttributesAndKeepItemValues() {
+        // -- Arrange --
+        var scope = TestScope(propagationContextTraceId: SentryId())
+        scope.setContext(value: ["name": "iOS", "version": "26.0"], key: "os")
+        scope.setContext(value: ["model": "iPhone17,1", "family": "iOS"], key: "device")
+        let metadata = createTestMetadata(releaseName: "io.sentry.app@2.0.0+2")
+        var item = createTestItem()
+        item.attributesDict = ["sentry.release": .string("io.sentry.app@1.0.0+1"), "os.version": .string("18.6.2")]
+
+        // -- Act --
+        scope.addPreviousProcessAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict, [
+            "sentry.sdk.name": .string(SentryMeta.sdkName),
+            "sentry.sdk.version": .string(SentryMeta.versionString),
+            "sentry.environment": .string("test-environment"),
+            "sentry.release": .string("io.sentry.app@1.0.0+1"),
+            "os.name": .string("iOS"),
+            "os.version": .string("18.6.2"),
+            "device.brand": .string("Apple"),
+            "device.model": .string("iPhone17,1"),
+            "device.family": .string("iOS")
+        ])
+    }
+
+    func testApplyPreviousProcessAttributes_shouldNotAddRunningProcessAttributes() {
+        // -- Arrange --
+        var scope = TestScope(
+            replayId: "replay-id",
+            propagationContextTraceId: SentryId(),
+            span: TestSpan(spanId: SentryId()),
+            userObject: User(userId: "user-id"),
+            attributes: ["scope-key": "scope-value"]
+        )
+        scope.setContext(value: ["name": "iOS", "version": "26.0"], key: "os")
+        var item = createTestItem()
+        let traceId = item.traceId
+
+        // -- Act --
+        scope.addPreviousProcessAttributesToItem(&item, metadata: createTestMetadata(installationId: "installation-id"))
+
+        // -- Assert --
+        XCTAssertNil(item.attributesDict["os.version"])
+        XCTAssertNil(item.attributesDict["user.id"])
+        XCTAssertNil(item.attributesDict["sentry.replay_id"])
+        XCTAssertNil(item.attributesDict["scope-key"])
+        XCTAssertEqual(item.traceId, traceId)
+        XCTAssertNil(item.spanId)
     }
 
     // MARK: - Helpers

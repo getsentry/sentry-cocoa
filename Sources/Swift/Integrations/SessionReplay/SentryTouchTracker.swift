@@ -1,6 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 internal import _SentryPrivate
 import UIKit
 
@@ -54,6 +54,25 @@ import UIKit
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
+    private struct State {
+        /// Driven by the replay lifecycle: on while a replay is capturing.
+        var isEnabled = false
+        /// Driven by the user through `SentryReplayApi.pauseTouchTracking()`. Kept separate from
+        /// `isEnabled` so replay lifecycle changes, like resuming a paused replay, can't re-enable
+        /// touch recording while the user paused it.
+        var isPaused = false
+    }
+
+    private let state = SentryMutex(State())
+
+    var isEnabled: Bool {
+        state.withLock { $0.isEnabled }
+    }
+
+    /// Whether touches are currently recorded.
+    var isTracking: Bool {
+        state.withLock { $0.isEnabled && !$0.isPaused }
+    }
     
     public init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
         self.dateProvider = dateProvider
@@ -67,8 +86,25 @@ import UIKit
         // queue with the rest of the SDK.
         self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
+
+    func enable() {
+        state.withLock { $0.isEnabled = true }
+    }
+
+    func disable() {
+        state.withLock { $0.isEnabled = false }
+    }
+
+    func pause() {
+        state.withLock { $0.isPaused = true }
+    }
+
+    func resume() {
+        state.withLock { $0.isPaused = false }
+    }
     
     public func trackTouchFrom(event: UIEvent) {
+        guard isTracking else { return }
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         

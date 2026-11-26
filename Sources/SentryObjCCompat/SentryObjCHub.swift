@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -67,6 +67,26 @@ import Foundation
     @discardableResult
     @objc(captureMessage:withScope:) public func capture(message: String, scope: SentryObjCScope) -> SentryObjCId {
         SentryObjCId(wrapped.capture(message: message, scope: scope.wrapped))
+    }
+
+    @discardableResult
+    @objc(captureEvent:withScope:hint:) public func capture(event: SentryObjCEvent, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(wrapped.capture(event: event.wrapped, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @discardableResult
+    @objc(captureError:withScope:hint:) public func capture(error: NSError, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(wrapped.capture(error: error, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @discardableResult
+    @objc(captureException:withScope:hint:) public func capture(exception: NSException, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(wrapped.capture(exception: exception, scope: scope.wrapped, hint: hint.wrapped))
+    }
+
+    @discardableResult
+    @objc(captureMessage:withScope:hint:) public func capture(message: String, scope: SentryObjCScope, hint: SentryObjCHint) -> SentryObjCId {
+        SentryObjCId(wrapped.capture(message: message, scope: scope.wrapped, hint: hint.wrapped))
     }
 
     @objc(captureFeedback:) public func capture(feedback: SentryObjCFeedback) {

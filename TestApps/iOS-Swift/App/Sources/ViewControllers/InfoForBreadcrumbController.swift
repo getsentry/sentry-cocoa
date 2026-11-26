@@ -1,0 +1,38 @@
+#if !SDK_V10
+@_spi(Private) import SentrySwift
+#else
+@_spi(Private) import Sentry
+#endif
+import Foundation
+import UIKit
+
+// swiftlint:disable private_outlet
+class InfoForBreadcrumbController: UIViewController {
+
+    @IBOutlet var button: UIButton!
+    @IBOutlet var label: UILabel!
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+    }
+
+    @IBAction func buttonPressed(_ sender: Any) {
+        guard let view = self.view else {
+            label?.text = "ERROR"
+            return
+        }
+        let viewInfo = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+        let buttonInfo = SentryBreadcrumbTracker.extractData(from: button, includeAccessibilityIdentifier: true)
+
+        let hasCorrectData = SwiftDescriptor.getSanitizedViewDescription(view) == viewInfo["view"] as? String &&
+        viewInfo["tag"] == nil &&
+        viewInfo["accessibilityIdentifier"] as? String == "SOME IDENTIFIER" &&
+        viewInfo["title"] == nil &&
+        buttonInfo["tag"] as? Int == 1 &&
+        buttonInfo["accessibilityIdentifier"] as? String == "extractInfoButton" &&
+        buttonInfo["title"] as? String == button.title(for: .normal)
+
+        label?.text = hasCorrectData ? [viewInfo, buttonInfo].debugDescription : "ERROR"
+    }
+}

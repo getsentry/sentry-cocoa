@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 @_spi(Private) internal import SentrySwift
 #else
 @_spi(Private) internal import Sentry
@@ -19,6 +19,14 @@ import Foundation
 
     @objc public func capture(_ envelope: SentryObjCEnvelope) {
         wrapped.value.capture(envelope.wrapped)
+    }
+
+    @objc public func captureNonTerminating(_ envelope: SentryObjCEnvelope) {
+        wrapped.value.captureNonTerminating(envelope.wrapped)
+    }
+
+    @objc public func updateSessionForDroppedEventNonTerminating(_ unhandled: Bool) {
+        wrapped.value.updateSessionForDroppedEventNonTerminating(unhandled: unhandled)
     }
 
     @objc public func deserializeFrom(_ data: Data) -> SentryObjCEnvelope? {

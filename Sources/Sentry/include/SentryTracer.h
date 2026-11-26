@@ -73,7 +73,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHubInternal *)hub
-                             configuration:(SentryTracerConfiguration *)configuration;
+                             configuration:(SENTRY_SWIFT_MIGRATION_ID(
+                                               SentryTracerConfiguration))configuration;
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation

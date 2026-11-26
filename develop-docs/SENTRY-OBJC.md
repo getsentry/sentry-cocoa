@@ -34,7 +34,7 @@ Full context can be found in [getsentry/sentry-cocoa#6342](https://github.com/ge
 ## Non-Goals
 
 - Replacing the existing Sentry SDK for Swift consumers. `SentryObjC` is an alternative entry point, not a replacement.
-- Wrapping SentrySwiftUI (requires Swift/SwiftUI — consumers who can use SwiftUI can use the Swift SDK directly).
+- Wrapping SwiftUI features (requires Swift/SwiftUI — consumers who can use SwiftUI can use the Swift SDK directly).
 - Replacing hybrid SDK bridges (React Native, Flutter, .NET, Unity have their own wrapper layers).
 - Providing a 1:1 mirror of every internal SDK type. Only the public API surface that ObjC consumers need is wrapped.
 
@@ -75,7 +75,7 @@ graph TD
 1. **`SentryObjC`** contains only hand-written ObjC headers. Each header declares an `@interface SentryObjCFoo : NSObject` with the properties and methods that ObjC consumers see. A dummy `.m` file exists solely because SPM requires at least one source file for ObjC targets. There is no behavior in this target.
 
 2. **`SentryObjCCompat`** contains one Swift file per wrapped type. Each file defines a `@objc(SentryObjCFoo) public final class SentryObjCFoo: NSObject` that:
-   - Uses `internal import Sentry` (or `SentrySwift` under SPM) so no SDK types leak into the module's public interface.
+   - Uses `internal import Sentry` (or `SentrySwift` for V9 source packages) so no SDK types leak into the module's public interface.
    - Holds a `wrapped` property referencing the real SDK type.
    - Exposes ObjC-compatible properties and methods that delegate to `wrapped`.
 
@@ -335,4 +335,4 @@ Sources/
 
 - [Issue #6342](https://github.com/getsentry/sentry-cocoa/issues/6342) — original feature request
 - [Issue #4543](https://github.com/getsentry/sentry-cocoa/issues/4543) — problem documentation
-- `Samples/iOS-ObjectiveCpp-NoModules/` — sample app demonstrating usage
+- `TestApps/iOS-ObjectiveCpp-NoModules/` — test app demonstrating usage

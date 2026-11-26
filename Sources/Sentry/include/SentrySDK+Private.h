@@ -25,9 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 + (void)captureFatalAppHangEvent:(SentryEvent *)event;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * SDK private field to store the state if onLastRunStatusDetermined (or the deprecated
@@ -55,6 +55,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
 
+@property (nullable, nonatomic, class, copy) void (^onAppStartMeasurementAvailable)
+    (SentryAppStartMeasurement *_Nullable);
+@property (nonatomic, class) BOOL appStartMeasurementHybridSDKMode;
+
+#if SENTRY_HAS_UIKIT
+@property (nonatomic, class) BOOL framesTrackingMeasurementHybridSDKMode;
+#endif // SENTRY_HAS_UIKIT
+
 @property (nonatomic, class) NSUInteger startInvocations;
 @property (nullable, nonatomic, class) NSDate *startTimestamp;
 
@@ -77,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
-/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+/** Only needed for testing. We can't use `DEBUG` because we call this from
  * the iOS-Swift sample app. */
 + (nullable NSArray<NSString *> *)relevantViewControllersNames;
 

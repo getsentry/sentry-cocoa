@@ -1,5 +1,8 @@
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
+#if SDK_V10
+internal import KSCrashRecording
+#endif
 import Foundation
 
 /// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
@@ -16,20 +19,22 @@ public struct SentryInternalApi {
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
-        & HubProvider
+        & SentryInternalScopeApi.Dependencies
         & OptionsDeserializerProvider
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    typealias Dependencies = BaseDependencies
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    typealias PlatformDependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
+        & SentryInternalScreenApi.Dependencies
         & SentryInternalScreenshotApi.Dependencies
         & SentryInternalViewHierarchyApi.Dependencies
-        & SentryInternalScreenApi.Dependencies
         & SentryInternalReplayApi.Dependencies
-#elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
-    typealias Dependencies = BaseDependencies
-        & SentryInternalPerformanceApi.Dependencies
 #else
-    typealias Dependencies = BaseDependencies
+    typealias PlatformDependencies = BaseDependencies
+#endif
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
+    typealias Dependencies = PlatformDependencies & SentryInternalProfilingApi.Dependencies
+#else
+    typealias Dependencies = PlatformDependencies
 #endif
 
     /// SDK metadata and configuration.
@@ -47,6 +52,12 @@ public struct SentryInternalApi {
     /// Envelope store, capture, and deserialization for hybrid SDKs.
     public let envelope: SentryInternalEnvelopeApi
 
+    /// Access to current scope
+    public let scope: SentryInternalScopeApi
+
+    /// Serialization of data types
+    public let serializer: SentryInternalSerializerApi
+
     private let hub: Hub
     private let optionsDeserializer: OptionsDeserializer
 
@@ -59,20 +70,18 @@ public struct SentryInternalApi {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     /// Frame tracking metrics for hybrid SDKs.
     public let performance: SentryInternalPerformanceApi
-#endif
-
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    /// Screenshot capture for hybrid SDKs.
-    public let screenshot: SentryInternalScreenshotApi
-
-    /// View hierarchy capture for hybrid SDKs.
-    public let viewHierarchy: SentryInternalViewHierarchyApi
 
     /// Screen name tracking for hybrid SDKs.
     public let screen: SentryInternalScreenApi
 
     /// Session replay for hybrid SDKs.
     public let replay: SentryInternalReplayApi
+
+    /// View hierarchy capture for hybrid SDKs.
+    public let viewHierarchy: SentryInternalViewHierarchyApi
+
+    /// Screenshot capture for hybrid SDKs.
+    public let screenshot: SentryInternalScreenshotApi
 #endif
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
@@ -92,7 +101,11 @@ public struct SentryInternalApi {
 
     /// Tells the crash reporter to ignore the next occurrence of the given signal on the calling thread.
     public func ignoreNextSignal(_ signum: Int32) {
+#if SDK_V10
+        sentrykscrash_ignoreNextSignal(signum)
+#else
         sentrycrash_ignore_next_signal(signum)
+#endif
     }
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.
@@ -113,19 +126,19 @@ public struct SentryInternalApi {
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
         self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
+        self.scope = SentryInternalScopeApi(dependencies: dependencies)
+        self.serializer = SentryInternalSerializerApi()
         self.swizzle = SentryInternalSwizzleApi()
         self.appStart = SentryInternalAppStartApi()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
-#endif
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
-        self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
         self.screen = SentryInternalScreenApi(dependencies: dependencies)
         self.replay = SentryInternalReplayApi(dependencies: dependencies)
+        self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
+        self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
 #endif
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        self.profiling = SentryInternalProfilingApi()
+        self.profiling = SentryInternalProfilingApi(dependencies: dependencies)
 #endif
     }
 }

@@ -8,7 +8,7 @@ import MachO
 @_spi(Private) public final class LoadValidator: NSObject {
     // Any class should be fine, ObjC classes are better
     static let targetClassName = NSStringFromClass(SentryDependencyContainerSwiftHelper.self)
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
     static var checkForDuplicatedSDKCallback: ((String, UInt64, UInt64) -> Void)?
 #endif
     
@@ -20,7 +20,7 @@ import MachO
                                                            imageSize: NSNumber,
                                                            objcRuntimeWrapper: SentryObjCRuntimeWrapper,
                                                            dispatchQueueWrapper: SentryDispatchQueueWrapper) {
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if DEBUG // Test support.
         checkForDuplicatedSDKCallback?(imageName, imageAddress.uint64Value, imageSize.uint64Value)
 #endif
         internalCheckForDuplicatedSDK(imageName, imageAddress.uint64Value, imageSize.uint64Value,
@@ -67,7 +67,7 @@ import MachO
                             continue
                         }
                         if name.contains(self.targetClassName) {
-                            var message = ["❌ Sentry SDK was loaded multiple times in the same binary ❌"]
+                            var message = ["❌ Sentry SDK was loaded multiple times in the same address space ❌"]
                             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
                             message.append("Ensure the SDK is linked only once, found `\(self.targetClassName)` class in image path: \(imageName)")
                             SentrySDKLog.error(message.joined(separator: "\n"))

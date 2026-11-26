@@ -1,0 +1,95 @@
+name: "Set up Git access"
+description: >-
+  Routes git fetches from https://github.com through SSH with a dedicated
+  key, so fetches of public repositories (SwiftPM dependencies, Homebrew)
+  don't fail when GitHub rejects anonymous requests. Run it right after
+  checkout, before any step that fetches from github.com.
+inputs:
+  ssh-key-base64:
+    description: >-
+      Base64 encoded SSH private key of a GitHub account. Composite actions
+      can't read secrets, so pass secrets.GIT_SSH_PRIVATE_KEY_BASE64. When
+      empty, which is the case for pull requests from forks and Dependabot,
+      the action leaves git untouched and fetches stay anonymous.
+    required: false
+    default: ""
+  ssh-key-passphrase:
+    description: >-
+      Passphrase of the SSH private key. Pass secrets.GIT_SSH_KEY_PASSPHRASE.
+      Leave empty for a key without passphrase.
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    # GitHub intermittently rejects anonymous clones of public repos with a
+    # 401, and answering those with the workflow token over HTTPS led to
+    # HTTP 400s. SSH fetches are always authenticated and avoid both.
+    # Context: https://github.com/orgs/community/discussions/206581
+    # Remove this action once GitHub stops rejecting anonymous fetches.
+    - name: Configure GitHub git access
+      shell: bash
+      env:
+        SSH_KEY_BASE64: ${{ inputs.ssh-key-base64 }}
+        SSH_KEY_PASSPHRASE: ${{ inputs.ssh-key-passphrase }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "$SSH_KEY_BASE64" ]; then
+          echo "::notice::No SSH key available, fetching from github.com anonymously."
+          exit 0
+        fi
+
+        mkdir -p "$HOME/.ssh"
+        chmod 700 "$HOME/.ssh"
+
+        # Pin GitHub's host keys instead of trusting the first connection.
+        # Source: https://api.github.com/meta
+        if ! ssh-keygen -F github.com > /dev/null 2>&1; then
+          {
+            echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+            echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
+            echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+          } >> "$HOME/.ssh/known_hosts"
+        fi
+
+        # ssh-add exits with 2 when it can't reach an agent. Start one and
+        # export it to the following steps.
+        agent_status=0
+        ssh-add -l > /dev/null 2>&1 || agent_status=$?
+        if [ "$agent_status" -eq 2 ]; then
+          eval "$(ssh-agent -s)" > /dev/null
+          {
+            echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+            echo "SSH_AGENT_PID=$SSH_AGENT_PID"
+          } >> "$GITHUB_ENV"
+        fi
+
+        # The key goes from the secret straight into the agent and is never
+        # written to disk. The askpass helper reads the passphrase from the
+        # environment, so the script itself contains no secret. It answers
+        # only once, because ssh-add asks again forever on a wrong passphrase.
+        askpass="$(mktemp "${RUNNER_TEMP:-/tmp}/git-ssh-askpass.XXXXXX")"
+        trap 'rm -f "$askpass" "$askpass.asked"' EXIT
+        {
+          echo '#!/bin/sh'
+          echo '[ -e "$0.asked" ] && exit 1'
+          echo ': > "$0.asked"'
+          echo 'printf "%s\n" "$SSH_KEY_PASSPHRASE"'
+        } > "$askpass"
+        chmod 700 "$askpass"
+        if ! printf '%s' "$SSH_KEY_BASE64" | base64 --decode \
+          | SSH_ASKPASS="$askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=none ssh-add -; then
+          echo "::error::Adding the SSH key failed. Check GIT_SSH_PRIVATE_KEY_BASE64 and GIT_SSH_KEY_PASSPHRASE."
+          exit 1
+        fi
+
+        # The credential helper and HTTP version settings of the HTTPS setup
+        # are not needed, because no fetch uses HTTPS for github.com anymore.
+        git config --global --replace-all url."git@github.com:".insteadOf "https://github.com/"
+
+        # Fail here with a clear message instead of in a later fetch.
+        if ! git ls-remote --exit-code https://github.com/getsentry/sentry-cocoa.git HEAD > /dev/null; then
+          echo "::error::Fetching from github.com over SSH failed. Check GIT_SSH_PRIVATE_KEY_BASE64 and GIT_SSH_KEY_PASSPHRASE."
+          exit 1
+        fi

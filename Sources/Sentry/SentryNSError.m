@@ -1,4 +1,5 @@
 #import "SentryNSError.h"
+#import "SentryInternalSerializable.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

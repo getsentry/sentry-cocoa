@@ -1,5 +1,9 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import AVKit
 import Foundation
 import PDFKit
@@ -165,7 +169,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         XCTAssertEqual(result.count, 1)
     }
 
-    func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotRedactView() throws {
+    func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotAddRedactionRegion() {
         // -- Arrange --
         let rootView = setupUITextViewFixture()
 
@@ -174,27 +178,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region1 = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region1.color)
-        XCTAssertEqual(region1.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region1.type, .clipBegin)
-        XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        let region2 = try XCTUnwrap(result.element(at: 1))
-        XCTAssertNil(region2.color)
-        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region2.type, .clipEnd)
-        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        // The text view is marked as opaque and will therefore cause a clip out of its frame
-        let region3 = try XCTUnwrap(result.element(at: 2))
-        XCTAssertNil(region3.color)
-        XCTAssertEqual(region3.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region3.type, .clipOut)
-        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        // Assert that there are no other regions
-        XCTAssertEqual(result.count, 3)
+        XCTAssertFalse(result.contains { $0.type == .redact })
     }
 
     func testRedact_withUITextView_withMaskAllImagesDisabled_shouldRedactView() throws {
@@ -341,13 +325,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         XCTAssertEqual(result.count, 1)
     }
 
-    func testRedact_withUIImageView_withImageFromBundle_shouldNotRedactView() throws {
-        // The check for bundled image only works for iOS 16 and above
-        // For others versions all images will be redacted
-        guard #available(iOS 16, *) else {
-            throw XCTSkip("This test only works on iOS 16 and above")
-        }
-
+    func testRedact_withUIImageView_withSystemSymbol_shouldNotRedactView() throws {
         // -- Arrange --
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let imageView = UIImageView(image: .add)
@@ -365,6 +343,86 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
         // -- Assert --
         XCTAssertEqual(result.count, 0)
+    }
+
+    func testRedactRegionsFor_whenImageWasArchived_shouldPreserveImageLayoutSize() throws {
+        // -- Arrange --
+        let format = UIGraphicsImageRendererFormat.preferred()
+        format.scale = 1
+        let png = UIGraphicsImageRenderer(size: CGSize(width: 160, height: 40), format: format).pngData { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 160, height: 40))
+        }
+        let original = try XCTUnwrap(UIImage(data: png, scale: 2))
+        let archive = try NSKeyedArchiver.archivedData(withRootObject: original, requiringSecureCoding: true)
+        let restored = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(ofClass: UIImage.self, from: archive))
+        XCTAssertEqual(restored.scale, 2)
+        XCTAssertEqual(restored.traitCollection.displayScale, 1)
+        XCTAssertEqual(UIImageView(image: restored).sizeThatFits(.zero), CGSize(width: 80, height: 20))
+        let imageView = UIImageView(image: restored)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let regions = sut.redactRegionsFor(view: imageView)
+
+        // -- Assert --
+        XCTAssertEqual(regions.filter { $0.type == .redact }.count, 1)
+        // A fresh view resolves any asset created by redaction, exposing changes to the image's layout size.
+        XCTAssertEqual(UIImageView(image: restored).sizeThatFits(.zero), CGSize(width: 80, height: 20))
+    }
+
+    func testRedactRegionsFor_whenImageIsNamedInBundle_shouldNotRedact() throws {
+        // -- Arrange --
+        let bundleURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).bundle")
+        try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(at: bundleURL)) }
+        let png = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).pngData { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
+        }
+        try png.write(to: bundleURL.appendingPathComponent("Logo.png"))
+        let bundle = try XCTUnwrap(Bundle(url: bundleURL))
+        let image = try XCTUnwrap(UIImage(named: "Logo", in: bundle, compatibleWith: nil))
+        let imageView = UIImageView(image: image)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let regions = sut.redactRegionsFor(view: imageView)
+
+        // -- Assert --
+        XCTAssertEqual(regions.count, 0)
+    }
+
+    func testRedactRegionsFor_whenImageIsAnonymousTemplate_shouldRedact() {
+        // -- Arrange --
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
+        }.withRenderingMode(.alwaysTemplate)
+        let imageView = UIImageView(image: image)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let regions = sut.redactRegionsFor(view: imageView)
+
+        // -- Assert --
+        XCTAssertEqual(regions.filter { $0.type == .redact }.count, 1)
+    }
+
+    func testRedactRegionsFor_whenImageIsSystemSymbol_shouldNotRedact() throws {
+        // -- Arrange --
+        let symbol = try XCTUnwrap(UIImage(systemName: "person.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 40)))
+        XCTAssertTrue(symbol.isSymbolImage)
+        XCTAssertGreaterThan(symbol.size.width, 10)
+        XCTAssertGreaterThan(symbol.size.height, 10)
+        let imageView = UIImageView(image: symbol)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let regions = sut.redactRegionsFor(view: imageView)
+
+        // -- Assert --
+        XCTAssertFalse(regions.contains { $0.type == .redact })
     }
 
     func testUIImageViewSmallImage_shouldNotRedact() {

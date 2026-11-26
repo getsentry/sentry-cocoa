@@ -11,6 +11,20 @@ At the highest level, the SDK is composed of a few key components:
 - **SentryScope**: holds metadata that is sent with every event, to assist in querying later
 - **SentryHub** and **SentryClient**: tie together configuration, features and scopes along with lower level machinery needed to store and transmit data
 
+### Event Flow
+
+```mermaid
+flowchart TD
+    SDK["SentrySDK: public API"] --> CurrentHub["SentrySDKInternal.currentHub"]
+    CurrentHub --> Hub["SentryHub: binds the current SentryClient and Scope"]
+    Hub --> Prepare["SentryClient.prepareEvent: sampling and enrichment"]
+    Prepare --> Scope["SentryScope.applyToEvent: tags, breadcrumbs, user, and context"]
+    Prepare --> Callbacks["beforeSend callbacks and event processors"]
+    Hub --> Adapter["SentryTransportAdapter: builds envelopes and fans out to transports"]
+    Adapter --> HTTP["SentryHttpTransport: rate limiting, persistence, and upload"]
+    HTTP --> Files["SentryFileManager: on-disk envelope storage"]
+```
+
 ## Feature Areas
 
 - **Performance Tracking**: `SentryTracer`, `SentrySpan`, `SentryPerformanceTracker` for transaction monitoring
@@ -50,6 +64,28 @@ The SDK packages most feature areas in "integrations" that implement the `SwiftI
 - **SentryUserFeedbackIntegration**: User feedback UI (iOS 13+)
 - **SentryMetricKitIntegration**: Apple MetricKit integration (iOS 15+, macOS 12+)
 
+### Event Sources
+
+The crash handler, the watchdog termination integration and MetricKit each learn how a run of the app went or ended. They are event sources: instead of capturing events on the hub themselves, they hand a `SentryEventSourceReport` to a `SentryEventSourceSink`.
+
+```mermaid
+flowchart LR
+    Crash["Crash handler: SentryCrash before V10, KSCrash from V10 on"] --> CrashSource["SentryCrashHandlerEventSource"]
+    CrashSource -- "source: crashHandler, run ID from the stored report" --> Coordinator
+    Watchdog["Watchdog termination integration"] -- "source: watchdogTermination, run ID from the persisted app state" --> Coordinator
+    MetricKit["MetricKit"] -- "source: metricKit, run ID from the thread crumb" --> Coordinator
+    Coordinator["SentryEventSourceCoordinator: records fatal runs, drops reports of runs already reported"] --> HubSink["SentryHubEventSourceSink: captures on the current hub"]
+    Coordinator <--> FatalRuns[("fatal-runs.json: run ID and reporting source, 7 days")]
+    HubSink --> Hub["SentryHub"]
+```
+
+- The sources are equal: each one converts its own format into an event, builds its own report and submits it through the same `SentryEventSourceSink` protocol. The crash handler converts in Objective-C, so `SentryCrashHandlerEventSource` builds the report for it. No sink has source-specific entry points.
+- A report identifies its pipeline (`source`) and, when the source can read it back, the run it belongs to (`runId`, the ID `SentryCurrentRun` creates for every run). The sink uses the pipeline to process the report the way that pipeline needs, and the run ID to find the reports of other pipelines that describe the same run. The crash handler reads the run ID from the user section of its stored report, the watchdog termination integration from the persisted app state, and MetricKit from the thread crumb the SDK parks at launch (`Sources/Swift/Core/MetricKit/RunId`). A diagnostic report also says how the run ended (`runEnd`), when it does.
+- `SentryEventSourceCoordinator` is the one place between the sources and the core SDK. It records every fatal report it lets through in a `SentryFatalRunRecordStore` for seven days, and drops a MetricKit crash diagnostic of a run the crash handler already reported, so one crash yields one event. Holding a watchdog termination report for a matching diagnostic and merging the two belongs here as well.
+- `SentryHubEventSourceSink` is the only place where a report reaches the hub. The hub and the client don't know which source an event came from.
+
+The types are in [`Sources/Swift/Core/EventSources`](../Sources/Swift/Core/EventSources).
+
 ### Spotlight
 
 In addition to the component that uploads data to the Sentry backend (`SentryHTTPTransport`), customers can also set `SentryOptions.enableSpotlight` to also send that data to a local running program to inspect the contents of the payloads. See more at https://spotlightjs.com and https://github.com/getsentry/spotlight.
@@ -78,31 +114,32 @@ With continuous profiling, there's also only ever one profiler instance running 
 
 Also referred to in implementation as continuous profiling V2. Essentially a combination of transaction-based profiling (although now focused on "root spans" instead of transactions) for the trace lifecycle and continuous profiling beta for the manual lifecycle, with the exception that manual mode also respects a configured sample rate.
 
-The sample apps are configured by default to use UI Profiling with trace lifecycle (to override the default of manual lifecycle), traces and profile session sample rates of 1 (to override the defaults of 0), and to use app start profiling.
+The test apps are configured by default to use UI Profiling with trace lifecycle (to override the default of manual lifecycle), traces and profile session sample rates of 1 (to override the defaults of 0), and to use app start profiling.
 
 ### Launch Profiling
 
 Key files:
 
-- `Sources/Sentry/Profiling/SentryLaunchProfiling.m`: Main launch profiling logic
+- `Sources/Sentry/SentrySDKInternal.m`: Pre-main launch profiling hook
+- `Sources/Swift/Profiling/SentryLaunchProfiling.swift`: Main launch profiling logic
 - `Sources/Sentry/SentryTimeToDisplayTracker.m`: TTID/TTFD tracking with profiling integration
 - `Sources/Sentry/Profiling/SentryProfiledTracerConcurrency.mm`: Profiler/tracer lifecycle management
 
 Order of operations:
 
-- `sentry_startLaunchProfile()` called early in app lifecycle from `SentryTracer.load`
+- `SentrySDKInternal.load` calls `SentryLaunchProfiling.startLaunchProfile` before `main`
   - for transaction profiling and trace lifecycle UI profiling, a tracer is created to manage profiling session
-- Configuration written to disk via `sentry_configureLaunchProfiling` during SentrySDK.start
+- Configuration written to disk via `SentryLaunchProfiling.configureLaunchProfilingForNextLaunch` during SentrySDK.start
 - Before SentrySDK.start completes, it checks to see if it should stop any running launch profiler
   - if TTID/TTFD tracking is enabled and the launch profile is a transaction profile or UI profile with trace lifecycle, stopping profiles is deferred until TTID/TTFD
-  - otherwise for transaction/trace profiles, `sentry_stopAndDiscardLaunchProfileTracer()` is called
+  - otherwise for transaction/trace profiles, `SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer` is called
   - otherwise, the profile continues until SentrySDK.stopProfiler is called in consumer code
 
 ### Testing
 
 Note that the profiler cannot run if a process is running with the thread sanitizer.
 
-In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in NSCachesDirectory that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile` and `iOS-Swift-UITests.ProfilingUITests`.
+In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in NSCachesDirectory that can be retrieved by a test app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile` and `iOS-Swift-UITests.ProfilingUITests`.
 
 ## Headers
 

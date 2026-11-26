@@ -1,4 +1,11 @@
+#if !SDK_V10
+// V9 compatibility coverage. V10 exercises the neutral provider in its own suite.
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -30,6 +37,7 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
 
     override class func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -324,3 +332,4 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
         return thread == mainThread
     }
 }
+#endif

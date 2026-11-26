@@ -1,19 +1,24 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 final class SentrySpotlightTransportTests: XCTestCase {
-    
+
     private var options: Options!
     private var requestManager: SyncTestRequestManager!
     private var requestBuilder: TestNSURLRequestBuilder!
-    
+
     override func setUp() {
         super.setUp()
-        
+
         options = Options()
         options.enableSpotlight = true
-        
+
         requestManager = SyncTestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
 
         requestBuilder = TestNSURLRequestBuilder()
@@ -34,33 +39,36 @@ final class SentrySpotlightTransportTests: XCTestCase {
 
         return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder)
     }
-    
+
     private func givenEventEnvelope(withAttachment: Bool = false) throws -> SentryEnvelope {
         let event = TestData.event
-        
+
         let attachmentEnvelopeItem = try XCTUnwrap( SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024))
-        
+
         var envelopeItems: [SentryEnvelopeItem]
         if withAttachment {
             envelopeItems = [SentryEnvelopeItem(event: event), attachmentEnvelopeItem]
         } else {
             envelopeItems = [SentryEnvelopeItem(event: event)]
         }
-        
+
         return SentryEnvelope(id: event.eventId, items: envelopeItems)
     }
-    
+
     private func givenTransactionEnvelope() throws -> SentryEnvelope {
-        let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypes.transaction
+        let transaction = givenTransaction()
 
         return SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction)])
     }
 
     private func givenTransactionItem() -> SentryEnvelopeItem {
-        let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypes.transaction
-        return SentryEnvelopeItem(event: transaction)
+        return SentryEnvelopeItem(event: givenTransaction())
+    }
+
+    private func givenTransaction() -> Transaction {
+        let context = TransactionContext(operation: "spotlight")
+        let trace = SentryTracer(transactionContext: context, hub: nil)
+        return Transaction(trace: trace, children: [])
     }
 
     private func givenAttachmentItem() throws -> SentryEnvelopeItem {
@@ -268,7 +276,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
 
         XCTAssertEqual(logMessages.count, 1)
     }
-    
+
     private func getSerializedGzippedData(envelope: SentryEnvelope) throws -> Data {
         let expectedData = try XCTUnwrap(SentrySerializationSwift.data(with: envelope)) as NSData
         return try SentryNSDataUtils.sentry_gzipped(with: expectedData as Data, compressionLevel: -1)

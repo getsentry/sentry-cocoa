@@ -34,6 +34,10 @@ SENTRY_NO_INIT
  */
 - (_Nullable instancetype)initWithOptions:(SentryOptionsObjC *)options;
 
+@end
+
+@interface SentryClientInternal (EventCapture)
+
 /**
  * Captures a manually created event and sends it to Sentry.
  * @param event The event to send to Sentry.
@@ -98,6 +102,10 @@ SENTRY_NO_INIT
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
+@end
+
+@interface SentryClientInternal ()
+
 /**
  * Captures a new-style user feedback and sends it to Sentry.
  * @param feedback The user feedback to send to Sentry.
@@ -118,6 +126,12 @@ SENTRY_NO_INIT
  * Disables the client and calls flush with @c SentryOptions.shutdownTimeInterval .
  */
 - (void)close;
+
+/**
+ * Disables the client and calls flush with the specified timeout.
+ * @param timeout The time to wait for the SDK to complete the flush.
+ */
+- (void)closeWithTimeout:(NSTimeInterval)timeout NS_SWIFT_NAME(close(timeout:));
 
 @end
 

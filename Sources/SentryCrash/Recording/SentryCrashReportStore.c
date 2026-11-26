@@ -25,20 +25,22 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashReportStore.h"
-#include "SentryAsyncSafeLog.h"
-#include "SentryCrashFileUtils.h"
+#if !SDK_V10
 
-#include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <inttypes.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+#    include "SentryCrashReportStore.h"
+#    include "SentryAsyncSafeLog.h"
+#    include "SentryCrashFileUtils.h"
+
+#    include <dirent.h>
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <inttypes.h>
+#    include <pthread.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <time.h>
+#    include <unistd.h>
 
 static int g_maxReportCount = 5;
 // Have to use max 32-bit atomics because of MIPS.
@@ -246,7 +248,7 @@ sentrycrashcrs_getNextCrashReportPath(char *crashReportPathBuffer)
     getCrashReportPathByID(getNextUniqueID(), crashReportPathBuffer);
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(DEBUG) // Test support.
 void
 sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
 {
@@ -254,7 +256,7 @@ sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
     initializeIDsFromTime(reportTime);
     pthread_mutex_unlock(&g_mutex);
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(DEBUG)
 
 int
 sentrycrashcrs_getReportCount(void)
@@ -287,7 +289,10 @@ sentrycrashcrs_readReport(int64_t reportID)
     char path[SentryCrashCRS_MAX_PATH_LENGTH];
     getCrashReportPathByID(reportID, path);
     char *result;
-    sentrycrashfu_readEntireFile(path, &result, NULL, 2000000);
+    // Use 20 MB limit so reports with large NSException reasons are not truncated before decoding.
+    // This is aligned with KSCrash which bumped to the same value, meaning V9 and V10 match now:
+    // https://github.com/kstenerud/KSCrash/blob/8649e0727ef4506f3cf910453eb0f2481321e8ab/Sources/KSCrashRecording/KSCrashReportStoreC%2BPrivate.h#L43
+    sentrycrashfu_readEntireFile(path, &result, NULL, 20000000);
     pthread_mutex_unlock(&g_mutex);
     return result;
 }
@@ -360,3 +365,5 @@ sentrycrashcrs_setMaxReportCount(int maxReportCount)
 {
     g_maxReportCount = maxReportCount;
 }
+
+#endif // !SDK_V10

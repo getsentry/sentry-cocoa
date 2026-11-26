@@ -25,33 +25,39 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrash.h"
+#if !SDK_V10
 
-#import "SentryCrashC.h"
-#import "SentryCrashDoctor.h"
-#import "SentryCrashJSONCodecObjC.h"
-#import "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_AppState.h"
-#import "SentryCrashMonitor_NSException.h"
-#import "SentryCrashMonitor_System.h"
-#import "SentryCrashNSErrorUtil.h"
-#import "SentryCrashReportFields.h"
-#import "SentryCrashReportStore.h"
-#import "SentryDefines.h"
-#import "SentryInternalCDefines.h"
-#import "SentrySwift.h"
-#import <SentryNSDataUtils.h>
+#    import "SentryCrash.h"
 
-#import "SentryLogC.h"
+#    import "SentryCrashC.h"
+#    import "SentryCrashDoctor.h"
+#    import "SentryCrashJSONCodecObjC.h"
+#    import "SentryCrashMonitorContext.h"
+#    import "SentryCrashMonitor_AppState.h"
+#    import "SentryCrashMonitor_NSException.h"
+#    import "SentryCrashMonitor_System.h"
+#    import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashReportFields.h"
+#    import "SentryCrashReportStore.h"
+#    import "SentryDefines.h"
+#    import "SentryInternalCDefines.h"
+#    import "SentrySwift.h"
+#    if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
+@import SentryCrashV9Swift;
+#    endif
+#    import <SentryNSDataUtils.h>
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
+#    import "SentryLogC.h"
+#    import "SentryNativeReportFields.h"
 
-#include <inttypes.h>
+#    if SENTRY_HAS_UIKIT
+#        import <UIKit/UIKit.h>
+#    endif
+
+#    include <inttypes.h>
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 // ============================================================================
 
 @interface SentryCrash ()
@@ -67,7 +73,7 @@
 @implementation SentryCrash
 
 // ============================================================================
-#pragma mark - Properties -
+#    pragma mark - Properties -
 // ============================================================================
 
 @synthesize sink = _sink;
@@ -85,7 +91,7 @@
 @synthesize uncaughtExceptionHandler = _uncaughtExceptionHandler;
 
 // ============================================================================
-#pragma mark - Lifecycle -
+#    pragma mark - Lifecycle -
 // ============================================================================
 
 - (instancetype)initWithBasePath:(NSString *)basePath
@@ -103,7 +109,7 @@
 }
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 - (NSDictionary *)userInfo
@@ -182,10 +188,10 @@
     sentrycrashcm_system_getAPI()->addContextualInfoToEvent(&fakeEvent);
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
-#define COPY_STRING(A)                                                                             \
-    if (fakeEvent.System.A)                                                                        \
-    dict[@ #A] = [NSString stringWithUTF8String:fakeEvent.System.A]
-#define COPY_PRIMITIVE(A) dict[@ #A] = @(fakeEvent.System.A)
+#    define COPY_STRING(A)                                                                         \
+        if (fakeEvent.System.A)                                                                    \
+        dict[@ #A] = [NSString stringWithUTF8String:fakeEvent.System.A]
+#    define COPY_PRIMITIVE(A) dict[@ #A] = @(fakeEvent.System.A)
     COPY_STRING(systemName);
     COPY_STRING(systemVersion);
     COPY_STRING(machine);
@@ -245,7 +251,7 @@
         return false;
     }
 
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter addObserver:self
@@ -268,8 +274,8 @@
                            selector:@selector(applicationWillTerminate)
                                name:UIApplicationWillTerminateNotification
                              object:nil];
-#endif // SENTRY_HAS_UIKIT
-#if SENTRY_HAS_NSEXTENSION
+#    endif // SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_NSEXTENSION
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter addObserver:self
@@ -288,7 +294,7 @@
                            selector:@selector(applicationWillEnterForeground)
                                name:NSExtensionHostWillEnterForegroundNotification
                              object:nil];
-#endif // SENTRY_HAS_NSEXTENSION
+#    endif // SENTRY_HAS_NSEXTENSION
 
     _installed = true;
 
@@ -304,7 +310,7 @@
     sentrycrash_uninstall();
     _installed = false;
 
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter removeObserver:self
@@ -320,8 +326,8 @@
                                   name:UIApplicationWillEnterForegroundNotification
                                 object:nil];
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
-#endif // SENTRY_HAS_UIKIT
-#if SENTRY_HAS_NSEXTENSION
+#    endif // SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_NSEXTENSION
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter removeObserver:self
@@ -336,7 +342,7 @@
     [notificationCenter removeObserver:self
                                   name:NSExtensionHostWillEnterForegroundNotification
                                 object:nil];
-#endif
+#    endif
 }
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
@@ -370,11 +376,11 @@
 }
 
 // ============================================================================
-#pragma mark - Advanced API -
+#    pragma mark - Advanced API -
 // ============================================================================
 
-#define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                                \
-    -(TYPE)NAME { return sentrycrashstate_currentState()->NAME; }
+#    define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                            \
+        -(TYPE)NAME { return sentrycrashstate_currentState()->NAME; }
 
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, activeDurationSinceLastCrash)
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, backgroundDurationSinceLastCrash)
@@ -502,9 +508,14 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         return nil;
     }
 
+    if (![crashReport isKindOfClass:[NSMutableDictionary class]]) {
+        SENTRY_LOG_ERROR(@"Crash report %" PRIx64 " is not a JSON object", reportID);
+        return nil;
+    }
+
     NSArray *attachments = [self getAttachmentPaths:reportID];
     if (attachments.count > 0) {
-        crashReport[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] = attachments;
+        crashReport[SentryNativeReportAttachmentsKey] = attachments;
     }
 
     [self doctorReport:crashReport];
@@ -535,7 +546,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 }
 
 // ============================================================================
-#pragma mark - Notifications -
+#    pragma mark - Notifications -
 // ============================================================================
 
 - (void)applicationDidBecomeActive
@@ -583,3 +594,5 @@ const double SentryCrashFrameworkVersionNumber = 1.1518;
 
 //! Project version string for SentryCrashFramework.
 const unsigned char SentryCrashFrameworkVersionString[] = "1.15.18";
+
+#endif // !SDK_V10

@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)stop;
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if defined(DEBUG) // Test support.
 + (BOOL)swizzlingActive;
 #endif
 

@@ -3,7 +3,7 @@ internal import _SentryPrivate
 
 // We cannot expose `SwiftIntegration` to objc due to the associated type, so we have this base integration protocol
 @_spi(Private) @objc public protocol SentryIntegrationProtocol: NSObjectProtocol {
-    
+
     // Uninstalls the integration
     func uninstall()
 }
@@ -16,17 +16,17 @@ protocol SwiftIntegration: SentryIntegrationProtocol {
     // constraint on the `Dependencies` type can make it easier to test and to use without a direct dependency on all
     // of `SentryDependencyContainer`.
     associatedtype Dependencies
-    
+
     // The initializer is failable, return nil if the integration was not installed, for example when the options that enable the integration is not enabled.
     init?(with options: Options, dependencies: Dependencies)
-    
+
     // Name of the integration that is used by `SentrySdkInfo`
     static var name: String { get }
 }
 
 // Type erases the `Integration` so that it can be stored in an array and used for `addInstalledIntegration`
 private struct AnyIntegration {
-    let install: (Options, SentryDependencyContainer) -> (any SwiftIntegration)?
+    let install: (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?
     let name: String
 
     init<I: SwiftIntegration>(_ integration: I.Type) where I.Dependencies == SentryDependencyContainer {
@@ -35,34 +35,56 @@ private struct AnyIntegration {
             integration.init(with: $0, dependencies: $1)
         }
     }
+
+    init(
+        name: String,
+        install: @escaping (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?
+    ) {
+        self.name = name
+        self.install = install
+    }
+
+#if !SDK_V10
+    static let sentryCrashV9 = AnyIntegration(
+        name: "SentryCrashIntegration",
+        install: SentryCrashV9Backend.installIntegration
+    )
+#endif
 }
 
 // Bridges to ObjC code to trigger installing the integrations
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
+    // swiftlint:disable:next function_body_length
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
-        
+
         // The order of integrations here is important.
         // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
         // And SentrySessionReplayIntegration before SentryCrashIntegration.
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self)
         ]
-        
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
 
-        #if ENABLE_KSCRASH
+        #if SDK_V10
         integrations.append(.init(SentryKSCrash.Integration.self))
         #else
-        integrations.append(.init(SentryCrashIntegration.self))
+        integrations.append(.sentryCrashV9)
         #endif
 
         integrations.append(contentsOf: [
             .init(SentryAutoSessionTrackingIntegration.self),
-            .init(SentryNetworkTrackingIntegration.self),
-            .init(SentryHangTrackerIntegrationObjC.self),
+            .init(SentryNetworkTrackingIntegration.self)
+        ])
+
+        #if !SDK_V10
+        integrations.append(.init(SentryHangTrackerIntegrationObjC.self))
+        #endif
+
+        integrations.append(contentsOf: [
             .init(SentryAutoBreadcrumbTrackingIntegration.self),
             .init(SentryMetricsIntegration.self),
             .init(SentryCoreDataTrackingIntegration.self),
@@ -81,15 +103,22 @@ private struct AnyIntegration {
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryScreenshotIntegration.self))
+        #endif
+
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
-        
+
         #if os(iOS) || os(macOS) || os(visionOS)
         integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
-        
+
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        integrations.append(.init(SentryWebViewTracePropagationIntegration.self))
+        #endif
+
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 

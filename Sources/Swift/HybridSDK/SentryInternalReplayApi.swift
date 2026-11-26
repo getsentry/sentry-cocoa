@@ -2,7 +2,7 @@
 internal import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 /// Provides session replay access for hybrid SDKs.
 public struct SentryInternalReplayApi {
@@ -15,6 +15,46 @@ public struct SentryInternalReplayApi {
     init(dependencies: Dependencies) {
         self.hub = dependencies.hub
         self.replayIntegrationProvider = dependencies.replayIntegrationProvider
+    }
+
+    /// Starts a new replay session if Replay is inactive.
+    public func start() {
+        SentrySDK.replay.start()
+    }
+
+    /// Starts Replay in buffer mode if Replay is inactive.
+    public func startBuffering() {
+        SentrySDK.replay.startBuffering()
+    }
+
+    /// Pauses the current replay.
+    public func pause() {
+        SentrySDK.replay.pause()
+    }
+
+    /// Resumes a replay paused with ``pause()``.
+    public func resume() {
+        SentrySDK.replay.resume()
+    }
+
+    /// Stops recording touch positions until ``resumeTouchTracking()`` is called.
+    public func pauseTouchTracking() {
+        SentrySDK.replay.pauseTouchTracking()
+    }
+
+    /// Resumes recording touch positions paused with ``pauseTouchTracking()``.
+    public func resumeTouchTracking() {
+        SentrySDK.replay.resumeTouchTracking()
+    }
+
+    /// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+    public func flush() {
+        SentrySDK.replay.flush()
+    }
+
+    /// Stops the current replay.
+    public func stop() {
+        SentrySDK.replay.stop()
     }
 
     /// Configures the session replay with a custom breadcrumb converter
@@ -42,6 +82,12 @@ public struct SentryInternalReplayApi {
         hub.configureScope { scope in
             result = scope.replayId
         }
+        // The scope's `replayId` is only set once a replay is sent. While a
+        // buffer (on-error) replay is recording it stays nil, so fall back to
+        // the id assigned when recording started.
+        if result == nil {
+            result = hub.getSessionReplayId()
+        }
         return result
     }
 
@@ -65,9 +111,24 @@ public struct SentryInternalReplayApi {
         replayIntegrationProvider.getReplayIntegration()?.viewPhotographer.setRedactContainerClass(containerClass)
     }
 
-    /// Sets tags on the current replay session.
+    /// Sets tags on the current replay session and on every replay session started afterwards.
     public func setTags(_ tags: [String: Any]) {
         replayIntegrationProvider.getReplayIntegration()?.setReplayTags(tags)
+    }
+
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// The trace ID is added to the `trace_ids` of the next replay segment sent, in
+    /// both session and buffer (on-error) modes. `SentryId.empty` and duplicates are
+    /// ignored, and at most 100 IDs are kept per segment.
+    ///
+    /// Safe to call from any thread. When Session Replay is disabled or not
+    /// recording, this is a no-op.
+    ///
+    /// Introduced in cocoa 9.30.0 for hybrid SDKs (React Native, Flutter). Name and
+    /// semantics are stable once released.
+    public func registerTraceId(_ traceId: SentryId) {
+        replayIntegrationProvider.getReplayIntegration()?.registerReplayTraceId(traceId)
     }
 }
 

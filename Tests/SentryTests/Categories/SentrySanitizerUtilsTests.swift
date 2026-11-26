@@ -1,4 +1,13 @@
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -99,6 +108,25 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? String, "value")
+    }
+
+    func testSentrySanitize_whenValuesAreNSNull_shouldPreserveJSONNull() throws {
+        // -- Arrange --
+        let dict: [String: Any] = [
+            "items": NSNull(),
+            "nested": ["items": NSNull()],
+            "array": [NSNull()]
+        ]
+
+        // -- Act --
+        let sanitized = try XCTUnwrap(sentry_sanitize_dictionary(dict))
+        let json = try JSONSerialization.data(withJSONObject: sanitized, options: [.sortedKeys])
+
+        // -- Assert --
+        XCTAssertEqual(
+            String(decoding: json, as: UTF8.self),
+            #"{"array":[null],"items":null,"nested":{"items":null}}"#
+        )
     }
 
     func testSentrySanitize_dictionaryValueIsNumber_shouldUseValue() {

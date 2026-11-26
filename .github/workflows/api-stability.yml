@@ -2,6 +2,15 @@ name: API Stability Check
 
 on:
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple API stability checks on the same code,
@@ -13,12 +22,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   # This job detects if the PR contains changes that require running API stability checks.
   # If yes, the job will output a flag that will be used by the next job to run the API stability checks.
   # If no, the job will output a flag that will be used by the next job to skip running the API stability checks.
   # At the end of this workflow, we run a check that validates that either all API stability checks passed or were
   # skipped, called api-stability-required-check.
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -28,7 +43,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -47,10 +62,14 @@ jobs:
       - name: Generate HEAD SDK
         run: |
           mv sdk_api.json sdk_api_base.json
-          mv sdk_api_sentryswiftui.json sdk_api_sentryswiftui_base.json
+          mv sdk_api_spm.json sdk_api_spm_base.json
           mv sdk_api_objc.json sdk_api_objc_base.json
           mv sdk_api_objc.diff.json sdk_api_objc.diff_base.json
-          ./scripts/update-api.sh
+          mv sdk_api_v10.json sdk_api_v10_base.json
+          mv sdk_api_v10_spm.json sdk_api_v10_spm_base.json
+          mv sdk_api_objc_v10.json sdk_api_objc_v10_base.json
+          mv sdk_api_objc_v10.diff.json sdk_api_objc_v10.diff_base.json
+          make generate-public-api
 
       - name: Diagnose breaking changes for Sentry
         if: always()
@@ -71,22 +90,22 @@ jobs:
             exit 1
           fi
 
-      - name: Diagnose breaking changes for SentrySwiftUI
+      - name: Diagnose breaking changes for Sentry SwiftPM
         if: always()
         run: |
-          if diff -q "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" > /dev/null; then
-            echo "No SentrySwiftUI API changes detected."
+          if diff -q "sdk_api_spm_base.json" "sdk_api_spm.json" > /dev/null; then
+            echo "No Sentry SwiftPM API changes detected."
           else
-            echo "❌ SentrySwiftUI public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
-            diff "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" || true
+            echo "❌ Sentry SwiftPM public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_spm_base.json" "sdk_api_spm.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \
-              -o sentryswiftui_result.json \
-              -input-paths sdk_api_sentryswiftui_base.json \
-              -input-paths sdk_api_sentryswiftui.json \
+              -o spm_result.json \
+              -input-paths sdk_api_spm_base.json \
+              -input-paths sdk_api_spm.json \
               -json \
               -v
-            cat sentryswiftui_result.json
+            cat spm_result.json
             exit 1
           fi
 
@@ -112,6 +131,66 @@ jobs:
             exit 1
           fi
 
+      - name: Diagnose breaking changes for Sentry V10
+        if: always()
+        run: |
+          if diff -q "sdk_api_v10_base.json" "sdk_api_v10.json" > /dev/null; then
+            echo "No Sentry V10 API changes detected."
+          else
+            echo "❌ Sentry V10 public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_v10_base.json" "sdk_api_v10.json" || true
+            xcrun --sdk iphoneos swift-api-digester \
+              -diagnose-sdk \
+              -o v10_result.json \
+              -input-paths sdk_api_v10_base.json \
+              -input-paths sdk_api_v10.json \
+              -json \
+              -v
+            cat v10_result.json
+            exit 1
+          fi
+
+      - name: Diagnose breaking changes for Sentry V10 SwiftPM
+        if: always()
+        run: |
+          if diff -q "sdk_api_v10_spm_base.json" "sdk_api_v10_spm.json" > /dev/null; then
+            echo "No Sentry V10 SwiftPM API changes detected."
+          else
+            echo "❌ Sentry V10 SwiftPM public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_v10_spm_base.json" "sdk_api_v10_spm.json" || true
+            xcrun --sdk iphoneos swift-api-digester \
+              -diagnose-sdk \
+              -o v10_spm_result.json \
+              -input-paths sdk_api_v10_spm_base.json \
+              -input-paths sdk_api_v10_spm.json \
+              -json \
+              -v
+            cat v10_spm_result.json
+            exit 1
+          fi
+
+      - name: Diagnose breaking changes for SentryObjC V10
+        if: always()
+        run: |
+          if diff -q "sdk_api_objc_v10_base.json" "sdk_api_objc_v10.json" > /dev/null; then
+            echo "No SentryObjC V10 API changes detected."
+          else
+            echo "❌ SentryObjC V10 public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_objc_v10_base.json" "sdk_api_objc_v10.json" || true
+            exit 1
+          fi
+
+      - name: Diagnose ObjC/ObjCCompat V10 drift changes
+        if: always()
+        run: |
+          if diff -q "sdk_api_objc_v10.diff_base.json" "sdk_api_objc_v10.diff.json" > /dev/null; then
+            echo "No ObjC/ObjCCompat V10 drift changes detected."
+          else
+            echo "❌ ObjC/ObjCCompat V10 drift has changed. If intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_objc_v10.diff_base.json" "sdk_api_objc_v10.diff.json" || true
+            exit 1
+          fi
+
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -121,7 +200,7 @@ jobs:
   # So, we don't have to run API stability checks, for example, for Changelog or ReadMe changes.
 
   api-stability-required-check:
-    needs: [files-changed, api-stability]
+    needs: [run-full-ci-gate, files-changed, api-stability]
     name: API Stability
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

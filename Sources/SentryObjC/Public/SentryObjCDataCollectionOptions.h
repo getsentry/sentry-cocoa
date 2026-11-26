@@ -8,8 +8,6 @@
 
 @class SentryObjCDataCollectionKeyValueCollectionBehavior;
 @class SentryObjCDataCollectionHttpHeaderCollectionOptions;
-@class SentryObjCDataCollectionGraphQLCollectionOptions;
-@class SentryObjCDataCollectionDatabaseCollectionOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,18 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Controls URL query parameter filtering. Defaults to denyList.
 @property (nonatomic, strong) SentryObjCDataCollectionKeyValueCollectionBehavior *urlQueryParams;
-
-/// Controls GraphQL document and variable collection.
-@property (nonatomic, strong) SentryObjCDataCollectionGraphQLCollectionOptions *graphql;
-
-/// Controls database query parameter collection.
-@property (nonatomic, strong) SentryObjCDataCollectionDatabaseCollectionOptions *database;
-
-/// Include local variable values captured within stack frames. Defaults to @c YES.
-@property (nonatomic) BOOL stackFrameVariables;
-
-/// Number of source code lines to include above and below each stack frame. Defaults to @c 5.
-@property (nonatomic) NSUInteger frameContextLines;
 
 - (instancetype)init;
 

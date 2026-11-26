@@ -5,18 +5,14 @@
 #    include "SentryAsyncSafeLog.h"
 #    include "SentryCompiler.h"
 #    include "SentryMachLogging.hpp"
+#    include "SentryMemory.h"
 #    include "SentryStackBounds.hpp"
 #    include "SentryStackFrame.hpp"
 #    include "SentryThreadHandle.hpp"
 #    include "SentryThreadMetadataCache.hpp"
+#    include "SentryThreadSnapshot.h"
 #    include "SentryThreadState.hpp"
 #    include "SentryTime.h"
-extern "C" {
-#    define restrict
-/** Allow importing C99 headers that use the restrict keyword, which isn't valid in C++ */
-#    include "SentryCrashMemory.h"
-#    undef restrict
-}
 #    include <cassert>
 #    include <cstring>
 #    include <dispatch/dispatch.h>
@@ -32,6 +28,33 @@ isValidFrame(std::uintptr_t frame, const StackBounds &bounds)
 }
 
 constexpr std::size_t kMaxBacktraceDepth = 128;
+
+class SuspensionAdmission final {
+public:
+    SuspensionAdmission() noexcept
+        : acquired_(sentryThreadSuspensionTryAcquire())
+    {
+    }
+
+    ~SuspensionAdmission()
+    {
+        if (acquired_) {
+            sentryThreadSuspensionRelease();
+        }
+    }
+
+    explicit
+    operator bool() const noexcept
+    {
+        return acquired_;
+    }
+
+    SuspensionAdmission(const SuspensionAdmission &) = delete;
+    SuspensionAdmission &operator=(const SuspensionAdmission &) = delete;
+
+private:
+    const bool acquired_;
+};
 
 } // namespace
 
@@ -86,7 +109,7 @@ namespace profiling {
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
-            if (!sentrycrashmem_isMemoryReadable(frame, sizeof(StackFrame))) {
+            if (!sentryMemoryIsReadable(frame, sizeof(StackFrame))) {
                 break;
             }
             if (LIKELY(skip == 0)) {
@@ -154,16 +177,22 @@ namespace profiling {
             // lock by going here and searching for `_pthread_list_lock:
             // https://github.com/apple/darwin-libpthread/blob/master/src/pthread.c
             // ############################################
-            if (!thread->suspend()) {
-                continue;
-            }
-
             bool reachedEndOfStack = false;
             std::uintptr_t addresses[kMaxBacktraceDepth];
-            const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
-                &reachedEndOfStack, kMaxBacktraceDepth, 0);
+            std::size_t depth = 0;
+            {
+                // Admission is nonblocking: a bulk inspector may already have suspended this
+                // sampling thread, so waiting for that owner would deadlock the process.
+                SuspensionAdmission admission;
+                if (!admission || !thread->suspend()) {
+                    continue;
+                }
 
-            thread->resume();
+                depth = backtrace(*thread, *pair.second, addresses, stackBounds, &reachedEndOfStack,
+                    kMaxBacktraceDepth, 0);
+
+                thread->resume();
+            }
 
             // ############################################
             // END DEADLOCK WARNING

@@ -4,7 +4,6 @@ on:
   pull_request:
     types: [
       opened,
-      edited,
       synchronize,
       converted_to_draft,
       ready_for_review,
@@ -13,7 +12,11 @@ on:
   pull_request_review:
     types: [submitted, dismissed]
 
-# Only one labeling run per PR at a time; latest wins.
+permissions:
+  pull-requests: write
+
+# Only one metadata update per PR at a time. This workflow is not a required
+# check and reads live PR state so a surviving run can reconcile review labels.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.review.pull_request.number }}
   cancel-in-progress: true
@@ -26,27 +29,20 @@ jobs:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            // skip-changelog is intentionally not managed here: Danger/cross-repo
-            // checks read #skip-changelog from the PR body, and applying the label
-            // on open retriggers pull_request workflows that listen for `labeled`.
+            // Keep the default GITHUB_TOKEN: its label writes do not retrigger
+            // CI workflows listening for pull_request label events.
             const MANAGED_LABELS = ['approved', 'changes-requested'];
-
-            const pr = context.payload.pull_request
-              ?? context.payload.review?.pull_request;
-
-            if (!pr) {
-              core.warning('No pull_request in payload');
-              return;
-            }
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({
+              owner, repo, pull_number: prNumber,
+            });
 
             if (pr.head.repo?.fork) {
               core.info('Skipping forked PR');
               return;
             }
-
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const prNumber = pr.number;
 
             // Fetch current labels from API — webhook payload labels can be stale.
             const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
@@ -83,12 +79,10 @@ jobs:
               pull_number: prNumber,
             });
 
-            // Keep only the latest review per user (by submitted_at).
-            // Include DISMISSED/COMMENTED so a newer non-decision review
-            // correctly supersedes a prior APPROVED or CHANGES_REQUESTED.
+            // Comments do not revoke a review decision. A dismissal does.
             const latestByUser = {};
             for (const review of reviews) {
-              const dominated = ['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED', 'COMMENTED'];
+              const dominated = ['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'];
               if (!dominated.includes(review.state)) continue;
               const uid = review.user.id;
               if (!latestByUser[uid] || new Date(review.submitted_at) > new Date(latestByUser[uid].submitted_at)) {

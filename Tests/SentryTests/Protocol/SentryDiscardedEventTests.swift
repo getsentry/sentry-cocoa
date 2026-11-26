@@ -1,11 +1,19 @@
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @_spi(Private) import Sentry
+#endif
 import XCTest
 
 class SentryDiscardedEventTests: XCTestCase {
 
     func testSerialize() {
         // -- Arrange --
-        let discardedEvent = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: SentryDataCategory.transaction.name, quantity: 2)
+        let discardedEvent = SentryDiscardedEvent(reason: SentryDiscardReason.sampleRate.name, category: SentryDataCategory.transaction.name, quantity: 2)
 
         // -- Act --
         let actual = discardedEvent.serialize()

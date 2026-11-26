@@ -1,10 +1,22 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 // We need to use a global variable because C doesn't allow capturing var
 // nor we want to continue using the DependencyContainer
 private weak var globalScreenshotSource: SentryScreenshotSource?
+
+#if SDK_V10
+private let crashTimeScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    sentrykscrash_attachments_log("screenshot writer: enter")
+    guard let source = globalScreenshotSource else {
+        sentrykscrash_attachments_log("screenshot writer: source is nil")
+        return
+    }
+    source.saveScreenShots(String(cString: path))
+    sentrykscrash_attachments_log("screenshot writer: returned")
+}
+#endif
 
 final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
@@ -33,16 +45,26 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
+            crashTimeScreenshotWriter
+        )
+#else
         sentrycrash_setSaveScreenshots { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
+#endif
     }
 
     func uninstall() {
         globalScreenshotSource = nil
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(nil)
+#else
         sentrycrash_setSaveScreenshots(nil)
+#endif
         client?.removeAttachmentProcessor(self)
     }
 
@@ -61,17 +83,19 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // screenshot because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureScreenshot = options.beforeCaptureScreenshot,
            !beforeCaptureScreenshot(event) {

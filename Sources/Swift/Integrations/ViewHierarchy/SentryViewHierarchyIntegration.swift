@@ -1,8 +1,25 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
+
+// We need to use a global variable because C doesn't allow capturing var
+// nor we want to continue using the DependencyContainer
+private weak var globalViewHierarchyProvider: SentryViewHierarchyProvider?
+
+#if SDK_V10
+private let crashTimeViewHierarchyWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    sentrykscrash_attachments_log("view-hierarchy writer: enter")
+    guard let provider = globalViewHierarchyProvider else {
+        sentrykscrash_attachments_log("view-hierarchy writer: provider is nil")
+        return
+    }
+    let filePath = (String(cString: path) as NSString).appendingPathComponent("view-hierarchy.json")
+    provider.saveViewHierarchy(filePath)
+    sentrykscrash_attachments_log("view-hierarchy writer: returned")
+}
+#endif
 
 final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
@@ -34,16 +51,28 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         viewHierarchyProvider.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
         client.addAttachmentProcessor(self)
 
+        globalViewHierarchyProvider = viewHierarchyProvider
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(
+            crashTimeViewHierarchyWriter
+        )
+#else
         sentrycrash_setSaveViewHierarchy { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
-            SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
+            globalViewHierarchyProvider?.saveViewHierarchy(filePath)
         }
+#endif
     }
 
     func uninstall() {
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(nil)
+#else
         sentrycrash_setSaveViewHierarchy(nil)
+#endif
+        globalViewHierarchyProvider = nil
         client?.removeAttachmentProcessor(self)
     }
 
@@ -60,17 +89,19 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // view hierarchy because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureViewHierarchy = options.beforeCaptureViewHierarchy,
            !beforeCaptureViewHierarchy(event) {

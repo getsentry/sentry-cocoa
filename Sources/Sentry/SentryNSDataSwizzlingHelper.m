@@ -7,7 +7,7 @@
 @implementation SentryNSDataSwizzlingHelper
 
 static __weak SentryFileIOTracker *_tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if defined(DEBUG) // Test support.
 static BOOL swizzlingIsActive = FALSE;
 #endif
 
@@ -18,7 +18,7 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)swizzleWithTracker:(SentryFileIOTracker *)tracker
 {
     _tracker = tracker;
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if defined(DEBUG) // Test support.
     swizzlingIsActive = TRUE;
 #endif
 
@@ -97,7 +97,9 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return _tracker != nil
+            // ObjC callers such as MessageUI may pass a nil URL. The tracker takes a non-optional
+            // Swift URL and bridging nil to it traps, so let the original handle it untracked.
+            return _tracker != nil && url != nil
                 ? [_tracker
                       measureNSDataFromURL:url
                                    options:options
@@ -117,12 +119,17 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)stop
 {
     _tracker = nil;
-#if SENTRY_TEST || SENTRY_TEST_CI
-    [self unswizzle];
+#if defined(DEBUG) // Test support.
+    // Unswizzling is test cleanup, not safe teardown for source-based Debug consumers.
+    if (SentryDependencyContainer.sharedInstance.processInfoWrapper
+            .environment[@"XCTestConfigurationFilePath"]
+        != nil) {
+        [self unswizzle];
+    }
 #endif
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+#if defined(DEBUG) // Test support.
 + (void)unswizzle
 {
     swizzlingIsActive = FALSE;

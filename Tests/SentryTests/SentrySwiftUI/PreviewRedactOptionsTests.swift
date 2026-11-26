@@ -1,5 +1,13 @@
 #if os(iOS) || os(tvOS)
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
 @testable import Sentry
+#endif
 import XCTest
 
 class PreviewRedactOptionsTests: XCTestCase {

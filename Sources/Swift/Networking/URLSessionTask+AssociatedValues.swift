@@ -1,0 +1,86 @@
+final class URLSessionTaskNetworkTrackerState {
+    struct SpanCompletion {
+        let status: SentrySpanStatus
+        let responseStatusCode: Int?
+    }
+
+    enum SpanState {
+        case idle
+        case creating
+        case active(Span)
+        case completionPending(SpanCompletion)
+        case completed
+    }
+
+    struct Values {
+        var spanState = SpanState.idle
+        var startDate: Date?
+        var hasBreadcrumb = false
+        var usesNewLoaderCompletionHandler = false
+        var isDuplicate = false
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        var networkDetails: SentryReplayNetworkDetails?
+        var networkDetailCaptureDecisions: [String: Bool] = [:]
+#endif
+    }
+
+    let values = SentryMutex(Values())
+}
+
+extension URLSessionTask {
+    private enum AssociatedKeys {
+        static let networkTrackerState = AssociatedObjectAccessor<URLSessionTaskNetworkTrackerState>.Key()
+        static let stateCreation = SentryMutex<Void>(())
+    }
+
+    private var networkTrackerStateAccessor: AssociatedObjectAccessor<URLSessionTaskNetworkTrackerState> {
+        .init(on: self, key: AssociatedKeys.networkTrackerState)
+    }
+
+    private var existingNetworkTrackerState: URLSessionTaskNetworkTrackerState? {
+        guard case .valid(let state) = networkTrackerStateAccessor.value else {
+            return nil
+        }
+        return state
+    }
+
+    func withNetworkTrackerState<Result>(
+        _ body: (inout URLSessionTaskNetworkTrackerState.Values) throws -> Result
+    ) rethrows -> Result {
+        let state = existingNetworkTrackerState ?? AssociatedKeys.stateCreation.withLock { _ in
+            if let state = existingNetworkTrackerState {
+                return state
+            }
+
+            let state = URLSessionTaskNetworkTrackerState()
+            networkTrackerStateAccessor.set(state)
+            return state
+        }
+        return try state.values.withLock(body)
+    }
+
+    var trackerSpan: Span? {
+        withNetworkTrackerState {
+            guard case .active(let span) = $0.spanState else {
+                return nil
+            }
+            return span
+        }
+    }
+
+    var startDate: Date? {
+        withNetworkTrackerState { $0.startDate }
+    }
+
+    var usesNewLoaderCompletionHandler: Bool {
+        get { withNetworkTrackerState { $0.usesNewLoaderCompletionHandler } }
+        set { withNetworkTrackerState { $0.usesNewLoaderCompletionHandler = newValue } }
+    }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    var networkDetails: SentryReplayNetworkDetails? {
+        existingNetworkTrackerState?.values.withLock { $0.networkDetails }
+    }
+#endif
+}

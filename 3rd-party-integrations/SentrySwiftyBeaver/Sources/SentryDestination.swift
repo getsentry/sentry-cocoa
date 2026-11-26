@@ -1,4 +1,8 @@
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 import SwiftyBeaver
 
 /// A SwiftyBeaver destination that forwards log entries to Sentry's structured logging system.
@@ -25,11 +29,11 @@ import SwiftyBeaver
 /// ## Usage
 /// ```swift
 /// import Sentry
+/// import SentrySwiftyBeaver
 /// import SwiftyBeaver
 ///
 /// SentrySDK.start { options in
 ///     options.dsn = "YOUR_DSN"
-///     options.logsEnabled = true
 /// }
 ///
 /// let log = SwiftyBeaver.self

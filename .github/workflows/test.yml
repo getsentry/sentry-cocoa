@@ -7,7 +7,15 @@ on:
       - release/**
 
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to allow independent test runs across different workflows
@@ -22,7 +30,7 @@ concurrency:
 
 jobs:
   run-full-ci-gate:
-    name: run-full-ci gate
+    name: CI eligibility
     uses: ./.github/workflows/run-full-ci-workflow.yml
 
   # This job detects if the PR contains changes that require running unit tests.
@@ -34,6 +42,7 @@ jobs:
     name: Detect File Changes
     runs-on: ubuntu-latest
     needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     # Map a step output to a job output
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
@@ -42,7 +51,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -51,7 +60,7 @@ jobs:
     name: Build test server
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Cache for Test Server
@@ -59,90 +68,141 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}-universal
+          key: test-server-${{ hashFiles('test-server/**') }}-universal
           restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}-universal
             test-server-
 
-      - name: Build Test Server for Intel CPU
-        if: steps.cache_test_server.outputs.cache-hit != 'true'
+      - name: Build Universal Test Server
         working-directory: test-server
-        run: >-
-          swift build -c release --triple x86_64-apple-macosx 2>&1 | tee test-server-build-intel.log
-
-      - name: Build Test Server for M1 CPU
-        if: steps.cache_test_server.outputs.cache-hit != 'true'
-        working-directory: test-server
-        run: >-
-          swift build -c release --arch arm64 2>&1 | tee test-server-build-arm64.log
-
-      - name: Combine Test Server
-        working-directory: test-server
-        run: >-
-          lipo -create -output test-server-exec "$(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run" "$(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run"
+        run: |
+          set -o pipefail
+          make release-universal 2>&1 | tee test-server-build.log
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
           path: |
-            test-server-build-intel.log
-            test-server-build-arm64.log
+            test-server/test-server-build.log
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   distribution-tests:
-    name: Distribution Tests
-    runs-on: macos-15
+    name: SPM Tests ${{ matrix.mode }}
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mode: V9
+            sdk-v10: "0"
+            runs-on: macos-26
+            test-plan: SentrySPM_Base
+          - mode: V10
+            sdk-v10: "1"
+            runs-on: ["bitrise_pool_name:tahoe"]
+            test-plan: SentrySPM_Base_v10
+    env:
+      SDK_V10: ${{ matrix.sdk-v10 }}
+      TEST_PLAN: ${{ matrix.test-plan }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     # Also, skip when PR changes don't require running tests to save CI time.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_distribution_tests_for_prs == 'true')
     needs: files-changed
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Prepare Package.swift
-        shell: bash
-        run: |
-          # Swift 6.1+ and 6.2+ uses Package@swift-6.1.swift and Package@swift-6.2.swift; hide it so prepare-package's
-          # modified Package.swift is used (avoids "Multiple commands produce" from
-          # unmodified binary targets in the 6.1 and 6.2 manifests).
-          if [[ -f Package@swift-6.1.swift ]]; then
-            mv Package@swift-6.1.swift Package@swift-6.1.swift.bak
-          fi
-          if [[ -f Package@swift-6.2.swift ]]; then
-            mv Package@swift-6.2.swift Package@swift-6.2.swift.bak
-          fi
-          ./scripts/prepare-package.sh \
-            --package-file Package.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --remove-duplicate true \
-            --change-path false \
-            --remove-binary-targets true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: "18.5"
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          SDK_V10: ${{ matrix.sdk-v10 }}
+        run: |
+          case "$SDK_V10" in
+            0) target=test-ios ;;
+            1) target=test-ios-v10 ;;
+            *)
+              echo "::error::Unsupported unit-test SDK generation: $SDK_V10"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
+      - name: Run package tests
+        env:
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+        run: |
+          make "$MAKE_TARGET" \
+            TEST_INCLUDE_DISTRIBUTION=true \
+            TEST_PLAN="$TEST_PLAN" \
+            TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" 2>&1 | tee raw-test-output-distribution.log
+      - name: Verify V9 resource ownership
+        if: matrix.mode == 'V9'
+        shell: bash
+        run: |
+          # Xcode can discover SDK resources for the Sources-rooted recorder target,
+          # even with an explicit source list. Inspect the build we just tested.
+          derived_data="$RUNNER_TEMP/distribution-derived-data"
+          resources="$(find "$derived_data" \( -path '*SentryCrashV9*.build/*resource_bundle_accessor*' -o \
+            -name Sentry_SentryCrashV9.bundle \) -print)"
+          if [[ -n "$resources" ]]; then
+            echo "::error::V9 recorder unexpectedly owns a resource bundle/accessor"
+            printf '%s\n' "$resources"
+            exit 1
+          fi
+          recorder_objects="$(find "$derived_data" -type f -path '*/SentryCrashV9.build/*/SentryCrash.o' -print)"
+          if [[ -z "$recorder_objects" ]]; then
+            echo "::error::V9 recorder was not compiled; resource ownership was not verified"
+            exit 1
+          fi
       - name: Upload Distribution Test Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-test-output-distribution
+          name: raw-test-output-distribution-${{ matrix.mode }}
           path: |
             raw-test-output-distribution.log
+            raw-prepare-package-output.log
+            raw-build-for-testing-output.log
+            raw-test-output.log
+
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-distribution-${{ matrix.mode }}
+          path: ${{ runner.temp }}/results.xcresult
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the
@@ -150,15 +210,14 @@ jobs:
   # We don't run this matrix for all different OS versions, because the chances
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
-    name: Unit with Test Server ${{matrix.name}} on ${{matrix.runner_provider}}
-    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
+    name: Unit with Test Server ${{matrix.name}}
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 20
     needs: build-test-server
 
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
@@ -167,16 +226,37 @@ jobs:
             platform: "macOS"
             xcode: "16"
 
+          - name: Catalyst 15
+            platform: "Catalyst"
+            xcode: "16"
+
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: test-server
 
       - name: Start Test Server
-        run: ./scripts/start-test-server.sh
+        id: test-server
+        background: true
+        run: |
+          chmod +x test-server-exec
+          exec ./test-server-exec serve --port 8081 > test-server/.test-server.log 2>&1
+
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -188,61 +268,97 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
 
+      - name: Resolve Make target
+        id: resolve-make-target
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            macOS) target=test-macos ;;
+            Catalyst) target=test-catalyst ;;
+            *)
+              echo "::error::Unsupported unit-test platform: $PLATFORM"
+              exit 1
+              ;;
+          esac
+          echo "make-target=$target" >> "$GITHUB_OUTPUT"
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
         env:
-          REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os "${OS_VERSION}" \
-            --ref "${REF_NAME}" \
-            --command build-for-testing \
-            --configuration TestCI \
-            --scheme Sentry \
-            --test-plan Sentry_TestServer
+          make "$MAKE_TARGET" \
+            TEST_COMMAND=build-for-testing \
+            TEST_PLAN=SentrySPM_TestServer
+
+      # A wait control step would wait for server exit, not HTTP readiness.
+      - name: Wait for Test Server readiness
+        run: |
+          for _ in {1..200}; do
+            if [ "$(curl --fail --silent --max-time 1 http://localhost:8081/health)" = "OK" ]; then
+              exit 0
+            fi
+            sleep 0.1
+          done
+          cat test-server/.test-server.log
+          echo "::error::Test server failed to become ready"
+          exit 1
 
       - name: Run tests
         env:
-          REF_NAME: ${{ github.ref_name }}
-          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          MAKE_TARGET: ${{ steps.resolve-make-target.outputs.make-target }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os "${OS_VERSION}" \
-            --ref "${REF_NAME}" \
-            --command test-without-building \
-            --configuration TestCI \
-            --scheme Sentry \
-            --test-plan Sentry_TestServer
+          make "$MAKE_TARGET" \
+            TEST_COMMAND=test-without-building \
+            TEST_PLAN=SentrySPM_TestServer
 
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: steps.build_tests.outcome == 'failure'
-        with:
-          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
-          path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+      # Control steps run even after a failure, so the server cannot hold up cleanup.
+      - name: Stop Test Server
+        cancel: test-server
 
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        id: upload-raw-logs
+        background: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
+            raw-prepare-package-output.log
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
 
-      - name: Archiving Crash Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - name: Archiving Test Results
+        id: upload-test-results
+        background: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
+          name: result-bundle-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: ${{ runner.temp }}/results.xcresult
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: |
+            ${{ runner.temp }}/sentry-package-derived-data/Logs/**
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Wait for artifact uploads
+        wait: [upload-raw-logs, upload-test-results]
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -255,205 +371,122 @@ jobs:
           suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
 
   unit-tests:
-    name: Unit ${{matrix.name}} on ${{matrix.runner_provider}}
+    name: Unit ${{matrix.name}}
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
-    secrets: inherit
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
       timeout: ${{matrix.timeout || 20}}
-      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') || (github.event_name != 'pull_request' && matrix.runner_provider == 'cirrus') }}
-      runner_provider: ${{matrix.runner_provider}}
+      should_skip: ${{ github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true' }}
       xcode: ${{matrix.xcode}}
-      test-destination-os: ${{matrix.test-destination-os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
-      scheme: "Sentry"
     strategy:
       fail-fast: false
       matrix:
-        # Can't run tests on watchOS because XCTest is not available
+        # watchOS unit tests run in nightly-test.yml to keep the regular CI matrix focused.
         include:
-          # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
-
-          # iOS 17
-          - name: iOS 17 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            device: "iPhone 15 Pro"
-          - name: iOS 17 Sentry
-            runner_provider: bitrise
-            runs-on: sequoia
-            xcode: "16"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            device: "iPhone 15 Pro"
-
           # iOS 18
           - name: iOS 18 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "iOS"
-          - name: iOS 18 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "iOS"
 
           # iOS 26
           - name: iOS 26 Sentry
-            runner_provider: cirrus
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
-          - name: iOS 26 Sentry
-            runner_provider: bitrise
-            runs-on: tahoe
-            xcode: "26"
+
+          # iOS 27
+          - name: iOS 27 Sentry
+            runs-on: tahoe-27
+            xcode: "27"
             platform: "iOS"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 15 is minimal.
           # We are running tests on macOS 15 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # macOS 15 pinned to Xcode 16.2 to preserve OS matrix coverage from the retired macOS 14 runner.
-          - name: macOS 15 Compat Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16.2"
-            platform: "macOS"
-
-          # macOS 14 — Bitrise only (sonoma pool still available)
-          - name: macOS 14 Sentry
-            runner_provider: bitrise
-            runs-on: sonoma
-            xcode: "16"
-            platform: "macOS"
-
           # macOS 15
           - name: macOS 15 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "macOS"
-          - name: macOS 15 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
-            runner_provider: cirrus
             runs-on: tahoe
             xcode: "26"
             platform: "macOS"
-          - name: macOS 26 Sentry
-            runner_provider: bitrise
-            runs-on: tahoe
-            xcode: "26"
+
+          # macOS 27
+          - name: macOS 27 Sentry
+            runs-on: xcode-beta # golden gate
+            xcode: "27"
             platform: "macOS"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving OS matrix coverage from the retired macOS 14 runner.
-          - name: Catalyst 15 Compat Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16.2"
-            platform: "Catalyst"
-
-          # Catalyst 14 — Bitrise only (sonoma pool still available)
-          - name: Catalyst 14 Sentry
-            runner_provider: bitrise
-            runs-on: sonoma
-            xcode: "16"
-            platform: "Catalyst"
 
           # Catalyst 15
           - name: Catalyst 15 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "Catalyst"
-          - name: Catalyst 15 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "Catalyst"
 
           # Catalyst 26
           - name: Catalyst 26 Sentry
-            runner_provider: cirrus
             runs-on: tahoe
             xcode: "26"
             platform: "Catalyst"
-          - name: Catalyst 26 Sentry
-            runner_provider: bitrise
-            runs-on: tahoe
-            xcode: "26"
+
+          # Catalyst 27
+          - name: Catalyst 27 Sentry
+            runs-on: xcode-beta
+            xcode: "27"
             platform: "Catalyst"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
-          # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
-
-          # tvOS 17
-          - name: tvOS 17 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            test-destination-os: "17.5"
-            platform: "tvOS"
-          - name: tvOS 17 Sentry
-            runner_provider: bitrise
-            runs-on: sequoia
-            xcode: "16"
-            test-destination-os: "17.5"
-            platform: "tvOS"
-
           # tvOS 18
           - name: tvOS 18 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "tvOS"
-          - name: tvOS 18 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "tvOS"
-            device: "Apple TV"
-          - name: tvOS 26 Sentry
-            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "tvOS"
             device: "Apple TV"
 
+          # tvOS 27
+          - name: tvOS 27 Sentry
+            runs-on: tahoe-27
+            xcode: "27"
+            platform: "tvOS"
+
           # visionOS 26
           - name: visionOS 26 Sentry
-            runner_provider: cirrus
             runs-on: tahoe
             xcode: "26"
             platform: "visionOS"
             timeout: 30
-          - name: visionOS 26 Sentry
-            runner_provider: bitrise
-            runs-on: tahoe
-            xcode: "26"
+
+          # visionOS 27
+          # ci-boot-simulator.sh answers the host's microphone permission prompt for visionOS
+          # simulators. Unanswered, it makes the simulator's backboardd crash-loop and the tests
+          # take 10 to 60 minutes instead of 4.
+          # See https://github.com/getsentry/sentry-cocoa/pull/9644 for the investigation.
+          - name: visionOS 27 Sentry
+            runs-on: tahoe-xl
+            xcode: "27"
             platform: "visionOS"
             timeout: 30
 

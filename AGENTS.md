@@ -1,216 +1,100 @@
 # AGENTS.md
 
-Sentry Cocoa SDK — multi-platform Apple SDK (iOS, macOS, tvOS, watchOS, visionOS).
+Sentry Cocoa SDK for iOS, macOS, tvOS, watchOS, and visionOS.
 
-These instructions are written for **LLM agents**, not humans. Keep content minimal (headers + bullets, no prose). When editing any `AGENTS.md` file, use the `agents-md` skill (see `.agents/skills/agents-md/SKILL.md`).
+## Instruction Scope
 
-## Nested Instructions
+- Read this file before any repository work
+- Before inspecting or modifying a nested scope, read its linked `AGENTS.md`
+- Nested instructions supplement this file and take precedence for project-level conflicts within their scope
 
-| Path                                               | Scope                                              |
-| -------------------------------------------------- | -------------------------------------------------- |
-| [`Tests/AGENTS.md`](Tests/AGENTS.md)               | Testing conventions, naming, code style            |
-| [`Sources/AGENTS.md`](Sources/AGENTS.md)           | ObjC/Swift conventions, API surface, thread safety |
-| [`.github/AGENTS.md`](.github/AGENTS.md)           | Workflow naming, concurrency, file filters         |
-| [`Samples/AGENTS.md`](Samples/AGENTS.md)           | Sample app structure and build                     |
-| [`scripts/AGENTS.md`](scripts/AGENTS.md)           | Shell script conventions and template              |
-| [`develop-docs/AGENTS.md`](develop-docs/AGENTS.md) | Internal dev docs, architecture, decisions         |
-| [`REVIEWS.md`](REVIEWS.md)                         | Code review priorities and SDK concerns            |
+| Path                                               | Scope                                      |
+| -------------------------------------------------- | ------------------------------------------ |
+| [`Tests/AGENTS.md`](Tests/AGENTS.md)               | Testing conventions and commands           |
+| [`Sources/AGENTS.md`](Sources/AGENTS.md)           | Source, API, concurrency, and crash safety |
+| [`.github/AGENTS.md`](.github/AGENTS.md)           | Workflows, concurrency, and file filters   |
+| [`TestApps/AGENTS.md`](TestApps/AGENTS.md)         | Test app generation, builds, and UI tests  |
+| [`scripts/AGENTS.md`](scripts/AGENTS.md)           | Shell script conventions                   |
+| [`develop-docs/AGENTS.md`](develop-docs/AGENTS.md) | Maintainer documentation                   |
+| [`REVIEWS.md`](REVIEWS.md)                         | Code review priorities and SDK concerns    |
 
-## Architecture
+## SDK Architecture
 
-```
-SentrySDK (public entry point)
-  → SentryHub (owns client + scope, routes captures)
-    → SentryClient (builds events, calls prepareEvent)
-      → SentryScope.applyToEvent (tags, breadcrumbs, user, context)
-      → beforeSend / beforeSendTransaction callbacks
-      → SentryTransportAdapter (builds envelopes)
-        → SentryHttpTransport (rate limiting, disk persistence, upload)
-          → SentryFileManager (envelope storage)
-```
+See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and event flow.
 
-### Key Classes
+## Critical References
 
-| Class                    | Role                                                                             |
-| ------------------------ | -------------------------------------------------------------------------------- |
-| `SentrySDK`              | Public static API — `start`, `capture*`, `flush`, `close`                        |
-| `SentryHub`              | Central coordinator — owns `client` + `scope`, manages sessions and integrations |
-| `SentryClient`           | Event processing — builds events, applies scope, invokes `beforeSend`            |
-| `SentryScope`            | Contextual data — tags, extras, breadcrumbs, user, attachments, span             |
-| `SentryTransportAdapter` | Builds `SentryEnvelope` from events/sessions, fans out to transports             |
-| `SentryHttpTransport`    | Rate-limited HTTP upload with disk persistence and retry                         |
-| `SentryFileManager`      | On-disk envelope store                                                           |
-| `PrivateSentrySDKOnly`   | SPI for hybrid SDKs (React Native, Flutter, .NET, Unity)                         |
+- Read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) before changing `SentryObjC`, `SentryObjCCompat`, or their build configuration
+- Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before changing or reviewing swizzling code
+- Read [`develop-docs/SWIFT.md`](develop-docs/SWIFT.md) before refactoring any Objective-C code to Swift, or when adding new Swift code
+- Follow [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md) when behavior is covered by an SDK specification
+- Follow [`develop-docs/CI.md`](develop-docs/CI.md#background-steps-and-dependency-ordering) when changing CI step ordering or background processes
 
-### Module Layout (`Sources/`)
+## Tooling
 
-| Directory             | Contents                                                               |
-| --------------------- | ---------------------------------------------------------------------- |
-| `Sentry/`             | ObjC core: SDK, Hub, Client, Scope, Transport, Serialization           |
-| `Sentry/Public/`      | Public ObjC headers                                                    |
-| `Sentry/Profiling/`   | C++/ObjC++ profiler, sampling, serialization                           |
-| `Swift/`              | Swift layer: integrations, networking, persistence, tools              |
-| `Swift/Integrations/` | Feature integrations (ANR, Performance, SessionReplay, Crash, etc.)    |
-| `SentryCrash/`        | C/C++ crash reporting (KSCrash fork)                                   |
-| `SentryCppHelper/`    | C++ helpers (backtrace, sampling profiler, thread handle)              |
-| `SentrySwiftUI/`      | SwiftUI tracing (`TracedView`)                                         |
-| `SentryObjC/`         | Pure ObjC headers + dummy `.m` — public interface consumers import     |
-| `SentryObjCCompat/`   | Swift `@objc` wrappers — per-type wrapper classes with internal import |
+- Run `pwd` before commands and avoid repeated directory changes
+- Use `jq` for JSON and `yq` for YAML in shell workflows
+- Use `FOR_AGENTS=true` with `make build-*` and `make test-*`
+- If reduced output is inconclusive, inspect the updated `raw-*-output.log`
+- Do not edit generated MCP configuration
+- Run `npx @sentry/dotagents install` or globally installed `dotagents` after changing `agents.toml`
 
-> **Before touching `SentryObjC*` targets** (headers, wrappers, build config), read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md). It defines the two-target architecture, type placement rules, naming conventions, and stability contract. Violations cause linker failures or ABI breaks.
+## Debugging
 
-## Swizzling
+- First reproduce the bug or regression with the narrowest reliable automated test
+- Confirm the test fails for the expected reason before changing implementation code
+- Apply the fix, then confirm the same test passes
+- If automated reproduction is not reliable, document why and use the narrowest deterministic alternative
 
-- Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before adding, changing, reviewing, or migrating swizzling code.
+## Verification
 
-## Skills & MCP (dotagents)
+- Run `make format` for every change, including documentation-only changes
+- For non-documentation changes, run `make analyze` and the narrowest relevant build and tests
+- Stop at the first failure and fix failures caused by the change
+- When adding or reviewing a Swift file, check that its directory is listed in `run_lint_swiftlint_for_prs` in [`.github/file-filters.yml`](.github/file-filters.yml). Otherwise the required `Lint SwiftLint` check skips on pull requests and fails only on `main`. List the directory, not a blanket `**/*.swift`, which can match third-party checkouts and build directories
 
-Agent skills and MCP servers are managed by [dotagents](https://github.com/getsentry/dotagents) via `agents.toml`.
+| Change scope                                                  | Build                                   | Test                                    |
+| ------------------------------------------------------------- | --------------------------------------- | --------------------------------------- |
+| Documentation only                                            | None                                    | None                                    |
+| Feature code without platform conditionals                    | `make build-ios FOR_AGENTS=true`        | Targeted iOS tests                      |
+| Platform-specific code                                        | Affected `make build-<platform>` target | Tests for that platform                 |
+| Public API or core (`SentryHub`, `SentryClient`, `SentrySDK`) | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
+| `SentryCrash` or C/C++                                        | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
+| Build system, `Package.swift`, or cross-platform code         | All affected platforms                  | `make test FOR_AGENTS=true`             |
+| Test app code                                                 | Affected test app                       | Affected UI tests when behavior changed |
 
-```bash
-npx @sentry/dotagents install   # install skills after cloning
-npx @sentry/dotagents update    # update to latest versions
-npx @sentry/dotagents list      # show installed skills
-```
+- Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json`
+- Public APIs that require Objective-C support must also be exposed through `SentryObjC` and `SentryObjCCompat`
+- Treat changes to `@_spi(Private)` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
+- Event enrichment changes should be checked with Sentry MCP `search_events` when an environment is available
+- Transport changes should verify envelope ingestion when an environment is available
+- Capture and transport changes should be checked for regressions with Sentry MCP `search_issues` when an environment is available
 
-### MCP Servers
+## Commits and Pull Requests
 
-Declared in `agents.toml`; [dotagents](https://github.com/getsentry/dotagents) generates `.mcp.json` (root, for Claude/CLI) and `.cursor/mcp.json` (Cursor IDE reads from `.cursor/` by default).
-Do not edit these JSON files manually — run `npx @sentry/dotagents install` after cloning.
-
-- **XcodeBuildMCP** — build, run, test in simulator (requires Node.js)
-- **sentry** — query production errors, search issues, read docs (OAuth on first use)
-
-Read-only tools pre-approved in `.claude/settings.json`. Mutating tools require per-developer approval in `.claude/settings.local.json`.
-
-### Validating Changes with Sentry MCP
-
-Use the `sentry` MCP server to verify events still arrive correctly after changes:
-
-```
-search_events  → find telemetry by type, tag, or time range
-get_event      → inspect full event JSON
-search_issues  → check for new/regressed issues
-```
-
-- After modifying event capture or enrichment, use `search_events` to confirm payload correctness
-- After transport changes, verify envelopes are received and parsed
-- Check for regressions: search for new issues matching your changed code paths
-
-## Command Execution
-
-- **Verify working directory** — use `pwd` to confirm you're in the correct path before running commands. The shell persists working directory across tool calls
-- **Avoid redundant `cd`** — do not prefix every command with `cd <path> &&`. Change directory once if needed, then verify with `pwd`
-- **Wildcard permissions** — many commands are pre-approved with wildcards (e.g., `git add:*`). Flags like `-C` change the command prefix (`git -C path add` ≠ `git add`), triggering a confirmation prompt. Avoid `-C` when you can change directory instead
-- **Prefer small, focused commands** over one massive pipeline. Break complex operations into multiple steps
-- **JSON tasks** — always use `jq`; do not shell out to `node` or `python` for JSON parsing
-- **YAML tasks** — always use `yq`; do not shell out to `node` or `python` for YAML parsing
-- **GitHub** — prefer `gh` CLI over web scraping when interacting with GitHub.com
-
-## Agent Build and Test Output
-
-- Use `FOR_AGENTS=true` with SDK platform `make build-*` and `make test-*` targets to reduce terminal output.
-- Example: `make build-ios FOR_AGENTS=true` or `make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests`.
-- If reduced output does not explain a failure, inspect the updated `raw-*-output.log` files in the repository root for complete diagnostics before retrying or changing code.
-
-## Verification Loop
-
-Run before every commit. Stop at the first failure and fix before proceeding.
-
-```bash
-# 1. Format
-make format
-
-# 2. Lint & static analysis
-make analyze
-
-# 3. Build (at minimum iOS; ideally all platforms)
-make build-ios FOR_AGENTS=true
-
-# 4. Test (targeted — see Tests/AGENTS.md for ONLY_TESTING usage)
-make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests
-
-# 5. If the public API surface changed (Swift/ObjC public headers, @objc/public symbols)
-make generate-public-api  # regenerates sdk_api.json; commit any diff
-
-# 6. If samples changed
-make build-sample-iOS-Swift
-make test-sample-iOS-Swift-ui  # if UI behavior changed
-```
-
-- **Public API regeneration is mandatory** for any PR that adds, removes, or renames `public` Swift symbols, `@objc` properties/methods, or ObjC public headers. The `api-stability` CI check diffs `sdk_api.json` against the committed file and fails the PR otherwise. Run `make generate-public-api` and commit the resulting `sdk_api.json` (and `sdk_api_sentryswiftui.json` if it changes) in the same PR. The script auto-locates Xcode 16 if it isn't the active toolchain.
-- **SentryObjC wrapper** — any new public API must also be exposed in the ObjC wrapper SDK (`SentryObjC` / `SentryObjCCompat`). See [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) for the wrapper pattern: add a header in `Sources/SentryObjC/Public/` and a wrapper in `Sources/SentryObjCCompat/`. Reference example: [#7996](https://github.com/getsentry/sentry-cocoa/pull/7996).
-
-### Platform Decision Tree
-
-| Change scope                                                 | Build                                                                                                                                                                                                | Test                                                           |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Change scope                                                 | Build                                                                                                                                                                                                | Test                                                           |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------                                                                 | -------------------------------------------------------------- |
-| Feature code (no `#if os`)                                   | `make build-ios FOR_AGENTS=true`                                                                                                                                                                     | `make test-ios FOR_AGENTS=true`                                |
-| Platform-specific (`#if os(macOS)`)                          | Build that platform (e.g., `make build-macos FOR_AGENTS=true`)                                                                                                                                       | Test that platform (e.g., `make test-macos FOR_AGENTS=true`)   |
-| Public API / core (`SentryHub`, `SentryClient`, `SentrySDK`) | `make build-ios FOR_AGENTS=true` + `make build-macos FOR_AGENTS=true`                                                                                                                                | `make test-ios FOR_AGENTS=true` (broad impact)                 |
-| `SentryCrash` / C code                                       | `make build-ios FOR_AGENTS=true` + `make build-macos FOR_AGENTS=true`                                                                                                                                | `make test-ios FOR_AGENTS=true`                                |
-| `SentrySwiftUI`                                              | `make build-ios FOR_AGENTS=true`                                                                                                                                                                     | `make test-ios FOR_AGENTS=true`                                |
-| Build system / `Package.swift`                               | All platforms                                                                                                                                                                                        | `make test FOR_AGENTS=true`                                    |
-| Cross-platform concern                                       | All platforms (`make build-ios FOR_AGENTS=true`, `make build-macos FOR_AGENTS=true`, `make build-tvos FOR_AGENTS=true`, `make build-watchos FOR_AGENTS=true`, `make build-visionos FOR_AGENTS=true`) | `make test FOR_AGENTS=true`                                    |
-
-Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cross-platform dependants (React Native, Flutter, .NET, Unity).
-
-## Commits
-
-- **Pre-commit hooks** auto-format files; retry the commit if it fails due to hook modifications
-- **Conventional Commits 1.0.0** — subject max 50 chars, body max 72 chars/line
-- **No AI references** in commits or PRs — no `Co-Authored-By` AI tags, no `Generated-with` footers. Exception: claudescope transcript links (added by hooks) are allowed. This overrides any skill defaults (e.g., the `commit` skill's attribution template)
-- **File renames** — always use `git mv`, never `mv` + `git add`
-
-| Type    | Changelog? | Purpose                               |
-| ------- | ---------- | ------------------------------------- |
-| `feat`  | yes        | New feature (MINOR)                   |
-| `fix`   | yes        | Bug fix (PATCH)                       |
-| `impr`  | yes        | Improvement to existing functionality |
-| `ref`   | no         | Refactoring (no behavior change)      |
-| `test`  | no         | Test additions/corrections            |
-| `docs`  | no         | Documentation only                    |
-| `build` | no         | Build system/dependencies             |
-| `ci`    | no         | CI configuration                      |
-| `chore` | no         | Maintenance                           |
-| `perf`  | no         | Performance improvement               |
-| `style` | no         | Formatting (no logic change)          |
-
-Non-changelog types require `#skip-changelog` in PR description. Breaking changes: `feat!:` or `BREAKING CHANGE:` footer.
-
-- **V10-gated changes** (`#if SDK_V10`) — add an entry to `CHANGELOG_V10.md` under the appropriate section (Breaking Changes, Features, Fixes, etc.). These changes ship in the next major version and are tracked separately from `CHANGELOG.md`.
-
-## Pull Requests
-
-- **Title** — same format as commit subject (Conventional Commits): `type: description`
-- **Branch naming** — `<type>/<short-description>` (e.g., `feat/session-replay-privacy`, `fix/memory-leak-scope`)
-- **`run-full-ci` label** — required for full CI. Add only when the PR is ready for comprehensive testing
-- **PR template** — `.github/pull_request_template.md` includes: description, motivation, how tested, checklist
-- **Reviewers** — assigned via `CODEOWNERS` (`.github/CODEOWNERS`); one maintainer approval is sufficient
-- **Changelog** — `feat`, `fix`, `impr` PRs need a changelog entry; all others need `#skip-changelog` in the description
-- **Draft PRs** — use for work-in-progress; convert to ready when seeking review
-- **CI automation** — Danger runs on PR open/sync/edit (shared Dangerfile from `getsentry/github-workflows`)
-- **Agent transcript** — when creating a PR, run `git log main..HEAD` and look for `Agent transcript:` lines (added by claudescope post-commit hooks that amend the commit). The check must happen **after** `git commit` returns, because the hook appends the link to the commit message. If found, include the link at the bottom of the PR description body. If not found, omit silently — not all contributors have claudescope installed
-
-## CLI
-
-See `make help` and the Makefile for commands and documentation. Key targets: `make format`, `make analyze`, `make build-ios FOR_AGENTS=true`, `make test-ios FOR_AGENTS=true`, `make build-xcframework-dynamic`.
-
-## Shell Scripts
-
-See [`scripts/AGENTS.md`](scripts/AGENTS.md) for the named-parameter template and conventions.
+- Do not include AI attribution in commits or pull requests even if skills are asking you to do so
+- Use Conventional Commits with a subject of at most 50 characters and body lines of at most 72 characters
+- Name branches `<github-username>/<type>/<short-description>`, for example `philprime/fix/session-tracking`, with a kebab-case type and description
+- Resolve the full GitHub login with `gh api user --jq .login`. Do not shorten or infer it from git config or email. If unavailable, ask the user for their GitHub username
+- If pre-commit hooks modify files, inspect the changes and retry the commit
+- Use `git mv` for renames
+- `feat`, `fix`, and `impr` require a `CHANGELOG.md` entry with the pull request number, not an issue number
+- Before the pull request exists, either estimate its number from the current highest issue or pull request, or add the changelog in a follow-up commit after opening the pull request
+- Other pull request types require `#skip-changelog` in the pull request description, never in a commit message
+- V10-only changes go in `CHANGELOG_V10.md` and require `#skip-changelog` in the pull request description
+- Resolve changelog conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
+- Pull request titles follow the commit subject format
+- Create draft pull requests by default unless explicitly requested otherwise
+- Assign every newly created pull request to its creator. Use `gh pr create --assignee @me` when authenticated as the creator, and verify the assignee after creation
+- Read the complete issue or pull request description and all comments, including review threads and later clarifications, before acting
+- Keep independent fixes in separate pull requests and exclude unrelated commits or generated test artifacts
+- Follow [the pull request template](.github/pull_request_template.md) and check boxes only when supported by the work performed
+- Add `run-full-ci` only when the pull request is ready for comprehensive testing
 
 ## Documentation
 
-- **When changing logic, keep docs in sync** — update any affected headerdocs, inline comments, readmes, `AGENTS.md` files, and maintainer docs in the same change
-- **Docs**: [docs.sentry.io/platforms/apple](https://docs.sentry.io/platforms/apple/) — repo: [sentry-docs](https://github.com/getsentry/sentry-docs)
-- **SDK dev docs**: [develop.sentry.dev/sdk/](https://develop.sentry.dev/sdk/)
-- Maintainer docs: [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`develop-docs/`](develop-docs/), [`Samples/README.md`](Samples/README.md)
-
-## Related Repositories
-
-- [sentry-cli](https://github.com/getsentry/sentry-cli) — dSYM uploads
-- [sentry-wizard](https://github.com/getsentry/sentry-wizard) — SDK initialization injection
-- [sentry-react-native](https://github.com/getsentry/sentry-react-native), [sentry-dart](https://github.com/getsentry/sentry-dart), [sentry-unity](https://github.com/getsentry/sentry-unity), [sentry-dotnet](https://github.com/getsentry/sentry-dotnet) — depend on sentry-cocoa
+- Prefer Mermaid diagrams over ASCII art
+- Keep affected headerdocs, comments, maintainer docs, and specification compliance in sync with behavior changes
+- Append changelog entries to the end of their section
+- Place changelog alerts after `## Version` and before section headings
+- Each `##` version, including Unreleased, may only have one `###` heading of a given name

@@ -1,5 +1,15 @@
-@_spi(Private) import Sentry
+#if !SDK_V10
+#if SWIFT_PACKAGE
+#if !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+#else
+@_spi(Private) @testable import Sentry
+#endif
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
@@ -9,8 +19,20 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         var sut: SentryCrashReportSink {
-            return SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
+            return getSut(crashHandlerEventSource: TestEventSources.crashHandlerEventSource())
         }
+
+        func getSut(crashHandlerEventSource: SentryCrashHandlerEventSource) -> SentryCrashReportSink {
+            return SentryCrashReportSink(
+                inAppLogic: inAppLogic,
+                crashWrapper: crashWrapper,
+                dispatchQueue: dispatchQueue,
+                startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate()),
+                crashHandlerEventSource: crashHandlerEventSource
+            )
+        }
+
+        private let inAppLogic = SentryInAppLogic(inAppIncludes: [])
     }
     
     private var fixture: Fixture!
@@ -24,9 +46,25 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
         
+    func testFilterReports_whenEventSourceInjected_shouldSubmitReportToItsSink() throws {
+        // -- Arrange --
+        let eventSourceSink = TestEventSourceSink()
+        let sut = fixture.getSut(crashHandlerEventSource: SentryCrashHandlerEventSource(sink: eventSourceSink))
+
+        // -- Act --
+        sut.filterReports([[String: Any]()]) { _, _, _ in }
+
+        // -- Assert --
+        XCTAssertEqual(eventSourceSink.submittedReports.count, 1)
+        let submitted = try XCTUnwrap(eventSourceSink.submittedReports.first)
+        XCTAssertEqual(submitted.source, .crashHandler)
+        XCTAssertEqual(getTestClient().captureFatalEventInvocations.count, 0)
+    }
+
     func testFilterReports_withScreenShots() {
         filterReportWithAttachment()
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
@@ -117,7 +155,8 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let report = ["attachments": ["file.png"]]
         fixture.sut.filterReports([report]) { _, _, _ in
             self.assertFatalEventWithScope { _, scope in
-                XCTAssertEqual(scope?.attachments.count, 1)
+                XCTAssertEqual(scope?.attachments.count, 0)
+                XCTAssertEqual(scope?.crashReportAttachments.count, 1)
             }
         }
     }
@@ -132,3 +171,5 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         return client!
     }
 }
+
+#endif // !SDK_V10

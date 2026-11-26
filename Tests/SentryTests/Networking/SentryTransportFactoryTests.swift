@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryTransportFactoryTests: XCTestCase {
@@ -115,7 +119,7 @@ class SentryTransportFactoryTests: XCTestCase {
             $0.isKind(of: SentrySpotlightTransport.self)
         })
         XCTAssertTrue(transports.contains {
-            $0.isKind(of: SentryHttpTransport.self)
+            $0.isKind(of: SentryHttpTransportWrapper.httpTransportClass())
         })
     }
 

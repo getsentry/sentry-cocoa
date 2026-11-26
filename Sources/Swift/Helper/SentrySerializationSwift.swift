@@ -49,43 +49,56 @@ internal import _SentryPrivate
     
     @objc(dataWithEnvelope:) public static func data(with envelope: SentryEnvelope) -> Data? {
         var envelopeData = Data()
+        guard writeEnvelopeData(envelope, writer: { data in
+            envelopeData.append(data)
+            return true
+        }) else {
+            return nil
+        }
+        return envelopeData
+    }
+
+    static func writeEnvelopeData(_ envelope: SentryEnvelope, writer: (Data) -> Bool) -> Bool {
+        guard let header = envelopeHeaderData(envelope.header) else {
+            return false
+        }
+        guard writer(header) else {
+            return false
+        }
+
+        let newLineData = Data("\n".utf8)
+        return envelope.items.allSatisfy { item in
+            writeEnvelopeItem(item, newLineData: newLineData, writer: writer)
+        }
+    }
+
+    private static func envelopeHeaderData(_ header: SentryEnvelopeHeader) -> Data? {
         var serializedData: [String: Any] = [:]
-        if let eventId = envelope.header.eventId {
-            serializedData["event_id"] = eventId.sentryIdString
-        }
-        
-        if let sdkInfo = envelope.header.sdkInfo {
-            serializedData["sdk"] = sdkInfo.serialize()
-        }
-        
-        if let traceContext = envelope.header.traceContext {
-            serializedData["trace"] = traceContext.serialize()
-        }
-        
-        if let sentAt = envelope.header.sentAt {
+        serializedData["event_id"] = header.eventId?.sentryIdString
+        serializedData["sdk"] = header.sdkInfo?.serialize()
+        serializedData["trace"] = header.traceContext?.serialize()
+        if let sentAt = header.sentAt {
             serializedData["sent_at"] = sentry_toIso8601String(sentAt)
         }
-        guard let header = SentrySerializationSwift.data(withJSONObject: serializedData) else {
+        guard let data = SentrySerializationSwift.data(withJSONObject: serializedData) else {
             SentrySDKLog.error("Envelope header cannot be converted to JSON.")
             return nil
         }
-        envelopeData.append(header)
-        let newLineData = Data("\n".utf8)
-        for i in 0..<envelope.items.count {
-            envelopeData.append(newLineData)
-            let serializedItemHeaderData = envelope.items[i].header.serialize()
-            guard let itemHeader = SentrySerializationSwift.data(withJSONObject: serializedItemHeaderData) else {
-                SentrySDKLog.error("Envelope item header cannot be converted to JSON.")
-                return nil
-            }
-            envelopeData.append(itemHeader)
-            envelopeData.append(newLineData)
-            if let itemData = envelope.items[i].data {
-                envelopeData.append(itemData)
-            }
+        return data
+    }
+
+    private static func writeEnvelopeItem(_ item: SentryEnvelopeItem, newLineData: Data, writer: (Data) -> Bool) -> Bool {
+        guard writer(newLineData) else {
+            return false
         }
-        
-        return envelopeData
+        guard let itemHeader = SentrySerializationSwift.data(withJSONObject: item.header.serialize()) else {
+            SentrySDKLog.error("Envelope item header cannot be converted to JSON.")
+            return false
+        }
+        guard writer(itemHeader), writer(newLineData) else {
+            return false
+        }
+        return item.data.map(writer) ?? true
     }
     
     @objc(dataWithSession:) public static func data(with session: SentrySession) -> Data? {

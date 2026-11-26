@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -33,6 +33,14 @@ import Foundation
         SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
     }
 
+    @objc public var scope: SentryObjCInternalScopeApi {
+        SentryObjCInternalScopeApi(wrapped.value.scope)
+    }
+
+    @objc public var serializer: SentryObjCInternalSerializerApi {
+        SentryObjCInternalSerializerApi(wrapped.value.serializer)
+    }
+
     @objc public var swizzle: SentryObjCInternalSwizzleApi {
         SentryObjCInternalSwizzleApi(wrapped.value.swizzle)
     }
@@ -45,16 +53,6 @@ import Foundation
     @objc public var performance: SentryObjCInternalPerformanceApi {
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
     }
-#endif
-
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
-    @objc public var screenshot: SentryObjCInternalScreenshotApi {
-        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
-    }
-
-    @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
-        SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
-    }
 
     @objc public var screen: SentryObjCInternalScreenApi {
         SentryObjCInternalScreenApi(wrapped.value.screen)
@@ -62,6 +60,14 @@ import Foundation
 
     @objc public var replay: SentryObjCInternalReplayApi {
         SentryObjCInternalReplayApi(wrapped.value.replay)
+    }
+
+    @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
+        SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
+    }
+
+    @objc public var screenshot: SentryObjCInternalScreenshotApi {
+        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
     }
 #endif
 

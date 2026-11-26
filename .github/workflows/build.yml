@@ -7,14 +7,22 @@ on:
       - release/**
 
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
 #   which would waste CI resources without providing additional value.
 # - For pull requests, we cancel in-progress builds when new commits are pushed since only the
 #   latest commit's build results matter for merge decisions.
-# - For main branch pushes, we never cancel builds to ensure all release and sample builds complete,
+# - For main branch pushes, we never cancel builds to ensure all release and test app builds complete,
 #   as broken builds on main could block releases and affect downstream consumers.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,20 +30,21 @@ concurrency:
 
 jobs:
   run-full-ci-gate:
-    name: run-full-ci gate
+    name: CI eligibility
     uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
     needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -50,30 +59,44 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
-      # sample projects. The Package.swift references binary targets, which in release branch commits points
-      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
-      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # test app projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these test apps for
+      # a release commit build. When building these test apps for a release commit, xcodebuild tries to
       # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
-      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # test app projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - name: Setup Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1.343.0
         with:
           bundler-cache: true
       - run: make init-ci-build
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Run Fastlane
         # We only need to archive, not package the IPA, so we skip codesigning.
         run: bundle exec fastlane build_ios_swift_without_codesigning
@@ -82,21 +105,19 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  build-sample:
-    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
+  build-testapp:
+    name: Test App ${{ matrix.scheme }} ${{ matrix.config }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
-        # other sample projects are built in ui-tests
+        # other test app projects are built in ui-tests
         include:
           - scheme: watchOS-Swift WatchKit App
             config: Debug
           - scheme: macOS-SwiftUI
-            config: Debug
-          - scheme: SessionReplay-CameraTest
             config: Debug
           - scheme: iOS-Swift
             config: Debug
@@ -118,23 +139,37 @@ jobs:
             config: Debug
 
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # Some sample projects use local SPM references. xcodebuild resolves SPM dependencies for the
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      # Some test app projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
       # release commit builds to fail before the artifacts are published.
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - run: make init-ci-build
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
@@ -146,8 +181,9 @@ jobs:
             CODE_SIGNING_ALLOWED="NO" \
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -158,9 +194,9 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  build-sample-binary:
-    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
-    # These samples depend on SentryObjC binary targets whose URLs point to
+  build-testapp-binary:
+    name: Test App ${{ matrix.scheme }} ${{ matrix.config }}
+    # These test apps depend on SentryObjC binary targets whose URLs point to
     # unpublished artifacts on release branches.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
@@ -174,16 +210,31 @@ jobs:
           - scheme: iOS-ObjectiveC-Static
             config: Debug
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - run: make init-ci-build
       - run: make xcode-ci
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace Sentry.xcworkspace \
@@ -191,8 +242,10 @@ jobs:
             -configuration '${{matrix.config}}' \
             CODE_SIGNING_ALLOWED="NO" \
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
+
+      # === Artifacts and diagnostics ===
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -202,8 +255,8 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  build-sample-spm:
-    name: Sample SPM ${{ matrix.name }}
+  build-testapp-spm:
+    name: Test App SPM ${{ matrix.name }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
@@ -213,21 +266,36 @@ jobs:
       matrix:
         include:
           - name: iOS
-            make-target: build-sample-iOS-SwiftUI-SPM
+            make-target: build-testapp-iOS-SwiftUI-SPM
+          - name: iOS C++ interop
+            make-target: build-testapp-iOS-SwiftUI-SPM
+            configuration: Debug-CxxInterop
           - name: watchOS
-            make-target: build-sample-watchOS-SwiftUI-SPM
+            make-target: build-testapp-watchOS-SwiftUI-SPM
           - name: tvOS
-            make-target: build-sample-tvOS-SwiftUI-SPM
+            make-target: build-testapp-tvOS-SwiftUI-SPM
           - name: macOS
-            make-target: build-sample-macOS-SwiftUI-SPM
+            make-target: build-testapp-macOS-SwiftUI-SPM
           - name: visionOS
-            make-target: build-sample-visionOS-SwiftUI-SPM
+            make-target: build-testapp-visionOS-SwiftUI-SPM
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -242,10 +310,11 @@ jobs:
 
       - run: make init-ci-build
 
-      - name: Build Sample
+      - name: Build Test App
         run: make ${{ matrix.make-target }}
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SPM_BUILD_CONFIGURATION: ${{ matrix.configuration || 'Debug' }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Run CI Diagnostics
@@ -259,28 +328,42 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
 
       - run: make init-ci-build
       - run: make xcode-ci-macOS-CLI-Xcode
 
-      - name: Build macOS-CLI-Xcode sample
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
+
+      - name: Test CLI subprocesses
         run: |
           set -o pipefail && xcodebuild \
-            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
             -scheme macOS-CLI-Xcode \
             -configuration Debug \
             -destination 'platform=macOS' \
             -derivedDataPath "$GITHUB_WORKSPACE/cli-xcode-build" \
-            CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+            CODE_SIGNING_ALLOWED="NO" test | xcbeautify --preserve-unbeautified
 
       - name: Ensure CLI binary does not link AppKit
         run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework AppKit
@@ -299,14 +382,29 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
 
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -315,8 +413,10 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
             build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
+
+      # === Artifacts and diagnostics ===
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -330,14 +430,29 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --workspace . \
@@ -353,8 +468,9 @@ jobs:
             --destination 'generic/platform=iphoneos' \
             --command build
 
+      # === Artifacts and diagnostics ===
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -364,15 +480,74 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  check-debug-without-UIKit:
-    name: Check no UIKit linkage (DebugWithoutUIKit)
+  check-ui-framework-linkage:
+    name: ${{ matrix.name }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Check no UIKit linkage (DebugWithoutUIKit)"
+            configuration: DebugWithoutUIKit
+            module: SentryWithoutUIKit
+            linkage: unlinked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check no UIKit linkage (ReleaseWithoutUIKit)"
+            configuration: ReleaseWithoutUIKit
+            module: SentryWithoutUIKit
+            linkage: unlinked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check UIKit linkage (Debug)"
+            configuration: Debug
+            module: Sentry
+            linkage: linked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check UIKit linkage (Release)"
+            configuration: Release
+            module: Sentry
+            linkage: linked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check AppKit linkage (Release)"
+            configuration: Release
+            module: Sentry
+            linkage: linked
+            platform: macOS
+            framework: AppKit
+            derived-data: appkit-check-build
+          - name: "Check no AppKit linkage (ReleaseWithoutUIKit)"
+            configuration: ReleaseWithoutUIKit
+            module: SentryWithoutUIKit
+            linkage: unlinked
+            platform: macOS
+            framework: AppKit
+            derived-data: no-appkit-check-build
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -383,234 +558,34 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          platform: iOS
+          platform: ${{ matrix.platform }}
 
-      - name: Build for Debug
+      - name: Build for ${{ matrix.configuration }}
         env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration DebugWithoutUIKit \
-            --derived-data uikit-check-build
+          ARGS=(
+            --platform "${{ matrix.platform }}"
+            --command build
+            --configuration "${{ matrix.configuration }}"
+            --derived-data "${{ matrix.derived-data }}"
+          )
+          if [ "${{ matrix.platform }}" = "iOS" ]; then
+            ARGS+=(--os "$IOS_SIMULATOR_OS" --device "$IOS_DEVICE_NAME")
+          else
+            ARGS+=(--os latest)
+          fi
+          ./scripts/sentry-xcodebuild.sh "${ARGS[@]}"
 
-      - name: Ensure UIKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration DebugWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-without-UIKit:
-    name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: iOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration ReleaseWithoutUIKit \
-            --derived-data uikit-check-build
-
-      - name: Ensure UIKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-debug-with-UIKit:
-    name: Check UIKit linkage (Debug)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: iOS
-
-      - name: Build for Debug
-        env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration Debug \
-            --derived-data uikit-check-build
-
-      - name: Ensure UIKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data uikit-check-build --linkage linked --module Sentry
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-with-UIKit:
-    name: Check UIKit linkage (Release)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: iOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration Release \
-            --derived-data uikit-check-build
-
-      - name: Ensure UIKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data uikit-check-build --linkage linked --module Sentry
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-with-AppKit:
-    name: Check AppKit linkage (Release)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: macOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform macOS \
-            --os latest \
-            --ref "${REF}" \
-            --command build \
-            --configuration Release \
-            --derived-data appkit-check-build
-
-      - name: Ensure AppKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data appkit-check-build --linkage linked --module Sentry --framework AppKit
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-without-AppKit:
-    name: Check no AppKit linkage (ReleaseWithoutUIKit)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: macOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform macOS \
-            --os latest \
-            --ref "${REF}" \
-            --command build \
-            --configuration ReleaseWithoutUIKit \
-            --derived-data no-appkit-check-build
-
-      - name: Ensure AppKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data no-appkit-check-build --linkage unlinked --module SentryWithoutUIKit --framework AppKit
+      - name: Ensure ${{ matrix.framework }} is ${{ matrix.linkage }}
+        run: >-
+          ./scripts/check-ui-framework-linkage.sh
+          --configuration "${{ matrix.configuration }}"
+          --derived-data "${{ matrix.derived-data }}"
+          --linkage "${{ matrix.linkage }}"
+          --module "${{ matrix.module }}"
+          --framework "${{ matrix.framework }}"
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -626,9 +601,18 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
+      # === Checkout and independent preparation ===
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
@@ -638,6 +622,9 @@ jobs:
           sed -i '' 's/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE/' Sources/Sentry/SentryAsyncSafeLog.h
         shell: bash
 
+      # === Toolchain and simulator preparation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -652,14 +639,12 @@ jobs:
 
       - name: Build for Debug
         env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
             --command build \
             --device "$IOS_DEVICE_NAME" \
             --configuration Debug
@@ -673,18 +658,13 @@ jobs:
       [
         files-changed,
         ios-swift-release,
-        build-sample,
-        build-sample-binary,
-        build-sample-spm,
+        build-testapp,
+        build-testapp-binary,
+        build-testapp-spm,
         check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,
         build-spm,
-        check-debug-without-UIKit,
-        check-release-without-UIKit,
-        check-debug-with-UIKit,
-        check-release-with-UIKit,
-        check-release-with-AppKit,
-        check-release-without-AppKit,
+        check-ui-framework-linkage,
         check-compiling-async-safe-logs,
         run-full-ci-gate,
       ]

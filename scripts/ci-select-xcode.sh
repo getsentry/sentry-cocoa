@@ -3,8 +3,8 @@
 # Selects an Xcode version and exports the latest available simulator runtime
 # per platform so downstream steps (and the Makefile) don't have to pin them.
 #
-# Usage: ci-select-xcode.sh [--allow-prerelease] [--skip-simulators] <version>
-#   <version> may be:
+# Usage: ci-select-xcode.sh --version <version> [--allow-prerelease] [--skip-simulators]
+#   --version may be:
 #     - "latest"                   newest installed Xcode
 #     - a major (e.g. "16", "26")  newest installed minor/patch in that major
 #     - a major.minor (e.g. "16.4", "26.0")  newest installed patch in that line
@@ -28,9 +28,9 @@
 
 set -euo pipefail
 
-# Disable SC1091 because it won't work with pre-commit
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
 SCRIPT_START=$(date +%s)
 _elapsed() { echo $(( $(date +%s) - SCRIPT_START )); }
@@ -192,23 +192,34 @@ resolve_and_export_simulator_oses() {
     list_available_simulators
 }
 
+XCODE_INPUT=""
 ALLOW_PRERELEASE=false
 SKIP_SIMULATORS=false
-POSITIONAL_ARGS=()
-for arg in "$@"; do
-    case "$arg" in
-        --allow-prerelease) ALLOW_PRERELEASE=true ;;
-        --skip-simulators) SKIP_SIMULATORS=true ;;
-        *) POSITIONAL_ARGS+=("$arg") ;;
+
+usage() {
+    log_info "Usage: $0 --version <version> [--allow-prerelease] [--skip-simulators]"
+    log_info "  -v, --version <version>  Installed Xcode version or 'latest' (required)"
+    log_info "  -p, --allow-prerelease  Include beta/RC/GM builds"
+    log_info "  -s, --skip-simulators   Skip simulator runtime resolution"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -v|--version)
+            if [[ $# -lt 2 ]]; then log_error "Missing value for $1"; usage; fi
+            XCODE_INPUT="$2"; shift 2 ;;
+        -p|--allow-prerelease) ALLOW_PRERELEASE=true; shift ;;
+        -s|--skip-simulators)  SKIP_SIMULATORS=true; shift ;;
+        -h|--help)             usage ;;
+        *)                     log_error "Unknown argument: $1"; usage ;;
     esac
 done
 
-if [[ ${#POSITIONAL_ARGS[@]} -lt 1 || -z "${POSITIONAL_ARGS[0]:-}" ]]; then
-    log_error "Usage: $0 [--allow-prerelease] <version>  (e.g. 'latest', '16', '26', '16.4', '26.0.1')"
-    exit 1
+if [[ -z "$XCODE_INPUT" ]]; then
+    log_error "--version is required"
+    usage
 fi
-
-XCODE_INPUT="${POSITIONAL_ARGS[0]}"
 
 log_with_timestamp "Listing installed Xcode versions..."
 # `xcodes installed` prints one Xcode per line; the first whitespace-separated

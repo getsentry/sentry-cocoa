@@ -1,9 +1,24 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
+// Keep the profiling scenario explanations and timelines beside their tests.
+// swiftlint:disable file_length
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
+
+    private func currentThreadID() -> UInt {
+#if SDK_V10
+        sentryThreadInspectionCurrentThread()
+#else
+        sentrycrashthread_self()
+#endif
+    }
     private var fixture: Fixture!
     
     private class Fixture {
@@ -15,6 +30,7 @@ class SentrySpanTests: XCTestCase {
         let options: Options
         let notificationCenter = TestNSNotificationCenterWrapper()
         let currentDateProvider = TestCurrentDateProvider()
+        lazy var profilingTimerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDateProvider)
 #if os(iOS) || os(tvOS) || os(visionOS)
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
 #else
@@ -36,7 +52,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: SentryClientInternal) -> Span {
-            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: TestSentryDispatchQueueWrapper())
+            let hub = SentryHubInternal(client: client, andScope: nil, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
@@ -58,147 +74,257 @@ class SentrySpanTests: XCTestCase {
         
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
+        SentryDependencyContainer.sharedInstance().timerFactory = fixture.profilingTimerFactory
     }
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
 #if os(iOS) || os(macOS)
-    func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
+    /**
+     Given an already running continuous profiler,
+     when a span is created,
+     then it does not register for profiler-start notifications because it can capture the ID now.
+     */
+    func testInit_whenProfilerIsRunning_shouldNotObserveProfilerStart() {
+        // -- Arrange --
         SentryContinuousProfiler.start()
         SentrySDK.setStart(with: fixture.options)
+
+        // -- Act --
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
+
+        // -- Assert --
         XCTAssertEqual(continuousProfileObservations.count, 0)
     }
     
-    func testSpanDoesSubscribeToNotificationsIfNotAlreadyCapturedContinuousProfileID() {
+    /**
+     Given no running continuous profiler,
+     when a span is created,
+     then it observes profiler-start notifications so it can correlate with profiling begun later.
+     */
+    func testInit_whenProfilerIsNotRunning_shouldObserveProfilerStart() {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
+
+        // -- Act --
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
+
+        // -- Assert --
         XCTAssertEqual(continuousProfileObservations.count, 1)
     }
     
-    /// Test a span that starts before and ends before a continuous profile, includes profile id
-    ///
-    /// ```
-    /// +-------span-------+
-    ///     +----profile----+
-    /// ```
-    func test_spanStart_profileStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
+    /**
+     Given a span that starts before profiling,
+     when profiling starts and the span finishes while profiling is still running,
+     then the serialized span includes the profiler ID received after span creation.
+
+     ```
+     +-------span-------+
+         +----profile----+
+     ```
+     */
+    func testSerialize_whenProfilingStartsDuringSpan_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         let span = fixture.getSut()
-        XCTAssertEqual(fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
-            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
-        }.count, 1)
+
+        // -- Act --
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         span.finish()
-        
-        let serialized = span.serialize()
-        
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that starts before and ends after a continuous profile, includes profile id
-    ///
-    /// ```
-    /// +-----------span-----------+
-    ///     +----profile----+
-    /// ```
-    func test_spanStart_profileStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
+    /**
+     Given a span that starts before profiling,
+     when profiling starts and fully stops before the span finishes,
+     then the serialized span retains the profiler ID despite the profiler no longer running.
+
+     ```
+     +-----------span-----------+
+         +----profile----+
+     ```
+     */
+    func testSerialize_whenProfileIsContainedWithinSpan_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         let span = fixture.getSut()
+
+        // -- Act --
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        SentryContinuousProfiler.stop()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
+        try stopContinuousProfiler()
         span.finish()
-        
-        let serialized = span.serialize()
-        
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that starts after and ends after a continuous profile, includes profile id
-    ///
-    /// ```
-    ///     +----profile----+
-    ///         +-------span-------+
-    /// ```
-    func test_profileStart_spanStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
+    /**
+     Given profiling is already running when a span starts,
+     when profiling fully stops before the span finishes,
+     then the serialized span retains the profiler ID captured at creation.
+
+     ```
+         +----profile----+
+             +-------span-------+
+     ```
+     */
+    func testSerialize_whenProfilingStopsDuringSpan_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         let span = fixture.getSut()
-        SentryContinuousProfiler.stop()
+
+        // -- Act --
+        try stopContinuousProfiler()
         span.finish()
-        
-        let serialized = span.serialize()
-        
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that starts after and ends before a continuous profile, includes profile id
-    ///
-    /// ```
-    ///     +------------------profile------------------+
-    ///         +-------span-------+
-    /// ```
-    func test_profileStart_spanStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
+    /**
+     Given a running continuous profiler,
+     when a span starts and finishes entirely within that profiling run,
+     then the serialized span includes the active profiler ID.
+
+     ```
+     +------------------profile------------------+
+         +-------span-------+
+     ```
+     */
+    func testSerialize_whenSpanIsContainedWithinProfile_shouldIncludeProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
+
+        // -- Act --
         let span = fixture.getSut()
         span.finish()
-        
-        let serialized = span.serialize()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
-    /// Test a span that spans multiple profiles, which both should have the same profile ID, and that
-    /// the span also contains that profile ID.
-    ///
-    /// ```
-    /// +-----------------span-----------------+
-    ///     +--profile1--+    +--profile2--+
-    /// ```
-    func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesSameProfileID() throws {
+    /**
+     Given a span that overlaps two profiling runs separated by a completed stop,
+     when the span is serialized after both runs,
+     then both distinct profiler instances and the span share the same profiling-session ID.
+     Correlation remains stable across profiler restarts within the app session.
+
+     ```
+     +-----------------span-----------------+
+         +--profile1--+    +--profile2--+
+     ```
+     */
+    func testSerialize_whenSpanOverlapsSeparateProfiles_shouldIncludeSameProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
         let span = fixture.getSut()
+
+        // -- Act --
         SentryContinuousProfiler.start()
-        let profileId1 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        SentryContinuousProfiler.stop()
+        let firstProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let profileId1 = firstProfiler.profilerId.stringValue
+        try stopContinuousProfiler()
         SentryContinuousProfiler.start()
-        let profileId2 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
-        SentryContinuousProfiler.stop()
+        let secondProfiler = try XCTUnwrap(SentryContinuousProfiler.profiler())
+        let profileId2 = secondProfiler.profilerId.stringValue
+        try stopContinuousProfiler()
+        span.finish()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertFalse(firstProfiler === secondProfiler)
         XCTAssertEqual(profileId1, profileId2)
-        span.finish()
-        
-        let serialized = span.serialize()
         XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId1)
     }
     
-    /// Test a span that starts and ends before a profile starts, does not include profile id
-    ///
-    /// ```
-    /// +-------span-------+
-    ///                          +----profile----+
-    /// ```
-    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() {
+    /**
+     Given a span that has already finished,
+     when profiling starts before that span is serialized,
+     then the serialized span omits the profiler ID because their lifetimes never overlapped.
+     A later profiler-start notification must not correlate an already finished span.
+
+     ```
+     +-------span-------+
+                              +----profile----+
+     ```
+     */
+    func testSerialize_whenSpanFinishesBeforeProfilingStarts_shouldOmitProfilerID() throws {
+        // -- Arrange --
         SentrySDK.setStart(with: fixture.options)
-        SentryContinuousProfiler.start()
-        SentryContinuousProfiler.stop()
         let span = fixture.getSut()
         span.finish()
-        
-        let serialized = span.serialize()
-        XCTAssertNil(serialized["profile_id"])
+
+        // -- Act --
+        SentryContinuousProfiler.start()
+        defer {
+            do {
+                try stopContinuousProfiler()
+            } catch {
+                XCTFail("Failed to stop continuous profiler: \(error)")
+            }
+        }
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertNil(serialized["profiler_id"])
+    }
+
+    /**
+     Given a profiling run that has fully stopped, including its final chunk,
+     when a span starts and finishes afterward,
+     then the serialized span omits the profiler ID because their lifetimes never overlapped.
+
+     ```
+     +----profile----+
+                          +-------span-------+
+     ```
+     */
+    func testSerialize_whenSpanStartsAfterProfilingStops_shouldOmitProfilerID() throws {
+        // -- Arrange --
+        SentrySDK.setStart(with: fixture.options)
+        SentryContinuousProfiler.start()
+        try stopContinuousProfiler()
+
+        // -- Act --
+        let span = fixture.getSut()
+        span.finish()
+        let serialized = try XCTUnwrap(span as? SentrySpanInternal).serialize()
+
+        // -- Assert --
+        XCTAssertNil(serialized["profiler_id"])
+    }
+
+    private func stopContinuousProfiler() throws {
+        SentryContinuousProfiler.stop()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.profilingTimerFactory.check()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 #endif // os(iOS) || os(macOS)
     
@@ -213,7 +339,7 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         XCTAssertEqual("main", try XCTUnwrap(span.data["thread.name"] as? String))
         
-        let threadId = sentrycrashthread_self()
+        let threadId = currentThreadID()
         XCTAssertEqual(NSNumber(value: threadId), try XCTUnwrap(span.data["thread.id"] as? NSNumber))
     }
     
@@ -221,14 +347,14 @@ class SentrySpanTests: XCTestCase {
         let expect = expectation(description: "Thread must be called.")
         
         var spanData: [String: Any]?
-        var threadId: SentryCrashThread?
+        var threadId: UInt?
         let threadName = "test-thread-name"
         Thread.detachNewThread {
             Thread.current.name = threadName
             
             let span = self.fixture.getSut()
             spanData = span.data
-            threadId = sentrycrashthread_self()
+            threadId = self.currentThreadID()
             
             expect.fulfill()
         }
@@ -243,13 +369,13 @@ class SentrySpanTests: XCTestCase {
         let expect = expectation(description: "Thread must be called.")
         
         var spanData: [String: Any]?
-        var threadId: SentryCrashThread?
+        var threadId: UInt?
         Thread.detachNewThread {
             Thread.current.name = ""
             
             let span = self.fixture.getSut()
             spanData = span.data
-            threadId = sentrycrashthread_self()
+            threadId = self.currentThreadID()
             
             expect.fulfill()
         }
@@ -331,6 +457,32 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
     }
     
+    func testFinish_whenTimestampIsBeingSet_shouldNotReportFinishedWithoutTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = BlockingDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        let span = fixture.getSutWithTracer()
+        dateProvider.blockNextDateCall()
+
+        // -- Act --
+        let finished = expectation(description: "span finished")
+        DispatchQueue.global().async {
+            span.finish()
+            finished.fulfill()
+        }
+        XCTAssertEqual(dateProvider.waitUntilDateCallIsBlocked(), .success)
+
+        // -- Assert --
+        // A span observable as finished must already carry its end timestamp. The tracer
+        // relies on this when it reads the timestamps of its finished children.
+        XCTAssertEqual(span.isFinished, span.timestamp != nil)
+
+        dateProvider.unblockDateCall()
+        wait(for: [finished], timeout: 5)
+        XCTAssertTrue(span.isFinished)
+        XCTAssertNotNil(span.timestamp)
+    }
+
     func testFinishWithChild() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
@@ -479,7 +631,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(actual["flag.evaluation.flag-10"])
     }
 
-    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() {
+    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() throws {
         // -- Arrange --
         let span: Span = SentryNoOpSpan.shared()
 
@@ -487,7 +639,7 @@ class SentrySpanTests: XCTestCase {
         span.addFeatureFlag(name: "checkout", result: true)
 
         // -- Assert --
-        XCTAssertEqual(span.serialize().count, 0)
+        XCTAssertEqual(try XCTUnwrap(span as? SentrySpanInternal).serialize().count, 0)
     }
 
     func testFeatureFlags_whenStartingChildSpan_shouldNotInheritParentFlags() throws {
@@ -499,13 +651,96 @@ class SentrySpanTests: XCTestCase {
         let child = parent.startChild(operation: fixture.someOperation)
 
         // -- Assert --
-        let parentData = try XCTUnwrap(parent.serialize()["data"] as? [String: Any])
+        let parentData = try XCTUnwrap(try XCTUnwrap(parent as? SentrySpanInternal).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(parentData["flag.evaluation.checkout"] as? Bool), true)
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap(try XCTUnwrap(child as? SentrySpanInternal).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.checkout"])
     }
     
+#if SDK_V10
+    func testSetMeasurement_whenChildSpan_shouldSerializeLocallyWithoutOverwritingTransaction() throws {
+        // -- Arrange --
+        let tracer = fixture.getSut() as! SentryTracer
+        let span = try XCTUnwrap(tracer.startChild(operation: "child") as? SentrySpanInternal)
+        tracer.setMeasurement(name: "duration", value: 12, unit: MeasurementUnitDuration.second)
+
+        // -- Act --
+        span.setMeasurement(name: "duration", value: 34, unit: MeasurementUnitDuration.millisecond)
+
+        // -- Assert --
+        let measurements = try XCTUnwrap(span.serialize()["measurements"] as? [String: [String: Any]])
+        let measurement = try XCTUnwrap(measurements["duration"])
+        XCTAssertEqual(measurement["value"] as? NSNumber, 34)
+        XCTAssertEqual(measurement["unit"] as? String, "millisecond")
+        XCTAssertEqual(tracer.measurements["duration"]?.value, 12)
+        XCTAssertEqual(tracer.measurements["duration"]?.unit?.unit, "second")
+    }
+
+    func testSetMeasurement_whenNestedSpans_shouldKeepMeasurementsIndependent() throws {
+        // -- Arrange --
+        let tracer = fixture.getSut() as! SentryTracer
+        let child = try XCTUnwrap(tracer.startChild(operation: "child") as? SentrySpanInternal)
+        let grandchild = try XCTUnwrap(child.startChild(operation: "grandchild") as? SentrySpanInternal)
+        let sibling = try XCTUnwrap(tracer.startChild(operation: "sibling") as? SentrySpanInternal)
+
+        // -- Act --
+        child.setMeasurement(name: "count", value: 1)
+        grandchild.setMeasurement(name: "count", value: 2)
+        child.setMeasurement(name: "count", value: 3)
+
+        // -- Assert --
+        let childMeasurements = try XCTUnwrap(child.serialize()["measurements"] as? [String: [String: NSNumber]])
+        let grandchildMeasurements = try XCTUnwrap(grandchild.serialize()["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(childMeasurements, ["count": ["value": 3]])
+        XCTAssertEqual(grandchildMeasurements, ["count": ["value": 2]])
+        XCTAssertNil(sibling.serialize()["measurements"])
+        XCTAssertTrue(tracer.measurements.isEmpty)
+    }
+
+    func testSetMeasurement_whenWritingConcurrently_shouldSerializeAllSpanMeasurements() throws {
+        // -- Arrange --
+        let tracer = fixture.getSut() as! SentryTracer
+        let span = try XCTUnwrap(tracer.startChild(operation: "child") as? SentrySpanInternal)
+        let writes = expectation(description: "Measurements written")
+        writes.expectedFulfillmentCount = 100
+        let queue = DispatchQueue(label: "span-measurements", attributes: .concurrent)
+
+        // -- Act --
+        for index in 0..<100 {
+            queue.async {
+                span.setMeasurement(name: "count-\(index)", value: NSNumber(value: index))
+                _ = span.serialize()
+                writes.fulfill()
+            }
+        }
+        wait(for: [writes], timeout: 5)
+
+        // -- Assert --
+        let measurements = try XCTUnwrap(span.serialize()["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(measurements.count, 100)
+        for index in 0..<100 {
+            XCTAssertEqual(measurements["count-\(index)"]?["value"], NSNumber(value: index))
+        }
+        XCTAssertTrue(tracer.measurements.isEmpty)
+    }
+
+    func testSetMeasurement_whenTracerReleased_shouldRetainMeasurement() throws {
+        // -- Arrange --
+        var transaction: Span? = fixture.getSut()
+        let child = try XCTUnwrap(try XCTUnwrap(transaction).startChild(operation: "child") as? SentrySpanInternal)
+        transaction = nil
+
+        // -- Act --
+        child.setMeasurement(name: "count", value: 1)
+
+        // -- Assert --
+        XCTAssertNil(child.tracer)
+        let measurements = try XCTUnwrap(child.serialize()["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(measurements, ["count": ["value": 1]])
+    }
+#endif
+
     func testAddAndRemoveTags() {
         let span = fixture.getSut()
         
@@ -519,7 +754,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(span.tags[fixture.extraKey])
     }
     
-    func testSerialization() {
+    func testSerialization() throws {
         let span = fixture.getSut()
         
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
@@ -530,17 +765,17 @@ class SentrySpanTests: XCTestCase {
         span.parentSpanId = SpanId()
         span.spanDescription = "Span Description"
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
         XCTAssertEqual(serialization["trace_id"] as? String, span.traceId.sentryIdString)
         XCTAssertEqual(serialization["op"] as? String, span.operation)
         XCTAssertEqual(serialization["description"] as? String, span.spanDescription)
-        XCTAssertEqual(serialization["status"] as? String, nameForSentrySpanStatus(span.status))
+        XCTAssertEqual(serialization["status"] as? String, span.status.name)
         XCTAssertEqual(serialization["sampled"] as? NSNumber, valueForSentrySampleDecision(span.sampled))
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
-        XCTAssertEqual(serialization["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(serialization["type"] as? String, "trace")
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
         
@@ -568,13 +803,13 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(callStack)
     }
     
-    func testSanitizeData() {
+    func testSanitizeData() throws {
         let span = fixture.getSut()
         
         span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         let data = serialization["data"] as? [String: Any]
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
@@ -590,10 +825,10 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
     
-    func testSerialization_WithNoDataAndTag() {
+    func testSerialization_WithNoDataAndTag() throws {
         let span = fixture.getSut()
         
-        let serialization = span.serialize()
+        let serialization = try XCTUnwrap(span as? SentrySpanInternal).serialize()
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(serialization["tag"])
     }
@@ -685,27 +920,6 @@ class SentrySpanTests: XCTestCase {
         
         let threadDataItemCount = 2
         XCTAssertEqual(span.data.count, outerLoop * innerLoop + threadDataItemCount)
-    }
-    
-    func testSpanStatusNames() {
-        XCTAssertEqual(nameForSentrySpanStatus(.undefined), kSentrySpanStatusNameUndefined)
-        XCTAssertEqual(nameForSentrySpanStatus(.ok), kSentrySpanStatusNameOk)
-        XCTAssertEqual(nameForSentrySpanStatus(.deadlineExceeded), kSentrySpanStatusNameDeadlineExceeded)
-        XCTAssertEqual(nameForSentrySpanStatus(.unauthenticated), kSentrySpanStatusNameUnauthenticated)
-        XCTAssertEqual(nameForSentrySpanStatus(.permissionDenied), kSentrySpanStatusNamePermissionDenied)
-        XCTAssertEqual(nameForSentrySpanStatus(.notFound), kSentrySpanStatusNameNotFound)
-        XCTAssertEqual(nameForSentrySpanStatus(.resourceExhausted), kSentrySpanStatusNameResourceExhausted)
-        XCTAssertEqual(nameForSentrySpanStatus(.invalidArgument), kSentrySpanStatusNameInvalidArgument)
-        XCTAssertEqual(nameForSentrySpanStatus(.unimplemented), kSentrySpanStatusNameUnimplemented)
-        XCTAssertEqual(nameForSentrySpanStatus(.unavailable), kSentrySpanStatusNameUnavailable)
-        XCTAssertEqual(nameForSentrySpanStatus(.internalError), kSentrySpanStatusNameInternalError)
-        XCTAssertEqual(nameForSentrySpanStatus(.unknownError), kSentrySpanStatusNameUnknownError)
-        XCTAssertEqual(nameForSentrySpanStatus(.cancelled), kSentrySpanStatusNameCancelled)
-        XCTAssertEqual(nameForSentrySpanStatus(.alreadyExists), kSentrySpanStatusNameAlreadyExists)
-        XCTAssertEqual(nameForSentrySpanStatus(.failedPrecondition), kSentrySpanStatusNameFailedPrecondition)
-        XCTAssertEqual(nameForSentrySpanStatus(.aborted), kSentrySpanStatusNameAborted)
-        XCTAssertEqual(nameForSentrySpanStatus(.outOfRange), kSentrySpanStatusNameOutOfRange)
-        XCTAssertEqual(nameForSentrySpanStatus(.dataLoss), kSentrySpanStatusNameDataLoss)
     }
     
     func testTraceContext() {
@@ -804,3 +1018,44 @@ class SentrySpanTests: XCTestCase {
     }
 #endif // os(iOS) || os(tvOS)
 }
+
+/// Blocks inside `date()` once requested so a test can observe span state in the middle of `finish()`.
+private final class BlockingDateProvider: NSObject, SentryCurrentDateProvider {
+    private let lock = NSLock()
+    private var shouldBlockNextDateCall = false
+    private let dateCallEntered = DispatchSemaphore(value: 0)
+    private let dateCallMayProceed = DispatchSemaphore(value: 0)
+
+    func blockNextDateCall() {
+        lock.synchronized { shouldBlockNextDateCall = true }
+    }
+
+    func waitUntilDateCallIsBlocked() -> DispatchTimeoutResult {
+        dateCallEntered.wait(timeout: .now() + 5)
+    }
+
+    func unblockDateCall() {
+        dateCallMayProceed.signal()
+    }
+
+    func date() -> Date {
+        let shouldBlock = lock.synchronized {
+            defer { shouldBlockNextDateCall = false }
+            return shouldBlockNextDateCall
+        }
+        if shouldBlock {
+            dateCallEntered.signal()
+            dateCallMayProceed.wait()
+        }
+        return TestData.timestamp
+    }
+
+    func timezoneOffset() -> Int { 0 }
+
+    func systemTime() -> UInt64 { 0 }
+
+    func systemUptime() -> TimeInterval { 0 }
+
+    func getAbsoluteTime() -> UInt64 { 0 }
+}
+// swiftlint:enable file_length

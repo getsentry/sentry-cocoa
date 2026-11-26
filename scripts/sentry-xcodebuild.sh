@@ -15,9 +15,8 @@ source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 # Parse named arguments
 PLATFORM=""
 OS="latest"
-REF_NAME="HEAD"
 COMMAND="test"
-DEVICE="iPhone 16 Pro"
+DEVICE=""
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
@@ -27,6 +26,8 @@ ONLY_TESTING=""
 WORKSPACE="Sentry.xcworkspace"
 SDK=""
 RAW_DESTINATION=""
+OVERRIDE_XCCONFIG=""
+XCODEBUILD_ARGS=()
 FOR_AGENTS="${FOR_AGENTS:-false}"
 
 usage() {
@@ -38,20 +39,21 @@ Run xcodebuild commands (build, test, etc.) with the correct destination for CI.
 OPTIONS:
     -p, --platform <platform>        Platform (macOS/Catalyst/iOS/tvOS/visionOS/watchOS)
     -o, --os <os>                    OS version (default: latest)
-    -r, --ref <ref>                  Reference name (default: HEAD)
     -c, --command <command>          Command (build/build-for-testing/test-without-building/test)
-    -d, --device <device>            Device name (default: iPhone 16 Pro)
+    -d, --device <device>            Device name (default: platform-specific)
     -C, --configuration <config>     Configuration override
     -D, --derived-data <path>        Derived data path
     -s, --scheme <scheme>            Test scheme (default: Sentry)
     -t, --test-plan <plan>           Test plan name (default: empty)
     --only-testing <tests>           Comma-separated test selectors.
-                                      Each selector must be Target/Class or Target/Class/testMethod.
+                                      Each selector must be Target, Target/Class, or Target/Class/testMethod.
     -R, --result-bundle <path>       Result bundle path (default: results.xcresult)
     -w, --workspace <path>           Workspace path (default: Sentry.xcworkspace)
     --sdk <sdk>                      SDK override (e.g. iphoneos, watchos)
     --destination <dest>             Raw xcodebuild destination string (bypasses
                                       --platform resolution)
+    --xcconfig <path>                Build settings override file
+    -- <arguments...>                Forward remaining arguments directly to xcodebuild
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
@@ -72,10 +74,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -o|--os)
             OS="$2"
-            shift 2
-            ;;
-        -r|--ref)
-            REF_NAME="$2"
             shift 2
             ;;
         -c|--command)
@@ -123,12 +121,40 @@ while [[ $# -gt 0 ]]; do
             RAW_DESTINATION="$2"
             shift 2
             ;;
+        --)
+            shift
+            XCODEBUILD_ARGS=("$@")
+            break
+            ;;
+        --xcconfig)
+            OVERRIDE_XCCONFIG="$2"
+            shift 2
+            ;;
         *)
             log_error "Unknown option: $1"
             usage
             ;;
     esac
 done
+
+if [ -n "$OVERRIDE_XCCONFIG" ] && [ ! -f "$OVERRIDE_XCCONFIG" ]; then
+    log_error "--xcconfig file does not exist: $OVERRIDE_XCCONFIG"
+    usage
+fi
+
+XCCONFIG_ARGS=()
+if [ -n "$OVERRIDE_XCCONFIG" ]; then
+    XCCONFIG_ARGS=(-xcconfig "$OVERRIDE_XCCONFIG")
+fi
+
+if [ -z "$DEVICE" ]; then
+    case $PLATFORM in
+        "iOS") DEVICE="iPhone 16 Pro" ;;
+        "tvOS") DEVICE="Apple TV" ;;
+        "visionOS") DEVICE="Apple Vision Pro" ;;
+        "watchOS") DEVICE="Apple Watch SE 3 (44mm)" ;;
+    esac
+fi
 
 # Resolve the actual simulator runtime version from simctl.
 # The display version (e.g., "26.3") may differ from the build version (e.g., "26.3.1")
@@ -153,7 +179,9 @@ else
 case $PLATFORM in
 
 "macOS")
-    DESTINATION="platform=macOS"
+    # Keep SDK and test targets on the same architecture. Otherwise Xcode can build
+    # only arm64e for the SDK while arm64 test utilities import stale arm64 modules.
+    DESTINATION="platform=macOS,arch=$(uname -m)"
     ;;
 
 "Catalyst")
@@ -167,12 +195,12 @@ case $PLATFORM in
 
 "tvOS")
     RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
-    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=Apple TV"
+    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 "visionOS")
     RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
-    DESTINATION="platform=visionOS Simulator,OS=$RESOLVED_OS,name=Apple Vision Pro"
+    DESTINATION="platform=visionOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 "watchOS")
@@ -188,21 +216,7 @@ esac
 
 fi # RAW_DESTINATION check
 
-if [ -n "$CONFIGURATION_OVERRIDE" ]; then
-    CONFIGURATION="$CONFIGURATION_OVERRIDE"
-elif [ -n "$RAW_DESTINATION" ]; then
-    CONFIGURATION=""
-else
-    case $REF_NAME in
-    "main")
-        CONFIGURATION="TestCI"
-        ;;
-
-    *)
-        CONFIGURATION="Test"
-        ;;
-    esac
-fi
+CONFIGURATION="${CONFIGURATION_OVERRIDE:-Debug}"
 
 case $COMMAND in
 "build")
@@ -235,6 +249,42 @@ format_output() {
     fi
 }
 
+# Package resolution can fail transiently before compilation starts. Retry only
+# that failure, bypassing the repository cache without deleting shared caches.
+run_build() {
+    local output_log="$1"
+    shift
+    local attempt=1
+    local max_attempts=3
+    local status
+    local retry_args=()
+
+    while true; do
+        if NSUnbufferedIO=YES xcodebuild "$@" "${retry_args[@]+${retry_args[@]}}" 2>&1 |
+            tee "$output_log" |
+            format_output --preserve-unbeautified; then
+            return 0
+        else
+            status=$?
+        fi
+
+        if ! grep -Fq 'Could not resolve package dependencies' "$output_log"; then
+            return "$status"
+        fi
+
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            log_error "Package resolution failed after $max_attempts attempts"
+            return "$status"
+        fi
+
+        cp "$output_log" "${output_log%.log}-attempt-$attempt.log"
+        log_info "Package resolution failed (attempt $attempt/$max_attempts). Retrying without the repository cache in $((attempt * 5)) seconds."
+        sleep "$((attempt * 5))"
+        retry_args=(-disablePackageRepositoryCache)
+        attempt=$((attempt + 1))
+    done
+}
+
 if [ $RUN_BUILD == true ]; then
     log_info "Running xcodebuild build"
 
@@ -246,12 +296,10 @@ if [ $RUN_BUILD == true ]; then
     [[ -n "$CONFIGURATION" ]] && BUILD_ARGS+=(-configuration "$CONFIGURATION")
     BUILD_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BUILD_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+    BUILD_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    BUILD_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        "${BUILD_ARGS[@]}" \
-        build 2>&1 |
-        tee raw-build-output.log |
-        format_output --preserve-unbeautified
+    run_build raw-build-output.log "${BUILD_ARGS[@]}" build
 fi
 
 TEST_PLAN_ARGS=()
@@ -263,9 +311,9 @@ ONLY_TESTING_ARGS=()
 if [ -n "$ONLY_TESTING" ]; then
     IFS=',' read -ra TEST_ARRAY <<< "$ONLY_TESTING"
     for test in "${TEST_ARRAY[@]}"; do
-        if [[ ! "$test" =~ ^[^/[:space:]]+/[^/[:space:]]+(/[^/[:space:]]+)?$ ]]; then
+        if [[ ! "$test" =~ ^[^/[:space:]]+(/[^/[:space:]]+){0,2}$ ]]; then
             log_error "Invalid --only-testing value: $test"
-            log_error "Use Target/Class or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
+            log_error "Use Target, Target/Class, or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
             exit 1
         fi
 
@@ -285,12 +333,19 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     )
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
+    [[ -n "$DERIVED_DATA_PATH" ]] && BFT_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+    BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    BFT_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        "${BFT_ARGS[@]}" \
-        build-for-testing 2>&1 |
-        tee raw-build-for-testing-output.log |
-        format_output --preserve-unbeautified
+    run_build raw-build-for-testing-output.log "${BFT_ARGS[@]}" build-for-testing
+
+    if [[ "$TEST_SCHEME" == SentrySPM && "${SDK_V10:-0}" == 1 ]]; then
+        bash "$(dirname "$0")/build-package-test-fixture.sh" \
+            --workspace "$WORKSPACE" \
+            --derived-data "$DERIVED_DATA_PATH" \
+            --configuration "$CONFIGURATION" \
+            --platform "$PLATFORM"
+    fi
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
@@ -311,6 +366,9 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
     TWB_ARGS+=(-destination "$DESTINATION")
     TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
+    [[ -n "$DERIVED_DATA_PATH" ]] && TWB_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+    TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
+    TWB_ARGS+=("${XCODEBUILD_ARGS[@]+${XCODEBUILD_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${TWB_ARGS[@]}" \

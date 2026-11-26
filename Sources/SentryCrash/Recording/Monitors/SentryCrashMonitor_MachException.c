@@ -25,42 +25,44 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMonitor_MachException.h"
-#include "SentryCrashCPU.h"
-#include "SentryCrashID.h"
-#include "SentryCrashMonitorContext.h"
-#include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryCrashThread.h"
-#include "SentryInternalCDefines.h"
+#if !SDK_V10
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMonitor_MachException.h"
+#    include "SentryCrashCPU.h"
+#    include "SentryCrashID.h"
+#    include "SentryCrashMonitorContext.h"
+#    include "SentryCrashStackCursor_MachineContext.h"
+#    include "SentryCrashThread.h"
+#    include "SentryInternalCDefines.h"
 
-#if SENTRY_HAS_MACH
+#    include "SentryAsyncSafeLog.h"
 
-#    include <mach/mach.h>
-#    include <pthread.h>
-#    include <signal.h>
+#    if SENTRY_HAS_MACH
 
-// ============================================================================
-#    pragma mark - Constants -
-// ============================================================================
-
-#    define kThreadPrimary "SentryCrash Exception Handler (Primary)"
-#    define kThreadSecondary "SentryCrash Exception Handler (Secondary)"
-
-#    ifdef __LP64__
-#        define MACH_ERROR_CODE_MASK 0xFFFFFFFFFFFFFFFF
-#    else // !__LP64__
-#        define MACH_ERROR_CODE_MASK 0xFFFFFFFF
-#    endif // __LP64__
+#        include <mach/mach.h>
+#        include <pthread.h>
+#        include <signal.h>
 
 // ============================================================================
-#    pragma mark - Types -
+#        pragma mark - Constants -
+// ============================================================================
+
+#        define kThreadPrimary "SentryCrash Exception Handler (Primary)"
+#        define kThreadSecondary "SentryCrash Exception Handler (Secondary)"
+
+#        ifdef __LP64__
+#            define MACH_ERROR_CODE_MASK 0xFFFFFFFFFFFFFFFF
+#        else // !__LP64__
+#            define MACH_ERROR_CODE_MASK 0xFFFFFFFF
+#        endif // __LP64__
+
+// ============================================================================
+#        pragma mark - Types -
 // ============================================================================
 
 /** A mach exception message (according to ux_exception.c, xnu-1699.22.81).
  */
-#    pragma pack(4)
+#        pragma pack(4)
 typedef struct {
     /** Mach header. */
     mach_msg_header_t header;
@@ -97,11 +99,63 @@ typedef struct {
     /** Padding to avoid RCV_TOO_LARGE. */
     char padding[512];
 } MachExceptionMessage;
-#    pragma pack()
+#        pragma pack()
+
+/** A mach exception message for the EXCEPTION_IDENTITY_PROTECTED behavior
+ * (mach_exception_raise_identity_protected in mach_exc.defs). It names the
+ * thread by its ID and the task by an identity token instead of carrying their
+ * control ports.
+ * See
+ * https://github.com/apple-oss-distributions/xnu/blob/ac9718fb1af618d5ce8678d0dc6e8a58f252216f/osfmk/mach/mach_exc.defs#L145
+ */
+#        pragma pack(4)
+typedef struct {
+    /** Mach header. */
+    mach_msg_header_t header;
+
+    // Start of the kernel processed data.
+
+    /** Basic message body data. */
+    mach_msg_body_t body;
+
+    /** Identity token of the task that raised the exception. */
+    mach_msg_port_descriptor_t taskIdentityToken;
+
+    // End of the kernel processed data.
+
+    /** Network Data Representation. */
+    NDR_record_t NDR;
+
+    /** ID of the thread that raised the exception, as reported by
+     * THREAD_IDENTIFIER_INFO. */
+    uint64_t threadID;
+
+    /** The exception that was raised. */
+    exception_type_t exception;
+
+    /** The number of codes. */
+    mach_msg_type_number_t codeCount;
+
+    /** Exception code and subcode. */
+    mach_exception_data_type_t code[0];
+
+    /** Padding to avoid RCV_TOO_LARGE. */
+    char padding[512];
+} MachExceptionIdentityProtectedMessage;
+#        pragma pack()
+
+typedef union {
+    mach_msg_header_t header;
+    MachExceptionMessage standard;
+    MachExceptionIdentityProtectedMessage identityProtected;
+} MachExceptionReceivedMessage;
+
+/** msgh_id of mach_exception_raise_identity_protected (mach_exc.defs). */
+#        define MACH_EXCEPTION_RAISE_IDENTITY_PROTECTED_ID 2408
 
 /** A mach reply message (according to ux_exception.c, xnu-1699.22.81).
  */
-#    pragma pack(4)
+#        pragma pack(4)
 typedef struct {
     /** Mach header. */
     mach_msg_header_t header;
@@ -112,10 +166,10 @@ typedef struct {
     /** Return code. */
     kern_return_t returnCode;
 } MachReplyMessage;
-#    pragma pack()
+#        pragma pack()
 
 // ============================================================================
-#    pragma mark - Globals -
+#        pragma mark - Globals -
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
@@ -152,7 +206,7 @@ static char g_primaryEventID[37];
 static char g_secondaryEventID[37];
 
 // ============================================================================
-#    pragma mark - Utility -
+#        pragma mark - Utility -
 // ============================================================================
 
 /** Restore the original mach exception ports.
@@ -183,9 +237,69 @@ restoreExceptionPorts(void)
     g_previousExceptionPorts.count = 0;
 }
 
-#    define EXC_UNIX_BAD_SYSCALL 0x10000 /* SIGSYS */
-#    define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
-#    define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
+/** Register our port for the given exception mask.
+ *
+ * A process under Enhanced Security platform restrictions is killed with
+ * EXC_GUARD (kGUARD_EXC_EXCEPTION_BEHAVIOR_ENFORCE) when it registers an
+ * exception port with a behavior that hands out thread and task control ports,
+ * such as EXCEPTION_DEFAULT. Nothing public tells whether the restrictions
+ * apply, so the identity-protected behavior is always tried first. Rosetta
+ * rejects it with KERN_INVALID_ARGUMENT and does not enforce the restrictions,
+ * so translated processes fall back to EXCEPTION_DEFAULT. See
+ * exception_is_identity_protected in xnu:
+ * https://github.com/apple-oss-distributions/xnu/blob/ac9718fb1af618d5ce8678d0dc6e8a58f252216f/osfmk/kern/ipc_tt.c#L3880
+ */
+static kern_return_t
+setExceptionPort(const task_t task, const exception_mask_t mask)
+{
+    kern_return_t kr = task_set_exception_ports(task, mask, g_exceptionPort,
+        (int)(EXCEPTION_IDENTITY_PROTECTED | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
+    if (kr != KERN_INVALID_ARGUMENT) {
+        return kr;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        "Identity-protected exception behavior rejected, using the default behavior.");
+    return task_set_exception_ports(task, mask, g_exceptionPort,
+        (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
+}
+
+/** Find the thread with the given THREAD_IDENTIFIER_INFO thread ID.
+ *
+ * @return A send right to the thread, or THREAD_NULL if no thread matches.
+ */
+static thread_t
+threadWithID(uint64_t threadID)
+{
+    const task_t thisTask = mach_task_self();
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t numThreads = 0;
+    kern_return_t kr = task_threads(thisTask, &threads, &numThreads);
+    if (kr != KERN_SUCCESS) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("task_threads: %s", mach_error_string(kr));
+        return THREAD_NULL;
+    }
+
+    thread_t match = THREAD_NULL;
+    for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
+        thread_identifier_info_data_t info;
+        mach_msg_type_number_t infoCount = THREAD_IDENTIFIER_INFO_COUNT;
+        if (match == THREAD_NULL
+            && thread_info(threads[i], THREAD_IDENTIFIER_INFO, (thread_info_t)&info, &infoCount)
+                == KERN_SUCCESS
+            && info.thread_id == threadID) {
+            match = threads[i];
+        } else {
+            mach_port_deallocate(thisTask, threads[i]);
+        }
+    }
+    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
+    return match;
+}
+
+#        define EXC_UNIX_BAD_SYSCALL 0x10000 /* SIGSYS */
+#        define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
+#        define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
 
 static int
 signalForMachException(exception_type_t exception, mach_exception_code_t code)
@@ -248,7 +362,7 @@ machExceptionForSignal(int sigNum)
 }
 
 // ============================================================================
-#    pragma mark - Reserved threads -
+#        pragma mark - Reserved threads -
 // ============================================================================
 /**
  * We only have reserved threads if SENTRY_HAS_MACH.
@@ -266,7 +380,7 @@ sentrycrashcm_hasReservedThreads(void)
     return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
 }
 
-#else // !SENTRY_HAS_MACH
+#    else // !SENTRY_HAS_MACH
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
@@ -279,12 +393,12 @@ sentrycrashcm_hasReservedThreads(void)
     return false;
 }
 
-#endif // SENTRY_HAS_MACH
+#    endif // SENTRY_HAS_MACH
 
-#if SENTRY_HAS_MACH
+#    if SENTRY_HAS_MACH
 
 // ============================================================================
-#    pragma mark - Handler -
+#        pragma mark - Handler -
 // ============================================================================
 
 /** Our exception handler thread routine.
@@ -294,7 +408,7 @@ sentrycrashcm_hasReservedThreads(void)
 static void *
 handleExceptions(void *const userData)
 {
-    MachExceptionMessage exceptionMessage = { { 0 } };
+    MachExceptionReceivedMessage exceptionMessage = { { 0 } };
     MachReplyMessage replyMessage = { { 0 } };
     char *eventID = g_primaryEventID;
 
@@ -320,8 +434,19 @@ handleExceptions(void *const userData)
         SENTRY_ASYNC_SAFE_LOG_ERROR("mach_msg: %s", mach_error_string(kr));
     }
 
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped mach exception code 0x%llx, subcode 0x%llx",
-        exceptionMessage.code[0], exceptionMessage.code[1]);
+    const bool isIdentityProtected
+        = exceptionMessage.header.msgh_id == MACH_EXCEPTION_RAISE_IDENTITY_PROTECTED_ID;
+    const exception_type_t exception = isIdentityProtected
+        ? exceptionMessage.identityProtected.exception
+        : exceptionMessage.standard.exception;
+    const mach_exception_data_type_t *const codes = isIdentityProtected
+        ? exceptionMessage.identityProtected.code
+        : exceptionMessage.standard.code;
+    const NDR_record_t ndr = isIdentityProtected ? exceptionMessage.identityProtected.NDR
+                                                 : exceptionMessage.standard.NDR;
+
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        "Trapped mach exception code 0x%llx, subcode 0x%llx", codes[0], codes[1]);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
@@ -358,13 +483,26 @@ handleExceptions(void *const userData)
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         crashContext->offendingMachineContext = machineContext;
         sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
-        if (sentrycrashmc_getContextForThread(exceptionMessage.thread.name, machineContext, true)) {
+        const thread_t crashedThread = isIdentityProtected
+            ? threadWithID(exceptionMessage.identityProtected.threadID)
+            : exceptionMessage.standard.thread.name;
+        // Fill the context even without a thread: it is uninitialized stack storage, and the
+        // report writer reads it through offendingMachineContext.
+        const bool contextFilled
+            = sentrycrashmc_getContextForThread(crashedThread, machineContext, true);
+        const bool hasThreadContext = crashedThread != THREAD_NULL && contextFilled;
+        if (crashedThread == THREAD_NULL) {
+            // No thread here matches when the exception came from another task, such as a
+            // forked child that inherited our ports. Not covered by tests: it needs a child
+            // to crash while the monitor is installed.
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not find the thread that raised the exception.");
+        } else if (hasThreadContext) {
             sentrycrashsc_initWithMachineContext(
                 &g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
             SENTRY_ASYNC_SAFE_LOG_TRACE("Fault address %p, instruction address %p",
                 sentrycrashcpu_faultAddress(machineContext),
                 sentrycrashcpu_instructionAddress(machineContext));
-            if (exceptionMessage.exception == EXC_BAD_ACCESS) {
+            if (exception == EXC_BAD_ACCESS) {
                 crashContext->faultAddress = sentrycrashcpu_faultAddress(machineContext);
             } else {
                 crashContext->faultAddress = sentrycrashcpu_instructionAddress(machineContext);
@@ -374,10 +512,10 @@ handleExceptions(void *const userData)
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         crashContext->crashType = SentryCrashMonitorTypeMachException;
         crashContext->eventID = eventID;
-        crashContext->registersAreValid = true;
-        crashContext->mach.type = exceptionMessage.exception;
-        crashContext->mach.code = exceptionMessage.code[0] & (int64_t)MACH_ERROR_CODE_MASK;
-        crashContext->mach.subcode = exceptionMessage.code[1] & (int64_t)MACH_ERROR_CODE_MASK;
+        crashContext->registersAreValid = hasThreadContext;
+        crashContext->mach.type = exception;
+        crashContext->mach.code = codes[0] & (int64_t)MACH_ERROR_CODE_MASK;
+        crashContext->mach.subcode = codes[1] & (int64_t)MACH_ERROR_CODE_MASK;
         if (crashContext->mach.code == KERN_PROTECTION_FAILURE && crashContext->isStackOverflow) {
             // A stack overflow should return KERN_INVALID_ADDRESS, but
             // when a stack blasts through the guard pages at the top of the
@@ -398,7 +536,7 @@ handleExceptions(void *const userData)
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Replying to mach exception message.");
     // Send a reply saying "I didn't handle this exception".
     replyMessage.header = exceptionMessage.header;
-    replyMessage.NDR = exceptionMessage.NDR;
+    replyMessage.NDR = ndr;
     replyMessage.returnCode = KERN_FAILURE;
 
     mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, MACH_PORT_NULL,
@@ -408,7 +546,7 @@ handleExceptions(void *const userData)
 }
 
 // ============================================================================
-#    pragma mark - API -
+#        pragma mark - API -
 // ============================================================================
 
 static void
@@ -463,12 +601,12 @@ installExceptionHandler(void)
     exception_mask_t mask = EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC
         | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT;
 
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
     // Exclude Mach exceptions that the managed (.NET/Mono) runtime handles via
     // signal handlers (EXC_BAD_ACCESS for NullReferenceException, EXC_ARITHMETIC
     // for DivideByZeroException).
     mask &= ~(EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC);
-#    endif
+#        endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Backing up original exception ports.");
     kr = task_get_exception_ports(thisTask, mask, g_previousExceptionPorts.masks,
@@ -497,8 +635,7 @@ installExceptionHandler(void)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing port as exception handler.");
-    kr = task_set_exception_ports(thisTask, mask, g_exceptionPort,
-        (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
+    kr = setExceptionPort(thisTask, mask);
     if (kr != KERN_SUCCESS) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
         goto failed;
@@ -588,17 +725,19 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
     }
 }
 
-#endif // SENTRY_HAS_MACH
+#    endif // SENTRY_HAS_MACH
 
 SentryCrashMonitorAPI *
 sentrycrashcm_machexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SENTRY_HAS_MACH
+#    if SENTRY_HAS_MACH
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
-#endif // SENTRY_HAS_MACH
+#    endif // SENTRY_HAS_MACH
     };
     return &api;
 }
+
+#endif // !SDK_V10

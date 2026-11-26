@@ -1,5 +1,5 @@
 // swiftlint:disable file_length missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -52,6 +52,31 @@ import Foundation
     @objc public var isRequiredLabel: String {
         get { wrapped.isRequiredLabel }
         set { wrapped.isRequiredLabel = newValue }
+    }
+
+    @objc public var enableScreenshot: Bool {
+        get { wrapped.enableScreenshot }
+        set { wrapped.enableScreenshot = newValue }
+    }
+
+    @objc public var addScreenshotButtonLabel: String {
+        get { wrapped.addScreenshotButtonLabel }
+        set { wrapped.addScreenshotButtonLabel = newValue }
+    }
+
+    @objc public var addScreenshotButtonAccessibilityLabel: String {
+        get { wrapped.addScreenshotButtonAccessibilityLabel }
+        set { wrapped.addScreenshotButtonAccessibilityLabel = newValue }
+    }
+
+    @objc public var screenshotAccessibilityLabel: String {
+        get { wrapped.screenshotAccessibilityLabel }
+        set { wrapped.screenshotAccessibilityLabel = newValue }
+    }
+
+    @objc public var screenshotErrorText: String {
+        get { wrapped.screenshotErrorText }
+        set { wrapped.screenshotErrorText = newValue }
     }
 
     @objc public var removeScreenshotButtonLabel: String {

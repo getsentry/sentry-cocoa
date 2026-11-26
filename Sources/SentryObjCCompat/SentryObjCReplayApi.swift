@@ -1,12 +1,12 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
 #endif
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
 import UIKit
 
 @objc(SentryObjCReplayApi) public final class SentryObjCReplayApi: NSObject {
@@ -32,8 +32,24 @@ import UIKit
         wrapped.resume()
     }
 
+    @objc public func pauseTouchTracking() {
+        wrapped.pauseTouchTracking()
+    }
+
+    @objc public func resumeTouchTracking() {
+        wrapped.resumeTouchTracking()
+    }
+
     @objc public func start() {
         wrapped.start()
+    }
+
+    @objc public func startBuffering() {
+        wrapped.startBuffering()
+    }
+
+    @objc public func flush() {
+        wrapped.flush()
     }
 
     @objc public func stop() {

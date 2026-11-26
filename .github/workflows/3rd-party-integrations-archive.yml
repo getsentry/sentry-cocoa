@@ -6,13 +6,28 @@ on:
       - main
 
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
@@ -21,7 +36,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -38,6 +53,7 @@ jobs:
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
+            --version 0.1.0 \
             --output-dir /tmp/3rd-party-archives
 
       - name: Verify archives
@@ -69,6 +85,13 @@ jobs:
             test -f "$verify_dir/Sources/$source_file"
             test -f "$verify_dir/Tests/$test_file"
 
+            # Verify the sentry-cocoa dependency was stamped to the requested version
+            grep -q 'sentry-cocoa", from: "0.1.0"' "$verify_dir/Package.swift" || {
+              echo "Version stamp failed in ${archive_name}/Package.swift:";
+              grep 'sentry-cocoa' "$verify_dir/Package.swift";
+              exit 1;
+            }
+
             echo "${archive_name} verified successfully"
           done
 
@@ -77,6 +100,7 @@ jobs:
   third-party-integrations-archive-required-check:
     needs:
       [
+        run-full-ci-gate,
         files-changed,
         test-3rd-party-integrations-archive,
       ]

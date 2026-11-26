@@ -26,8 +26,351 @@
       "parent": "SentryObjCDataCollectionHttpBodyType"
     },
     {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportAppLaunch",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportCPUException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportCrash",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportDiskWriteException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportHang",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportMemoryException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportNone",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAll",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationHitchTimeRatio",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationScrollHitchTimeRatio",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationTotalAnimationTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAnimationTotalHitchTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAppTimeBackground",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAppTimeBackgroundAudio",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAppTimeBackgroundLocation",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportAppTimeForeground",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportCPUCumulativeInstructions",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportCPUCumulativeTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportCellularConditionTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskIOLogicalWrites",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceBinaryFileCount",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceBinaryFileSize",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceCacheFolderSize",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceCloneSize",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceDataFileCount",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceDataFileSize",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceTotalCapacity",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDiskSpaceTotalUsed",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportDisplayAveragePixelLuminance",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundAbnormal",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundBadAccess",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundCPUResourceLimit",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundIllegalInstruction",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundMemoryPressure",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundMemoryResourceLimit",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundNormal",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundSuspendedWithLockedFile",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundTaskTimeout",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitBackgroundWatchdog",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitForegroundAbnormal",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitForegroundBadAccess",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitForegroundIllegalInstruction",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitForegroundMemoryResourceLimit",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitForegroundNormal",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportExitForegroundWatchdog",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportGPUCumulativeTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLaunchExtended",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLaunchOptimizedTimeToFirstDraw",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLaunchResumeTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLaunchTimeToFirstDraw",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLocationBestAccuracyForNavigationTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLocationBestAccuracyTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLocationHundredMetersTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLocationKilometerTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLocationNearestTenMetersTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportLocationThreeKilometersTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMemoryAverageSuspended",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMemoryPeakUsage",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalActiveDrawingDuration",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalFrameCount",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportMetalFramesPerSecond",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportNetworkCellularDownload",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportNetworkCellularUpload",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportNetworkWifiDownload",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportNetworkWifiUpload",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportNone",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitMetricReportResponsivenessHangTime",
+      "parent": "SentryObjCMetricKitMetricReport"
+    },
+    {
       "kind": "EnumDecl",
       "name": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumDecl",
+      "name": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumDecl",
+      "name": "SentryObjCMetricKitMetricReport"
     },
     {
       "kind": "ObjCMethodDecl",
@@ -41,6 +384,20 @@
       "name": "attachmentType",
       "parent": "SentryObjCAttachment",
       "returnType": "SentryObjCAttachmentType",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
       "instance": true
     },
     {
@@ -115,6 +472,20 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "SentryObjCMetricKitDiagnosticReport",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "enabledMetricReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "SentryObjCMetricKitMetricReport",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "gauge:",
       "parent": "SentryObjCMetricValue",
       "returnType": "instancetype _Nonnull",
@@ -122,10 +493,10 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary * _Nonnull",
-      "instance": false
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "SentryObjCMetricKitHangReportingMode",
+      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
@@ -178,6 +549,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "returnType": "SentryObjCProfileLifecycle",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "mode",
       "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
       "returnType": "SentryObjCDataCollectionKeyValueCollectionMode",
@@ -194,6 +572,13 @@
       "kind": "ObjCMethodDecl",
       "name": "new",
       "parent": "SentryObjCFeedbackForm",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCWebViewTracing",
       "returnType": "instancetype _Nonnull",
       "instance": false
     },
@@ -282,9 +667,39 @@
     },
     {
       "kind": "ObjCPropertyDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "enabledMetricReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "SentryObjCMetricKitMetricReport"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "SentryObjCMetricKitHangReportingMode"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -315,6 +730,12 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "type": "SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "type": "SentryObjCProfileLifecycle"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -392,6 +813,16 @@
       "kind": "TypedefDecl",
       "name": "SentryObjCDataCollectionHttpBodyType",
       "type": "enum SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "TypedefDecl",
+      "name": "SentryObjCMetricKitDiagnosticReport",
+      "type": "enum SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "TypedefDecl",
+      "name": "SentryObjCMetricKitMetricReport",
+      "type": "enum SentryObjCMetricKitMetricReport"
     }
   ],
   "only_in_compat": [
@@ -407,6 +838,20 @@
       "name": "attachmentType",
       "parent": "SentryObjCAttachment",
       "returnType": "enum SentryObjCAttachmentType",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
       "instance": true
     },
     {
@@ -481,6 +926,20 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "NSUInteger",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "enabledMetricReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "uint64_t",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "gauge:",
       "parent": "SentryObjCMetricValue",
       "returnType": "SentryObjCMetricValue * _Nonnull",
@@ -488,10 +947,10 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary<NSString *,id> * _Nonnull",
-      "instance": false
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "enum SentryObjCMetricKitHangReportingMode",
+      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
@@ -524,14 +983,21 @@
     {
       "kind": "ObjCMethodDecl",
       "name": "init",
-      "parent": "SentryObjCPrivateSDKOnly",
+      "parent": "SentryObjCSDK",
       "returnType": "instancetype _Nonnull",
       "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "init",
-      "parent": "SentryObjCSDK",
+      "name": "initWithError:",
+      "parent": "SentryObjCTransaction",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithLevel:",
+      "parent": "SentryObjCTransaction",
       "returnType": "instancetype _Nonnull",
       "instance": true
     },
@@ -610,6 +1076,13 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "returnType": "enum SentryObjCLogLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "returnType": "enum SentryObjCProfileLifecycle",
       "instance": true
     },
     {
@@ -732,9 +1205,39 @@
     },
     {
       "kind": "ObjCPropertyDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "NSUInteger"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "enabledMetricReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "uint64_t"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "enum SentryObjCMetricKitHangReportingMode"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -765,6 +1268,12 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "type": "enum SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "type": "enum SentryObjCProfileLifecycle"
     },
     {
       "kind": "ObjCPropertyDecl",

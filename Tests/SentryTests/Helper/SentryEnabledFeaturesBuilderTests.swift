@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryEnabledFeaturesBuilderTests: XCTestCase {
@@ -11,11 +15,43 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+#if SDK_V10
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "scopePersistence", "standaloneAppStartTracing", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer", "watchdogTerminationsV2"])
+    #else
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "scopePersistence", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics"])
+    #endif
 #else
-        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["dataSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer"])
+    #else
+        XCTAssertEqual(features, ["dataSwizzling", "captureFailedRequests", "metrics"])
+    #endif
 #endif
+    }
+
+    func testEnableScopePersistence_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableScopePersistence = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("scopePersistence"))
+    }
+
+    func testEnableScopePersistence_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableScopePersistence = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("scopePersistence"))
     }
 
     func testEnableAllFeatures() throws {
@@ -33,10 +69,57 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertTrue(features.contains("swiftAsyncStacktraces"))
     }
 
+    func testEnableCaptureFailedRequests_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableCaptureFailedRequests = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("captureFailedRequests"))
+    }
+
+    func testEnableCaptureFailedRequests_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableCaptureFailedRequests = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("captureFailedRequests"))
+    }
+
+    func testEnableTimeToFullDisplayTracing_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableTimeToFullDisplayTracing = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("timeToFullDisplayTracing"))
+    }
+
+    func testSwiftAsyncStacktraces_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.swiftAsyncStacktraces = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("swiftAsyncStacktraces"))
+    }
+
     func testEnablePersistingTracesWhenCrashing() {
         // -- Arrange --
         let options = Options()
-
         options.enablePersistingTracesWhenCrashing = true
 
         // -- Act --
@@ -44,6 +127,18 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(features.contains("persistingTracesWhenCrashing"))
+    }
+
+    func testEnablePersistingTracesWhenCrashing_isDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enablePersistingTracesWhenCrashing = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("persistingTracesWhenCrashing"))
     }
 
     func testGetEnabledFeatures_optionsAreNil_shouldReturnEmptyArray() {
@@ -58,7 +153,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableViewRendererV2 = true
 
         // -- Act --
@@ -75,7 +169,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableViewRendererV2 = false
 
         // -- Act --
@@ -92,7 +185,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableFastViewRendering = true
 
         // -- Act --
@@ -105,10 +197,57 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #endif
     }
 
+    func testEnableFastViewRendering_isDisabled_shouldNotAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+        options.sessionReplay.enableFastViewRendering = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("fastViewRendering"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testNetworkDetailHasUrls_withAllowUrls_shouldAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+        options.sessionReplay.networkDetailAllowUrls = ["https://api.example.com"]
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("replayNetworkDetails"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testNetworkDetailHasUrls_withoutAllowUrls_shouldNotAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+        options.sessionReplay.networkDetailAllowUrls = []
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("replayNetworkDetails"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
     func testEnableDataSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableDataSwizzling = true
 
         // -- Act --
@@ -121,7 +260,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableDataSwizzling_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableDataSwizzling = false
 
         // -- Act --
@@ -134,7 +272,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableFileManagerSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableFileManagerSwizzling = true
 
         // -- Act --
@@ -147,7 +284,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableFileManagerSwizzling_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableFileManagerSwizzling = false
 
         // -- Act --
@@ -157,11 +293,38 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("fileManagerSwizzling"))
     }
 
+    func testEnableNewURLLoaderSwizzling_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableNewURLLoaderSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("newURLLoaderSwizzling"))
+    }
+
+    func testEnableNewURLLoaderSwizzling_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableNewURLLoaderSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("newURLLoaderSwizzling"))
+    }
+
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = true
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        #endif // SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -170,10 +333,50 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertTrue(features.contains("unhandledCPPExceptionsV2"))
     }
 
+    func testEnableUnhandledCPPExceptionsV2_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = false
+        #else
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
+        #endif // SDK_V10
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
+    }
+
+    func testMetricKitHangReportingMode_whenFlamegraphAttachment_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("metricKitHangFlamegraphAttachment"))
+    }
+
+    func testMetricKitHangReportingMode_whenLegacy_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.hangReportingMode = .legacy
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("metricKitHangFlamegraphAttachment"))
+    }
+
+    #if !SDK_V10
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableMetrics = true
 
         // -- Act --
@@ -186,7 +389,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableMetrics_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableMetrics = false
 
         // -- Act --
@@ -196,33 +398,156 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("metrics"))
     }
 
-    func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
+    #endif // !SDK_V10
+
+    func testEnableGraphQLOperationTracking_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableGraphQLOperationTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("graphQLOperationTracking"))
+    }
+
+    func testEnableGraphQLOperationTracking_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableGraphQLOperationTracking = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("graphQLOperationTracking"))
+    }
+
+    func testWebViewTracing_whenSet_shouldAddFeature() throws {
+#if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        // -- Arrange --
+        let options = Options()
+        options.webViewTracing = SentryWebViewTracingOptions(allowedHosts: ["example.com"])
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("webViewTracing"))
+#else
+        throw XCTSkip("WebView tracing is not available on this platform")
+#endif
+    }
+
+    func testWebViewTracing_whenDefault_shouldNotAddFeature() {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableStandaloneAppStartTracing = true
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("webViewTracing"))
+    }
+
+    func testEnableUnhandledCPPExceptionsV2_whenDefault_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        #if SDK_V10
+        XCTAssertFalse(options.enableUnhandledCPPExceptionsV2)
+        #else
+        XCTAssertFalse(options.experimental.enableUnhandledCPPExceptionsV2)
+        #endif // SDK_V10
+        XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
+    }
+
+    func testEnableUnhandledCPPExceptionsV2_whenOptionIsDisabled_shouldRemoveFeature() {
+        // -- Arrange --
+        let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = true
+        #else
+        options.experimental.enableUnhandledCPPExceptionsV2 = true
+        #endif // SDK_V10
+        XCTAssertTrue(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
+
+        // -- Act --
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = false
+        #else
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
+        #endif // SDK_V10
+
+        // -- Assert --
+        XCTAssertFalse(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
+    }
+
+    func testMaxFeatureFlags_isModified_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.maxFeatureFlags = 200
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("maxFeatureFlags"))
+    }
+
+    func testMaxFeatureFlags_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("maxFeatureFlags"))
+    }
+
+    func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        // -- Arrange --
+        let options = Options()
+        #if !SDK_V10
+        options.enableStandaloneAppStartTracing = true
+        #endif // !SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertTrue(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
+    #if !SDK_V10
     func testEnableStandaloneAppStartTracing_isDisabled_shouldNotAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
-
-        options.experimental.enableStandaloneAppStartTracing = false
+        options.enableStandaloneAppStartTracing = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
     func testEnableStandaloneAppStartTracing_whenDefault_shouldNotAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
 
@@ -231,25 +556,36 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
+    #endif // !SDK_V10
 
-    func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
+    func testWatchdogTerminationsV2_shouldAddFeature() throws {
+#if !SDK_V10 || ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK)
         // -- Arrange --
         let options = Options()
-
+    #if !SDK_V10
         options.experimental.enableWatchdogTerminationsV2 = true
+    #endif
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertTrue(features.contains("watchdogTerminationsV2"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
+#if !SDK_V10
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableWatchdogTerminationsV2 = false
 
         // -- Act --
@@ -258,12 +594,102 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("watchdogTerminationsV2"))
     }
+#endif
+
+    func testEnableUIViewControllerInitSwizzling_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableUIViewControllerInitSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("uiViewControllerInitSwizzling"))
+    }
+
+    func testEnableUIViewControllerInitSwizzling_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableUIViewControllerInitSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiViewControllerInitSwizzling"))
+    }
+
+    func testEnableUIViewControllerInitSwizzling_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiViewControllerInitSwizzling"))
+    }
+
+    func testEnableUIUpdateLinkFramesTracking_isEnabled_shouldAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *) else {
+            throw XCTSkip("UIUpdateLink is not available on this OS version")
+        }
+
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableUIUpdateLinkFramesTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("uiUpdateLinkFramesTracking"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableUIUpdateLinkFramesTracking_isEnabledWhereUnsupported_shouldNotAddFeature() throws {
+#if os(iOS) || os(tvOS) || os(visionOS)
+#if !targetEnvironment(macCatalyst)
+        if #available(iOS 18.0, tvOS 18.0, visionOS 2.0, *) {
+            throw XCTSkip("UIUpdateLink is available on this OS version")
+        }
+#endif
+
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableUIUpdateLinkFramesTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiUpdateLinkFramesTracking"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableUIUpdateLinkFramesTracking_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiUpdateLinkFramesTracking"))
+    }
 
     func testAttachViewHierarchy_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.attachViewHierarchy = true
 
         // -- Act --
@@ -280,7 +706,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.attachViewHierarchy = false
 
         // -- Act --
@@ -297,7 +722,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.screenshot.enableFastViewRendering = true
 
         // -- Act --
@@ -314,7 +738,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.screenshot.enableFastViewRendering = false
 
         // -- Act --

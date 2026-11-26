@@ -8,7 +8,15 @@ on:
       - v8.x
 
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
   workflow_dispatch:
     inputs:
@@ -37,22 +45,21 @@ concurrency:
 
 jobs:
   run-full-ci-gate:
-    name: run-full-ci gate
+    name: CI eligibility
     uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
     needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
-      is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
-      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -81,6 +88,9 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
@@ -99,7 +109,11 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets: inherit
+    secrets:
+      FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       scheme: ${{matrix.variant.scheme}}
       suffix: ${{matrix.variant.suffix}}
@@ -120,6 +134,9 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-sentryobjc-slices.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
       release-version: ${{ github.event.inputs.version }}
       sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
@@ -129,7 +146,13 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
-    secrets: inherit
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
@@ -140,7 +163,13 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
-    secrets: inherit
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
@@ -159,19 +188,35 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
@@ -184,6 +229,9 @@ jobs:
           while IFS= read -r -d '' xcframework; do
             found=1
             ./scripts/validate-xcframework.sh --xcframework "$xcframework"
+            if [[ "$(basename "$xcframework")" == "SentryObjC-Static.xcframework" ]]; then
+              ./scripts/validate-xcframework-sentryobjc-static.sh --xcframework "$xcframework"
+            fi
           done < <(find XCFrameworkBuildPath -name "*.xcframework" -type d -print0)
 
           if [ "$found" -eq 0 ]; then
@@ -193,7 +241,11 @@ jobs:
       - name: Strip expectedSignature attributes from XCFramework project
         if: ${{ github.event_name == 'pull_request' }}
         run: make strip-xcframework-expected-signature
-      - run: make build-xcframework-sample
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
+      - run: make build-xcframework-testapp
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -213,13 +265,19 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -235,16 +293,190 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: swift build
-        working-directory: Samples/macOS-SPM-CommandLine
+        working-directory: TestApps/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
+
+  # Advisory SPM pipeline: runs beside releases, never as their prerequisite.
+  # Promote these jobs to release gates only when switching release packaging.
+  package-spm-sdk:
+    name: Package SPM SDK ${{ matrix.generation }} (advisory)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: files-changed
+    continue-on-error: true
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - generation: v9
+            sdk-v10: "0"
+            runner: macos-15
+            xcode: "16"
+          - generation: v10
+            sdk-v10: "1"
+            runner: macos-26
+            xcode: "26"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ matrix.xcode }}
+          resolve-simulators: "false"
+      - name: Package and validate SDK
+        env:
+          SDK_V10: ${{ matrix.sdk-v10 }}
+        run: make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
+      # Only the distributable crosses the job boundary, never headers or build caches.
+      # These validation artifacts are intentionally excluded from release-upload patterns.
+      - name: Upload SPM framework
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
+          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/Sentry-Dynamic.xcframework.zip
+          if-no-files-found: error
+      - name: Upload archive logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: spm-sdk-logs-${{ matrix.generation }}
+          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/archive/**/*.log
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+      - name: Warn about SPM packaging
+        if: failure()
+        env:
+          GENERATION: ${{ matrix.generation }}
+        run: |
+          echo "::warning title=Advisory SPM packaging::SPM SDK $GENERATION packaging failed. Xcode-project releases are unaffected."
+          printf '### SPM SDK %s packaging failed (advisory)\n\nXcode-project releases are unaffected. See this job and its archive logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
+
+  validate-spm-sdk:
+    name: Validate SPM SDK ${{ matrix.generation }} (advisory)
+    # A failed matrix leg must not suppress validation of another leg's artifact.
+    if: >-
+      always() && !cancelled() && needs.files-changed.result == 'success' &&
+      (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
+    needs: [files-changed, package-spm-sdk, build-xcframework-variant-slices]
+    continue-on-error: true
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - generation: v9
+            runner: macos-15
+            xcode: "16"
+          - generation: v10
+            runner: macos-26
+            xcode: "26"
+    steps:
+      # === Checkout and independent preparation ===
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download SPM framework
+        id: download-spm-sdk
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        background: true
+        with:
+          name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
+          path: ${{ runner.temp }}/spm-sdk
+      - name: Download V9 Xcode slice
+        if: matrix.generation == 'v9'
+        id: download-xcode-slice
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        background: true
+        with:
+          name: xcframework-sentry-dynamic-slice-macosx
+          path: ${{ runner.temp }}/xcode-sdk
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ matrix.xcode }}
+          resolve-simulators: "false"
+      - name: Wait for SPM framework
+        wait: download-spm-sdk
+      - name: Prepare isolated consumers
+        run: |
+          ditto -x -k "$RUNNER_TEMP/spm-sdk/Sentry-Dynamic.xcframework.zip" "$RUNNER_TEMP/spm-sdk"
+          ./scripts/validate-xcframework.sh --xcframework "$RUNNER_TEMP/spm-sdk/Sentry-Dynamic.xcframework"
+          # Copy just the consumers, outside the checkout and all producer build paths.
+          for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
+            mkdir -p "$RUNNER_TEMP/spm-sdk/$consumer"
+            cp "TestApps/$consumer/Package.swift" "$RUNNER_TEMP/spm-sdk/$consumer/"
+            cp -R "TestApps/$consumer/Sources" "$RUNNER_TEMP/spm-sdk/$consumer/"
+          done
+
+      # === Build and validation ===
+      - name: Build and run SPM consumers
+        env:
+          SENTRY_XCFRAMEWORK: ../Sentry-Dynamic.xcframework
+          SENTRY_TEST_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
+        run: |
+          status=0
+          for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
+            swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release \
+              -Xcc "-DSENTRY_TEST_V10=$SENTRY_TEST_V10" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
+            tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
+          done
+          exit "$status"
+      - wait: download-xcode-slice
+      - name: Relink V9 crash SPI consumer
+        if: matrix.generation == 'v9'
+        working-directory: ${{ runner.temp }}
+        run: |
+          ditto -x -k xcode-sdk/Sentry-Dynamic.xcarchive.zip xcode-sdk
+          xcode_slice=xcode-sdk/macosx.xcarchive/Products/Library/Frameworks
+          spm_slice=$(dirname "$PWD"/spm-sdk/Sentry-Dynamic.xcframework/macos-*/Sentry.framework)
+          xcrun --sdk macosx swiftc -F "$xcode_slice" -c "$GITHUB_WORKSPACE/Tests/V9BinarySPIConsumer/main.swift" -o consumer.o
+          xcrun --sdk macosx swiftc -F "$spm_slice" consumer.o -framework Sentry -Xlinker -rpath -Xlinker "$spm_slice" -o consumer
+          ./consumer
+      - name: Upload consumer logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: spm-sdk-consumer-logs-${{ matrix.generation }}
+          path: ${{ runner.temp }}/spm-sdk/SPM-*.log
+          if-no-files-found: ignore
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+      - name: Warn about SPM validation
+        if: failure()
+        env:
+          GENERATION: ${{ matrix.generation }}
+        run: |
+          echo "::warning title=Advisory SPM validation::SPM SDK $GENERATION consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
+          printf '### SPM SDK %s consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
@@ -258,13 +490,19 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -280,57 +518,31 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "16"
-          resolve-simulators: "false"
-      - run: swift build
-        working-directory: Samples/SPM-Dynamic
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: failure()
 
-  swift-build:
-    name: Build Swift Static
-    runs-on: macos-15
-    needs: [
-      files-changed,
-      assemble-xcframework-variant,
-      assemble-sentryobjc-static-xcframework,
-      assemble-sentryobjc-dynamic-xcframework,
-    ]
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          pattern: xcframework-${{github.sha}}-*
-          merge-multiple: true
-      - name: Prepare Package.swift
-        shell: bash
-        run: |
-          ./scripts/prepare-package.sh \
-            --package-file Package.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-          ./scripts/prepare-package.sh \
-            --package-file Package@swift-6.1.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-          ./scripts/prepare-package.sh \
-            --package-file Package@swift-6.2.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
-      - run: swift build --target SentrySwiftUI
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
+      - name: Run Swift dynamic consumer
+        run: swift run --build-system xcode SPM-Dynamic
+        working-directory: TestApps/SPM-Dynamic
+      - name: Run Objective-C dynamic consumer
+        run: swift run --build-system xcode SPM-ObjC-Dynamic
+        working-directory: TestApps/SPM-ObjC-Dynamic
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -347,13 +559,19 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        id: download-xcframeworks
+        background: true
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+        with:
+          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -369,20 +587,37 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+
+      # === Toolchain and simulator preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
+      - name: Warm CoreSimulator
+        id: warm-coresimulator
+        background: true
+        continue-on-error: true
+        run: xcrun simctl list runtimes -j > /dev/null
+
+      - name: Wait for XCFramework downloads
+        wait: download-xcframeworks
+
+      # === Build and validation ===
+      - name: Wait for CoreSimulator warmup
+        wait: warm-coresimulator
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
-        working-directory: Samples/visionOS-SPM
+        working-directory: TestApps/visionOS-SPM
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   duplication-tests:
-    name: Test Sentry Duplication V4 on ${{matrix.runner_provider}}
+    name: Test Sentry Duplication V4
     uses: ./.github/workflows/ui-tests-common.yml
+    secrets:
+      GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
+      GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
@@ -392,86 +627,6 @@ jobs:
       macos_version: sequoia
       needs_xcframework: true
       platform: macOS
-      runner_provider: ${{matrix.runner_provider}}
-    strategy:
-      matrix:
-        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
-
-  app-metrics:
-    name: Collect App Metrics
-    runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
-    # Run for PRs with related changes (including dependabot) or non-PR events. Skip fork PRs (no secrets available).
-    if: |
-      github.event_name != 'pull_request' || (
-        needs.files-changed.outputs.run_release_for_prs == 'true' &&
-        needs.files-changed.outputs.is_fork != 'true' && (
-          contains(
-          fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
-          github.event.pull_request.author_association
-        ) ||
-        needs.files-changed.outputs.is_dependabot == 'true')
-      )
-    timeout-minutes: 20
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - name: Git checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "16"
-          resolve-simulators: "false"
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
-        with:
-          bundler-cache: true
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: app-plain-cache
-        with:
-          path: Tests/Perf/test-app-plain.ipa
-          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
-      # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.
-      # We still want to run as much of the full workflow as possible, to verify the behaviour.
-      - name: Build test app plain
-        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
-        run: |
-          bundle exec fastlane build_perf_test_app_plain \
-            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
-        env:
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          pattern: xcframework-${{github.sha}}-sentry-dynamic
-          path: XCFrameworkBuildPath/
-      - run: find XCFrameworkBuildPath -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
-      - name: Build test app with sentry
-        run: |
-          bundle exec fastlane build_perf_test_app_sentry \
-            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
-        env:
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Collect app metrics
-        if: needs.files-changed.outputs.is_dependabot != 'true'
-        uses: getsentry/action-app-sdk-overhead-metrics@44fb5489ac4ac252c87d84811972dc93a1e490b8
-        with:
-          config: Tests/Perf/metrics-test.yml
-          sauce-user: ${{ secrets.SAUCE_USERNAME }}
-          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
-      - name: App metrics collection skipped
-        if: needs.files-changed.outputs.is_dependabot == 'true'
-        run: |
-          echo "::warning::App metrics collection was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
 
   job_release:
     runs-on: ubuntu-latest
@@ -482,9 +637,7 @@ jobs:
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,
-        swift-build,
         duplication-tests,
-        app-metrics,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
       ]
@@ -492,7 +645,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -502,7 +655,7 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -510,21 +663,26 @@ jobs:
 
       - name: Create apple-binaries archive
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           ./scripts/create-apple-binaries-archive.sh \
-            --version "${{ github.event.inputs.version }}" \
+            --version "$VERSION" \
             --xcframework-dir XCFrameworkBuildPath \
             --output-dir XCFrameworkBuildPath
 
       - name: Create 3rd-party integration archives
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
+            --version "$VERSION" \
             --output-dir XCFrameworkBuildPath
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -540,7 +698,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@667b5f5669552a35990a11ff6ac1131febb07446 # v2
+        uses: getsentry/craft@b2a6fa4904f37b46f34b82330e0f3bf02a40f681 # 3.13.0
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
@@ -564,9 +722,7 @@ jobs:
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,
-        swift-build,
         duplication-tests,
-        app-metrics,
         run-full-ci-gate,
       ]
     name: Release

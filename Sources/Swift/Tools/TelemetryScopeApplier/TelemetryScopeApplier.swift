@@ -15,7 +15,8 @@ protocol TelemetryScopeApplier {
 
     func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
-        metadata: Metadata
+        metadata: Metadata,
+        currentScope: (any TelemetryScopeApplier)?
     )
 }
 
@@ -28,7 +29,8 @@ extension TelemetryScopeApplier {
 
     func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
-        metadata: Metadata
+        metadata: Metadata,
+        currentScope: (any TelemetryScopeApplier)? = nil
     ) {
         // Extract attributesDict once to avoid multiple getter/setter calls on computed property
         // Each inout parameter access triggers both getter and setter, which is expensive for
@@ -40,6 +42,10 @@ extension TelemetryScopeApplier {
         addDeviceAttributes(to: &attributes)
         addUserAttributes(to: &attributes, metadata: metadata)
         addReplayAttributes(to: &attributes)
+        // Custom attributes never override existing keys, so applying the thread-local current
+        // scope before the global scope yields: item > current scope > global scope. User,
+        // replay, and the other reserved attributes above still come from the global scope.
+        currentScope?.addScopeAttributes(to: &attributes)
         addScopeAttributes(to: &attributes)
         addDefaultUserIdIfNeeded(to: &attributes, metadata: metadata)
 
@@ -55,8 +61,31 @@ extension TelemetryScopeApplier {
         // See also:
         // - https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload
         // - https://develop.sentry.dev/sdk/telemetry/logs/#tracing
-        item.traceId = span?.traceId ?? propagationContextTraceId
-        item.spanId = span?.spanId
+        let effectiveSpan = currentScope?.span ?? span
+        item.traceId = effectiveSpan?.traceId ?? propagationContextTraceId
+        item.spanId = effectiveSpan?.spanId
+    }
+
+    /// Adds only the attributes that still describe an item recorded by a previous process, such
+    /// as a MetricKit metric payload delivered a day later.
+    ///
+    /// The user, the replay, the custom scope attributes and the OS version belong to the running
+    /// process, so they are left out, like the client leaves out the scope for events from a
+    /// previous process. Attributes the item carries take precedence, so the caller sets the
+    /// release and OS version it was recorded with. The trace and span IDs stay untouched.
+    func addPreviousProcessAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
+        _ item: inout Item,
+        metadata: Metadata
+    ) {
+        var stableAttributes: [String: SentryAttributeContent] = [:]
+        addDefaultAttributes(to: &stableAttributes, metadata: metadata)
+        // The OS name and the device don't change between app runs on the same device.
+        if let osName = getContextForKey(SENTRY_CONTEXT_OS_KEY)?["name"] as? String {
+            stableAttributes["os.name"] = .string(osName)
+        }
+        addDeviceAttributes(to: &stableAttributes)
+
+        item.attributesDict = item.attributesDict.merging(stableAttributes) { itemValue, _ in itemValue }
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {

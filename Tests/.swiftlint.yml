@@ -22,6 +22,12 @@ custom_rules:
     message: "Avoid dispatch groups in tests as waiting on them doesn't fail the test. Consider to use a XCTestExpectation instead, which will fail the test if the expectation is not fulfilled and also have the possibility for asserting for overfulfilled expectations."
     severity: error
 
+  avoid_clear_test_state:
+    name: "Avoid clearTestState()"
+    regex: 'clearTestState\('
+    message: "clearTestState() resets global SDK state — use sparingly. Prefer resetting only the specific state your test needs."
+    severity: warning
+
 disabled_rules:
   - force_cast
   - force_unwrapping

@@ -47,12 +47,9 @@ internal import _SentryPrivate
     }
 
     @discardableResult @objc(storeEnvelope:) public func store(_ envelope: SentryEnvelope) -> String? {
-        let envelopeData = SentrySerializationSwift.data(with: envelope)
-        guard let envelopeData else {
-            SentrySDKLog.error("Serialization of envelope failed. Can't store envelope.")
-            return nil
+        helper.storeEnvelope(withCurrentTime: dateProvider.date().timeIntervalSince1970) { [self] path in
+            write(envelope, toPath: path)
         }
-        return helper.storeEnvelopeData(envelopeData, currentTime: self.dateProvider.date().timeIntervalSince1970)
     }
     
     @objc public func getEnvelopesPath(_ filePath: String) -> String? {
@@ -95,7 +92,7 @@ internal import _SentryPrivate
     }
     
     @objc public func storeCurrentSession(_ session: SentrySession) {
-        helper.storeCurrentSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
+        helper.storeCurrentSessionData(SentrySerializationSwift.data(withJSONObject: session.serializeForPersistence()))
     }
     
     @objc public func readCurrentSession() -> SentrySession? {
@@ -107,7 +104,7 @@ internal import _SentryPrivate
     }
     
     @objc public func storeCrashedSession(_ session: SentrySession) {
-        helper.storeCrashedSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
+        helper.storeCrashedSessionData(SentrySerializationSwift.data(withJSONObject: session.serializeForPersistence()))
     }
 
     @objc public func readCrashedSession() -> SentrySession? {
@@ -118,8 +115,9 @@ internal import _SentryPrivate
         helper.deleteCrashedSession()
     }
 
+    #if !SDK_V10
     @objc public func storeAbnormalSession(_ session: SentrySession) {
-        helper.storeAbnormalSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
+        helper.storeAbnormalSessionData(SentrySerializationSwift.data(withJSONObject: session.serializeForPersistence()))
     }
     
     @objc public func readAbnormalSession() -> SentrySession? {
@@ -129,6 +127,7 @@ internal import _SentryPrivate
     @objc public func deleteAbnormalSession() {
         helper.deleteAbnormalSession()
     }
+    #endif // !SDK_V10
     
     @objc public func storeTimestampLast(inForeground timestamp: Date) {
         helper.storeTimestampLast(inForeground: timestamp)
@@ -187,6 +186,7 @@ internal import _SentryPrivate
         helper.deleteTimezoneOffset()
     }
 
+    #if !SDK_V10
     @objc(storeAppHangEvent:) public func storeAppHang(_ event: Event) {
         helper.storeAppHang(event)
     }
@@ -202,6 +202,7 @@ internal import _SentryPrivate
     @objc public func deleteAppHangEvent() {
         helper.deleteAppHangEvent()
     }
+    #endif // !SDK_V10
 
     @objc public static func createDirectory(atPath path: String) throws {
         try SentryFileManagerHelper.createDirectory(atPath: path)
@@ -233,9 +234,11 @@ internal import _SentryPrivate
     
     // MARK: Internal
     
+    #if !SDK_V10
     var appHangEventFilePath: String {
         helper.appHangEventFilePath
     }
+    #endif // !SDK_V10
 
     var appStateFilePath: String {
         helper.appStateFilePath
@@ -313,6 +316,83 @@ internal import _SentryPrivate
             removeFile(atPath: envelopeFilePath)
         }
         SentrySDKLog.debug("Removed \(numberOfEnvelopesToRemove) file(s) from <\((envelopesPath as NSString).lastPathComponent)>")
+    }
+}
+
+private extension SentryFileManager {
+    func write(_ envelope: SentryEnvelope, toPath path: String) -> Bool {
+        let destinationURL = URL(fileURLWithPath: path)
+        let temporaryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(UUID().uuidString).tmp")
+        guard FileManager.default.createFile(atPath: temporaryURL.path, contents: nil) else {
+            SentrySDKLog.error("Failed to create temporary envelope file at path: \(temporaryURL.path)")
+            return false
+        }
+        defer { removeTemporaryFile(at: temporaryURL) }
+
+        guard writeEnvelope(envelope, toTemporaryURL: temporaryURL) else {
+            return false
+        }
+
+        do {
+            try FileManager.default.moveItem(at: temporaryURL, to: destinationURL)
+            return true
+        } catch {
+            SentrySDKLog.error("Failed to publish envelope at path \(destinationURL.path): \(error)")
+            return false
+        }
+    }
+
+    func writeEnvelope(_ envelope: SentryEnvelope, toTemporaryURL url: URL) -> Bool {
+        let fileHandle: FileHandle
+        do {
+            fileHandle = try FileHandle(forWritingTo: url)
+        } catch {
+            SentrySDKLog.error("Failed to open temporary envelope file at path \(url.path): \(error)")
+            return false
+        }
+        defer { close(fileHandle, at: url) }
+
+        let serialized = SentrySerializationSwift.writeEnvelopeData(envelope) { data in
+            do {
+                try fileHandle.write(contentsOf: data)
+                return true
+            } catch {
+                SentrySDKLog.error("Failed to write envelope data to temporary file: \(error)")
+                return false
+            }
+        }
+        guard serialized else {
+            SentrySDKLog.error("Serialization of envelope failed. Can't store envelope.")
+            return false
+        }
+
+        do {
+            try fileHandle.synchronize()
+        } catch {
+            SentrySDKLog.error("Failed to synchronize temporary envelope file at path \(url.path): \(error)")
+            return false
+        }
+        return true
+    }
+
+    func close(_ fileHandle: FileHandle, at url: URL) {
+        do {
+            try fileHandle.close()
+        } catch {
+            SentrySDKLog.debug("Failed to close temporary envelope file at path \(url.path): \(error)")
+        }
+    }
+
+    func removeTemporaryFile(at url: URL) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return
+        }
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            SentrySDKLog.debug("Failed to remove temporary envelope file at path \(url.path): \(error)")
+        }
     }
 }
 // swiftlint:enable missing_docs

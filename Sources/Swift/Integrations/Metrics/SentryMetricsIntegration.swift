@@ -1,7 +1,7 @@
 internal import _SentryPrivate
 
 protocol SentryMetricsIntegrationProtocol {
-    func addMetric(_ metric: SentryMetric, scope: Scope)
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope?, isFromPreviousProcess: Bool)
 }
 
 /// Empty on purpose. Required by the SwiftIntegration protocol constraint.
@@ -12,8 +12,6 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
     init?(with options: Options, dependencies _: Dependencies) {
-        guard options.enableMetrics else { return nil }
-
 #if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo
 #else
@@ -41,7 +39,15 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
 
     // MARK: - Public API for Metrics
 
-    func addMetric(_ metric: SentryMetric, scope: Scope) {
+    /// - Parameter isFromPreviousProcess: Whether a previous process recorded the metric, such as
+    ///   a MetricKit metric payload. Such a metric only gets the scope attributes that still
+    ///   describe it and keeps its own trace ID. `beforeSendMetric` still runs for it.
+    func addMetric(
+        _ metric: SentryMetric,
+        scope: Scope,
+        currentScope: Scope? = nil,
+        isFromPreviousProcess: Bool = false
+    ) {
         // We go directly to the client instead of through the hub because metrics only have a
         // static API today and the hub doesn't implement any metrics methods. Ideally, metrics should also go
         // through the hub to align with other telemetry types.
@@ -59,7 +65,13 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         var mutableMetric = metric
-        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+        // Custom attribute precedence: caller > current scope > global scope. User and the
+        // other reserved attributes come from the global scope only.
+        if isFromPreviousProcess {
+            scope.addPreviousProcessAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+        } else {
+            scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData, currentScope: currentScope)
+        }
 
         if let beforeSendMetric = beforeSendMetric {
             // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 

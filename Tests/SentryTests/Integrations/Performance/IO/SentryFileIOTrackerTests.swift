@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class SentryFileIOTrackerTests: XCTestCase {
@@ -58,6 +63,7 @@ class SentryFileIOTrackerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -174,6 +180,30 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(span?.frames?.count ?? 0, 2)
         XCTAssertEqual(span?.frames?.first, TestData.mainFrame)
         XCTAssertEqual(span?.frames?.last, TestData.testFrame)
+    }
+
+    func testWriteAtomically_whenTransactionFinished_shouldNotCaptureStacktrace() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test")
+        // A child span stays on the scope after its transaction finishes, and from then on it
+        // only hands out the shared no-op span.
+        SentrySDKInternal.currentHub().scope.span = transaction.startChild(operation: "child")
+        transaction.finish()
+        SentryNoOpSpan.shared().frames = nil
+        var calls = 0
+
+        // -- Act --
+        let result = sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
+            calls += 1
+            return true
+        }
+
+        // -- Assert --
+        XCTAssertTrue(result)
+        XCTAssertEqual(calls, 1)
+        XCTAssertEqual(fixture.threadInspector.stacktraceForCurrentThreadInvocations.count, 0)
+        XCTAssertNil(SentryNoOpSpan.shared().frames)
     }
 
     func testWriteAtomically_Background() {

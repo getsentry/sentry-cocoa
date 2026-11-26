@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # Runs swift-api-digester on a built xcframework to produce a stable JSON
 # dump of the module's public API surface. Used by update-api.sh for
-# Sentry and SentrySwiftUI modules.
+# the Sentry module.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
@@ -16,10 +16,10 @@ OUTPUT=""
 FRAMEWORK_PATHS=()
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --module <name>           Swift module name (required)"
-    log_notice "  --output <path>           Output JSON file path (required)"
-    log_notice "  --framework-path <path>   Framework search path (required, repeatable)"
+    log_info "Usage: $0"
+    log_info "  --module <name>           Swift module name (required)"
+    log_info "  --output <path>           Output JSON file path (required)"
+    log_info "  --framework-path <path>   Framework search path (required, repeatable)"
     exit 1
 }
 

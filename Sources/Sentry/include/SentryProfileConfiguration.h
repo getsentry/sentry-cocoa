@@ -2,6 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryCompiler.h"
 #    import "SentryDefines.h"
 #    import <Foundation/Foundation.h>
 
@@ -40,10 +41,21 @@ SENTRY_NO_INIT
 
 /** Initializer for launch UI profiles (aka continuous V2). */
 - (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                                               samplerDecision:(SentrySamplerDecision *)decision
-                                                profileOptions:(SentryProfileOptions *)options;
+                                               samplerDecision:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                   SentrySamplerDecision))decision
+                                                profileOptions:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                   SentryProfileOptions))options;
 
 @end
+
+SENTRY_EXTERN_C_BEGIN
+
+SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void);
+SENTRY_EXTERN void sentry_setProfileConfiguration(
+    SentryProfileConfiguration *_Nullable configuration);
+SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(void);
+
+SENTRY_EXTERN_C_END
 
 NS_ASSUME_NONNULL_END
 

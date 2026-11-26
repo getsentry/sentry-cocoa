@@ -49,7 +49,7 @@ This document was generated with Claude using the prompt below. To refresh it, r
 
 ### Current Test Coverage
 
-**Test file location**: `Tests/SentryTests/SentryCrash/` (55 files)
+**Test file locations**: `Tests/SentryTests/SentryCrash/` (Swift), `Tests/SentryTests/ObjC/SentryCrash/` (Objective-C), and `Tests/SentryTests/ObjCpp/SentryCrash/` (Objective-C++; 55 files total)
 
 | Category               | Count | Examples                                                              |
 | ---------------------- | ----- | --------------------------------------------------------------------- |

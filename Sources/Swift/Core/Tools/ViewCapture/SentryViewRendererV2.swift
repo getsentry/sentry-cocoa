@@ -1,6 +1,6 @@
 // swiftlint:disable missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 import UIKit
 
@@ -12,7 +12,11 @@ final class SentryViewRendererV2: NSObject, SentryViewRenderer {
     }
 
     func render(view: UIView) -> UIImage {
+        #if os(visionOS)
+        let scale = view.traitCollection.displayScale > 0 ? view.traitCollection.displayScale : 1
+        #else
         let scale = (view as? UIWindow ?? view.window)?.screen.scale ?? 1
+        #endif
         let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: scale).image { context in
             if enableFastViewRendering {
                 view.layer.render(in: context.cgContext)

@@ -1,0 +1,125 @@
+@import XCTest;
+#import "SentryProfilerCancellation.h"
+#import "SentryProfilerSDKAdapter.h"
+#import "SentryProfilerTestConditionals.h"
+#import "TestProfilerValueBackend.h"
+
+@interface SentryProfilerSDKAdapterValueTests : XCTestCase
+@end
+
+@implementation SentryProfilerSDKAdapterValueTests
+#if SENTRY_PROFILER_TESTS_SUPPORTED
+- (void)testSystemMetrics_whenAvailable_shouldReturnGroupedReadings
+{
+    // -- Arrange --
+    SentryProfilerSDKAdapter *adapter = [[SentryProfilerSDKAdapter alloc] init];
+    TestProfilerValueBackend *backend = [[TestProfilerValueBackend alloc] init];
+    backend.metrics = [[TestProfilerValueReadings alloc] init];
+    [adapter setTarget:backend];
+
+    // -- Act --
+    SentryProfilingSystemMetrics *readings = [adapter systemMetrics];
+
+    // -- Assert --
+    XCTAssertEqualObjects(readings.cpuUsage, @25);
+    XCTAssertEqualObjects(readings.memoryFootprintBytes, @1000);
+    XCTAssertEqualObjects(readings.cpuEnergyUsage, @500);
+
+    backend.metrics.failReadings = YES;
+    readings = [adapter systemMetrics];
+    XCTAssertNotNil(readings);
+    XCTAssertNil(readings.cpuUsage);
+    XCTAssertNil(readings.memoryFootprintBytes);
+    XCTAssertNil(readings.cpuEnergyUsage);
+}
+
+- (void)testSystemMetrics_whenOneReadingMissing_shouldKeepAvailableReadings
+{
+    // -- Arrange & Act --
+    SentryProfilingSystemMetrics *readings =
+        [[SentryProfilingSystemMetrics alloc] initWithCPUUsage:@25
+                                          memoryFootprintBytes:nil
+                                                cpuEnergyUsage:@500];
+
+    // -- Assert --
+    XCTAssertNotNil(readings);
+    XCTAssertEqualObjects(readings.cpuUsage, @25);
+    XCTAssertNil(readings.memoryFootprintBytes);
+    XCTAssertEqualObjects(readings.cpuEnergyUsage, @500);
+}
+
+- (void)testCancel_whenHandleRetained_shouldReleaseCapturedResources
+{
+    // -- Arrange --
+    SentryProfilerCancellation *cancellation;
+    __weak NSMutableArray *weakResource;
+    @autoreleasepool {
+        NSMutableArray *resource = [[NSMutableArray alloc] init];
+        weakResource = resource;
+        cancellation =
+            [[SentryProfilerCancellation alloc] initWithCancellation:^{ [resource addObject:@1]; }];
+    }
+    XCTAssertNotNil(weakResource);
+
+    // -- Act --
+    [cancellation cancel];
+
+    // -- Assert --
+    XCTAssertNil(weakResource);
+    XCTAssertNotNil(cancellation);
+}
+
+- (void)testCancel_whenCalledRepeatedly_shouldInvokeBlockOnce
+{
+    // -- Arrange --
+    __block NSUInteger callCount = 0;
+    SentryProfilerCancellation *cancellation =
+        [[SentryProfilerCancellation alloc] initWithCancellation:^{ callCount++; }];
+
+    // -- Act --
+    [cancellation cancel];
+    [cancellation cancel];
+
+    // -- Assert --
+    XCTAssertEqual(callCount, 1U);
+}
+
+- (void)testValueOperations_whenNoTarget_shouldPreserveMissingBackendResults
+{
+    // -- Arrange --
+    SentryProfilerSDKAdapter *adapter = [[SentryProfilerSDKAdapter alloc] init];
+
+    // -- Act & Assert --
+    XCTAssertNil([adapter serializedDebugImages]);
+    XCTAssertNil([adapter debugImageSerialization]);
+    XCTAssertNil([adapter systemMetrics]);
+    SentryProfilingTimestamp timestamp = [adapter timestamp];
+    XCTAssertEqual(timestamp.systemTime, 0ULL);
+    XCTAssertEqual(timestamp.dateInterval, 0);
+#    if SENTRY_HAS_UIKIT
+    XCTAssertNil([adapter copyFrameMeasurements]);
+#    endif
+}
+
+#    if SENTRY_HAS_UIKIT
+- (void)testFrameMeasurements_whenSourceChanges_shouldKeepSnapshot
+{
+    // -- Arrange --
+    NSMutableArray *slowFrames =
+        [NSMutableArray arrayWithObject:@{ @"timestamp" : @10, @"value" : @20 }];
+    SentryProfilingFrameMeasurements *snapshot =
+        [[SentryProfilingFrameMeasurements alloc] initWithSlowFrameTimestamps:slowFrames
+                                                        frozenFrameTimestamps:@[]
+                                                          frameRateTimestamps:@[]];
+
+    // -- Act --
+    [slowFrames removeAllObjects];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        snapshot.slowFrameTimestamps, (@[ @{ @"timestamp" : @10, @"value" : @20 } ]));
+}
+#    endif
+
+#endif
+@end

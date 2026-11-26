@@ -1,0 +1,9 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift
+
+SWIFT_OBJC_BRIDGING_HEADER = App/Sources/macOS-Swift-Bridging-Header.h
+
+SUPPORTED_PLATFORMS = macosx
+
+ALLOW_TARGET_PLATFORM_SPECIALIZATION = NO

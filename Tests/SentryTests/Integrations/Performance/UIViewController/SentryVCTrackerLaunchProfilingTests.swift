@@ -1,8 +1,14 @@
 // Profiling is only supported on iOS
+#if !SDK_V10
 #if os(iOS)
 
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import ObjectiveC
 import XCTest
 
@@ -81,6 +87,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -90,7 +97,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -108,7 +115,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -124,7 +131,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -153,13 +160,13 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
         sut.viewControllerViewWillAppear(viewController) { }
         reportFrame()
 
-        sentry_launchTracer = nil
+        SentryLaunchProfiling.launchTracer = nil
 
         sut.viewControllerViewDidAppear(viewController) { }
 
@@ -198,8 +205,10 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
     private func reportFrame() {
         advanceTime(bySeconds: self.frameDuration)
-        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
+        SentryDependencyContainer.sharedInstance().framesTracker.manualReportNewFrame()
     }
 }
 
 #endif
+
+#endif // !SDK_V10

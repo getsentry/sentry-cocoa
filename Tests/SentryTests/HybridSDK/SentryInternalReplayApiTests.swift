@@ -1,7 +1,11 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 class SentryInternalReplayApiTests: XCTestCase {
 
@@ -19,6 +23,21 @@ class SentryInternalReplayApiTests: XCTestCase {
     }
 
     // MARK: - capture
+
+    func testControls_beforeStart_shouldNotCrash() {
+        sut.start()
+        sut.startBuffering()
+        sut.pause()
+        sut.resume()
+        sut.pauseTouchTracking()
+        sut.resumeTouchTracking()
+        sut.flush()
+        sut.stop()
+
+        let commandExpectation = expectation(description: "Replay commands executed")
+        DispatchQueue.main.async { commandExpectation.fulfill() }
+        wait(for: [commandExpectation], timeout: 1)
+    }
 
     func testCapture_beforeStart_shouldReturnFalse() {
         XCTAssertFalse(sut.capture())
@@ -58,6 +77,16 @@ class SentryInternalReplayApiTests: XCTestCase {
 
     func testSetTags_beforeStart_shouldNotCrash() {
         sut.setTags(["key": "value"])
+    }
+
+    // MARK: - registerTraceId
+
+    func testRegisterTraceId_beforeStart_shouldNotCrash() {
+        sut.registerTraceId(SentryId())
+    }
+
+    func testRegisterTraceId_withEmptyId_beforeStart_shouldNotCrash() {
+        sut.registerTraceId(SentryId.empty)
     }
 }
 

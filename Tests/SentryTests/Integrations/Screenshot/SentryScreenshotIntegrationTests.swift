@@ -1,7 +1,12 @@
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryScreenshotIntegrationTests: XCTestCase {
@@ -11,7 +16,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         let defaultOptions: Options
 
         init() {
+            #if SDK_V10
+            let redactOptions = SentryPrivacyOptions()
+            #else
             let redactOptions = SentryViewScreenshotOptions()
+            #endif // SDK_V10
             let renderer = TestSentryViewRenderer()
             let photographer = TestSentryViewPhotographer(
                 renderer: renderer,
@@ -36,10 +45,14 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+#if SDK_V10
+        sentrykscrash_attachments_setScreenshotWriter(nil)
+#endif
     }
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -49,7 +62,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = false
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
+#if SDK_V10
+        XCTAssertFalse(sentrykscrash_attachments_hasScreenshotWriter())
+#else
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
+#endif
     }
     
     func test_attachScreenshot_enabled() {
@@ -58,7 +75,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = true
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
+#if SDK_V10
+        XCTAssertTrue(sentrykscrash_attachments_hasScreenshotWriter())
+#else
         XCTAssertTrue(sentrycrash_hasSaveScreenshotCallback())
+#endif
     }
     
     func test_uninstall() {
@@ -69,7 +90,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         SentrySDK.close()
         
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
+#if SDK_V10
+        XCTAssertFalse(sentrykscrash_attachments_hasScreenshotWriter())
+#else
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
+#endif
     }
     
     func test_attachScreenShot_withError() throws {
@@ -230,6 +255,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
     }
     
+    #if !SDK_V10
     func test_backgroundForAppHangs() throws {
         let sut = try fixture.getSut()
         defer {
@@ -237,7 +263,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         }
         
         let event = Event()
-        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+        event.exceptions = [Exception(value: "test", type: "App Hanging")]
 
         let ex = expectation(description: "Attachment Added")
         
@@ -252,7 +278,8 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         wait(for: [ex], timeout: 1)
     }
+    #endif // !SDK_V10
     
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)

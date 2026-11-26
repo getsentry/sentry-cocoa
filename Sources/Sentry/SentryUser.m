@@ -1,6 +1,7 @@
 #import "SentryUser.h"
 #import "SentryGeo+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentrySanitizerUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN

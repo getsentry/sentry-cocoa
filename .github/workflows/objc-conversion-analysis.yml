@@ -7,12 +7,21 @@ on:
       - v8.x
 
   pull_request:
+    types: [
+      opened,
+      synchronize,
+      reopened,
+      labeled,
+      unlabeled,
+      ready_for_review,
+      converted_to_draft,
+    ]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
 #   as these analyze code conversion progress and generate tracking reports.
 # - For pull requests, we cancel in-progress runs when new commits are pushed since only the
-#   latest conversion analysis matters for tracking progress on SwiftConversion changes.
+#   latest conversion analysis matters for tracking progress on Utils/SwiftConversion changes.
 # - For main branch pushes, we never cancel conversion analysis to ensure we maintain accurate
 #   tracking of our Objective-C to Swift conversion progress across the entire project.
 concurrency:
@@ -20,7 +29,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  run-full-ci-gate:
+    name: CI eligibility
+    uses: ./.github/workflows/run-full-ci-workflow.yml
+
   files-changed:
+    needs: run-full-ci-gate
+    if: needs.run-full-ci-gate.outputs.run_ci == 'true'
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
@@ -29,7 +44,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -39,42 +54,30 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 10
 
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1.343.0
         with:
           bundler-cache: true
       - name: Install Graphviz
         run: brew install graphviz
 
-      - name: Run Objective-C conversion analyzer
-        working-directory: SwiftConversion
-        run: |
-          ruby objc_conversion_analyzer.rb
-
-      - name: Generate Graphviz DOT file
-        working-directory: SwiftConversion
-        run: |
-          ruby generate_graphviz.rb
-
-      - name: Convert DOT to SVG
-        working-directory: SwiftConversion
-        run: |
-          dot -Tsvg objc_dependencies_topo.dot -o objc_dependencies_topo.svg
+      - name: Generate Swift conversion diagram
+        run: make generate-swift-conversion-diagram
 
       - name: Upload analysis artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: objc-conversion-analysis
           path: |
-            SwiftConversion/objc_conversion_analysis.json
-            SwiftConversion/objc_dependencies_topo.dot
-            SwiftConversion/objc_dependencies_topo.svg
+            Utils/SwiftConversion/objc_conversion_analysis.json
+            Utils/SwiftConversion/objc_dependencies_topo.dot
+            Utils/SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
 
       - name: Run CI Diagnostics
@@ -86,7 +89,7 @@ jobs:
   # So, we don't have to run analysis, for example, for Changelog or ReadMe changes.
 
   objc_conversion_analysis-required-check:
-    needs: [files-changed, analyze-objc-conversion]
+    needs: [run-full-ci-gate, files-changed, analyze-objc-conversion]
     name: Objective-C Conversion Analysis
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

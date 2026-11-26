@@ -126,6 +126,16 @@
     XCTAssertEqualObjects(crumb.origin, @"auto.ui");
 }
 
+#if SDK_V10
+- (void)testData_whenReadOnly_shouldNotExposeWholeDictionarySetter
+{
+    // -- Arrange --
+    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse([crumb respondsToSelector:NSSelectorFromString(@"setData:")]);
+}
+#else
 - (void)testData_whenSet_shouldReturnValue
 {
     // -- Arrange --
@@ -133,10 +143,10 @@
                                                                      category:@"test"];
 
     // -- Act --
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     crumb.data = @{ @"url" : @"/home" };
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 
     // -- Assert --
     XCTAssertEqualObjects(crumb.data[@"url"], @"/home");
@@ -147,16 +157,32 @@
     // -- Arrange --
     SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] initWithLevel:SentryObjCLevelInfo
                                                                      category:@"test"];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     crumb.data = @{ @"key" : @"value" };
 
     // -- Act --
     crumb.data = nil;
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 
     // -- Assert --
     XCTAssertNil(crumb.data);
+}
+#endif
+
+- (void)testSetDataValueForKey_whenUpdatingData_shouldMergeAndRemoveValues
+{
+    // -- Arrange --
+    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] init];
+
+    // -- Act --
+    [crumb setDataValue:@"/home" forKey:@"url"];
+    [crumb setDataValue:@"wifi" forKey:@"connectivity"];
+    [crumb setDataValue:@"/settings" forKey:@"url"];
+    [crumb setDataValue:nil forKey:@"connectivity"];
+
+    // -- Assert --
+    XCTAssertEqualObjects(crumb.data, (@{ @"url" : @"/settings" }));
 }
 
 @end

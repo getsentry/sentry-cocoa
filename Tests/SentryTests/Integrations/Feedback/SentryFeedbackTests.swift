@@ -1,10 +1,21 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
+import PhotosUI
+import UniformTypeIdentifiers
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
+#if !targetEnvironment(macCatalyst)
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+#endif
+
     private typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
 
@@ -34,6 +45,12 @@ class SentryFeedbackTests: XCTestCase {
 
     private final class DismissingParentViewController: UIViewController {
         override var isBeingDismissed: Bool { true }
+    }
+
+    private final class MarkedTextView: UITextView {
+        override var markedTextRange: UITextRange? {
+            textRange(from: beginningOfDocument, to: beginningOfDocument)
+        }
     }
 
     func testFormLifecycle_whenFormAppears_shouldCallOpenOnce() {
@@ -104,6 +121,270 @@ class SentryFeedbackTests: XCTestCase {
 
         XCTAssertEqual(openCalls, 2)
         XCTAssertEqual(closeCalls, 2)
+    }
+
+    func testForm_whenScreenshotSelectionEnabled_shouldShowAddScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testForm_whenScreenshotSelectionDisabledByDefault_shouldHideAddScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testForm_whenScreenshotStackHidden_shouldNotOccupyVerticalSpace() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.view.layoutIfNeeded()
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.removeScreenshotStack.frame.height, 0)
+    }
+#endif
+
+    func testForm_whenAddScreenshotLabelsConfigured_shouldUseConfiguredLabels() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.addScreenshotButtonLabel = "Attach image"
+        config.formConfig.addScreenshotButtonAccessibilityLabel = "Choose an image to attach"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.title(for: .normal), "Attach image")
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.accessibilityLabel, "Choose an image to attach")
+    }
+
+    func testForm_whenScreenshotLoading_shouldShowActivityIndicatorAndHideButtonTitle() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.addScreenshotButtonLabel = "Attach image"
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        sut.viewModel.setScreenshotLoading(true)
+
+        // -- Assert --
+        XCTAssertNil(sut.viewModel.addScreenshotButton.title(for: .normal))
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isEnabled)
+        XCTAssertFalse(sut.viewModel.submitButton.isEnabled)
+        XCTAssertTrue(sut.viewModel.screenshotLoadingIndicator.isAnimating)
+
+        // -- Act --
+        sut.viewModel.setScreenshotLoading(false)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.title(for: .normal), "Attach image")
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isEnabled)
+        XCTAssertTrue(sut.viewModel.submitButton.isEnabled)
+        XCTAssertFalse(sut.viewModel.screenshotLoadingIndicator.isAnimating)
+    }
+
+    func testMakeScreenshotErrorAlert_whenErrorTextConfigured_shouldUseConfiguredText() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.screenshotErrorText = "Choose a different image."
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        let alert = sut.makeScreenshotErrorAlert()
+
+        // -- Assert --
+        XCTAssertEqual(alert.title, "Error")
+        XCTAssertEqual(alert.message, "Choose a different image.")
+        XCTAssertEqual(alert.actions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testFinishLoadingScreenshot_whenLoadingFails_shouldPresentConfiguredErrorAlert() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.formConfig.screenshotErrorText = "Choose a different image."
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.finishLoadingScreenshot(nil)
+
+        // -- Assert --
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, "Error")
+        XCTAssertEqual(alert.message, "Choose a different image.")
+        XCTAssertEqual(alert.actions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
+    }
+#endif
+
+    func testForm_whenScreenshotProvided_shouldShowRemoveScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: UIImage())
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertFalse(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testSetScreenshot_whenImageSelected_shouldUseOriginalAttachment() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 200, height: 100)).image { _ in }
+        let data = try XCTUnwrap(image.pngData())
+        let attachment = Attachment(data: data, filename: "selected.png", contentType: "image/png")
+
+        // -- Act --
+        sut.viewModel.setScreenshot(image: image, attachment: attachment)
+        let feedback = sut.viewModel.feedbackObject()
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertFalse(sut.viewModel.removeScreenshotStack.isHidden)
+        XCTAssertFalse(sut.viewModel.screenshotImageView.isAccessibilityElement)
+        XCTAssertEqual(sut.viewModel.screenshotImageAspectRatioConstraint.multiplier, 2)
+        let selectedAttachment = try XCTUnwrap(feedback.attachmentsForEnvelope().first)
+        XCTAssertEqual(selectedAttachment.data, data)
+        XCTAssertEqual(selectedAttachment.filename, "selected.png")
+        XCTAssertEqual(selectedAttachment.contentType, "image/png")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasMismatchedImageExtension_shouldReplaceExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.heic",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.jpeg")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasMatchingImageExtension_shouldPreserveExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.jpeg",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.jpeg")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasDottedBasename_shouldAppendExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.final",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.final.jpeg")
+    }
+
+    func testLoadSelectedScreenshot_whenHEICSelected_shouldEncodeJPEG() throws {
+        guard #available(iOS 17.0, *) else {
+            throw XCTSkip("UIImage HEIC encoding requires iOS 17 or later.")
+        }
+
+        // -- Arrange --
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 20, height: 10))
+        }
+        let data = try XCTUnwrap(image.heicData())
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sentry-feedback-\(UUID().uuidString).heic")
+        try data.write(to: url)
+        addTeardownBlock {
+            try FileManager.default.removeItem(at: url)
+        }
+
+        // -- Act --
+        let screenshot = SentryUserFeedbackFormController.loadSelectedScreenshot(
+            from: url,
+            error: nil,
+            filename: "selected.heic",
+            contentType: "image/heic",
+            maxAttachmentSize: 10 * 1_024 * 1_024
+        )
+
+        // -- Assert --
+        let attachment = try XCTUnwrap(screenshot?.1)
+        let attachmentData = try XCTUnwrap(attachment.data)
+        XCTAssertEqual(attachment.filename, "selected.jpg")
+        XCTAssertEqual(attachment.contentType, "image/jpeg")
+        XCTAssertEqual(attachmentData.prefix(2), Data([0xFF, 0xD8]))
+        XCTAssertNotNil(UIImage(data: attachmentData))
+    }
+
+    func testRemoveScreenshot_whenImageSelected_shouldRemoveAttachment() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let attachment = Attachment(data: Data(), filename: "selected.png", contentType: "image/png")
+        sut.viewModel.setScreenshot(image: UIImage(), attachment: attachment)
+
+        // -- Act --
+        sut.viewModel.removeScreenshotTapped()
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+        XCTAssertTrue(sut.viewModel.feedbackObject().attachmentsForEnvelope().isEmpty)
+    }
+
+    func testMakeScreenshotPicker_shouldSelectOneImageWithoutPhotoLibraryAccess() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        let picker = sut.makeScreenshotPicker()
+
+        // -- Assert --
+        XCTAssertEqual(picker.configuration.selectionLimit, 1)
+        XCTAssertEqual(picker.configuration.filter, PHPickerFilter.images)
+        XCTAssertEqual(picker.configuration.preferredAssetRepresentationMode, .compatible)
+        XCTAssertNotNil(picker.delegate)
+        XCTAssertNotIdentical(picker.delegate as AnyObject?, sut)
     }
 
     func testSerializeWithAllFields() throws {
@@ -185,6 +466,252 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(attachments[2].filename, "recording.mp4")
         XCTAssertEqual(attachments[2].contentType, "video/mp4")
     }
+
+    func testValidate_whenMessageExceedsMaximumLength_shouldReturnSpecificError() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected an over-limit message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "Shorten your message to 4096 characters or fewer.")
+    }
+
+    func testValidate_whenMessageContainsOnlyWhitespace_shouldReportMessageAsMissing() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = " \n\t "
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected a whitespace-only message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following field: description.")
+    }
+
+    func testValidate_whenMessageContainsOnlyPythonWhitespaceControl_shouldReportMessageAsMissing() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = "\u{1C}"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected a Python-whitespace-only message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following field: description.")
+    }
+
+    func testValidate_whenMessageContainsZeroWidthSpace_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = "\u{200B}"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected a zero-width space to match Python's non-whitespace behavior.")
+        }
+    }
+
+    func testValidate_whenMessageIsAtMaximumLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_096)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected a message at the limit to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageIsAtMaximumScalarLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected 4096 Unicode scalars to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageExceedsMaximumScalarLength_shouldFail() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048) + "a"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected 4097 Unicode scalars to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "Shorten your message to 4096 characters or fewer.")
+    }
+
+    func testValidate_whenRequiredFieldsAreMissingAndMessageIsTooLong_shouldReportMissingFields() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.isNameRequired = true
+        config.formConfig.isEmailRequired = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected missing required fields to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following fields: name and email.")
+    }
+
+    func testMessageCharacterCount_whenBelowVisibilityThreshold_shouldBeHidden() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 3_686)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.isHidden)
+    }
+
+    func testMessageCharacterCount_whenAtVisibilityThreshold_shouldCountUnicodeScalarsAndBeVisible() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 3_685) + "e\u{301}"
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "3687 / 4096")
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.accessibilityLabel, "3687 of 4096 characters used")
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.accessibilityTraits.contains(.updatesFrequently))
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.foreground)
+    }
+
+    func testMessageCharacterCount_whenMessageExceedsMaximumLength_shouldUseErrorColor() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "4097 / 4096")
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.errorColor)
+        XCTAssertEqual(sut.viewModel.messageTextView.text.unicodeScalars.count, 4_097)
+    }
+
+    func testMessageCharacterCount_whenCorrectedBelowVisibilityThreshold_shouldHideAgain() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+        sut.viewModel.messageTextView.text = "Corrected"
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.foreground)
+    }
+
+    func testMessageCharacterCount_whileInputMethodCompositionIsActive_shouldDeferUpdate() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        let markedTextView = MarkedTextView()
+        markedTextView.text = sut.viewModel.messageTextView.text
+
+        // -- Act --
+        sut.textViewDidChange(markedTextView)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.isHidden)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "4097 / 4096")
+    }
+
+    func testMessageCharacterCount_whenFontFamilyConfigured_shouldUseThemeFont() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.theme.fontFamily = "Helvetica"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.font.familyName, "Helvetica")
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testSubmitFeedback_whenMessageExceedsMaximumLength_shouldPresentSpecificError() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.submitFeedback()
+
+        // -- Assert --
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.message, "Shorten your message to 4096 characters or fewer.")
+    }
+#endif
 
     private let inputCombinations: [FeedbackTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot
@@ -312,7 +839,6 @@ class SentryFeedbackTests: XCTestCase {
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -360,7 +886,6 @@ class SentryFeedbackTests: XCTestCase {
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -408,7 +933,6 @@ class SentryFeedbackTests: XCTestCase {
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )

@@ -1,3 +1,8 @@
+#if SWIFT_PACKAGE && !SDK_V10
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 /// This test validates that all public properties in Options.swift have corresponding
@@ -17,26 +22,37 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var options: Set<String> = [
             "parsedDsn",
             "experimental",
-            "onLastRunStatusDetermined",
-            "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
-            "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
-            "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
-            "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
-            "beforeSendMetric" // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
+            "enableScopePersistence", // Docs update pending for user persistence across launches.
+            "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
+
+        #if !SDK_V10
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        options.insert("enableReportNonFullyBlockingAppHangsValue") // Internal backing for deprecated enableReportNonFullyBlockingAppHangs
+        #endif
+        #endif
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
+        #if SDK_V10
+        options.insert("privacy") // Shared V10 masking options. Docs update pending for the major release.
+        #endif
+        #if !SDK_V10
+        options.insert("enableStandaloneAppStartTracing")
+        #endif
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("sessionReplay")
+        #endif
+
+        #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        options.insert("webViewTracing") // Docs update pending with the automatic WebView trace propagation release
         #endif
 
         #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
-        options.insert("configureUserFeedback")
         #endif
 
         #if !(os(tvOS) || os(visionOS) || os(watchOS))
@@ -45,6 +61,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("enableUnhandledCPPExceptionsV2") // Stable in v10; docs update pending
+        options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
         #endif

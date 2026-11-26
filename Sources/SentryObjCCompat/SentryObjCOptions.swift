@@ -1,5 +1,5 @@
 // swiftlint:disable file_length missing_docs type_body_length
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SDK_V10
 internal import SentrySwift
 #else
 internal import Sentry
@@ -62,6 +62,13 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
+    #if SDK_V10
+    @objc public var enableUnhandledCPPExceptionsV2: Bool {
+        get { wrapped.enableUnhandledCPPExceptionsV2 }
+        set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
+    }
+    #endif // SDK_V10
+
     @objc public var enableMemoryIntrospection: Bool {
         get { wrapped.enableMemoryIntrospection }
         set { wrapped.enableMemoryIntrospection = newValue }
@@ -74,16 +81,22 @@ import Foundation
     }
     #endif
 
-    #if !os(watchOS)
+    #if !os(watchOS) && !SDK_V10
+    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
     @objc public var enableSigtermReporting: Bool {
         get { wrapped.enableSigtermReporting }
         set { wrapped.enableSigtermReporting = newValue }
     }
-    #endif
+    #endif // !os(watchOS) && !SDK_V10
 
     @objc public var maxBreadcrumbs: UInt {
         get { wrapped.maxBreadcrumbs }
         set { wrapped.maxBreadcrumbs = newValue }
+    }
+
+    @objc public var maxFeatureFlags: UInt {
+        get { wrapped.maxFeatureFlags }
+        set { wrapped.maxFeatureFlags = newValue }
     }
 
     @objc public var enableNetworkBreadcrumbs: Bool {
@@ -109,6 +122,45 @@ import Foundation
         }
     }
 
+    /// This block can be used to modify the event with access to the hint before it will be sent.
+    /// If set, this takes precedence over `beforeSend`.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to `beforeSend` directly and this callback will be removed.
+    @objc public var beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)? {
+        get { _beforeSendWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeSend` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set {
+            _beforeSendWithHint = newValue
+            if let beforeSendWithHint = newValue {
+                wrapped.beforeSendWithHint = { event, hint in
+                    guard let result = beforeSendWithHint(SentryObjCEvent(event), SentryObjCHint(hint)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeSendWithHint = nil
+            }
+        }
+    }
+    private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
+
+    #if SDK_V10
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?)? {
+        didSet {
+            if let beforeSendTransaction = beforeSendTransaction {
+                wrapped.beforeSendTransaction = { transaction, hint in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction), SentryObjCHint(hint)) else {
+                        return nil
+                    }
+                    return result.wrappedTransaction
+                }
+            } else {
+                wrapped.beforeSendTransaction = nil
+            }
+        }
+    }
+    #endif // SDK_V10
+
     @objc public var beforeSendSpan: ((SentryObjCSpan) -> SentryObjCSpan?)? {
         didSet {
             if let beforeSendSpan = beforeSendSpan {
@@ -122,10 +174,12 @@ import Foundation
         }
     }
 
+    #if !SDK_V10
     @objc public var enableLogs: Bool {
         get { wrapped.enableLogs }
         set { wrapped.enableLogs = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
@@ -139,6 +193,28 @@ import Foundation
             }
         }
     }
+
+    /// This block can be used to modify the breadcrumb with access to the hint before it is added.
+    /// If set, this takes precedence over `beforeBreadcrumb`.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to `beforeBreadcrumb` directly and this callback will be removed.
+    @objc public var beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)? {
+        get { _beforeBreadcrumbWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeBreadcrumb` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set {
+            _beforeBreadcrumbWithHint = newValue
+            if let beforeBreadcrumbWithHint = newValue {
+                wrapped.beforeBreadcrumbWithHint = { crumb, hint in
+                    guard let result = beforeBreadcrumbWithHint(SentryObjCBreadcrumb(crumb), SentryObjCHint(hint)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeBreadcrumbWithHint = nil
+            }
+        }
+    }
+    private var _beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)?
 
     @objc public var beforeSendLog: ((SentryObjCLog) -> SentryObjCLog?)? {
         didSet {
@@ -258,10 +334,12 @@ import Foundation
         set { wrapped.maxAttachmentSize = newValue }
     }
 
+#if !SDK_V10
     @objc public var sendDefaultPii: Bool {
         get { wrapped.sendDefaultPii }
         set { wrapped.sendDefaultPii = newValue }
     }
+#endif // !SDK_V10
 
     @objc public var enableAutoPerformanceTracing: Bool {
         get { wrapped.enableAutoPerformanceTracing }
@@ -271,6 +349,25 @@ import Foundation
     @objc public var enablePersistingTracesWhenCrashing: Bool {
         get { wrapped.enablePersistingTracesWhenCrashing }
         set { wrapped.enablePersistingTracesWhenCrashing = newValue }
+    }
+
+#if os(iOS) || os(macOS)
+    @objc public var configureProfiling: ((SentryObjCProfileOptions) -> Void)? {
+        didSet {
+            if let configureProfiling {
+                wrapped.configureProfiling = { profiling in
+                    configureProfiling(SentryObjCProfileOptions(profiling))
+                }
+            } else {
+                wrapped.configureProfiling = nil
+            }
+        }
+    }
+#endif // os(iOS) || os(macOS)
+
+    @objc public var enableScopePersistence: Bool {
+        get { wrapped.enableScopePersistence }
+        set { wrapped.enableScopePersistence = newValue }
     }
 
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
@@ -342,14 +439,31 @@ import Foundation
         set { wrapped.enablePreWarmedAppStartTracing = newValue }
     }
 
+    #if !SDK_V10
+    @objc public var enableStandaloneAppStartTracing: Bool {
+        get { wrapped.enableStandaloneAppStartTracing }
+        set { wrapped.enableStandaloneAppStartTracing = newValue }
+    }
+    #endif
+
+    #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
+    #endif // !SDK_V10
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+
+    #if SDK_V10
+    @objc public var privacy: SentryObjCPrivacyOptions {
+        get { SentryObjCPrivacyOptions(parent: wrapped) }
+        set { wrapped.privacy = newValue.wrapped }
+    }
+    #endif // SDK_V10
 
     @objc public var sessionReplay: SentryObjCReplayOptions {
         get { SentryObjCReplayOptions(wrapped.sessionReplay) }
@@ -362,6 +476,14 @@ import Foundation
         get { wrapped.enableNetworkTracking }
         set { wrapped.enableNetworkTracking = newValue }
     }
+
+    #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Returns a copy, because the SDK stores a value type. Assign a new object to change it.
+    @objc public var webViewTracing: SentryObjCWebViewTracingOptions? {
+        get { wrapped.webViewTracing.map { SentryObjCWebViewTracingOptions(allowedHosts: $0.allowedHosts) } }
+        set { wrapped.webViewTracing = newValue?.toSentryWebViewTracingOptions() }
+    }
+    #endif
 
     @objc public var enableFileIOTracing: Bool {
         get { wrapped.enableFileIOTracing }
@@ -437,10 +559,12 @@ import Foundation
         set { wrapped.sendClientReports = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
         set { wrapped.enableAppHangTracking = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var appHangTimeoutInterval: TimeInterval {
         get { wrapped.appHangTimeoutInterval }
@@ -479,10 +603,12 @@ import Foundation
 
     #if canImport(MetricKit) && !os(tvOS)
 
+    #if !SDK_V10
     @objc public var enableMetricKit: Bool {
         get { wrapped.enableMetricKit }
         set { wrapped.enableMetricKit = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var enableMetricKitRawPayload: Bool {
         get { wrapped.enableMetricKitRawPayload }
@@ -538,9 +664,11 @@ import Foundation
         set { wrapped.experimental = newValue.wrapped }
     }
 
+    #if !SDK_V10
     @objc public var enableMetrics: Bool {
         get { wrapped.enableMetrics }
         set { wrapped.enableMetrics = newValue }
     }
+    #endif // !SDK_V10
 }
 // swiftlint:enable file_length missing_docs type_body_length

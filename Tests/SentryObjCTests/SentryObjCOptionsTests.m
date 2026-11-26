@@ -7,6 +7,19 @@
 
 @implementation SentryObjCOptionsTests
 
+- (void)testSendDefaultPii_whenBuildingV10_shouldNotBeExposed
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse([options respondsToSelector:NSSelectorFromString(@"sendDefaultPii")]);
+#endif
+}
+
 #pragma mark - Data Collection
 
 - (void)testDataCollection_whenDefault_shouldReturnNotNil
@@ -33,8 +46,6 @@
     // -- Assert --
     XCTAssertTrue(options.dataCollection.userInfo);
     XCTAssertEqual(options.dataCollection.httpBodies, SentryObjCDataCollectionHttpBodyTypeAll);
-    XCTAssertTrue(options.dataCollection.stackFrameVariables);
-    XCTAssertEqual(options.dataCollection.frameContextLines, 5u);
 #endif
 }
 
@@ -71,38 +82,6 @@
 
     // -- Assert --
     XCTAssertFalse(options.dataCollection.userInfo);
-#endif
-}
-
-- (void)testDataCollection_whenSubPropertyMutatedInPlace_shouldPropagateToOptions
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-    options.dataCollection.database.queryParams = NO;
-
-    // -- Assert --
-    XCTAssertFalse(options.dataCollection.database.queryParams);
-#endif
-}
-
-- (void)testDataCollection_whenGraphqlMutatedInPlace_shouldPropagateToOptions
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-    options.dataCollection.graphql.document = NO;
-
-    // -- Assert --
-    XCTAssertFalse(options.dataCollection.graphql.document);
 #endif
 }
 
@@ -262,6 +241,7 @@
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
 }
 
+#if !SDK_V10
 - (void)testEnableLogs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -273,6 +253,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableLogs);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoSessionTracking_whenSetToYes_shouldReturnYes
 {
@@ -334,6 +315,7 @@
     XCTAssertTrue(options.attachAllThreads);
 }
 
+#if !SDK_V10
 - (void)testSendDefaultPii_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -345,6 +327,7 @@
     // -- Assert --
     XCTAssertTrue(options.sendDefaultPii);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoPerformanceTracing_whenSetToYes_shouldReturnYes
 {
@@ -454,17 +437,22 @@
     XCTAssertTrue(options.sendClientReports);
 }
 
+#if !SDK_V10
 - (void)testEnableAppHangTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableAppHangTracking = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
+#    pragma clang diagnostic pop
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking_whenSetToYes_shouldReturnYes
 {
@@ -550,6 +538,7 @@
     XCTAssertTrue(options.strictTraceContinuation);
 }
 
+#if !SDK_V10
 - (void)testEnableMetrics_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -561,6 +550,29 @@
     // -- Assert --
     XCTAssertTrue(options.enableMetrics);
 }
+
+#endif // !SDK_V10
+
+#if SDK_V10
+- (void)testEnableUnhandledCPPExceptionsV2_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
+}
+#endif // SDK_V10
 
 #pragma mark - Numeric properties
 
@@ -586,6 +598,27 @@
 
     // -- Assert --
     XCTAssertEqual(options.maxBreadcrumbs, 50u);
+}
+
+- (void)testMaxFeatureFlags_whenSet_shouldReturnValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.maxFeatureFlags = 2000;
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 2000u);
+}
+
+- (void)testMaxFeatureFlags_whenNotSet_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 100u);
 }
 
 - (void)testMaxCacheItems_whenSet_shouldReturnValue
@@ -634,6 +667,30 @@
 
     // -- Assert --
     XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 5.0, 0.001);
+}
+
+- (void)testAppHangTimeoutInterval_whenSetToZero_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.appHangTimeoutInterval = 0;
+
+    // -- Assert --
+    XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 2.0, 0.001);
+}
+
+- (void)testAppHangTimeoutInterval_whenSetToNegative_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.appHangTimeoutInterval = -1.0;
+
+    // -- Assert --
+    XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 2.0, 0.001);
 }
 
 - (void)testSampleRate_whenSet_shouldReturnValue
@@ -805,6 +862,26 @@
 
     // -- Assert --
     XCTAssertNil(options.beforeSend);
+}
+
+- (void)testBeforeSendTransaction_whenBuildingV10AndSetBlock_shouldReturnNotNil
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for non-SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.beforeSendTransaction = ^SentryObjCTransaction *_Nullable(
+        SentryObjCTransaction *transaction, SentryObjCHint *hint)
+    {
+        return transaction;
+    };
+
+    // -- Assert --
+    XCTAssertNotNil(options.beforeSendTransaction);
+#endif
 }
 
 - (void)testBeforeSendSpan_whenSetBlock_shouldReturnNotNil
@@ -1121,6 +1198,25 @@
 #pragma mark - Platform-conditional properties
 
 #if !TARGET_OS_WATCH
+#    if SDK_V10
+
+- (void)testEnableSigtermReporting_whenV10_shouldNotExist
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    BOOL respondsToGetter =
+        [options respondsToSelector:NSSelectorFromString(@"enableSigtermReporting")];
+    BOOL respondsToSetter =
+        [options respondsToSelector:NSSelectorFromString(@"setEnableSigtermReporting:")];
+
+    // -- Assert --
+    XCTAssertFalse(respondsToGetter);
+    XCTAssertFalse(respondsToSetter);
+}
+
+#    else
 
 - (void)testEnableSigtermReporting_whenSetToYes_shouldReturnYes
 {
@@ -1128,13 +1224,17 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableSigtermReporting = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableSigtermReporting);
+#        pragma clang diagnostic pop
 }
 
-#endif
+#    endif // SDK_V10
+#endif // !TARGET_OS_WATCH
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
@@ -1238,17 +1338,22 @@
     XCTAssertTrue(options.enablePreWarmedAppStartTracing);
 }
 
+#    if !SDK_V10
 - (void)testEnableReportNonFullyBlockingAppHangs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableReportNonFullyBlockingAppHangs = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
+#        pragma clang diagnostic pop
 }
+#    endif // !SDK_V10
 
 #endif
 
@@ -1270,6 +1375,7 @@
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
+#    if !SDK_V10
 - (void)testEnableMetricKit_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -1281,6 +1387,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableMetricKit);
 }
+#    endif // !SDK_V10
 
 - (void)testEnableMetricKitRawPayload_whenSetToYes_shouldReturnYes
 {

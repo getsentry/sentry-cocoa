@@ -1,5 +1,15 @@
 #import <Foundation/Foundation.h>
 
+// SwiftPM consumers do not inherit dependency compiler defines. The selected V10 header
+// target supplies the same SDK_V10 setting when their Clang modules are imported.
+// Keep monolithic Xcode/framework headers independent of any visible package source folders.
+// Legacy headers may remain reachable from guarded V10 targets, so they do not select V9.
+// The older manifest uses environment-only selection to keep this configuration absent for V9.
+#if __has_include(<SentryV10Configuration.h>)                                                      \
+    && (defined(SWIFT_PACKAGE) || __building_module(SentryHeaders) || __building_module(_SentryPrivate))
+#    import <SentryV10Configuration.h>
+#endif
+
 // Clang warns if a double quoted include is used instead of angle brackets in a public header
 // These 3 import variations are how public headers can be imported with angle brackets
 // for Sentry, SentryWithoutUIKit, and SPM
@@ -56,7 +66,7 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
 #    define SENTRY_TARGET_REPLAY_SUPPORTED 1
 #else
 #    define SENTRY_TARGET_REPLAY_SUPPORTED 0
@@ -109,6 +119,9 @@
 @class SentryAttribute;
 @class SentryBreadcrumb;
 @class SentryEvent;
+#if SDK_V10
+@class SentryTransaction;
+#endif // SDK_V10
 @class SentrySamplingContext;
 @class SentryUserFeedbackConfiguration;
 @class SentryLog;
@@ -143,6 +156,15 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
  * To avoid sending the event altogether, return nil instead.
  */
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+
+#if SDK_V10
+/**
+ * Block can be used to mutate a transaction before it's sent.
+ * To avoid sending the transaction altogether, return nil instead.
+ */
+typedef SentryTransaction *_Nullable (^SentryBeforeSendTransactionCallback)(
+    SentryTransaction *_Nonnull transaction);
+#endif // SDK_V10
 
 /**
  * Use this block to drop or modify a span before the SDK sends it to Sentry. Return @c nil to drop
@@ -188,10 +210,13 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
-static NSUInteger const defaultMaxBreadcrumbs = 100;
+static NSUInteger const defaultMaxBreadcrumbs DEPRECATED_MSG_ATTRIBUTE(
+    "This constant will be removed in a future major version.") = 100;
 
-static NSString *_Nonnull const kSentryTrueString = @"true";
-static NSString *_Nonnull const kSentryFalseString = @"false";
+static NSString *_Nonnull const kSentryTrueString DEPRECATED_MSG_ATTRIBUTE(
+    "This constant will be removed in a future major version.") = @"true";
+static NSString *_Nonnull const kSentryFalseString DEPRECATED_MSG_ATTRIBUTE(
+    "This constant will be removed in a future major version.") = @"false";
 
 /**
  * Transaction name source.
