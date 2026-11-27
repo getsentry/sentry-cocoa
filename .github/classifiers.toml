@@ -12,7 +12,7 @@ paths = ["sdk_api*.json"]
 kind = "public-api-record"
 
 [[kind]]
-paths = ["Sources/SentryCrash/**", "Sources/Sentry/KSCrash/**"]
+paths = ["Sources/Sentry/KSCrash/**"]
 kind = "dependencies"
 
 [[kind]]

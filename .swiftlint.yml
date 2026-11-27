@@ -4,7 +4,6 @@ excluded:
   - "**/SourcePackages/**"
   - "**/build/**"
   - DependencyManagerTests
-  - Sources/SentryCrash
   - vendor
   - SentryTestUtils/Dynamic/**
   - .build/**
