@@ -14,9 +14,7 @@ final class MacOSPlatformRunner {
         var failures: [String] = []
         for scenario in config.scenarios {
             do {
-                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "macos") {
-                    try runScenario(scenario)
-                }
+                try runScenario(scenario)
             } catch {
                 if config.keepGoing {
                     let message = "macOS/\(scenario.rawValue): \(error)"
@@ -76,7 +74,7 @@ final class MacOSPlatformRunner {
 
     private func macOSExecutable(derivedDataPath: URL) throws -> URL {
         let executable = derivedDataPath
-            .appendingPathComponent("Build/Products/Debug/\(config.reporter.macOSExecutableName)")
+            .appendingPathComponent("Build/Products/Debug/\(CrashE2EApp.macOSExecutableName)")
         guard fileManager.isExecutableFile(atPath: executable.path) else {
             try fail("macOS executable not found: \(executable.path)")
         }

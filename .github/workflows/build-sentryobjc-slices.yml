@@ -95,16 +95,6 @@ jobs:
             --configuration Release \
             --output-dir XCFrameworkBuildPath
 
-      - name: Verify SentryCrash recorder exclusion
-        env:
-          SDK: ${{ matrix.sdk }}
-        run: |
-          ./scripts/verify-v10-sentrycrash-objects.sh \
-            --build-path XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryObjC/IntermediateBuildFilesPath \
-            --build-log "XCFrameworkBuildPath/archive/SentryObjC/$SDK.log" \
-            --archive-path "XCFrameworkBuildPath/archive/SentryObjC/$SDK.xcarchive" \
-            --source-root "$GITHUB_WORKSPACE"
-
       # === Publish slices while building and packaging ===
       - name: Upload static slice
         id: upload-static-slice

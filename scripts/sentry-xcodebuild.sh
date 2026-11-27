@@ -217,6 +217,9 @@ esac
 fi # RAW_DESTINATION check
 
 CONFIGURATION="${CONFIGURATION_OVERRIDE:-Debug}"
+if [[ "$CONFIGURATION" == *WithoutUIKit ]]; then
+    XCODEBUILD_ARGS+=("OTHER_CFLAGS=\$(inherited) -DKSCRASH_DISABLE_UIKIT=1")
+fi
 
 case $COMMAND in
 "build")
@@ -258,9 +261,16 @@ run_build() {
     local max_attempts=3
     local status
     local retry_args=()
+    local architecture_args=()
+    # Workspace arm64e support also affects SwiftPM dependencies. Simulator
+    # compiler runtimes may not have arm64e slices. Override package targets
+    # too, without changing device architectures or inherited linker flags.
+    if [[ "$DESTINATION" == *Simulator* ]]; then
+        architecture_args=("ARCHS=\$(ARCHS_STANDARD)")
+    fi
 
     while true; do
-        if NSUnbufferedIO=YES xcodebuild "$@" "${retry_args[@]+${retry_args[@]}}" 2>&1 |
+        if NSUnbufferedIO=YES xcodebuild "$@" "${architecture_args[@]+${architecture_args[@]}}" "${retry_args[@]+${retry_args[@]}}" 2>&1 |
             tee "$output_log" |
             format_output --preserve-unbeautified; then
             return 0

@@ -317,15 +317,18 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNoEventCaptured()
     }
 
-    func testCallPauseResumeOnMultipleThreads_DoesNotCrash() {
+    func testCallPauseResumeOnMultipleThreads_DoesNotCrash() throws {
+        // Exercise the reporting gate concurrently without suspending and unwinding the test workers.
+        setUpThreadInspector(addThreads: false)
         givenInitializedTracker()
-        
-        testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 10, writeWork: {_ in
-            self.sut?.pauseAppHangTracking()
-            Dynamic(self.sut).anrDetectedWithType(SentryANRType.unknown)
+        let integration = try XCTUnwrap(sut)
+
+        testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 10, writeWork: { _ in
+            integration.pauseAppHangTracking()
+            integration.anrDetected(type: .unknown)
         }, readWork: {
-            self.sut?.resumeAppHangTracking()
-            Dynamic(self.sut).anrDetectedWithType(SentryANRType.unknown)
+            integration.resumeAppHangTracking()
+            integration.anrDetected(type: .unknown)
         })
     }
     

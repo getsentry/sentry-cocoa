@@ -8,7 +8,6 @@
 @implementation SentryNSExceptionCaptureHelper
 
 static BOOL _insideReportException = NO;
-#    if SDK_V10
 static NSUncaughtExceptionHandler *_uncaughtExceptionHandler = nil;
 static __weak NSObject *_uncaughtExceptionHandlerOwner = nil;
 
@@ -30,7 +29,6 @@ static __weak NSObject *_uncaughtExceptionHandlerOwner = nil;
         }
     }
 }
-#    endif
 
 + (void)reportException:(NSException *)exception
 {
@@ -55,11 +53,6 @@ static __weak NSObject *_uncaughtExceptionHandlerOwner = nil;
 
 + (void)captureException:(NSException *)exception
 {
-#    if !SDK_V10
-    if (nil != exception) {
-        [SentryDependencyContainer.sharedInstance captureUnhandledException:exception];
-    }
-#    else
     NSUncaughtExceptionHandler *uncaughtExceptionHandler = nil;
     @synchronized(self) {
         if (_uncaughtExceptionHandlerOwner != nil) {
@@ -69,7 +62,6 @@ static __weak NSObject *_uncaughtExceptionHandlerOwner = nil;
     if (uncaughtExceptionHandler != nil && exception != nil) {
         uncaughtExceptionHandler(exception);
     }
-#    endif
 }
 
 @end

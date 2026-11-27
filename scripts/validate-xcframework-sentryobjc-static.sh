@@ -121,14 +121,8 @@ if ! dsym_symbols="$(nm -arch all -gjU "$dsym_binary")"; then
     exit 1
 fi
 
-# The crash backend differs by SDK generation: V10 embeds KSCrash, V9 embeds SentryCrash.
-crash_install_symbol="_sentrycrash_install"
-if nm -arch all -gjU "$MACOS_LIBRARY" 2> /dev/null | grep -Fx "_kscrash_install" > /dev/null; then
-    crash_install_symbol="_kscrash_install"
-fi
-
 expected_symbols=(
-    "$crash_install_symbol"
+    "_kscrash_install"
     "_OBJC_CLASS_\$_SentryObjCSDK"
 )
 

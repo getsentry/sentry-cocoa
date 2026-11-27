@@ -1,9 +1,4 @@
 #import "SentryDefines.h"
-#if !SDK_V10
-#    import "SentryCrashMachineContext.h"
-#    import "SentryCrashStackCursor.h"
-#    include "SentryCrashThread.h"
-#endif
 #import <Foundation/Foundation.h>
 
 @class SentryCrashStackEntryMapper;
@@ -12,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Uses SentryCrash internally to retrieve the stacktrace.
+/** Uses KSCrash internally to retrieve the stacktrace.
  */
 @interface SentryStacktraceBuilder : NSObject
 SENTRY_NO_INIT
@@ -37,22 +32,8 @@ SENTRY_NO_INIT
  */
 - (nullable SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe;
 
-#if SDK_V10
 /** Maps youngest-to-oldest instruction addresses after all target threads have resumed. */
 - (SentryStacktrace *)buildStackTraceFromAddresses:(NSArray<NSNumber *> *)addresses;
-#else
-/**
- * Builds the stacktrace for given thread removing frames from the SentrySDK until frames from
- * a different package are found. When including Sentry via the Swift Package Manager the package is
- * the same as the application that includes Sentry. In this case the full stacktrace is returned
- * without skipping frames.
- */
-- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
-                                       context:(struct SentryCrashMachineContext *)context;
-
-- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
-                                               amount:(unsigned int)amount;
-#endif
 /**
  * Builds a stacktrace with the provided frames
  */

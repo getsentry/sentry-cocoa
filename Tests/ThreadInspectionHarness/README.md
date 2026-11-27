@@ -8,7 +8,7 @@ The SDK and harness pin the getsentry KSCrash fork at revision
 `c00af21aabcd2f84983abdcb2063c9446a524e74`: upstream `2.6.1` plus the
 [C++ terminate deadlock fix](https://github.com/kstenerud/KSCrash/pull/979)
 and bounded, owned runtime binary-image extraction, live C++ throw-stack capture,
-C++ module import fixes, crash reporting without UIKit, and link anchors that keep
+C++ module import fixes, opt-in UIKit-free crash reporting, and link anchors that keep
 the `KSCrash` categories in static builds without `-ObjC`.
 This retains the release's reserved-thread lookup (#913).
 KSCrash `develop` has report APIs that are incompatible with the SDK's 2.6 integration.

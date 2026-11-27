@@ -116,9 +116,7 @@ jobs:
             --output-name "SentryObjC-Static"
 
       - name: Validate XCFramework
-        run: |
-          ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
-          ./scripts/verify-v10-sentrycrash-sentryobjc.sh --xcframework-path "SentryObjC-Static.xcframework"
+        run: ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 
       - name: Validate CMake consumer
         run: |

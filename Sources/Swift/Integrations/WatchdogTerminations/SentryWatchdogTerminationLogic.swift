@@ -11,21 +11,6 @@ public final class SentryWatchdogTerminationLogic: NSObject {
     private let isSimulatorBuild: Bool
     private let appStateManager: SentryAppStateManager
 
-#if !SDK_V10
-    @objc public convenience init(
-        options: Options,
-        crashAdapter: SentryCrashReporter,
-        appStateManager: SentryAppStateManager
-    ) {
-        self.init(
-            options: options,
-            activeCrashReporterState: crashAdapter,
-            isSimulatorBuild: crashAdapter.isSimulatorBuild,
-            appStateManager: appStateManager
-        )
-    }
-#endif // !SDK_V10
-
     init(
         options: Options,
         activeCrashReporterState: SentryCrashReporterState,

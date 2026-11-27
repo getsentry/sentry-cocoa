@@ -112,48 +112,4 @@ final class TestSdkHeaderImportsTests: XCTestCase {
     }
     #endif
 
-    #if !SDK_V10
-    func testCrashContextHeader_whenImported_shouldExposeReportContext() {
-        // -- Arrange --
-        var context = SentryCrash_MonitorContext()
-
-        // -- Act --
-        context.crashedDuringCrashHandling = true
-
-        // -- Assert --
-        XCTAssertTrue(context.crashedDuringCrashHandling)
-        XCTAssertNotNil(sentrycrashcm_machexception_getAPI())
-    }
-
-    func testCrashCodecHeader_whenImported_shouldDecodeReportData() throws {
-        // -- Arrange --
-        let data = Data("{\"key\":\"value\"}".utf8)
-
-        // -- Act --
-        let decoded = try SentryCrashJSONCodec.decode(data, options: SentryCrashJSONDecodeOptionNone)
-
-        // -- Assert --
-        XCTAssertEqual(decoded as? [String: String], ["key": "value"])
-    }
-
-    func testCrashCursorHeader_whenImported_shouldHandleEmptyBacktrace() throws {
-        // -- Arrange --
-        var cursor = SentryCrashStackCursor()
-
-        // -- Act --
-        sentrycrashsc_initWithBacktrace(&cursor, nil, 0, 0)
-        let advance = try XCTUnwrap(cursor.advanceCursor)
-
-        // -- Assert --
-        XCTAssertFalse(advance(&cursor))
-    }
-
-    func testCrashDoctorHeader_whenV9_shouldExposeDiagnosisWithoutResources() {
-        // -- Arrange --
-        let doctor = SentryCrashDoctor()
-
-        // -- Act & Assert --
-        XCTAssertNil(doctor.diagnoseCrash([:]))
-    }
-    #endif
 }

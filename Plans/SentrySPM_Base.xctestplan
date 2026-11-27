@@ -85,7 +85,6 @@
         "SentryANRTrackerTests/testMultipleListeners()",
         "SentryCoreDataTrackerTests/testFetchRequestBackgroundThread()",
         "SentryCoreDataTrackerTests/testSaveBackgroundThread()",
-        "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()",
         "SentryDispatchSourceWrapperTests/testDispatchSourceWrapper_Repeats()",
         "SentryFileManagerTests/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
@@ -98,7 +97,6 @@
         "SentrySDKIntegrationTestsBase",
         "SentrySDKInternalTests/testResumeAndPauseAppHangTracking()",
         "SentrySDKTests/testStartOnTheMainThread()",
-        "SentrySessionGeneratorTests/testSendSessions()",
         "SentrySubClassFinderTests/testActOnSubclassesOfViewController()",
         "SentryThreadInspectorTests/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
         "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()",
@@ -113,15 +111,6 @@
     },
     {
       "parallelizable": false,
-      "skippedTests": [
-        "SentryCrashBinaryImageCacheTests/testRemoveImageAddAgain",
-        "SentryCrashBinaryImageCacheTests/testRemoveImageFromBeginning",
-        "SentryCrashBinaryImageCacheTests/testRemoveImageFromTail",
-        "SentryCrashReportStore_Tests/testCrashReportCount1",
-        "SentryCrashReportStore_Tests/testDeleteAllReports",
-        "SentryCrashReportStore_Tests/testPruneReports",
-        "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports"
-      ],
       "target": {
         "containerPath": "container:",
         "identifier": "SentryTestsObjC",

@@ -553,7 +553,6 @@
 
 #endif // !SDK_V10
 
-#if SDK_V10
 - (void)testEnableUnhandledCPPExceptionsV2_whenToggled_shouldRetainValue
 {
     // -- Arrange --
@@ -572,7 +571,6 @@
     // -- Assert --
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
-#endif // SDK_V10
 
 #pragma mark - Numeric properties
 
@@ -1197,10 +1195,7 @@
 
 #pragma mark - Platform-conditional properties
 
-#if !TARGET_OS_WATCH
-#    if SDK_V10
-
-- (void)testEnableSigtermReporting_whenV10_shouldNotExist
+- (void)testEnableSigtermReporting_whenKSCrashOnly_shouldNotExist
 {
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
@@ -1215,26 +1210,6 @@
     XCTAssertFalse(respondsToGetter);
     XCTAssertFalse(respondsToSetter);
 }
-
-#    else
-
-- (void)testEnableSigtermReporting_whenSetToYes_shouldReturnYes
-{
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    options.enableSigtermReporting = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableSigtermReporting);
-#        pragma clang diagnostic pop
-}
-
-#    endif // SDK_V10
-#endif // !TARGET_OS_WATCH
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
