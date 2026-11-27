@@ -699,16 +699,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryScope",
-        "printedName": "Sentry.SentryScope"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentrySerializable",
         "printedName": "Sentry.SentrySerializable"
       },
