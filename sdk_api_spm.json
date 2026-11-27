@@ -679,16 +679,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryReplayApi",
-        "printedName": "Sentry.SentryReplayApi"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryRequest",
         "printedName": "Sentry.SentryRequest"
       },
