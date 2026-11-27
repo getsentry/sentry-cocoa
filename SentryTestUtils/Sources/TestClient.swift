@@ -207,7 +207,11 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var saveCrashTransactionInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func saveCrashTransaction(transaction: Transaction, scope: Scope) {
+    public override func wrapper_saveCrashTransaction(transaction: Any, scope: Scope) {
+        guard let transaction = transaction as? Transaction else {
+            XCTFail("TestClient.wrapper_saveCrashTransaction: Expected Transaction, got \(type(of: transaction))")
+            return
+        }
         saveCrashTransactionInvocations.record((transaction, scope))
     }
     
