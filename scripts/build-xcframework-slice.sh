@@ -7,6 +7,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./tools.sh disable=SC1091
+source "$SCRIPT_DIR/tools.sh"
 
 sdk=""
 scheme=""
@@ -74,11 +76,16 @@ if [[ ${#extra_build_settings[@]} -gt 0 ]]; then
 fi
 
 resolved_configuration="Release$configuration_suffix"
+# Lets consumers check the SDK version with `#if canImport(Sentry, _version: ...)`.
+# See https://docs.swift.org/latest/documentation/diagnostics/module-version-missing/
+SWIFT_USER_MODULE_VERSION="$(read_swift_user_module_version \
+    --file "$SCRIPT_DIR/../Sources/Configuration/Versioning.xcconfig")"
 resolved_product_name="$product_name.framework"
 OTHER_LDFLAGS=""
 
 log_info "  Configuration:        $resolved_configuration"
 log_info "  Resolved product:     $resolved_product_name"
+log_info "  Swift module version: $SWIFT_USER_MODULE_VERSION"
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
@@ -122,6 +129,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         ENABLE_CODE_COVERAGE=NO
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
         OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        SWIFT_USER_MODULE_VERSION="$SWIFT_USER_MODULE_VERSION"
         "${extra_build_settings[@]+${extra_build_settings[@]}}"
     )
     set -o pipefail && NSUnbufferedIO=YES xcodebuild "${maccatalyst_args[@]}" 2>&1 | tee "${slice_id}.maccatalyst.log" "$raw_build_log" | xcbeautify --preserve-unbeautified
@@ -165,6 +173,7 @@ else
         ENABLE_CODE_COVERAGE=NO
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
         OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        SWIFT_USER_MODULE_VERSION="$SWIFT_USER_MODULE_VERSION"
         "${extra_build_settings[@]+${extra_build_settings[@]}}"
     )
 
