@@ -336,10 +336,6 @@ jobs:
             sdk-v10: "0"
             runner: macos-15
             xcode: "16"
-          - generation: v10
-            sdk-v10: "1"
-            runner: macos-26
-            xcode: "26"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
@@ -398,9 +394,6 @@ jobs:
           - generation: v9
             runner: macos-15
             xcode: "16"
-          - generation: v10
-            runner: macos-26
-            xcode: "26"
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

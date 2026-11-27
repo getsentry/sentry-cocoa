@@ -109,10 +109,6 @@ jobs:
             sdk-v10: "0"
             runs-on: macos-26
             test-plan: SentrySPM_Base
-          - mode: V10
-            sdk-v10: "1"
-            runs-on: ["bitrise_pool_name:tahoe"]
-            test-plan: SentrySPM_Base_v10
     env:
       SDK_V10: ${{ matrix.sdk-v10 }}
       TEST_PLAN: ${{ matrix.test-plan }}
