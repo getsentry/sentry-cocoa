@@ -8,7 +8,3 @@ url = "https://mcp.sentry.dev/mcp/sentry-sdks/sentry-cocoa"
 [[skills]]
 name = "*"
 source = "getsentry/dotagents"
-
-[[skills]]
-name = "relay-conformance-audit"
-source = "path:./skills/relay-conformance-audit"
