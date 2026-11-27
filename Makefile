@@ -1939,8 +1939,8 @@ analyze:
 	@echo "[MAKE] $@: Running Xcode static analyzer"
 	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze \
 		-workspace Sentry.xcworkspace \
-		-scheme Sentry \
-		-configuration Release \
+		-scheme SentryV10 \
+		-configuration ReleaseV10 \
 		CLANG_ANALYZER_OUTPUT=html \
 		CLANG_ANALYZER_OUTPUT_DIR=analyzer \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
