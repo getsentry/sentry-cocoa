@@ -20,8 +20,8 @@ ENVIRONMENT:
     EVENT_NAME    GitHub Actions event name (e.g., pull_request, push)
 
 OUTPUTS (via GITHUB_OUTPUT):
-    slices             JSON array of slice definitions
-    variants           JSON array of variant definitions
+    pipelines          JSON array of {id, slice, variants} objects, one per
+                       slice, each with the variants assembled from it
     sdk-list-array     JSON array of SDK names
     sdk-list-string    Comma-separated SDK names
 
@@ -84,19 +84,26 @@ else
     SDK_LIST=$(jq -c -s '.[0] + .[1]' <(echo "$BASE_SDKS_JSON") <(echo "$ADDITIONAL_SDKS_JSON"))
 fi
 
-SLICES_OUTPUT=$(echo "$SLICES_COMBINATIONS" | jq -c '.')
-VARIANTS_OUTPUT=$(echo "$VARIANTS_COMBINATIONS" | jq -c '.')
+# Group each slice with the variants assembled from it, so the release workflow can run one
+# slices -> assemble pipeline per slice ID. A variant's assembly then waits only for its own
+# slices instead of every slice in the matrix.
+ORPHAN_VARIANTS=$(jq -r -n --argjson slices "$SLICES_COMBINATIONS" --argjson variants "$VARIANTS_COMBINATIONS" \
+    '[$slices[].id] as $ids | [$variants[] | select(.id as $id | $ids | index($id) | not) | .id] | unique | join(",")')
+if [ -n "$ORPHAN_VARIANTS" ]; then
+    log_error "Variants without a matching slice ID: $ORPHAN_VARIANTS"
+    exit 1
+fi
+PIPELINES_OUTPUT=$(jq -c -n --argjson slices "$SLICES_COMBINATIONS" --argjson variants "$VARIANTS_COMBINATIONS" \
+    '[$slices[] | . as $slice | {id: $slice.id, slice: $slice, variants: [$variants[] | select(.id == $slice.id)]}]')
 SDK_ARRAY_OUTPUT=$(echo "$SDK_LIST" | jq -c '.')
 SDK_STRING_OUTPUT=$(echo "$SDK_LIST" | jq -r 'join(",")')
 
-set_output "slices" "$SLICES_OUTPUT"
-set_output "variants" "$VARIANTS_OUTPUT"
+set_output "pipelines" "$PIPELINES_OUTPUT"
 set_output "sdk-list-array" "$SDK_ARRAY_OUTPUT"
 set_output "sdk-list-string" "$SDK_STRING_OUTPUT"
 
 log_info "Generated matrix:"
-log_info "  Slices:     $SLICES_OUTPUT"
-log_info "  Variants:   $VARIANTS_OUTPUT"
+log_info "  Pipelines:  $PIPELINES_OUTPUT"
 log_info "  SDKs:       $SDK_STRING_OUTPUT"
 
 end_group
