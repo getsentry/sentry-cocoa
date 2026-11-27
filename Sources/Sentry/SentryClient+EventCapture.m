@@ -2,7 +2,6 @@
 #import "SentryClient+EventCapture.h"
 #import "SentryEvent+Private.h"
 #import "SentryMessage.h"
-#import "SentryScope+Private.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,13 +42,14 @@ shouldIncrementSessionErrors(SentryEvent *event)
     return [self captureMessage:message withScope:[[SentryScope alloc] init]];
 }
 
-- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self captureMessage:message withScope:scope hint:nil];
 }
 
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
             attachAllThreads:(NSNumber *_Nullable)attachAllThreads
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
@@ -64,13 +64,14 @@ shouldIncrementSessionErrors(SentryEvent *event)
     return [self captureException:exception withScope:[[SentryScope alloc] init]];
 }
 
-- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self captureException:exception withScope:scope hint:nil];
 }
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
               attachAllThreads:(NSNumber *_Nullable)attachAllThreads
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
@@ -84,13 +85,13 @@ shouldIncrementSessionErrors(SentryEvent *event)
     return [self captureError:error withScope:[[SentryScope alloc] init]];
 }
 
-- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
+- (SentryId *)captureError:(NSError *)error withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self captureError:error withScope:scope hint:nil];
 }
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
           attachAllThreads:(NSNumber *_Nullable)attachAllThreads
 {
     SentryEvent *event = [self buildErrorEvent:error];
@@ -104,13 +105,14 @@ shouldIncrementSessionErrors(SentryEvent *event)
     return [self captureEvent:event withScope:[[SentryScope alloc] init]];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {
     return [self captureEvent:event withScope:scope hint:nil];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
+                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     SentryHint *hint = [[SentryHint alloc] init];
@@ -130,7 +132,7 @@ shouldIncrementSessionErrors(SentryEvent *event)
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(SentryHint *_Nullable)hint
 {
     SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
@@ -144,7 +146,7 @@ shouldIncrementSessionErrors(SentryEvent *event)
 }
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
+                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                       hint:(SentryHint *_Nullable)hint
 {
     SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
@@ -156,7 +158,7 @@ shouldIncrementSessionErrors(SentryEvent *event)
 }
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
+                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                           hint:(SentryHint *_Nullable)hint
 {
     SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
@@ -168,7 +170,7 @@ shouldIncrementSessionErrors(SentryEvent *event)
 }
 
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope
+                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
                         hint:(SentryHint *_Nullable)hint
 {
     SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
