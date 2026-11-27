@@ -318,8 +318,6 @@ public struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-        // Integration: Logs
-
         // Integration: Metrics
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback

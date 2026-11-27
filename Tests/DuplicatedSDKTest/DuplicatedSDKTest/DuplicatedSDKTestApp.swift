@@ -39,7 +39,8 @@ struct ContentView: View {
             return false
         }
         
-        guard let sentryImageC = class_getImageName(SentrySDK.self) else {
+        // SentrySDK is a Swift enum in V10, so the Objective-C entry point identifies the SDK image.
+        guard let sentryImageC = class_getImageName(SentrySDKInternal.self) else {
             return false
         }
         let sentryImage = String(cString: sentryImageC)

@@ -28,11 +28,13 @@ SwiftPM consumers use the `NoUIFramework` trait. The [Build workflow](../.github
 ## Build System Commands
 
 ```bash
-make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
+make build-xcframework-dynamic  # Build SentryV10-Dynamic XCFramework
 ./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 
 [assemble-xcframework.sh](../scripts/assemble-xcframework.sh) combines archives, frameworks, or static libraries. See [SentryObjC Build Process](SENTRY-OBJC-BUILD.md) for wrapper packaging.
+
+The [Release workflow](../.github/workflows/release.yml) builds `Sentry`, `Sentry-Dynamic`, their `WithARM64e` variants, and both `SentryObjC` XCFrameworks from the V10 SDK. The `Sentry` slices run [`build-xcframework-v10.sh --slices-only`](../scripts/build-xcframework-v10.sh) with Xcode 26, which archives the `SentryV10` scheme as `Sentry.framework`. `Sentry-WithoutUIKitOrAppKit` still builds the V9 `Sentry` scheme with Xcode 16, because the Xcode project has no V10 configuration without UIKit yet.
 
 ### SPM-built SDK frameworks
 
@@ -47,7 +49,7 @@ The [build script](../scripts/build-xcframework-variant-spm.sh) automatically se
 
 Output: `XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework.zip` or `XCFrameworkBuildPath/SPM/v10/Sentry-Dynamic.xcframework.zip`. The generation-specific directories keep intermediates and identically named artifacts separate. When overriding `SPM_XCFRAMEWORK_BUILD_PATH` (or the script’s `--output-dir`), use separate paths for each generation. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
 
-Both V9 binary producers compile the legacy Swift crash adapter into `Sentry` so existing `@_spi(Private) import Sentry` consumers retain their Swift symbol identities. The macOS V9 validation job checks this by compiling the [crash SPI consumer](../Tests/V9BinarySPIConsumer/main.swift) against the Xcode framework, then linking and running that object against the SwiftPM framework without recompiling.
+Both V9 binary producers compile the legacy Swift crash adapter into `Sentry` so existing `@_spi(Private) import Sentry` consumers retain their Swift symbol identities. The Release workflow on `main` no longer builds a V9 Xcode framework to check this against the SwiftPM framework.
 
 Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
 

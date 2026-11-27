@@ -134,7 +134,7 @@ jobs:
           IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          make test-ios-v10 \
+          make test-ios \
             TEST_INCLUDE_DISTRIBUTION=true \
             TEST_DERIVED_DATA="$RUNNER_TEMP/distribution-derived-data" 2>&1 | tee raw-test-output-distribution.log
       - name: Upload Distribution Test Logs
@@ -216,8 +216,8 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
         run: |
           case "$PLATFORM" in
-            macOS) target=test-macos-v10 ;;
-            Catalyst) target=test-catalyst-v10 ;;
+            macOS) target=test-macos ;;
+            Catalyst) target=test-catalyst ;;
             *)
               echo "::error::Unsupported unit-test platform: $PLATFORM"
               exit 1
