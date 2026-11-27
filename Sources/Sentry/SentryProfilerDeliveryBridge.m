@@ -19,7 +19,6 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentryScope+Private.h"
 #    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"

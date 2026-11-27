@@ -88,7 +88,7 @@ When the value comes back to Swift, cast it in one extension for that class. Use
 guard let user = scope.userObject as? User else { return }
 ```
 
-`userObject` is in `Sources/Sentry/include/SentryScope+PrivateSwift.h`. After that property uses the macro, the cast above is how Swift reads it.
+Cast the `id` value in that one Swift extension. `Scope.userObject` is already `User?`, so callers of `Scope` do not cast it again.
 
 Run `make generate-public-api`. In `sdk_api.json` and `sdk_api_objc.json`, `User` keeps `objc_name` `SentryUser`. The diff should be that declaration moving from the Objective-C header to Swift, with no public members renamed or removed. Existing test plans still pass.
 

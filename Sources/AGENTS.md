@@ -81,7 +81,8 @@
 - Group related protected values in a private `State` struct
 - Do not use `NSLock`, `NSRecursiveLock`, or legacy `synchronized` helpers for new Swift code
 - Refactor reentrant locking before adopting non-recursive `SentryMutex`
-- Use `@synchronized(self)` for Objective-C mutable state in scope, hub, and client code
+- Scope uses `SentryMutex` for metadata (dist, environment, level), the observer list, and both attachment arrays. Those critical sections do not re-enter the lock. The other per-field locks stay `synchronized` (`objc_sync_enter`) because they are reentrant. Do not replace those with `SentryMutex` until the re-entry is gone
+- Use `@synchronized(self)` for Objective-C mutable state in hub and client code
 - Prefer `SentryDispatchQueueWrapper` over raw queues for testability
 - Never do synchronous work on the main thread in production paths
 
