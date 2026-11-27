@@ -208,6 +208,27 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertNil(sut, "Should not install watchdog termination tracking in a Widget extension")
     }
 
+    func testInit_runningInContactProviderExtension_shouldReturnNil() throws {
+        // -- Arrange --
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        infoPlistWrapper.mockGetAppValueDictionaryThrowError(
+            forKey: "NSExtension",
+            error: SentryInfoPlistError.keyNotFound(key: "NSExtension")
+        )
+        infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: "EXAppExtensionAttributes",
+            value: ["EXExtensionPointIdentifier": "com.apple.contact.provider.extension"]
+        )
+        SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
+
+        // -- Act --
+        let sut = fixture.getSut()
+
+        // -- Assert --
+        XCTAssertNil(sut, "Should not install watchdog termination tracking in a Contact Provider extension")
+    }
+
     func testInit_runningInUnknownExtension_shouldInstall() throws {
         // -- Arrange --
         let infoPlistWrapper = TestInfoPlistWrapper()

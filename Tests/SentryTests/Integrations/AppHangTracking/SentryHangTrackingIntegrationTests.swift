@@ -788,6 +788,10 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             forKey: SentryInfoPlistKey.extension.rawValue,
             error: SentryInfoPlistError.keyNotFound(key: SentryInfoPlistKey.extension.rawValue)
         )
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryThrowError(
+            forKey: "EXAppExtensionAttributes",
+            error: SentryInfoPlistError.keyNotFound(key: "EXAppExtensionAttributes")
+        )
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
@@ -883,6 +887,29 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         // Assert
         XCTAssertNil(sut, "Should not install when running in a Notification Service Extension")
+    }
+
+    func testInstall_runningInContactProviderExtension_shouldNotInstall() throws {
+        // Arrange
+        // ExtensionKit extensions have no NSExtension dictionary and declare their extension
+        // point under EXAppExtensionAttributes instead.
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryThrowError(
+            forKey: "NSExtension",
+            error: SentryInfoPlistError.keyNotFound(key: "NSExtension")
+        )
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: "EXAppExtensionAttributes",
+            value: ["EXExtensionPointIdentifier": "com.apple.contact.provider.extension"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        fixture.sysctl.internalIsBeingTraced = false
+
+        let sut = hangTracker(with: options)
+
+        // Assert
+        XCTAssertNil(sut, "Should not install when running in a Contact Provider extension")
     }
 
     func testInstall_runningInUnknownExtension_shouldInstall() throws {

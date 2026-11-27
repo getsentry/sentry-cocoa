@@ -25,4 +25,8 @@ final class SentryExtensionTypeTests: XCTestCase {
     func testNotificationService_shouldReturnExpectedIdentifier() {
         XCTAssertEqual(SentryExtensionType.notificationService.identifier, "com.apple.usernotifications.service")
     }
+
+    func testContactProvider_shouldReturnExpectedIdentifier() {
+        XCTAssertEqual(SentryExtensionType.contactProvider.identifier, "com.apple.contact.provider.extension")
+    }
 }
