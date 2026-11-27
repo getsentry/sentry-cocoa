@@ -1,10 +1,6 @@
 // swiftlint:disable file_length
 
-#if !SDK_V10
-@_spi(Private) import SentrySwift
-#else
 @_spi(Private) import Sentry
-#endif
 import SentrySampleShared
 import UIKit
 import XCTest
@@ -68,9 +64,7 @@ final class SessionReplayUITests: BaseUITest {
         guard #available(iOS 16.0, *) else {
             throw XCTSkip("Session Replay requires iOS 16 or later.")
         }
-#if SDK_V10
-        throw XCTSkip("Replay masking fixture test is excluded under SDK_V10 (KSCrash startup on iOS 26 delays view presentation beyond the 5 s element-existence timeout).")
-#endif // SDK_V10
+        throw XCTSkip("Replay masking fixture test is excluded (KSCrash startup on iOS 26 delays view presentation beyond the 5 s element-existence timeout).")
 
         // -- Arrange --
         launchApp(env: [SentrySDKOverrides.Replay.sessionSampleRate.rawValue: "1"])

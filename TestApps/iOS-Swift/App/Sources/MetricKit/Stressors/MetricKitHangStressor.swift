@@ -1,8 +1,4 @@
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 
 final class MetricKitHangStressor {
     func start(workload: String, operation: () throws -> Int) {

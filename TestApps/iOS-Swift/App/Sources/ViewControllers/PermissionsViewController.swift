@@ -1,10 +1,6 @@
 import CoreLocation
 import LocalAuthentication
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 import UIKit
 
 class PermissionsViewController: UIViewController {

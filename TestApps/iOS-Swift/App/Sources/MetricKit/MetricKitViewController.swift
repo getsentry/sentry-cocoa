@@ -1,9 +1,5 @@
 import Foundation
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 import UIKit
 
 final class MetricKitViewController: UIViewController {

@@ -26,6 +26,10 @@ jobs:
   build-sentryobjc-static-slice:
     name: ${{ matrix.sdk }}
     runs-on: macos-26
+    # Package.swift reads SDK_V10 from the environment of every xcodebuild invocation, which swaps
+    # SentryCrash for KSCrash and embeds the KSCrash objects into the library.
+    env:
+      SDK_V10: "1"
 
     strategy:
       matrix:
@@ -72,6 +76,9 @@ jobs:
       - name: Strip binary targets from Package.swift
         run: ./scripts/prepare-package.sh --strip-binary-targets true
 
+      - name: Resolve V10 headers
+        run: ./scripts/resolve-sentryobjc-v10-headers.sh --output-dir XCFrameworkBuildPath/headers/SentryObjC-V10
+
       # === Build and validation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
@@ -87,6 +94,16 @@ jobs:
             --package-path "$GITHUB_WORKSPACE" \
             --configuration Release \
             --output-dir XCFrameworkBuildPath
+
+      - name: Verify SentryCrash recorder exclusion
+        env:
+          SDK: ${{ matrix.sdk }}
+        run: |
+          ./scripts/verify-v10-sentrycrash-objects.sh \
+            --build-path XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryObjC/IntermediateBuildFilesPath \
+            --build-log "XCFrameworkBuildPath/archive/SentryObjC/$SDK.log" \
+            --archive-path "XCFrameworkBuildPath/archive/SentryObjC/$SDK.xcarchive" \
+            --source-root "$GITHUB_WORKSPACE"
 
       # === Publish slices while building and packaging ===
       - name: Upload static slice
@@ -112,7 +129,7 @@ jobs:
             --version "$VERSION" \
             --sdk "$SDK" \
             --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
-            --headers "Sources/SentryObjC/Public" \
+            --headers XCFrameworkBuildPath/headers/SentryObjC-V10 \
             --output-dir XCFrameworkBuildPath
 
       # Tar preserves macOS framework symlinks that actions/upload-artifact

@@ -117,6 +117,7 @@ jobs:
       - name: Validate XCFramework
         run: |
           ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
+          ./scripts/verify-v10-sentrycrash-sentryobjc.sh --xcframework-path "SentryObjC-Dynamic.xcframework"
 
       - name: Compress XCFramework
         env:

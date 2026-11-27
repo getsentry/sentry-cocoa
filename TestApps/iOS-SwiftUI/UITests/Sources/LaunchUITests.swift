@@ -1,10 +1,6 @@
+import Sentry
 import SentrySampleShared
 import SentrySampleUITestShared
-#if !SDK_V10
-import SentrySwift
-#else
-import Sentry
-#endif
 import XCTest
 
 class LaunchUITests: XCTestCase {

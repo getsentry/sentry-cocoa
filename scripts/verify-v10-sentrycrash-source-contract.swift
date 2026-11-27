@@ -322,12 +322,12 @@ private func run() throws {
         report("V10 tests lack positive SentryCrashExceptionApplication runtime coverage")
     }
 
-    let workflow = try text(".github/workflows/build-v10.yml")
+    let workflow = try text(".github/workflows/build.yml")
     for requiredJobOrTarget in [
         "package-v10:",
-        "build-xcframework-v10-dynamic",
-        "build-xcframework-v10-static",
-        "build-xcframework-sentryobjc-v10"
+        "build-xcframework-dynamic",
+        "build-xcframework-static",
+        "build-xcframework-sentryobjc"
     ] where !workflow.contains(requiredJobOrTarget) {
         report("V10 workflow is missing packaging coverage: \(requiredJobOrTarget)")
     }

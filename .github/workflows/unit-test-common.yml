@@ -240,7 +240,7 @@ jobs:
         run: |
           make "$MAKE_TARGET" \
             TEST_COMMAND=test-without-building \
-            TEST_PLAN=SentrySPM_Flaky \
+            TEST_PLAN=SentrySPM_Flaky_v10 \
             TEST_RESULT_BUNDLE=flaky-results.xcresult
 
       - name: Run tests
