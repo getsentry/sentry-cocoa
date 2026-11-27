@@ -491,6 +491,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-v10.sh"
   - "scripts/build-xcframework-sentryobjc-spm.sh"
+  - "scripts/resolve-sentryobjc-v10-headers.sh"
   - "scripts/build-static-library.sh"
   - "scripts/package-framework-slice.sh"
   - "scripts/prepare-sentry-framework-inputs.sh"

@@ -17,7 +17,7 @@ OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM"
 
 usage() {
     log_info "Usage: $0 [options]"
-    log_info "  -v, --variant <name>     Shipping artifact basename: Sentry-Dynamic or Sentry-Dynamic-WithARM64e (default: Sentry-Dynamic)"
+    log_info "  -v, --variant <name>     Shipping artifact basename: Sentry, Sentry-Dynamic or Sentry-Dynamic-WithARM64e (default: Sentry-Dynamic)"
     log_info "  -d, --sdks <list>        Comma-separated SDKs or AllSDKs, iOSOnly, macOSOnly, macCatalystOnly (default: all)"
     log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM)"
     exit 1
@@ -50,7 +50,7 @@ with_arm64e=false
 export SDK_V10=1
 export SENTRY_BUILD_XCFRAMEWORK=1
 case "$variant" in
-    Sentry|SentryV10) linkage=static; with_arm64e=true ;;
+    Sentry) linkage=static; with_arm64e=true ;;
     Sentry-Dynamic) ;;
     Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
     *) log_error "Not a shipping SDK variant: $variant"; exit 1 ;;

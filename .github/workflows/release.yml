@@ -333,23 +333,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: &spm-sdk-matrix
-        include:
-          - generation: v9
-            artifact: Sentry-Dynamic
-            runner: macos-15
-            xcode: "16"
-          - generation: v9
-            artifact: Sentry
-            runner: macos-15
-            xcode: "16"
-          - generation: v10
-            artifact: SentryV10-Dynamic
-            runner: macos-26
-            xcode: "26"
-          - generation: v10
-            artifact: SentryV10
-            runner: macos-26
-            xcode: "26"
+        artifact: [Sentry, Sentry-Dynamic]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
@@ -364,7 +348,6 @@ jobs:
           resolve-simulators: "false"
       - name: Package and validate SDK
         env:
-          SDK_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
           SPM_XCFRAMEWORK_VARIANT: ${{ matrix.artifact }}
         # macOS is enough for the advisory consumer tests. Before publishing SwiftPM-built
         # artifacts, build with SDKS=AllSDKs so each ZIP contains every supported slice.
@@ -375,14 +358,14 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: spm-sdk-${{ github.sha }}-${{ matrix.artifact }}
-          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/${{ matrix.artifact }}.xcframework.zip
+          path: XCFrameworkBuildPath/SPM/${{ matrix.artifact }}.xcframework.zip
           if-no-files-found: error
       - name: Upload archive logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: spm-sdk-logs-${{ matrix.artifact }}
-          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/build/${{ matrix.artifact }}/archive/**/*.log
+          path: XCFrameworkBuildPath/SPM/build/${{ matrix.artifact }}/archive/**/*.log
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -486,7 +469,7 @@ jobs:
 
   validate-spm-consumers:
     name: Validate SPM Consumers
-    runs-on: macos-15
+    runs-on: macos-26
     needs: [
       files-changed,
       assemble-xcframework-variant,

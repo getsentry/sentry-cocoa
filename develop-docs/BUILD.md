@@ -38,12 +38,13 @@ The [Release workflow](../.github/workflows/release.yml) builds `Sentry`, `Sentr
 
 ### SPM-built SDK frameworks
 
-Build a self-contained dynamic XCFramework from SwiftPM sources, with the same names and CPU architectures as the Xcode-project release artifacts. The inner framework remains `Sentry.framework`. Swift binary consumers use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
+Build a self-contained XCFramework from SwiftPM sources, with the same names and CPU architectures as the Xcode-project release artifacts. The inner framework remains `Sentry.framework`. Swift binary consumers use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
 
-| XCFramework                 | arm64e slices        |
-| --------------------------- | -------------------- |
-| `Sentry-Dynamic`            | None                 |
-| `Sentry-Dynamic-WithARM64e` | Non-simulator builds |
+| XCFramework                 | Linkage | arm64e slices        |
+| --------------------------- | ------- | -------------------- |
+| `Sentry`                    | Static  | Non-simulator builds |
+| `Sentry-Dynamic`            | Dynamic | None                 |
+| `Sentry-Dynamic-WithARM64e` | Dynamic | Non-simulator builds |
 
 ```bash
 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
@@ -52,9 +53,7 @@ SPM_XCFRAMEWORK_VARIANT=Sentry-Dynamic-WithARM64e make build-xcframework-spm SDK
 
 The [build script](../scripts/build-xcframework-sentry-spm.sh) automatically sets `SDK_V10=1` and the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
 
-The [build script](../scripts/build-xcframework-sentry-spm.sh) automatically sets the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`, without changing the implementation or crash backend selected by `SDK_V10`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
-
-Output: `XCFrameworkBuildPath/SPM/v9/Sentry-Dynamic.xcframework.zip` or `XCFrameworkBuildPath/SPM/v10/SentryV10-Dynamic.xcframework.zip`. The intermediates for each variant are kept under `build/<variant>` in the output directory. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
+Output: `XCFrameworkBuildPath/SPM/<variant>.xcframework.zip`. The intermediates for each variant are kept under `build/<variant>` in the output directory. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
 
 Validate an unpacked macOS artifact locally. Neither consumer needs producer compiler settings:
 
@@ -69,7 +68,7 @@ The Swift-only [`SPM-Dynamic`](../TestApps/SPM-Dynamic) sample checks public API
 
 The [Release workflow](../.github/workflows/release.yml) runs macOS packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
 
-To build a static XCFramework instead, set `SPM_XCFRAMEWORK_VARIANT=Sentry` for V9 or `SPM_XCFRAMEWORK_VARIANT=SentryV10` for V10. Neither needs `-ObjC` to retain SDK categories.
+To build the static XCFramework, set `SPM_XCFRAMEWORK_VARIANT=Sentry`. Apps do not need `-ObjC` to retain SDK categories.
 
 The [Objective-C static consumer](../TestApps/SPM-ObjC-Static) uses the `Sentry` package product. CI swaps the Xcode-built and SwiftPM-built release zips under that product and checks that Sentry is linked into the executable and its `NSData` category is available.
 

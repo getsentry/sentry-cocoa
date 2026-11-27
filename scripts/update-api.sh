@@ -105,22 +105,3 @@ begin_group "Extract SwiftPM Public API"
     --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
 check_api_parity sdk_api.json sdk_api_spm.json
 end_group
-
-export SDK_V10=1
-SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM-V10"
-
-begin_group "Build Sentry V10 SwiftPM XCFramework"
-"$SCRIPT_DIR/build-xcframework-sentry-spm.sh" \
-    --sdks iphoneos --output-dir "$SPM_BUILD_DIR"
-end_group
-
-begin_group "Extract V10 SwiftPM Public API"
-"$SCRIPT_DIR/extract-swift-api.sh" \
-    --module Sentry \
-    --output sdk_api_v10_spm.json \
-    --framework-path "$SPM_BUILD_DIR/SentryV10-Dynamic.xcframework/ios-arm64_arm64e"
-check_api_parity sdk_api_v10.json sdk_api_v10_spm.json
-end_group
-
-# SentrySwiftUI's package target still uses the released binary.
-log_info "Skipping SentrySwiftUI SwiftPM: no source-backed package target is available yet."
