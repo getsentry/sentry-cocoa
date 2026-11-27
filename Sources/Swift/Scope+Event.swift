@@ -78,10 +78,11 @@ extension Scope {
         guard event.breadcrumbs == nil else {
             return
         }
+        // Breadcrumbs are ordered oldest first. Keep the newest ones when truncating.
         let scopeBreadcrumbs = breadcrumbs()
         // Clamp in UInt. Int(maxBreadcrumbs) traps when the limit is above Int.max.
         let limit = min(maxBreadcrumbs, UInt(scopeBreadcrumbs.count))
-        event.breadcrumbs = Array(scopeBreadcrumbs.prefix(Int(limit)))
+        event.breadcrumbs = Array(scopeBreadcrumbs.suffix(Int(limit)))
     }
 
     private func applyUser(to event: Event) {
