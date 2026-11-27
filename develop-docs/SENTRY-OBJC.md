@@ -34,7 +34,7 @@ Full context can be found in [getsentry/sentry-cocoa#6342](https://github.com/ge
 ## Non-Goals
 
 - Replacing the existing Sentry SDK for Swift consumers. `SentryObjC` is an alternative entry point, not a replacement.
-- Wrapping SwiftUI features (requires Swift/SwiftUI — consumers who can use SwiftUI can use the Swift SDK directly).
+- Wrapping SentrySwiftUI (requires Swift/SwiftUI — consumers who can use SwiftUI can use the Swift SDK directly).
 - Replacing hybrid SDK bridges (React Native, Flutter, .NET, Unity have their own wrapper layers).
 - Providing a 1:1 mirror of every internal SDK type. Only the public API surface that ObjC consumers need is wrapped.
 

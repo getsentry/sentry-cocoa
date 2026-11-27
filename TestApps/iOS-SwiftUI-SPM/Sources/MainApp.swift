@@ -1,4 +1,8 @@
+#if !SDK_V10
+import SentrySwift
+#else
 import Sentry
+#endif
 import SwiftUI
 
 @main
@@ -14,6 +18,10 @@ struct MainApp: App {
             options.enableTimeToFullDisplayTracing = true
             options.attachScreenshot = true
             options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
+            #if !SDK_V10
+            options.enableMetricKit = true
+            options.enableLogs = true
+            #endif // !SDK_V10
 
             #if targetEnvironment(simulator)
             options.enableSpotlight = true

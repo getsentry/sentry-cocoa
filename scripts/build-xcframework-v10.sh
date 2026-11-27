@@ -4,8 +4,8 @@
 # xcframework.
 #
 # Orchestrates per-SDK slice builds (sequentially) then assembles the final
-# xcframework. The Release workflow builds each slice as a separate parallel
-# job with --slices-only and assembles the uploaded archives afterwards.
+# xcframework. For CI, each slice runs as a separate parallel job; this script
+# is the local equivalent that runs them in sequence.
 #
 # The V10 target's xcconfig disables arm64e on tvOS, watchOS, and Mac
 # Catalyst to work around an Xcode UI bug where the IDE does not propagate
@@ -29,7 +29,6 @@ source "$SCRIPT_DIR/ci-utils.sh"
 SUFFIX=""
 MACH_O_TYPE="inherit"
 SDKS=""
-SLICES_ONLY=false
 
 # The V10 target uses PRODUCT_NAME = Sentry (via xcconfig), so the framework
 # on disk is always named Sentry.framework regardless of the scheme.
@@ -49,7 +48,6 @@ usage() {
     log_info "  --suffix <suffix>      Output xcframework name suffix (default: empty)"
     log_info "  --mach-o-type <type>   staticlib for a static build; omit for dynamic (default: inherit from xcconfig)"
     log_info "  --sdks <list>          Comma-separated SDKs or AllSDKs (default: all)"
-    log_info "  --slices-only          Build and audit the slices without assembling the xcframework"
     exit 1
 }
 
@@ -58,7 +56,6 @@ while [[ $# -gt 0 ]]; do
         --suffix)       SUFFIX="$2";      shift 2 ;;
         --mach-o-type)  MACH_O_TYPE="$2"; shift 2 ;;
         --sdks)         SDKS="$2";        shift 2 ;;
-        --slices-only)  SLICES_ONLY=true; shift ;;
         -h|--help)      usage ;;
         *)              log_error "Unknown argument: $1"; usage ;;
     esac
@@ -104,11 +101,6 @@ for sdk in "${sdks[@]}"; do
         --build-path "$objects_path" \
         --build-log XCFrameworkBuildPath/raw-build-output.log
 done
-
-if [[ "$SLICES_ONLY" == true ]]; then
-    log_info "Built V10 slices for ${sdks[*]} without assembling the xcframework"
-    exit 0
-fi
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
 "$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \

@@ -1,5 +1,9 @@
 import Foundation
+#if !SDK_V10
+import SentrySwift
+#else
 import Sentry
+#endif
 
 if CommandLine.arguments.contains("--validate-in-app-frames") {
     guard let executablePath = Bundle.main.executablePath else {
@@ -26,7 +30,11 @@ if CommandLine.arguments.contains("--validate-in-app-frames") {
                 print("Expected executable: \(executablePath)")
                 print("Frame images: \(Set(frames.compactMap(\.package)).sorted())")
             }
+#if SDK_V10
             capturedMainFrames = !mainFrames.isEmpty && mainFrames.allSatisfy { $0.inApp == true }
+#else
+            capturedMainFrames = !mainFrames.isEmpty && mainFrames.allSatisfy { $0.inApp == false }
+#endif
             return nil
         }
         precondition(options.inAppIncludes.isEmpty, "CLI validation requires empty in-app includes")

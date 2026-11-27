@@ -375,9 +375,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         )
     }
 
-    // The background read below trips the Main Thread Checker. Xcode 16 aborts the test process
-    // on that report, while Xcode 26 and later only log it.
-#if compiler(>=6.2)
     func testSaveViewHierarchy_whenMainThreadBlocked_shouldWriteHierarchyFromCurrentThread() throws {
         // -- Arrange --
         XCTAssertTrue(Thread.isMainThread)
@@ -441,7 +438,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertEqual(windows.count, 1)
         XCTAssertEqual(windows.first?["identifier"] as? String, "WindowId")
     }
-#endif // compiler(>=6.2)
 #endif // SDK_V10
 
     func test_invalidSerializationReturnsNil() {

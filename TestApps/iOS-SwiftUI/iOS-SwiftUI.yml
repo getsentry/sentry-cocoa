@@ -51,7 +51,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -109,10 +109,6 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-SwiftUI-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -154,10 +150,6 @@ targets:
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   iOS-SwiftUI:
     templates:

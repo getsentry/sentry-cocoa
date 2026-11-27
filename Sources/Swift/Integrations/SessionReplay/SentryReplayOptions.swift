@@ -20,7 +20,7 @@ public class SentryReplayOptions: NSObject {
         public static let quality: SentryReplayQuality = .medium
 
         #if !SDK_V10
-        // The following properties are public because they are used by the SwiftUI replay views.
+        // The following properties are public because they are used by SentrySwiftUI.
 
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []

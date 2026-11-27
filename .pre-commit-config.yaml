@@ -72,11 +72,11 @@ repos:
           - "format-markdown-staged"
 
       - id: format-json
-        name: Format JSON and JSONC
-        description: "Format JSON and JSONC"
-        files: ^.*\.jsonc?$
+        name: Format JSON
+        description: "Format JSON"
+        files: ^.*\.json$
         pass_filenames: false
-        types: [text]
+        types_or: [json]
         entry: make
         language: system
         exclude: ^sdk_api.*\.json$

@@ -27,6 +27,7 @@ schemeTemplates:
 
         # app start
         "--io.sentry.app-start.disable-prewarmed-tracing": false
+        "--io.sentry.app-start.enable-standalone-tracing": false
 
         # replay
         "--io.sentry.replay.disable": false
@@ -54,6 +55,8 @@ schemeTemplates:
         "--io.sentry.feedback.require-name": false
         "--io.sentry.feedback.require-email": false
         "--io.sentry.feedback.no-animations": false
+        "--io.sentry.feedback.no-widget-icon": false
+        "--io.sentry.feedback.no-widget-text": false
         "--io.sentry.feedback.all-defaults": false
         "--io.sentry.feedback.no-auto-inject-widget": false
         "--io.sentry.feedback.no-screenshots": false
@@ -89,6 +92,7 @@ schemeTemplates:
 
         # watchdog terminations
         "--io.sentry.watchdog-terminations.disable-tracking": false
+        "--io.sentry.watchdog-terminations.disable-v2": false
 
         # breadcrumbs
         "--io.sentry.breadcrumbs.disable-automatic": false
@@ -103,6 +107,12 @@ schemeTemplates:
         "--io.sentry.metric-kit.disable": false
         "--io.sentry.metric-kit.disable-raw-payloads": false
         "--io.sentry.metric-kit.slow-launch": false
+
+        # metrics
+        "--io.sentry.metrics.enable": true
+
+        # logs
+        "--io.sentry.logs.disable": false
 
         # spotlight
         "--io.sentry.spotlight.disable": true

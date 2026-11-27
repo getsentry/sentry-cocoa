@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 SentryProfilingId *sentry_profilingIdFromSentryId(SentryId *sentryID);
+SentryTracer *_Nullable sentry_tracerForTransaction(id transaction);
 
 #ifdef __cplusplus
 }

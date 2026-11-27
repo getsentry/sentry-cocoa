@@ -12,8 +12,8 @@ private func sentrycrash_v9_registerSwiftBackend()
 /// This function is called from C crash reporting code.
 @_cdecl("sentry_finishAndSaveTransaction")
 public func sentry_finishAndSaveTransaction() {
-    let scope = SentrySDKInternal.currentHub().scope as Scope
-    guard let span = scope.getCastedInternalSpan() else {
+    guard let scope = SentrySDKInternal.currentHub().scopeObject as? Scope,
+          let span = scope.span as? SentrySpanInternal else {
         SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
         return
     }

@@ -1,5 +1,9 @@
-import Sentry
 import SentrySampleShared
+#if !SDK_V10
+import SentrySwift
+#else
+import Sentry
+#endif
 import UIKit
 
 // swiftlint:disable private_outlet

@@ -127,7 +127,7 @@ Each Unreleased or version block may only have one heading per section type, for
 
 ### Changelog merge conflicts
 
-`.gitattributes` marks `CHANGELOG.md` with Git's built-in `merge=union`
+`.gitattributes` marks `CHANGELOG.md` and `CHANGELOG_V10.md` with Git's built-in `merge=union`
 driver, so a local merge or rebase keeps the entries from both sides instead of reporting a
 conflict. GitHub ignores this attribute: the pull request conflict check, the **Update branch**
 button, and the web conflict editor still report changelog conflicts. When a pull request only

@@ -1,6 +1,17 @@
 // swift-tools-version: 6.1
 
+import Foundation
 import PackageDescription
+
+func envFlag(_ name: String) -> Bool {
+    getenv(name).map { String(cString: $0) == "1" } ?? false
+}
+
+let enableV10 = envFlag("SDK_V10")
+
+// When SDK_V10 is set in the environment, Sentry exports the compile-from-source product
+// as "Sentry" rather than "SentrySPM". Mirror that selection here.
+let sentryProductName = enableV10 ? "Sentry" : "SentrySPM"
 
 let package = Package(
     name: "SentrySampleShared",
@@ -27,7 +38,7 @@ let package = Package(
         .target(
             name: "SentrySampleShared",
             dependencies: [
-                .product(name: "Sentry", package: "Sentry"),
+                .product(name: sentryProductName, package: "Sentry"),
                 .product(name: "SentryObjC", package: "Sentry")
             ],
             path: "Sources/SentrySampleShared",
@@ -35,8 +46,8 @@ let package = Package(
                 .process("LoremIpsum.txt"),
                 .process("screenshot.png")
             ],
-            cSettings: [.define("SDK_V10", to: "1")],
-            swiftSettings: [.define("SDK_V10")]
+            cSettings: enableV10 ? [.define("SDK_V10", to: "1")] : [],
+            swiftSettings: enableV10 ? [.define("SDK_V10")] : []
         ),
         .target(
             name: "SentrySampleUITestShared",

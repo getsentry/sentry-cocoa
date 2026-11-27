@@ -103,22 +103,19 @@ jobs:
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
 
-      # The slices are V10 builds, so package headers with the SDK_V10 gates resolved to match.
       - name: Assemble XCFramework
         env:
           SDKS: ${{ inputs.sdks }}
         run: |
-          ./scripts/resolve-sentryobjc-v10-headers.sh --output-dir XCFrameworkBuildPath/headers/SentryObjC-V10
           ./scripts/assemble-xcframework-sentryobjc.sh \
             --sdks "$SDKS" \
             --lib-path-template "XCFrameworkBuildPath/lib/SentryObjC/SDK_NAME/libSentryObjC.a" \
-            --headers XCFrameworkBuildPath/headers/SentryObjC-V10 \
+            --headers "Sources/SentryObjC/Public" \
             --output-name "SentryObjC-Static"
 
       - name: Validate XCFramework
         run: |
           ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
-          ./scripts/verify-v10-sentrycrash-sentryobjc.sh --xcframework-path "SentryObjC-Static.xcframework"
 
       - name: Validate CMake consumer
         run: |

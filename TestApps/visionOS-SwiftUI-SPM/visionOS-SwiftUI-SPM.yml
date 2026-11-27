@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../schema/xcodegen.schema.json
 #
-# Minimal visionOS test app using the Sentry compile-from-source product.
+# Minimal visionOS test app using the SentrySPM compile-from-source product.
 
 name: visionOS-SwiftUI-SPM
 createIntermediateGroups: true
@@ -43,11 +43,9 @@ targets:
           - "**/.gitkeep"
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
     settings:
       base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.visionOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:

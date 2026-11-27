@@ -1,5 +1,9 @@
 // swiftlint:disable file_length type_body_length force_try force_unwrapping unused_optional_binding private_outlet
+#if !SDK_V10
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 import AuthenticationServices
 import Foundation
 import PhotosUI
@@ -119,6 +123,9 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func getPasteBoardString(_ sender: Any) {
+        #if !SDK_V10
+        SentrySDK.pauseAppHangTracking()
+        #endif // !SDK_V10
 
         // Getting the pasteboard string asks for permission
         // and the SDK would detect an ANR if we don't pause it.
@@ -129,6 +136,9 @@ class ExtraViewController: UIViewController {
             SentrySDK.capture(message: clipboard)
         }
 
+        #if !SDK_V10
+        SentrySDK.resumeAppHangTracking()
+        #endif // !SDK_V10
     }
 
     @IBAction func start100Threads(_ sender: UIButton) {
@@ -404,9 +414,15 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func showFeedbackWidget(_ sender: Any) {
+#if !SDK_V10
+        SentrySDK.feedback.showWidget()
+#endif // !SDK_V10
     }
 
     @IBAction func hideFeedbackWidget(_ sender: Any) {
+#if !SDK_V10
+        SentrySDK.feedback.hideWidget()
+#endif // !SDK_V10
     }
 
     @IBAction func showCameraPreviewAction(_ sender: Any) {

@@ -1,4 +1,8 @@
+#if !SDK_V10
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 import _SentryPrivate
 import SwiftUI
 
@@ -98,6 +102,10 @@ struct ContentView: View {
         return DataBag.shared.info["initialTransaction"] as? SentryTracer
     }
 
+    func getCurrentTransactionContext() -> TransactionContext? {
+        getCurrentTracer()?.transactionContextObject as? TransactionContext
+    }
+
     func hasTTID(tracer: SentryTracer?) -> Bool {
         tracer?.children.contains { $0.spanDescription?.contains("initial display") == true } == true
     }
@@ -128,14 +136,14 @@ struct ContentView: View {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Group {
-                        Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
+                        Text(getCurrentTransactionContext()?.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")
 
-                        Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
+                        Text(getCurrentTransactionContext()?.spanId.sentrySpanIdString ?? "NO ID")
                             .accessibilityIdentifier("TRANSACTION_ID")
                             .sentryReplayMask()
 
-                        Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
+                        Text(getCurrentTransactionContext()?.origin ?? "NO ORIGIN")
                             .accessibilityIdentifier("TRACE_ORIGIN")
                     }
                     .sentryReplayUnmask()

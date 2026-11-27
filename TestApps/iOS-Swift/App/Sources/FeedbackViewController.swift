@@ -1,4 +1,8 @@
+#if !SDK_V10
+import SentrySwift
+#else
 import Sentry
+#endif
 import UIKit
 
 final class FeedbackViewController: UIViewController {
@@ -45,6 +49,15 @@ final class FeedbackViewController: UIViewController {
     }
 
     @IBAction private func toggleWidget(_: UIButton) {
+#if !SDK_V10
+        if isFeedbackWidgetVisible {
+            SentrySDK.feedback.hideWidget()
+        } else {
+            SentrySDK.feedback.showWidget()
+        }
+        isFeedbackWidgetVisible.toggle()
+        updateToggleWidgetButtonTitle()
+#endif // !SDK_V10
     }
 
     private func updateToggleWidgetButtonTitle() {

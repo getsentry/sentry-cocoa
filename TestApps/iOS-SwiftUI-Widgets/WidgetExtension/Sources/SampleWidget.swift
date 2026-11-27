@@ -1,6 +1,10 @@
 import _SentryPrivate
-import Sentry
 import SentrySampleShared
+#if !SDK_V10
+import SentrySwift
+#else
+import Sentry
+#endif
 import SwiftUI
 import WidgetKit
 
@@ -77,6 +81,10 @@ private struct Provider: AppIntentTimelineProvider {
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
 
+            #if !SDK_V10
+            // App Hang Tracking must be enabled, but should not be installed
+            options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
 }

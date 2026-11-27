@@ -222,20 +222,9 @@ enum EventAssertions {
         let signalName = string(dictionary(dictionary(mechanism["meta"])["signal"])["name"])
         try assert(exceptionType == "EXC_BAD_ACCESS" || signalName == "SIGSEGV",
                    "Expected signal/mach exception for \(platform)/\(scenario.rawValue)")
-        if scenario.expectsMachExceptionMechanism && platformHasMachExceptionMonitor(platform) {
-            let mechanismType = string(mechanism["type"]) ?? "<missing>"
-            try assert(mechanismType == "mach" && exceptionType == "EXC_BAD_ACCESS",
-                       "Expected the Mach exception handler to report EXC_BAD_ACCESS for \(platform)/\(scenario.rawValue), got mechanism \(mechanismType) and type \(exceptionType ?? "<missing>")")
-        }
         if scenario == .binaryImages {
             try assertBinaryImageScenario(debugImages, platform: platform, cacheRoot: cacheRoot)
         }
-    }
-
-    /// Both reporters install a Mach exception monitor on iOS, macOS, Mac Catalyst and visionOS,
-    /// but not on tvOS or watchOS. Keep this list explicit so a new platform has to opt in.
-    private static func platformHasMachExceptionMonitor(_ platform: String) -> Bool {
-        platform == "ios" || platform == "macos"
     }
 
     private static func assertNSException(_ firstException: [String: Any],

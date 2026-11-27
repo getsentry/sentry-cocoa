@@ -15,7 +15,7 @@ jobs:
   # and share it across the jobs below.
   build-xcframework:
     name: Build XCFramework
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 30
     steps:
       # === Checkout and independent preparation ===
@@ -30,7 +30,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "26"
+          version: "16"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -43,11 +43,7 @@ jobs:
         wait: warm-coresimulator
       - name: Build XCFramework (Static)
         run: |
-          ./scripts/build-xcframework-v10.sh --mach-o-type staticlib --sdks iphonesimulator --slices-only
-          ./scripts/assemble-xcframework.sh \
-            --scheme SentryV10 --product-name Sentry --sdks iphonesimulator \
-            --archive-template "$PWD/XCFrameworkBuildPath/archive/SentryV10/SDK_NAME.xcarchive" \
-            --output Sentry.xcframework
+          ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "iphonesimulator"
           ./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
           ./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
 
@@ -64,7 +60,7 @@ jobs:
   test-sentry-dart:
     name: Test sentry-dart
     needs: build-xcframework
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 45
     steps:
       # === Checkout and independent preparation ===
@@ -96,7 +92,7 @@ jobs:
       - name: Setup Xcode
         uses: ./sentry-cocoa/.github/actions/setup-xcode
         with:
-          version: "26"
+          version: "16"
           resolve-simulators: "false"
       - name: Remove versioned Package files
         working-directory: sentry-cocoa

@@ -54,7 +54,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_xcode_analyze_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-26
+    runs-on: macos-15
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -68,7 +68,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "26"
+          version: "16"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator

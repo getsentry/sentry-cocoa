@@ -178,105 +178,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
 
-    func testInitWithScope_whenBreadcrumbRingIsFull_shouldEvictOldestAndKeepNewBreadcrumb() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 3)
-        for i in 0..<3 {
-            let crumb = Breadcrumb()
-            crumb.message = "crumb\(i)"
-            scope.addBreadcrumb(crumb)
-        }
-
-        // -- Act --
-        let cloned = Scope(scope: scope)
-        let crumb = Breadcrumb()
-        crumb.message = "crumb3"
-        cloned.addBreadcrumb(crumb)
-
-        // -- Assert --
-        let serialized = cloned.serialize()["breadcrumbs"] as? [[String: Any]]
-        XCTAssertEqual(serialized?.compactMap { $0["message"] as? String }, ["crumb1", "crumb2", "crumb3"])
-
-        let event = Event()
-        cloned.applyTo(event: event, maxBreadcrumbs: 10)
-        XCTAssertEqual(event.breadcrumbs?.compactMap(\.message), ["crumb1", "crumb2", "crumb3"])
-    }
-
-    func testInitWithScope_whenSourceRingAlreadyWrapped_shouldKeepEvictingOldestOnClone() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 3)
-        for i in 0..<5 {
-            let crumb = Breadcrumb()
-            crumb.message = "\(i)"
-            scope.addBreadcrumb(crumb)
-        }
-
-        // -- Act --
-        let cloned = Scope(scope: scope)
-
-        // -- Assert --
-        XCTAssertEqual(cloned.breadcrumbs().compactMap(\.message), ["2", "3", "4"])
-
-        let fifth = Breadcrumb()
-        fifth.message = "5"
-        cloned.addBreadcrumb(fifth)
-        XCTAssertEqual(cloned.breadcrumbs().compactMap(\.message), ["3", "4", "5"])
-
-        let sixth = Breadcrumb()
-        sixth.message = "6"
-        cloned.addBreadcrumb(sixth)
-        XCTAssertEqual(cloned.breadcrumbs().compactMap(\.message), ["4", "5", "6"])
-        XCTAssertEqual(scope.breadcrumbs().compactMap(\.message), ["2", "3", "4"])
-    }
-
-    func testInitWithScope_whenMaxBreadcrumbsIsOne_shouldReplaceTheOnlyBreadcrumb() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 1)
-        let first = Breadcrumb()
-        first.message = "crumb0"
-        scope.addBreadcrumb(first)
-
-        // -- Act --
-        let cloned = Scope(scope: scope)
-        let second = Breadcrumb()
-        second.message = "crumb1"
-        cloned.addBreadcrumb(second)
-
-        // -- Assert --
-        XCTAssertEqual(cloned.breadcrumbs().compactMap(\.message), ["crumb1"])
-    }
-
-    func testInitWithScope_whenMaxBreadcrumbsIsZero_shouldKeepBreadcrumbsEmpty() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 0)
-
-        // -- Act --
-        let cloned = Scope(scope: scope)
-        cloned.addBreadcrumb(fixture.breadcrumb)
-
-        // -- Assert --
-        XCTAssertNil(cloned.serialize()["breadcrumbs"])
-    }
-
-    func testInitWithScope_whenRingIsNotFull_shouldAppendWithoutOverwritingOldest() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5)
-        for i in 0..<2 {
-            let crumb = Breadcrumb()
-            crumb.message = "crumb\(i)"
-            scope.addBreadcrumb(crumb)
-        }
-
-        // -- Act --
-        let cloned = Scope(scope: scope)
-        let crumb = Breadcrumb()
-        crumb.message = "crumb2"
-        cloned.addBreadcrumb(crumb)
-
-        // -- Assert --
-        XCTAssertEqual(cloned.breadcrumbs().compactMap(\.message), ["crumb0", "crumb1", "crumb2"])
-    }
-
     func testInitWithScope_whenFeatureFlagsChanged_shouldNotShareFutureMutations() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)
@@ -586,6 +487,64 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotNil(actualContext?["trace"])
     }
 
+    func testApplyToEvent_whenMaxBreadcrumbsIsUIntMax_shouldKeepBreadcrumbs() {
+        let scope = Scope()
+        scope.addBreadcrumb(Breadcrumb(level: .info, category: "test"))
+        let event = Event()
+
+        let actual = scope.applyTo(event: event, maxBreadcrumbs: .max)
+
+        XCTAssertEqual(actual?.breadcrumbs?.count, 1)
+    }
+
+    func testOverlay_whenMaxBreadcrumbIsUIntMax_shouldKeepBreadcrumbs() {
+        let scope = Scope()
+        scope.addBreadcrumb(Breadcrumb(level: .info, category: "test"))
+        let event = Event()
+
+        scope.overlay(on: event, maxBreadcrumb: .max)
+
+        XCTAssertEqual(event.breadcrumbs?.count, 1)
+    }
+
+    func testApplyAndOverlay_whenLevelChangesConcurrently_shouldNotStoreNone() {
+        let scope = Scope()
+        let done = SentryMutex(false)
+        let flipper = Thread {
+            while done.withLock({ !$0 }) {
+                scope.setLevel(.error)
+                scope.setLevel(.none)
+            }
+        }
+        flipper.start()
+
+        var applyNoneCount = 0
+        var overlayNoneCount = 0
+        for _ in 0..<20_000 {
+            let applied = Event()
+            applied.level = .fatal
+            _ = scope.applyTo(event: applied, maxBreadcrumbs: 0)
+            if applied.level == .none {
+                applyNoneCount += 1
+            }
+
+            let overlaid = Event()
+            overlaid.level = .fatal
+            scope.overlay(on: overlaid, maxBreadcrumb: 0)
+            if overlaid.level == .none {
+                overlayNoneCount += 1
+            }
+        }
+
+        done.withLock { $0 = true }
+        while !flipper.isFinished {
+            Thread.sleep(forTimeInterval: 0.001)
+        }
+
+        XCTAssertEqual(applyNoneCount, 0)
+        XCTAssertEqual(overlayNoneCount, 0)
+    }
+
     func testApplyToEvent_EventWithTags() {
         let tags = NSMutableDictionary(dictionary: ["my": "tag"])
         let event = fixture.event
@@ -727,6 +686,21 @@ class SentryScopeSwiftTests: XCTestCase {
         context.addEntries(from: fixture.context)
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
+    }
+
+    func testApplyToEvent_nonDictionaryContextValue_keepsOtherContext() {
+        let scope = Scope()
+        scope.contextDictionary["os"] = ["name": "iOS"]
+        scope.contextDictionary["legacy"] = "scalar"
+        let event = Event()
+        event.context = ["app": ["app_id": "abc"], "os": ["version": "17"]]
+
+        let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
+
+        XCTAssertEqual(actual?.context?["os"]?["name"] as? String, "iOS")
+        XCTAssertEqual(actual?.context?["os"]?["version"] as? String, "17")
+        XCTAssertEqual(actual?.context?["app"]?["app_id"] as? String, "abc")
+        XCTAssertNil(actual?.context?["legacy"])
     }
 
     func testApplyToEvent_whenTransactionTracerIsUnbound_shouldPopulateTransactionTrace() throws {
@@ -1515,7 +1489,7 @@ class SentryScopeSwiftTests: XCTestCase {
 #if !SDK_V10
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100) as Any)
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100) as AnyObject)
 
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()

@@ -39,9 +39,6 @@
             reference = "container:Plans/SentrySPM_Flaky.xctestplan">
          </TestPlanReference>
          <TestPlanReference
-            reference = "container:Plans/SentrySPM_Flaky_v10.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
             reference = "container:Plans/SentrySPM_TestServer.xctestplan">
          </TestPlanReference>
          <TestPlanReference

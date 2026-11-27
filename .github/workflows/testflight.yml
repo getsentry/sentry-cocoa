@@ -70,8 +70,6 @@ jobs:
           exit 0
 
   upload_to_testflight:
-    env:
-      SDK_V10: "1"
     # Run for pushes with changes, or for PRs with related changes (including dependabot)
     if: |
       (

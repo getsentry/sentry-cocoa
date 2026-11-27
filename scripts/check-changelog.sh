@@ -12,7 +12,7 @@ RUN_TESTS=true
 usage() {
     log_info "Usage: $0"
     log_info "  -p, --path <file>     Changelog file to check (repeatable;"
-    log_info "                        default: CHANGELOG.md)"
+    log_info "                        default: CHANGELOG.md and CHANGELOG_V10.md)"
     log_info "  --skip-tests          Skip the custom rule unit tests"
     exit 1
 }

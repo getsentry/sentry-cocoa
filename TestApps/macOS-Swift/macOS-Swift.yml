@@ -55,7 +55,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -100,10 +100,6 @@ targets:
         NSPrincipalClass: SentryCrashExceptionApplication
         NSSupportsAutomaticTermination: true
         NSSupportsSuddenTermination: true
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   macOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -133,14 +129,10 @@ targets:
     info:
       path: App/Configurations/macOS-Swift-UITests-Info.plist
       properties: {}
-    # The remaining app targets (macOS-Swift-Other, macOS-Swift-Sandboxed, macOS-Swift-Sandboxed-Other)
-    # were created primarily to help reproduce https://github.com/getsentry/sentry-cocoa/issues/5142
-    # in macOS-Swift-UITests, where two unsandboxed mac apps would write a launch profile config
-    # file to a common caches location.
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
+  # The remaining app targets (macOS-Swift-Other, macOS-Swift-Sandboxed, macOS-Swift-Sandboxed-Other)
+  # were created primarily to help reproduce https://github.com/getsentry/sentry-cocoa/issues/5142
+  # in macOS-Swift-UITests, where two unsandboxed mac apps would write a launch profile config
+  # file to a common caches location.
   macOS-Swift-Other:
     type: application
     platform: auto
@@ -173,7 +165,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -218,10 +210,6 @@ targets:
         NSPrincipalClass: SentryCrashExceptionApplication
         NSSupportsAutomaticTermination: true
         NSSupportsSuddenTermination: true
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   macOS-Swift-Sandboxed:
     type: application
     platform: auto
@@ -254,7 +242,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -300,10 +288,6 @@ targets:
         NSPrincipalClass: SentryCrashExceptionApplication
         NSSupportsAutomaticTermination: true
         NSSupportsSuddenTermination: true
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   macOS-Swift-Sandboxed-Other:
     type: application
     platform: auto
@@ -336,7 +320,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -382,10 +366,6 @@ targets:
         NSPrincipalClass: SentryCrashExceptionApplication
         NSSupportsAutomaticTermination: true
         NSSupportsSuddenTermination: true
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   macOS-Swift:
     templates:

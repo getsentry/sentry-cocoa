@@ -1,7 +1,11 @@
 import _SentryPrivate
 import ActivityKit
-import Sentry
 import SentrySampleShared
+#if !SDK_V10
+import SentrySwift
+#else
+import Sentry
+#endif
 import SwiftUI
 import WidgetKit
 
@@ -18,6 +22,9 @@ struct LiveActivityWidget: Widget {
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
+            #if !SDK_V10
+            options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
     

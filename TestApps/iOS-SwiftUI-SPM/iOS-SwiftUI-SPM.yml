@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../schema/xcodegen.schema.json
 #
-# This test app demonstrates using the Sentry product (compile-from-source via SPM)
+# This test app demonstrates using the SentrySPM product (compile-from-source via SPM)
 # instead of the pre-built xcframework binary. It uses a local package reference to the
 # sentry-cocoa repo so changes to the SDK source are immediately reflected.
 
@@ -27,11 +27,9 @@ targets:
       - Sources
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
     settings:
       base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.iOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
       configs:
@@ -95,11 +93,9 @@ targets:
       - Sources-watchOS
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
     settings:
       base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.watchOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:

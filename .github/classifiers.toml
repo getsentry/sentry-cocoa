@@ -41,9 +41,14 @@ paths = [
 ]
 kind = "docs"
 
+# MCP server definitions inside other tools' configuration start servers on a maintainer's machine.
+[[kind]]
+paths = [".codex/config.toml", ".cursor/mcp.json", ".xcodebuildmcp/**"]
+kind = "build-release"
+
 [[kind]]
 paths = [
-  "linters/**", "skills/**", ".clang-format",
+  "linters/**", "skills/**", ".codex/**", ".clang-format",
   ".swiftlint.yml", "Utils/VersionBump/.swiftlint.yml", "dprint.json", ".markdownlint-cli2.jsonc",
   ".spi.yml", "3rd-party-integrations/*/.spi.yml",
   ".git-blame-ignore-revs", "agents.toml",

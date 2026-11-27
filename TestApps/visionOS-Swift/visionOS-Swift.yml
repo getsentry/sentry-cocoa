@@ -51,7 +51,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: Sentry
+        product: SentrySPM
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -95,10 +95,6 @@ targets:
           UIApplicationPreferredDefaultSceneSessionRole: UIWindowSceneSessionRoleApplication
           UIApplicationSupportsMultipleScenes: true
           UISceneConfigurations: {}
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   visionOS-Swift:
     templates:

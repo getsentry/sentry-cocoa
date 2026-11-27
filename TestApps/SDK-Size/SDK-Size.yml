@@ -6,9 +6,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-packages:
+projectReferences:
   Sentry:
-    path: ../..
+    path: ../../Sentry.xcodeproj
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -38,8 +38,7 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - package: Sentry
-        product: Sentry
+      - target: Sentry/Sentry
     configFiles:
       Debug: App/Configurations/SDK-Size.xcconfig
       Release: App/Configurations/SDK-Size.xcconfig
@@ -100,9 +99,6 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-    settings:
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-      GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   SDK-Size:
     templates:

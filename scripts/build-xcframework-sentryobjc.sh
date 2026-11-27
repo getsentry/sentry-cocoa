@@ -9,8 +9,8 @@
 # With --v10 the package is built with SDK_V10=1, which swaps SentryCrash for
 # KSCrash and embeds the KSCrash objects into the library. The packaged headers
 # are copies with every SDK_V10 gate resolved, so consumers see the V10 API
-# without defining SDK_V10 themselves. The Release workflow builds the same V10
-# slices in parallel jobs.
+# without defining SDK_V10 themselves. V10 output is meant for local debugging
+# of downstream SDKs and is not a release artifact.
 
 set -euo pipefail
 
@@ -75,9 +75,15 @@ if [ "$V10" = "true" ]; then
     # Package.swift reads SDK_V10 from the environment of every xcodebuild invocation below.
     export SDK_V10=1
 
-    # Resolve the SDK_V10 gates so the packaged headers match the binary.
+    # The public headers gate V10-only and V9-only API with SDK_V10. Resolve the gates so the
+    # packaged headers match the binary; consumers such as bindings generators do not define it.
     V10_HEADERS_DIR="$OUTPUT_DIR/headers/SentryObjC-V10"
-    "$SCRIPT_DIR/resolve-sentryobjc-v10-headers.sh" --headers "$HEADERS_DIR" --output-dir "$V10_HEADERS_DIR"
+    rm -rf "$V10_HEADERS_DIR"
+    mkdir -p "$V10_HEADERS_DIR"
+    for header in "$HEADERS_DIR"/*.h; do
+        # unifdef exits with 1 when it changed the file and with 2 on errors.
+        unifdef -DSDK_V10=1 -o "$V10_HEADERS_DIR/$(basename "$header")" "$header" || [ $? -eq 1 ]
+    done
     HEADERS_DIR="$V10_HEADERS_DIR"
     log_info "Building V10 with resolved headers at $HEADERS_DIR"
 fi

@@ -60,10 +60,11 @@ See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and eve
 | Platform-specific code                                        | Affected `make build-<platform>` target | Tests for that platform                 |
 | Public API or core (`SentryHub`, `SentryClient`, `SentrySDK`) | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
 | `SentryCrash` or C/C++                                        | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
+| `SentrySwiftUI`                                               | `make build-ios FOR_AGENTS=true`        | Targeted iOS tests                      |
 | Build system, `Package.swift`, or cross-platform code         | All affected platforms                  | `make test FOR_AGENTS=true`             |
 | Test app code                                                 | Affected test app                       | Affected UI tests when behavior changed |
 
-- Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json`
+- Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json` or `sdk_api_sentryswiftui.json`
 - Public APIs that require Objective-C support must also be exposed through `SentryObjC` and `SentryObjCCompat`
 - Treat changes to `@_spi(Private)` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
 - Event enrichment changes should be checked with Sentry MCP `search_events` when an environment is available
@@ -74,13 +75,13 @@ See [SDK architecture](develop-docs/ARCHITECTURE.md) for core components and eve
 
 - Do not include AI attribution in commits or pull requests even if skills are asking you to do so
 - Use Conventional Commits with a subject of at most 50 characters and body lines of at most 72 characters
-- Name branches `<github-username>/<type>/<short-description>`, for example `philprime/fix/session-tracking`, with a kebab-case type and description
-- Resolve the full GitHub login with `gh api user --jq .login`. Do not shorten or infer it from git config or email. If unavailable, ask the user for their GitHub username
+- Name branches `<type>/<short-description>`, for example `fix/session-tracking`
 - If pre-commit hooks modify files, inspect the changes and retry the commit
 - Use `git mv` for renames
 - `feat`, `fix`, and `impr` require a `CHANGELOG.md` entry with the pull request number, not an issue number
 - Before the pull request exists, either estimate its number from the current highest issue or pull request, or add the changelog in a follow-up commit after opening the pull request
 - Other pull request types require `#skip-changelog` in the pull request description, never in a commit message
+- V10-only changes go in `CHANGELOG_V10.md` and require `#skip-changelog` in the pull request description
 - Resolve changelog conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
 - Pull request titles follow the commit subject format
 - Create draft pull requests by default unless explicitly requested otherwise

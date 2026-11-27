@@ -1,0 +1,41 @@
+{
+  "ABIRoot": {
+    "children": [
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "SentrySwiftUI",
+        "name": "Sentry",
+        "printedName": "Sentry"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "SentrySwiftUI",
+        "name": "_Concurrency",
+        "printedName": "_Concurrency"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "SentrySwiftUI",
+        "name": "_StringProcessing",
+        "printedName": "_StringProcessing"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "SentrySwiftUI",
+        "name": "_SwiftConcurrencyShims",
+        "printedName": "_SwiftConcurrencyShims"
+      }
+    ],
+    "json_format_version": 8,
+    "kind": "Root",
+    "name": "SentrySwiftUI",
+    "printedName": "SentrySwiftUI"
+  }
+}

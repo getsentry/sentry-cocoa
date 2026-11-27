@@ -38,11 +38,9 @@ tests.
 ## Source synchronization rules
 
 The current dependency is the getsentry KSCrash fork at revision
-`c00af21aabcd2f84983abdcb2063c9446a524e74`: upstream `2.6.1` plus the
+`e41302af9fbcf4d9cc6cc95933cb989a90941d37`: upstream `2.6.1` plus the
 [C++ terminate deadlock fix](https://github.com/kstenerud/KSCrash/pull/979)
-and unmap-safe runtime binary-image extraction, live C++ throw-stack capture,
-C++ module import fixes, crash reporting without UIKit, and link anchors that keep
-the `KSCrash` categories in static builds without `-ObjC`.
+and unmap-safe runtime binary-image extraction.
 These changes do not alter the Signal-monitor implementation or supporting API.
 
 The Signal-monitor synchronization baseline remains upstream KSCrash `2.6.1`, revision
@@ -91,8 +89,8 @@ Keep the SDK implementation structurally close to the corresponding KSCrash Sign
 ## Installation tests
 
 ```sh
-make test-macos FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
-make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
+make test-macos-v10 FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
+make test-ios-v10 FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
 ```
 
 [`SentryKSCrashManagedSignalTests.m`](../Tests/SentryTests/ObjC/Integrations/KSCrash/SentryKSCrashManagedSignalTests.m)

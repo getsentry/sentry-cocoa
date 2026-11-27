@@ -2,4 +2,29 @@ import SentrySampleShared
 import XCTest
 
 final class FeedbackUITests: XCTestCase {
+#if !SDK_V10
+    func testWidgetDisplayInSwiftUIApp() throws {
+        let app = XCUIApplication()
+        app.launchArguments.append(contentsOf: [
+            SentrySDKOverrides.Feedback.allDefaults.rawValue,
+            SentrySDKOverrides.Feedback.disableAutoInject.rawValue,
+            SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue
+        ])
+        app.launch()
+
+        app.buttons["Feedback Screen"].tap()
+        app.buttons["Show Widget (Deprecated)"].tap()
+
+        // ensure the widget button is displayed
+        XCTAssertTrue(app.otherElements["Report a Bug"].exists)
+
+        // ensure tapping the widget displays the form
+        app.otherElements["io.sentry.feedback.widget"].tap()
+        XCTAssertTrue(app.staticTexts["Report a Bug"].exists)
+
+        // ensure cancelling the flow hides the form and redisplays the widget
+        app.buttons["io.sentry.feedback.form.cancel"].tap()
+        XCTAssertTrue(app.otherElements["Report a Bug"].exists)
+    }
+#endif // !SDK_V10
 }

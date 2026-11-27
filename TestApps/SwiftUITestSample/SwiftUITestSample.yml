@@ -6,9 +6,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-packages:
+projectReferences:
   Sentry:
-    path: ../..
+    path: ../../Sentry.xcodeproj
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -16,8 +16,7 @@ targets:
     type: application
     platform: auto
     dependencies:
-      - package: Sentry
-        product: Sentry
+      - target: Sentry/Sentry
     sources:
       # Configurations
       - path: App/Configurations
@@ -41,8 +40,6 @@ targets:
         excludes:
           - "**/.gitkeep"
     settings:
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-      GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
       SWIFT_OBJC_BRIDGING_HEADER: App/Headers/SwiftUITestSample-Bridging-Header.h
     configFiles:
       Debug: App/Configurations/SwiftUITestSample.xcconfig
@@ -67,9 +64,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
       Release: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
-    settings:
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-      GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   SwiftUITestSampleUITestsEnvelopeOnly:
     type: bundle.ui-testing
     platform: auto
@@ -90,9 +84,6 @@ targets:
     configFiles:
       Debug: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
       Release: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
-    settings:
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-      GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   SwiftUITestSampleEnvelope:
     build:

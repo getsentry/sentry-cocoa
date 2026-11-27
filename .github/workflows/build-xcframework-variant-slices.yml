@@ -13,18 +13,10 @@ on:
 
       name:
         description: |-
-          The Sentry project scheme to build an XCFramework slice for.
-          Possible values: Sentry, SentryV10 (requires sdk-v10).
+          The Sentry project target to build an XCFramework slice for.
+          Possible values: Sentry, SentrySwiftUI.
         required: true
         type: string
-
-      sdk-v10:
-        description: |-
-          Whether to build the V10 SDK. Builds the SentryV10 scheme with Xcode 26, the oldest Xcode
-          major V10 supports, and audits the slice for SentryCrash recorder objects.
-        required: false
-        type: boolean
-        default: false
 
       suffix:
         description: |-
@@ -36,7 +28,7 @@ on:
       macho-type:
         description: |-
           The Mach-O type of the build product.
-          Possible values: mh_dylib, staticlib, inherit (use the target's xcconfig, required for dynamic V10 slices).
+          Possible values: mh_dylib, staticlib.
         required: false
         type: string
         default: "mh_dylib"
@@ -69,9 +61,9 @@ jobs:
   build-xcframework-variant-slices:
     name: ${{matrix.sdk}}
 
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-15 and macos-26 use arm64.
+    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-15 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    runs-on: ${{ inputs.sdk-v10 && 'macos-26' || 'macos-15' }}
+    runs-on: macos-15
 
     strategy:
       matrix:
@@ -87,12 +79,12 @@ jobs:
           ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
       # === Toolchain and simulator preparation ===
-      # We use Xcode 16 (latest installed minor) for building V9 XCFrameworks and Xcode 26 for V10.
-      # The setup-xcode action picks the newest minor available on the runner image.
+      # We use Xcode 16 (latest installed minor) for building XCFrameworks. The setup-xcode action
+      # picks the newest 16.x available on the macos-15 runner image.
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: ${{ inputs.sdk-v10 && '26' || '16' }}
+          version: "16"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -123,7 +115,6 @@ jobs:
         wait: warm-coresimulator
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
-        if: ${{ !inputs.sdk-v10 }}
         env:
           MATRIX_SDK: ${{ matrix.sdk }}
           INPUT_NAME: ${{ inputs.name }}
@@ -133,15 +124,17 @@ jobs:
         run: ./scripts/build-xcframework-slice.sh --sdk "$MATRIX_SDK" --scheme "$INPUT_NAME" --suffix "$INPUT_SUFFIX" --mach-o-type "$INPUT_MACHO_TYPE" --configuration-suffix "$INPUT_CONFIG_SUFFIX"
         shell: bash
 
-      # The script owns the SentryV10 scheme, ReleaseV10 configuration and per-SDK architectures,
-      # and archives to the same path layout as the step above.
-      - name: Build V10 ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
-        if: ${{ inputs.sdk-v10 }}
+      # SentrySwiftUI depends on Sentry, which gets built as a byproduct.
+      # Remove it — consumers link Sentry separately.
+      # SentryObjC is NOT included here: it embeds its dependencies inside
+      # the framework bundle and needs them to stay.
+      - name: Remove Sentry.framework byproduct
+        if: inputs.name == 'SentrySwiftUI'
         env:
-          MATRIX_SDK: ${{ matrix.sdk }}
-          INPUT_SUFFIX: ${{ inputs.suffix }}
-          INPUT_MACHO_TYPE: ${{ inputs.macho-type }}
-        run: ./scripts/build-xcframework-v10.sh --sdks "$MATRIX_SDK" --suffix "$INPUT_SUFFIX" --mach-o-type "$INPUT_MACHO_TYPE" --slices-only
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive

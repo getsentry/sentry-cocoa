@@ -28,8 +28,9 @@ make test-ui-critical
 
 ```bash
 make -C test-server start-debug
-make test-ios FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer_v10
-make test-macos FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer_v10
+make test-ios FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer
+make test-macos FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer
+make test-macos-v10 FOR_AGENTS=true TEST_PLAN=SentrySPM_TestServer_v10
 make -C test-server stop
 ```
 

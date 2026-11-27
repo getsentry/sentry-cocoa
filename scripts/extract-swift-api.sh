@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # Runs swift-api-digester on a built xcframework to produce a stable JSON
 # dump of the module's public API surface. Used by update-api.sh for
-# the Sentry module.
+# Sentry and SentrySwiftUI modules.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
