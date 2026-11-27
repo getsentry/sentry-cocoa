@@ -22,6 +22,8 @@
 - Write session replay recovery checkpoints from KSCrash in `SentryV10` (#9038)
 - Add a `Hint` parameter to `beforeSendTransaction` to inspect and edit the attachments sent with a transaction (#9099)
 - Persist the active transaction when crashing in `SentryV10` (#8735)
+- Record the SDK version in the XCFramework Swift module interfaces, so apps can check it with `#if canImport(Sentry, _version: ...)` (#9808)
+  - See [Swift's module version documentation](https://docs.swift.org/latest/documentation/diagnostics/module-version-missing/)
 
 ### Breaking Changes
 

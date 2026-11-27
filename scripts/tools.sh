@@ -31,3 +31,18 @@ read_xcconfig_value_or_exit() {
     fi
     printf '%s' "$value"
 }
+
+# Read the SDK version that Swift records as the module's user module version.
+# Swift accepts only a dotted numeric version, so pre-release and build suffixes are removed.
+#
+# Usage: read_swift_user_module_version --file <Versioning.xcconfig>
+read_swift_user_module_version() {
+    local version
+    version="$(read_xcconfig_value_or_exit --key MARKETING_VERSION "$@")"
+    version="${version%%[-+]*}"
+    if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+        log_error "Invalid Swift user module version: $version"
+        exit 1
+    fi
+    printf '%s' "$version"
+}
