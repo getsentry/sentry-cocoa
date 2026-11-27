@@ -15,6 +15,13 @@ extension Scope {
         observerStorage.withLock { $0.append(observer) }
     }
 
+    func replaceCurrentScreen(_ currentScreen: String?) {
+        currentScreenStorage = currentScreen
+        for observer in observerSnapshot() {
+            observer.setCurrentScreen?(currentScreen)
+        }
+    }
+
     /// Replaces the propagation context and notifies observers.
     @_spi(Private)
     @objc(setPropagationContextWithTraceId:spanId:)

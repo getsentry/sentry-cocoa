@@ -28,7 +28,7 @@ open class Scope: NSObject {
 
     var spanStorage: Span?
     private var propagationContextStorage: SentryPropagationContext
-    private var currentScreenStorage: String?
+    var currentScreenStorage: String?
 
     /// Maximum number of breadcrumbs retained by this scope.
     /// Internal storage. The test category redeclares it; production code uses the initializer.
@@ -213,6 +213,8 @@ open class Scope: NSObject {
         }
         span = scope.span
         replayId = scope.replayId
+        // The new scope has no observers yet, so set the storage directly.
+        currentScreenStorage = scope.currentScreen
     }
 
     /// Sets the user sent with every event.
@@ -388,13 +390,6 @@ private extension Scope {
             for observer in observers {
                 (observer as? SentryScopeObserver)?.setTraceContext(traceContext)
             }
-        }
-    }
-
-    func replaceCurrentScreen(_ currentScreen: String?) {
-        currentScreenStorage = currentScreen
-        for observer in observerSnapshot() {
-            observer.setCurrentScreen?(currentScreen)
         }
     }
 }
