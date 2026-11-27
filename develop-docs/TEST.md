@@ -126,7 +126,7 @@ The package still checks warnings in legacy `SentryCrashSysCtl.c`, unlike the pr
 
 ### Thread Inspection Sanitizers
 
-The [thread-inspection harness](../Tests/ThreadInspectionHarness/) runs with AddressSanitizer, UndefinedBehaviorSanitizer, and ThreadSanitizer in [Test V10](../.github/workflows/test-v10.yml). This coverage is independent of the SDK package test plans.
+The [thread-inspection harness](../Tests/ThreadInspectionHarness/) runs with AddressSanitizer, UndefinedBehaviorSanitizer, and ThreadSanitizer in the [Test V10 workflow on `main`](https://github.com/getsentry/sentry-cocoa/blob/main/.github/workflows/test-v10.yml). The `v9.x` branch does not run it. This coverage is independent of the SDK package test plans.
 
 ### Using Xcode Test Plans
 

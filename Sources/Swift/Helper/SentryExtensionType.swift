@@ -11,8 +11,11 @@ public enum SentryExtensionType: Int {
     case share
     /// Notification Service extensions
     case notificationService
+    /// Contact Provider extensions, which are ExtensionKit extensions
+    case contactProvider
 
-    /// Returns the NSExtensionPointIdentifier string for this extension type
+    /// Returns the extension point identifier string for this extension type, which is the
+    /// `NSExtensionPointIdentifier`, or the `EXExtensionPointIdentifier` for ExtensionKit extensions
     public var identifier: String {
         switch self {
         case .widget:
@@ -25,6 +28,8 @@ public enum SentryExtensionType: Int {
             return "com.apple.share-services"
         case .notificationService:
             return "com.apple.usernotifications.service"
+        case .contactProvider:
+            return "com.apple.contact.provider.extension"
         }
     }
 }
