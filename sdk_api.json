@@ -609,16 +609,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryHttpStatusCodeRange",
-        "printedName": "Sentry.SentryHttpStatusCodeRange"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryId",
         "printedName": "Sentry.SentryId"
       },
