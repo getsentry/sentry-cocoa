@@ -727,9 +727,11 @@ static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
     }
 
     if (event.breadcrumbs == nil) {
+        // Breadcrumbs are ordered oldest first. Keep the newest ones when truncating.
         NSArray *breadcrumbs = [self breadcrumbs];
-        event.breadcrumbs = [breadcrumbs
-            subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
+        NSUInteger keepCount = MIN(maxBreadcrumbs, breadcrumbs.count);
+        event.breadcrumbs =
+            [breadcrumbs subarrayWithRange:NSMakeRange(breadcrumbs.count - keepCount, keepCount)];
     }
 
     SentryUser *user = self.userObject.copy;

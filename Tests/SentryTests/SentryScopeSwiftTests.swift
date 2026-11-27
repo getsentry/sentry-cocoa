@@ -2033,6 +2033,23 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(messages, ["g2", "current"], "Should drop oldest (g1) and keep most recent")
     }
 
+    func testApplyToEvent_whenScopeHasMoreBreadcrumbsThanMax_shouldKeepNewest() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        for i in 0..<5 {
+            let crumb = Breadcrumb()
+            crumb.message = "\(i)"
+            scope.addBreadcrumb(crumb)
+        }
+        let event = Event()
+
+        // -- Act --
+        scope.applyTo(event: event, maxBreadcrumbs: 2)
+
+        // -- Assert --
+        XCTAssertEqual(event.breadcrumbs?.compactMap(\.message), ["3", "4"])
+    }
+
     func testOverlay_clonedScope_breadcrumbsDeduplicatedByIdentity() {
         let event = Event()
         let globalScope = Scope()
