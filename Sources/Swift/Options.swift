@@ -169,8 +169,8 @@
     @objc public var enableNetworkBreadcrumbs: Bool = true
 
     /// The maximum number of envelopes to keep in cache.
-    /// @note Default is 30.
-    @objc public var maxCacheItems: UInt = 30
+    /// @note Default is 100.
+    @objc public var maxCacheItems: UInt = 100
 
     /// This block can be used to modify the event before it will be serialized and sent.
     @objc public var beforeSend: SentryBeforeSendEventCallback?

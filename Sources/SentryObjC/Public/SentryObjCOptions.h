@@ -165,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The maximum number of envelopes to keep in cache.
- * @note Default is 30.
+ * @note Default is 100.
  */
 @property (nonatomic) NSUInteger maxCacheItems;
 

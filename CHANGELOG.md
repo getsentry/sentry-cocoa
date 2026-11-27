@@ -145,6 +145,11 @@
 - Match Session Replay network detail allow and deny URL patterns once per URL session task and reuse the decision for later state changes and response capture, instead of matching on every call (#9316)
 - Speed up resolving class names for UIViewController breadcrumbs and performance tracking, which could take several milliseconds per new view controller type on the main thread in apps with many protocol conformances, especially on simulators (#9544)
 
+### Improvements
+
+- Raise the default of `options.maxCacheItems` from 30 to 100 envelopes, so devices that are offline for a while drop fewer envelopes (#9617)
+- Send crash envelopes captured in the current launch before older cached envelopes, so they reach Sentry before the startup crash flush times out. The SDK still deletes the oldest envelopes first when the cache is full (#9617)
+
 ## 9.34.0
 
 ### Features

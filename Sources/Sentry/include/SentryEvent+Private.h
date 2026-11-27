@@ -12,6 +12,12 @@
 @property (nonatomic) BOOL isFatalEvent;
 
 /**
+ * This indicates whether this event is a crash converted from a stored crash report. The transport
+ * sends envelopes with such events before older cached envelopes.
+ */
+@property (nonatomic) BOOL isCrashEvent;
+
+/**
  * This indicates whether this event describes something that happened in a previous process of
  * the app, such as a MetricKit diagnostic delivered on a later launch. The client doesn't apply
  * the current scope or the running process's state and mutable device data to such events,

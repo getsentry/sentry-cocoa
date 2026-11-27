@@ -1,6 +1,7 @@
 #import "SentryStoredCrashReportProcessor.h"
 
 #import "SentryCrashReportConverter.h"
+#import "SentryEvent+Private.h"
 #import "SentryEvent.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
@@ -67,6 +68,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
                                code:SentryStoredCrashReportProcessorErrorConversionFailed
                         description:@"The crash report could not be converted to a Sentry event."];
         }
+        event.isCrashEvent = YES;
 
         // The sink reads the hub and its client once for the whole submission, because
         // asynchronous report processing can race with SDK close. The result below distinguishes an

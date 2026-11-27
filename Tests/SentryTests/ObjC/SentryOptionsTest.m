@@ -334,14 +334,14 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"maxCacheItems" : self }];
 
-    XCTAssertEqual(30, options.maxCacheItems);
+    XCTAssertEqual(100, options.maxCacheItems);
 }
 
 - (void)testDefaultMaxCacheItems
 {
     SentryOptions *options = [self getValidOptions:@{ }];
 
-    XCTAssertEqual([@30 unsignedIntValue], options.maxCacheItems);
+    XCTAssertEqual([@100 unsignedIntValue], options.maxCacheItems);
 }
 
 - (void)testCacheDirectoryPath
@@ -817,7 +817,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertNil(options.dist);
     XCTAssertEqual(100, options.maxBreadcrumbs);
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
-    XCTAssertEqual(30, options.maxCacheItems);
+    XCTAssertEqual(100, options.maxCacheItems);
 
     XCTAssertTrue([[self getDefaultCacheDirectoryPath] isEqualToString:options.cacheDirectoryPath]);
     XCTAssertNil(options.beforeSend);
