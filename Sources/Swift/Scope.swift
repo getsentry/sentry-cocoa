@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 internal import _SentryPrivate
 import Foundation
 
@@ -213,6 +214,8 @@ open class Scope: NSObject {
         }
         span = scope.span
         replayId = scope.replayId
+        // The new scope has no observers yet, so set the storage directly.
+        currentScreenStorage = scope.currentScreen
     }
 
     /// Sets the user sent with every event.
@@ -398,3 +401,4 @@ private extension Scope {
         }
     }
 }
+// swiftlint:enable file_length
