@@ -47,7 +47,7 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
-  verify-v10-source-contract:
+  verify-source-contract:
     name: Verify Source Contract
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
@@ -57,7 +57,7 @@ jobs:
       - name: Verify source contract
         run: ./scripts/verify-v10-sentrycrash-source-contract.swift
 
-  build-v10:
+  build-sdk:
     name: Build ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
@@ -187,7 +187,7 @@ jobs:
           fi
           echo "No binary targets found — OK"
 
-  build-v10-spm:
+  build-spm:
     name: Build SPM ${{ matrix.mode }}
     env:
       SDK_V10: "1"
@@ -245,13 +245,13 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: v10-spm-audit-${{ matrix.mode }}
+          name: spm-build-audit-${{ matrix.mode }}
           path: |
             v10-*.log
             ${{ runner.temp }}/v10-empty-audit
             ${{ runner.temp }}/v10-slice-audit
 
-  package-v10:
+  package-sdk:
     name: Package ${{ matrix.sdk }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
@@ -549,7 +549,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-build-output-v10-${{matrix.scheme}}
+          name: raw-build-output-${{matrix.scheme}}
           path: |
             raw-build-output.log
 
@@ -617,15 +617,15 @@ jobs:
     needs:
       [
         files-changed,
-        build-v10,
-        build-v10-spm,
+        build-sdk,
+        build-spm,
         build-testapp,
         ios-swift-release,
         build-testapp-spm,
-        package-v10,
+        package-sdk,
         check-macOS-CLI-Xcode-no-UI-framework,
         verify-no-binary-targets,
-        verify-v10-source-contract,
+        verify-source-contract,
         run-full-ci-gate,
       ]
     name: Build

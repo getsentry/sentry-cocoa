@@ -324,14 +324,14 @@ private func run() throws {
 
     let workflow = try text(".github/workflows/build.yml")
     for requiredJobOrTarget in [
-        "package-v10:",
+        "package-sdk:",
         "build-xcframework-dynamic",
         "build-xcframework-static",
         "build-xcframework-sentryobjc"
     ] where !workflow.contains(requiredJobOrTarget) {
         report("V10 workflow is missing packaging coverage: \(requiredJobOrTarget)")
     }
-    if workflow.components(separatedBy: "package-v10").count - 1 < 2 {
+    if workflow.components(separatedBy: "package-sdk").count - 1 < 2 {
         report("The required V10 build check does not depend on the packaging matrix")
     }
 
