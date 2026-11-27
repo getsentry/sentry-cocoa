@@ -641,7 +641,7 @@ build-xcframework-without-uikit-arm64e:
 .PHONY: build-xcframework-sentryobjc-static
 build-xcframework-sentryobjc-static:
 	@echo "[MAKE] $@: Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc-spm.sh --sdks "$(SDKS)"
+	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
 	@echo "[MAKE] $@: Validating SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 	@echo "[MAKE] $@: Validating SentryObjC static integration in SentryObjC-Static.xcframework"
@@ -664,7 +664,7 @@ build-xcframework-sentryobjc-static:
 .PHONY: build-xcframework-sentryobjc-dynamic
 build-xcframework-sentryobjc-dynamic:
 	@echo "[MAKE] $@: Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc-spm.sh --sdks "$(SDKS)" --variant dynamic
+	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
 	@echo "[MAKE] $@: Validating SentryObjC-Dynamic.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	@echo "[MAKE] $@: Compressing SentryObjC-Dynamic.xcframework"
@@ -686,7 +686,7 @@ build-xcframework-sentryobjc-dynamic:
 .PHONY: build-xcframework-sentryobjc-v10
 build-xcframework-sentryobjc-v10:
 	@echo "[MAKE] $@: Creating V10 SentryObjC xcframeworks (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc-spm.sh --sdks "$(SDKS)" --variant both --v10 \
+	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant both --v10 \
 		--output-dir XCFrameworkBuildPath/V10
 	@echo "[MAKE] $@: Validating SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"

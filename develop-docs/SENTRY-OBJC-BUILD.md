@@ -20,7 +20,7 @@ SentryObjC cannot use the Xcode project slice builder because:
 make build-xcframework-sentryobjc-static SDKS=iphonesimulator
 ```
 
-Calls `scripts/build-xcframework-sentryobjc-spm.sh`, which loops over SDKs sequentially:
+Calls `scripts/build-xcframework-sentryobjc.sh`, which loops over SDKs sequentially:
 
 ```
 for each SDK:
@@ -62,12 +62,12 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## Scripts
 
-| Script                                | Purpose                                                                                    |
-| ------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `build-static-library.sh`             | Build one SDK slice: SPM archive → collect `.o` → `libtool -static` → `libSentryObjC.a`    |
-| `package-framework-slice.sh`          | Build one SDK slice: `.a` → `swiftc -emit-library` → `.framework` bundle                   |
-| `assemble-xcframework-sentryobjc.sh`  | Forward SentryObjC slice paths and headers to the shared `assemble-xcframework.sh` command |
-| `build-xcframework-sentryobjc-spm.sh` | Local orchestrator: loops over SDKs, calls the above scripts sequentially                  |
+| Script                               | Purpose                                                                                    |
+| ------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `build-static-library.sh`            | Build one SDK slice: SPM archive → collect `.o` → `libtool -static` → `libSentryObjC.a`    |
+| `package-framework-slice.sh`         | Build one SDK slice: `.a` → `swiftc -emit-library` → `.framework` bundle                   |
+| `assemble-xcframework-sentryobjc.sh` | Forward SentryObjC slice paths and headers to the shared `assemble-xcframework.sh` command |
+| `build-xcframework-sentryobjc.sh`    | Local orchestrator: loops over SDKs, calls the above scripts sequentially                  |
 
 ## Workflows
 
@@ -91,7 +91,7 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## V10 builds
 
-`scripts/build-xcframework-sentryobjc-spm.sh --v10` builds the V10 SDK locally, for example to debug downstream SDKs. The Release workflow builds the same V10 slices with the per-SDK scripts.
+`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK locally, for example to debug downstream SDKs. The Release workflow builds the same V10 slices with the per-SDK scripts.
 
 - Exports `SDK_V10=1` so `Package.swift` adds the KSCrash dependency and the V10 defines. The KSCrash objects land in the archive products and are merged into `libSentryObjC.a`
 - Copies the public headers through `unifdef -DSDK_V10=1` with `resolve-sentryobjc-v10-headers.sh` so the packaged headers match the binary. Consumers such as bindings generators do not define `SDK_V10`
