@@ -60,6 +60,7 @@
 - Sentry-Dynamic.xcframework is no longer a mergeable-library (#8658)
 - Remove the `SentryHttpStatusCodeRange.h` public header. `HttpStatusCodeRange` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Objective-C code can no longer subclass it (#9802)
 - Remove the `SentryReplayApi.h` public header. `SentryReplayApi` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Objective-C code can no longer subclass it (#9803)
+- Remove the `SentrySamplingContext.h` public header. `SamplingContext` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Objective-C code can no longer subclass it (#9804)
 
 ### Improvements
 
