@@ -1,10 +1,6 @@
 import Foundation
-import SentryObjC
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
+import SentryObjC
 
 extension Bundle {
     var gitCommitHash: String? {

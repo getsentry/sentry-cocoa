@@ -1,10 +1,6 @@
 #if !SDK_V10
-#if SWIFT_PACKAGE
-#if SENTRY_BUILD_XCFRAMEWORK
-@_spi(Private) import Sentry
-#else
+#if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 @_spi(Private) import SentrySwift
-#endif
 #endif
 internal import _SentryPrivate
 import Foundation
@@ -13,17 +9,13 @@ import Foundation
 import UIKit
 #endif
 
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 /// Compatibility entry point for callers importing the V9 crash adapter directly.
 /// Use the callback in the main SDK module for new code.
 @available(*, deprecated, message: "Use sentry_finishAndSaveTransaction() from the main SDK module instead.")
 public func sentry_finishAndSaveTransaction() {
     // Preserve the adapter's Swift symbol, but only the main SDK owns the @_cdecl symbol.
-    #if SENTRY_BUILD_XCFRAMEWORK
-    Sentry.sentry_finishAndSaveTransaction()
-    #else
     SentrySwift.sentry_finishAndSaveTransaction()
-    #endif
 }
 #endif
 
@@ -192,8 +184,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private func configureScope() {
         // We need to make sure to set always the scope to SentryCrash so we have it in
         // case of a crash
-        SentrySDKInternal.currentHub().configureScopeObject { [weak self] outerScope in
-            guard let self = self, let outerScope = outerScope as? Scope, let options = self.options else { return }
+        SentrySDKInternal.currentHub().configureScope { [weak self] outerScope in
+            guard let self = self, let options = self.options else { return }
 
             var userInfo = outerScope.serialize()
 
@@ -245,8 +237,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 #if !SDK_V10
     // Exposed to objc for the NotificationCenter in configureScope()
     @objc private func currentLocaleDidChange() {
-        SentrySDKInternal.currentHub().configureScopeObject { rawScope in
-            guard let scope = rawScope as? Scope else { return }
+        SentrySDKInternal.currentHub().configureScope { scope in
             var device: [String: Any]
             let contextDictionary = scope.contextDictionary
             if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
@@ -275,8 +266,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
         let isLowPowerMode = processInfo.isLowPowerModeEnabled
-        SentrySDKInternal.currentHub().configureScopeObject { rawScope in
-            guard let scope = rawScope as? Scope else { return }
+        SentrySDKInternal.currentHub().configureScope { scope in
             var device: [String: Any]
             let contextDictionary = scope.contextDictionary
             if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
@@ -298,16 +288,13 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // makes Swift emit a second thunk with the same C symbol. Use a noncapturing closure.
         #if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
         sentrycrash_setSaveTransaction { SentrySwift.sentry_finishAndSaveTransaction() }
-        #elseif SWIFT_PACKAGE
-        sentrycrash_setSaveTransaction { Sentry.sentry_finishAndSaveTransaction() }
         #else
-        // Xcode builds use either Sentry or SentryWithoutUIKit as the module name.
         sentrycrash_setSaveTransaction { sentry_finishAndSaveTransaction() }
         #endif
     }
 }
 
-#if !SWIFT_PACKAGE
+#if !SWIFT_PACKAGE || SENTRY_BUILD_XCFRAMEWORK
 extension SentryCrashIntegration: SwiftIntegration {}
 #endif
 #endif // !SDK_V10

@@ -1,9 +1,5 @@
 import Foundation
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 
 final class LaunchVCTransactionCapture {
     static let shared = LaunchVCTransactionCapture()

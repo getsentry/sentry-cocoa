@@ -1,11 +1,7 @@
 import _SentryPrivate
 import AppIntents
-import SentrySampleShared
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
+import SentrySampleShared
 import SwiftUI
 import WidgetKit
 
@@ -24,9 +20,6 @@ struct SampleWidgetControl: ControlWidget {
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
-            #if !SDK_V10
-            options.enableAppHangTracking = true
-            #endif // !SDK_V10
         }
     }
 

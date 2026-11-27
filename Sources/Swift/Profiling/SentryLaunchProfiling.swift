@@ -34,7 +34,7 @@ enum SentryLaunchProfileConfigKey {
 
     private static let state = SentryMutex(State())
 
-    // This is called from SentryProfiler.load, but in the future we may expose access directly to
+    // This is called from SentrySDKInternal.load, but in the future we may expose access directly to
     // customers, and we'll want to ensure it only runs once.
     private static let startLaunchProfileOnce = SentryOnce {
         startLaunchProfileWithoutDeduplication()
@@ -123,7 +123,7 @@ enum SentryLaunchProfileConfigKey {
     }
 
     /// Contains the logic to start a launch profile. Separate from `startLaunchProfile`, because
-    /// that only runs once, when `SentryProfiler.load` is called, so tests can't run it again.
+    /// that only runs once, when `SentrySDKInternal.load` is called, so tests can't run it again.
     static func startLaunchProfileWithoutDeduplication() {
         guard appLaunchProfileConfigFileExists() else {
             SentrySDKLog.debug("No launch profile config exists, will not profile launch.")

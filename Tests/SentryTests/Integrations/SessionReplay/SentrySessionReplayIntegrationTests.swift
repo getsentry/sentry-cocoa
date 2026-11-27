@@ -1658,6 +1658,39 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
     }
 
+    func testSetCustomOptions_whenNoSessionRunning_shouldApplyToNextSession() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.stop()
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
+        sut.start()
+
+        // -- Assert --
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
+    }
+
+    func testSetCustomOptions_whenSessionRestarted_shouldApplyToNewSession() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
+        let firstSessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        // -- Act --
+        sut.stop()
+        sut.start()
+
+        // -- Assert --
+        let secondSessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertFalse(firstSessionReplay === secondSessionReplay)
+        XCTAssertEqual(secondSessionReplay.replayTags?["someOption"] as? String, "someValue")
+    }
+
     func testShowMaskPreviewForDebug() throws {
         let sysctl = TestSysctl()
         sysctl.internalIsBeingTraced = true

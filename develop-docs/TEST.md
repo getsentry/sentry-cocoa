@@ -107,9 +107,9 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`. Make accepts target, class, and method selectors in `ONLY_TESTING`, including comma-separated combinations. For example, `make test-macos ONLY_TESTING=SentryObjCTests` runs the public Objective-C wrapper suite. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
 - Local and CI unit tests share the Make targets: `make test-macos`, `make test-ios`, and the corresponding `-v10` targets use the `SentrySPM` package workspace. Make copies sources, test plans, schemes, and manifests into `TEST_WORKSPACE` (default: `.build/package-tests`) and strips binary targets from the copied manifests. Prepared SDK Base plans omit `SentryDistributionTests`. The dedicated iOS distribution job opts in with `TEST_INCLUDE_DISTRIBUTION=true`, preserving its existing coverage. Checked-in manifests and plans remain unchanged. Use package test identifiers for `ONLY_TESTING`, without a `V10` suffix.
 - CI invokes the explicit platform targets, which use Debug. The shared unit-test workflow derives the Make target from its `platform` input. Simulator targets use their platform-specific variables, such as `IOS_SIMULATOR_OS` and `IOS_DEVICE_NAME`. These targets select the SDK generation and Base plan, pass the package test xcconfig, and disable signing. `TEST_PLAN` selects a package Flaky or TestServer plan. `TEST_RESULT_BUNDLE` and `TEST_DERIVED_DATA` override the result bundle name and DerivedData path. Defaults for DerivedData and result bundles are under `RUNNER_TEMP` in CI and the temporary directory locally.
-- Set `TEST_COMMAND=build-for-testing` to prepare the package and compile tests. The corresponding `TEST_COMMAND=test-without-building` invocation reuses that package without preparation. Both phases must use the same `TEST_WORKSPACE`, configuration, platform, and destination. Regular, fast-PR, nightly, V10, and distribution jobs use these Make entry points.
+- Set `TEST_COMMAND=build-for-testing` to prepare the package and compile tests. The corresponding `TEST_COMMAND=test-without-building` invocation reuses that package without preparation. Both phases must use the same `TEST_WORKSPACE`, configuration, platform, and destination. Regular, fast-PR, nightly, and distribution jobs use the `-v10` Make entry points.
 - Base-plan exclusions use the owning Swift, Objective-C, or Objective-C++ package test target.
-- Use `SentrySPM_Flaky` for V9 flaky tests.
+- Use `SentrySPM_Flaky_v10` for flaky tests.
 - Use `SentrySPM_TestServer` or `SentrySPM_TestServer_v10` for network tests. Start the server with `make -C test-server start-debug` before that run and stop it with `make -C test-server stop` afterward, including on failure. Do not run unrelated plans while the server is active.
 
 #### Compiler settings and project parity
@@ -126,7 +126,7 @@ The package still checks warnings in legacy `SentryCrashSysCtl.c`, unlike the pr
 
 ### Thread Inspection Sanitizers
 
-The [thread-inspection harness](../Tests/ThreadInspectionHarness/) runs with AddressSanitizer, UndefinedBehaviorSanitizer, and ThreadSanitizer in [Test V10](../.github/workflows/test-v10.yml). This coverage is independent of the SDK package test plans.
+The [thread-inspection harness](../Tests/ThreadInspectionHarness/) runs with AddressSanitizer, UndefinedBehaviorSanitizer, and ThreadSanitizer in the [Test workflow](../.github/workflows/test.yml). This coverage is independent of the SDK package test plans.
 
 ### Using Xcode Test Plans
 
@@ -247,6 +247,8 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
 ### Flaky tests
 
 If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can add it to the SentrySPM_Flaky test plan and remove it from the SentrySPM_Base test plan. The SentrySPM_Flaky test plan has a retry mechanism of 3 times until a test officially fails.
+
+CI runs the V10 plans. For a flaky V10 test, add it to `selectedTests` in the SentrySPM_Flaky_v10 test plan and to `skippedTests` in the SentrySPM_Base_v10 test plan.
 
 Or you disable the test in the test scheme by unchecking it in the associated test plan:
 

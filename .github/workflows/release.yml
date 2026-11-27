@@ -97,6 +97,7 @@ jobs:
       macho-type: ${{matrix.variant.macho-type}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
+      sdk-v10: ${{ matrix.variant.sdk-v10 == true }}
       release-version: ${{ github.event.inputs.version }}
       sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
     strategy:
@@ -175,9 +176,11 @@ jobs:
       release-version: ${{ github.event.inputs.version }}
       sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
 
+  # The V10 Sentry XCFrameworks are built with Xcode 26, the oldest Xcode major V10 supports, and
+  # their Swift interfaces do not import with Xcode 16. All consumer validation uses Xcode 26.
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-15
+    runs-on: macos-26
     needs:
       [
         files-changed,
@@ -207,7 +210,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -255,7 +258,7 @@ jobs:
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate SPM Static
-    runs-on: macos-15
+    runs-on: macos-26
     needs: [
       files-changed,
       assemble-xcframework-variant,
@@ -298,7 +301,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -325,7 +328,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     continue-on-error: true
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-26
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -357,7 +360,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: ${{ matrix.xcode }}
+          version: "26"
           resolve-simulators: "false"
       - name: Package and validate SDK
         env:
@@ -385,11 +388,9 @@ jobs:
         if: failure()
       - name: Warn about SPM packaging
         if: failure()
-        env:
-          GENERATION: ${{ matrix.generation }}
         run: |
-          echo "::warning title=Advisory SPM packaging::SPM SDK $GENERATION packaging failed. Xcode-project releases are unaffected."
-          printf '### SPM SDK %s packaging failed (advisory)\n\nXcode-project releases are unaffected. See this job and its archive logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning title=Advisory SPM packaging::SPM SDK packaging failed. Xcode-project releases are unaffected."
+          printf '### SPM SDK packaging failed (advisory)\n\nXcode-project releases are unaffected. See this job and its archive logs.\n' >> "$GITHUB_STEP_SUMMARY"
 
   validate-sdk-spm-built:
     name: Validate ${{ matrix.artifact }} (SPM-built, advisory)
@@ -399,7 +400,7 @@ jobs:
       (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
     needs: [files-changed, build-sdk-spm-built]
     continue-on-error: true
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-26
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -417,7 +418,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: ${{ matrix.xcode }}
+          version: "26"
           resolve-simulators: "false"
       - name: Wait for SPM framework
         wait: download-spm-sdk
@@ -458,13 +459,12 @@ jobs:
       - name: Build and run dynamic SPM consumers
         if: endsWith(matrix.artifact, '-Dynamic')
         env:
-          SENTRY_XCFRAMEWORK: ../${{ matrix.artifact }}.xcframework
-          SENTRY_TEST_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
+          SENTRY_XCFRAMEWORK: ../Sentry-Dynamic.xcframework
         run: |
           status=0
           for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
             swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release \
-              -Xcc "-DSENTRY_TEST_V10=$SENTRY_TEST_V10" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
+              -Xcc "-DSENTRY_TEST_V10=1" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
             tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
           done
           exit "$status"
@@ -480,11 +480,9 @@ jobs:
         if: failure()
       - name: Warn about SPM validation
         if: failure()
-        env:
-          GENERATION: ${{ matrix.generation }}
         run: |
-          echo "::warning title=Advisory SPM validation::SPM SDK $GENERATION consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
-          printf '### SPM SDK %s consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning title=Advisory SPM validation::SPM SDK consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
+          printf '### SPM SDK consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' >> "$GITHUB_STEP_SUMMARY"
 
   validate-spm-consumers:
     name: Validate SPM Consumers
@@ -531,7 +529,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -545,16 +543,11 @@ jobs:
       # === Build and validation ===
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
-      # Xcode 16's default `swift build` can copy static Sentry from the unused
-      # SentrySwiftUI dependency instead of the requested dynamic binary. Use Xcode's
-      # build system and `swift run` to verify dynamic loading and resources at runtime.
-      # Newer SwiftPM defaults to SwiftBuild (verified with Xcode 27.1), which selects
-      # the correct binary. The legacy native build system remains affected.
       - name: Run Swift dynamic consumer
         run: swift run --build-system xcode SPM-Dynamic
         working-directory: TestApps/SPM-Dynamic
       - name: Run Objective-C dynamic consumer
-        run: swift run --build-system xcode SPM-ObjC-Dynamic
+        run: swift run --build-system xcode -Xcc -DSENTRY_TEST_V10=1 SPM-ObjC-Dynamic
         working-directory: TestApps/SPM-ObjC-Dynamic
       - name: Run Objective-C static consumer against the Xcode-built product
         run: swift run --build-system xcode SPM-ObjC-Static
@@ -563,73 +556,9 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
-  swift-build:
-    name: Build Swift Static
-    runs-on: macos-15
-    needs: [
-      files-changed,
-      assemble-xcframework-variant,
-      assemble-sentryobjc-static-xcframework,
-      assemble-sentryobjc-dynamic-xcframework,
-    ]
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    steps:
-      # === Checkout and independent preparation ===
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        id: download-xcframeworks
-        background: true
-        with:
-          pattern: xcframework-${{github.sha}}-*
-          merge-multiple: true
-      - name: Setup Git access
-        uses: ./.github/actions/setup-git-access
-        with:
-          ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
-          ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
-      - name: Prepare Package.swift
-        shell: bash
-        run: |
-          ./scripts/prepare-package.sh \
-            --package-file Package.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-          ./scripts/prepare-package.sh \
-            --package-file Package@swift-6.1.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-          ./scripts/prepare-package.sh \
-            --package-file Package@swift-6.2.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --change-path true
-
-      # === Toolchain and simulator preparation ===
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "16"
-          resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
-
-      - name: Wait for XCFramework downloads
-        wait: download-xcframeworks
-
-      # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
-      - run: swift build --target SentrySwiftUI
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: failure()
-
   validate-spm-visionos:
     name: Validate SPM Static visionOS
-    runs-on: macos-15
+    runs-on: macos-26
     needs: [
       files-changed,
       assemble-xcframework-variant,
@@ -672,7 +601,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -703,10 +632,10 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     with:
       fastlane_command: duplication_test
-      xcode_version: "16"
-      macos_version: sequoia
+      xcode_version: "26"
+      macos_version: tahoe
       needs_xcframework: true
-      platform: macOS
+      platform: iOS
 
   job_release:
     runs-on: ubuntu-latest
@@ -717,7 +646,6 @@ jobs:
         validate-xcframework,
         validate-spm,
         validate-spm-consumers,
-        swift-build,
         duplication-tests,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
@@ -803,7 +731,6 @@ jobs:
         validate-xcframework,
         validate-spm,
         validate-spm-consumers,
-        swift-build,
         duplication-tests,
         run-full-ci-gate,
       ]

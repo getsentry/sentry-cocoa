@@ -10,6 +10,7 @@
 @class SentryEvent;
 @class SentryFeedback;
 @class SentryOptions;
+@class SentryScope;
 @class SentryId;
 @class SentryTransaction;
 
@@ -51,8 +52,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures an error event and sends it to Sentry.
@@ -68,8 +68,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(error:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -85,8 +84,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(exception:scope:));
+                     withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  * Captures a message event and sends it to Sentry.
@@ -102,8 +100,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(message:scope:));
+                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 @end
 
@@ -115,8 +112,7 @@ SENTRY_NO_INIT
  * @param scope The current scope from which to gather contextual information.
  */
 - (void)captureFeedback:(SentryFeedback *)feedback
-              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(feedback:scope:));
+              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

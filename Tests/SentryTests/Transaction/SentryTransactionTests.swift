@@ -64,38 +64,6 @@ class SentryTransactionTests: XCTestCase {
         
         XCTAssertNil(actual["measurements"])
     }
-
-    func testTraceObject_whenSetToNil_shouldPreserveTrace() {
-        // -- Arrange --
-        let trace = fixture.getTrace()
-        let transaction = fixture.getTransaction(trace: trace)
-
-        // -- Act --
-        transaction.traceObject = nil
-
-        // -- Assert --
-        XCTAssertTrue(transaction.trace === trace)
-    }
-
-    func testTraceObject_whenSetToWrongType_shouldPreserveTrace() {
-        // -- Arrange --
-        let trace = fixture.getTrace()
-        let transaction = fixture.getTransaction(trace: trace)
-
-        // -- Act --
-        transaction.traceObject = NSObject()
-
-        // -- Assert --
-        XCTAssertTrue(transaction.trace === trace)
-    }
-
-    func testInit_whenTraceObjectIsNil_shouldReturnNil() {
-        // -- Act --
-        let transaction = Transaction(traceObject: nil, children: [])
-
-        // -- Assert --
-        XCTAssertNil(transaction)
-    }
     
     func testSerializeMeasurements_DurationMeasurement() {
         let name = "some_duration"
@@ -488,7 +456,7 @@ class SentryTransactionTests: XCTestCase {
         SentrySDK.setStart(with: options)
         let transaction = fixture.getTransaction()
         SentryContinuousProfiler.start()
-        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.stringValue)
         let serialized = transaction.serialize()
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let profileData = try XCTUnwrap(contexts["profile"] as? [String: Any])

@@ -24,7 +24,7 @@ Depending on how you interact with building the SDK, it's likely that you'll typ
 - `@objc` signatures in Swift cannot use generics, structs, Swift enums, tuples, or non-`@objc` protocols. Using these features is fine on internal Swift and on public API that is already Swift-only.
 - This migration keeps `@objc` on converted public types and does not change the API they expose. Declare classes `open`. Do not use `final`. Nothing here is gated on `SDK_V10`.
 - Members from a `+Private.h` that `.m` files call become `@_spi(Private) @objc public`. Leave public API unmarked. Hybrid SPI is described in [`Sources/AGENTS.md`](../Sources/AGENTS.md).
-- Package test targets declare `_SentryPrivate` as a dependency in the manifests. Keep private SDK imports out of `SentrySwiftUI`.
+- Package test targets declare `_SentryPrivate` as a dependency in the manifests.
 
 ## Converting a public type
 
@@ -89,7 +89,7 @@ When the value comes back to Swift, cast it in one extension for that class. Use
 guard let user = scope.userObject as? User else { return }
 ```
 
-Cast the `id` value in that one Swift extension. `Scope.userObject` is already `User?`, so callers of `Scope` do not cast it again.
+`userObject` is in `Sources/Sentry/include/SentryScope+PrivateSwift.h`. After that property uses the macro, the cast above is how Swift reads it.
 
 Run `make generate-public-api`. In `sdk_api.json` and `sdk_api_objc.json`, `User` keeps `objc_name` `SentryUser`. The diff should be that declaration moving from the Objective-C header to Swift, with no public members renamed or removed. Existing test plans still pass.
 

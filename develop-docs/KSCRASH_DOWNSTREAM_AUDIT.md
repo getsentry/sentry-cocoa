@@ -149,7 +149,7 @@ Run on 2026-09-18 against the .NET checkout at 9.28.0 with the iOS integration t
 
 9. Whether the `@_spi(Private) @objc` classes reached from Objective-C by React Native and Flutter (`SentryDependencyContainer`, `SentryFramesTracker`, `SentryBinaryImageCache`, `SentryDebugImageProvider`, `SentrySDKLog`) are a supported V10 contract, or get `SentrySDK.internal` equivalents
 10. `SentrySDK` is a Swift `enum` without Objective-C visibility in V10. This follows the `SentryObjC` design, but React Native's Objective-C bridge depends on it and the change is not called out for hybrid maintainers
-11. No consolidated list of removed options and APIs for hybrid maintainers beyond [`CHANGELOG_V10.md`](../CHANGELOG_V10.md): `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableMetricKit`, `enableAppHangTracking`, `pauseAppHangTracking` / `resumeAppHangTracking`, `enableSigtermReporting`, and that their dictionary keys are silently ignored
+11. No consolidated list of removed options and APIs for hybrid maintainers beyond [`CHANGELOG.md`](../CHANGELOG.md) (previously `CHANGELOG_V10.md`, a legacy file that was deleted): `crashedLastRun`, `sendDefaultPii`, `enableLogs`, `enableMetricKit`, `enableAppHangTracking`, `pauseAppHangTracking` / `resumeAppHangTracking`, `enableSigtermReporting`, and that their dictionary keys are silently ignored
 12. No cross-image test of the `__sentry_cxa_throw` handoff, which is how Unity uses it (`SCV10-029`)
 
 ## Recommended Follow-Up Issues

@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClientInternal (Attachments)
 
 - (void)populateHintAttachments:(SentryHint *)hint
-                          scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                          scope:(SentryScope *)scope
           isFromPreviousProcess:(BOOL)isFromPreviousProcess;
 
 - (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
@@ -78,9 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal (Telemetry)
 
-- (void)_swiftCaptureLog:(NSObject *)log
-               withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(_swiftCaptureLog(_:with:));
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
 /// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
 /// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
@@ -99,40 +97,40 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClientInternal (EventCapturePrivate)
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                  withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
           attachAllThreads:(nullable NSNumber *)attachAllThreads
     NS_SWIFT_NAME(capture(error:scope:attachAllThreads:));
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                     withScope:(SentryScope *)scope
               attachAllThreads:(nullable NSNumber *)attachAllThreads
     NS_SWIFT_NAME(capture(exception:scope:attachAllThreads:));
 
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                   withScope:(SentryScope *)scope
             attachAllThreads:(nullable NSNumber *)attachAllThreads
     NS_SWIFT_NAME(capture(message:scope:attachAllThreads:));
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
                       hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(event:scope:hint:));
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
                       hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(error:scope:hint:));
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                     withScope:(SentryScope *)scope
                           hint:(nullable SentryHint *)hint
     NS_SWIFT_NAME(capture(exception:scope:hint:));
 
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                   withScope:(SentryScope *)scope
                         hint:(nullable SentryHint *)hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
 
@@ -141,26 +139,25 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClientInternal (EventPreparation)
 
 - (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
 - (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent;
 
 - (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
                                   hint:(SentryHint *)hint;
 
 - (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
-                             withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:
-                              (nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
+                          currentScope:(nullable SentryScope *)currentScope;
 
 - (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
                          withReason:(SentryDiscardReason)reason
@@ -179,33 +176,33 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClientInternal (EventSending)
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                       hint:(SentryHint *)hint;
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
               isFatalEvent:(BOOL)isFatalEvent;
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                 withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
               isFatalEvent:(BOOL)isFatalEvent
                       hint:(SentryHint *)hint;
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                  withScope:(SentryScope *)scope
      alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                isFatalEvent:(BOOL)isFatalEvent
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                  withScope:(SentryScope *)scope
      alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                isFatalEvent:(BOOL)isFatalEvent
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
@@ -213,43 +210,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(nullable SentrySession *)session
-              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
+              withScope:(SentryScope *)scope;
 
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(nullable SentrySession *)session
-              withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+              withScope:(SentryScope *)scope
                    hint:(SentryHint *)hint;
 
 @end
 
 @interface SentryClientInternal (SessionsAndCrashes)
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(captureFatalEvent(_:with:));
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
-                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(captureFatalEvent(_:with:with:));
+                      withScope:(SentryScope *)scope;
 
-- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+                   withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:
-                                                  (SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(captureEventIncrementingSessionErrorCount(_:with:));
+                                              withScope:(SentryScope *)scope;
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
+                                              withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint;
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
+                                              withScope:(SentryScope *)scope
                                  alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                                                    hint:(SentryHint *)hint;
 
@@ -262,19 +252,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-    NS_SWIFT_NAME(capture(_:replayRecording:video:with:));
+                 withScope:(SentryScope *)scope;
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-                     currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
+                            scope:(SentryScope *)scope
+                     currentScope:(nullable SentryScope *)currentScope;
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
+                            scope:(SentryScope *)scope;
 
 @end
 

@@ -8,6 +8,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryProfilingSample.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -23,10 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 
-@class SentrySample;
-
 @interface SentryProfilerMutableState : NSObject
-@property (nonatomic, strong, readonly) NSMutableArray<SentrySample *> *samples;
+@property (nonatomic, strong, readonly) NSMutableArray<SentryProfilingSample *> *samples;
 @property (nonatomic, strong, readonly) NSMutableArray<NSArray<NSNumber *> *> *stacks;
 @property (nonatomic, strong, readonly) NSMutableArray<NSDictionary<NSString *, id> *> *frames;
 @property (nonatomic, strong, readonly)

@@ -1,9 +1,5 @@
 import Foundation
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 
 /**
  * The system throws an exception and generates a report when the disk writes from your app exceed a certain threshold in a 24-hour period.

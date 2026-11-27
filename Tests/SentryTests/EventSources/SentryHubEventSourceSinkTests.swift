@@ -10,11 +10,11 @@ import XCTest
 final class SentryHubEventSourceSinkTests: SentrySDKIntegrationTestsBase {
     /// Stands in for a client that went away while it captured a fatal event.
     private final class ClientClearedDuringCapture: TestClient {
-        public override func captureFatalEvent(_ event: Event, with scope: Any) -> SentryId {
+        public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
             clearClientWithoutCapturing()
         }
 
-        public override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Any) -> SentryId {
+        public override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Scope) -> SentryId {
             clearClientWithoutCapturing()
         }
 

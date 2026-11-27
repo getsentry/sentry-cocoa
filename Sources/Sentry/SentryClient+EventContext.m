@@ -4,7 +4,9 @@
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryMechanism.h"
+#import "SentryScope+Private.h"
 #import "SentrySwift.h"
+#import "SentryTransaction+Private.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -101,10 +103,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #if SENTRY_HAS_UIKIT
-- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event
-                                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    SentryScope *typedScope = scope;
     [self modifyContext:event
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
@@ -114,9 +114,9 @@ NS_ASSUME_NONNULL_BEGIN
                               app[@"view_names"] = transaction.viewNames;
                           }
                       } else {
-                          if (typedScope.currentScreen != nil) {
+                          if (scope.currentScreen != nil) {
                               app[@"view_names"] =
-                                  @[ SENTRY_UNWRAP_NULLABLE(NSString, typedScope.currentScreen) ];
+                                  @[ SENTRY_UNWRAP_NULLABLE(NSString, scope.currentScreen) ];
                           } else {
                               app[@"view_names"] = [SentryDependencyContainer.sharedInstance
                                       .application relevantViewControllersNames];

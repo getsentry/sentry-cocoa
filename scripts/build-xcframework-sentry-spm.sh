@@ -12,20 +12,14 @@ source "$SCRIPT_DIR/xcframework-utils.sh"
 
 PACKAGE_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
 SDKS=""
-generation=v9
 variant=Sentry-Dynamic
-if [ "${SDK_V10:-0}" = 1 ]; then
-    generation=v10
-    variant=SentryV10-Dynamic
-fi
-OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM/$generation"
+OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM"
 
 usage() {
     log_info "Usage: $0 [options]"
-    log_info "  -v, --variant <name>     Shipping artifact basename (default: dynamic for the selected generation)"
+    log_info "  -v, --variant <name>     Shipping artifact basename: Sentry-Dynamic or Sentry-Dynamic-WithARM64e (default: Sentry-Dynamic)"
     log_info "  -d, --sdks <list>        Comma-separated SDKs or AllSDKs, iOSOnly, macOSOnly, macCatalystOnly (default: all)"
-    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM/v9 or v10)"
-    log_info "Set SDK_V10=1 to build V10 instead of V9."
+    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM)"
     exit 1
 }
 
@@ -52,13 +46,14 @@ scheme=Sentry
 framework_name=Sentry
 linkage=dynamic
 with_arm64e=false
-# Select the source module name without changing the SDK generation.
+# The package manifests still select the SDK implementation through SDK_V10.
+export SDK_V10=1
 export SENTRY_BUILD_XCFRAMEWORK=1
-case "$generation/$variant" in
-    v9/Sentry|v10/SentryV10) linkage=static; with_arm64e=true ;;
-    v9/Sentry-Dynamic) ;;
-    v10/SentryV10-Dynamic|v9/Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
-    *) log_error "Not a shipping $generation SDK variant: $variant"; exit 1 ;;
+case "$variant" in
+    Sentry|SentryV10) linkage=static; with_arm64e=true ;;
+    Sentry-Dynamic) ;;
+    Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
+    *) log_error "Not a shipping SDK variant: $variant"; exit 1 ;;
 esac
 
 case "$SDKS" in

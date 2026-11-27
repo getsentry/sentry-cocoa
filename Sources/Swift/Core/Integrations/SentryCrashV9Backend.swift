@@ -3,7 +3,7 @@
 internal import _SentryPrivate
 import Foundation
 
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 @_silgen_name("sentrycrash_v9_registerSwiftBackend")
 private func sentrycrash_v9_registerSwiftBackend()
 #endif
@@ -12,8 +12,8 @@ private func sentrycrash_v9_registerSwiftBackend()
 /// This function is called from C crash reporting code.
 @_cdecl("sentry_finishAndSaveTransaction")
 public func sentry_finishAndSaveTransaction() {
-    guard let scope = SentrySDKInternal.currentHub().scopeObject as? Scope,
-          let span = scope.span as? SentrySpanInternal else {
+    let scope = SentrySDKInternal.currentHub().scope as Scope
+    guard let span = scope.getCastedInternalSpan() else {
         SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
         return
     }
@@ -22,9 +22,8 @@ public func sentry_finishAndSaveTransaction() {
 
 /// Connects the V9-only Swift adapter module to the reporter-neutral SDK module.
 ///
-/// SwiftPM compiles the adapter as a separate target so V10 never schedules its sources. The
-/// registration function is a C symbol because a Swift module dependency in the opposite direction
-/// would introduce a target cycle.
+/// SwiftPM source builds call the adapter through a C symbol to avoid a module dependency
+/// cycle. V9 binary producers compile the adapter into Sentry and call it directly.
 @_spi(Private) public enum SentryCrashV9Backend {
     public typealias IntegrationInstaller = (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?
     public typealias CrashWrapperProvider = (SentryDependencyContainer) -> SentryCrashReporter
