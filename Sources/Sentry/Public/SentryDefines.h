@@ -161,9 +161,13 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
 /**
  * Block can be used to mutate a transaction before it's sent.
  * To avoid sending the transaction altogether, return nil instead.
+ *
+ * The transaction is type-erased because SentryTransaction is a Swift class. Naming that class in
+ * this header hides the callback from Swift.
  */
-typedef SentryTransaction *_Nullable (^SentryBeforeSendTransactionCallback)(
-    SentryTransaction *_Nonnull transaction);
+typedef SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) _Nullable (
+    ^SentryBeforeSendTransactionCallback)(
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) _Nonnull transaction);
 #endif // SDK_V10
 
 /**

@@ -73,9 +73,12 @@ public class TestHub: SentryTestHubWrapper {
     }
 
     public var capturedTransactionsWithScope = Invocations<(transaction: [String: Any], scope: Scope)>()
-    public override func capture(_ transaction: Transaction, with scope: Scope) {
+    public override func wrapper_capture(transaction: Any, with scope: Scope) {
+        guard let transaction = transaction as? Transaction else {
+            XCTFail("TestHub.wrapper_capture(transaction:with:): Expected Transaction, got \(type(of: transaction))")
+            return
+        }
         capturedTransactionsWithScope.record((transaction.serialize(), scope))
-        super.capture(transaction, with: scope)
     }
     
     public var onReplayCapture: (() -> Void)?

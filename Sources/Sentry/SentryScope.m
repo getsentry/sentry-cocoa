@@ -15,7 +15,6 @@
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #if SDK_V10
-#    import "SentryTransaction+Private.h"
 #endif // SDK_V10
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
