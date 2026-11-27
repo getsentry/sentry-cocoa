@@ -70,6 +70,9 @@ version="$(read_xcconfig_value_or_exit \
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 work="$OUTPUT_DIR/build/$variant"
+# Private headers do not depend on the SDK.
+private_headers="$work/prepared/PrivateHeaders"
+"$SCRIPT_DIR/prepare-private-headers.sh" --output-dir "$private_headers"
 
 for sdk in "${sdks[@]}"; do
     archs="$(sdk_base_architectures "$sdk")"
@@ -107,6 +110,7 @@ for sdk in "${sdks[@]}"; do
         --mergeable "$mergeable" \
         --static-lib "$lib" \
         --headers "$prepared/Headers" \
+        --private-headers "$private_headers" \
         --modules "$prepared/Modules" \
         --resources "$prepared/Resources"
 done
