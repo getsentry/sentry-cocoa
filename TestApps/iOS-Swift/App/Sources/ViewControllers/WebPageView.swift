@@ -1,9 +1,5 @@
 #if compiler(>=6.2)
-#if !SDK_V10
-@_spi(Private) import SentrySwift
-#else
 @_spi(Private) import Sentry
-#endif
 import SwiftUI
 import WebKit
 

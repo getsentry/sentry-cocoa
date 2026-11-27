@@ -1,9 +1,5 @@
 import AVFoundation
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 import UIKit
 
 final class SessionReplayCameraPreviewViewController: UIViewController {

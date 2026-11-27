@@ -1,10 +1,6 @@
 import Cocoa
-import SentrySampleShared
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
+import SentrySampleShared
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
