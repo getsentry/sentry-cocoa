@@ -15,7 +15,7 @@ xcrun --sdk macosx clang -arch arm64 -arch x86_64 -mmacosx-version-min=12.0 -g -
 xcrun libtool -static -o "$work/libFixture.a" "$work/fixture.o"
 
 build_fixture() {
-    "$SCRIPT_DIR/build-dynamic-framework.sh" \
+    "$SCRIPT_DIR/package-framework-slice.sh" \
         --sdk macosx \
         --framework-name Fixture \
         --version 1.0.0 \
@@ -25,18 +25,23 @@ build_fixture() {
         "$@"
 }
 
-if build_fixture || build_fixture --archs '' || build_fixture --archs ' '; then
+if build_fixture --archs arm64; then
+    log_error 'Packaging succeeded without --product-type'
+    exit 1
+fi
+
+if build_fixture --product-type dynamic || build_fixture --product-type dynamic --archs '' || build_fixture --product-type dynamic --archs ' '; then
     log_error 'Relinking succeeded without a nonempty --archs list'
     exit 1
 fi
 
-if build_fixture --archs 'arm64 arm64e'; then
+if build_fixture --product-type dynamic --archs 'arm64 arm64e'; then
     log_error 'Relinking succeeded despite the archive lacking arm64e'
     exit 1
 fi
 
 for mergeable in false true; do
-    build_fixture --archs arm64 --mergeable "$mergeable"
+    build_fixture --product-type dynamic --archs arm64 --mergeable "$mergeable"
 
     binary="$work/framework/Fixture/macosx/Fixture.framework/Fixture"
     archs="$(xcrun lipo -archs "$binary")"
@@ -56,15 +61,42 @@ done
 # Private headers are optional and land in the versioned macOS layout.
 mkdir "$work/private-headers"
 echo 'int fixture_private(void);' > "$work/private-headers/Fixture+Private.h"
-build_fixture --archs arm64 --private-headers "$work/private-headers"
+build_fixture --product-type dynamic --archs arm64 --private-headers "$work/private-headers"
 framework="$work/framework/Fixture/macosx/Fixture.framework"
 if [[ "$(readlink "$framework/PrivateHeaders")" != Versions/Current/PrivateHeaders ]] \
     || [[ ! -f "$framework/PrivateHeaders/Fixture+Private.h" ]]; then
     log_error "--private-headers did not produce PrivateHeaders/Fixture+Private.h"
     exit 1
 fi
-build_fixture --archs arm64
+build_fixture --product-type dynamic --archs arm64
 if [[ -e "$framework/PrivateHeaders" ]]; then
     log_error "PrivateHeaders exists without --private-headers"
     exit 1
 fi
+
+# Put the category in its own archive member. Referencing fixture() alone must
+# retain it in a static consumer without -ObjC, -all_load or -force_load.
+arch="$(uname -m)"
+cat > "$work/category.m" <<'EOF'
+#import <Foundation/Foundation.h>
+@interface NSData (Fixture)
+- (BOOL)fixtureCategory;
+@end
+@implementation NSData (Fixture)
+- (BOOL)fixtureCategory { return YES; }
+@end
+EOF
+xcrun --sdk macosx clang -arch "$arch" -mmacosx-version-min=12.0 -c "$work/category.m" -o "$work/category.o"
+xcrun lipo "$work/fixture.o" -thin "$arch" -output "$work/native.o"
+xcrun libtool -static -o "$work/libFixture.a" "$work/native.o" "$work/category.o"
+build_fixture --archs "$arch" --product-type static
+cat > "$work/consumer.m" <<'EOF'
+#import <Foundation/Foundation.h>
+#import <Fixture/Fixture.h>
+int main(void) {
+    return !(fixture() && [NSData instancesRespondToSelector:NSSelectorFromString(@"fixtureCategory")]);
+}
+EOF
+xcrun --sdk macosx clang -arch "$arch" -F "$work/framework/Fixture/macosx" "$work/consumer.m" \
+    -framework Fixture -framework Foundation -o "$work/consumer"
+"$work/consumer"

@@ -38,19 +38,20 @@ The [Release workflow](../.github/workflows/release.yml) builds `Sentry`, `Sentr
 
 ### SPM-built SDK frameworks
 
-Build a self-contained dynamic XCFramework from SwiftPM sources, with the same names and CPU architectures as the Xcode-project release artifacts. The inner framework remains `Sentry.framework`. Swift binary consumers use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
+Build a self-contained XCFramework from SwiftPM sources, with the same names and CPU architectures as the Xcode-project release artifacts. The inner framework remains `Sentry.framework`. Swift binary consumers use `import Sentry`; Objective-C binary consumers use `@import Sentry;`.
 
-| XCFramework                 | arm64e slices        |
-| --------------------------- | -------------------- |
-| `Sentry-Dynamic`            | None                 |
-| `Sentry-Dynamic-WithARM64e` | Non-simulator builds |
+| XCFramework                 | Linkage | arm64e slices        |
+| --------------------------- | ------- | -------------------- |
+| `Sentry`                    | Static  | Non-simulator builds |
+| `Sentry-Dynamic`            | Dynamic | None                 |
+| `Sentry-Dynamic-WithARM64e` | Dynamic | Non-simulator builds |
 
 ```bash
 make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 SPM_XCFRAMEWORK_VARIANT=Sentry-Dynamic-WithARM64e make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
 ```
 
-The [build script](../scripts/build-xcframework-variant-spm.sh) automatically sets `SDK_V10=1` and the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
+The [build script](../scripts/build-xcframework-sentry-spm.sh) automatically sets `SDK_V10=1` and the producer-only `SENTRY_BUILD_XCFRAMEWORK=1`. The manifests omit downloaded binary targets and compile the main SDK as module/product `Sentry`. Wrapper and test targets are excluded from this packaging graph; ordinary source builds remain unchanged. This setting is not required by consumers or defined in distributed public headers.
 
 Output: `XCFrameworkBuildPath/SPM/<variant>.xcframework.zip`. The intermediates for each variant are kept under `build/<variant>` in the output directory. See [input preparation](../scripts/prepare-sentry-framework-inputs.sh) for framework assembly details.
 
@@ -66,6 +67,16 @@ done
 The Swift-only [`SPM-Dynamic`](../TestApps/SPM-Dynamic) sample checks public API, SPI, and the privacy manifest from the loaded SDK bundle. The Objective-C-only [`SPM-ObjC-Dynamic`](../TestApps/SPM-ObjC-Dynamic) sample checks ordinary Objective-C imports, public API, and version exports. Both verify dynamic loading without starting integrations or sending network requests. Without `SENTRY_XCFRAMEWORK`, both consume the existing `Sentry-Dynamic` product; use `swift run --build-system xcode --package-path "TestApps/$consumer" "$consumer"` for each sample as in the Release workflow.
 
 The [Release workflow](../.github/workflows/release.yml) runs macOS packaging and isolated consumer checks as **advisory** jobs; SPM artifacts are not published. Switching releases requires platform/API parity and mandatory packaging/consumer gates.
+
+To build the static XCFramework, set `SPM_XCFRAMEWORK_VARIANT=Sentry`. Apps do not need `-ObjC` to retain SDK categories.
+
+The [Objective-C static consumer](../TestApps/SPM-ObjC-Static) uses the `Sentry` package product. CI swaps the Xcode-built and SwiftPM-built release zips under that product and checks that Sentry is linked into the executable and its `NSData` category is available.
+
+```bash
+swift run --build-system xcode --package-path TestApps/SPM-ObjC-Static SPM-ObjC-Static
+```
+
+For the separate `SentryObjC-Static` product in a pure Objective-C app, use the [documented app linker flags](https://docs.sentry.io/platforms/apple/install/swift-package-manager/#sentryobjc-static), as the [iOS Objective-C static sample](../TestApps/iOS-ObjectiveC-Static/App/Configurations/iOS-ObjectiveC-Static.xcconfig) does.
 
 ## Public API Generation
 

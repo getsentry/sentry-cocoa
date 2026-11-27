@@ -1,10 +1,7 @@
 #!/bin/bash
 #
-# Builds a single dynamic framework slice.
-#
-# Takes a pre-built static library (from build-static-library.sh)
-# and re-links it as a dynamic library via swiftc, then packages the result
-# as a .framework bundle with headers and optional prepared modules and resources.
+# Packages a prebuilt static library as one .framework slice with headers,
+# optional modules, and resources. Select static or dynamic linkage with --product-type.
 
 set -euo pipefail
 
@@ -25,6 +22,7 @@ RESOURCES_DIR=""
 VERSION=""
 ARCHS=""
 MERGEABLE=false
+PRODUCT_TYPE=""
 
 usage() {
     log_info "Usage: $0"
@@ -34,6 +32,7 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
+    log_info "  -t, --product-type <type>     Framework linkage: static or dynamic (required)"
     log_info "  -A, --archs <list>            Space-separated architectures to link (required)"
     log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
     log_info "  -P, --private-headers <path>  Prepared private headers directory (optional)"
@@ -54,6 +53,7 @@ while [[ $# -gt 0 ]]; do
         -o|--output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
         -v|--version)     VERSION="$2";      shift 2 ;;
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
+        -t|--product-type) PRODUCT_TYPE="$2"; shift 2 ;;
         -A|--archs) ARCHS="$2"; shift 2 ;;
         -M|--mergeable) MERGEABLE="$2"; shift 2 ;;
         -P|--private-headers) PRIVATE_HEADERS_DIR="$2"; shift 2 ;;
@@ -66,6 +66,18 @@ done
 
 if [[ "$MERGEABLE" != true && "$MERGEABLE" != false ]]; then
     log_error "--mergeable must be true or false"
+    usage
+fi
+if [[ -z "$PRODUCT_TYPE" ]]; then
+    log_error "--product-type is required"
+    usage
+fi
+if [[ "$PRODUCT_TYPE" != static && "$PRODUCT_TYPE" != dynamic ]]; then
+    log_error "--product-type must be static or dynamic"
+    usage
+fi
+if [[ "$PRODUCT_TYPE" == static && "$MERGEABLE" == true ]]; then
+    log_error "--mergeable requires a dynamic framework"
     usage
 fi
 if [ -z "$SDK" ]; then
@@ -305,6 +317,28 @@ else
     sysroot="$(xcrun --sdk "$SDK" --show-sdk-path)"
 fi
 
+target_suffix="$(target_suffix_for_sdk "$SDK")"
+link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
+trap 'rm -rf "$link_dir"' EXIT
+
+if [[ "$PRODUCT_TYPE" == static ]]; then
+    # Fold category-only objects into the same archive member as the SDK symbols.
+    # This retains Objective-C categories without consumer-side linker flags.
+    libraries=()
+    for arch in "${archs[@]}"; do
+        xcrun clang -target "$arch-$target_suffix" -isysroot "$sysroot" -nostdlib \
+            -Wl,-r,-keep_private_externs -Xlinker -force_load -Xlinker "$STATIC_LIB" -o "$link_dir/$arch.o"
+        xcrun libtool -static -o "$link_dir/$arch.a" "$link_dir/$arch.o"
+        libraries+=("$link_dir/$arch.a")
+    done
+    xcrun lipo -create "${libraries[@]}" -output "$binary_path"
+    # Match the Xcode static bundle's App Store workaround; object deployment targets stay unchanged.
+    plutil -replace MinimumOSVersion -string 100.0 "$resources_dir/Info.plist"
+    log_info "Static framework slice built: $FW_DIR"
+    end_group
+    exit 0
+fi
+
 fw_search_path="$sysroot/System/Library/Frameworks"
 catalyst_fw_path=""
 if [ "$SDK" = "maccatalyst" ]; then
@@ -348,9 +382,6 @@ for lib in "${SYSTEM_LIBS[@]}"; do
 done
 
 # --- Link per architecture ---
-target_suffix="$(target_suffix_for_sdk "$SDK")"
-link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
-trap 'rm -rf "$link_dir"' EXIT
 dummy_swift="$link_dir/empty.swift"
 echo "" > "$dummy_swift"
 

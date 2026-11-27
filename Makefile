@@ -359,7 +359,7 @@ SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM
 .PHONY: build-xcframework-spm
 build-xcframework-spm:
 	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant-spm.sh --variant "$(SPM_XCFRAMEWORK_VARIANT)" --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
+	./scripts/build-xcframework-sentry-spm.sh --variant "$(SPM_XCFRAMEWORK_VARIANT)" --sdks "$(SDKS)" --output-dir "$(SPM_XCFRAMEWORK_BUILD_PATH)"
 	@echo "[MAKE] $@: Validating $(SPM_XCFRAMEWORK_VARIANT).xcframework"
 	./scripts/validate-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/$(SPM_XCFRAMEWORK_VARIANT).xcframework"
 	@echo "[MAKE] $@: Compressing $(SPM_XCFRAMEWORK_VARIANT).xcframework"

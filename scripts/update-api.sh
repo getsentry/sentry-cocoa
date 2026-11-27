@@ -94,7 +94,7 @@ end_group
 SPM_BUILD_DIR="$(pwd)/DerivedData/API-SPM-V10"
 
 begin_group "Build Sentry SwiftPM XCFramework"
-"$SCRIPT_DIR/build-xcframework-variant-spm.sh" \
+"$SCRIPT_DIR/build-xcframework-sentry-spm.sh" \
     --sdks iphoneos --output-dir "$SPM_BUILD_DIR"
 end_group
 

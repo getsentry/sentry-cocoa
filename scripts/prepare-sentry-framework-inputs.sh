@@ -9,9 +9,11 @@ source "$SCRIPT_DIR/ci-utils.sh"
 SOURCE_HEADERS_DIR="$SCRIPT_DIR/../Sources/Sentry/Public"
 SWIFT_ARCHIVE=""
 OUTPUT_DIR=""
+linkage=dynamic
 
 usage() {
     log_info "Usage: $0"
+    log_info "  -t, --product-type <type>     static or dynamic (default)"
     log_info "  -a, --swift-archive <path>    Source archive containing Sentry Swift artifacts (required)"
     log_info "  -o, --output-dir <path>       Staging directory for Headers, Modules, Resources (required)"
     log_info "Use the same SDK_V10 environment setting as the source archive."
@@ -21,6 +23,7 @@ usage() {
 while [[ $# -gt 0 ]]; do
     [[ $# -ge 2 && -n "$2" && "$2" != -* ]] || usage
     case $1 in
+        -t|--product-type) linkage="$2" ;;
         -a|--swift-archive) SWIFT_ARCHIVE="$2" ;;
         -o|--output-dir) OUTPUT_DIR="$2" ;;
         *) usage ;;
@@ -29,6 +32,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$SWIFT_ARCHIVE" && -n "$OUTPUT_DIR" ]] || usage
+[[ "$linkage" == static || "$linkage" == dynamic ]] || usage
 swift_products="$SWIFT_ARCHIVE/Products/Swift"
 if [ ! -d "$swift_products/Sentry.swiftmodule" ] || [ ! -f "$swift_products/Sentry-Swift.h" ]; then
     log_error "Missing Swift artifacts for Sentry in $SWIFT_ARCHIVE"
@@ -95,7 +99,11 @@ prepare_modules() {
     sed 's|@import SentryHeaders;|#import <Sentry/Sentry.h>|' \
         "$swift_products/Sentry-Swift.h" > "$headers_dir/Sentry-Swift.h"
     # The Swift submodule exposes Swift declarations to ObjC without reimporting them into Swift.
-    cp "$SCRIPT_DIR/../Sources/Resources/SentrySPM.modulemap" "$modules_dir/module.modulemap"
+    # Static clients need these libraries at final link, without passing consumer flags.
+    awk -v linkage="$linkage" '
+        { print }
+        /^framework module / && linkage == "static" { print "  link \"c++\""; print "  link \"z\"" }
+    ' "$SCRIPT_DIR/../Sources/Resources/SentrySPM.modulemap" > "$modules_dir/module.modulemap"
 }
 
 copy_resources() {

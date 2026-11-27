@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build SwiftPM SDK slices and assemble a self-contained dynamic XCFramework.
+# Build SwiftPM SDK slices and assemble a self-contained dynamic or static XCFramework.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +17,7 @@ OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM"
 
 usage() {
     log_info "Usage: $0 [options]"
-    log_info "  -v, --variant <name>     Shipping artifact basename: Sentry-Dynamic or Sentry-Dynamic-WithARM64e (default: Sentry-Dynamic)"
+    log_info "  -v, --variant <name>     Shipping artifact basename: Sentry, Sentry-Dynamic or Sentry-Dynamic-WithARM64e (default: Sentry-Dynamic)"
     log_info "  -d, --sdks <list>        Comma-separated SDKs or AllSDKs, iOSOnly, macOSOnly, macCatalystOnly (default: all)"
     log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM)"
     exit 1
@@ -44,11 +44,13 @@ fi
 
 scheme=Sentry
 framework_name=Sentry
+linkage=dynamic
 with_arm64e=false
 # The package manifests still select the SDK implementation through SDK_V10.
 export SDK_V10=1
 export SENTRY_BUILD_XCFRAMEWORK=1
 case "$variant" in
+    Sentry) linkage=static; with_arm64e=true ;;
     Sentry-Dynamic) ;;
     Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
     *) log_error "Not a shipping SDK variant: $variant"; exit 1 ;;
@@ -87,17 +89,26 @@ for sdk in "${sdks[@]}"; do
         --output-dir "$work"
     prepared="$work/prepared/$sdk"
     "$SCRIPT_DIR/prepare-sentry-framework-inputs.sh" \
+        --product-type "$linkage" \
         --swift-archive "$work/archive/$scheme/$sdk.xcarchive" \
         --output-dir "$prepared"
-    # The watchOS device and simulator linkers do not support -make_mergeable.
-    "$SCRIPT_DIR/build-dynamic-framework.sh" \
+    lib="$work/lib/$scheme/$sdk/lib$scheme-Debug.a"
+    mergeable=false
+    if [[ "$linkage" == static ]]; then
+        lib="$work/lib/$scheme/$sdk/lib$scheme.a"
+    elif [[ "$sdk" != watch* ]]; then
+        # The watchOS device and simulator linkers do not support -make_mergeable.
+        mergeable=true
+    fi
+    "$SCRIPT_DIR/package-framework-slice.sh" \
         --sdk "$sdk" \
         --framework-name "$framework_name" \
         --version "$version" \
         --output-dir "$work" \
+        --product-type "$linkage" \
         --archs "$archs" \
-        --mergeable "$([[ "$sdk" == watch* ]] && echo false || echo true)" \
-        --static-lib "$work/lib/$scheme/$sdk/lib$scheme-Debug.a" \
+        --mergeable "$mergeable" \
+        --static-lib "$lib" \
         --headers "$prepared/Headers" \
         --private-headers "$private_headers" \
         --modules "$prepared/Modules" \
@@ -105,8 +116,10 @@ for sdk in "${sdks[@]}"; do
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
+assembly_args=()
+if [[ "$linkage" == dynamic ]]; then assembly_args+=(--require-debug-symbols); fi
 "$SCRIPT_DIR/assemble-xcframework.sh" \
     --sdks "$xcframework_sdks" \
     --framework-template "$work/framework/$framework_name/SDK_NAME/$framework_name.framework" \
     --output "$OUTPUT_DIR/$variant.xcframework" \
-    --require-debug-symbols
+    "${assembly_args[@]+"${assembly_args[@]}"}"

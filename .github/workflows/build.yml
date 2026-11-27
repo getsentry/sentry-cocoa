@@ -298,7 +298,7 @@ jobs:
         run: ./scripts/test-v10-archive-audit-path.sh
       - name: Test dynamic framework relinking
         if: matrix.sdk == 'macosx'
-        run: ./scripts/test-build-dynamic-framework.sh
+        run: ./scripts/test-package-framework-slice.sh
       - name: Test static library architectures
         if: matrix.sdk == 'watchos'
         run: ./scripts/test-static-library-archive-architectures.sh --work-dir "$RUNNER_TEMP/static-library-archive-architectures"
