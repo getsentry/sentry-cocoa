@@ -334,10 +334,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - generation: v9
-            sdk-v10: "0"
-            runner: macos-15
-            xcode: "16"
           - generation: v10
             sdk-v10: "1"
             runner: macos-26
@@ -385,7 +381,7 @@ jobs:
 
   validate-spm-sdk:
     name: Validate SPM SDK ${{ matrix.generation }} (advisory)
-    # A failed matrix leg must not suppress validation of another leg's artifact.
+    # Validate even after packaging fails so missing artifacts are reported.
     if: >-
       always() && !cancelled() && needs.files-changed.result == 'success' &&
       (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
@@ -397,9 +393,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - generation: v9
-            runner: macos-15
-            xcode: "16"
           - generation: v10
             runner: macos-26
             xcode: "26"
