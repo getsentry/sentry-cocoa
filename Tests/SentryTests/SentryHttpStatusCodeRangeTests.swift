@@ -73,6 +73,34 @@ class SentryHttpStatusCodeRangeTests: XCTestCase {
         XCTAssertFalse(range.is(inRange: 599))
     }
 
+    func testIsInRange_whenBoundsAreIntegerLimits_shouldIncludeBothLimits() {
+        // -- Arrange --
+        let range = HttpStatusCodeRange(min: Int.min, max: Int.max)
+
+        // -- Act --
+        let includesMin = range.is(inRange: Int.min)
+        let includesMax = range.is(inRange: Int.max)
+
+        // -- Assert --
+        XCTAssertTrue(includesMin)
+        XCTAssertTrue(includesMax)
+    }
+
+    func testIsInRange_whenGettersAreOverridden_shouldUseInitializedBounds() {
+        // -- Arrange --
+        let range = OverriddenHttpStatusCodeRange(min: 500, max: 599)
+
+        // -- Act --
+        let includesBelowMin = range.is(inRange: 400)
+        let includesWithinRange = range.is(inRange: 550)
+        let includesAboveMax = range.is(inRange: 600)
+
+        // -- Assert --
+        XCTAssertFalse(includesBelowMin)
+        XCTAssertTrue(includesWithinRange)
+        XCTAssertFalse(includesAboveMax)
+    }
+
     // MARK: - StatusCode Init: isInRange
 
     func testIsInRange_whenStatusCodeInitAndExactMatch_shouldReturnTrue() {
@@ -86,4 +114,9 @@ class SentryHttpStatusCodeRangeTests: XCTestCase {
 
         XCTAssertFalse(range.is(inRange: 501))
     }
+}
+
+private class OverriddenHttpStatusCodeRange: HttpStatusCodeRange {
+    override var min: Int { 0 }
+    override var max: Int { 999 }
 }
