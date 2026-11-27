@@ -60,7 +60,7 @@ final class CrashE2ERunner {
             try buildVariant(
                 derivedDataPath: config.derivedDataPath,
                 label: "default",
-                extraBuildSettings: crashE2ETestHookBuildSettings + sdkBuildSettings()
+                extraBuildSettings: crashE2ETestHookBuildSettings
             )
         }
         if shouldBuildManagedRuntimeVariant {
@@ -69,7 +69,7 @@ final class CrashE2ERunner {
             try buildVariant(
                 derivedDataPath: config.managedRuntimeDerivedDataPath,
                 label: "managed runtime",
-                extraBuildSettings: sdkBuildSettings(managedRuntime: true)
+                extraBuildSettings: managedRuntimeBuildSettings
             )
         }
     }
@@ -176,17 +176,10 @@ final class CrashE2ERunner {
         return ["OTHER_SWIFT_FLAGS=$(inherited) -DSENTRY_CRASH_E2E"]
     }
 
-    private func sdkBuildSettings(managedRuntime: Bool = false) -> [String] {
-        // Keep unrelated V10 settings aligned through project-reference dependencies,
+    private var managedRuntimeBuildSettings: [String] {
+        // Pass the setting on the command line so it reaches project-reference dependencies,
         // including the ObjC wrappers. App-target settings alone do not propagate there.
-        var cConditions = ["$(inherited)", "SDK_V10=1"]
-        if managedRuntime {
-            cConditions.append("SENTRY_CRASH_MANAGED_RUNTIME=1")
-        }
-        return [
-            "SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SDK_V10",
-            "GCC_PREPROCESSOR_DEFINITIONS=\(cConditions.joined(separator: " "))"
-        ]
+        ["GCC_PREPROCESSOR_DEFINITIONS=$(inherited) SENTRY_CRASH_MANAGED_RUNTIME=1"]
     }
 
     private var shouldBuildNormalVariant: Bool {

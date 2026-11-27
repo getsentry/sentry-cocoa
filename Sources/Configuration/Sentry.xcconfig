@@ -49,13 +49,6 @@ GCC_WARN_SHADOW = YES
 SWIFT_VERSION = 5.0
 CLANG_WARN_ASSIGN_ENUM = NO
 
-// Keep unrelated V10 development behavior selected by SentryV10.xcconfig.
-// Both targets use KSCrash. This selector no longer chooses the crash backend.
-SWIFT_ACTIVE_COMPILATION_CONDITIONS_DebugV10 = DEBUG
-SWIFT_ACTIVE_COMPILATION_CONDITIONS_ReleaseV10 =
-GCC_PREPROCESSOR_DEFINITIONS_DebugV10 = DEBUG=1
-GCC_PREPROCESSOR_DEFINITIONS_ReleaseV10 = RELEASE=1
-
 // Both SDK targets produce a module and framework named Sentry. Keep implicit dependency
 // discovery for this target separate from the V10 KSCrash-backed target.
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV9

@@ -24,8 +24,7 @@ let package = Package(
     targets: [
         .target(
             name: "ThreadSnapshot",
-            dependencies: [.product(name: "RecordingCore", package: "KSCrash")],
-            cSettings: [.define("SDK_V10", to: "1")]
+            dependencies: [.product(name: "RecordingCore", package: "KSCrash")]
         ),
         .executableTarget(
             name: "ThreadSnapshotBenchmark",

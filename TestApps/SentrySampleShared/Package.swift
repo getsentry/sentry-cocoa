@@ -34,9 +34,7 @@ let package = Package(
             resources: [
                 .process("LoremIpsum.txt"),
                 .process("screenshot.png")
-            ],
-            cSettings: [.define("SDK_V10", to: "1")],
-            swiftSettings: [.define("SDK_V10")]
+            ]
         ),
         .target(
             name: "SentrySampleUITestShared",

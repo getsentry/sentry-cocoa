@@ -44,9 +44,6 @@ targets:
       Debug: App/Configurations/SwiftUICrashTest.xcconfig
       Release: App/Configurations/SwiftUICrashTest.xcconfig
 
-    settings:
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-      GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   SwiftUICrashTest:
     build:
