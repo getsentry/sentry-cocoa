@@ -43,7 +43,7 @@ jobs:
           filters: .github/file-filters.yml
 
   fast-xcframework-slices:
-    name: Fast XCFramework Slice (Sentry Dynamic, iOS arm64)
+    name: Fast XCFramework Slice (Sentry Dynamic, iOS)
     if: needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
@@ -51,14 +51,15 @@ jobs:
       GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
       GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
-      name: Sentry
+      name: SentryV10
+      sdk-v10: true
       suffix: -Dynamic
-      macho-type: mh_dylib
+      macho-type: inherit
       variant-id: sentry-dynamic
       sdk-list: '["iphoneos"]'
 
   fast-unit-tests:
-    name: Fast Unit Tests (iOS 18)
+    name: Fast Unit Tests (iOS 26)
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
@@ -66,11 +67,11 @@ jobs:
       GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
       GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
     with:
-      name: iOS 18 Sentry
-      runs-on: sequoia
+      name: iOS 26 Sentry
+      runs-on: tahoe
       timeout: 20
       should_skip: false
-      xcode: "16"
+      xcode: "26"
       platform: iOS
 
   sentrycrash-import-ratchet:

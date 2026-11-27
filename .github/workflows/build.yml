@@ -67,22 +67,22 @@ jobs:
       matrix:
         include:
           - platform: iOS
-            make-target: build-ios-v10
+            make-target: build-ios
             objects-configuration: DebugV10-iphonesimulator
           - platform: macOS
-            make-target: build-macos-v10
+            make-target: build-macos
             objects-configuration: DebugV10
           - platform: Catalyst
-            make-target: build-catalyst-v10
+            make-target: build-catalyst
             objects-configuration: DebugV10-maccatalyst
           - platform: tvOS
-            make-target: build-tvos-v10
+            make-target: build-tvos
             objects-configuration: DebugV10-appletvsimulator
           - platform: visionOS
-            make-target: build-visionos-v10
+            make-target: build-visionos
             objects-configuration: DebugV10-xrsimulator
           - platform: watchOS
-            make-target: build-watchos-v10
+            make-target: build-watchos
             objects-configuration: DebugV10-watchsimulator
 
     steps:
@@ -307,9 +307,9 @@ jobs:
       - name: Wait for CoreSimulator warmup
         wait: warm-coresimulator
       - name: Build and audit dynamic V10 XCFramework
-        run: make build-xcframework-v10-dynamic SDKS=${{ matrix.sdk }}
+        run: make build-xcframework-dynamic SDKS=${{ matrix.sdk }}
       - name: Build and audit static V10 XCFramework
-        run: make build-xcframework-v10-static SDKS=${{ matrix.sdk }}
+        run: make build-xcframework-static SDKS=${{ matrix.sdk }}
       - name: Check packaged SDK build output
         run: |
           objects_path="XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex"
@@ -318,7 +318,7 @@ jobs:
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$objects_path" \
             --build-log "XCFrameworkBuildPath/raw-build-output.log"
       - name: Build and audit V10 SentryObjC XCFrameworks
-        run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}
+        run: make build-xcframework-sentryobjc SDKS=${{ matrix.sdk }}
 
       # === Artifacts and diagnostics ===
       - name: Upload archive regression logs

@@ -91,8 +91,8 @@ Keep the SDK implementation structurally close to the corresponding KSCrash Sign
 ## Installation tests
 
 ```sh
-make test-macos-v10 FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
-make test-ios-v10 FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
+make test-macos FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTestsObjC/SentryKSCrashManagedSignalTests
 ```
 
 [`SentryKSCrashManagedSignalTests.m`](../Tests/SentryTests/ObjC/Integrations/KSCrash/SentryKSCrashManagedSignalTests.m)

@@ -17,10 +17,10 @@ SentryObjC cannot use the Xcode project slice builder because:
 ### Local
 
 ```
-make build-xcframework-sentryobjc-static SDKS=iphonesimulator
+./scripts/build-xcframework-sentryobjc.sh --sdks iphonesimulator
 ```
 
-Calls `scripts/build-xcframework-sentryobjc.sh`, which loops over SDKs sequentially:
+`scripts/build-xcframework-sentryobjc.sh` loops over SDKs sequentially:
 
 ```
 for each SDK:
@@ -102,11 +102,9 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## Makefile targets
 
-| Target                                          | Description                                                              |
-| ----------------------------------------------- | ------------------------------------------------------------------------ |
-| `build-xcframework-sentryobjc-static SDKS=...`  | Build static xcframework via SPM pipeline                                |
-| `build-xcframework-sentryobjc-dynamic SDKS=...` | Build dynamic xcframework (static slices → re-link as dylibs → assemble) |
-| `build-xcframework-sentryobjc-v10 SDKS=...`     | Build static and dynamic V10 (KSCrash) xcframeworks for local debugging  |
+| Target                                  | Description                                                             |
+| --------------------------------------- | ----------------------------------------------------------------------- |
+| `build-xcframework-sentryobjc SDKS=...` | Build static and dynamic V10 (KSCrash) xcframeworks for local debugging |
 
 ## Relationship to the generic pipeline
 
