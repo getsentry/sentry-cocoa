@@ -17,11 +17,14 @@ source "$SCRIPT_DIR/tools.sh"
 SDK=""
 STATIC_LIB=""
 HEADERS_DIR=""
+PRIVATE_HEADERS_DIR=""
 OUTPUT_DIR=""
 FRAMEWORK_NAME=""
 MODULES_DIR=""
 RESOURCES_DIR=""
 VERSION=""
+ARCHS=""
+MERGEABLE=false
 
 usage() {
     log_info "Usage: $0"
@@ -31,6 +34,9 @@ usage() {
     log_info "  -o, --output-dir <path>       Output directory (required)"
     log_info "  -v, --version <semver>        Framework version string (required)"
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
+    log_info "  -A, --archs <list>            Space-separated architectures to link (required)"
+    log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
+    log_info "  -P, --private-headers <path>  Prepared private headers directory (optional)"
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
@@ -48,6 +54,9 @@ while [[ $# -gt 0 ]]; do
         -o|--output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
         -v|--version)     VERSION="$2";      shift 2 ;;
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
+        -A|--archs) ARCHS="$2"; shift 2 ;;
+        -M|--mergeable) MERGEABLE="$2"; shift 2 ;;
+        -P|--private-headers) PRIVATE_HEADERS_DIR="$2"; shift 2 ;;
         -m|--modules) MODULES_DIR="$2"; shift 2 ;;
         -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
         -h|--help)     usage ;;
@@ -55,8 +64,17 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ "$MERGEABLE" != true && "$MERGEABLE" != false ]]; then
+    log_error "--mergeable must be true or false"
+    usage
+fi
 if [ -z "$SDK" ]; then
     log_error "Error: --sdk is required"
+    usage
+fi
+read -r -a archs <<< "$ARCHS"
+if [[ ${#archs[@]} -eq 0 ]]; then
+    log_error "Error: --archs is required"
     usage
 fi
 if [ -z "$STATIC_LIB" ]; then
@@ -93,6 +111,10 @@ if [[ ! "$FRAMEWORK_NAME" =~ ^[A-Za-z_][A-Za-z_0-9]*$ ]]; then
     log_error "Invalid framework module name: $FRAMEWORK_NAME"
     exit 1
 fi
+if [ -n "$PRIVATE_HEADERS_DIR" ] && [ ! -d "$PRIVATE_HEADERS_DIR" ]; then
+    log_error "Private headers directory not found: $PRIVATE_HEADERS_DIR"
+    exit 1
+fi
 if [ -n "$MODULES_DIR" ] && [ ! -d "$MODULES_DIR" ]; then
     log_error "Modules directory not found: $MODULES_DIR"
     exit 1
@@ -121,18 +143,18 @@ SYSTEM_LIBS=( z c++ )
 REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
 CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
 
-arch_targets_for_sdk() {
+target_suffix_for_sdk() {
     case "$1" in
-        iphoneos)          echo "arm64-apple-ios${DT_IOS}" ;;
-        iphonesimulator)   echo "arm64-apple-ios${DT_IOS}-simulator x86_64-apple-ios${DT_IOS}-simulator" ;;
-        macosx)            echo "arm64-apple-macos${DT_MACOS} x86_64-apple-macos${DT_MACOS}" ;;
-        maccatalyst)       echo "arm64-apple-ios${DT_IOS}-macabi x86_64-apple-ios${DT_IOS}-macabi" ;;
-        appletvos)         echo "arm64-apple-tvos${DT_TVOS}" ;;
-        appletvsimulator)  echo "arm64-apple-tvos${DT_TVOS}-simulator x86_64-apple-tvos${DT_TVOS}-simulator" ;;
-        watchos)           echo "arm64-apple-watchos${DT_WATCHOS} arm64_32-apple-watchos${DT_WATCHOS}" ;;
-        watchsimulator)    echo "arm64-apple-watchos${DT_WATCHOS}-simulator x86_64-apple-watchos${DT_WATCHOS}-simulator" ;;
-        xros)              echo "arm64-apple-xros${DT_XROS}" ;;
-        xrsimulator)       echo "arm64-apple-xros${DT_XROS}-simulator" ;;
+        iphoneos)          echo "apple-ios${DT_IOS}" ;;
+        iphonesimulator)   echo "apple-ios${DT_IOS}-simulator" ;;
+        macosx)            echo "apple-macos${DT_MACOS}" ;;
+        maccatalyst)       echo "apple-ios${DT_IOS}-macabi" ;;
+        appletvos)         echo "apple-tvos${DT_TVOS}" ;;
+        appletvsimulator)  echo "apple-tvos${DT_TVOS}-simulator" ;;
+        watchos)           echo "apple-watchos${DT_WATCHOS}" ;;
+        watchsimulator)    echo "apple-watchos${DT_WATCHOS}-simulator" ;;
+        xros)              echo "apple-xros${DT_XROS}" ;;
+        xrsimulator)       echo "apple-xros${DT_XROS}-simulator" ;;
         *)                 log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
@@ -176,6 +198,14 @@ supported_platforms_for_sdk() {
     esac
 }
 
+# ld can ignore an incompatible archive and still link the empty Swift file successfully.
+for arch in "${archs[@]}"; do
+    if ! xcrun lipo "$STATIC_LIB" -verify_arch "$arch"; then
+        log_error "$STATIC_LIB is missing required architecture: $arch"
+        exit 1
+    fi
+done
+
 FW_DIR="$OUTPUT_DIR/framework/$FRAMEWORK_NAME/$SDK/$FRAMEWORK_NAME.framework"
 rm -rf "$FW_DIR"
 
@@ -189,6 +219,11 @@ if is_macos_layout "$SDK"; then
     # -n preserves the same no-dereference behavior on both GNU and BSD ln.
     ln -sfn A "$FW_DIR/Versions/Current"
     ln -sfn Versions/Current/Headers "$FW_DIR/Headers"
+    private_headers_dir="$versioned/PrivateHeaders"
+    if [ -n "$PRIVATE_HEADERS_DIR" ]; then
+        mkdir -p "$private_headers_dir"
+        ln -sfn Versions/Current/PrivateHeaders "$FW_DIR/PrivateHeaders"
+    fi
     ln -sfn Versions/Current/Modules "$FW_DIR/Modules"
     ln -sfn Versions/Current/Resources "$FW_DIR/Resources"
     ln -sfn "Versions/Current/$FRAMEWORK_NAME" "$FW_DIR/$FRAMEWORK_NAME"
@@ -197,6 +232,8 @@ if is_macos_layout "$SDK"; then
     resources_dir="$versioned/Resources"
 else
     mkdir -p "$FW_DIR/Headers" "$FW_DIR/Modules"
+    private_headers_dir="$FW_DIR/PrivateHeaders"
+    if [ -n "$PRIVATE_HEADERS_DIR" ]; then mkdir -p "$private_headers_dir"; fi
     modules_dir="$FW_DIR/Modules"
     binary_path="$FW_DIR/$FRAMEWORK_NAME"
     resources_dir="$FW_DIR"
@@ -204,6 +241,9 @@ fi
 
 # Prepared inputs are copied verbatim; product-specific transformations belong to the caller.
 cp -R "$HEADERS_DIR"/. "$FW_DIR/Headers/"
+if [ -n "$PRIVATE_HEADERS_DIR" ]; then
+    cp -R "$PRIVATE_HEADERS_DIR"/. "$private_headers_dir/"
+fi
 if [ -n "$MODULES_DIR" ]; then
     cp -R "$MODULES_DIR"/. "$modules_dir/"
 fi
@@ -294,6 +334,9 @@ linker_flags+=( -Xlinker -current_version -Xlinker 1 )
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi
+if [[ "$MERGEABLE" == true ]]; then
+    linker_flags+=( -Xlinker -make_mergeable )
+fi
 for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
     linker_flags+=( -framework "$fw" )
 done
@@ -305,15 +348,15 @@ for lib in "${SYSTEM_LIBS[@]}"; do
 done
 
 # --- Link per architecture ---
-read -r -a arch_targets <<< "$(arch_targets_for_sdk "$SDK")"
+target_suffix="$(target_suffix_for_sdk "$SDK")"
 link_dir="$(mktemp -d "${TMPDIR:-/tmp}/$FRAMEWORK_NAME.XXXXXX")"
 trap 'rm -rf "$link_dir"' EXIT
 dummy_swift="$link_dir/empty.swift"
 echo "" > "$dummy_swift"
 
 arch_binaries=()
-for target in "${arch_targets[@]}"; do
-    arch="${target%%-*}"
+for arch in "${archs[@]}"; do
+    target="$arch-$target_suffix"
     log_info "  Linking arch: $arch ($target)"
 
     arch_output="$link_dir/$arch"

@@ -1,6 +1,15 @@
 #!/bin/bash
 # Shared XCFramework metadata and binary lookup helpers. Source after ci-utils.sh.
 
+sdk_base_architectures() {
+    case "$1" in
+        iphoneos|appletvos|xros|xrsimulator) echo arm64 ;;
+        watchos) echo "arm64 arm64_32" ;;
+        macosx|maccatalyst|iphonesimulator|appletvsimulator|watchsimulator) echo "arm64 x86_64" ;;
+        *) log_error "Unknown SDK: $1" >&2; return 1 ;;
+    esac
+}
+
 require_xcframework() {
     local path="$1"
     if [[ ! -d "$path" ]]; then

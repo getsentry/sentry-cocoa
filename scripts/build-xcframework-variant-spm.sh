@@ -7,18 +7,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 # shellcheck source=./tools.sh disable=SC1091
 source "$SCRIPT_DIR/tools.sh"
+# shellcheck source=./xcframework-utils.sh disable=SC1091
+source "$SCRIPT_DIR/xcframework-utils.sh"
 
 PACKAGE_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
 SDKS=""
-generation=v9
-if [ "${SDK_V10:-0}" = 1 ]; then generation=v10; fi
-OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM/$generation"
+variant=Sentry-Dynamic
+OUTPUT_DIR="$PACKAGE_PATH/XCFrameworkBuildPath/SPM"
 
 usage() {
     log_info "Usage: $0 [options]"
+    log_info "  -v, --variant <name>     Shipping artifact basename: Sentry-Dynamic or Sentry-Dynamic-WithARM64e (default: Sentry-Dynamic)"
     log_info "  -d, --sdks <list>        Comma-separated SDKs or AllSDKs, iOSOnly, macOSOnly, macCatalystOnly (default: all)"
-    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM/v9 or v10)"
-    log_info "Set SDK_V10=1 to build V10 instead of V9."
+    log_info "  -o, --output-dir <path>  Build directory (default: <repo>/XCFrameworkBuildPath/SPM)"
     exit 1
 }
 
@@ -30,6 +31,7 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         -d|--sdks) SDKS="$2"; shift 2 ;;
         -o|--output-dir) OUTPUT_DIR="$2"; shift 2 ;;
+        -v|--variant) variant="$2"; shift 2 ;;
         -h|--help) usage ;;
         *) log_error "Unknown argument: $1"; usage ;;
     esac
@@ -39,6 +41,18 @@ if [ -z "$OUTPUT_DIR" ]; then
     log_error "--output-dir must not be empty"
     usage
 fi
+
+scheme=Sentry
+framework_name=Sentry
+with_arm64e=false
+# The package manifests still select the SDK implementation through SDK_V10.
+export SDK_V10=1
+export SENTRY_BUILD_XCFRAMEWORK=1
+case "$variant" in
+    Sentry-Dynamic) ;;
+    Sentry-Dynamic-WithARM64e) with_arm64e=true ;;
+    *) log_error "Not a shipping SDK variant: $variant"; exit 1 ;;
+esac
 
 case "$SDKS" in
     ""|AllSDKs) sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator ) ;;
@@ -51,32 +65,41 @@ esac
 version="$(read_xcconfig_value_or_exit \
     --key MARKETING_VERSION \
     --file "$PACKAGE_PATH/Sources/Configuration/Versioning.xcconfig")"
-# Select the source module name without changing the SDK generation.
-export SENTRY_BUILD_XCFRAMEWORK=1
-scheme=Sentry
-framework_name=Sentry
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
+work="$OUTPUT_DIR/build/$variant"
+# Private headers do not depend on the SDK.
+private_headers="$work/prepared/PrivateHeaders"
+"$SCRIPT_DIR/prepare-private-headers.sh" --output-dir "$private_headers"
 
 for sdk in "${sdks[@]}"; do
+    archs="$(sdk_base_architectures "$sdk")"
+    # Match the shipped Sentry-Dynamic visionOS simulator slice, which includes x86_64 even though the simulator requires Apple silicon.
+    if [[ "$sdk" == xrsimulator ]]; then archs+=" x86_64"; fi
+    if [[ "$with_arm64e" == true && "$sdk" != *simulator ]]; then archs+=" arm64e"; fi
     "$SCRIPT_DIR/build-static-library.sh" \
         --sdk "$sdk" \
         --scheme "$scheme" \
         --architecture-target "$framework_name" \
+        --archs "$archs" \
         --package-path "$PACKAGE_PATH" \
         --configuration Release \
-        --output-dir "$OUTPUT_DIR"
-    prepared="$OUTPUT_DIR/prepared/$sdk"
+        --output-dir "$work"
+    prepared="$work/prepared/$sdk"
     "$SCRIPT_DIR/prepare-sentry-framework-inputs.sh" \
-        --swift-archive "$OUTPUT_DIR/archive/$scheme/$sdk.xcarchive" \
+        --swift-archive "$work/archive/$scheme/$sdk.xcarchive" \
         --output-dir "$prepared"
+    # The watchOS device and simulator linkers do not support -make_mergeable.
     "$SCRIPT_DIR/build-dynamic-framework.sh" \
         --sdk "$sdk" \
         --framework-name "$framework_name" \
         --version "$version" \
-        --output-dir "$OUTPUT_DIR" \
-        --static-lib "$OUTPUT_DIR/lib/$scheme/$sdk/lib$scheme-Debug.a" \
+        --output-dir "$work" \
+        --archs "$archs" \
+        --mergeable "$([[ "$sdk" == watch* ]] && echo false || echo true)" \
+        --static-lib "$work/lib/$scheme/$sdk/lib$scheme-Debug.a" \
         --headers "$prepared/Headers" \
+        --private-headers "$private_headers" \
         --modules "$prepared/Modules" \
         --resources "$prepared/Resources"
 done
@@ -84,6 +107,6 @@ done
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
 "$SCRIPT_DIR/assemble-xcframework.sh" \
     --sdks "$xcframework_sdks" \
-    --framework-template "$OUTPUT_DIR/framework/$framework_name/SDK_NAME/$framework_name.framework" \
-    --output "$OUTPUT_DIR/${framework_name}-Dynamic.xcframework" \
+    --framework-template "$work/framework/$framework_name/SDK_NAME/$framework_name.framework" \
+    --output "$OUTPUT_DIR/$variant.xcframework" \
     --require-debug-symbols

@@ -324,20 +324,12 @@ jobs:
   # Advisory SPM pipeline: runs beside releases, never as their prerequisite.
   # Promote these jobs to release gates only when switching release packaging.
   package-spm-sdk:
-    name: Package SPM SDK ${{ matrix.generation }} (advisory)
+    name: Package SPM SDK (advisory)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     continue-on-error: true
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-26
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - generation: v10
-            sdk-v10: "1"
-            runner: macos-26
-            xcode: "26"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Git access
@@ -348,54 +340,43 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: ${{ matrix.xcode }}
+          version: "26"
           resolve-simulators: "false"
       - name: Package and validate SDK
-        env:
-          SDK_V10: ${{ matrix.sdk-v10 }}
         run: make build-xcframework-spm SDKS=macosx FOR_AGENTS=true
       # Only the distributable crosses the job boundary, never headers or build caches.
       # These validation artifacts are intentionally excluded from release-upload patterns.
       - name: Upload SPM framework
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
-          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/Sentry-Dynamic.xcframework.zip
+          name: spm-sdk-${{ github.sha }}
+          path: XCFrameworkBuildPath/SPM/Sentry-Dynamic.xcframework.zip
           if-no-files-found: error
       - name: Upload archive logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: spm-sdk-logs-${{ matrix.generation }}
-          path: XCFrameworkBuildPath/SPM/${{ matrix.generation }}/archive/**/*.log
+          name: spm-sdk-logs
+          path: XCFrameworkBuildPath/SPM/build/Sentry-Dynamic/archive/**/*.log
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
       - name: Warn about SPM packaging
         if: failure()
-        env:
-          GENERATION: ${{ matrix.generation }}
         run: |
-          echo "::warning title=Advisory SPM packaging::SPM SDK $GENERATION packaging failed. Xcode-project releases are unaffected."
-          printf '### SPM SDK %s packaging failed (advisory)\n\nXcode-project releases are unaffected. See this job and its archive logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning title=Advisory SPM packaging::SPM SDK packaging failed. Xcode-project releases are unaffected."
+          printf '### SPM SDK packaging failed (advisory)\n\nXcode-project releases are unaffected. See this job and its archive logs.\n' >> "$GITHUB_STEP_SUMMARY"
 
   validate-spm-sdk:
-    name: Validate SPM SDK ${{ matrix.generation }} (advisory)
+    name: Validate SPM SDK (advisory)
     # Validate even after packaging fails so missing artifacts are reported.
     if: >-
       always() && !cancelled() && needs.files-changed.result == 'success' &&
       (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
     needs: [files-changed, package-spm-sdk]
     continue-on-error: true
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-26
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - generation: v10
-            runner: macos-26
-            xcode: "26"
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -404,12 +385,12 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         background: true
         with:
-          name: spm-sdk-${{ github.sha }}-${{ matrix.generation }}
+          name: spm-sdk-${{ github.sha }}
           path: ${{ runner.temp }}/spm-sdk
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: ${{ matrix.xcode }}
+          version: "26"
           resolve-simulators: "false"
       - name: Wait for SPM framework
         wait: download-spm-sdk
@@ -428,12 +409,11 @@ jobs:
       - name: Build and run SPM consumers
         env:
           SENTRY_XCFRAMEWORK: ../Sentry-Dynamic.xcframework
-          SENTRY_TEST_V10: ${{ matrix.generation == 'v10' && '1' || '0' }}
         run: |
           status=0
           for consumer in SPM-Dynamic SPM-ObjC-Dynamic; do
             swift run --package-path "$RUNNER_TEMP/spm-sdk/$consumer" --configuration release \
-              -Xcc "-DSENTRY_TEST_V10=$SENTRY_TEST_V10" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
+              -Xcc "-DSENTRY_TEST_V10=1" "$consumer" > "$RUNNER_TEMP/spm-sdk/$consumer.log" 2>&1 || status=$?
             tail -40 "$RUNNER_TEMP/spm-sdk/$consumer.log"
           done
           exit "$status"
@@ -441,7 +421,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: spm-sdk-consumer-logs-${{ matrix.generation }}
+          name: spm-sdk-consumer-logs
           path: ${{ runner.temp }}/spm-sdk/SPM-*.log
           if-no-files-found: ignore
       - name: Run CI Diagnostics
@@ -449,11 +429,9 @@ jobs:
         if: failure()
       - name: Warn about SPM validation
         if: failure()
-        env:
-          GENERATION: ${{ matrix.generation }}
         run: |
-          echo "::warning title=Advisory SPM validation::SPM SDK $GENERATION consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
-          printf '### SPM SDK %s consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' "$GENERATION" >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning title=Advisory SPM validation::SPM SDK consumer validation failed or its artifact is unavailable. Xcode-project releases are unaffected."
+          printf '### SPM SDK consumer validation failed (advisory)\n\nXcode-project releases are unaffected. See the packaging job if its artifact is unavailable, otherwise see this job and its consumer logs.\n' >> "$GITHUB_STEP_SUMMARY"
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
