@@ -20,7 +20,6 @@
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
 

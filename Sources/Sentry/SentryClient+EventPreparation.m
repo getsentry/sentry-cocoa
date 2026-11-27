@@ -2,7 +2,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import "SentryTransaction+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
