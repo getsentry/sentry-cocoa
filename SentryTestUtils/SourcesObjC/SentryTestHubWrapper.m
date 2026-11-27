@@ -7,13 +7,13 @@
 @implementation SentryTestHubWrapper
 
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
-                      andScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                      andScope:(SentryScope *_Nullable)scope
 {
     return [super initWithClient:client andScope:scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                  withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     return [self wrapper_captureEvent:event
@@ -22,26 +22,12 @@
 }
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event
-                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                         withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
 {
     // Return only the event ID: Swift TestHub overrides this SwiftPM-compatible bridge method
     // to record the invocation without capturing a real event.
     return event.eventId;
-}
-
-- (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-{
-    [self wrapper_captureTransaction:transaction withScope:scope];
-    [super captureTransaction:transaction withScope:scope];
-}
-
-- (void)wrapper_captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                         withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-{
-    // Intentionally empty: Swift TestHub overrides this SwiftPM-compatible bridge method
-    // to record the invocation before hub capture continues.
 }
 
 - (void)wrapper_setSession:(nullable id)session

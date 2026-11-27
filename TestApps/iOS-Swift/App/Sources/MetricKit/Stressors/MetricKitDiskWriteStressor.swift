@@ -1,8 +1,4 @@
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 
 final class MetricKitDiskWriteStressor {
     private static let payloadSize = 16 * 1_024 * 1_024

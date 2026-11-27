@@ -42,7 +42,7 @@ targets:
     dependencies:
       - package: Sentry
         products:
-          - SentrySPM
+          - Sentry
     configFiles:
       Debug: App/Configurations/SPM.xcconfig
       Release: App/Configurations/SPM.xcconfig
@@ -73,6 +73,10 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   SPM:
     templates:

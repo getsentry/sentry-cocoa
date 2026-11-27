@@ -11,9 +11,6 @@
 # CONFIGURATION
 # ============================================================================
 
-# Xcode scheme used to build Sentry SDK
-XCODE_SCHEME = Sentry
-
 # iOS Simulator OS version (defaults to '18.4', can be overridden via IOS_SIMULATOR_OS=latest)
 IOS_SIMULATOR_OS ?= 18.4
 
@@ -168,107 +165,17 @@ clean:
 		':(glob)**/Packages' ':(glob)**/Packages/**' \
 		uikit-check-build analyzer fastlane/test_output fastlane/test_results
 
-## Build all platforms
-#
-# Convenience target that invokes all platform build targets.
-# See build-ios, build-macos, build-catalyst, build-tvos, build-visionos, build-watchos for more details.
-.PHONY: build
-build: build-ios build-macos build-catalyst build-tvos build-visionos build-watchos
-
-## Build iOS target
-#
-# Builds the Sentry SDK for iOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-.PHONY: build-ios
-build-ios:
-	@echo "[MAKE] $@: Building for iOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform iOS \
-		--os $(IOS_SIMULATOR_OS) \
-		--device "$(IOS_DEVICE_NAME)" \
-		--command build \
-		--configuration Debug
-
-## Build macOS target
-#
-# Builds the Sentry SDK for macOS.
-# Outputs logs and uses xcbeautify for formatted output.
-.PHONY: build-macos
-build-macos:
-	@echo "[MAKE] $@: Building for macOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform macOS \
-		--os latest \
-		--command build \
-		--configuration Debug
-
-## Build Catalyst target
-#
-# Builds the Sentry SDK for Mac Catalyst.
-# Outputs logs and uses xcbeautify for formatted output.
-.PHONY: build-catalyst
-build-catalyst:
-	@echo "[MAKE] $@: Building for Catalyst"
-	./scripts/sentry-xcodebuild.sh \
-		--platform Catalyst \
-		--os latest \
-		--command build \
-		--configuration Debug
-
-## Build tvOS target
-#
-# Builds the Sentry SDK for tvOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-.PHONY: build-tvos
-build-tvos:
-	@echo "[MAKE] $@: Building for tvOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform tvOS \
-		--os $(TVOS_SIMULATOR_OS) \
-		--device "$(TVOS_DEVICE_NAME)" \
-		--command build \
-		--configuration Debug
-
-## Build visionOS target
-#
-# Builds the Sentry SDK for visionOS Simulator.
-# Outputs logs and uses xcbeautify for formatted output.
-.PHONY: build-visionos
-build-visionos:
-	@echo "[MAKE] $@: Building for visionOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform visionOS \
-		--os $(VISIONOS_SIMULATOR_OS) \
-		--device "$(VISIONOS_DEVICE_NAME)" \
-		--command build \
-		--configuration Debug
-
-## Build watchOS target
-#
-# Builds the Sentry SDK for watchOS Simulator.
-# Note: Tests are not available for watchOS as XCTest is not supported on watchOS.
-# Outputs logs and uses xcbeautify for formatted output.
-.PHONY: build-watchos
-build-watchos:
-	@echo "[MAKE] $@: Building for watchOS"
-	set -o pipefail && NSUnbufferedIO=YES xcrun xcodebuild build \
-		-workspace Sentry.xcworkspace \
-		-scheme $(XCODE_SCHEME) \
-		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
-		-configuration Debug \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
-
 ## Build all platforms with SDK_V10 flag
 #
 # Convenience target that invokes all V10 platform build targets.
-.PHONY: build-v10
-build-v10: build-ios-v10 build-macos-v10 build-catalyst-v10 build-tvos-v10 build-visionos-v10 build-watchos-v10
+.PHONY: build
+build: build-ios build-macos build-catalyst build-tvos build-visionos build-watchos
 
 ## Build iOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for iOS Simulator using the DebugV10 configuration.
-.PHONY: build-ios-v10
-build-ios-v10:
+.PHONY: build-ios
+build-ios:
 	@echo "[MAKE] $@: Building V10 for iOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform iOS \
@@ -281,8 +188,8 @@ build-ios-v10:
 ## Build macOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for macOS using the DebugV10 configuration.
-.PHONY: build-macos-v10
-build-macos-v10:
+.PHONY: build-macos
+build-macos:
 	@echo "[MAKE] $@: Building V10 for macOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
@@ -294,8 +201,8 @@ build-macos-v10:
 ## Build Catalyst target with SDK_V10 flag
 #
 # Builds the Sentry SDK for Mac Catalyst using the DebugV10 configuration.
-.PHONY: build-catalyst-v10
-build-catalyst-v10:
+.PHONY: build-catalyst
+build-catalyst:
 	@echo "[MAKE] $@: Building V10 for Catalyst"
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
@@ -308,8 +215,8 @@ build-catalyst-v10:
 ## Build tvOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for tvOS Simulator using the DebugV10 configuration.
-.PHONY: build-tvos-v10
-build-tvos-v10:
+.PHONY: build-tvos
+build-tvos:
 	@echo "[MAKE] $@: Building V10 for tvOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform tvOS \
@@ -322,8 +229,8 @@ build-tvos-v10:
 ## Build visionOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for visionOS Simulator using the DebugV10 configuration.
-.PHONY: build-visionos-v10
-build-visionos-v10:
+.PHONY: build-visionos
+build-visionos:
 	@echo "[MAKE] $@: Building V10 for visionOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform visionOS \
@@ -336,8 +243,8 @@ build-visionos-v10:
 ## Build watchOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for watchOS Simulator using the DebugV10 configuration.
-.PHONY: build-watchos-v10
-build-watchos-v10:
+.PHONY: build-watchos
+build-watchos:
 	@echo "[MAKE] $@: Building V10 for watchOS"
 	set -o pipefail && NSUnbufferedIO=YES xcrun xcodebuild build \
 		-workspace Sentry.xcworkspace \
@@ -346,107 +253,17 @@ build-watchos-v10:
 		-configuration DebugV10 \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
-## Build all platforms
-#
-# Convenience target that invokes all non-V10 platform build targets.
-# See build-objc-ios, build-objc-macos, build-objc-catalyst, build-objc-tvos,
-# build-objc-visionos, and build-objc-watchos for more details.
-.PHONY: build-objc
-build-objc: build-objc-ios build-objc-macos build-objc-catalyst build-objc-tvos build-objc-visionos build-objc-watchos
-
-## Build Objective-C iOS target
-#
-# Builds the SentryObjC wrapper for iOS Simulator.
-.PHONY: build-objc-ios
-build-objc-ios:
-	@echo "[MAKE] $@: Building SentryObjC for iOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform iOS \
-		--os $(IOS_SIMULATOR_OS) \
-		--device "$(IOS_DEVICE_NAME)" \
-		--command build \
-		--scheme SentryObjC \
-		--configuration Debug
-
-## Build Objective-C macOS target
-#
-# Builds the SentryObjC wrapper for macOS.
-.PHONY: build-objc-macos
-build-objc-macos:
-	@echo "[MAKE] $@: Building SentryObjC for macOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform macOS \
-		--os latest \
-		--command build \
-		--scheme SentryObjC \
-		--configuration Debug
-
-## Build Objective-C Catalyst target
-#
-# Builds the SentryObjC wrapper for Mac Catalyst.
-.PHONY: build-objc-catalyst
-build-objc-catalyst:
-	@echo "[MAKE] $@: Building SentryObjC for Catalyst"
-	./scripts/sentry-xcodebuild.sh \
-		--platform Catalyst \
-		--os latest \
-		--command build \
-		--scheme SentryObjC \
-		--configuration Debug
-
-## Build Objective-C tvOS target
-#
-# Builds the SentryObjC wrapper for tvOS Simulator.
-.PHONY: build-objc-tvos
-build-objc-tvos:
-	@echo "[MAKE] $@: Building SentryObjC for tvOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform tvOS \
-		--os $(TVOS_SIMULATOR_OS) \
-		--device "$(TVOS_DEVICE_NAME)" \
-		--command build \
-		--scheme SentryObjC \
-		--configuration Debug
-
-## Build Objective-C visionOS target
-#
-# Builds the SentryObjC wrapper for visionOS Simulator.
-.PHONY: build-objc-visionos
-build-objc-visionos:
-	@echo "[MAKE] $@: Building SentryObjC for visionOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform visionOS \
-		--os $(VISIONOS_SIMULATOR_OS) \
-		--device "$(VISIONOS_DEVICE_NAME)" \
-		--command build \
-		--scheme SentryObjC \
-		--configuration Debug
-
-## Build Objective-C watchOS target
-#
-# Builds the SentryObjC wrapper for watchOS Simulator.
-.PHONY: build-objc-watchos
-build-objc-watchos:
-	@echo "[MAKE] $@: Building SentryObjC for watchOS"
-	./scripts/sentry-xcodebuild.sh \
-		--platform watchOS \
-		--os $(WATCHOS_SIMULATOR_OS) \
-		--device "$(WATCHOS_DEVICE_NAME)" \
-		--command build \
-		--scheme SentryObjC \
-		--configuration Debug
-
 ## Build SentryObjC for all platforms with SDK_V10 flag
 #
 # Convenience target that invokes all V10 platform build targets.
-.PHONY: build-objc-v10
-build-objc-v10: build-objc-ios-v10 build-objc-macos-v10 build-objc-catalyst-v10 build-objc-tvos-v10 build-objc-visionos-v10 build-objc-watchos-v10
+.PHONY: build-objc
+build-objc: build-objc-ios build-objc-macos build-objc-catalyst build-objc-tvos build-objc-visionos build-objc-watchos
 
 ## Build iOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for iOS Simulator using the DebugV10 configuration.
-.PHONY: build-objc-ios-v10
-build-objc-ios-v10:
+.PHONY: build-objc-ios
+build-objc-ios:
 	@echo "[MAKE] $@: Building SentryObjC V10 for iOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform iOS \
@@ -459,8 +276,8 @@ build-objc-ios-v10:
 ## Build macOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for macOS using the DebugV10 configuration.
-.PHONY: build-objc-macos-v10
-build-objc-macos-v10:
+.PHONY: build-objc-macos
+build-objc-macos:
 	@echo "[MAKE] $@: Building SentryObjC V10 for macOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
@@ -472,8 +289,8 @@ build-objc-macos-v10:
 ## Build Catalyst target with SDK_V10 flag
 #
 # Builds the Sentry SDK for Mac Catalyst using the DebugV10 configuration.
-.PHONY: build-objc-catalyst-v10
-build-objc-catalyst-v10:
+.PHONY: build-objc-catalyst
+build-objc-catalyst:
 	@echo "[MAKE] $@: Building SentryObjC V10 for Catalyst"
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
@@ -486,8 +303,8 @@ build-objc-catalyst-v10:
 ## Build tvOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for tvOS Simulator using the DebugV10 configuration.
-.PHONY: build-objc-tvos-v10
-build-objc-tvos-v10:
+.PHONY: build-objc-tvos
+build-objc-tvos:
 	@echo "[MAKE] $@: Building SentryObjC V10 for tvOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform tvOS \
@@ -500,8 +317,8 @@ build-objc-tvos-v10:
 ## Build visionOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for visionOS Simulator using the DebugV10 configuration.
-.PHONY: build-objc-visionos-v10
-build-objc-visionos-v10:
+.PHONY: build-objc-visionos
+build-objc-visionos:
 	@echo "[MAKE] $@: Building SentryObjC V10 for visionOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform visionOS \
@@ -514,8 +331,8 @@ build-objc-visionos-v10:
 ## Build watchOS target with SDK_V10 flag
 #
 # Builds the Sentry SDK for watchOS Simulator using the DebugV10 configuration.
-.PHONY: build-objc-watchos-v10
-build-objc-watchos-v10:
+.PHONY: build-objc-watchos
+build-objc-watchos:
 	@echo "[MAKE] $@: Building SentryObjC V10 for watchOS"
 	./scripts/sentry-xcodebuild.sh \
 		--platform watchOS \
@@ -547,158 +364,21 @@ build-xcframework-spm:
 	@echo "[MAKE] $@: Compressing Sentry-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "$(SPM_XCFRAMEWORK_BUILD_PATH)/Sentry-Dynamic.xcframework"
 
-## Build Sentry-Dynamic XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-dynamic
-#   make build-xcframework-dynamic SDKS=iphonesimulator
-.PHONY: build-xcframework-dynamic
-build-xcframework-dynamic:
-	@echo "[MAKE] $@: Creating Sentry-Dynamic xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-Dynamic" --mach-o-type "mh_dylib" --sdks "$(SDKS)" --excluded-archs "arm64e"
-	@echo "[MAKE] $@: Validating Sentry-Dynamic.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "Sentry-Dynamic.xcframework"
-	@echo "[MAKE] $@: Compressing Sentry-Dynamic.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry-Dynamic.xcframework"
-
-## Build Sentry-Dynamic-WithARM64e XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-dynamic-arm64e
-#   make build-xcframework-dynamic-arm64e SDKS=iphonesimulator
-.PHONY: build-xcframework-dynamic-arm64e
-build-xcframework-dynamic-arm64e:
-	@echo "[MAKE] $@: Creating Sentry-Dynamic-WithARM64e xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-Dynamic-WithARM64e" --mach-o-type "mh_dylib" --sdks "$(SDKS)"
-	@echo "[MAKE] $@: Validating Sentry-Dynamic-WithARM64e.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "Sentry-Dynamic-WithARM64e.xcframework"
-	@echo "[MAKE] $@: Compressing Sentry-Dynamic-WithARM64e.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry-Dynamic-WithARM64e.xcframework"
-
-## Build Sentry (static) XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-static
-#   make build-xcframework-static SDKS=iphonesimulator
-.PHONY: build-xcframework-static
-build-xcframework-static:
-	@echo "[MAKE] $@: Creating Sentry-Static xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "$(SDKS)"
-	@echo "[MAKE] $@: Validating Sentry.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
-	@echo "[MAKE] $@: Compressing Sentry.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
-
-## Build SentrySwiftUI XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-swiftui
-#   make build-xcframework-swiftui SDKS=iphonesimulator
-.PHONY: build-xcframework-swiftui
-build-xcframework-swiftui:
-	@echo "[MAKE] $@: Creating SentrySwiftUI xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "SentrySwiftUI" --mach-o-type "mh_dylib" --sdks "$(SDKS)"
-	@echo "[MAKE] $@: Validating SentrySwiftUI.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "SentrySwiftUI.xcframework"
-	@echo "[MAKE] $@: Compressing SentrySwiftUI.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "SentrySwiftUI.xcframework"
-
-## Build Sentry-WithoutUIKitOrAppKit XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-without-uikit
-#   make build-xcframework-without-uikit SDKS=iphonesimulator
-.PHONY: build-xcframework-without-uikit
-build-xcframework-without-uikit:
-	@echo "[MAKE] $@: Creating Sentry-WithoutUIKitOrAppKit xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-WithoutUIKitOrAppKit" --mach-o-type "mh_dylib" --configuration-suffix "WithoutUIKit" --sdks "$(SDKS)" --excluded-archs "arm64e"
-	@echo "[MAKE] $@: Validating Sentry-WithoutUIKitOrAppKit.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit.xcframework"
-	@echo "[MAKE] $@: Compressing Sentry-WithoutUIKitOrAppKit.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit.xcframework"
-
-## Build Sentry-WithoutUIKitOrAppKit-WithARM64e XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-without-uikit-arm64e
-#   make build-xcframework-without-uikit-arm64e SDKS=iphonesimulator
-.PHONY: build-xcframework-without-uikit-arm64e
-build-xcframework-without-uikit-arm64e:
-	@echo "[MAKE] $@: Creating Sentry-WithoutUIKitOrAppKit-WithARM64e xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-WithoutUIKitOrAppKit-WithARM64e" --mach-o-type "mh_dylib" --configuration-suffix "WithoutUIKit" --sdks "$(SDKS)"
-	@echo "[MAKE] $@: Validating Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
-	@echo "[MAKE] $@: Compressing Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
-
-## Build SentryObjC-Static XCFramework locally for one or more SDKs
-#
-# Builds SentryObjC as a static xcframework via SPM archive + libtool.
-# Output lands in SentryObjC-Static.xcframework.
-#
-# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
-#
-# Examples:
-#   make build-xcframework-sentryobjc-static SDKS=iphonesimulator
-#   make build-xcframework-sentryobjc-static SDKS=iphoneos,iphonesimulator
-.PHONY: build-xcframework-sentryobjc-static
-build-xcframework-sentryobjc-static:
-	@echo "[MAKE] $@: Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
-	@echo "[MAKE] $@: Validating SentryObjC-Static.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
-	@echo "[MAKE] $@: Validating SentryObjC static integration in SentryObjC-Static.xcframework"
-	./scripts/validate-xcframework-sentryobjc-static.sh \
-		--xcframework "SentryObjC-Static.xcframework" \
-		--build-consumer
-	@echo "[MAKE] $@: Compressing SentryObjC-Static.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
-
-## Build SentryObjC-Dynamic XCFramework locally for one or more SDKs
-#
-# Builds SentryObjC as a dynamic xcframework via SPM archive + swiftc relink.
-# Output lands in SentryObjC-Dynamic.xcframework.
-#
-# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
-#
-# Examples:
-#   make build-xcframework-sentryobjc-dynamic SDKS=iphonesimulator
-#   make build-xcframework-sentryobjc-dynamic SDKS=iphoneos,iphonesimulator
-.PHONY: build-xcframework-sentryobjc-dynamic
-build-xcframework-sentryobjc-dynamic:
-	@echo "[MAKE] $@: Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
-	@echo "[MAKE] $@: Validating SentryObjC-Dynamic.xcframework"
-	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
-	@echo "[MAKE] $@: Compressing SentryObjC-Dynamic.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
-
 ## Build V10 SentryObjC XCFrameworks locally for debugging downstream SDKs
 #
 # Builds SentryObjC with SDK_V10=1, which embeds KSCrash, and packages headers
-# with every SDK_V10 gate resolved. Not a release artifact. Output lands in
+# with every SDK_V10 gate resolved. The Release workflow builds the same slices
+# in parallel jobs. Output lands in
 # SentryObjC-Static.xcframework and SentryObjC-Dynamic.xcframework, replacing
 # any V9 output.
 #
 # SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
 #
 # Examples:
-#   make build-xcframework-sentryobjc-v10 SDKS=iphonesimulator
-#   make build-xcframework-sentryobjc-v10 SDKS=iphoneos,iphonesimulator,macosx
-.PHONY: build-xcframework-sentryobjc-v10
-build-xcframework-sentryobjc-v10:
+#   make build-xcframework-sentryobjc SDKS=iphonesimulator
+#   make build-xcframework-sentryobjc SDKS=iphoneos,iphonesimulator,macosx
+.PHONY: build-xcframework-sentryobjc
+build-xcframework-sentryobjc:
 	@echo "[MAKE] $@: Creating V10 SentryObjC xcframeworks (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant both --v10 \
 		--output-dir XCFrameworkBuildPath/V10
@@ -724,10 +404,10 @@ build-xcframework-sentryobjc-v10:
 # SDKS is a comma-separated list of SDK names (default: all).
 #
 # Examples:
-#   make build-xcframework-v10-dynamic
-#   make build-xcframework-v10-dynamic SDKS=iphoneos
-.PHONY: build-xcframework-v10-dynamic
-build-xcframework-v10-dynamic:
+#   make build-xcframework-dynamic
+#   make build-xcframework-dynamic SDKS=iphoneos
+.PHONY: build-xcframework-dynamic
+build-xcframework-dynamic:
 	@echo "[MAKE] $@: Creating SentryV10-Dynamic xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-v10.sh --suffix "-Dynamic" --sdks "$(SDKS)"
 	@echo "[MAKE] $@: Validating SentryV10-Dynamic.xcframework"
@@ -754,10 +434,10 @@ build-xcframework-v10-dynamic:
 # SDKS is a comma-separated list of SDK names (default: all).
 #
 # Examples:
-#   make build-xcframework-v10-static
-#   make build-xcframework-v10-static SDKS=iphoneos
-.PHONY: build-xcframework-v10-static
-build-xcframework-v10-static:
+#   make build-xcframework-static
+#   make build-xcframework-static SDKS=iphoneos
+.PHONY: build-xcframework-static
+build-xcframework-static:
 	@echo "[MAKE] $@: Creating SentryV10 Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-v10.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
 	@echo "[MAKE] $@: Validating SentryV10.xcframework"
@@ -808,149 +488,10 @@ build-testapps: \
 	build-testapp-watchOS-Swift \
 	build-testapp-watchOS-SwiftUI-SPM
 
-
-# The environment selects both V10 compilation and source products. Export it for
-# generation and building, including direct invocations of individual targets.
-build-testapp-v10-% test-testapp-v10-% switch-v10: export SDK_V10 = 1
-
-## Build all SPM-based test apps with SDK_V10=1
-#
-# Builds every test app that uses the local Sentry Swift package with the
-# Sentry source product. Use 'make build-testapp-v10-<name>' for a single test app.
-.PHONY: build-testapps-v10
-build-testapps-v10: \
-	build-testapp-v10-DistributionSample \
-	build-testapp-v10-iOS-ObjectiveC \
-	build-testapp-v10-iOS-ObjectiveCpp-NoModules \
-	build-testapp-v10-iOS-Swift \
-	build-testapp-v10-iOS-SwiftUI \
-	build-testapp-v10-SPM \
-	build-testapp-v10-macOS-CLI-Xcode \
-	build-testapp-v10-macOS-Swift \
-	build-testapp-v10-macOS-SwiftUI \
-	build-testapp-v10-tvOS-Swift \
-	build-testapp-v10-visionOS-Swift \
-	build-testapp-v10-watchOS-Swift
-
-# App-target flags are separate from the SDK package's environment-selected flags.
-# $$ keeps Make from expanding $(inherited).
-V10_SDK_FLAGS = GCC_PREPROCESSOR_DEFINITIONS='$$(inherited) SDK_V10=1' SWIFT_ACTIVE_COMPILATION_CONDITIONS='$$(inherited) SDK_V10'
-
-## Build the iOS-Swift test app with SDK_V10=1
-.PHONY: build-testapp-v10-iOS-Swift
-build-testapp-v10-iOS-Swift:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/iOS-Swift/iOS-Swift.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme iOS-Swift \
-		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the iOS-SwiftUI test app with SDK_V10=1
-.PHONY: build-testapp-v10-iOS-SwiftUI
-build-testapp-v10-iOS-SwiftUI:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/iOS-SwiftUI/iOS-SwiftUI.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme iOS-SwiftUI \
-		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the iOS-ObjectiveC test app with SDK_V10=1
-.PHONY: build-testapp-v10-iOS-ObjectiveC
-build-testapp-v10-iOS-ObjectiveC:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/iOS-ObjectiveC/iOS-ObjectiveC.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme iOS-ObjectiveC \
-		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the iOS-ObjectiveCpp-NoModules test app with SDK_V10=1
-.PHONY: build-testapp-v10-iOS-ObjectiveCpp-NoModules
-build-testapp-v10-iOS-ObjectiveCpp-NoModules:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme iOS-ObjectiveCpp-NoModules \
-		-configuration Debug \
-		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the SPM test app with SDK_V10=1
-.PHONY: build-testapp-v10-SPM
-build-testapp-v10-SPM:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/SPM/SPM.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme SPM \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the DistributionSample app with SDK_V10=1
-.PHONY: build-testapp-v10-DistributionSample
-build-testapp-v10-DistributionSample:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/DistributionSample/DistributionSample.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme DistributionSample \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the macOS-CLI-Xcode test app with SDK_V10=1 and NoUIFramework
-.PHONY: build-testapp-v10-macOS-CLI-Xcode
-build-testapp-v10-macOS-CLI-Xcode:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
-		-scheme macOS-CLI-Xcode \
-		-configuration Debug \
-		-destination 'platform=macOS' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Test the macOS CLI in a subprocess with SDK_V10=1 and NoUIFramework
-.PHONY: test-testapp-v10-macOS-CLI-Xcode
-test-testapp-v10-macOS-CLI-Xcode:
-	scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
-	set -o pipefail && xcodebuild \
-		-project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
-		-scheme macOS-CLI-Xcode \
-		-configuration Debug \
-		-destination 'platform=macOS' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		test | xcbeautify --preserve-unbeautified
-
 ## Test the macOS CLI in a subprocess with NoUIFramework
 .PHONY: test-testapp-macOS-CLI-Xcode
 test-testapp-macOS-CLI-Xcode: xcode-ci-macOS-CLI-Xcode
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
 		-configuration Debug \
@@ -958,84 +499,15 @@ test-testapp-macOS-CLI-Xcode: xcode-ci-macOS-CLI-Xcode
 		CODE_SIGNING_ALLOWED="NO" \
 		test | xcbeautify --preserve-unbeautified
 
-## Build the macOS-Swift test app with SDK_V10=1
-.PHONY: build-testapp-v10-macOS-Swift
-build-testapp-v10-macOS-Swift:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/macOS-Swift/macOS-Swift.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme macOS-Swift \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the macOS-SwiftUI test app with SDK_V10=1
-.PHONY: build-testapp-v10-macOS-SwiftUI
-build-testapp-v10-macOS-SwiftUI:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/macOS-SwiftUI/macOS-SwiftUI.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme macOS-SwiftUI \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the tvOS-Swift test app with SDK_V10=1
-.PHONY: build-testapp-v10-tvOS-Swift
-build-testapp-v10-tvOS-Swift:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/tvOS-Swift/tvOS-Swift.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme tvOS-Swift \
-		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the visionOS-Swift test app with SDK_V10=1
-.PHONY: build-testapp-v10-visionOS-Swift
-build-testapp-v10-visionOS-Swift:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/visionOS-Swift/visionOS-Swift.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme visionOS-Swift \
-		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the watchOS-Swift test app with SDK_V10=1
-.PHONY: build-testapp-v10-watchOS-Swift
-build-testapp-v10-watchOS-Swift:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --spec TestApps/watchOS-Swift/watchOS-Swift.yml
-	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme 'watchOS-Swift WatchKit App' \
-		-configuration Debug \
-		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
 ## Build the iOS-SwiftUI-SPM test app
 #
-# Builds the iOS SentrySPM test app for the iOS Simulator.
+# Builds the iOS source-package test app for the iOS Simulator.
 .PHONY: build-testapp-iOS-SwiftUI-SPM
 build-testapp-iOS-SwiftUI-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml"
 	xcodegen --spec TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
 		-scheme iOS-SwiftUI-SPM \
 		-configuration '$(IOS_SPM_BUILD_CONFIGURATION)' \
@@ -1044,13 +516,13 @@ build-testapp-iOS-SwiftUI-SPM:
 
 ## Build the watchOS-SwiftUI-SPM test app
 #
-# Builds the watchOS SentrySPM test app for the watchOS Simulator.
+# Builds the watchOS source-package test app for the watchOS Simulator.
 .PHONY: build-testapp-watchOS-SwiftUI-SPM
 build-testapp-watchOS-SwiftUI-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml"
 	xcodegen --spec TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
 		-scheme watchOS-SwiftUI-SPM \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
@@ -1058,13 +530,13 @@ build-testapp-watchOS-SwiftUI-SPM:
 
 ## Build the tvOS-SwiftUI-SPM test app
 #
-# Builds the tvOS SentrySPM test app for the tvOS Simulator.
+# Builds the tvOS source-package test app for the tvOS Simulator.
 .PHONY: build-testapp-tvOS-SwiftUI-SPM
 build-testapp-tvOS-SwiftUI-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml"
 	xcodegen --spec TestApps/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.xcodeproj" \
 		-scheme tvOS-SwiftUI-SPM \
 		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
@@ -1072,26 +544,26 @@ build-testapp-tvOS-SwiftUI-SPM:
 
 ## Build the macOS-SwiftUI-SPM test app
 #
-# Builds the macOS SentrySPM test app.
+# Builds the macOS source-package test app.
 .PHONY: build-testapp-macOS-SwiftUI-SPM
 build-testapp-macOS-SwiftUI-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml"
 	xcodegen --spec TestApps/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj" \
 		-scheme macOS-SwiftUI-SPM \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
-## Build the macOS-CLI-Xcode testapp (command-line tool, SentrySPM with NoUIFramework)
+## Build the macOS-CLI-Xcode testapp (command-line tool with NoUIFramework)
 #
-# Builds the macOS CLI testapp that uses SentrySPM without UIKit/AppKit linkage.
+# Builds the macOS CLI testapp from source without UIKit/AppKit linkage.
 .PHONY: build-testapp-macOS-CLI-Xcode
 build-testapp-macOS-CLI-Xcode:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml"
 	xcodegen --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
 		-configuration Debug \
@@ -1115,13 +587,13 @@ build-testapp-macOS-ObjectiveC-Static-CMake:
 
 ## Build the visionOS-SwiftUI-SPM test app
 #
-# Builds the visionOS SentrySPM test app for the visionOS Simulator.
+# Builds the visionOS source-package test app for the visionOS Simulator.
 .PHONY: build-testapp-visionOS-SwiftUI-SPM
 build-testapp-visionOS-SwiftUI-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml"
 	xcodegen --spec TestApps/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-project "TestApps/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.xcodeproj" \
 		-scheme visionOS-SwiftUI-SPM \
 		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
@@ -1136,7 +608,7 @@ build-testapp-iOS-ObjectiveCpp-NoModules:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml"
 	xcodegen --spec TestApps/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveCpp-NoModules \
 		-configuration Debug \
@@ -1151,7 +623,7 @@ build-testapp-iOS-Swift:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-Swift/iOS-Swift.yml"
 	xcodegen --spec TestApps/iOS-Swift/iOS-Swift.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1165,7 +637,7 @@ build-testapp-iOS-Swift6:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-Swift6/iOS-Swift6.yml"
 	xcodegen --spec TestApps/iOS-Swift6/iOS-Swift6.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift6 \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1179,7 +651,7 @@ build-testapp-iOS-SwiftUI:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-SwiftUI/iOS-SwiftUI.yml"
 	xcodegen --spec TestApps/iOS-SwiftUI/iOS-SwiftUI.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1193,7 +665,7 @@ build-testapp-iOS-SwiftUI-Widgets:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml"
 	xcodegen --spec TestApps/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI-Widgets \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1207,7 +679,7 @@ build-testapp-iOS-ObjectiveC:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS-ObjectiveC/iOS-ObjectiveC.yml"
 	xcodegen --spec TestApps/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1251,7 +723,7 @@ build-testapp-iOS15-SwiftUI:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/iOS15-SwiftUI/iOS15-SwiftUI.yml"
 	xcodegen --spec TestApps/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS15-SwiftUI \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1265,7 +737,7 @@ build-testapp-macOS-Swift:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/macOS-Swift/macOS-Swift.yml"
 	xcodegen --spec TestApps/macOS-Swift/macOS-Swift.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
@@ -1278,7 +750,7 @@ build-testapp-macOS-SwiftUI:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/macOS-SwiftUI/macOS-SwiftUI.yml"
 	xcodegen --spec TestApps/macOS-SwiftUI/macOS-SwiftUI.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-SwiftUI \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
@@ -1291,7 +763,7 @@ build-testapp-tvOS-Swift:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/tvOS-Swift/tvOS-Swift.yml"
 	xcodegen --spec TestApps/tvOS-Swift/tvOS-Swift.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
 		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
@@ -1305,7 +777,7 @@ build-testapp-visionOS-Swift:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/visionOS-Swift/visionOS-Swift.yml"
 	xcodegen --spec TestApps/visionOS-Swift/visionOS-Swift.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme visionOS-Swift \
 		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
@@ -1319,7 +791,7 @@ build-testapp-watchOS-Swift:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/watchOS-Swift/watchOS-Swift.yml"
 	xcodegen --spec TestApps/watchOS-Swift/watchOS-Swift.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme 'watchOS-Swift WatchKit App' \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
@@ -1333,7 +805,7 @@ build-testapp-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/SPM/SPM.yml"
 	xcodegen --spec TestApps/SPM/SPM.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SPM \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
@@ -1346,7 +818,7 @@ build-testapp-DistributionSample:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/DistributionSample/DistributionSample.yml"
 	xcodegen --spec TestApps/DistributionSample/DistributionSample.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme DistributionSample \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
@@ -1359,7 +831,7 @@ build-testapp-SDK-Size:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/SDK-Size/SDK-Size.yml"
 	xcodegen --spec TestApps/SDK-Size/SDK-Size.yml
 	@echo "[MAKE] $@: Building test app with xcodebuild"
-	set -o pipefail && xcodebuild \
+	set -o pipefail && SDK_V10=1 xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SDK-Size \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
@@ -1377,13 +849,6 @@ TEST_RESULT_BUNDLE ?= results.xcresult
 TEST_DERIVED_DATA ?= $(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/sentry-package-derived-data
 TEST_WORKSPACE ?= $(CURDIR)/.build/package-tests
 TEST_INCLUDE_DISTRIBUTION ?= false
-
-## Run all platform tests
-#
-# Convenience target that invokes all platform package test targets.
-# See test-ios, test-macos, test-catalyst, test-tvos, test-visionos, test-watchos for more details.
-.PHONY: test
-test: test-ios test-macos test-catalyst test-tvos test-visionos test-watchos
 
 ## Prepare a source-only package without modifying checked-in manifests
 .PHONY: prepare-test-package
@@ -1404,198 +869,11 @@ prepare-test-package:
 	done > raw-prepare-package-output.log
 
 
-## Run iOS tests
-#
-# Runs unit tests for iOS Simulator using the SentrySPM package scheme.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
-# Optional: TEST_PLAN=PlanName to override the default package Base plan
-# Examples:
-#   make test-ios
-#   make test-ios ONLY_TESTING=SentryObjCTests
-#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests
-#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet
-#   make test-ios ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests
-#   make test-ios TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-#   make test-ios TEST_COMMAND=build-for-testing
-#   make test-ios TEST_COMMAND=test-without-building
-#   make test-ios TEST_COMMAND=test-without-building TEST_PLAN=SentrySPM_Flaky TEST_RESULT_BUNDLE=flaky-results.xcresult
-.PHONY: test-ios
-test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
-	@echo "[MAKE] $@: Running iOS package tests ($(TEST_COMMAND))"
-	SDK_V10=0 ./scripts/sentry-xcodebuild.sh \
-		--workspace "$(TEST_WORKSPACE)" \
-		--scheme SentrySPM \
-		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
-		--platform iOS \
-		--os "$(IOS_SIMULATOR_OS)" \
-		--device "$(IOS_DEVICE_NAME)" \
-		--command "$(TEST_COMMAND)" \
-		--configuration Debug \
-		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
-		--derived-data "$(TEST_DERIVED_DATA)" \
-		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
-		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
-
-## Run macOS tests
-#
-# Runs unit tests for macOS using the SentrySPM package scheme.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
-# Optional: TEST_PLAN=PlanName to override the default package Base plan
-# Examples:
-#   make test-macos
-#   make test-macos ONLY_TESTING=SentryObjCTests
-#   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-macos ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests
-#   make test-macos TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-macos
-test-macos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
-	@echo "[MAKE] $@: Running macOS package tests ($(TEST_COMMAND))"
-	SDK_V10=0 ./scripts/sentry-xcodebuild.sh \
-		--workspace "$(TEST_WORKSPACE)" \
-		--scheme SentrySPM \
-		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
-		--platform macOS \
-		--os latest \
-		--command "$(TEST_COMMAND)" \
-		--configuration Debug \
-		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
-		--derived-data "$(TEST_DERIVED_DATA)" \
-		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
-		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
-
-## Run Catalyst tests
-#
-# Runs unit tests for Mac Catalyst using the SentrySPM package scheme.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
-# Optional: TEST_PLAN=PlanName to override the default package Base plan
-# Examples:
-#   make test-catalyst
-#   make test-catalyst ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-catalyst TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-catalyst
-test-catalyst: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
-	@echo "[MAKE] $@: Running Catalyst package tests ($(TEST_COMMAND))"
-	SDK_V10=0 ./scripts/sentry-xcodebuild.sh \
-		--workspace "$(TEST_WORKSPACE)" \
-		--scheme SentrySPM \
-		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
-		--platform Catalyst \
-		--os latest \
-		--command "$(TEST_COMMAND)" \
-		--configuration Debug \
-		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
-		--derived-data "$(TEST_DERIVED_DATA)" \
-		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
-		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
-
-## Run tvOS tests
-#
-# Runs unit tests for tvOS Simulator using the SentrySPM package scheme.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
-# Optional: TEST_PLAN=PlanName to override the default package Base plan
-# Examples:
-#   make test-tvos
-#   make test-tvos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-tvos TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-tvos
-test-tvos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
-	@echo "[MAKE] $@: Running tvOS package tests ($(TEST_COMMAND))"
-	SDK_V10=0 ./scripts/sentry-xcodebuild.sh \
-		--workspace "$(TEST_WORKSPACE)" \
-		--scheme SentrySPM \
-		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
-		--platform tvOS \
-		--os "$(TVOS_SIMULATOR_OS)" \
-		--device "$(TVOS_DEVICE_NAME)" \
-		--command "$(TEST_COMMAND)" \
-		--configuration Debug \
-		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
-		--derived-data "$(TEST_DERIVED_DATA)" \
-		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
-		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
-
-## Run visionOS tests
-#
-# Runs unit tests for visionOS Simulator using the SentrySPM package scheme.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
-# Optional: TEST_PLAN=PlanName to override the default package Base plan
-# Examples:
-#   make test-visionos
-#   make test-visionos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-visionos TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-visionos
-test-visionos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
-	@echo "[MAKE] $@: Running visionOS package tests ($(TEST_COMMAND))"
-	SDK_V10=0 ./scripts/sentry-xcodebuild.sh \
-		--workspace "$(TEST_WORKSPACE)" \
-		--scheme SentrySPM \
-		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
-		--platform visionOS \
-		--os "$(VISIONOS_SIMULATOR_OS)" \
-		--device "$(VISIONOS_DEVICE_NAME)" \
-		--command "$(TEST_COMMAND)" \
-		--configuration Debug \
-		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
-		--derived-data "$(TEST_DERIVED_DATA)" \
-		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
-		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
-
-## Run watchOS tests
-#
-# Runs unit tests for watchOS Simulator using the SentrySPM package scheme.
-# Outputs logs and uses xcbeautify for formatted output.
-#
-# Optional: ONLY_TESTING=Target[/Class[/testMethod]] to select a suite, class, or method
-# Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
-# Optional: TEST_PLAN=PlanName to override the default package Base plan
-# Examples:
-#   make test-watchos
-#   make test-watchos ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-watchos TEST_PLAN=SentrySPM_TestServer   # needs `make -C test-server start-debug`
-.PHONY: test-watchos
-test-watchos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
-	@echo "[MAKE] $@: Running watchOS package tests ($(TEST_COMMAND))"
-	SDK_V10=0 ./scripts/sentry-xcodebuild.sh \
-		--workspace "$(TEST_WORKSPACE)" \
-		--scheme SentrySPM \
-		--xcconfig "$(TEST_WORKSPACE)/Tests/Configuration/SwiftPM.xcconfig" \
-		--platform watchOS \
-		--os "$(WATCHOS_SIMULATOR_OS)" \
-		--device "$(WATCHOS_DEVICE_NAME)" \
-		--command "$(TEST_COMMAND)" \
-		--configuration Debug \
-		--result-bundle "$(if $(filter /%,$(TEST_RESULT_BUNDLE)),$(TEST_RESULT_BUNDLE),$(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/$(TEST_RESULT_BUNDLE))" \
-		--derived-data "$(TEST_DERIVED_DATA)" \
-		--test-plan "$(or $(TEST_PLAN),SentrySPM_Base)" \
-		--only-testing "$(ONLY_TESTING)" \
-		-- -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
-
 ## Run all platform tests with SDK_V10 flag
 #
 # Convenience target that invokes all V10 platform package test targets.
-.PHONY: test-v10
-test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visionos-v10 test-watchos-v10
+.PHONY: test
+test: test-ios test-macos test-catalyst test-tvos test-visionos test-watchos
 
 
 
@@ -1608,12 +886,12 @@ test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visio
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
-#   make test-ios-v10
-#   make test-ios-v10 ONLY_TESTING=SentryObjCTests
-#   make test-ios-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-ios-v10 TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
-.PHONY: test-ios-v10
-test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+#   make test-ios
+#   make test-ios ONLY_TESTING=SentryObjCTests
+#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-ios TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
+.PHONY: test-ios
+test-ios: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
 	@echo "[MAKE] $@: Running iOS package tests ($(TEST_COMMAND))"
 	SDK_V10=1 ./scripts/sentry-xcodebuild.sh \
 		--workspace "$(TEST_WORKSPACE)" \
@@ -1640,12 +918,12 @@ test-ios-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
-#   make test-macos-v10
-#   make test-macos-v10 ONLY_TESTING=SentryObjCTests
-#   make test-macos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-macos-v10 TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
-.PHONY: test-macos-v10
-test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+#   make test-macos
+#   make test-macos ONLY_TESTING=SentryObjCTests
+#   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-macos TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
+.PHONY: test-macos
+test-macos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
 	@echo "[MAKE] $@: Running macOS package tests ($(TEST_COMMAND))"
 	SDK_V10=1 ./scripts/sentry-xcodebuild.sh \
 		--workspace "$(TEST_WORKSPACE)" \
@@ -1671,11 +949,11 @@ test-macos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-te
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
-#   make test-catalyst-v10
-#   make test-catalyst-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-catalyst-v10 TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
-.PHONY: test-catalyst-v10
-test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+#   make test-catalyst
+#   make test-catalyst ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-catalyst TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
+.PHONY: test-catalyst
+test-catalyst: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
 	@echo "[MAKE] $@: Running Catalyst package tests ($(TEST_COMMAND))"
 	SDK_V10=1 ./scripts/sentry-xcodebuild.sh \
 		--workspace "$(TEST_WORKSPACE)" \
@@ -1701,11 +979,11 @@ test-catalyst-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
-#   make test-tvos-v10
-#   make test-tvos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-tvos-v10 TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
-.PHONY: test-tvos-v10
-test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+#   make test-tvos
+#   make test-tvos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-tvos TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
+.PHONY: test-tvos
+test-tvos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
 	@echo "[MAKE] $@: Running tvOS package tests ($(TEST_COMMAND))"
 	SDK_V10=1 ./scripts/sentry-xcodebuild.sh \
 		--workspace "$(TEST_WORKSPACE)" \
@@ -1732,11 +1010,11 @@ test-tvos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-tes
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
-#   make test-visionos-v10
-#   make test-visionos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-visionos-v10 TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
-.PHONY: test-visionos-v10
-test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+#   make test-visionos
+#   make test-visionos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-visionos TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
+.PHONY: test-visionos
+test-visionos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
 	@echo "[MAKE] $@: Running visionOS package tests ($(TEST_COMMAND))"
 	SDK_V10=1 ./scripts/sentry-xcodebuild.sh \
 		--workspace "$(TEST_WORKSPACE)" \
@@ -1763,11 +1041,11 @@ test-visionos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare
 # Optional: TEST_COMMAND=Command to select test, build-for-testing, or test-without-building
 # Optional: TEST_PLAN=PlanName to override the default package Base plan
 # Examples:
-#   make test-watchos-v10
-#   make test-watchos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-watchos-v10 TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
-.PHONY: test-watchos-v10
-test-watchos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
+#   make test-watchos
+#   make test-watchos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-watchos TEST_PLAN=SentrySPM_TestServer_v10   # needs `make -C test-server start-debug`
+.PHONY: test-watchos
+test-watchos: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-test-package)
 	@echo "[MAKE] $@: Running watchOS package tests ($(TEST_COMMAND))"
 	SDK_V10=1 ./scripts/sentry-xcodebuild.sh \
 		--workspace "$(TEST_WORKSPACE)" \
@@ -1791,7 +1069,7 @@ test-watchos-v10: $(if $(filter test-without-building,$(TEST_COMMAND)),,prepare-
 .PHONY: test-ui-critical
 test-ui-critical:
 	@echo "[MAKE] $@: Running critical UI tests"
-	./scripts/test-ui-critical.sh
+	SDK_V10=1 ./scripts/test-ui-critical.sh
 
 ## Run all test app UI tests
 #
@@ -1811,7 +1089,7 @@ test-testapps-ui: \
 .PHONY: test-testapp-iOS-Swift-ui
 test-testapp-iOS-Swift-ui: xcode-ci-iOS-Swift
 	@echo "[MAKE] $@: Running iOS-Swift UI tests"
-	set -o pipefail && xcodebuild test \
+	set -o pipefail && SDK_V10=1 xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
 		-testPlan iOS-Swift_Base \
@@ -1826,7 +1104,7 @@ test-testapp-iOS-Swift-ui: xcode-ci-iOS-Swift
 .PHONY: test-testapp-iOS-SwiftUI-ui
 test-testapp-iOS-SwiftUI-ui: xcode-ci-iOS-SwiftUI
 	@echo "[MAKE] $@: Running iOS-SwiftUI UI tests"
-	set -o pipefail && xcodebuild test \
+	set -o pipefail && SDK_V10=1 xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
 		-testPlan iOS-SwiftUI_Base \
@@ -1841,7 +1119,7 @@ test-testapp-iOS-SwiftUI-ui: xcode-ci-iOS-SwiftUI
 .PHONY: test-testapp-iOS-Swift6-ui
 test-testapp-iOS-Swift6-ui: xcode-ci-iOS-Swift6
 	@echo "[MAKE] $@: Running iOS-Swift6 UI tests"
-	set -o pipefail && xcodebuild test \
+	set -o pipefail && SDK_V10=1 xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift6 \
 		-testPlan iOS-Swift6_Base \
@@ -1856,7 +1134,7 @@ test-testapp-iOS-Swift6-ui: xcode-ci-iOS-Swift6
 .PHONY: test-testapp-iOS-ObjectiveC-ui
 test-testapp-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 	@echo "[MAKE] $@: Running iOS-ObjectiveC UI tests"
-	set -o pipefail && xcodebuild test \
+	set -o pipefail && SDK_V10=1 xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
 		-testPlan iOS-ObjectiveC_Base \
@@ -1879,7 +1157,7 @@ test-testapp-macOS-Swift-ui: xcode-ci-macOS-Swift
 	@echo "[MAKE] $@: Removing previous macOS UI test results"
 	rm -rf macos-swift-ui-results.xcresult
 	@echo "[MAKE] $@: Running macOS-Swift UI tests"
-	set -o pipefail && xcodebuild test \
+	set -o pipefail && SDK_V10=1 xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		-testPlan macOS-Swift_Base \
@@ -1897,7 +1175,7 @@ test-testapp-macOS-Swift-ui: xcode-ci-macOS-Swift
 .PHONY: test-testapp-tvOS-Swift-ui
 test-testapp-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 	@echo "[MAKE] $@: Running tvOS-Swift UI tests"
-	set -o pipefail && xcodebuild test \
+	set -o pipefail && SDK_V10=1 xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
 		-testPlan tvOS-Swift_Base \
@@ -1912,17 +1190,17 @@ test-testapp-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 # Get staged Swift files
 STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
 
-# Get staged Markdown, JSON, and YAML files
-STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|json|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
+# Get staged Markdown, JSON, JSONC, and YAML files
+STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|jsonc?|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged Markdown files
 STAGED_MARKDOWN_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.md$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged changelog files
-STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG(_V10)?\.md$$')
+STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG\.md$$')
 
-# Get staged JSON files
-STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.json$$' | awk '{printf "\"%s\" ", $$0}')
+# Get staged JSON and JSONC files
+STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.jsonc?$$' | awk '{printf "\"%s\" ", $$0}')
 
 # Get staged YAML files
 STAGED_YAML_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.ya?ml$$' | awk '{printf "\"%s\" ", $$0}')
@@ -1987,8 +1265,8 @@ lint:
 	"$(MAKE)" check-objc-standalone-extensions
 	@echo "[MAKE] $@: Linting Swift files with SwiftLint"
 	swiftlint --strict --quiet
-	@echo "[MAKE] $@: Running dprint check '**/*.{md,json,yaml,yml}'"
-	dprint check "**/*.{md,json,yaml,yml}"
+	@echo "[MAKE] $@: Running dprint check '**/*.{md,json,jsonc,yaml,yml}'"
+	dprint check "**/*.{md,json,jsonc,yaml,yml}"
 	@echo "[MAKE] $@: Running make check-changelog"
 	"$(MAKE)" check-changelog
 	@echo "[MAKE] $@: Linting GitHub Actions workflows with actionlint"
@@ -2100,17 +1378,17 @@ format-markdown-staged:
 		dprint fmt --allow-no-files $(STAGED_MARKDOWN_FILES); \
 	fi
 
-## Format JSON files
+## Format JSON and JSONC files
 #
-# Formats all JSON files using dprint.
+# Formats all JSON and JSONC files using dprint.
 .PHONY: format-json
 format-json:
-	@echo "[MAKE] $@: Running dprint fmt '**/*.json'"
-	dprint fmt "**/*.json"
+	@echo "[MAKE] $@: Running dprint fmt '**/*.{json,jsonc}'"
+	dprint fmt "**/*.{json,jsonc}"
 
-## Format staged JSON files
+## Format staged JSON and JSONC files
 #
-# Formats only staged JSON files using dprint.
+# Formats only staged JSON and JSONC files using dprint.
 .PHONY: format-json-staged
 format-json-staged:
 	@if [ -n "$(STAGED_JSON_FILES)" ]; then \
@@ -2162,8 +1440,8 @@ analyze:
 	@echo "[MAKE] $@: Running Xcode static analyzer"
 	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze \
 		-workspace Sentry.xcworkspace \
-		-scheme Sentry \
-		-configuration Release \
+		-scheme SentryV10 \
+		-configuration ReleaseV10 \
 		CLANG_ANALYZER_OUTPUT=html \
 		CLANG_ANALYZER_OUTPUT_DIR=analyzer \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
@@ -2180,7 +1458,7 @@ analyze:
 
 ## Generate public API documentation
 #
-# Updates V9/V10 framework and SwiftPM API snapshots.
+# Updates framework and SwiftPM API snapshots.
 # Fails if the generated SwiftPM API differs from its Xcode counterpart.
 .PHONY: generate-public-api
 generate-public-api:
@@ -2240,37 +1518,7 @@ validate-xcframework-symbols:
 .PHONY: xcode
 xcode: xcode-ci
 	@echo "[MAKE] $@: Opening workspace in Xcode"
-	open Sentry.xcworkspace
-
-## Switch testapp Xcode projects to SDK V10 mode
-#
-# Copies each testapp XcodeGen YAML, sets app-target SDK_V10 compiler flags,
-# rewrites SentrySPM product refs to Sentry, and
-# regenerates the Xcode project from that copy. Committed YAML is left
-# unchanged. Skips binary and NoUIFramework testapps. Opens the workspace with
-# SDK_V10=1 so SwiftPM exports the source-built product as Sentry.
-.PHONY: switch-v10
-switch-v10:
-	@echo "[MAKE] $@: Generating V10 Xcode projects"
-	scripts/generate-testapp-v10.sh --product SentrySPM --with Sentry
-	@echo "[MAKE] $@: Closing Xcode before switching SDK mode"
-	@killall Xcode 2>/dev/null || true
-	@echo "[MAKE] $@: Opening V10 workspace in Xcode"
 	SDK_V10=1 xed Sentry.xcworkspace
-
-## Switch testapp Xcode projects back to default (non-V10) mode
-#
-# Regenerates testapp Xcode projects from the committed XcodeGen YAML,
-# discarding the V10 settings that switch-v10 applied to the projects.
-# Opens the workspace without SDK_V10 so SwiftPM exports SentrySPM.
-.PHONY: switch-v9
-switch-v9:
-	@echo "[MAKE] $@: Running make xcode-ci"
-	$(MAKE) xcode-ci
-	@echo "[MAKE] $@: Closing Xcode before switching SDK mode"
-	@killall Xcode 2>/dev/null || true
-	@echo "[MAKE] $@: Opening workspace in Xcode"
-	xed Sentry.xcworkspace
 
 ## Generate all testapp Xcode projects
 #

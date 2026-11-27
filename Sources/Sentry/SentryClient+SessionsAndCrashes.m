@@ -3,6 +3,7 @@
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
+#import "SentryTransaction+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,10 +13,9 @@ extern NSString *const DropSessionLogMessage;
 
 - (SentryTransportAdapter *)transportAdapter;
 
-- (nullable SentryTraceContext *)
-    getTraceStateWithEvent:(SentryEvent *)event
-                 withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
-              currentScope:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryScope))currentScope;
+- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
+                                           currentScope:(nullable SentryScope *)currentScope;
 
 @end
 
@@ -24,8 +24,7 @@ extern NSString *const DropSessionLogMessage;
 
 @implementation SentryClientInternal (SessionsAndCrashes)
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
     return [self sendEvent:event
@@ -37,7 +36,7 @@ extern NSString *const DropSessionLogMessage;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
-                      withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                      withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint scope:scope isFromPreviousProcess:YES];
@@ -50,15 +49,13 @@ extern NSString *const DropSessionLogMessage;
     return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
 }
 
-- (void)saveCrashTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
-                   withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
-    SentryTransaction *typedTransaction = (SentryTransaction *)transaction;
     // Populate the hint so beforeSendTransaction sees the same attachments as for regular
     // transactions. Attachments are only informational here because storeEvent doesn't send them.
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint scope:scope isFromPreviousProcess:NO];
-    SentryEvent *preparedEvent = [self prepareEvent:typedTransaction
+    SentryEvent *preparedEvent = [self prepareEvent:transaction
                                           withScope:scope
                              alwaysAttachStacktrace:NO
                                        isFatalEvent:NO
@@ -68,7 +65,7 @@ extern NSString *const DropSessionLogMessage;
         return;
     }
 
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:typedTransaction
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction
                                                           withScope:scope
                                                        currentScope:nil];
 
@@ -76,16 +73,14 @@ extern NSString *const DropSessionLogMessage;
 }
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:
-                                                  (SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                                              withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
+                                              withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint
 {
     return [self captureEventIncrementingSessionErrorCount:event
@@ -95,8 +90,7 @@ extern NSString *const DropSessionLogMessage;
 }
 
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SENTRY_SWIFT_MIGRATION_ID(
-                                                            SentryScope))scope
+                                              withScope:(SentryScope *)scope
                                  alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                                                    hint:(SentryHint *)hint
 {

@@ -6,7 +6,7 @@ on:
       scheme:
         description: |-
           The Sentry project target to build an XCFramework slice for.
-          Possible values: Sentry, SentrySwiftUI.
+          Possible values: Sentry, SentryObjC.
         required: true
         type: string
 

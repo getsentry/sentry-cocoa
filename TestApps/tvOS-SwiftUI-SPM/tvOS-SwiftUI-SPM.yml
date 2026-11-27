@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../schema/xcodegen.schema.json
 #
-# Minimal tvOS test app using the SentrySPM compile-from-source product.
+# Minimal tvOS test app using the Sentry compile-from-source product.
 
 name: tvOS-SwiftUI-SPM
 createIntermediateGroups: true
@@ -38,9 +38,11 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
     settings:
       base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tvOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:

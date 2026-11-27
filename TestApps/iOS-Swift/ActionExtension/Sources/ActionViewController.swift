@@ -1,15 +1,6 @@
-#if !SDK_V10
-@_spi(Private) import SentrySwift
-#else
 @_spi(Private) import Sentry
-#endif
 import _SentryPrivate
 import SentrySampleShared
-#if !SDK_V10
-import SentrySwift
-#else
-import Sentry
-#endif
 import UIKit
 import UniformTypeIdentifiers
 
@@ -38,10 +29,6 @@ class ActionViewController: UIViewController {
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
 
-            #if !SDK_V10
-            // App Hang Tracking must be enabled, but should not be installed
-            options.enableAppHangTracking = true
-            #endif // !SDK_V10
         }
     }
 

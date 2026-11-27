@@ -9,6 +9,7 @@
 #import "SentryMessage.h"
 #import "SentryNSError.h"
 #import "SentryRequest.h"
+#import "SentryScope.h"
 #import "SentrySpanContext.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
@@ -57,6 +58,9 @@ SENTRY_NO_INIT
 @end
 
 @interface SentryMechanism () <SentryInternalSerializable>
+@end
+
+@interface SentryScope () <SentryInternalSerializable>
 @end
 
 @interface SentrySpanContext () <SentryInternalSerializable>

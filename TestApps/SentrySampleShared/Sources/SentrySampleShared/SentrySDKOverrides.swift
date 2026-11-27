@@ -56,8 +56,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .breadcrumbs: return SentrySDKOverrides.Breadcrumbs.allCases
         case .crash: return SentrySDKOverrides.Crash.allCases
         case .metricKit: return SentrySDKOverrides.MetricKit.allCases
-        case .metrics: return SentrySDKOverrides.Metrics.allCases
-        case .logs: return SentrySDKOverrides.Logs.allCases
         case .spotlight: return SentrySDKOverrides.Spotlight.allCases
         case .swizzling: return SentrySDKOverrides.Swizzling.allCases
         case .swiftAsync: return SentrySDKOverrides.SwiftAsync.allCases
@@ -115,7 +113,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum AppStart: String, SentrySDKOverride {
         case disablePrewarmedTracing = "--io.sentry.app-start.disable-prewarmed-tracing"
-        case enableStandaloneTracing = "--io.sentry.app-start.enable-standalone-tracing"
         case extendLaunchDelay       = "--io.sentry.app-start.extend-launch-delay"
     }
     case appStart = "App Start"
@@ -160,8 +157,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
     public enum Feedback: String, SentrySDKOverride {
         case allDefaults             = "--io.sentry.feedback.all-defaults"
         case disableAutoInject       = "--io.sentry.feedback.no-auto-inject-widget"
-        case noWidgetText            = "--io.sentry.feedback.no-widget-text"
-        case noWidgetIcon            = "--io.sentry.feedback.no-widget-icon"
         case noUserInjection         = "--io.sentry.feedback.dont-use-sentry-user"
         case requireEmail            = "--io.sentry.feedback.require-email"
         case requireName             = "--io.sentry.feedback.require-name"
@@ -219,7 +214,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum WatchdogTerminations: String, SentrySDKOverride {
         case disableTracking = "--io.sentry.watchdog-terminations.disable-tracking"
-        case disableV2       = "--io.sentry.watchdog-terminations.disable-v2"
     }
     case watchdogTerminations = "Watchdog Terminations"
 
@@ -242,16 +236,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case slowLaunch = "--io.sentry.metric-kit.slow-launch"
     }
     case metricKit = "MetricKit"
-
-    public enum Metrics: String, SentrySDKOverride {
-        case enable = "--io.sentry.metrics.enable"
-    }
-    case metrics = "Metrics"
-
-    public enum Logs: String, SentrySDKOverride {
-        case disable = "--io.sentry.logs.disable"
-    }
-    case logs = "Logs"
 
     public enum Spotlight: String, SentrySDKOverride {
         case disable = "--io.sentry.spotlight.disable"
@@ -433,7 +417,7 @@ extension SentrySDKOverrides.Performance {
 extension SentrySDKOverrides.AppStart {
     public var overrideType: OverrideType {
         switch self {
-        case .disablePrewarmedTracing, .enableStandaloneTracing: return .boolean
+        case .disablePrewarmedTracing: return .boolean
         case .extendLaunchDelay: return .float
         }
     }
@@ -481,7 +465,7 @@ extension SentrySDKOverrides.ViewHierarchy {
 extension SentrySDKOverrides.Feedback {
     public var overrideType: OverrideType {
         switch self {
-        case .allDefaults, .disableAutoInject, .noWidgetText, .noWidgetIcon, .noUserInjection,
+        case .allDefaults, .disableAutoInject, .noUserInjection,
              .requireEmail, .requireName, .noAnimations, .injectScreenshot,
              .useCustomFeedbackButton, .noScreenshots, .noShakeGesture:
             return .boolean
@@ -552,7 +536,7 @@ extension SentrySDKOverrides.AppHangs {
 extension SentrySDKOverrides.WatchdogTerminations {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTracking, .disableV2: return .boolean
+        case .disableTracking: return .boolean
         }
     }
 }
@@ -579,22 +563,6 @@ extension SentrySDKOverrides.MetricKit {
     public var overrideType: OverrideType {
         switch self {
         case .disable, .disableRawPayloads, .slowLaunch: return .boolean
-        }
-    }
-}
-
-extension SentrySDKOverrides.Metrics {
-    public var overrideType: OverrideType {
-        switch self {
-        case .enable: return .boolean
-        }
-    }
-}
-
-extension SentrySDKOverrides.Logs {
-    public var overrideType: OverrideType {
-        switch self {
-        case .disable: return .boolean
         }
     }
 }
@@ -702,7 +670,7 @@ extension SentrySDKOverrides.AppStart {
     public var ignoresDisableEverything: Bool {
         switch self {
         case .disablePrewarmedTracing: return false
-        case .enableStandaloneTracing, .extendLaunchDelay: return true
+        case .extendLaunchDelay: return true
         }
     }
 }
@@ -750,7 +718,7 @@ extension SentrySDKOverrides.ViewHierarchy {
 extension SentrySDKOverrides.Feedback {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .allDefaults, .disableAutoInject, .noWidgetText, .noWidgetIcon, .noUserInjection,
+        case .allDefaults, .disableAutoInject, .noUserInjection,
              .requireEmail, .requireName, .noAnimations, .injectScreenshot,
              .useCustomFeedbackButton, .noScreenshots, .noShakeGesture:
             return true
@@ -819,18 +787,6 @@ extension SentrySDKOverrides.MetricKit {
             return true
         }
     }
-}
-
-extension SentrySDKOverrides.Metrics {
-    public var ignoresDisableEverything: Bool {
-        switch self {
-        case .enable: return true
-        }
-    }
-}
-
-extension SentrySDKOverrides.Logs {
-    public var ignoresDisableEverything: Bool { return false }
 }
 
 extension SentrySDKOverrides.Spotlight {

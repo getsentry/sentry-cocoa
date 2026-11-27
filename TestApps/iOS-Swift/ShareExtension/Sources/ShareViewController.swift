@@ -1,8 +1,4 @@
-#if !SDK_V10
-@_spi(Private) import SentrySwift
-#else
 @_spi(Private) import Sentry
-#endif
 import _SentryPrivate
 import SentrySampleShared
 import Social
@@ -34,10 +30,6 @@ class ShareViewController: SLComposeServiceViewController {
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
 
-            #if !SDK_V10
-            // App Hang Tracking must be enabled, but should not be installed
-            options.enableAppHangTracking = true
-            #endif // !SDK_V10
         }
     }
 

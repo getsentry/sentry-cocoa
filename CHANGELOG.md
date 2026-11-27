@@ -2,6 +2,104 @@
 
 ## Unreleased
 
+### Features
+
+- Copy scope data into KSCrash crash reports in `SentryV10` (#8851)
+- Sync scope data to KSCrash crash reports in `SentryV10` (#8759)
+- Process pending KSCrash reports into fatal Sentry events in `SentryV10` (#8515)
+- Install KSCrash crash handler in `SentryV10` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
+  - Respect `options.enableMemoryIntrospection` when configuring KSCrash
+- Add `options.dataCollection` to configure data collection behaviour (#8448)
+  - Allows dictionary initialization for `options.dataCollection` (#8371)
+  - Renamed `options.dataCollection.queryParams` to `options.dataCollection.urlQueryParams` (#8414)
+  - Add query parameter filtering for network spans, breadcrumbs, and failed requests using `options.dataCollection.urlQueryParams` (#8414)
+  - Enable automatic user information for logs, metrics, and IP inference by default; configure it with `options.dataCollection.userInfo` (#8254)
+  - Add HTTP header and cookie filtering for failed requests using `options.dataCollection` (#8460)
+  - Scrub sensitive Session Replay request and response body values, replacing unparseable bodies with `[Filtered]` (#8547)
+- Add `beforeSendTransaction` to modify or drop transaction events before sending (#8745)
+- Attach crash screenshots via KSCrash sidecar in `SentryV10` (#8986)
+- Attach crash view hierarchy via KSCrash sidecar in `SentryV10` (#9018)
+- Write session replay recovery checkpoints from KSCrash in `SentryV10` (#9038)
+- Add a `Hint` parameter to `beforeSendTransaction` to inspect and edit the attachments sent with a transaction (#9099)
+- Persist the active transaction when crashing in `SentryV10` (#8735)
+
+### Breaking Changes
+
+- Enable MetricKit integration by default (#8716)
+- Enable logging by default (#8717)
+- Remove `enableLogs`; logs are always enabled in v10 (#8769)
+- Change the default diagnostic level to warning (#8732)
+- Enable `swiftAsyncStacktraces` by default (#8718)
+- Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
+- Remove Objective-C `@objc` attributes from SentrySDK (#8308)
+- Remove deprecated `locale` from device context; use `locale` in culture context instead (#8325)
+- Change `SentryRequest.cookies` from a string to a dictionary of cookie names and values (#8460)
+- Remove data collection options without applicable Cocoa collectors (#8563)
+- Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#8719)
+- Removed deprecated user feedback widget configuration and API (#8731)
+- Remove legacy app hang event tracking in V10 (#8817)
+  - Remove the `enableAppHangTracking` and `enableReportNonFullyBlockingAppHangs` options
+  - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
+  - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
+- Remove `enableSigtermReporting`; KSCrash treats `SIGTERM` as a clean exit and never reports it as a crash (#9019)
+- Enable `enableFileManagerSwizzling` by default (#9134)
+- Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
+- Move `experimental.enableUnhandledCPPExceptionsV2` to the stable `options.enableUnhandledCPPExceptionsV2` API for the KSCrash implementation. The default remains `false`: unhandled C++ exceptions are captured through `std::terminate`; opt in to capture stacks at the throw site. The V2 name distinguishes these two modes (#9175).
+- Store child span measurements on the span instead of forwarding them to the root transaction. TTID and TTFD remain available as transaction measurements (#9387).
+- Send unfinished spans without changing their status or setting an end timestamp when a transaction finishes normally. Self-hosted installations require Relay 22.12.0 or newer (#9392).
+- Make `Breadcrumb.data` read-only. Use `setData(value:key:)` to add, update, or remove individual values (#9391).
+- Mark live stack frames from the main executable as in-app even when `inAppIncludes` is empty, including command-line tools. Main executable detection uses cached binary-image identity (#9393).
+- Use the installation ID as the fallback user ID when a user has a missing or empty ID, preserving other user fields. Disable automatic user information with `options.dataCollection.userInfo` (#9384)
+- Remove the public `SentrySerializable` protocol, its model conformances, and model `serialize()` methods. Hybrid SDKs use `SentrySDK.internal.serializer` or `SentryObjCSDK.internal.serializer` for scopes, debug images, and events. Applications should use model properties and Sentry's capture APIs instead (#9403).
+- Move session replay and screenshot masking and subtree traversal settings to `options.privacy`. Rendering settings remain on `sessionReplay` and `screenshot` (#9399).
+- Remove the deprecated key-based metrics methods `count(key:value:attributes:)`, `distribution(key:value:unit:attributes:)` and `gauge(key:value:unit:attributes:)`, and their `SentryObjC` counterparts. Use `count(_:value:options:)`, `distribution(_:value:options:)` and `gauge(_:value:options:)` instead (#9453)
+- Remove `enableMetricKit`; the MetricKit integration is enabled by default and `options.experimental.metrickit.enabledDiagnosticReports` set to an empty set disables it (#9267)
+- Capture MetricKit app launch diagnostics by default (#9441)
+- Enable `options.enableScopePersistence` by default to retain explicitly supplied user information across app launches. Clear the user on logout with `SentrySDK.setUser(nil)`, or set `options.enableScopePersistence = false` to disable retention. Restoration is asynchronous, so events captured before it completes may lack the retained identity (#9470)
+- Remove the deprecated standalone `SentrySwiftUI` module and package product. Remove the standalone dependency and use `import Sentry` for SwiftUI tracing, replay, and feedback (#9761).
+- Sentry-Dynamic.xcframework is no longer a mergeable-library (#8658)
+
+### Improvements
+
+- Reduce Sentry-Dynamic.xcframework binary size by ~7.6 MB per arm64 slice by removing unused mergeable-library metadata (LC_ATOM_INFO) (#8658)
+
+### Fixes
+
+- Migrate managed-runtime signal handling and SDK-close report-persistence lifecycle to `SentryV10` (#9051)
+  - Use a SDK-side Signal plugin and disable KSCrash's Mach monitor so managed faults reach the runtime first and don't report as native crashes.
+  - Keep per-thread, one-shot signal suppression for hybrid SDKs.
+  - Keep process-lifetime handlers installed while suppressing report persistence after close and reactivating it on restart.
+  - Restore predecessor handlers when signal installation is interrupted or fails.
+  - Keep alternate stacks and safely clean up early installation failures.
+  - Validate and publish crash callbacks once, without replacing callbacks used by an active handler.
+- Compile only explicitly allowlisted shared SentryCrash tools in V10
+- Restore foreground app-hang detection and debugger-aware behavior in V10
+- Disambiguate V9 and V10 target dependencies in Xcode builds
+- Keep V10 compiler flags and KSCrash dependencies aligned across Xcode and SwiftPM build paths
+- Filter sensitive values from selected Session Replay network headers and cookies (#8566)
+- Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
+- Normalize profiling CPU usage to 0–100 percent (#8323)
+- Bump KSCrash to `2.6.0`
+- Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
+- Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)
+- Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
+- Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
+- Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
+- Populate `beforeSendTransaction` trace context from the transaction's own tracer, preserving its `op`, trace IDs, and status when the scope span is cleared or replaced. V9 `beforeSend` behavior is unchanged (#9040)
+- Seed extras, tags, user, context, breadcrumbs, and other nested scope fields into KSCrash crash reports at install time, instead of relying on KSCrash user info scalars
+- Propagate the selected V10 API configuration to SwiftPM consumer headers without requiring client compiler defines (#9182)
+- Prevent V10 SentryObjC static XCFrameworks from advertising incomplete architectures supplied only by dependencies (#9182)
+- Report eligible watchdog terminations during ongoing app hangs instead of suppressing them in V10 (#9469)
+- Restore `import Sentry` for V10 SwiftPM source consumers while preserving default V9 imports (#9459)
+- Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756, #9770)
+- Session Replay no longer records an extra segment covering the time away when paused twice or stopped while paused (#9739)
+
+### Internal
+
+- Add a screenshot provider to the `SentryObjC` internal replay API, so hybrid SDKs such as Unity can supply Session Replay frames (#9739)
+
+## 9.36.0
+
 > [!TIP]
 > Try the new experimental option `options.experimental.enableUIUpdateLinkFramesTracking`. On iOS 18, tvOS 18 and visionOS 2 and later, it tracks frames without waking up your idle app for every frame, which reduces the impact of the SDK on the performance of your app. The option is disabled by default, so set it to `true` to opt in.
 
@@ -19,19 +117,17 @@
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
 - Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
 - Preserve JSON null values in event extras, breadcrumb data, and other sanitized dictionaries instead of converting them to the string `"<null>"` (#9729)
-- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h`, `SentrySamplingContext.h`, `SentryTransaction.h`, `SentryTransactionContext.h` and `SentryScope.h` as empty headers, so importing them by name, for example `#import <Sentry/SentryScope.h>`, compiles again. The first four were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
+- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h` and `SentrySamplingContext.h` as empty headers, so importing them by name, for example `#import <Sentry/SentrySamplingContext.h>`, compiles again. They were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
 - Skip Objective-C descriptor conformance checks for view controllers without a custom screen-name getter, avoiding potentially slow protocol walks on the main thread (#9738)
 - Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
 - Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
 - Fix the `EXC_GUARD` crash in `SentrySDK.start` in apps that enable the Enhanced Security capability with additional runtime platform restrictions, by registering the Mach exception handler with the identity-protected exception behavior (#9705)
   - This changes the Mach exception message format for every app, not only apps with Enhanced Security. A crash handler installed after the SDK that forwards Mach exceptions to it by building the message itself must support `mach_exception_raise_identity_protected`; otherwise the SDK reports the crash through its signal handler instead of its Mach exception handler.
-- Session Replay no longer records an extra segment covering the time away when paused twice or stopped while paused (#9739)
 
 ### Internal
 
 - Expose `SentrySDK.internal.profiling.currentProfilerId` to hybrid SDKs so they can link their spans to Cocoa profiles (#9712)
 - Apply replay tags set by hybrid SDKs through `SentrySDK.internal.replay.setTags(_:)` to replay sessions started after the call, so the options event of a Flutter replay on iOS reports the Flutter masking options instead of the Cocoa defaults (#9732)
-- Add a screenshot provider to the `SentryObjC` internal replay API, so hybrid SDKs such as Unity can supply Session Replay frames (#9739)
 
 ## 9.35.0
 
