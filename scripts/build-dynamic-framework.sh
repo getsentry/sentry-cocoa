@@ -17,6 +17,7 @@ source "$SCRIPT_DIR/tools.sh"
 SDK=""
 STATIC_LIB=""
 HEADERS_DIR=""
+PRIVATE_HEADERS_DIR=""
 OUTPUT_DIR=""
 FRAMEWORK_NAME=""
 MODULES_DIR=""
@@ -35,6 +36,7 @@ usage() {
     log_info "  -n, --framework-name <name>   Framework/module name (required)"
     log_info "  -A, --archs <list>            Space-separated architectures to link (required)"
     log_info "  -M, --mergeable <true|false>  Link with -make_mergeable (default: false)"
+    log_info "  -P, --private-headers <path>  Prepared private headers directory (optional)"
     log_info "  -m, --modules <path>          Prepared modules directory, including an optional modulemap (optional)"
     log_info "  -r, --resources <path>        Prepared resources directory (optional)"
     exit 1
@@ -54,6 +56,7 @@ while [[ $# -gt 0 ]]; do
         -n|--framework-name) FRAMEWORK_NAME="$2"; shift 2 ;;
         -A|--archs) ARCHS="$2"; shift 2 ;;
         -M|--mergeable) MERGEABLE="$2"; shift 2 ;;
+        -P|--private-headers) PRIVATE_HEADERS_DIR="$2"; shift 2 ;;
         -m|--modules) MODULES_DIR="$2"; shift 2 ;;
         -r|--resources) RESOURCES_DIR="$2"; shift 2 ;;
         -h|--help)     usage ;;
@@ -106,6 +109,10 @@ fi
 
 if [[ ! "$FRAMEWORK_NAME" =~ ^[A-Za-z_][A-Za-z_0-9]*$ ]]; then
     log_error "Invalid framework module name: $FRAMEWORK_NAME"
+    exit 1
+fi
+if [ -n "$PRIVATE_HEADERS_DIR" ] && [ ! -d "$PRIVATE_HEADERS_DIR" ]; then
+    log_error "Private headers directory not found: $PRIVATE_HEADERS_DIR"
     exit 1
 fi
 if [ -n "$MODULES_DIR" ] && [ ! -d "$MODULES_DIR" ]; then
@@ -212,6 +219,11 @@ if is_macos_layout "$SDK"; then
     # -n preserves the same no-dereference behavior on both GNU and BSD ln.
     ln -sfn A "$FW_DIR/Versions/Current"
     ln -sfn Versions/Current/Headers "$FW_DIR/Headers"
+    private_headers_dir="$versioned/PrivateHeaders"
+    if [ -n "$PRIVATE_HEADERS_DIR" ]; then
+        mkdir -p "$private_headers_dir"
+        ln -sfn Versions/Current/PrivateHeaders "$FW_DIR/PrivateHeaders"
+    fi
     ln -sfn Versions/Current/Modules "$FW_DIR/Modules"
     ln -sfn Versions/Current/Resources "$FW_DIR/Resources"
     ln -sfn "Versions/Current/$FRAMEWORK_NAME" "$FW_DIR/$FRAMEWORK_NAME"
@@ -220,6 +232,8 @@ if is_macos_layout "$SDK"; then
     resources_dir="$versioned/Resources"
 else
     mkdir -p "$FW_DIR/Headers" "$FW_DIR/Modules"
+    private_headers_dir="$FW_DIR/PrivateHeaders"
+    if [ -n "$PRIVATE_HEADERS_DIR" ]; then mkdir -p "$private_headers_dir"; fi
     modules_dir="$FW_DIR/Modules"
     binary_path="$FW_DIR/$FRAMEWORK_NAME"
     resources_dir="$FW_DIR"
@@ -227,6 +241,9 @@ fi
 
 # Prepared inputs are copied verbatim; product-specific transformations belong to the caller.
 cp -R "$HEADERS_DIR"/. "$FW_DIR/Headers/"
+if [ -n "$PRIVATE_HEADERS_DIR" ]; then
+    cp -R "$PRIVATE_HEADERS_DIR"/. "$private_headers_dir/"
+fi
 if [ -n "$MODULES_DIR" ]; then
     cp -R "$MODULES_DIR"/. "$modules_dir/"
 fi

@@ -52,3 +52,19 @@ for mergeable in false true; do
         exit 1
     fi
 done
+
+# Private headers are optional and land in the versioned macOS layout.
+mkdir "$work/private-headers"
+echo 'int fixture_private(void);' > "$work/private-headers/Fixture+Private.h"
+build_fixture --archs arm64 --private-headers "$work/private-headers"
+framework="$work/framework/Fixture/macosx/Fixture.framework"
+if [[ "$(readlink "$framework/PrivateHeaders")" != Versions/Current/PrivateHeaders ]] \
+    || [[ ! -f "$framework/PrivateHeaders/Fixture+Private.h" ]]; then
+    log_error "--private-headers did not produce PrivateHeaders/Fixture+Private.h"
+    exit 1
+fi
+build_fixture --archs arm64
+if [[ -e "$framework/PrivateHeaders" ]]; then
+    log_error "PrivateHeaders exists without --private-headers"
+    exit 1
+fi
