@@ -1510,7 +1510,7 @@ final class SentryClientTests: XCTestCase {
     }
 
 #if !SDK_V10
-    func testCaptureEvent_whenEventIsAppHang_shouldNotIncrementSessionErrors() throws {
+    func testCaptureEvent_whenEventIsAppHang_shouldIncrementSessionErrors() throws {
         // -- Arrange --
         let sut = fixture.getSut()
         var incrementCount = 0
@@ -1526,8 +1526,11 @@ final class SentryClientTests: XCTestCase {
         sut.capture(event: event, scope: Scope())
 
         // -- Assert --
-        XCTAssertEqual(incrementCount, 0)
-        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        XCTAssertEqual(incrementCount, 1)
+        let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
+        XCTAssertEqual(args.event.eventId, event.eventId)
+        XCTAssertEqual(args.session, fixture.session)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 0)
     }
 #endif // !SDK_V10
 

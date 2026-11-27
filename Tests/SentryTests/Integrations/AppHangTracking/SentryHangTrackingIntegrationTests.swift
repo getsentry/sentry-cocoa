@@ -697,6 +697,10 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             
             XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
+
+            // The hang happened in the process that crashed, so it must not count as an error
+            // of the running process's session.
+            XCTAssertEqual(event?.isFromPreviousProcess, true)
             
             // Ensure we capture the event with an empty scope
             XCTAssertEqual(scope?.tags.count, 0)
