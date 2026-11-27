@@ -134,6 +134,8 @@ static const NSUInteger kSentryScopeDefaultMaxBreadcrumbs = 100;
         self.levelEnum = scope.levelEnum;
         self.span = scope.span;
         self.replayId = scope.replayId;
+        // The new scope has no observers yet, so set the ivar directly.
+        _currentScreen = [scope.currentScreen copy];
     }
     return self;
 }

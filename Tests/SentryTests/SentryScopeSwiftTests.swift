@@ -178,6 +178,21 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
 
+    func testInitWithScope_shouldCopyCurrentScreen() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.currentScreen = "HomeScreen"
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+        cloned.currentScreen = "SettingsScreen"
+
+        // -- Assert --
+        XCTAssertEqual(Scope(scope: scope).currentScreen, "HomeScreen")
+        XCTAssertEqual(scope.currentScreen, "HomeScreen")
+        XCTAssertEqual(cloned.currentScreen, "SettingsScreen")
+    }
+
     func testInitWithScope_whenBreadcrumbRingIsFull_shouldEvictOldestAndKeepNewBreadcrumb() {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 3)
