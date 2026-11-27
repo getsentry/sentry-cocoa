@@ -36,7 +36,7 @@ scripts/assemble-xcframework-sentryobjc.sh
 
 ### CI (release workflow)
 
-Same scripts, but the per-SDK builds run as **parallel GitHub Actions jobs**:
+Same scripts, but the per-SDK builds run as **parallel GitHub Actions jobs**. The jobs build the V10 SDK: they set `SDK_V10=1`, audit each slice for SentryCrash recorder objects, and package headers from [`resolve-sentryobjc-v10-headers.sh`](../scripts/resolve-sentryobjc-v10-headers.sh), as described in [V10 builds](#v10-builds).
 
 ```
 build-sentryobjc-slices (parallel per SDK)
@@ -91,10 +91,10 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## V10 builds
 
-`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK for local debugging of downstream SDKs. It is not a release artifact and has no CI job.
+`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK locally, for example to debug downstream SDKs. The Release workflow builds the same V10 slices with the per-SDK scripts.
 
 - Exports `SDK_V10=1` so `Package.swift` adds the KSCrash dependency and the V10 defines. The KSCrash objects land in the archive products and are merged into `libSentryObjC.a`
-- Copies the public headers through `unifdef -DSDK_V10=1` so the packaged headers match the binary. Consumers such as bindings generators do not define `SDK_V10`
+- Copies the public headers through `unifdef -DSDK_V10=1` with `resolve-sentryobjc-v10-headers.sh` so the packaged headers match the binary. Consumers such as bindings generators do not define `SDK_V10`
 - Writes to the same `SentryObjC-Static.xcframework` and `SentryObjC-Dynamic.xcframework` paths as a V9 build so downstream build scripts pick it up unchanged
 
 > [!WARNING]

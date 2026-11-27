@@ -329,7 +329,10 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/generate_release_matrix.sh"
   - "scripts/xcframework-generated-run.sh"
   - "scripts/prepare-package.sh"
-  - "Tests/V9BinarySPIConsumer/**"
+  - "scripts/build-xcframework-v10.sh"
+  - "scripts/remove-architectures.sh"
+  - "scripts/resolve-sentryobjc-v10-headers.sh"
+  - "scripts/verify-v10-sentrycrash-*.sh"
 
   # Project files
   - "Sentry.xcworkspace/**"
@@ -487,6 +490,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-v10.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
+  - "scripts/resolve-sentryobjc-v10-headers.sh"
   - "scripts/build-static-library.sh"
   - "scripts/build-dynamic-framework.sh"
   - "scripts/prepare-sentry-framework-inputs.sh"

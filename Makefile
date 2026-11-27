@@ -672,7 +672,8 @@ build-xcframework-sentryobjc-dynamic:
 ## Build V10 SentryObjC XCFrameworks locally for debugging downstream SDKs
 #
 # Builds SentryObjC with SDK_V10=1, which embeds KSCrash, and packages headers
-# with every SDK_V10 gate resolved. Not a release artifact. Output lands in
+# with every SDK_V10 gate resolved. The Release workflow builds the same slices
+# in parallel jobs. Output lands in
 # SentryObjC-Static.xcframework and SentryObjC-Dynamic.xcframework, replacing
 # any V9 output.
 #

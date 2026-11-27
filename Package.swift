@@ -429,7 +429,7 @@ if !envSelectsV10 {
 let packageDependencies: [Package.Dependency] = [
     // Test-only: keep this local dependency unreachable from all SDK products.
     .package(path: "SentryTestUtilsDynamic")
-] + (envSelectsV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "8b16841820e05e12c87f5298c231ce5bf740bd4a")] : [])
+] + (envSelectsV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "c00af21aabcd2f84983abdcb2063c9446a524e74")] : [])
 
 let package = Package(
     name: "Sentry",
