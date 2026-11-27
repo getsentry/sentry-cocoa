@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 internal import _SentryPrivate
 import Foundation
 
@@ -28,7 +29,7 @@ open class Scope: NSObject {
 
     var spanStorage: Span?
     private var propagationContextStorage: SentryPropagationContext
-    var currentScreenStorage: String?
+    private var currentScreenStorage: String?
 
     /// Maximum number of breadcrumbs retained by this scope.
     /// Internal storage. The test category redeclares it; production code uses the initializer.
@@ -392,4 +393,12 @@ private extension Scope {
             }
         }
     }
+
+    func replaceCurrentScreen(_ currentScreen: String?) {
+        currentScreenStorage = currentScreen
+        for observer in observerSnapshot() {
+            observer.setCurrentScreen?(currentScreen)
+        }
+    }
 }
+// swiftlint:enable file_length
