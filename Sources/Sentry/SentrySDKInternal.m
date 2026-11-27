@@ -11,7 +11,6 @@
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
-#import "SentryTransactionContext.h"
 
 @class SentryAppStartMeasurement;
 
@@ -436,19 +435,22 @@ static BOOL sdkStarted;
                                                       bindToScope:bindToScope];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
                                                          bindToScope:bindToScope];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
@@ -457,7 +459,8 @@ static BOOL sdkStarted;
                                                customSamplingContext:customSamplingContext];
 }
 
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTransactionContext))transactionContext
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDKInternal.currentHub startTransactionWithContext:transactionContext
