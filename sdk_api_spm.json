@@ -809,16 +809,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryTransaction",
-        "printedName": "Sentry.SentryTransaction"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryTransactionContext",
         "printedName": "Sentry.SentryTransactionContext"
       },
