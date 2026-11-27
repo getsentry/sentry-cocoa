@@ -535,10 +535,10 @@ build-xcframework-testapp:
 
 ## Package the SPM SDK as a dynamic XCFramework
 #
-# Both generations build the Sentry module. CI validates these artifacts
+# Builds the Sentry module. CI validates these artifacts
 # separately from the existing Xcode-project release products.
-SPM_XCFRAMEWORK_VARIANT ?= $(if $(filter 1,$(SDK_V10)),SentryV10-Dynamic,Sentry-Dynamic)
-SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM/$(if $(filter 1,$(SDK_V10)),v10,v9)
+SPM_XCFRAMEWORK_VARIANT ?= Sentry-Dynamic
+SPM_XCFRAMEWORK_BUILD_PATH ?= $(CURDIR)/XCFrameworkBuildPath/SPM
 .PHONY: build-xcframework-spm
 build-xcframework-spm:
 	@echo "[MAKE] $@: Creating SPM SDK xcframework (SDKs: $(SDKS))"

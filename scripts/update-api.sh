@@ -102,6 +102,6 @@ begin_group "Extract SwiftPM Public API"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api_spm.json \
-    --framework-path "$SPM_BUILD_DIR/SentryV10-Dynamic.xcframework/ios-arm64_arm64e"
+    --framework-path "$SPM_BUILD_DIR/Sentry-Dynamic.xcframework/ios-arm64"
 check_api_parity sdk_api.json sdk_api_spm.json
 end_group
