@@ -58,17 +58,12 @@ jobs:
           ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
           ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
-      # === Toolchain and simulator preparation ===
+      # === Toolchain preparation ===
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1.343.0
@@ -100,9 +95,6 @@ jobs:
           done
 
       # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
-
       - name: Assemble XCFramework
         env:
           SDKS: ${{ inputs.sdks }}

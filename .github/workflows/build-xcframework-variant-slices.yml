@@ -78,7 +78,7 @@ jobs:
           ssh-key-base64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
           ssh-key-passphrase: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
 
-      # === Toolchain and simulator preparation ===
+      # === Toolchain preparation ===
       # We use Xcode 16 (latest installed minor) for building XCFrameworks. The setup-xcode action
       # picks the newest 16.x available on the macos-15 runner image.
       - name: Setup Xcode
@@ -86,11 +86,6 @@ jobs:
         with:
           version: "16"
           resolve-simulators: "false"
-      - name: Warm CoreSimulator
-        id: warm-coresimulator
-        background: true
-        continue-on-error: true
-        run: xcrun simctl list runtimes -j > /dev/null
 
       - name: Get version
         id: get-version
@@ -111,9 +106,6 @@ jobs:
         run: ./scripts/bump-version.sh --version "$VERSION"
 
       # === Build and validation ===
-      - name: Wait for CoreSimulator warmup
-        wait: warm-coresimulator
-
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         env:
           MATRIX_SDK: ${{ matrix.sdk }}
