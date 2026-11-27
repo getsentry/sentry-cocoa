@@ -62,6 +62,7 @@
 - Remove the `SentryReplayApi.h` public header. `SentryReplayApi` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Objective-C code can no longer subclass it (#9803)
 - Remove the `SentrySamplingContext.h` public header. `SamplingContext` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Objective-C code can no longer subclass it (#9804)
 - Remove the `SentryTransaction.h` public header. `Transaction` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Code outside the SDK can no longer subclass it (#9805)
+- Remove the `SentryTransactionContext.h` public header. `TransactionContext` is implemented in Swift, so import `<Sentry/Sentry.h>` or use `@import Sentry;` instead. Objective-C code can no longer subclass it (#9806)
 
 ### Improvements
 

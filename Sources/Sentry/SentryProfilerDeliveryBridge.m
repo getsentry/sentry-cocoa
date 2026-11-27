@@ -23,7 +23,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTransactionContext+Private.h"
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
 #    endif
