@@ -76,16 +76,7 @@ final class SentryObjCReplayScreenshotProviderAdapter: NSObject, SentryTimedView
 
     @objc public func setScreenshotProvider(_ provider: SentryObjCReplayScreenshotProvider) {
         let adapter = SentryObjCReplayScreenshotProviderAdapter(provider)
-        let api = wrapped.value
-        // Session Replay reads its screenshot provider on the main thread without synchronization, so it's
-        // set there too. The main queue is FIFO: a replay start queued after this call still gets the provider.
-        if Thread.isMainThread {
-            api.configure(breadcrumbConverter: nil, screenshotProvider: adapter)
-        } else {
-            DispatchQueue.main.async {
-                api.configure(breadcrumbConverter: nil, screenshotProvider: adapter)
-            }
-        }
+        wrapped.value.configure(breadcrumbConverter: nil, screenshotProvider: adapter)
     }
 
     @objc public func capture() -> Bool {

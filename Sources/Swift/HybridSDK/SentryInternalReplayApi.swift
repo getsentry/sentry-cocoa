@@ -59,15 +59,27 @@ public struct SentryInternalReplayApi {
 
     /// Configures the session replay with a custom breadcrumb converter
     /// and/or screenshot provider.
+    ///
+    /// Safe to call from any thread. Session Replay reads both on the main thread, so they're
+    /// applied there: at once when called on the main thread, otherwise asynchronously on the
+    /// main queue, ahead of any replay command queued after this call.
     @_spi(Private)
     public func configure(
         breadcrumbConverter: SentryReplayBreadcrumbConverter?,
         screenshotProvider: SentryViewScreenshotProvider?
     ) {
-        replayIntegrationProvider.getReplayIntegration()?.configureReplayWith(
-            breadcrumbConverter,
-            screenshotProvider: screenshotProvider
-        )
+        let replayIntegrationProvider = self.replayIntegrationProvider
+        let apply: () -> Void = {
+            replayIntegrationProvider.getReplayIntegration()?.configureReplayWith(
+                breadcrumbConverter,
+                screenshotProvider: screenshotProvider
+            )
+        }
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
+        }
     }
 
     /// Captures a replay event. Returns `true` if the replay was captured.
