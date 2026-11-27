@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -356,7 +352,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertFalse(self.fixture.sut.saveViewHierarchy(""))
     }
 
-#if SDK_V10
     func testSaveViewHierarchy_whenOnlyGetWindowsHookIsSet_shouldNotUseIt() throws {
         // -- Arrange --
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
@@ -442,7 +437,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertEqual(windows.first?["identifier"] as? String, "WindowId")
     }
 #endif // compiler(>=6.2)
-#endif // SDK_V10
 
     func test_invalidSerializationReturnsNil() {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))

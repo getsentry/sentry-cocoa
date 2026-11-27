@@ -34,13 +34,7 @@ import Foundation
 
         // -- Feature: Mobile Vitals --
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        #if SDK_V10
         features.append("standaloneAppStartTracing")
-        #else
-        if options.enableStandaloneAppStartTracing {
-            features.append("standaloneAppStartTracing")
-        }
-        #endif // SDK_V10
         #endif // os(iOS) || os(tvOS) || os(visionOS)
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
@@ -72,13 +66,7 @@ import Foundation
         #endif // canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
         // -- Feature: Metrics --
-        #if SDK_V10
         features.append("metrics")
-        #else
-        if options.enableMetrics {
-            features.append("metrics")
-        }
-        #endif // SDK_V10
 
         // -- Feature: Screenshots --
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -109,11 +97,7 @@ import Foundation
 #endif
 
         // --- Experimental Features ---
-        #if !SDK_V10
-        if options.experimental.enableWatchdogTerminationsV2 {
-            features.append("watchdogTerminationsV2")
-        }
-        #elseif (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         features.append("watchdogTerminationsV2")
         #endif
 

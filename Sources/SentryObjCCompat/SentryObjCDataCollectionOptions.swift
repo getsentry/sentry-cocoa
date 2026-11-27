@@ -1,10 +1,5 @@
-#if SDK_V10
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) internal import SentrySwift
-#else
 @_spi(Private) internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCDataCollectionOptions)
@@ -59,4 +54,3 @@ public final class SentryObjCDataCollectionOptions: NSObject {
 }
 
 // swiftlint:enable missing_docs
-#endif // SDK_V10

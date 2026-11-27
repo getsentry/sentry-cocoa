@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -94,9 +90,6 @@ class SentryHubTests: XCTestCase {
         fixture = try Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
-        #if !SDK_V10
-        fixture.fileManager.deleteAbnormalSession()
-        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -106,9 +99,6 @@ class SentryHubTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
-        #if !SDK_V10
-        fixture.fileManager.deleteAbnormalSession()
-        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -1372,104 +1362,6 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-#if (os(iOS) || os(tvOS)) && !SDK_V10
-    func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
-        // Arrange
-        sut = fixture.getSut(fixture.options, fixture.scope)
-        givenAbnormalSession()
-        
-        assertNoAbnormalSessionSent()
-        
-        let environment = "test"
-        sut.configureScope { $0.setEnvironment(environment) }
-        
-        // Act
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertEventSentWithSession(scopeEnvironment: environment, sessionStatus: .abnormal, abnormalMechanism: "anr_foreground")
-    }
-    
-    func testCaptureFatalAppHangEvent_ManualSessionTracking_AbnormalSessionExists() {
-        // Arrange
-        givenAutoSessionTrackingDisabled()
-        givenAbnormalSession()
-        assertNoAbnormalSessionSent()
-        
-        let environment = "test"
-        sut.configureScope { $0.setEnvironment(environment) }
-        
-        // Act
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertEventSentWithSession(scopeEnvironment: environment, sessionStatus: .abnormal, abnormalMechanism: "anr_foreground")
-    }
-    
-    func testCaptureFatalAppHangEvent_AbnormalSessionDoesNotExist() {
-        // Arrange
-        sut.startSession() // there is already an existing session
-        
-        // Act
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertNoAbnormalSessionSent()
-        assertFatalEventSent()
-    }
-    
-    /**
-     * When autoSessionTracking is just enabled and there is a previous fatal app hang on the disk there is no session on the disk.
-     */
-    func testCaptureFatalAppHangEvent_FatalAppHangExistsButNoSessionExists() {
-        // Act
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertFatalEventSent()
-    }
-    
-    func testCaptureFatalAppHangEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
-        // Arrange
-        givenAutoSessionTrackingDisabled()
-        
-        // Act
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertFatalEventSent()
-    }
-    
-    func testCaptureFatalAppHangEvent_ClientIsNil() {
-        // Arrange
-        sut = fixture.getSut()
-        sut.bindClient(nil)
-        
-        // Act
-        givenAbnormalSession()
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertNoEventsSent()
-    }
-    
-    func testCaptureFatalAppHangEvent_ClientHasNoReleaseName() {
-        // Arrange
-        sut = fixture.getSut()
-        let options = fixture.options
-        options.releaseName = nil
-        let client = SentryClientInternal(options: options)
-        sut.bindClient(client)
-        
-        // Act
-        givenAbnormalSession()
-        sut.captureFatalAppHang(fixture.event)
-        
-        // Assert
-        assertNoEventsSent()
-    }
-#endif // (os(iOS) || os(tvOS)) && !SDK_V10
-
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
         
@@ -2058,15 +1950,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertIdentical(integration, installedIntegration)
     }
     
-#if !SDK_V10
-    func testGetInstalledIntegration_ReturnsNilIfNotFound() {
-        let integration = EmptyIntegration()
-        sut.addInstalledIntegration(integration, name: "EmptyIntegration")
-        
-        XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
-    }
-#endif
-    
     func testEventContainsOnlyHandledErrors() {
         let sut = fixture.getSut()
         XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
@@ -2151,14 +2034,6 @@ class SentryHubTests: XCTestCase {
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()
     }
-    
-    #if !SDK_V10
-    private func givenAbnormalSession() {
-        fixture.fileManager.storeAbnormalSession(fixture.abnormalSession)
-        sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
-        sut.startSession()
-    }
-    #endif // !SDK_V10
     
     private func givenAutoSessionTrackingDisabled() {
         let options = fixture.options

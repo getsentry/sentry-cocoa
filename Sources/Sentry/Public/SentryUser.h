@@ -5,20 +5,13 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryGeo;
 
 NS_SWIFT_NAME(User)
-#if SDK_V10
 @interface SentryUser : NSObject <NSCopying>
-#else
-@interface SentryUser : NSObject <SentrySerializable, NSCopying>
-#endif // SDK_V10
 
 /**
  * Optional: Id of the user

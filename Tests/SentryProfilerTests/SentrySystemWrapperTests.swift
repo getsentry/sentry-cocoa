@@ -1,4 +1,4 @@
-#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if !SWIFT_PACKAGE && (os(iOS) || os(macOS))
 #if SWIFT_PACKAGE
 @_spi(Private) import SentrySwift
 #else
@@ -26,7 +26,6 @@ class SentrySystemWrapperTests: XCTestCase {
     // Error path for cpuUsageWithError: untestable — task_threads uses hardcoded
     // mach_task_self() which cannot be made to fail without resource exhaustion.
 
-#if SDK_V10
     // MARK: - normalizeCPUUsage (TH_USAGE_SCALE = 1000)
 
     func testNormalizeCPUUsage_singleCoreFull_shouldReturn25Percent() {
@@ -48,7 +47,6 @@ class SentrySystemWrapperTests: XCTestCase {
         let result = fixture.systemWrapper.normalizeCPUUsage(500)
         XCTAssertEqual(result, 12.5, accuracy: 0.01)
     }
-#endif
 
     // MARK: - memoryFootprintBytes
 

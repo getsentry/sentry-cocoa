@@ -20,13 +20,6 @@
  */
 @property (nonatomic) BOOL isFromPreviousProcess;
 
-#if !SDK_V10
-/**
- * This indicates whether this event represents an app hang.
- */
-@property (nonatomic, readonly) BOOL isAppHangEvent;
-#endif // !SDK_V10
-
 /**
  * We're storing serialized breadcrumbs to disk in JSON, and when we're reading them back (in
  * the case of watchdog termination), we end up with the serialized breadcrumbs again. Instead of

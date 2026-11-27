@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs file_length type_body_length
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCSDK) public final class SentryObjCSDK: NSObject {
@@ -271,13 +267,6 @@ import Foundation
         }
     }
 
-#if !SDK_V10
-    @available(*, deprecated, message: "Use lastRunStatus instead.")
-    @objc public static var crashedLastRun: Bool {
-        SentrySDK.crashedLastRun
-    }
-#endif
-
     @objc public static var lastRunStatus: SentryObjCLastRunStatus {
         SentryObjCLastRunStatus(SentrySDK.lastRunStatus)
     }
@@ -318,18 +307,6 @@ import Foundation
 
     @objc public static func finishExtendedAppStart() {
         SentrySDK.finishExtendedAppStart()
-    }
-    #endif
-
-    #if !SDK_V10
-    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
-    @objc public static func pauseAppHangTracking() {
-        SentrySDK.pauseAppHangTracking()
-    }
-
-    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
-    @objc public static func resumeAppHangTracking() {
-        SentrySDK.resumeAppHangTracking()
     }
     #endif
 

@@ -1,10 +1,6 @@
 #if canImport(UIKit) && canImport(SwiftUI) && (os(iOS) || os(tvOS))
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
-@_spi(Private) @testable import Sentry
-#endif
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import _SentryPrivate
 import XCTest
 

@@ -119,9 +119,7 @@
 @class SentryAttribute;
 @class SentryBreadcrumb;
 @class SentryEvent;
-#if SDK_V10
 @class SentryTransaction;
-#endif // SDK_V10
 @class SentrySamplingContext;
 @class SentryUserFeedbackConfiguration;
 @class SentryLog;
@@ -157,7 +155,6 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
  */
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
 
-#if SDK_V10
 /**
  * Block can be used to mutate a transaction before it's sent.
  * To avoid sending the transaction altogether, return nil instead.
@@ -168,7 +165,6 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
 typedef SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) _Nullable (
     ^SentryBeforeSendTransactionCallback)(
     SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) _Nonnull transaction);
-#endif // SDK_V10
 
 /**
  * Use this block to drop or modify a span before the SDK sends it to Sentry. Return @c nil to drop
@@ -188,13 +184,6 @@ typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull even
  * crashes.
  */
 typedef BOOL (^SentryBeforeCaptureViewHierarchyCallback)(SentryEvent *_Nonnull event);
-
-#if !SDK_V10
-/**
- * A callback to be notified when the last program execution terminated with a crash.
- */
-typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
-#endif
 
 /**
  * Block can be used to determine if an event should be queued and stored

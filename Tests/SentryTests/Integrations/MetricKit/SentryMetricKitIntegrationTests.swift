@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -34,9 +30,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.experimental.metrickit.enabledDiagnosticReports = [.crash]
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let crashDiagnostic = TestMXCrashDiagnostic()
@@ -63,10 +56,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testMXCrashPayloadReceived() throws {
             givenSDKWithHubWithScope()
 
-        let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = SentryMXManager(
             diagnosticCapturer: givenDiagnosticCapturer(enabledDiagnostics: [.crash])
         )
@@ -181,9 +170,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
@@ -231,9 +217,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
@@ -275,9 +258,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.enableMetricKitRawPayload = false
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
@@ -299,9 +279,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         scope.addAttachment(TestData.dataAttachment)
         givenSdkWithHub(scope: scope)
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
@@ -354,9 +331,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -379,9 +353,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.add(inAppInclude: "iOS-Swift")
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
@@ -407,9 +378,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -469,9 +437,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
             let options = Options()
-            #if !SDK_V10
-            options.enableMetricKit = true
-            #endif // !SDK_V10
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -508,9 +473,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -567,9 +529,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
@@ -627,9 +586,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()

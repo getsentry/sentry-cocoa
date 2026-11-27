@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import ObjectiveC
 import XCTest
@@ -184,34 +180,6 @@ class SentryTracerTests: XCTestCase {
         }
     }
     
-#if !SDK_V10
-    func testFinish_ShouldIgnoreWaitForChildrenCallback() throws {
-        let sut = fixture.getSut()
-        
-        sut.shouldIgnoreWaitForChildrenCallback = { _ in
-            return true
-        }
-        let child = sut.startChild(operation: fixture.transactionOperation)
-        sut.finish()
-        
-        XCTAssertEqual(child.status, .deadlineExceeded)
-        
-        assertOneTransactionCaptured(sut)
-    
-        let serialization = try getSerializedTransaction()
-        let spans = try XCTUnwrap(serialization["spans"]! as? [[String: Any]])
-        
-        let tracerTimestamp: NSDate = sut.timestamp! as NSDate
-        
-        XCTAssertEqual(spans.count, 1)
-        let span = try XCTUnwrap(spans.first, "Expected first span not to be nil")
-        XCTAssertEqual(span["timestamp"] as? TimeInterval, tracerTimestamp.timeIntervalSince1970)
-        
-        XCTAssertNotNil(sut.shouldIgnoreWaitForChildrenCallback, "We must not set the callback to nil because when iterating over the child spans in hasUnfinishedChildSpansToWaitFor this could lead to a crash when shouldIgnoreWaitForChildrenCallback is nil.")
-    }
-    
-#endif
-
     /// Reproduces a crash in hasUnfinishedChildSpansToWaitFor; see https://github.com/getsentry/sentry-cocoa/issues/3781
     /// We used to set the shouldIgnoreWaitForChildrenCallback to nil in finishInternal, which can lead
     /// to a crash when spans keep finishing while finishInternal is executed because
@@ -1273,33 +1241,6 @@ class SentryTracerTests: XCTestCase {
 
 #endif // os(iOS) || os(tvOS)
     
-#if !SDK_V10
-    func testMeasurementOnChildSpan_SetTwice_OverwritesMeasurement() throws {
-        let name = "something"
-        let value: NSNumber = -12.34
-        let unit = MeasurementUnitFraction.percent
-
-        let sut = fixture.getSut()
-        let childSpan = sut.startChild(operation: "operation")
-        sut.setMeasurement(name: name, value: 12.0, unit: unit)
-        childSpan.setMeasurement(name: name, value: value, unit: unit)
-        childSpan.finish()
-        sut.finish()
-
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
-
-        let measurements = try XCTUnwrap(serializedTransaction?["measurements"] as? [String: [String: Any]])
-        XCTAssertEqual(1, measurements.count)
-
-        let measurement = try XCTUnwrap(measurements[name])
-        XCTAssertEqual(value, try XCTUnwrap(measurement["value"] as? NSNumber))
-        XCTAssertEqual(unit.unit, try XCTUnwrap(measurement["unit"] as? String))
-    }
-
-#endif
-
-#if SDK_V10
     func testSetMeasurement_whenFinishingTransaction_shouldSerializeChildMeasurementsSeparately() throws {
         // -- Arrange --
         let sut = fixture.getSut()
@@ -1321,7 +1262,6 @@ class SentryTracerTests: XCTestCase {
         let childMeasurements = try XCTUnwrap(serializedChild["measurements"] as? [String: [String: NSNumber]])
         XCTAssertEqual(childMeasurements, ["count": ["value": 34]])
     }
-#endif
 
     func testMeasurement_NameIsNil_MeasurementsGetsDiscarded() throws {
         // Arrange
@@ -1339,50 +1279,6 @@ class SentryTracerTests: XCTestCase {
 
         XCTAssertNil(serializedTransaction?["measurements"])
     }
-
-#if !SDK_V10
-    func testMeasurements_WriteFromDifferentThreads_SetsAllMeasurements() throws {
-        // Arrange
-        let iterations = 100
-        let unit = MeasurementUnitFraction.percent
-
-        let sut = fixture.getSut()
-        let childSpan = sut.startChild(operation: "operation")
-
-        let dispatchQueue = DispatchQueue(label: "testQueue", attributes: .concurrent)
-        let expectation = XCTestExpectation(description: "Set measurements")
-        expectation.expectedFulfillmentCount = iterations
-
-        // Act
-        for i in 0..<iterations {
-            dispatchQueue.async {
-                sut.setMeasurement(name: "transaction \(i)", value: 12.0, unit: unit)
-                childSpan.setMeasurement(name: "span \(i)", value: 10.0, unit: unit)
-                expectation.fulfill()
-            }
-        }
-
-        wait(for: [expectation], timeout: 5.0)
-
-        // Assert
-        childSpan.finish()
-        sut.finish()
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
-
-        let measurements = try XCTUnwrap(serializedTransaction?["measurements"] as? [String: [String: Any]])
-        XCTAssertEqual(measurements.count, iterations * 2)
-
-        for i in 0..<iterations {
-            let transactionMeasurement = try XCTUnwrap(measurements["transaction \(i)"])
-            XCTAssertEqual(try XCTUnwrap(transactionMeasurement["value"] as? NSNumber), 12.0)
-
-            let spanMeasurement = try XCTUnwrap(measurements["span \(i)"])
-            XCTAssertEqual(try XCTUnwrap(spanMeasurement["value"] as? NSNumber), 10.0)
-        }
-    }
-
-#endif
 
     func testMeasurements_ReadWhileWritingOnDifferentThreads() throws {
         // Arrange
@@ -1412,7 +1308,6 @@ class SentryTracerTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
 
-#if SDK_V10
     func testFinish_whenChildrenAreUnfinished_shouldPreserveStatusAndOmitEndTimestamp() throws {
         // -- Arrange --
         let sut = fixture.getSut(waitForChildren: false)
@@ -1501,37 +1396,6 @@ class SentryTracerTests: XCTestCase {
         let unfinishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "unfinished" })
         XCTAssertNil(unfinishedPayload["timestamp"])
     }
-#else
-    func testFinish_WithUnfinishedChildren() {
-        let sut = fixture.getSut(waitForChildren: false)
-        let child1 = sut.startChild(operation: fixture.transactionOperation)
-        let child2 = sut.startChild(operation: fixture.transactionOperation)
-        let child3 = sut.startChild(operation: fixture.transactionOperation)
-        child2.finish()
-        
-        //Without this sleep sut.timestamp and child2.timestamp sometimes
-        //are equal we need to make sure that SentryTracer is not changing
-        //the timestamp value of proper finished spans.
-        Thread.sleep(forTimeInterval: 0.1)
-
-        fixture.currentDateProvider.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1))
-        
-        sut.finish()
-        
-        XCTAssertTrue(child1.isFinished)
-        XCTAssertEqual(child1.status, .deadlineExceeded)
-        XCTAssertEqual(sut.timestamp, child1.timestamp)
-        
-        XCTAssertTrue(child2.isFinished)
-        XCTAssertEqual(child2.status, .ok)
-        XCTAssertNotEqual(sut.timestamp, child2.timestamp)
-        
-        XCTAssertTrue(child3.isFinished)
-        XCTAssertEqual(child3.status, .deadlineExceeded)
-        XCTAssertEqual(sut.timestamp, child3.timestamp)
-    }
-    
-#endif
 
     func testFinishCallback_CalledWhenTracerFinishes() {
         let callbackExpectation = expectation(description: "FinishCallback called")

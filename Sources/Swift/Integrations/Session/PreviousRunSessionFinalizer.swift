@@ -75,21 +75,6 @@ final class PreviousRunSessionFinalizer {
         }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-#if !SDK_V10
-        guard fileManager.appHangEventExists() else {
-            SentrySDKLog.debug("No app hang event found. Won't end current session.")
-            return
-        }
-
-        guard let appHangEvent = fileManager.readAppHangEvent() else {
-            SentrySDKLog.warning("App hang event deleted between check and read. Cannot end current session.")
-            return
-        }
-
-        session.endAbnormal(withTimestamp: appHangEvent.timestamp ?? Date())
-        fileManager.storeAbnormalSession(session)
-        fileManager.deleteCurrentSession()
-#endif // !SDK_V10
 #endif
     }
 }

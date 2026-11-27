@@ -35,11 +35,7 @@ open class SentrySystemWrapper: NSObject {
 
     @objc
     public func normalizeCPUUsage(_ rawUsage: Float) -> Float {
-#if SDK_V10
         return (rawUsage / Float(TH_USAGE_SCALE)) * 100.0 / processorCount
-#else
-        return rawUsage / processorCount
-#endif
     }
 
     @objc

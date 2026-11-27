@@ -15,23 +15,6 @@ public final class SentryExperimentalOptions: NSObject {
     /// lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
     public var enableNewURLLoaderSwizzling = false
 
-    #if !SDK_V10
-    @nonobjc var enableWatchdogTerminationsV2Value = false
-
-    /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-    /// - Deprecated: This option will be removed in v10, where the improved watchdog termination
-    ///   tracking mechanism is enabled by default.
-    public var enableWatchdogTerminationsV2: Bool {
-        get {
-            enableWatchdogTerminationsV2Value
-        }
-        @available(*, deprecated, message: "enableWatchdogTerminationsV2 is deprecated and will be removed in v10, where the improved watchdog termination tracking mechanism is enabled by default.")
-        set {
-            enableWatchdogTerminationsV2Value = newValue
-        }
-    }
-    #endif
-
     /**
      * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first
      * time an instance of it is created, instead of eagerly discovering and swizzling every

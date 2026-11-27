@@ -22,11 +22,6 @@ shouldIncrementSessionErrors(SentryEvent *event)
     if (event.isFromPreviousProcess) {
         return NO;
     }
-#if !SDK_V10
-    if (event.isAppHangEvent) {
-        return NO;
-    }
-#endif // !SDK_V10
 
     if (event.level >= kSentryLevelError) {
         return YES;

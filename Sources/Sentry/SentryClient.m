@@ -174,11 +174,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           initWithTransportAdapter:transportAdapter]
                          dependencies:SentryDependencyContainer.sharedInstance];
 
-#if SDK_V10
         BOOL shouldAddDefaultUserId = options.dataCollectionObjC.userInfo;
-#else
-        BOOL shouldAddDefaultUserId = options.sendDefaultPii;
-#endif // SDK_V10
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
@@ -473,7 +469,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
 
-#if SDK_V10
     if (eventIsATransactionClass && event != nil) {
         if (self.options.beforeSendTransaction != nil) {
             event = self.options.beforeSendTransaction((SentryTransaction *)event, hint);
@@ -500,31 +495,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             [self recordLost:YES reason:SentryDiscardReasonBeforeSend];
         }
     }
-#else
-    if (eventIsNotUserFeedback && event != nil) {
-        if (self.options.beforeSendWithHint != nil) {
-            event
-                = self.options.beforeSendWithHint(SENTRY_UNWRAP_NULLABLE(SentryEvent, event), hint);
-        } else if (self.options.beforeSend != nil) {
-            event = self.options.beforeSend(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
-        }
-        if (event == nil) {
-            [self recordLost:eventIsNotATransaction reason:SentryDiscardReasonBeforeSend];
-            if (eventIsATransaction) {
-                // We dropped the whole transaction, the dropped count includes all child spans + 1
-                // root span
-                [self recordLostSpanWithReason:SentryDiscardReasonBeforeSend
-                                      quantity:currentSpanCount + 1];
-            }
-        } else {
-            if ([event isKindOfClass:[SentryTransaction class]]) {
-                [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                       withReason:SentryDiscardReasonBeforeSend
-                             withCurrentSpanCount:&currentSpanCount];
-            }
-        }
-    }
-#endif // SDK_V10
 
     if (event != nil) {
         // if the event is dropped by beforeSend we should not execute event processors as they
@@ -551,15 +521,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // We only want to call the callbacks once. It can occur that multiple crash events are
         // about to be sent.
         SentrySDKInternal.lastRunStatusCalled = YES;
-
-#if !SDK_V10
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        if (nil != self.options.onCrashedLastRun) {
-            self.options.onCrashedLastRun(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
-        }
-#    pragma clang diagnostic pop
-#endif
 
         if (nil != self.options.onLastRunStatusDetermined) {
             self.options.onLastRunStatusDetermined(

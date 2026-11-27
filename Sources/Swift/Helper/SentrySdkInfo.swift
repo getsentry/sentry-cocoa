@@ -16,11 +16,7 @@ struct SentrySdkInfo {
 
         let enabledFeatures = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
-#if SDK_V10
         let autoInferIP = options.dataCollection.userInfo
-#else
-        let autoInferIP = options.sendDefaultPii
-#endif // SDK_V10
         return Self(withEnabledFeatures: enabledFeatures, autoInferIP: autoInferIP)
     }
 
@@ -66,11 +62,7 @@ struct SentrySdkInfo {
 
     init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-#if SDK_V10
         let autoInferIP = options?.dataCollection.userInfo ?? false
-#else
-        let autoInferIP = options?.sendDefaultPii ?? false
-#endif // SDK_V10
         self.init(withEnabledFeatures: features, autoInferIP: autoInferIP)
     }
 

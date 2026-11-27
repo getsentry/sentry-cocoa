@@ -25,22 +25,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
-#if SDK_V10
     if (!self.options.dataCollectionObjC.userInfo) {
         return;
     }
-#endif // SDK_V10
     if (event.user == nil) {
         SentryUser *user = [[SentryUser alloc] init];
         user.userId = [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
         event.user = user;
-#if SDK_V10
     } else if (event.user.userId.length == 0) {
         // Keep the installation ID fallback when only other user fields are provided, as on
         // Android.
         event.user.userId =
             [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
-#endif // SDK_V10
     }
 }
 

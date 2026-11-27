@@ -11,13 +11,10 @@ import Foundation
     // MARK: - Properties
 
     private let wrapped: URL
-#if SDK_V10
     private let urlQueryParamsBehavior: SentryDataCollection.KeyValueCollectionBehavior
-#endif // SDK_V10
 
     // MARK: - Initializers
 
-#if SDK_V10
     public init(URL url: URL, options: SentryDataCollection.Options) {
         self.wrapped = url
         self.urlQueryParamsBehavior = options.urlQueryParams
@@ -27,22 +24,12 @@ import Foundation
     public convenience init(URL url: URL, options: SentryDataCollectionObjCOptions) {
         self.init(URL: url, options: options.wrapped)
     }
-#else
-    public init(URL url: URL) {
-        self.wrapped = url
-    }
-#endif // SDK_V10
 
     // MARK: - Accessors
 
     public var sanitizedUrl: String? {
         guard var components else { return nil }
 
-#if !SDK_V10
-        // The current implementation of the sanitized url is including query parameters, which should not be included
-        // according to the data collection specification shipped with V10
-        components.queryItems = nil
-#endif // !SDK_V10
         components.fragment = nil
 
         return decodedString(from: components)
@@ -91,14 +78,11 @@ import Foundation
             components.password = UrlSanitized.SENSITIVE_DATA_SUBSTITUTE
         }
 
-#if SDK_V10
         filterQueryItems(&components)
-#endif // SDK_V10
 
         return components
     }
 
-#if SDK_V10
     private func filterQueryItems(_ components: inout URLComponents) {
         guard components.percentEncodedQuery != nil else {
             return
@@ -131,6 +115,5 @@ import Foundation
             )
         }
     }
-#endif // SDK_V10
 }
 // swiftlint:enable missing_docs

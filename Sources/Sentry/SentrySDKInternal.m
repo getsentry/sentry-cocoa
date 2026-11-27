@@ -397,15 +397,6 @@ static BOOL sdkStarted;
     [SentrySDKInternal.currentHub captureFatalEvent:event withScope:scope];
 }
 
-#if SENTRY_HAS_UIKIT && !SDK_V10
-
-+ (void)captureFatalAppHangEvent:(SentryEvent *)event
-{
-    [SentrySDKInternal.currentHub captureFatalAppHangEvent:event];
-}
-
-#endif // SENTRY_HAS_UIKIT && !SDK_V10
-
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [SentrySDKInternal captureEvent:event withScope:SentrySDKInternal.currentHub.scope];
@@ -693,26 +684,6 @@ static BOOL sdkStarted;
 {
     [SentrySDKInternal.currentHub reportFullyDisplayed];
 }
-
-#if !SDK_V10
-+ (void)pauseAppHangTracking
-{
-    SentryHangTrackerIntegrationObjC *anrTrackingIntegration
-        = (SentryHangTrackerIntegrationObjC *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryHangTrackerIntegrationObjC class]];
-
-    [anrTrackingIntegration pauseAppHangTracking];
-}
-
-+ (void)resumeAppHangTracking
-{
-    SentryHangTrackerIntegrationObjC *anrTrackingIntegration
-        = (SentryHangTrackerIntegrationObjC *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryHangTrackerIntegrationObjC class]];
-
-    [anrTrackingIntegration resumeAppHangTracking];
-}
-#endif
 
 + (void)flush:(NSTimeInterval)timeout
 {

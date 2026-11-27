@@ -31,9 +31,6 @@ public final class SentryAppStartTracker: NSObject {
     @objc public private(set) var isRunning = false
 
     let appStateManager: SentryAppStateManager
-    #if !SDK_V10
-    private let framesTracker: SentryFramesTracker
-    #endif
     private let enablePreWarmedAppStartTracing: Bool
     private let reportingStrategy: AppStartReportingStrategy
     let extendedAppLaunchManager: SentryExtendedAppLaunchManager
@@ -53,7 +50,6 @@ public final class SentryAppStartTracker: NSObject {
 
     // MARK: - Initialization
 
-    #if SDK_V10
     init(
         appStateManager: SentryAppStateManager,
         enablePreWarmedAppStartTracing: Bool,
@@ -74,37 +70,6 @@ public final class SentryAppStartTracker: NSObject {
 
         super.init()
     }
-    #else
-    init(
-        appStateManager: SentryAppStateManager,
-        framesTracker: SentryFramesTracker,
-        enablePreWarmedAppStartTracing: Bool,
-        enableStandaloneAppStartTracing: Bool,
-        dateProvider: SentryCurrentDateProvider,
-        sysctlWrapper: SentrySysctl,
-        appStartInfoProvider: AppStartInfoProvider,
-        extendedAppLaunchManager: SentryExtendedAppLaunchManager
-    ) {
-        self.appStateManager = appStateManager
-        self.framesTracker = framesTracker
-        self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
-        self.extendedAppLaunchManager = extendedAppLaunchManager
-        self.reportingStrategy = enableStandaloneAppStartTracing
-            ? StandaloneTransactionStrategy(extendedAppLaunchManager: extendedAppLaunchManager)
-            : AttachToTransactionStrategy()
-        self.previousAppState = appStateManager.loadPreviousAppState()
-        self.dateProvider = dateProvider
-        self.didFinishLaunchingTimestamp = dateProvider.date()
-        self.sysctlWrapper = sysctlWrapper
-        self.appStartInfoProvider = appStartInfoProvider
-
-        super.init()
-
-        if !enableStandaloneAppStartTracing {
-            framesTracker.addListener(self)
-        }
-    }
-    #endif
 
     deinit {
         stop()
@@ -168,26 +133,10 @@ public final class SentryAppStartTracker: NSObject {
             object: nil
         )
 
-        #if !SDK_V10
-        if !(reportingStrategy is StandaloneTransactionStrategy) {
-            framesTracker.removeListener(self)
-        }
-        #endif
-
         #if DEBUG // Test support.
         isRunning = false
         #endif
     }
-
-    #if !SDK_V10
-    // MARK: - SentryFramesTrackerListener
-
-    /// This is when the first frame is drawn.
-    @objc
-    public func framesTrackerHasNewFrame(_ newFrameDate: Date) {
-        buildAppStartMeasurement(newFrameDate)
-    }
-    #endif
 
     // MARK: - Private Methods
     private func buildAppStartMeasurement(_ appStartEnd: Date) {
@@ -352,9 +301,5 @@ public final class SentryAppStartTracker: NSObject {
         SentryAppStartMeasurementProvider.setAppStartTrace(nil)
     }
 }
-
-#if !SDK_V10
-extension SentryAppStartTracker: SentryFramesTrackerListener {}
-#endif
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

@@ -1,9 +1,5 @@
 // swiftlint:disable file_length missing_docs type_body_length
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCOptions) public final class SentryObjCOptions: NSObject {
@@ -134,7 +130,6 @@ import Foundation
     }
     private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
-    #if SDK_V10
     @objc public var beforeSendTransaction: ((SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?)? {
         didSet {
             if let beforeSendTransaction = beforeSendTransaction {
@@ -149,7 +144,6 @@ import Foundation
             }
         }
     }
-    #endif // SDK_V10
 
     @objc public var beforeSendSpan: ((SentryObjCSpan) -> SentryObjCSpan?)? {
         didSet {
@@ -163,13 +157,6 @@ import Foundation
             }
         }
     }
-
-    #if !SDK_V10
-    @objc public var enableLogs: Bool {
-        get { wrapped.enableLogs }
-        set { wrapped.enableLogs = newValue }
-    }
-    #endif // !SDK_V10
 
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
@@ -256,21 +243,6 @@ import Foundation
         }
     }
 
-#if !SDK_V10
-    @available(*, deprecated, message: "Use onLastRunStatusDetermined instead.")
-    @objc public var onCrashedLastRun: ((SentryObjCEvent) -> Void)? {
-        didSet {
-            if let onCrashedLastRun = onCrashedLastRun {
-                wrapped.onCrashedLastRun = { event in
-                    onCrashedLastRun(SentryObjCEvent(event))
-                }
-            } else {
-                wrapped.onCrashedLastRun = nil
-            }
-        }
-    }
-#endif
-
     @objc public var onLastRunStatusDetermined: ((SentryObjCLastRunStatus, SentryObjCEvent?) -> Void)? {
         didSet {
             if let onLastRunStatusDetermined = onLastRunStatusDetermined {
@@ -323,13 +295,6 @@ import Foundation
         get { wrapped.maxAttachmentSize }
         set { wrapped.maxAttachmentSize = newValue }
     }
-
-#if !SDK_V10
-    @objc public var sendDefaultPii: Bool {
-        get { wrapped.sendDefaultPii }
-        set { wrapped.sendDefaultPii = newValue }
-    }
-#endif // !SDK_V10
 
     @objc public var enableAutoPerformanceTracing: Bool {
         get { wrapped.enableAutoPerformanceTracing }
@@ -429,31 +394,14 @@ import Foundation
         set { wrapped.enablePreWarmedAppStartTracing = newValue }
     }
 
-    #if !SDK_V10
-    @objc public var enableStandaloneAppStartTracing: Bool {
-        get { wrapped.enableStandaloneAppStartTracing }
-        set { wrapped.enableStandaloneAppStartTracing = newValue }
-    }
-    #endif
-
-    #if !SDK_V10
-    @objc public var enableReportNonFullyBlockingAppHangs: Bool {
-        get { wrapped.enableReportNonFullyBlockingAppHangs }
-        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
-        set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
-    }
-    #endif // !SDK_V10
-
     #endif
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-    #if SDK_V10
     @objc public var privacy: SentryObjCPrivacyOptions {
         get { SentryObjCPrivacyOptions(parent: wrapped) }
         set { wrapped.privacy = newValue.wrapped }
     }
-    #endif // SDK_V10
 
     @objc public var sessionReplay: SentryObjCReplayOptions {
         get { SentryObjCReplayOptions(wrapped.sessionReplay) }
@@ -549,13 +497,6 @@ import Foundation
         set { wrapped.sendClientReports = newValue }
     }
 
-    #if !SDK_V10
-    @objc public var enableAppHangTracking: Bool {
-        get { wrapped.enableAppHangTracking }
-        set { wrapped.enableAppHangTracking = newValue }
-    }
-    #endif // !SDK_V10
-
     @objc public var appHangTimeoutInterval: TimeInterval {
         get { wrapped.appHangTimeoutInterval }
         set { wrapped.appHangTimeoutInterval = newValue }
@@ -592,13 +533,6 @@ import Foundation
     }
 
     #if canImport(MetricKit) && !os(tvOS)
-
-    #if !SDK_V10
-    @objc public var enableMetricKit: Bool {
-        get { wrapped.enableMetricKit }
-        set { wrapped.enableMetricKit = newValue }
-    }
-    #endif // !SDK_V10
 
     @objc public var enableMetricKitRawPayload: Bool {
         get { wrapped.enableMetricKitRawPayload }
@@ -642,23 +576,15 @@ import Foundation
         set { wrapped.orgId = newValue }
     }
 
-    #if SDK_V10
     @objc public var dataCollection: SentryObjCDataCollectionOptions {
         get { SentryObjCDataCollectionOptions(parent: wrapped) }
         set { wrapped.dataCollection = newValue.wrapped }
     }
-    #endif // SDK_V10
 
     @objc public var experimental: SentryObjCExperimentalOptions {
         get { SentryObjCExperimentalOptions(wrapped.experimental) }
         set { wrapped.experimental = newValue.wrapped }
     }
 
-    #if !SDK_V10
-    @objc public var enableMetrics: Bool {
-        get { wrapped.enableMetrics }
-        set { wrapped.enableMetrics = newValue }
-    }
-    #endif // !SDK_V10
 }
 // swiftlint:enable file_length missing_docs type_body_length

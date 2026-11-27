@@ -1,10 +1,6 @@
 #if os(iOS) || os(tvOS) || os(visionOS)
 
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 @_spi(Private) @testable import SentryTestUtils
 import _SentryPrivate
 import XCTest
@@ -248,42 +244,6 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.count, 1)
         XCTAssertEqual(newAttachmentList.first, attachment)
     }
-    
-    #if !SDK_V10
-    func test_backgroundForAppHangs() throws {
-        SentrySDK.start {
-            $0.removeAllIntegrations()
-            $0.attachViewHierarchy = true
-        }
-        defer {
-            SentrySDK.close()
-        }
-
-        let sut = try fixture.getSut()
-        defer {
-            sut.uninstall()
-        }
-        let testVH = TestSentryViewHierarchyProvider(dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), applicationProvider: { TestSentryUIApplication() })
-        SentryDependencyContainer.sharedInstance().viewHierarchyProvider = testVH
-
-        let event = Event()
-        event.exceptions = [Exception(value: "test", type: "App Hanging")]
-        
-        let ex = expectation(description: "Attachment Added")
-        
-        testVH.appViewHierarchyCallback = {
-            XCTFail("Should not add view hierarchy to app hanging events")
-        }
-        
-        let dispatch = DispatchQueue(label: "background")
-        dispatch.async {
-            _ = sut.processAttachments([], for: event)
-            ex.fulfill()
-        }
-        
-        wait(for: [ex], timeout: 1)
-    }
-    #endif // !SDK_V10
     
     func testReportAccessibilityIdentifierTrue() {
         SentrySDK.start {

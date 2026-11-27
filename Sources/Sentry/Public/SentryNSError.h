@@ -6,20 +6,13 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Sentry representation of an @c NSError to send to Sentry.
  */
-#if SDK_V10
 @interface SentryNSError : NSObject
-#else
-@interface SentryNSError : NSObject <SentrySerializable>
-#endif // SDK_V10
 
 SENTRY_NO_INIT
 

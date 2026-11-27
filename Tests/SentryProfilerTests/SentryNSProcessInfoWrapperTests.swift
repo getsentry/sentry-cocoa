@@ -1,4 +1,4 @@
-#if !SWIFT_PACKAGE || !SDK_V10
+#if !SWIFT_PACKAGE
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
 

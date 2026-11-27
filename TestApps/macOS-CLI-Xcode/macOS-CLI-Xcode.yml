@@ -36,8 +36,6 @@ targets:
         product: Sentry
     settings:
       base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.macOS-CLI-Xcode
         SWIFT_VERSION: "5.0"
   macOS-CLI-XcodeTests:
@@ -51,8 +49,6 @@ targets:
         link: false
     settings:
       base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "5.0"
 schemes:

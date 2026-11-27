@@ -321,17 +321,6 @@ SENTRY_NO_INIT
 + (void)configureScope:(void (^)(SENTRY_SWIFT_MIGRATION_ID(SentryScope)scope))callback
     NS_SWIFT_NAME(configureScopeObject(_:));
 
-#if !SDK_V10
-/**
- * Checks if the last program execution terminated with a crash.
- *
- * @deprecated Use @c lastRunStatus instead, which distinguishes between "did not crash" and
- * "unknown".
- */
-@property (nonatomic, class, readonly) BOOL crashedLastRun
-    __attribute__((deprecated("Use lastRunStatus instead.")));
-#endif
-
 /**
  * Returns the crash status of the last program execution.
  *
@@ -392,21 +381,6 @@ SENTRY_NO_INIT
  * https://docs.sentry.io/platforms/cocoa/performance/instrumentation/automatic-instrumentation/#time-to-full-display
  */
 + (void)reportFullyDisplayed;
-
-#if !SDK_V10
-/**
- * Pauses sending detected app hangs to Sentry.
- *
- * @discussion This method doesn't close the detection of app hangs. Instead, the app hang detection
- * will ignore detected app hangs until you call @c resumeAppHangTracking.
- */
-+ (void)pauseAppHangTracking;
-
-/**
- * Resumes sending detected app hangs to Sentry.
- */
-+ (void)resumeAppHangTracking;
-#endif
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

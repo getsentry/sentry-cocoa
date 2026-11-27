@@ -295,10 +295,6 @@
     // Automatic performance tracing and app hang tracking may still need the frames tracker.
     SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
     BOOL shouldStop = options == nil || !options.enableAutoPerformanceTracing;
-#        if !SDK_V10
-    BOOL appHangsDisabled = options != nil && [options isAppHangTrackingDisabled];
-    shouldStop = shouldStop && appHangsDisabled;
-#        endif
     if (shouldStop) {
         [SentryDependencyContainer.sharedInstance.framesTracker stop];
     }

@@ -350,21 +350,9 @@ open class Scope: NSObject {
         resetScope()
     }
 
-    #if !SDK_V10
-    /// Serializes the scope to JSON.
-    @objc
-    @discardableResult
-    open func serialize() -> [String: Any] {
-        serializedScope()
-    }
-    #endif
 }
 
 private let defaultScopeMaxBreadcrumbs: UInt = 100
-
-#if !SDK_V10
-extension Scope: SentrySerializable {}
-#endif
 
 private extension Scope {
     func replaceSpan(_ span: Span?) {

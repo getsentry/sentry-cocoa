@@ -1,4 +1,3 @@
-#if SDK_V10
 /// Internal helper class used to access Swift-only data types related to data collection options from Objective-C
 @_spi(Private) @objcMembers public final class SentryDataCollectionObjCOptions: NSObject {
     let wrapped: SentryDataCollection.Options
@@ -19,4 +18,3 @@ extension Options {
         return SentryDataCollectionObjCOptions(wrapped: dataCollection)
     }
 }
-#endif // SDK_V10

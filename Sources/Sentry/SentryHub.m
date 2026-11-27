@@ -333,45 +333,6 @@ NS_ASSUME_NONNULL_BEGIN
     return !client.isDisabled && self.client == client;
 }
 
-#if SENTRY_HAS_UIKIT && !SDK_V10
-
-/**
- * This method expects an abnormal session already stored to disk. For more info checkout: @c
- * PreviousRunSessionFinalizer
- */
-- (void)captureFatalAppHangEvent:(SentryEvent *)event
-{
-    // We treat fatal app hang events similar to crashes.
-    event.isFatalEvent = YES;
-
-    SentryClientInternal *_Nullable client = _client;
-    if (client == nil) {
-        return;
-    }
-
-    SentryFileManager *fileManager = [client fileManager];
-    SentrySession *abnormalSession = [fileManager readAbnormalSession];
-
-    // It can occur that there is no session yet because autoSessionTracking was just enabled or
-    // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
-    // this case, we just send the fatal app hang event.
-    if (abnormalSession == nil) {
-        [client captureFatalEvent:event
-                        withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
-        return;
-    }
-
-    // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
-    // health and session statistics as app hangs.
-    abnormalSession.abnormalMechanism = @"anr_foreground";
-    [client captureFatalEvent:event
-                  withSession:abnormalSession
-                    withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope) _Nonnull)self.scope];
-    [fileManager deleteAbnormalSession];
-}
-
-#endif // SENTRY_HAS_UIKIT && !SDK_V10
-
 - (void)captureTransaction:(SENTRY_SWIFT_MIGRATION_ID(SentryTransaction))transaction
                  withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
 {

@@ -6,9 +6,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,11 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryStacktrace;
 
 NS_SWIFT_NAME(Exception)
-#if SDK_V10
 @interface SentryException : NSObject
-#else
-@interface SentryException : NSObject <SentrySerializable>
-#endif // SDK_V10
 
 SENTRY_NO_INIT
 

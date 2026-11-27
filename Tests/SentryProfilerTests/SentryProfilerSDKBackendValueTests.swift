@@ -1,4 +1,4 @@
-#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if !SWIFT_PACKAGE && (os(iOS) || os(macOS))
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 #else
@@ -44,9 +44,6 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.enableAutoPerformanceTracing = true
-#if !SDK_V10
-        options.enableAppHangTracking = false
-#endif
         let fixture = FrameTrackingFixture(options: options)
         defer { fixture.restore() }
         XCTAssertTrue(fixture.tracker.isRunning)
@@ -62,9 +59,6 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.enableAutoPerformanceTracing = false
-#if !SDK_V10
-        options.enableAppHangTracking = false
-#endif
         let fixture = FrameTrackingFixture(options: options)
         defer { fixture.restore() }
         XCTAssertTrue(fixture.tracker.isRunning)
@@ -80,9 +74,6 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.enableAutoPerformanceTracing = true
-#if !SDK_V10
-        options.enableAppHangTracking = false
-#endif
         let fixture = FrameTrackingFixture(options: options)
         defer { fixture.restore() }
         fixture.backend.stopFramesTrackerIfUnused()
@@ -106,48 +97,8 @@ final class SentryProfilerSDKBackendValueTests: XCTestCase {
         fixture.backend.stopFramesTrackerIfUnused()
 
         // -- Assert --
-#if SDK_V10
-        XCTAssertFalse(fixture.tracker.isRunning)
-#else
-        XCTAssertTrue(fixture.tracker.isRunning)
-#endif
-    }
-
-#if !SDK_V10
-    func testStopFramesTrackerIfUnused_whenAppHangTrackingEnabled_shouldKeepTracking() {
-        // -- Arrange --
-        let options = Options()
-        options.enableAutoPerformanceTracing = false
-        options.enableAppHangTracking = true
-        let fixture = FrameTrackingFixture(options: options)
-        defer { fixture.restore() }
-        XCTAssertTrue(fixture.tracker.isRunning)
-
-        // -- Act --
-        fixture.backend.stopFramesTrackerIfUnused()
-
-        // -- Assert --
-        XCTAssertTrue(fixture.tracker.isRunning)
-    }
-
-    func testStopFramesTrackerIfUnused_whenAppHangTrackingDisabledAfterStart_shouldStopTracking() {
-        // -- Arrange --
-        let options = Options()
-        options.enableAutoPerformanceTracing = false
-        options.enableAppHangTracking = true
-        let fixture = FrameTrackingFixture(options: options)
-        defer { fixture.restore() }
-        fixture.backend.stopFramesTrackerIfUnused()
-        XCTAssertTrue(fixture.tracker.isRunning)
-
-        // -- Act --
-        options.enableAppHangTracking = false
-        fixture.backend.stopFramesTrackerIfUnused()
-
-        // -- Assert --
         XCTAssertFalse(fixture.tracker.isRunning)
     }
-#endif
 
     private struct FrameTrackingFixture {
         let backend = SentryDefaultProfilerSDKBackend()

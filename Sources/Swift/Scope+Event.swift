@@ -220,13 +220,11 @@ extension Scope {
         applySpan(span, to: event)
     }
 
-    #if SDK_V10
     @objc
     @discardableResult
     func serialize() -> [String: Any] {
         serializedScope()
     }
-    #endif
 
     func serializedScope() -> [String: Any] {
         let serializedData = NSMutableDictionary()

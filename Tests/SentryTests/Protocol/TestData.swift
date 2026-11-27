@@ -1,10 +1,6 @@
 import _SentryPrivate
 #if SWIFT_PACKAGE
-#if !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 #else
 @_spi(Private) import Sentry
 #endif
@@ -350,11 +346,7 @@ class TestData {
         request.fragment = "fragment"
         request.bodySize = 10
         request.queryString = "query"
-#if SDK_V10
         request.cookies = ["cookie": "value"]
-#else
-        request.cookies = "cookies"
-#endif // SDK_V10
         request.method = "GET"
         request.headers = ["header": "value"]
         

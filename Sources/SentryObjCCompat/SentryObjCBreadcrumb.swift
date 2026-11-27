@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCBreadcrumb) public final class SentryObjCBreadcrumb: NSObject {
@@ -51,20 +47,9 @@ import Foundation
         set { wrapped.origin = newValue }
     }
 
-    #if SDK_V10
     @objc public var data: [String: Any]? {
         wrapped.data
     }
-    #else
-    @objc public var data: [String: Any]? {
-        get { wrapped.data }
-        @available(*, deprecated, message: "Use setData(value:key:) instead.")
-        // swiftlint:disable no_breadcrumb_data_setter
-        set { wrapped.data = newValue } // pass-through mirroring the data setter; removed in V10
-        // swiftlint:enable no_breadcrumb_data_setter
-    }
-
-    #endif
 
     @objc(setDataValue:forKey:) public func setData(value: Any?, key: String) {
         wrapped.setData(value: value, key: key)

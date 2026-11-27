@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -17,7 +13,6 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let maxBreadcrumbs = 10
 
-#if SDK_V10
         init() throws {
             let breadcrumb = TestData.crumb
             breadcrumb.data?.keys.forEach { breadcrumb.setData(value: nil, key: $0) }
@@ -32,24 +27,6 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )
         }
-#else
-        @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-        init() throws {
-            breadcrumb = TestData.crumb
-            // swiftlint:disable:next no_breadcrumb_data_setter
-            breadcrumb.data = nil
-            invalidJSONBreadcrumb = ["invalid": .infinity]
-
-            let options = Options()
-            options.dsn = SentryWatchdogTerminationBreadcrumbProcessorTests.dsn
-            fileManager = try SentryFileManager(
-                options: options,
-                dateProvider: TestCurrentDateProvider(),
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-            )
-        }
-
-#endif
 
         func makeProcessor(
             maxBreadcrumbs: Int? = nil,

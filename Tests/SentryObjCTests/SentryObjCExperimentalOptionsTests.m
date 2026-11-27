@@ -91,37 +91,6 @@
     XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling);
 }
 
-#if !SDK_V10
-#    pragma mark - enableWatchdogTerminationsV2
-
-- (void)testEnableWatchdogTerminationsV2_whenDefault_shouldBeFalse
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // -- Assert --
-    XCTAssertFalse(options.enableWatchdogTerminationsV2);
-#    pragma clang diagnostic pop
-}
-
-- (void)testEnableWatchdogTerminationsV2_whenSetToYes_shouldReturnTrue
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // -- Act --
-    options.enableWatchdogTerminationsV2 = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableWatchdogTerminationsV2);
-#    pragma clang diagnostic pop
-}
-#endif
-
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 #    pragma mark - enableUIUpdateLinkFramesTracking
 

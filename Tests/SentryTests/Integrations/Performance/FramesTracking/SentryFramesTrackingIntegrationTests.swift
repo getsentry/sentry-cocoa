@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(visionOS)
@@ -68,39 +64,10 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut?.tracker)
     }
 
-    #if !SDK_V10
-    func testAppHangEnabled_MeasuresFrames() {
-        let options = fixture.options
-        let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
-        defer {
-            sut?.uninstall()
-        }
-
-        XCTAssertNotNil(sut)
-        XCTAssertNotNil(sut?.tracker)
-    }
-
-    func testAppHangEnabled_ButIntervalZero_ResetsToDefaultAndMeasuresFrames() {
-        let options = fixture.options
-        options.appHangTimeoutInterval = 0.0
-        options.enableWatchdogTerminationTracking = false
-        let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
-        defer {
-            sut?.uninstall()
-        }
-
-        XCTAssertEqual(2.0, options.appHangTimeoutInterval)
-        XCTAssertNotNil(sut)
-    }
-    #endif // !SDK_V10
-
     @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.0
-        #if !SDK_V10
-        options.enableAppHangTracking = false
-        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
         defer {
@@ -115,9 +82,6 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         let options = fixture.options
         options.tracesSampleRate = 0.1
         options.enableAutoPerformanceTracing = false
-        #if !SDK_V10
-        options.enableAppHangTracking = false
-        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
         defer {

@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -121,9 +117,6 @@ final class SentryClientTests: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTests.dsn
             options.removeAllIntegrations()
-            #if !SDK_V10
-            options.enableLogs = true
-            #endif // !SDK_V10
             configureOptions(options)
 
             return SentryClientInternal(
@@ -1503,28 +1496,6 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
     }
 
-#if !SDK_V10
-    func testCaptureEvent_whenEventIsAppHang_shouldNotIncrementSessionErrors() throws {
-        // -- Arrange --
-        let sut = fixture.getSut()
-        var incrementCount = 0
-        let sessionDelegate = SentryTestSessionDelegate {
-            incrementCount += 1
-            return self.fixture.session
-        }
-        sut.sessionDelegate = sessionDelegate
-        let event = Event(level: .error)
-        event.exceptions = [Exception(value: "App hanging", type: SentryAppHangTypeMapper.getExceptionType(anrType: .fullyBlocking))]
-
-        // -- Act --
-        sut.capture(event: event, scope: Scope())
-
-        // -- Assert --
-        XCTAssertEqual(incrementCount, 0)
-        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
-    }
-#endif // !SDK_V10
-
     func testCaptureEvent_whenBeforeSendReturnsNil_shouldNotIncrementSessionErrors() {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
@@ -2029,9 +2000,6 @@ final class SentryClientTests: XCTestCase {
     }
 
     func testCaptureTransaction_whenTracerIsUnbound_shouldAllowFilteringByTraceOperation() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scope = Scope()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
@@ -2055,44 +2023,9 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(eventId, SentryId.empty)
         assertNoEventSent()
         assertLostEventRecorded(category: .transaction, reason: .beforeSend)
-#endif // !SDK_V10
-    }
-
-    func testCaptureTransaction_whenTracerIsUnbound_shouldPreserveLegacyBeforeSendContext() throws {
-#if SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        // -- Arrange --
-        let scope = Scope()
-        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
-        tracer.finish()
-        let transaction = Transaction(trace: tracer, children: [])
-        scope.span = tracer
-        scope.span = nil
-        var callbackTrace: [String: Any]?
-        let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                callbackTrace = event.context?["trace"]
-                return event
-            }
-        })
-
-        // -- Act --
-        sut.capture(event: transaction, scope: scope)
-
-        // -- Assert --
-        let trace = try XCTUnwrap(callbackTrace)
-        XCTAssertNil(trace["op"])
-        XCTAssertEqual(trace["trace_id"] as? String, scope.propagationContext.traceId.sentryIdString)
-        XCTAssertEqual(trace["span_id"] as? String, scope.propagationContext.spanId.sentrySpanIdString)
-        XCTAssertIdentical(transaction, try lastSentEvent())
-#endif // SDK_V10
     }
 
     func testCaptureTransaction_whenBeforeSendIsSet_shouldNotInvokeBeforeSend() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         var beforeSendCalled = false
         let sut = fixture.getSut(configureOptions: { options in
@@ -2107,13 +2040,9 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(beforeSendCalled)
-#endif // !SDK_V10
     }
 
     func testCaptureMessage_whenBeforeSendTransactionIsSet_shouldNotInvokeBeforeSendTransaction() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         var beforeSendTransactionCalled = false
         let sut = fixture.getSut(configureOptions: { options in
@@ -2128,13 +2057,9 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(beforeSendTransactionCalled)
-#endif // !SDK_V10
     }
 
     func testCaptureTransaction_whenBeforeSendTransactionReturnsTransaction_shouldSendTransaction() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let returnedTransaction = Transaction(trace: fixture.trace, children: [])
         let sut = fixture.getSut(configureOptions: { options in
@@ -2146,7 +2071,6 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertIdentical(returnedTransaction, try lastSentEvent())
-#endif // !SDK_V10
     }
 
     func testBeforeSendReturnsNewEvent_NewEventSent() throws {
@@ -2183,9 +2107,6 @@ final class SentryClientTests: XCTestCase {
     // MARK: - beforeSendTransaction hint
 
     func testCaptureTransaction_whenScopeHasAttachments_shouldReceiveThemInBeforeSendTransactionHint() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
         let scope = Scope()
@@ -2203,13 +2124,9 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(receivedAttachments.contains(scopeAttachment))
-#endif // !SDK_V10
     }
 
     func testCaptureTransaction_whenBeforeSendTransactionAddsAttachment_shouldIncludeInSentEnvelope() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
         let scope = Scope()
@@ -2229,13 +2146,9 @@ final class SentryClientTests: XCTestCase {
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         XCTAssertTrue(sentAttachments.contains(hintAttachment))
         XCTAssertTrue(sentAttachments.contains(scopeAttachment))
-#endif // !SDK_V10
     }
 
     func testCaptureTransaction_whenBeforeSendTransactionRemovesAttachment_shouldNotIncludeInSentEnvelope() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
         let scope = Scope()
@@ -2253,13 +2166,9 @@ final class SentryClientTests: XCTestCase {
         // -- Assert --
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         XCTAssertTrue(sentAttachments.isEmpty)
-#endif // !SDK_V10
     }
 
     func testCaptureTransaction_whenHintPassed_shouldFlowToBeforeSendTransaction() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         var receivedHint: Hint?
         let sut = fixture.getSut(configureOptions: { options in
@@ -2278,13 +2187,9 @@ final class SentryClientTests: XCTestCase {
         let received = try XCTUnwrap(receivedHint)
         XCTAssertIdentical(received, hint)
         XCTAssertEqual(received.hintValue(forKey: "custom-key") as? String, "user-value")
-#endif // !SDK_V10
     }
 
     func testFinishTracer_whenBeforeSendTransactionIsSet_shouldReceiveHintWithScopeAttachments() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
         let scope = Scope()
@@ -2320,13 +2225,9 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         XCTAssertEqual(sentAttachments, [scopeAttachment])
-#endif // !SDK_V10
     }
 
     func testFinishTracer_whenBeforeSendTransactionReturnsNil_shouldNotSendTransactionOrAttachments() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scope = Scope()
         scope.addAttachment(Attachment(data: Data("scope-data".utf8), filename: "scope.txt"))
@@ -2360,7 +2261,6 @@ final class SentryClientTests: XCTestCase {
         XCTAssertTrue(callbackCalled)
         assertNoEventSent()
         assertLostEventRecorded(category: .transaction, reason: .beforeSend)
-#endif // !SDK_V10
     }
 
     // MARK: - beforeSendWithHint
@@ -3464,22 +3364,12 @@ final class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
 
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Metrics", "NetworkTracking"]
-        #if !SDK_V10
-        if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
-            expectedIntegrations = ["ANRTracking"] + expectedIntegrations
-        }
-        #endif
         expectedIntegrations.append("KSCrash")
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
-        expectedIntegrations.append("FramesTracking")
-#endif // os(iOS) || os(tvOS)
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         expectedIntegrations.append("SessionReplay")
 #endif
-        #if SDK_V10
         expectedIntegrations.append("SwiftAsync")
-        #endif
-#if canImport(MetricKit) && !os(tvOS) && SDK_V10
+#if canImport(MetricKit) && !os(tvOS)
         expectedIntegrations.append("MetricKit")
 #endif
 
@@ -3529,22 +3419,15 @@ final class SentryClientTests: XCTestCase {
     }
 
     func testInstallationIdNotSetWhenDataCollectionUserInfoDisabled() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         fixture.getSut(configureOptions: { options in
             options.dataCollection.userInfo = false
         }).capture(message: "any message")
 
         let actual = try lastSentEvent()
         XCTAssertNil(actual.user)
-#endif
     }
 
     func testExplicitUserIsSetWhenDataCollectionUserInfoDisabled() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         let scope = Scope()
         let user = User()
         user.email = "jane@example.com"
@@ -3556,13 +3439,9 @@ final class SentryClientTests: XCTestCase {
 
         let actual = try lastSentEvent()
         XCTAssertEqual(actual.user?.email, "jane@example.com")
-#endif
     }
 
     func testCapture_whenRequestHeadersAreExplicitAndCollectionIsOff_shouldNotFilterHeaders() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         // -- Arrange --
         let event = Event()
         let request = SentryRequest()
@@ -3580,22 +3459,8 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(capturedEvent.request?.headers, [
             "Authorization": "Bearer user-provided-token"
         ])
-#endif // SDK_V10
     }
 
-#if !SDK_V10
-    func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
-        let scope = fixture.scope
-        scope.setUser(fixture.user)
-        fixture.getSut().capture(message: "any message", scope: scope)
-
-        let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(fixture.user.userId, actual.user?.userId)
-        XCTAssertEqual(fixture.user.email, actual.user?.email)
-    }
-#endif // !SDK_V10
-
-#if SDK_V10
     func testCapture_whenUserHasNoId_shouldApplyInstallationIdFallback() throws {
         // -- Arrange --
         let scope = fixture.scope
@@ -3651,7 +3516,6 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(actual.user?.userId)
         XCTAssertEqual(actual.user?.username, "jane")
     }
-#endif // SDK_V10
 
     func testInstallationIdNotSetWhenUserIsSetWithId() throws {
         let scope = Scope()
@@ -3665,40 +3529,16 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
 
-    func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
-#if SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        fixture.getSut(configureOptions: { options in
-            options.sendDefaultPii = true
-        }).capture(message: "any")
-
-        let actual = try lastSentEvent()
-        XCTAssertNotNil(actual.sdk)
-        let sdk = try XCTUnwrap(actual.sdk)
-        XCTAssertNotNil(sdk["settings"])
-        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
-        XCTAssertEqual(settings["infer_ip"] as? String, "auto")
-#endif
-    }
-
     func testDataCollectionUserInfoEnabledByDefault_GivenNoIP_sdkIPIsAuto() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         fixture.getSut().capture(message: "any")
 
         let actual = try lastSentEvent()
         let sdk = try XCTUnwrap(actual.sdk)
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "auto")
-#endif
     }
 
     func testDataCollectionUserInfoDisabled_GivenNoIP_sdkIPIsNever() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         fixture.getSut(configureOptions: { options in
             options.dataCollection.userInfo = false
         }).capture(message: "any")
@@ -3707,23 +3547,6 @@ final class SentryClientTests: XCTestCase {
         let sdk = try XCTUnwrap(actual.sdk)
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "never")
-#endif
-    }
-
-    func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {
-#if SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        let scope = Scope()
-        scope.setUser(fixture.user)
-
-        fixture.getSut(configureOptions: { options in
-            options.sendDefaultPii = true
-        }).capture(message: "any", scope: scope)
-
-        let actual = try lastSentEvent()
-        XCTAssertEqual(fixture.user.ipAddress, actual.user?.ipAddress)
-#endif
     }
 
     func testSendDefaultPiiDisabled_GivenIP_IPAddressNotChanged() throws {
@@ -3741,84 +3564,10 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
     }
 
-    #if !SDK_V10
-    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
-    func testOnCrashedLastRun_OnCaptureCrashWithSession() {
-        let event = TestData.event
-
-        var onCrashedLastRunCalled = false
-        fixture.getSut(configureOptions: { options in
-            options.onCrashedLastRun = { _ in
-                onCrashedLastRunCalled = true
-            }
-        }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
-
-        XCTAssertTrue(onCrashedLastRunCalled)
-    }
-
-    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
-    func testOnCrashedLastRun_DontRunIfBeforeSendReturnsNill() {
-        let event = TestData.event
-
-        var onCrashedLastRunCalled = false
-        fixture.getSut(configureOptions: { options in
-            options.beforeSend = { _ in
-                return nil
-            }
-            options.onCrashedLastRun = { _ in
-                onCrashedLastRunCalled = true
-            }
-        }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
-
-        XCTAssertFalse(onCrashedLastRunCalled)
-    }
-
-    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
-    func testOnCrashedLastRun_WithTwoCrashes_OnlyInvokeCallbackOnce() {
-        let event = TestData.event
-
-        var onCrashedLastRunCalled = false
-        let client = fixture.getSut(configureOptions: { options in
-            options.onCrashedLastRun = { crashEvent in
-                onCrashedLastRunCalled = true
-                XCTAssertEqual(event.eventId, crashEvent.eventId)
-            }
-        })
-
-        client.captureFatalEvent(event, with: fixture.scope)
-        client.captureFatalEvent(TestData.event, with: fixture.scope)
-
-        XCTAssertTrue(onCrashedLastRunCalled)
-    }
-    #endif
-
     func testOnCrashedLastRun_WithoutCallback_DoesNothing() {
         let client = fixture.getSut()
         client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
-
-    #if !SDK_V10
-    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
-    func testOnCrashedLastRun_CallingCaptureCrash_OnlyInvokeCallbackOnce() {
-        let event = TestData.event
-        let callbackExpectation = expectation(description: "onCrashedLastRun called")
-
-        var captureCrash: (() -> Void)?
-
-        let client = fixture.getSut(configureOptions: { options in
-            options.onCrashedLastRun = { crashEvent in
-                callbackExpectation.fulfill()
-                XCTAssertEqual(event.eventId, crashEvent.eventId)
-                captureCrash?()
-            }
-        })
-        captureCrash = { client.captureFatalEvent(event, with: self.fixture.scope) }
-
-        client.captureFatalEvent(event, with: fixture.scope)
-
-        wait(for: [callbackExpectation], timeout: 0.1)
-    }
-    #endif
 
     // MARK: - onLastRunStatusDetermined
 
@@ -3887,33 +3636,6 @@ final class SentryClientTests: XCTestCase {
         client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
 
-    #if !SDK_V10
-    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun alongside onLastRunStatusDetermined")
-    func testOnLastRunStatus_whenBothCallbacksSet_shouldCallBoth() {
-        // -- Arrange --
-        let event = TestData.event
-        var onCrashedLastRunCalled = false
-        var onLastRunStatusDeterminedCalled = false
-
-        let client = fixture.getSut(configureOptions: { options in
-            options.onCrashedLastRun = { _ in
-                onCrashedLastRunCalled = true
-            }
-            options.onLastRunStatusDetermined = { status, _ in
-                onLastRunStatusDeterminedCalled = true
-                XCTAssertEqual(status, .didCrash)
-            }
-        })
-
-        // -- Act --
-        client.captureFatalEvent(event, with: fixture.session, with: fixture.scope)
-
-        // -- Assert --
-        XCTAssertTrue(onCrashedLastRunCalled)
-        XCTAssertTrue(onLastRunStatusDeterminedCalled)
-    }
-    #endif
-
     func testSaveCrashTransaction_StoresEventWithTraceContext() throws {
         let transaction = fixture.transaction
         let client = fixture.getSut()
@@ -3933,9 +3655,6 @@ final class SentryClientTests: XCTestCase {
     }
 
     func testSaveCrashTransaction_whenScopeHasAttachments_shouldReceiveThemInBeforeSendTransactionHint() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
         let scope = Scope()
@@ -3954,7 +3673,6 @@ final class SentryClientTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(try XCTUnwrap(receivedAttachments), [scopeAttachment])
         XCTAssertEqual(fixture.transportAdapter.storeEventInvocations.count, 1)
-#endif // !SDK_V10
     }
 
     func testSaveCrashTransaction_DisabledClient_StoresNothing() throws {
@@ -4422,28 +4140,6 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
 
-    #if !SDK_V10
-    func testCaptureLog_withLogsDisabled_logStillCaptured() {
-        // -- Arrange --
-        // enableLogs is a legacy compatibility option and must not gate manual log APIs.
-        let sut = fixture.getSut()
-        sut.options.enableLogs = false
-
-        let testProcessor = TestTelemetryProcessorForClient()
-        Dynamic(sut).telemetryProcessor = testProcessor
-
-        let log = SentryLog(level: .info, body: "This log should still be captured")
-        let scope = Scope()
-
-        // -- Act --
-        sut._swiftCaptureLog(log, with: scope)
-
-        // -- Assert --
-        XCTAssertEqual(testProcessor.addLogInvocations.count, 1, "Manual logs must not be gated by enableLogs")
-        XCTAssertEqual(testProcessor.addLogInvocations.first?.body, "This log should still be captured")
-    }
-    #endif // !SDK_V10
-
     func testCaptureLog_whenClientDisabled_logDropped() {
         // The full isDisabled logic is covered elsewhere; this just verifies _swiftCaptureLog
         // consults it. We use the no-DSN case as a representative disabled state.
@@ -4523,16 +4219,7 @@ extension SentryClientTests {
         _ options: Options,
         callback: @escaping (Transaction) -> Transaction?
     ) {
-#if SDK_V10
         options.beforeSendTransaction = { transaction, _ in callback(transaction) }
-#else
-        options.beforeSend = { event in
-            guard let transaction = event as? Transaction else {
-                return event
-            }
-            return callback(transaction)
-        }
-#endif // SDK_V10
     }
 
     private func assertNoEventSent() {

@@ -13,9 +13,7 @@
 #endif
 
 @class SentryObjCBreadcrumb;
-#if SDK_V10
 @class SentryObjCDataCollectionOptions;
-#endif
 @class SentryObjCEvent;
 @class SentryObjCHint;
 @class SentryObjCExperimentalOptions;
@@ -24,9 +22,7 @@
 @class SentryObjCMetric;
 @class SentryObjCProfileOptions;
 @class SentryObjCReplayOptions;
-#if SDK_V10
 @class SentryObjCPrivacyOptions;
-#endif // SDK_V10
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
 @class SentryObjCSpan;
@@ -53,17 +49,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL debug;
 
-#if SDK_V10
 /**
  * Minimum log level to be used if debug is enabled.
  * @note Default is @c SentryObjCLevelWarning.
  */
-#else
-/**
- * Minimum log level to be used if debug is enabled.
- * @note Default is @c SentryObjCLevelDebug.
- */
-#endif // SDK_V10
 @property (nonatomic) SentryObjCLevel diagnosticLevel;
 
 /**
@@ -170,7 +159,6 @@ NS_ASSUME_NONNULL_BEGIN
         "beforeSend directly and this callback will be removed. Use this only "
         "to adopt hints ahead of the next major version.");
 
-#if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
 /// Return @c nil to drop the transaction.
 /// The hint carries the attachments that will be sent with the transaction and any values passed
@@ -178,23 +166,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
     (SentryObjCTransaction *, SentryObjCHint *);
 
-#endif // SDK_V10
-
 /**
  * Use this callback to drop or modify a span before the SDK sends it to Sentry.
  * Return @c nil to drop the span.
  */
 @property (nonatomic, copy, nullable) SentryObjCSpan *_Nullable (^beforeSendSpan)(SentryObjCSpan *);
-
-#if !SDK_V10
-/**
- * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
- * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
- * @note Default value is @c NO.
- * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
- */
-@property (nonatomic) BOOL enableLogs;
-#endif // !SDK_V10
 
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
@@ -232,18 +208,6 @@ NS_ASSUME_NONNULL_BEGIN
  * doesn't work for crashes.
  */
 @property (nonatomic, copy, nullable) BOOL (^beforeCaptureViewHierarchy)(SentryObjCEvent *);
-
-#if !SDK_V10
-/**
- * A block called shortly after the initialization of the SDK when the last program execution
- * terminated with a crash.
- * @note This callback is only executed once during the entire run of the program.
- * @warning It is not guaranteed that this is called on the main thread.
- * @deprecated Use @c onLastRunStatusDetermined instead.
- */
-@property (nonatomic, copy, nullable) void (^onCrashedLastRun)(SentryObjCEvent *)
-    __attribute__((deprecated("Use onLastRunStatusDetermined instead.")));
-#endif
 
 /**
  * A block called shortly after the initialization of the SDK when the crash status of the
@@ -316,14 +280,6 @@ NS_ASSUME_NONNULL_BEGIN
  * don't get discarded there.
  */
 @property (nonatomic) NSUInteger maxAttachmentSize;
-
-#if !SDK_V10
-/**
- * When enabled, the SDK sends personal identifiable information along with events.
- * @note The default is @c NO.
- */
-@property (nonatomic) BOOL sendDefaultPii;
-#endif // !SDK_V10
 
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
@@ -419,19 +375,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableDataSwizzling;
 
-#if SDK_V10
 /**
  * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
  * performance tracking and @c enableSwizzling are enabled.
  * @note The default is @c YES.
  */
-#else
-/**
- * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
- * performance tracking and @c enableSwizzling are enabled.
- * @note The default is @c NO.
- */
-#endif // SDK_V10
 @property (nonatomic) BOOL enableFileManagerSwizzling;
 
 /**
@@ -510,19 +458,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL sendClientReports;
 
-#if !SDK_V10
-/**
- * When enabled, the SDK tracks when the application stops responding for a specific amount of
- * time defined by the @c appHangTimeoutInterval option.
- * @note The default is @c YES.
- * @note App Hang tracking is automatically disabled if a debugger is attached.
- * @note App Hang tracking is deprecated because it can produce less relevant stack traces and
- * false positives. It will be removed in v10. Set this option to @c NO to opt out until then.
- * Enable the MetricKit integration for system-provided hang diagnostics.
- */
-@property (nonatomic) BOOL enableAppHangTracking;
-#endif // !SDK_V10
-
 /**
  * The minimum amount of time the app must be unresponsive before the SDK considers it hung.
  * The SDK also uses this threshold to classify watchdog terminations.
@@ -588,17 +523,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableTimeToFullDisplayTracing;
 
-#if SDK_V10
 /**
  * Stitches the call to Swift Async functions in one consecutive stack trace.
  * @note Default value is @c YES.
  */
-#else
-/**
- * Stitches the call to Swift Async functions in one consecutive stack trace.
- * @note Default value is @c NO.
- */
-#endif // SDK_V10
 @property (nonatomic) BOOL swiftAsyncStacktraces;
 
 /**
@@ -636,21 +564,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy, nullable) NSString *orgId;
 
-#if SDK_V10
 /// Configuration for what data the SDK collects automatically.
 @property (nonatomic, strong) SentryObjCDataCollectionOptions *dataCollection;
-#endif // SDK_V10
 
 /// Options for experimental features that are subject to change.
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
-
-#if !SDK_V10
-/**
- * Legacy compatibility option. Manual metric capture is not gated by this flag.
- * @note Default value is @c YES. Removed in v10, where metrics are always enabled.
- */
-@property (nonatomic) BOOL enableMetrics;
-#endif // !SDK_V10
 
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
@@ -702,39 +620,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enablePreWarmedAppStartTracing;
 
-#    if !SDK_V10
-/**
- * When enabled, the SDK sends a standalone app start transaction instead of attaching app
- * start data to the first UIViewController transaction.
- * @note Default value is @c NO.
- */
-@property (nonatomic) BOOL enableStandaloneAppStartTracing;
-#    endif // !SDK_V10
-
-#    if !SDK_V10
-/**
- * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
- * when the app appears stuck to the user but can still render a few frames.
- * @note The default is @c YES.
- * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
- * Enable the MetricKit integration for system-provided hang diagnostics.
- */
-@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs __attribute__((
-    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
-               "it can produce less relevant stack traces and false positives. "
-               "Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for "
-               "system-provided hang diagnostics.",
-        "enableMetricKit")));
-#    endif // !SDK_V10
-
 #endif
 
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
-#    if SDK_V10
 /// Shared masking and traversal settings for replay and screenshot attachments.
 @property (nonatomic, strong) SentryObjCPrivacyOptions *privacy;
-#    endif // SDK_V10
 
 /// Configuration options for Session Replay.
 @property (nonatomic, strong) SentryObjCReplayOptions *sessionReplay;
@@ -752,15 +643,6 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
-
-#    if !SDK_V10
-/**
- * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
- * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
- * @note Default value is @c NO.
- */
-@property (nonatomic) BOOL enableMetricKit;
-#    endif // !SDK_V10
 
 /**
  * When enabled, the SDK sends the raw MXDiagnosticPayload as an attachment to Sentry.

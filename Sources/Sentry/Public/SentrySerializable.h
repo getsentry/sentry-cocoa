@@ -9,17 +9,4 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if !SDK_V10
-@protocol SentrySerializable <NSObject>
-SENTRY_NO_INIT
-
-/**
- * Serialize the contents of the object into an NSDictionary. Make sure to copy all properties of
- * the original object so modifications to it don't have an impact on the serialized NSDictionary.
- */
-- (NSDictionary<NSString *, id> *)serialize;
-
-@end
-#endif // !SDK_V10
-
 NS_ASSUME_NONNULL_END

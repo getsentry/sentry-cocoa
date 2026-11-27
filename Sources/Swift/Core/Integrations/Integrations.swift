@@ -62,10 +62,6 @@ private struct AnyIntegration {
             .init(SentryNetworkTrackingIntegration.self)
         ])
 
-        #if !SDK_V10
-        integrations.append(.init(SentryHangTrackerIntegrationObjC.self))
-        #endif
-
         integrations.append(contentsOf: [
             .init(SentryAutoBreadcrumbTrackingIntegration.self),
             .init(SentryMetricsIntegration.self),

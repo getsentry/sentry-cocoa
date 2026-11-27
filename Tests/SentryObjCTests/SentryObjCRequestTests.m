@@ -62,11 +62,7 @@
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
 
     // -- Act --
-#if SDK_V10
     NSDictionary<NSString *, NSString *> *result = request.cookies;
-#else
-    NSString *result = request.cookies;
-#endif // SDK_V10
 
     // -- Assert --
     XCTAssertNil(result);
@@ -78,29 +74,17 @@
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
 
     // -- Act --
-#if SDK_V10
     request.cookies = @{ @"session" : @"abc123" };
-#else
-    request.cookies = @"session=abc123";
-#endif // SDK_V10
 
     // -- Assert --
-#if SDK_V10
     XCTAssertEqualObjects(request.cookies, (@{ @"session" : @"abc123" }));
-#else
-    XCTAssertEqualObjects(request.cookies, @"session=abc123");
-#endif // SDK_V10
 }
 
 - (void)testCookies_whenSetToNil_shouldReturnNil
 {
     // -- Arrange --
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
-#if SDK_V10
     request.cookies = @{ @"session" : @"abc123" };
-#else
-    request.cookies = @"session=abc123";
-#endif // SDK_V10
 
     // -- Act --
     request.cookies = nil;
@@ -111,9 +95,6 @@
 
 - (void)testCookies_whenV10Set_shouldReturnNewDictionary
 {
-#if !SDK_V10
-    return XCTSkip("Test is only available in v10");
-#else
     // -- Arrange --
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
     NSDictionary<NSString *, NSString *> *cookies = @{ @"theme" : @"dark" };
@@ -123,7 +104,6 @@
 
     // -- Assert --
     XCTAssertEqualObjects(request.cookies, cookies);
-#endif // SDK_V10
 }
 
 #pragma mark - headers

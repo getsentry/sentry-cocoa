@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -48,31 +44,6 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     // MARK: - AttachToTransactionStrategy
-
-    #if !SDK_V10
-    func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
-        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
-        addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
-        let measurement = createMeasurement(type: .cold)
-
-        AttachToTransactionStrategy().report(measurement, traceId: SentryId())
-
-        let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
-        XCTAssertEqual(stored.type, .cold)
-        XCTAssertEqual(stored.duration, measurement.duration)
-    }
-
-    func testReport_whenWarmStart_shouldSetMeasurementOnGlobalStatic() throws {
-        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
-        addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
-        let measurement = createMeasurement(type: .warm)
-
-        AttachToTransactionStrategy().report(measurement, traceId: SentryId())
-
-        let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
-        XCTAssertEqual(stored.type, .warm)
-    }
-    #endif
 
     // MARK: - StandaloneTransactionStrategy
 

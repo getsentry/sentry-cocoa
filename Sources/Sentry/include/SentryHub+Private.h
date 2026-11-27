@@ -59,10 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client;
 
-#if SENTRY_HAS_UIKIT && !SDK_V10
-- (void)captureFatalAppHangEvent:(SentryEvent *)event;
-#endif // SENTRY_HAS_UIKIT && !SDK_V10
-
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
 - (SentryTracer *)startTransactionWithContext:(SENTRY_SWIFT_MIGRATION_ID(

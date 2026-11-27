@@ -1,12 +1,11 @@
-#if SDK_V10
-#    import <Foundation/Foundation.h>
-#    if !__has_include(<SentryObjC/SentryObjCDefines.h>)
-#        import "SentryObjCDataCollectionKeyValueCollectionMode.h"
-#        import "SentryObjCDefines.h"
-#    else
-#        import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionMode.h>
-#        import <SentryObjC/SentryObjCDefines.h>
-#    endif
+#import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDataCollectionKeyValueCollectionMode.h"
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionMode.h>
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,4 +41,3 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
-#endif // SDK_V10

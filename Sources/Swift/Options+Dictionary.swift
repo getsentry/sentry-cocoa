@@ -90,18 +90,6 @@ extension Options {
             self.maxFeatureFlags = maxFeatureFlags.uintValue
         }
 
-        #if !SDK_V10
-        if let enableLogs = boolValue(dictionary["enableLogs"]) {
-            self.enableLogs = enableLogs
-        }
-        #endif // !SDK_V10
-
-        #if !SDK_V10
-        if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
-            self.enableMetrics = enableMetrics
-        }
-        #endif // !SDK_V10
-
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {
             self.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
         }
@@ -115,18 +103,12 @@ extension Options {
         }
 
         setBlock(dictionary["beforeSend"], forKey: "beforeSend")
-        #if SDK_V10
         setBlock(dictionary["beforeSendTransaction"], forKey: "beforeSendTransaction")
-        #endif // SDK_V10
         setBlock(dictionary["beforeSendLog"], forKey: "beforeSendLog")
         setBlock(dictionary["beforeSendSpan"], forKey: "beforeSendSpan")
         setBlock(dictionary["beforeBreadcrumb"], forKey: "beforeBreadcrumb")
         setBlock(dictionary["beforeCaptureScreenshot"], forKey: "beforeCaptureScreenshot")
         setBlock(dictionary["beforeCaptureViewHierarchy"], forKey: "beforeCaptureViewHierarchy")
-
-        #if !SDK_V10
-        setBlock(dictionary["onCrashedLastRun"], forKey: "onCrashedLastRun")
-        #endif
 
         setBlock(dictionary["onLastRunStatusDetermined"], forKey: "onLastRunStatusDetermined")
 
@@ -165,12 +147,6 @@ extension Options {
         if let maxAttachmentSize = dictionary["maxAttachmentSize"] as? NSNumber {
             self.maxAttachmentSize = maxAttachmentSize.uintValue
         }
-
-#if !SDK_V10
-        if let sendDefaultPii = boolValue(dictionary["sendDefaultPii"]) {
-            self.sendDefaultPii = sendDefaultPii
-        }
-#endif // !SDK_V10
 
         if let enableAutoPerformanceTracing = boolValue(dictionary["enableAutoPerformanceTracing"]) {
             self.enableAutoPerformanceTracing = enableAutoPerformanceTracing
@@ -226,33 +202,16 @@ extension Options {
             self.experimental.enableUIUpdateLinkFramesTracking = enableUIUpdateLinkFramesTracking
         }
 
-        #if !SDK_V10
-        if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
-            self.enableReportNonFullyBlockingAppHangsValue = enableReportNonFullyBlockingAppHangs
-        }
-
-        if let enableStandaloneAppStartTracing = boolValue(dictionary["enableStandaloneAppStartTracing"]) {
-            self.enableStandaloneAppStartTracing = enableStandaloneAppStartTracing
-        }
-        #endif // !SDK_V10
         #endif
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        #if SDK_V10
         if let privacy = dictionary["privacy"] as? [String: Any] {
             self.privacy = SentryPrivacyOptions(dictionary: privacy)
         }
-        #endif // SDK_V10
         if let sessionReplay = dictionary["sessionReplay"] as? [String: Any] {
             self.sessionReplay = SentryReplayOptions(dictionary: sessionReplay)
         }
         #endif
-
-        #if !SDK_V10
-        if let enableAppHangTracking = boolValue(dictionary["enableAppHangTracking"]) {
-            self.enableAppHangTracking = enableAppHangTracking
-        }
-        #endif // !SDK_V10
 
         if let appHangTimeoutInterval = dictionary["appHangTimeoutInterval"] as? NSNumber {
             self.appHangTimeoutInterval = appHangTimeoutInterval.doubleValue
@@ -332,11 +291,6 @@ extension Options {
         }
 
         #if canImport(MetricKit) && !os(tvOS)
-        #if !SDK_V10
-        if let enableMetricKit = boolValue(dictionary["enableMetricKit"]) {
-            self.enableMetricKit = enableMetricKit
-        }
-        #endif // !SDK_V10
 
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
@@ -361,11 +315,9 @@ extension Options {
             self.spotlightUrl = spotlightUrl
         }
 
-        #if SDK_V10
         if let dataCollection = dictionary["dataCollection"] as? [String: Any] {
             self.dataCollection = SentryDataCollection.Options(dictionary: dataCollection)
         }
-        #endif // SDK_V10
 
         if let enableMemoryIntrospection = boolValue(dictionary["enableMemoryIntrospection"]) {
             self.enableMemoryIntrospection = enableMemoryIntrospection

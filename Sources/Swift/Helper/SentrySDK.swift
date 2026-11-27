@@ -2,41 +2,26 @@
 internal import _SentryPrivate
 import Foundation
 
-#if SDK_V10
 /// The main entry point for the Sentry SDK.
 /// We recommend using `start(configureOptions:)` to initialize Sentry.
 public enum SentrySDK {}
-#else
-/// The main entry point for the Sentry SDK.
-/// We recommend using `start(configureOptions:)` to initialize Sentry.
-@objc public final class SentrySDK: NSObject {}
-#endif
 
 extension SentrySDK {
 
     // MARK: - Public
 
     /// The current active transaction or span bound to the scope.
-    #if !SDK_V10
-    @objc
-    #endif
     public static var span: Span? {
         return SentrySDKInternal.span
     }
 
     /// Indicates whether the Sentry SDK is enabled.
-    #if !SDK_V10
-    @objc
-    #endif
     public static var isEnabled: Bool {
         return SentrySDKInternal.isEnabled
     }
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     /// API to control session replay
-    #if !SDK_V10
-    @objc
-    #endif
     public static var replay: SentryReplayApi {
         replayInstance
     }
@@ -45,9 +30,6 @@ extension SentrySDK {
     #endif
 
     /// API to access Sentry logs
-    #if !SDK_V10
-    @objc
-    #endif
     public static var logger: SentryLogger {
         if !SentrySDKInternal.isEnabled {
             SentrySDKLog.fatal("Logs called before SentrySDK.start() will not be sent to Sentry.")
@@ -100,9 +82,6 @@ extension SentrySDK {
     /// SDK starts on the main thread async.
     /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
     /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func start(options: Options) {
         guard SentryDependencyContainer.sharedInstance().processInfoWrapper
             .environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
@@ -122,9 +101,6 @@ extension SentrySDK {
     /// SDK starts on the main thread async.
     /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
     /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func start(configureOptions: @escaping (Options) -> Void) {
         let options = Options()
         configureOptions(options)
@@ -136,9 +112,6 @@ extension SentrySDK {
     /// Captures a manually created event and sends it to Sentry.
     /// - parameter event: The event to send to Sentry.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureEvent:)
-    #endif
     @discardableResult public static func capture(event: Event) -> SentryId {
         return SentrySDKInternal.capture(event: event)
     }
@@ -148,9 +121,6 @@ extension SentrySDK {
     /// - parameter event: The event to send to Sentry.
     /// - parameter scope: The scope containing event metadata.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureEvent:withScope:)
-    #endif
     @discardableResult public static func capture(event: Event, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(event: event, scope: scope)
     }
@@ -160,9 +130,6 @@ extension SentrySDK {
     /// - parameter event: The event to send to Sentry.
     /// - parameter block: The block mutating the scope only for this call.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureEvent:withScopeBlock:)
-    #endif
     @discardableResult public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(event: event, block: block)
     }
@@ -173,9 +140,6 @@ extension SentrySDK {
     ///   - event: The event to send to Sentry.
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureEvent:attachAllThreads:)
-    #endif
     @discardableResult public static func capture(event: Event, attachAllThreads: Bool) -> SentryId {
         event.attachAllThreadsOverride = NSNumber(value: attachAllThreads)
         return SentrySDKInternal.capture(event: event)
@@ -189,9 +153,6 @@ extension SentrySDK {
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     ///   - block: The block mutating the scope only for this call.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureEvent:attachAllThreads:scopeBlock:)
-    #endif
     @discardableResult public static func capture(event: Event, attachAllThreads: Bool, block: @escaping (Scope) -> Void) -> SentryId {
         event.attachAllThreadsOverride = NSNumber(value: attachAllThreads)
         return SentrySDKInternal.capture(event: event, block: block)
@@ -232,9 +193,6 @@ extension SentrySDK {
     /// - parameter name: The transaction name.
     /// - parameter operation: Short code identifying the type of operation the span is measuring.
     /// - returns: The created transaction.
-    #if !SDK_V10
-    @objc
-    #endif
     @discardableResult public static func startTransaction(name: String, operation: String) -> Span {
         return SentrySDKInternal.startTransaction(name: name, operation: operation)
     }
@@ -244,9 +202,6 @@ extension SentrySDK {
     /// - parameter operation: Short code identifying the type of operation the span is measuring.
     /// - parameter bindToScope: Indicates whether the SDK should bind the new transaction to the scope.
     /// - returns: The created transaction.
-    #if !SDK_V10
-    @objc
-    #endif
     @discardableResult public static func startTransaction(name: String, operation: String, bindToScope: Bool) -> Span {
         return SentrySDKInternal.startTransaction(name: name, operation: operation, bindToScope: bindToScope)
     }
@@ -254,9 +209,6 @@ extension SentrySDK {
     /// Creates a transaction, binds it to the hub and returns the instance.
     /// - parameter transactionContext: The transaction context.
     /// - returns: The created transaction.
-    #if !SDK_V10
-    @objc(startTransactionWithContext:)
-    #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext)
     }
@@ -265,9 +217,6 @@ extension SentrySDK {
     /// - parameter transactionContext: The transaction context.
     /// - parameter bindToScope: Indicates whether the SDK should bind the new transaction to the scope.
     /// - returns: The created transaction.
-    #if !SDK_V10
-    @objc(startTransactionWithContext:bindToScope:)
-    #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope)
     }
@@ -277,9 +226,6 @@ extension SentrySDK {
     /// - parameter bindToScope: Indicates whether the SDK should bind the new transaction to the scope.
     /// - parameter customSamplingContext: Additional information about the sampling context.
     /// - returns: The created transaction.
-    #if !SDK_V10
-    @objc(startTransactionWithContext:bindToScope:customSamplingContext:)
-    #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool, customSamplingContext: [String: Any]) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope, customSamplingContext: customSamplingContext)
     }
@@ -288,9 +234,6 @@ extension SentrySDK {
     /// - parameter transactionContext: The transaction context.
     /// - parameter customSamplingContext: Additional information about the sampling context.
     /// - returns: The created transaction.
-    #if !SDK_V10
-    @objc(startTransactionWithContext:customSamplingContext:)
-    #endif
     @discardableResult public static func startTransaction(transactionContext: TransactionContext, customSamplingContext: [String: Any]) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext, customSamplingContext: customSamplingContext)
     }
@@ -300,9 +243,6 @@ extension SentrySDK {
     /// Captures an error event and sends it to Sentry.
     /// - parameter error: The error to send to Sentry.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureError:)
-    #endif
     @discardableResult public static func capture(error: Error) -> SentryId {
         return SentrySDKInternal.capture(error: error)
     }
@@ -312,9 +252,6 @@ extension SentrySDK {
     /// - parameter error: The error to send to Sentry.
     /// - parameter scope: The scope containing event metadata.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureError:withScope:)
-    #endif
     @discardableResult public static func capture(error: Error, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(error: error, scope: scope)
     }
@@ -324,9 +261,6 @@ extension SentrySDK {
     /// - parameter error: The error to send to Sentry.
     /// - parameter block: The block mutating the scope only for this call.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureError:withScopeBlock:)
-    #endif
     @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(error: error, block: block)
     }
@@ -337,9 +271,6 @@ extension SentrySDK {
     ///   - error: The error to send to Sentry.
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureError:attachAllThreads:)
-    #endif
     @discardableResult public static func capture(error: Error, attachAllThreads: Bool) -> SentryId {
         let hub = SentrySDKInternal.currentHub()
         return hub.captureError(error as NSError, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
@@ -352,9 +283,6 @@ extension SentrySDK {
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     ///   - block: The block mutating the scope only for this call.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureError:attachAllThreads:scopeBlock:)
-    #endif
     @discardableResult public static func capture(error: Error, attachAllThreads: Bool, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.currentHub().captureError(error as NSError, with: callScope(block), attachAllThreads: NSNumber(value: attachAllThreads))
     }
@@ -393,9 +321,6 @@ extension SentrySDK {
     /// Captures an exception event and sends it to Sentry.
     /// - parameter exception: The exception to send to Sentry.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureException:)
-    #endif
     @discardableResult public static func capture(exception: NSException) -> SentryId {
         return SentrySDKInternal.capture(exception: exception)
     }
@@ -405,9 +330,6 @@ extension SentrySDK {
     /// - parameter exception: The exception to send to Sentry.
     /// - parameter scope: The scope containing event metadata.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureException:withScope:)
-    #endif
     @discardableResult public static func capture(exception: NSException, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(exception: exception, scope: scope)
     }
@@ -417,9 +339,6 @@ extension SentrySDK {
     /// - parameter exception: The exception to send to Sentry.
     /// - parameter block: The block mutating the scope only for this call.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureException:withScopeBlock:)
-    #endif
     @discardableResult public static func capture(exception: NSException, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(exception: exception, block: block)
     }
@@ -430,9 +349,6 @@ extension SentrySDK {
     ///   - exception: The exception to send to Sentry.
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureException:attachAllThreads:)
-    #endif
     @discardableResult public static func capture(exception: NSException, attachAllThreads: Bool) -> SentryId {
         let hub = SentrySDKInternal.currentHub()
         return hub.capture(exception, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
@@ -445,9 +361,6 @@ extension SentrySDK {
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     ///   - block: The block mutating the scope only for this call.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureException:attachAllThreads:scopeBlock:)
-    #endif
     @discardableResult public static func capture(exception: NSException, attachAllThreads: Bool, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.currentHub().capture(exception, with: callScope(block), attachAllThreads: NSNumber(value: attachAllThreads))
     }
@@ -486,9 +399,6 @@ extension SentrySDK {
     /// Captures a message event and sends it to Sentry.
     /// - parameter message: The message to send to Sentry.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureMessage:)
-    #endif
     @discardableResult public static func capture(message: String) -> SentryId {
         return SentrySDKInternal.capture(message: message)
     }
@@ -498,9 +408,6 @@ extension SentrySDK {
     /// - parameter message: The message to send to Sentry.
     /// - parameter scope: The scope containing event metadata.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureMessage:withScope:)
-    #endif
     @discardableResult public static func capture(message: String, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(message: message, scope: scope)
     }
@@ -510,9 +417,6 @@ extension SentrySDK {
     /// - parameter message: The message to send to Sentry.
     /// - parameter block: The block mutating the scope only for this call.
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureMessage:withScopeBlock:)
-    #endif
     @discardableResult public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(message: message, block: block)
     }
@@ -523,9 +427,6 @@ extension SentrySDK {
     ///   - message: The message to send to Sentry.
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureMessage:attachAllThreads:)
-    #endif
     @discardableResult public static func capture(message: String, attachAllThreads: Bool) -> SentryId {
         let hub = SentrySDKInternal.currentHub()
         return hub.captureMessage(message, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
@@ -538,9 +439,6 @@ extension SentrySDK {
     ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
     ///   - block: The block mutating the scope only for this call.
     /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    #if !SDK_V10
-    @objc(captureMessage:attachAllThreads:scopeBlock:)
-    #endif
     @discardableResult public static func capture(message: String, attachAllThreads: Bool, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.currentHub().captureMessage(message, with: callScope(block), attachAllThreads: NSNumber(value: attachAllThreads))
     }
@@ -584,9 +482,6 @@ extension SentrySDK {
     /// `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or SwiftUI's
     /// `sentryFeedback(isPresented:)`. See https://docs.sentry.io/platforms/apple/user-feedback/
     /// for more information.
-    #if !SDK_V10
-    @objc(captureFeedback:)
-    #endif
     public static func capture(feedback: SentryFeedback) {
       SentrySDKInternal.captureSerializedFeedback(
         feedback.serialize(),
@@ -604,9 +499,6 @@ extension SentrySDK {
     ///
     /// Use this to programmatically show the feedback form or access feedback-related functionality.
     @available(iOSApplicationExtension, unavailable)
-    #if !SDK_V10
-    @objc
-    #endif
     public static let feedback = {
       return SentryFeedbackAPI()
     }()
@@ -615,9 +507,6 @@ extension SentrySDK {
     /// Adds a `Breadcrumb` to the current `Scope` of the current `Hub`. If the total number of breadcrumbs
     /// exceeds the `SentryOptions.maxBreadcrumbs` the SDK removes the oldest breadcrumb.
     /// - parameter crumb: The `Breadcrumb` to add to the current `Scope` of the current `Hub`.
-    #if !SDK_V10
-    @objc(addBreadcrumb:)
-    #endif
     public static func addBreadcrumb(_ crumb: Breadcrumb) {
         SentrySDKInternal.addBreadcrumb(crumb)
     }
@@ -625,17 +514,11 @@ extension SentrySDK {
     /// Use this method to modify the current `Scope` of the current `Hub`. The SDK uses the `Scope` to attach
     /// contextual data to events.
     /// - parameter callback: The callback for configuring the current `Scope` of the current `Hub`.
-    #if !SDK_V10
-    @objc(configureScope:)
-    #endif
     public static func configureScope(_ callback: @escaping (Scope) -> Void) {
         SentrySDKInternal.configureScope(callback)
     }
 
     /// Adds a feature flag evaluation to the current `Scope` of the current `Hub`.
-    #if !SDK_V10
-    @nonobjc
-    #endif
     public static func addFeatureFlag(name: String, result: Bool) {
         SentrySDKInternal.configureScope { scope in
             scope.addFeatureFlag(name: name, result: result)
@@ -644,26 +527,11 @@ extension SentrySDK {
 
     // MARK: - Crash Detection
 
-    #if !SDK_V10
-    /// Checks if the last program execution terminated with a crash.
-    ///
-    /// - warning: This property returns `false` both when the app did not crash **and** when
-    ///   the crash status is not yet known (before the SDK finishes initialization). Use
-    ///   ``lastRunStatus`` instead, which distinguishes between these cases.
-    @available(*, deprecated, message: "Use lastRunStatus instead, which distinguishes between 'did not crash' and 'unknown'.")
-    @objc public static var crashedLastRun: Bool {
-        return SentrySDKInternal.crashedLastRun
-    }
-    #endif
-
     /// Returns the crash status of the last program execution.
     ///
     /// Before ``SentrySDK/start(configureOptions:)`` finishes initializing the crash reporter,
     /// this property returns ``SentryLastRunStatus/unknown``. After initialization it returns
     /// either ``SentryLastRunStatus/didCrash`` or ``SentryLastRunStatus/didNotCrash``.
-    #if !SDK_V10
-    @objc
-    #endif
     public static var lastRunStatus: SentryLastRunStatus {
         return SentryLastRunStatus(rawValue: Int(SentrySDKInternal.lastRunStatus)) ?? .unknown
     }
@@ -672,9 +540,6 @@ extension SentrySDK {
     /// - note: The SDK init waits synchronously for up to 5 seconds to flush out events if the app crashes
     /// within 2 seconds after the SDK init.
     /// - returns: true if the SDK detected a start-up crash and false if not.
-    #if !SDK_V10
-    @objc
-    #endif
     public static var detectedStartUpCrash: Bool {
         return SentrySDKInternal.detectedStartUpCrash
     }
@@ -684,9 +549,6 @@ extension SentrySDK {
     /// Set `user` to the current `Scope` of the current `Hub`.
     /// - parameter user: The user to set to the current `Scope`.
     /// - note: You must start the SDK before calling this method, otherwise it doesn't set the user.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func setUser(_ user: User?) {
         SentrySDKInternal.setUser(user)
     }
@@ -697,9 +559,6 @@ extension SentrySDK {
     /// new one. You can use this method in combination with `endSession` to manually track
     /// sessions. The SDK uses `SentrySession` to inform Sentry about release and project
     /// associated project health.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func startSession() {
         SentrySDKInternal.startSession()
     }
@@ -707,9 +566,6 @@ extension SentrySDK {
     /// Ends the current `SentrySession`. You can use this method in combination with `startSession` to
     /// manually track `SentrySessions`. The SDK uses `SentrySession` to inform Sentry about release and
     /// project associated project health.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func endSession() {
         SentrySDKInternal.endSession()
     }
@@ -719,9 +575,6 @@ extension SentrySDK {
     /// - note: The SDK can't report a crash when a debugger is attached. Your application needs to run
     /// without a debugger attached to capture the crash and send it to Sentry the next time you launch
     /// your application.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func crash() {
         SentrySDKInternal.crash()
     }
@@ -732,9 +585,6 @@ extension SentrySDK {
     ///
     /// - seealso:
     /// https://docs.sentry.io/platforms/cocoa/performance/instrumentation/automatic-instrumentation/#time-to-full-display
-    #if !SDK_V10
-    @objc
-    #endif
     public static func reportFullyDisplayed() {
         SentrySDKInternal.reportFullyDisplayed()
     }
@@ -742,7 +592,6 @@ extension SentrySDK {
     // MARK: - Extended App Launch
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
-    #if SDK_V10
     /// Extends the app launch measurement beyond the default end point.
     ///
     /// Call this method after `start(options:)` but before didFinishLaunching notification is posted
@@ -771,46 +620,9 @@ extension SentrySDK {
     public static func extendAppStart() {
         SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extend()
     }
-    #else
-    /// Extends the app launch measurement beyond the default end point.
-    ///
-    /// Call this method after `start(options:)` but before didFinishLaunching notification is posted
-    /// so the SDK doesn't finish the app start transaction automatically.
-    ///
-    /// Use ``getExtendedAppStartSpan()`` to retrieve the span and add child spans that break
-    /// down the extended launch period. Call `finish()` on that span (or call ``finishExtendedAppStart()``)
-    /// when the app is fully launched.
-    ///
-    /// ```swift
-    /// func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    ///     SentrySDK.start(configureOptions: { options in
-    ///         ...
-    ///         options.enableStandaloneAppStartTracing = true
-    ///     })
-    ///     SentrySDK.extendAppStart()
-    ///
-    ///     let appStartSpan = SentrySDK.getExtendedAppStartSpan()
-    ///     let configSpan = appStartSpan?.startChild(operation: "app.init", description: "fetch remote config")
-    ///     fetchRemoteConfig()
-    ///     configSpan?.finish()
-    ///
-    ///     appStartSpan?.finish()
-    ///     return true
-    /// }
-    /// ```
-    ///
-    /// - Note: This only has an effect when Standalone App Start tracing is enabled.
-    @objc
-    public static func extendAppStart() {
-        SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extend()
-    }
-    #endif
 
     /// Returns the extended app start span, or `nil` if ``extendAppStart()`` was not called,
     /// the SDK is not started, or the app start transaction was already created.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func getExtendedAppStartSpan() -> (any Span)? {
         SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extendedAppStartSpan()
     }
@@ -820,9 +632,6 @@ extension SentrySDK {
     /// This is equivalent to calling `finish()` on the span returned by ``getExtendedAppStartSpan()``.
     /// If ``extendAppStart()`` was not called, or the extended launch was already
     /// finished, this method does nothing.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func finishExtendedAppStart() {
         SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.finish()
     }
@@ -830,46 +639,17 @@ extension SentrySDK {
 
     // MARK: - App Hang Tracking
 
-#if !SDK_V10
-    /// Pauses sending detected app hangs to Sentry.
-    ///
-    /// This method doesn't close the detection of app hangs. Instead, the app hang detection
-    /// will ignore detected app hangs until you call `resumeAppHangTracking`.
-    ///
-    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
-    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
-    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
-    @objc public static func pauseAppHangTracking() {
-        SentrySDKInternal.pauseAppHangTracking()
-    }
-
-    /// Resumes sending detected app hangs to Sentry.
-    ///
-    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
-    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
-    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
-    @objc public static func resumeAppHangTracking() {
-        SentrySDKInternal.resumeAppHangTracking()
-    }
-#endif
-
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
     /// timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
     /// doesn't dispose the client or the hub.
     /// - parameter timeout: The time to wait for the SDK to complete the flush.
     /// - note: This might take slightly longer than the specified timeout if there are many batched logs to capture.
-    #if !SDK_V10
-    @objc(flush:)
-    #endif
     public static func flush(timeout: TimeInterval) {
         SentrySDKInternal.flush(timeout: timeout)
     }
 
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
-    #if !SDK_V10
-    @objc
-    #endif
     public static func close() {
         SentrySDKInternal.close()
     }
@@ -893,9 +673,6 @@ extension SentrySDK {
     /// not permitted to manually start profiling.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     /// - seealso: https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
-    #if !SDK_V10
-    @objc
-    #endif
     public static func startProfiler() {
         SentrySDKInternal.startProfiler()
     }
@@ -910,9 +687,6 @@ extension SentrySDK {
     /// interval completes, the profiler will continue running until another call to stop is made.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     /// - seealso: https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
-    #if !SDK_V10
-    @objc
-    #endif
     public static func stopProfiler() {
         SentrySDKInternal.stopProfiler()
     }
@@ -920,16 +694,10 @@ extension SentrySDK {
 
     // MARK: Internal
 
-    #if !SDK_V10
-    @objc
-    #endif
     // swiftlint:disable:next missing_docs
     @_spi(Private) public static var startOption: Options? {
         SentryDependencyContainer.sharedInstance().startOptions
     }
-    #if !SDK_V10
-    @objc
-    #endif
     // swiftlint:disable:next missing_docs
     @_spi(Private) public static func setStart(with option: Options?) {
         SentryDependencyContainer.sharedInstance().startOptions = option

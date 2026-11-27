@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 private final class WeakBinaryImageRegistry {
@@ -120,7 +116,6 @@ final class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.imageByAddress(100)?.name, "Expected Name at 100")
     }
 
-#if SDK_V10
     func testStart_whenExecutablePathsHaveDifferentSpellings_shouldIdentifyMainImage() throws {
         // -- Arrange --
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -149,7 +144,6 @@ final class SentryBinaryImageCacheTests: XCTestCase {
             cache.stop()
         }
     }
-#endif
 
     func testStop_whenAlreadyStopped_shouldNotStopProviderAgain() {
         // -- Act --

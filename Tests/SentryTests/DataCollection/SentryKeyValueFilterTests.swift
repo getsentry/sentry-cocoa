@@ -1,9 +1,5 @@
 #if SWIFT_PACKAGE
-#if !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 #else
 @testable import Sentry
 #endif
@@ -12,9 +8,6 @@ import XCTest
 final class SentryKeyValueFilterTests: XCTestCase {
 
     func testFilter_whenBehaviorIsOff_shouldReturnEmptyDictionary() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = ["Content-Type": "application/json"]
 
@@ -23,13 +16,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result, [:])
-        #endif
     }
 
     func testFilter_whenDenyListUsesBuiltInTerms_shouldFilterSensitiveValues() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Authorization": "Bearer abc123",
@@ -46,13 +35,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
             "Content-Type": "application/json",
             "X-Api-Key": "[Filtered]"
         ])
-        #endif
     }
 
     func testFilter_whenDenyListHasCustomTerms_shouldFilterMatchingValues() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Content-Type": "application/json",
@@ -70,13 +55,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
             "Content-Type": "application/json",
             "X-Forwarded-For": "[Filtered]"
         ])
-        #endif
     }
 
     func testFilter_whenAllowListHasTerms_shouldOnlyKeepMatchingValues() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Content-Type": "application/json",
@@ -96,13 +77,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
             "X-Custom": "[Filtered]",
             "X-Request-Id": "12345"
         ])
-        #endif
     }
 
     func testFilter_whenAllowListContainsSensitiveKey_shouldFilterSensitiveValue() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Authorization": "Bearer abc123",
@@ -120,13 +97,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
             "Authorization": "[Filtered]",
             "Content-Type": "application/json"
         ])
-        #endif
     }
 
     func testFilter_whenKeyPartiallyMatchesTermWithDifferentCase_shouldFilterValue() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = ["My-Custom-HeAdEr": "value"]
 
@@ -138,13 +111,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result, ["My-Custom-HeAdEr": "[Filtered]"])
-        #endif
     }
 
     func testFilter_whenFilteringValues_shouldPreserveKeyNames() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Authorization": "Bearer abc123",
@@ -160,13 +129,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(Set(result.keys), Set(values.keys))
-        #endif
     }
 
     func testFilter_whenKeyMatchesCanonicalSensitiveTerm_shouldFilterValue() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let sensitiveTerms = [
             "auth", "token", "secret", "password", "passwd", "pwd", "key", "jwt", "bearer",
@@ -181,13 +146,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result, values.mapValues { _ in "[Filtered]" })
-        #endif
     }
 
     func testFilter_whenValuesAreEmpty_shouldReturnEmptyDictionaryForEveryBehavior() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let behaviors: [SentryDataCollection.KeyValueCollectionBehavior] = [
             .off,
@@ -202,13 +163,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
             // -- Assert --
             XCTAssertEqual(result, [:])
         }
-        #endif
     }
 
     func testFilter_whenDenyListTermsAreEmpty_shouldApplyBuiltInTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Authorization": "Bearer abc123",
@@ -223,13 +180,9 @@ final class SentryKeyValueFilterTests: XCTestCase {
             "Authorization": "[Filtered]",
             "Content-Type": "application/json"
         ])
-        #endif
     }
 
     func testFilter_whenAllowListTermsAreEmpty_shouldFilterEveryValue() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let values = [
             "Authorization": "Bearer abc123",
@@ -244,6 +197,5 @@ final class SentryKeyValueFilterTests: XCTestCase {
             "Authorization": "[Filtered]",
             "Content-Type": "[Filtered]"
         ])
-        #endif
     }
 }

@@ -1,22 +1,14 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 final class SentryOptionsTests: XCTestCase {
 
     func testSendDefaultPii_whenBuildingV10_shouldNotBeExposed() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         // -- Arrange --
         let options = Options()
 
         // -- Assert --
         XCTAssertFalse(options.responds(to: NSSelectorFromString("sendDefaultPii")))
-#endif
     }
 
     func testEnableNewURLLoaderSwizzling_whenDefault_shouldBeFalse() {
@@ -43,11 +35,7 @@ final class SentryOptionsTests: XCTestCase {
         let options = Options()
 
         // -- Assert --
-#if SDK_V10
         XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports, [.cpuException, .diskWriteException, .hang, .appLaunch])
-#else
-        XCTAssertTrue(options.experimental.metrickit.enabledDiagnosticReports.isEmpty)
-#endif
     }
 
     func testInitWithDictionary_whenMetricKitIsAbsent_shouldUseDefault() throws {
@@ -280,21 +268,14 @@ final class SentryOptionsTests: XCTestCase {
     // MARK: - Data Collection
 
     func testDataCollection_whenInitialized_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Act --
         let options = Options()
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
-        #endif
     }
 
     func testDataCollection_whenSet_shouldRetainValue() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let options = Options()
 
@@ -303,15 +284,11 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
-        #endif
     }
 
     // MARK: - Data Collection Dictionary Decoding
 
     func testInitWithDictionary_whenDataCollectionIsAbsent_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1"
@@ -322,13 +299,9 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
-        #endif
     }
 
     func testInitWithDictionary_whenDataCollectionIsEmpty_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -340,13 +313,9 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
-        #endif
     }
 
     func testInitWithDictionary_whenDataCollectionHasWrongType_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -358,13 +327,9 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
-        #endif
     }
 
     func testInitWithDictionary_whenDataCollectionIsNSNull_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -376,13 +341,9 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
-        #endif
     }
 
     func testInitWithDictionary_whenDataCollectionIsPresent_shouldSetDataCollection() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -399,6 +360,5 @@ final class SentryOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options(userInfo: false))
-        #endif
     }
 }

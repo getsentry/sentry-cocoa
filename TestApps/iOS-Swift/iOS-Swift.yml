@@ -138,10 +138,6 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         UIUserInterfaceStyle: Light
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-AppClip:
     type: application.on-demand-install-capable
     platform: auto
@@ -247,10 +243,6 @@ targets:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -292,10 +284,6 @@ targets:
     info:
       path: UITests/Configurations/Info.plist
       properties: {}
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-ShareExtension:
     type: app-extension
     platform: auto
@@ -351,10 +339,6 @@ targets:
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
           NSExtensionMainStoryboard: MainInterface
           NSExtensionPointIdentifier: com.apple.share-services
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-ActionExtension:
     type: app-extension
     platform: auto
@@ -409,10 +393,6 @@ targets:
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
           NSExtensionPointIdentifier: com.apple.ui-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ActionViewController
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-IntentExtension:
     type: app-extension
     platform: auto
@@ -468,10 +448,6 @@ targets:
               - INSetMessageAttributeIntent
           NSExtensionPointIdentifier: com.apple.intents-service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).IntentHandler
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-NotificationServiceExtension:
     type: app-extension
     platform: auto
@@ -521,10 +497,6 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.usernotifications.service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-Swift-KeyboardExtension:
     type: app-extension
     platform: auto
@@ -558,10 +530,6 @@ targets:
             RequestsOpenAccess: true
           NSExtensionPointIdentifier: com.apple.keyboard-service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
-    settings:
-      base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   iOS-Swift:
     templates:

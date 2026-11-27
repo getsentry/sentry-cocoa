@@ -12,11 +12,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
     init?(with options: Options, dependencies _: Dependencies) {
-#if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo
-#else
-        let shouldAddDefaultUserId = options.sendDefaultPii
-#endif // SDK_V10
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
             releaseName: options.releaseName,

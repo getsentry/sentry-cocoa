@@ -24,7 +24,4 @@ public final class SentryDiscardedEvent: NSObject {
         ]
     }
 }
-#if !SDK_V10
-extension SentryDiscardedEvent: SentrySerializable { }
-#endif
 // swiftlint:enable missing_docs

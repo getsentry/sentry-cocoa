@@ -64,15 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (class, nonatomic, readonly) BOOL detectedStartUpCrash;
 
-#if !SDK_V10
-/**
- * Checks if the last program execution terminated with a crash.
- * @deprecated Use @c lastRunStatus instead.
- */
-@property (class, nonatomic, readonly) BOOL crashedLastRun
-    __attribute__((deprecated("Use lastRunStatus instead.")));
-#endif
-
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 /// API to control session replay.
 @property (class, nonatomic, readonly) SentryObjCReplayApi *replay;
@@ -575,34 +566,6 @@ NS_ASSUME_NONNULL_BEGIN
  * does nothing.
  */
 + (void)finishExtendedAppStart;
-#endif
-
-#if !SDK_V10
-/**
- * Pauses sending detected app hangs to Sentry.
- * @note This method doesn't close the detection of app hangs. Instead, the app hang detection
- * will ignore detected app hangs until you call @c resumeAppHangTracking.
- * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
- * Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided
- * hang diagnostics.
- */
-+ (void)pauseAppHangTracking __attribute__((
-    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
-               "it can produce less relevant stack traces and false positives. "
-               "Enable the MetricKit integration for using ``SentrySDKOptions/enableMetricKit`` "
-               "system-provided hang diagnostics.")));
-
-/**
- * Resumes sending detected app hangs to Sentry.
- * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
- * Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided
- * hang diagnostics.
- */
-+ (void)resumeAppHangTracking __attribute__((
-    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
-               "it can produce less relevant stack traces and false positives. "
-               "Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for "
-               "system-provided hang diagnostics.")));
 #endif
 
 /**

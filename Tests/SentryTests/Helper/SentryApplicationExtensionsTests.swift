@@ -3,11 +3,7 @@
 #if canImport(UIKit)
 import UIKit
 #endif
-#if !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 #else
 @_spi(Private) @testable import Sentry
 #endif

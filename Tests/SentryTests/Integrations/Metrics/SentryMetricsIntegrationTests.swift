@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import Foundation
 import XCTest
@@ -67,9 +63,6 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
 
     func testAddMetric_whenDataCollectionUserInfoDisabled_shouldKeepUserProvidedEmail() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         // -- Arrange --
         let client = try givenSdkWithHub { options in
             options.dataCollection.userInfo = false
@@ -94,7 +87,6 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // -- Assert --
         let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
         XCTAssertEqual(capturedMetric.attributes["user.email"], .string("jane@example.com"))
-#endif
     }
 
     func testAddMetric_whenNoClientAvailable_shouldDropMetricsSilently() throws {
@@ -693,10 +685,6 @@ class SentryMetricsIntegrationTests: XCTestCase {
         SentrySDK.start {
             $0.dsn = TestConstants.dsnForTestCase(type: Self.self)
             $0.removeAllIntegrations()
-
-            #if !SDK_V10
-            $0.enableMetrics = isEnabled
-            #endif // !SDK_V10
 
             configure?($0)
         }

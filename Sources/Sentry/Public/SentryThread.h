@@ -5,19 +5,12 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryStacktrace;
 
-#if SDK_V10
 @interface SentryThread : NSObject
-#else
-@interface SentryThread : NSObject <SentrySerializable>
-#endif // SDK_V10
 
 SENTRY_NO_INIT
 

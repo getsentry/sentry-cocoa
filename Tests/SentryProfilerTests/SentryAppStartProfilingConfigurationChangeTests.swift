@@ -1,4 +1,4 @@
-#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if !SWIFT_PACKAGE && (os(iOS) || os(macOS))
 // swiftlint:disable file_length
 
 @_spi(Private) import SentryTestUtils

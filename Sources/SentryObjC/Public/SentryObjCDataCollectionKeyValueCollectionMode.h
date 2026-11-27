@@ -1,5 +1,4 @@
-#if SDK_V10
-#    import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
 /// Modes for key-value data collection filtering.
 typedef NS_ENUM(NSInteger, SentryObjCDataCollectionKeyValueCollectionMode) {
@@ -10,4 +9,3 @@ typedef NS_ENUM(NSInteger, SentryObjCDataCollectionKeyValueCollectionMode) {
     /// Only send values for explicitly listed keys; scrub all others.
     SentryObjCDataCollectionKeyValueCollectionModeAllowList
 };
-#endif // SDK_V10

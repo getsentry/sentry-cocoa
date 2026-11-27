@@ -1,10 +1,5 @@
-#if SDK_V10
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCTransaction) public final class SentryObjCTransaction: SentryObjCEvent {
@@ -19,4 +14,3 @@ import Foundation
 }
 
 // swiftlint:enable missing_docs
-#endif // SDK_V10

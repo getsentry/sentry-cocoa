@@ -65,37 +65,25 @@ import UIKit
         // We did it this way because we use this function to save screenshots
         // during signal handling, and if we dispatch it to the main thread,
         // that is probably blocked by the crash event, we freeze the application.
-#if SDK_V10
         sentrykscrash_attachments_log("saveScreenShots: enter")
-#endif
         // Crash-time: do not hop to main. Other threads are suspended, so
         // `windows()` times out empty (10ms). SentryCrash read windows on this thread.
         let windows = SentryDependencyContainer.sharedInstance().application()?.collectWindowsOnCurrentThread() ?? []
-#if SDK_V10
         sentrykscrash_attachments_log_i("saveScreenShots: windows", Int32(windows.count))
-#endif
         let screenshotData = pngData(from: screenshots(from: windows))
-#if SDK_V10
         sentrykscrash_attachments_log_i("saveScreenShots: png count", Int32(screenshotData.count))
-#endif
 
         for (index, data) in screenshotData.enumerated() {
             let name = index == 0 ? "screenshot.png" : "screenshot-\(index + 1).png"
             let fileName = (imagesDirectoryPath as NSString).appendingPathComponent(name)
             do {
                 try data.write(to: URL(fileURLWithPath: fileName), options: .atomic)
-#if SDK_V10
                 sentrykscrash_attachments_log_i("saveScreenShots: wrote png bytes", Int32(data.count))
-#endif
             } catch {
-#if SDK_V10
                 sentrykscrash_attachments_log("saveScreenShots: png write failed")
-#endif
             }
         }
-#if SDK_V10
         sentrykscrash_attachments_log("saveScreenShots: return")
-#endif
     }
 
     public func appScreenshots() -> [UIImage] {

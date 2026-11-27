@@ -18,7 +18,6 @@ extension SentryReplayNetworkDetails {
         configuredHeaders: [String]?
     ) {
         let headers = Self.extractHeaders(from: allHeaders, matching: configuredHeaders)
-#if SDK_V10
         let sanitizedHeaders = Self.sanitizeHeaders(headers)
         let request = Detail(
             size: size,
@@ -26,13 +25,6 @@ extension SentryReplayNetworkDetails {
             headers: sanitizedHeaders.headers,
             cookies: sanitizedHeaders.cookies
         )
-#else
-        let request = Detail(
-            size: size,
-            body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
-            headers: headers
-        )
-#endif // SDK_V10
         state.withLock { $0.request = request }
     }
 
@@ -47,7 +39,6 @@ extension SentryReplayNetworkDetails {
         configuredHeaders: [String]?
     ) {
         let headers = Self.extractHeaders(from: allHeaders, matching: configuredHeaders)
-#if SDK_V10
         let sanitizedHeaders = Self.sanitizeHeaders(headers)
         let response = Detail(
             size: size,
@@ -55,20 +46,12 @@ extension SentryReplayNetworkDetails {
             headers: sanitizedHeaders.headers,
             cookies: sanitizedHeaders.cookies
         )
-#else
-        let response = Detail(
-            size: size,
-            body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
-            headers: headers
-        )
-#endif // SDK_V10
         state.withLock {
             $0.statusCode = NSNumber(value: statusCode)
             $0.response = response
         }
     }
 
-#if SDK_V10
     /// Applies the built-in sensitive denylist to headers Session Replay is about to capture.
     ///
     /// Session Replay deliberately does **not** read the header and cookie behaviors from
@@ -92,7 +75,6 @@ extension SentryReplayNetworkDetails {
             cookieBehavior: .denyList()
         )
     }
-#endif // SDK_V10
 
     static func extractHeaders(
         from sourceHeaders: [String: Any]?,

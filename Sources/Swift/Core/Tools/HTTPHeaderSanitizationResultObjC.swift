@@ -1,4 +1,3 @@
-#if SDK_V10
 import Foundation
 
 /// Objective-C wrapper for the result of sanitizing HTTP headers and cookies.
@@ -19,4 +18,3 @@ import Foundation
         self.wrapped = wrapped
     }
 }
-#endif // SDK_V10

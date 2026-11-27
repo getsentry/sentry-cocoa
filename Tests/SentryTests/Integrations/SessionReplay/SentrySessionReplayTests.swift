@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 // swiftlint:disable file_length
 import Foundation
 #if canImport(UIKit)
@@ -1431,24 +1427,16 @@ class SentrySessionReplayTests: XCTestCase {
     func testOptionsInTheEventAllChanged() throws {
         let fixture = Fixture()
         
-        #if SDK_V10
         let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
         var privacyOptions = SentryPrivacyOptions()
         privacyOptions.maskAllText = false
         privacyOptions.maskAllImages = false
         privacyOptions.maskedViewClasses = [UIView.self]
         privacyOptions.unmaskedViewClasses = [UITextField.self, UITextView.self]
-        #else
-        let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0, maskAllText: false, maskAllImages: false)
-        replayOptions.maskedViewClasses = [UIView.self]
-        replayOptions.unmaskedViewClasses = [UITextField.self, UITextView.self]
-        #endif // SDK_V10
         replayOptions.quality = .high
         
         let sut = fixture.getSut(options: replayOptions)
-        #if SDK_V10
         sut.privacyOptions = privacyOptions
-        #endif // SDK_V10
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         fixture.dateProvider.advance(by: 1)
@@ -2083,11 +2071,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let replayOptions = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         let sut = fixture.getSut(options: replayOptions)
-        #if SDK_V10
         sut.privacyOptions.excludeViewTypeFromSubtreeTraversal("ExcludedActivityView")
-        #else
-        replayOptions.excludedViewClasses = ["ExcludedActivityView"]
-        #endif // SDK_V10
 
         let excludedView = ExcludedActivityView(frame: fixture.rootView.bounds)
         let scrollView = CountingDraggingScrollView(frame: excludedView.bounds)

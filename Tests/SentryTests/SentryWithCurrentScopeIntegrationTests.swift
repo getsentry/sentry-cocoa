@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -191,9 +187,6 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
 
     func testWithCurrentScope_captureLog_appliesCurrentScope() {
         var capturedLog: SentryLog?
-        #if !SDK_V10
-        fixture.options.enableLogs = true
-        #endif // !SDK_V10
         fixture.options.beforeSendLog = { log in
             capturedLog = log
             return log
@@ -317,9 +310,6 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
     func testWithCurrentScope_whenChildSpanIsBound_shouldCorrelateLog() throws {
         // -- Arrange --
         var capturedLog: SentryLog?
-        #if !SDK_V10
-        fixture.options.enableLogs = true
-        #endif // !SDK_V10
         fixture.options.beforeSendLog = { log in
             capturedLog = log
             return log

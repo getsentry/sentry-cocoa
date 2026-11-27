@@ -76,10 +76,8 @@ protocol SentryBinaryImageProvider: AnyObject {
     // The V9 provider synchronously re-enters while registering its initial callbacks.
     private let lock = NSRecursiveLock()
     private let provider: SentryBinaryImageProvider
-#if SDK_V10
     private let processInfoWrapper: SentryProcessInfoSource
     private var mainExecutableAddress: UInt64?
-#endif
 
     @objc public override convenience init() {
         self.init(processInfoWrapper: Dependencies.processInfoWrapper)
@@ -91,9 +89,7 @@ protocol SentryBinaryImageProvider: AnyObject {
 
     init(provider: SentryBinaryImageProvider, processInfoWrapper: SentryProcessInfoSource) {
         self.provider = provider
-#if SDK_V10
         self.processInfoWrapper = processInfoWrapper
-#endif
         super.init()
     }
 
@@ -107,7 +103,6 @@ protocol SentryBinaryImageProvider: AnyObject {
             self.cache = []
             provider.start(registry: self)
             provider.refresh()
-#if SDK_V10
             // Resolve once per cache lifetime. Live frame mapping compares image addresses,
             // not executable filenames, which may also belong to unrelated loaded images.
             if let processPath = self.processInfoWrapper.processPath {
@@ -116,7 +111,6 @@ protocol SentryBinaryImageProvider: AnyObject {
                     URL(fileURLWithPath: $0.name).resolvingSymlinksInPath() == executableURL
                 }?.address
             }
-#endif
         }
     }
 
@@ -128,9 +122,7 @@ protocol SentryBinaryImageProvider: AnyObject {
             }
             provider.stop()
             self.cache = nil
-#if SDK_V10
             self.mainExecutableAddress = nil
-#endif
         }
     }
 
@@ -219,14 +211,12 @@ protocol SentryBinaryImageProvider: AnyObject {
         return lock.synchronized { imageContaining(address: address) }
     }
 
-#if SDK_V10
     /// Identifies the current process's main executable for live frame mapping.
     /// Stored crash reports and MetricKit payloads require their own process-specific identity.
     @objc
     public func isMainExecutableImage(_ image: SentryBinaryImageInfo) -> Bool {
         lock.synchronized { mainExecutableAddress == image.address }
     }
-#endif
 
     @objc
     func getAllBinaryImages() -> [SentryBinaryImageInfo] {

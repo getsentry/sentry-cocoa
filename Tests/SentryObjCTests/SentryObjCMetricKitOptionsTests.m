@@ -14,16 +14,11 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Assert --
-#    if SDK_V10
     XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports,
         SentryObjCMetricKitDiagnosticReportCPUException
             | SentryObjCMetricKitDiagnosticReportDiskWriteException
             | SentryObjCMetricKitDiagnosticReportHang
             | SentryObjCMetricKitDiagnosticReportAppLaunch);
-#    else
-    XCTAssertEqual(options.experimental.metrickit.enabledDiagnosticReports,
-        SentryObjCMetricKitDiagnosticReportNone);
-#    endif // SDK_V10
 }
 
 - (void)testEnabledDiagnosticReports_whenSetToEveryReport_shouldReturnEveryReport

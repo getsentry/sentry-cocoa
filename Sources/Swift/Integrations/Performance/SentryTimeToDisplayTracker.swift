@@ -160,10 +160,8 @@ public class SentryTimeToDisplayTracker: NSObject, SentryFramesTrackerListener, 
         guard let startTimestamp = span.startTimestamp else { return }
         let duration = (span.timestamp?.timeIntervalSince(startTimestamp) ?? 0) * 1_000
         span.setMeasurement(name: name, value: NSNumber(value: duration), unit: MeasurementUnitDuration.millisecond)
-        #if SDK_V10
         // TTID and TTFD remain transaction measurements even when child measurements are local.
         tracer.setMeasurement(name: name, value: NSNumber(value: duration), unit: MeasurementUnitDuration.millisecond)
-        #endif
     }
 }
 

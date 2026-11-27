@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
@@ -86,9 +82,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
     }
 
     func testSerialize_whenReplaySelectsSensitiveRequestHeaders_shouldFilterValues() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Arrange --
         let details = SentryReplayNetworkDetails(method: "GET")
         details.setRequest(
@@ -115,13 +108,9 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             "X-Auth-Token": "[Filtered]",
             "X-Request-Id": "request-id"
         ])
-#endif
     }
 
     func testSerialize_whenReplaySelectsCookie_shouldFilterSensitiveValues() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Arrange --
         let details = SentryReplayNetworkDetails(method: "GET")
         details.setRequest(
@@ -142,7 +131,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             "session": "[Filtered]",
             "theme": "dark"
         ])
-#endif
     }
 
     func testSerialize_whenResponseUpdatesOverlap_shouldPublishConsistentSnapshots() throws {
