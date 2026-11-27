@@ -77,58 +77,36 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
     outputs:
-      slices: ${{ steps.setup-matrix-combinations.outputs.slices }}
-      variants: ${{ steps.setup-matrix-combinations.outputs.variants }}
+      pipelines: ${{ steps.setup-matrix-combinations.outputs.pipelines }}
       sdk-list-array: ${{ steps.setup-matrix-combinations.outputs.sdk-list-array }}
       sdk-list-string: ${{ steps.setup-matrix-combinations.outputs.sdk-list-string }}
 
-  build-xcframework-variant-slices:
-    name: Build XCFramework Slices
+  # Each slice ID runs its own slices -> assemble pipeline, so a variant's assembly waits only for
+  # its own slices instead of every slice in the matrix.
+  build-xcframework-variant:
+    name: Build ${{ matrix.pipeline.id }} XCFramework
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    uses: ./.github/workflows/build-xcframework-variant.yml
     secrets:
       GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
       GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
-    with:
-      name: ${{matrix.variant.name}}
-      suffix: ${{matrix.variant.suffix}}
-      macho-type: ${{matrix.variant.macho-type}}
-      configuration-suffix: ${{matrix.variant.configuration-suffix}}
-      variant-id: ${{matrix.variant.id}}
-      sdk-v10: ${{ matrix.variant.sdk-v10 == true }}
-      release-version: ${{ github.event.inputs.version }}
-      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
-    strategy:
-      matrix:
-        variant: ${{ fromJson(needs.setup-matrix.outputs.slices) }}
-
-  assemble-xcframework-variant:
-    needs: [files-changed, build-xcframework-variant-slices, setup-matrix]
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    name: Assemble XCFramework Variant
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets:
       FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
       MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
-      scheme: ${{matrix.variant.scheme}}
-      suffix: ${{matrix.variant.suffix}}
-      configuration-suffix: ${{matrix.variant.configuration-suffix}}
-      variant-id: ${{matrix.variant.id}}
+      slice: ${{ toJson(matrix.pipeline.slice) }}
+      variants: ${{ toJson(matrix.pipeline.variants) }}
+      sdk-list-array: ${{ needs.setup-matrix.outputs.sdk-list-array }}
+      sdk-list-string: ${{ needs.setup-matrix.outputs.sdk-list-string }}
       # Only sign the XCFramework on releases
       signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
-      excluded-archs: ${{matrix.variant.excluded-archs}}
-      override-name: ${{matrix.variant.override-name}}
-      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
     strategy:
       matrix:
-        variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
+        pipeline: ${{ fromJson(needs.setup-matrix.outputs.pipelines) }}
 
   build-sentryobjc-slices:
     name: Build SentryObjC Slices
@@ -184,7 +162,7 @@ jobs:
     needs:
       [
         files-changed,
-        assemble-xcframework-variant,
+        build-xcframework-variant,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
       ]
@@ -261,7 +239,7 @@ jobs:
     runs-on: macos-26
     needs: [
       files-changed,
-      assemble-xcframework-variant,
+      build-xcframework-variant,
       assemble-sentryobjc-static-xcframework,
       assemble-sentryobjc-dynamic-xcframework,
     ]
@@ -460,7 +438,7 @@ jobs:
     runs-on: macos-26
     needs: [
       files-changed,
-      assemble-xcframework-variant,
+      build-xcframework-variant,
       assemble-sentryobjc-static-xcframework,
       assemble-sentryobjc-dynamic-xcframework,
     ]
@@ -529,7 +507,7 @@ jobs:
     runs-on: macos-26
     needs: [
       files-changed,
-      assemble-xcframework-variant,
+      build-xcframework-variant,
       assemble-sentryobjc-static-xcframework,
       assemble-sentryobjc-dynamic-xcframework,
     ]
@@ -595,7 +573,7 @@ jobs:
     secrets:
       GIT_SSH_PRIVATE_KEY_BASE64: ${{ secrets.GIT_SSH_PRIVATE_KEY_BASE64 }}
       GIT_SSH_KEY_PASSPHRASE: ${{ secrets.GIT_SSH_KEY_PASSPHRASE }}
-    needs: [files-changed, assemble-xcframework-variant]
+    needs: [files-changed, build-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     with:
@@ -691,8 +669,7 @@ jobs:
     needs:
       [
         files-changed,
-        build-xcframework-variant-slices,
-        assemble-xcframework-variant,
+        build-xcframework-variant,
         build-sentryobjc-slices,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
