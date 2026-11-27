@@ -325,9 +325,9 @@ private func run() throws {
     let workflow = try text(".github/workflows/build.yml")
     for requiredJobOrTarget in [
         "package-sdk:",
-        "build-xcframework-v10-dynamic",
-        "build-xcframework-v10-static",
-        "build-xcframework-sentryobjc-v10"
+        "build-xcframework-dynamic",
+        "build-xcframework-static",
+        "build-xcframework-sentryobjc"
     ] where !workflow.contains(requiredJobOrTarget) {
         report("V10 workflow is missing packaging coverage: \(requiredJobOrTarget)")
     }

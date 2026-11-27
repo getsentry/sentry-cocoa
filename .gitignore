@@ -140,8 +140,13 @@ analyzer
 XCFrameworkBuildPath/
 *.xcresult
 
-# Local Claude Code settings that should not be committed
-.claude/settings.local.json
+# Keep developer-specific agent configurations local.
+.claude/**
+.cursor/**
+.pi/**
+.codex/**
+.xcodebuildmcp/**
+.mcp.json
 
 # Credentials
 .netrc
