@@ -10,6 +10,21 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryObjCId;
+@class UIImage;
+@class UIView;
+
+/// Supplies the frames of a session replay in place of the SDK's own screen capture.
+///
+/// For hybrid SDKs that render outside UIKit's view hierarchy, such as game engines.
+@protocol SentryObjCReplayScreenshotProvider <NSObject>
+
+/// Called on the main thread for each frame the replay records.
+///
+/// Call @c onComplete exactly once, on any thread, with an image of @c view's size in points.
+/// The replay captures no further frame until it's called.
+- (void)imageWithView:(UIView *)view onComplete:(void (^)(UIImage *image))onComplete;
+
+@end
 
 /// Session replay APIs for Sentry hybrid SDKs.
 ///
@@ -40,6 +55,13 @@ SENTRY_NO_INIT
 
 /// Stops the current replay.
 - (void)stop;
+
+/// Sets the provider of the replay's frames, for the current replay and every replay started
+/// afterwards, until the SDK is closed. Call it again after each start of the SDK.
+///
+/// May be called from any thread; it takes effect on the main thread. Does nothing when Session
+/// Replay isn't installed.
+- (void)setScreenshotProvider:(id<SentryObjCReplayScreenshotProvider>)provider;
 
 /// Captures a replay event. Returns @c YES if the replay was captured.
 - (BOOL)capture;

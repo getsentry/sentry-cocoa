@@ -39,6 +39,42 @@ class SentryInternalReplayApiTests: XCTestCase {
         wait(for: [commandExpectation], timeout: 1)
     }
 
+    // MARK: - configure
+
+    func testConfigure_onMainThread_shouldApplyImmediately() {
+        // -- Arrange --
+        let replayIntegrationProvider = RecordingReplayIntegrationProvider()
+        let sut = SentryInternalReplayApi(
+            dependencies: Dependencies(replayIntegrationProvider: replayIntegrationProvider)
+        )
+
+        // -- Act --
+        sut.configure(breadcrumbConverter: nil, screenshotProvider: nil)
+
+        // -- Assert --
+        XCTAssertEqual(replayIntegrationProvider.lookups, [true])
+    }
+
+    func testConfigure_fromBackgroundThread_shouldApplyOnMainThread() {
+        // -- Arrange --
+        let replayIntegrationProvider = RecordingReplayIntegrationProvider()
+        let sut = SentryInternalReplayApi(
+            dependencies: Dependencies(replayIntegrationProvider: replayIntegrationProvider)
+        )
+        let mainQueueDrained = expectation(description: "Main queue drained")
+
+        // -- Act --
+        DispatchQueue.global().async {
+            sut.configure(breadcrumbConverter: nil, screenshotProvider: nil)
+            // The main queue is FIFO, so this runs after the configuration it queued.
+            DispatchQueue.main.async { mainQueueDrained.fulfill() }
+        }
+        wait(for: [mainQueueDrained], timeout: 1)
+
+        // -- Assert --
+        XCTAssertEqual(replayIntegrationProvider.lookups, [true])
+    }
+
     func testCapture_beforeStart_shouldReturnFalse() {
         XCTAssertFalse(sut.capture())
     }
@@ -88,6 +124,25 @@ class SentryInternalReplayApiTests: XCTestCase {
     func testRegisterTraceId_withEmptyId_beforeStart_shouldNotCrash() {
         sut.registerTraceId(SentryId.empty)
     }
+}
+
+/// Records, for each lookup of the replay integration, whether it ran on the main thread.
+private final class RecordingReplayIntegrationProvider: ReplayIntegrationProvider {
+    private let recorded = SentryMutex<[Bool]>([])
+
+    var lookups: [Bool] { recorded.withLock { $0 } }
+
+    func getReplayIntegration() -> SentrySessionReplayIntegration? {
+        let isMainThread = Thread.isMainThread
+        recorded.withLock { $0.append(isMainThread) }
+        return nil
+    }
+}
+
+private struct Dependencies: SentryInternalReplayApi.Dependencies {
+    let replayIntegrationProvider: ReplayIntegrationProvider
+
+    var hub: Hub { SentryDependencyContainer.sharedInstance().hub }
 }
 
 #endif
