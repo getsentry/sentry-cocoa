@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include "SentryNativeUtilsDefines.h"
+
 /* COMPILER() - the compiler being used to build the project */
 #define COMPILER(SENTRY_FEATURE) (defined SENTRY_COMPILER_##SENTRY_FEATURE  && SENTRY_COMPILER_##SENTRY_FEATURE)
 
@@ -177,16 +179,6 @@
 #define ALWAYS_INLINE_EXCEPT_MSVC inline
 #else
 #define ALWAYS_INLINE_EXCEPT_MSVC ALWAYS_INLINE
-#endif
-
-/* SENTRY_EXTERN_C_{BEGIN, END} */
-
-#ifdef __cplusplus
-#define SENTRY_EXTERN_C_BEGIN extern "C" {
-#define SENTRY_EXTERN_C_END }
-#else
-#define SENTRY_EXTERN_C_BEGIN
-#define SENTRY_EXTERN_C_END
 #endif
 
 /* FALLTHROUGH */

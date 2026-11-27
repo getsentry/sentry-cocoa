@@ -1,5 +1,12 @@
 #include "DeploymentTargets.xcconfig"
 
+SENTRY_SDK_MACH_O_TYPE = mh_dylib
+MACH_O_TYPE = $(SENTRY_SDK_MACH_O_TYPE)
+
+// Retain the existing C exports on platforms without internal callers, such as watchOS.
+SENTRY_NATIVE_UTILS_EXPORTS_mh_dylib = -u _timeIntervalToNanoseconds
+OTHER_LDFLAGS = $(inherited) $(SENTRY_NATIVE_UTILS_EXPORTS_$(MACH_O_TYPE))
+
 INFOPLIST_FILE = Sources/Resources/Info.plist
 
 SENTRY_MODULE_NAME = Sentry
@@ -7,7 +14,7 @@ SENTRY_WITHOUT_UIKIT_MODULE_NAME = SentryWithoutUIKit
 
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
 // leads to an error: no such module '_SentryPrivate' when including the XCFramework
-HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/** $(SRCROOT)/Sources/SentryNativeUtils/include $(SRCROOT)/Sources/SentryProfiling/include
 
 PRODUCT_MODULE_NAME_Debug = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_DebugV10 = $(SENTRY_MODULE_NAME)
@@ -37,6 +44,8 @@ CODE_SIGN_IDENTITY =
 PROVISIONING_PROFILE_SPECIFIER =
 
 GCC_C_LANGUAGE_STANDARD = compiler-default
+
+OTHER_CFLAGS = -Wnullable-to-nonnull-conversion -Wnullability-completeness
 
 ENABLE_STRICT_OBJC_MSGSEND = NO
 

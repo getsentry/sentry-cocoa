@@ -2,6 +2,13 @@
 
 > Scope: `Sources/**`. Also follow [root instructions](../AGENTS.md).
 
+## Native Utilities
+
+- `Sources/SentryNativeUtils` is a shared Objective-C++ utility library
+- Implement utilities in `.mm` files with C, Objective-C, or C++ headers as needed
+- Do not add Swift sources or dependencies on Swift targets
+- Keep it independent of SDK implementation code and crash backends
+
 ## Objective-C
 
 - Prefer Swift for new code when target boundaries allow it

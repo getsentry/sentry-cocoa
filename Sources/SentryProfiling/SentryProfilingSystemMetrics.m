@@ -1,7 +1,5 @@
 #import "SentryProfilingSystemMetrics.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-
 @implementation SentryProfilingSystemMetrics
 
 - (instancetype)initWithCPUUsage:(NSNumber *_Nullable)cpuUsage
@@ -17,5 +15,3 @@
 }
 
 @end
-
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED

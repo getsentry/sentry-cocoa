@@ -1,8 +1,4 @@
-#import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,10 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCPUUsage:(NSNumber *_Nullable)cpuUsage
             memoryFootprintBytes:(NSNumber *_Nullable)memoryFootprintBytes
                   cpuEnergyUsage:(NSNumber *_Nullable)cpuEnergyUsage;
-SENTRY_NO_INIT
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED

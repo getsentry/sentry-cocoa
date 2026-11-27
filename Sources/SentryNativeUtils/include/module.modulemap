@@ -1,0 +1,5 @@
+module SentryNativeUtils {
+    textual header "SentryNativeUtilsDefines.h"
+    umbrella "."
+    export *
+}
