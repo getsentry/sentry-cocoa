@@ -29,6 +29,14 @@ SENTRY_NO_INIT
        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                reachability:(SentryReachability *)reachability;
 
+#if defined(DEBUG) // Test support.
+/**
+ * Runs on the thread that called @c flush:, after it stops waiting and before it cleans up, so a
+ * test can order another flush between the two.
+ */
+- (void)setFlushWaitFinishedCallback:(nullable void (^)(void))callback;
+#endif // defined(DEBUG)
+
 @end
 
 NS_ASSUME_NONNULL_END

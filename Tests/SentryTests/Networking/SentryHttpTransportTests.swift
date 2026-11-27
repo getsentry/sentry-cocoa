@@ -1409,6 +1409,74 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, fileManager.getAllEnvelopes().count)
     }
 
+    func testFlush_whenEarlierDrainFindsEmptyCache_shouldNotSucceedBeforeCaptureIsSent() throws {
+        // -- Arrange --
+        let transportQueue = SentryDispatchQueueWrapper()
+        let reachability = TestSentryReachability()
+        let sut = try fixture.getSut(dispatchQueueWrapper: transportQueue, reachability: reachability)
+
+        // Queue order: hold, connectivity drain, hold, capture, flush drain.
+        let releaseConnectivityDrain = DispatchSemaphore(value: 0)
+        let releaseCapture = DispatchSemaphore(value: 0)
+        defer {
+            releaseConnectivityDrain.signal()
+            releaseCapture.signal()
+        }
+        transportQueue.dispatchAsync { _ = releaseConnectivityDrain.wait(timeout: .now() + 20) }
+        reachability.triggerNetworkReachable()
+        let connectivityDrainFinished = DispatchSemaphore(value: 0)
+        transportQueue.dispatchAsync {
+            connectivityDrainFinished.signal()
+            _ = releaseCapture.wait(timeout: .now() + 20)
+        }
+        sut.send(envelope: fixture.eventEnvelope)
+
+        // -- Act & Assert --
+        assertFlushWaitsForCapture(
+            sut,
+            releaseEarlierDrain: releaseConnectivityDrain,
+            earlierDrainFinished: connectivityDrainFinished,
+            releaseCapture: releaseCapture
+        )
+    }
+
+    func testFlush_whenPreviousFlushTimedOut_shouldNotSucceedBeforeCaptureIsSent() throws {
+        // -- Arrange --
+        let transportQueue = SentryDispatchQueueWrapper()
+        let sut = try fixture.getSut(dispatchQueueWrapper: transportQueue, reachability: TestSentryReachability())
+
+        // Queue order: hold, timed-out flush's drain, hold, capture, second flush's drain.
+        let releaseStaleDrain = DispatchSemaphore(value: 0)
+        let releaseCapture = DispatchSemaphore(value: 0)
+        defer {
+            releaseStaleDrain.signal()
+            releaseCapture.signal()
+        }
+        transportQueue.dispatchAsync { _ = releaseStaleDrain.wait(timeout: .now() + 20) }
+        let firstFlushReturned = expectation(description: "First flush returned")
+        var firstResult: SentryFlushResult?
+        DispatchQueue.global(qos: .default).async(qos: .default, flags: .enforceQoS) {
+            firstResult = sut.flush(0.1)
+            firstFlushReturned.fulfill()
+        }
+        wait(for: [firstFlushReturned], timeout: 5)
+        XCTAssertEqual(name(of: .timedOut), name(of: firstResult))
+        let staleDrainFinished = DispatchSemaphore(value: 0)
+        transportQueue.dispatchAsync {
+            staleDrainFinished.signal()
+            _ = releaseCapture.wait(timeout: .now() + 20)
+        }
+        sut.send(envelope: fixture.eventEnvelope)
+
+        // -- Act & Assert --
+        assertFlushWaitsForCapture(
+            sut,
+            releaseEarlierDrain: releaseStaleDrain,
+            earlierDrainFinished: staleDrainFinished,
+            releaseCapture: releaseCapture
+        )
+    }
+
     func testSendsWhenNetworkComesBack() {
         givenNoInternetConnection()
 
@@ -1436,6 +1504,130 @@ class SentryHttpTransportTests: XCTestCase {
         _ = try fixture.getSut()
 
         fixture.reachability.triggerNetworkReachable()
+    }
+
+    func testFlush_whenEarlierFlushCleansUpAfterNextFlushStarts_shouldKeepNextFlushPending() throws {
+        // -- Arrange --
+        let transportQueue = SentryDispatchQueueWrapper()
+        let sut = try fixture.getSut(dispatchQueueWrapper: transportQueue, reachability: TestSentryReachability())
+
+        let firstFlushWaitFinished = DispatchSemaphore(value: 0)
+        let releaseFirstCleanup = DispatchSemaphore(value: 0)
+        let releaseSecondDrain = DispatchSemaphore(value: 0)
+        defer {
+            releaseFirstCleanup.signal()
+            releaseSecondDrain.signal()
+        }
+        // Pauses the first flush after its own drain ended it and before its cleanup runs.
+        SentryHttpTransportWrapper.setFlushWaitFinishedCallback({
+            firstFlushWaitFinished.signal()
+            _ = releaseFirstCleanup.wait(timeout: .now() + 20)
+        }, onTransport: sut)
+
+        let firstFlushReturned = expectation(description: "First flush returned")
+        let secondFlushReturned = expectation(description: "Second flush returned")
+        let scenarioFinished = expectation(description: "Scenario finished")
+        let firstFlushReturnedSignal = DispatchSemaphore(value: 0)
+        var firstResult: SentryFlushResult?
+        var secondResult: SentryFlushResult?
+        var probeResult: SentryFlushResult?
+        var firstPausedInTime = false
+        var secondRegisteredInTime = false
+        var firstReturnedInTime = false
+
+        // -- Act --
+        // The blocking waits run off the main thread at the transport queue's default QoS. A main thread blocked
+        // on a lower QoS is a priority inversion, which Xcode's performance checker reports by stalling the test.
+        let defaultQoS = DispatchQueue.global(qos: .default)
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            firstResult = sut.flush(10)
+            firstFlushReturnedSignal.signal()
+            firstFlushReturned.fulfill()
+        }
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            firstPausedInTime = firstFlushWaitFinished.wait(timeout: .now() + 5) == .success
+            SentryHttpTransportWrapper.setFlushWaitFinishedCallback(nil, onTransport: sut)
+            // Holds the queue, so only the first flush's cleanup could end the second flush.
+            transportQueue.dispatchAsync { _ = releaseSecondDrain.wait(timeout: .now() + 20) }
+            let secondFlushRegistered = DispatchSemaphore(value: 0)
+            sut.setStartFlushCallback { secondFlushRegistered.signal() }
+            defaultQoS.async(qos: .default, flags: .enforceQoS) {
+                secondResult = sut.flush(10)
+                secondFlushReturned.fulfill()
+            }
+            secondRegisteredInTime = secondFlushRegistered.wait(timeout: .now() + 5) == .success
+            releaseFirstCleanup.signal()
+            firstReturnedInTime = firstFlushReturnedSignal.wait(timeout: .now() + 5) == .success
+            probeResult = sut.flush(0)
+            releaseSecondDrain.signal()
+            scenarioFinished.fulfill()
+        }
+        wait(for: [firstFlushReturned, scenarioFinished, secondFlushReturned], timeout: 30)
+
+        // -- Assert --
+        XCTAssertTrue(firstPausedInTime, "The first flush never finished waiting")
+        XCTAssertTrue(secondRegisteredInTime, "The second flush never started")
+        XCTAssertTrue(firstReturnedInTime, "The first flush never returned")
+        XCTAssertEqual(name(of: .success), name(of: firstResult))
+        XCTAssertEqual(name(of: .alreadyFlushing), name(of: probeResult), "The first flush's cleanup must not end the second flush")
+        XCTAssertEqual(name(of: .success), name(of: secondResult))
+    }
+
+    /// Flushes `sut`, releases `releaseEarlierDrain`, and checks that the flush is still pending once
+    /// `earlierDrainFinished` shows that drain has finished while the capture is held. Then releases `releaseCapture`
+    /// and asserts that the flush succeeds only once the capture's request was sent.
+    private func assertFlushWaitsForCapture(
+        _ sut: Transport,
+        releaseEarlierDrain: DispatchSemaphore,
+        earlierDrainFinished: DispatchSemaphore,
+        releaseCapture: DispatchSemaphore,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let flushRegistered = DispatchSemaphore(value: 0)
+        sut.setStartFlushCallback { flushRegistered.signal() }
+        let flushReturned = expectation(description: "Flush returned")
+        let captureReleased = expectation(description: "Capture released")
+        var result: SentryFlushResult?
+        var requestsAtReturn = -1
+        var probeResult: SentryFlushResult?
+        var registeredInTime = false
+        var earlierDrainFinishedInTime = false
+
+        // The blocking waits run off the main thread at the transport queue's default QoS. A main thread blocked
+        // on a lower QoS is a priority inversion, which Xcode's performance checker reports by stalling the test.
+        let defaultQoS = DispatchQueue.global(qos: .default)
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            result = sut.flush(10)
+            requestsAtReturn = self.fixture.requestManager.requests.count
+            flushReturned.fulfill()
+        }
+        defaultQoS.async(qos: .default, flags: .enforceQoS) {
+            registeredInTime = flushRegistered.wait(timeout: .now() + 5) == .success
+            releaseEarlierDrain.signal()
+            earlierDrainFinishedInTime = earlierDrainFinished.wait(timeout: .now() + 5) == .success
+            // A flush that is still in progress makes another flush return `.alreadyFlushing`.
+            probeResult = sut.flush(0)
+            releaseCapture.signal()
+            captureReleased.fulfill()
+        }
+        wait(for: [captureReleased, flushReturned], timeout: 20)
+
+        XCTAssertTrue(registeredInTime, "The flush never started", file: file, line: line)
+        XCTAssertTrue(earlierDrainFinishedInTime, "The earlier drain never finished", file: file, line: line)
+        XCTAssertEqual(name(of: .alreadyFlushing), name(of: probeResult), "The flush must still be pending after the earlier drain finished", file: file, line: line)
+        XCTAssertEqual(name(of: .success), name(of: result), file: file, line: line)
+        XCTAssertEqual(1, requestsAtReturn, "A successful flush must not return before the captured envelope is sent", file: file, line: line)
+    }
+
+    /// `SentryFlushResult` prints only its type name, so failures compare readable names instead.
+    private func name(of result: SentryFlushResult?) -> String {
+        switch result {
+        case .success: return "success"
+        case .timedOut: return "timedOut"
+        case .alreadyFlushing: return "alreadyFlushing"
+        case nil: return "nil"
+        }
     }
 #endif // !os(watchOS)
     

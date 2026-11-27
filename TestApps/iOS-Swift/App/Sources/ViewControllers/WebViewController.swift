@@ -58,8 +58,7 @@ class WebViewController: UIViewController {
     /// The trace the SDK propagates right now, read from the scope so UI tests can compare it with
     /// the injected tags.
     private static var nativeTraceId: String {
-        // The hub property visible outside the SDK is scopeObject: Any.
-        let scope = SentrySDKInternal.currentHub().scopeObject as? Scope ?? Scope()
+        let scope = SentrySDKInternal.currentHub().scope
         return (scope.span?.traceId ?? scope.propagationContextTraceId).sentryIdString
     }
 

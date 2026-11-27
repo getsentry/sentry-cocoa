@@ -1,0 +1,17 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.ContactProviderExtension
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift.ContactProviderExtension
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.iOS-Swift.ContactProviderExtension
+PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+// The ContactProvider framework requires iOS 18
+IPHONEOS_DEPLOYMENT_TARGET = 18.0
+
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks

@@ -102,10 +102,6 @@ struct ContentView: View {
         return DataBag.shared.info["initialTransaction"] as? SentryTracer
     }
 
-    func getCurrentTransactionContext() -> TransactionContext? {
-        getCurrentTracer()?.transactionContextObject as? TransactionContext
-    }
-
     func hasTTID(tracer: SentryTracer?) -> Bool {
         tracer?.children.contains { $0.spanDescription?.contains("initial display") == true } == true
     }
@@ -136,14 +132,14 @@ struct ContentView: View {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Group {
-                        Text(getCurrentTransactionContext()?.name ?? "NO SPAN")
+                        Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")
 
-                        Text(getCurrentTransactionContext()?.spanId.sentrySpanIdString ?? "NO ID")
+                        Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                             .accessibilityIdentifier("TRANSACTION_ID")
                             .sentryReplayMask()
 
-                        Text(getCurrentTransactionContext()?.origin ?? "NO ORIGIN")
+                        Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
                             .accessibilityIdentifier("TRACE_ORIGIN")
                     }
                     .sentryReplayUnmask()

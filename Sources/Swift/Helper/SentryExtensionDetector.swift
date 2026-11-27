@@ -15,7 +15,8 @@ final class SentryExtensionDetector: NSObject {
             .intent,
             .action,
             .share,
-            .notificationService
+            .notificationService,
+            .contactProvider
         ]
     }
 
@@ -26,25 +27,33 @@ final class SentryExtensionDetector: NSObject {
         super.init()
     }
     
-    /// Returns the NSExtensionPointIdentifier from the Bundle's Info.plist, if present.
+    /// Returns the extension point identifier from the Bundle's Info.plist, if present.
+    ///
+    /// Foundation extensions declare it as `NSExtension` › `NSExtensionPointIdentifier`, ExtensionKit extensions
+    /// as `EXAppExtensionAttributes` › `EXExtensionPointIdentifier`.
     func getExtensionPointIdentifier() -> String? {
+        return getPointIdentifier(
+            dictionaryKey: SentryInfoPlistKey.extension.rawValue,
+            pointIdentifierKey: SentryInfoPlistKey.Extension.pointIdentifier.rawValue
+        ) ?? getPointIdentifier(
+            dictionaryKey: SentryInfoPlistKey.extensionKitAttributes.rawValue,
+            pointIdentifierKey: SentryInfoPlistKey.ExtensionKitAttributes.pointIdentifier.rawValue
+        )
+    }
+
+    private func getPointIdentifier(dictionaryKey: String, pointIdentifierKey: String) -> String? {
         do {
-            let extensionDict = try infoPlistWrapper.getAppValueDictionary(
-                for: SentryInfoPlistKey.extension.rawValue
-            )
-            guard let pointIdentifier = extensionDict[SentryInfoPlistKey.Extension.pointIdentifier.rawValue] as? String else {
-                // NSExtensionPointIdentifier not found in NSExtension dictionary
-                return nil
-            }
-            return pointIdentifier
+            let extensionDict = try infoPlistWrapper.getAppValueDictionary(for: dictionaryKey)
+            // The point identifier can be missing from the dictionary
+            return extensionDict[pointIdentifierKey] as? String
         } catch SentryInfoPlistError.mainInfoPlistNotFound {
             // Info.plist not found - not an extension
             return nil
         } catch SentryInfoPlistError.keyNotFound {
-            // NSExtension key not found - not an extension
+            // Dictionary key not found - not an extension of this kind
             return nil
         } catch SentryInfoPlistError.unableToCastValue(let key, let value, let type) {
-            SentrySDKLog.error("Failed to cast NSExtension value for key '\(key)': \(value) to type \(type)")
+            SentrySDKLog.error("Failed to cast \(dictionaryKey) value for key '\(key)': \(value) to type \(type)")
             return nil
         } catch {
             SentrySDKLog.error("Unexpected error reading extension info from Info.plist: \(error)")

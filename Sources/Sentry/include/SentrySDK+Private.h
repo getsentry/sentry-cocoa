@@ -23,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)captureFatalEvent:(SentryEvent *)event;
 
-+ (void)captureFatalEvent:(SentryEvent *)event
-                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope;
++ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
 #if SENTRY_HAS_UIKIT && !SDK_V10
 + (void)captureFatalAppHangEvent:(SentryEvent *)event;

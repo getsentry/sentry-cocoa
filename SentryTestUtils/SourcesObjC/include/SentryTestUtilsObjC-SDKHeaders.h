@@ -11,6 +11,7 @@
 #import "../../../Sources/Sentry/include/SentryCrashStackEntryMapper.h"
 #import "../../../Sources/Sentry/include/SentryFormatter.h"
 #import "../../../Sources/Sentry/include/SentryGeo+Private.h"
+#import "../../../Sources/Sentry/include/SentryHttpStatusCodeRange+Private.h"
 #import "../../../Sources/Sentry/include/SentryInternalNotificationNames.h"
 #import "../../../Sources/Sentry/include/SentrySampleDecision+Private.h"
 #import "../../../Sources/Sentry/include/SentryTracer+Private.h"

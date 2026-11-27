@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756)
+- Reject invalid UTF-8 sequences and trim truncated multi-byte UTF-8 characters when writing introspected memory strings in `SentryCrash`, preventing malformed crash report JSON (#9760)
+- Fix `flush` returning success before envelopes captured just before it were stored, when a cache drain queued ahead of it, or left over from a flush that timed out, found no envelopes (#9706)
+- Disable app hang tracking and watchdog termination tracking by default in Contact Provider extensions, and detect ExtensionKit extensions, which declare their extension point under `EXAppExtensionAttributes` instead of `NSExtension`. The SDK reported false fully blocking app hangs after the system suspended and resumed the extension (#9768)
+- Session Replay no longer records an extra segment covering the time away when paused twice or stopped while paused (#9739)
+
+### Internal
+
+- Add a screenshot provider to the `SentryObjC` internal replay API, so hybrid SDKs such as Unity can supply Session Replay frames (#9739)
+
+## 9.36.0
+
 > [!TIP]
 > Try the new experimental option `options.experimental.enableUIUpdateLinkFramesTracking`. On iOS 18, tvOS 18 and visionOS 2 and later, it tracks frames without waking up your idle app for every frame, which reduces the impact of the SDK on the performance of your app. The option is disabled by default, so set it to `true` to opt in.
 
@@ -19,19 +33,17 @@
 - Fix the build error `expected identifier; 'class' is a keyword in Objective-C++` when importing the SDK through SPM into a target with Swift C++ interoperability enabled (#9669)
 - Skip capturing a stack trace for file I/O and Core Data operations on the main thread when the transaction on the scope has already finished and no span can be created (#9697)
 - Preserve JSON null values in event extras, breadcrumb data, and other sanitized dictionaries instead of converting them to the string `"<null>"` (#9729)
-- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h`, `SentrySamplingContext.h`, `SentryTransaction.h`, `SentryTransactionContext.h` and `SentryScope.h` as empty headers, so importing them by name, for example `#import <Sentry/SentryScope.h>`, compiles again. The first four were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
+- Restore the public headers `SentryHttpStatusCodeRange.h`, `SentryReplayApi.h` and `SentrySamplingContext.h` as empty headers, so importing them by name, for example `#import <Sentry/SentrySamplingContext.h>`, compiles again. They were removed in 9.31.0 and 9.32.0 when the types moved to Swift (#9721)
 - Skip Objective-C descriptor conformance checks for view controllers without a custom screen-name getter, avoiding potentially slow protocol walks on the main thread (#9738)
 - Reduce UIViewController tracing overhead with incremental weak-map cleanup and by skipping child-span searches when the root tracer is active (#9551)
 - Map `span` envelope items that hybrid SDKs send, such as streamed spans from sentry-dart, to the `span` data category, so rate limits and client reports for them use `span` instead of `default` (#9642)
 - Fix the `EXC_GUARD` crash in `SentrySDK.start` in apps that enable the Enhanced Security capability with additional runtime platform restrictions, by registering the Mach exception handler with the identity-protected exception behavior (#9705)
   - This changes the Mach exception message format for every app, not only apps with Enhanced Security. A crash handler installed after the SDK that forwards Mach exceptions to it by building the message itself must support `mach_exception_raise_identity_protected`; otherwise the SDK reports the crash through its signal handler instead of its Mach exception handler.
-- Session Replay no longer records an extra segment covering the time away when paused twice or stopped while paused (#9739)
 
 ### Internal
 
 - Expose `SentrySDK.internal.profiling.currentProfilerId` to hybrid SDKs so they can link their spans to Cocoa profiles (#9712)
 - Apply replay tags set by hybrid SDKs through `SentrySDK.internal.replay.setTags(_:)` to replay sessions started after the call, so the options event of a Flutter replay on iOS reports the Flutter masking options instead of the Cocoa defaults (#9732)
-- Add a screenshot provider to the `SentryObjC` internal replay API, so hybrid SDKs such as Unity can supply Session Replay frames (#9739)
 
 ## 9.35.0
 

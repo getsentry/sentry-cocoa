@@ -1,5 +1,6 @@
 #import "SentryAttachment.h"
 #import "SentryClient+Attachments.h"
+#import "SentryScope+Private.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -24,14 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 // attachments the SDK captured for the event, such as crash-time screenshots, are sent with them;
 // the beforeSendWithHint callback can still add more.
 - (void)populateHintAttachments:(SentryHint *)hint
-                          scope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                          scope:(SentryScope *)scope
           isFromPreviousProcess:(BOOL)isFromPreviousProcess
 {
-    SentryScope *typedScope = scope;
     NSMutableArray<SentryAttachment *> *allAttachments =
-        [NSMutableArray arrayWithArray:typedScope.crashReportAttachments];
+        [NSMutableArray arrayWithArray:scope.crashReportAttachments];
     if (!isFromPreviousProcess) {
-        [allAttachments addObjectsFromArray:typedScope.attachments];
+        [allAttachments addObjectsFromArray:scope.attachments];
         SentryScope *cs = [self.currentScopeStorage scope];
         if (cs != nil) {
             for (SentryAttachment *attachment in cs.attachments) {
