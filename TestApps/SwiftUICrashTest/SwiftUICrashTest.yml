@@ -6,9 +6,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -16,7 +16,8 @@ targets:
     type: application
     platform: auto
     dependencies:
-      - target: Sentry/Sentry
+      - package: Sentry
+        product: Sentry
     sources:
       # Configurations
       - path: App/Configurations
@@ -43,6 +44,9 @@ targets:
       Debug: App/Configurations/SwiftUICrashTest.xcconfig
       Release: App/Configurations/SwiftUICrashTest.xcconfig
 
+    settings:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+      GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   SwiftUICrashTest:
     build:

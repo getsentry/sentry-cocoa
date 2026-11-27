@@ -1,10 +1,6 @@
 import CoreData
 import Foundation
-#if !SDK_V10
-import SentrySwift
-#else
 import Sentry
-#endif
 import UIKit
 
 class CoreDataViewController: UITableViewController {

@@ -1,7 +1,6 @@
 {
   "globs": [
     "CHANGELOG.md",
-    "CHANGELOG_V10.md",
   ],
   "customRules": [
     "./scripts/markdownlint/changelog-no-duplicate-sections.cjs",

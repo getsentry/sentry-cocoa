@@ -55,7 +55,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
       - package: SentrySampleShared
         product: SentrySampleShared
       - target: iOS-SwiftUI-Widgets-WidgetExtension
@@ -112,6 +112,10 @@ targets:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-SwiftUI-Widgets-WidgetExtension:
     type: app-extension
     platform: iOS
@@ -138,7 +142,7 @@ targets:
           - "**/.gitkeep"
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -156,6 +160,10 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         NSHumanReadableCopyright: ""
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   iOS-SwiftUI-Widgets-LiveActivity:
     type: app-extension
     platform: iOS
@@ -185,7 +193,7 @@ targets:
           - "**/.gitkeep"
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -203,6 +211,10 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         NSHumanReadableCopyright: ""
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   iOS-SwiftUI-Widgets:
     build:

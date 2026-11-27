@@ -60,7 +60,7 @@ extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.Ev
     private func startTransaction(action: String, operation: String) -> SentryTracer {
         let context = TransactionContext(
             name: action,
-            nameSource: .component,
+            rawNameSource: SentryTransactionNameSource.component.rawValue,
             operation: operation,
             origin: SentryTraceOriginAutoUiEventTracker
         )

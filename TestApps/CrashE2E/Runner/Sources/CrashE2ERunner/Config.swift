@@ -199,6 +199,40 @@ enum Scenario: String, CaseIterable {
         }
     }
 
+    /// Whether the crash must reach the reporter through its Mach exception handler.
+    ///
+    /// These scenarios fault on a bad address, which the kernel delivers as `EXC_BAD_ACCESS`
+    /// before it becomes `SIGSEGV`. If the Mach handler fails to register or stops receiving the
+    /// exception, the signal handler still reports a `SIGSEGV`, so only the mechanism type tells
+    /// the two paths apart.
+    var expectsMachExceptionMechanism: Bool {
+        switch self {
+        case .signal, .reinitSignal, .binaryImages, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay, .memoryIntrospectionEnabled, .memoryIntrospectionDisabled,
+             .memoryIntrospectionDefault:
+            return true
+        case .managedRuntimeSignalChain, .managedRuntimeHandledSignal,
+             .managedRuntimeIgnoreNextSignalSwift, .managedRuntimeIgnoreNextSignalObjC,
+             .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal:
+            // Managed-runtime builds don't register Mach handlers for exception types the
+            // .NET runtime handles via signals (SentryCrash masks them; KSCrash drops the
+            // Mach monitor). Which handler reports here is incidental, not a contract,
+            // so don't assert either.
+            return false
+        case .mallocZoneLockedSignal:
+            // pthread_kill delivers a plain signal; no Mach exception is raised.
+            return false
+        case .harnessTimeout, .nsException, .nsExceptionRethrow, .nsExceptionSubclass,
+             .cppExceptionV1, .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow,
+             .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ignoredSignal, .sigterm,
+             .closedSignal, .closedNSException, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .crashTimeReplayAttachmentCrash:
+            // Not a bad-access crash, or no event is asserted.
+            return false
+        }
+    }
+
     var requiresKSCrash: Bool {
         self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
             || self == .ksCrashPerReportRetry

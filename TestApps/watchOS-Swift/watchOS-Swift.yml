@@ -89,6 +89,10 @@ targets:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
         WKWatchKitApp: true
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
   Extension:
     type: watchkit2-extension
     platform: auto
@@ -114,7 +118,7 @@ targets:
           - "**/.gitkeep"
     dependencies:
       - package: Sentry
-        product: SentrySPM
+        product: Sentry
       - package: SentrySampleShared
         product: SentrySampleShared
     configFiles:
@@ -140,6 +144,10 @@ targets:
           NSExtensionPointIdentifier: com.apple.watchkit
         WKExtensionDelegateClassName: $(PRODUCT_MODULE_NAME).ExtensionDelegate
         WKWatchOnly: true
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 schemes:
   watchOS-Swift WatchKit App:
     templates:

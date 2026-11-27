@@ -3,14 +3,12 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryEvent+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLogC.h"
+#    import "SentryProfilingLog.h"
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFormatter.h"
 #        import "SentryTime.h"
 #    endif // SENTRY_HAS_UIKIT
-#    import "SentrySwift.h"
 
 /**
  * Print a debug log to help diagnose slicing errors.
@@ -19,15 +17,16 @@
  * transaction's end, to accurately describe what's happening in the log statement.
  */
 void
-_sentry_logSlicingFailureWithArray(
-    NSArray<SentrySample *> *array, uint64_t startSystemTime, uint64_t endSystemTime, BOOL start)
+_sentry_logSlicingFailureWithArray(NSArray<SentryProfilingSample *> *array,
+    uint64_t startSystemTime, uint64_t endSystemTime, BOOL start)
 {
-    if (!SENTRY_CASSERT_RETURN(
-            array.count > 0, @"Should not have attempted to slice an empty array.")) {
+    if (array.count == 0) {
+        SENTRY_PROFILING_LOG_WARN(@"Should not have attempted to slice an empty array.");
+        NSCAssert(NO, @"Should not have attempted to slice an empty array.");
         return;
     }
 
-    if (![SentrySDKLog willLogAtLevel:kSentryLevelDebug]) {
+    if (![SentryProfilingLog.logger shouldLog:SentryProfilingLogLevelDebug]) {
         return;
     }
 
@@ -35,25 +34,27 @@ _sentry_logSlicingFailureWithArray(
     uint64_t lastSampleAbsoluteTime = array.lastObject.absoluteTimestamp;
     uint64_t firstSampleRelativeToTransactionStart = firstSampleAbsoluteTime - startSystemTime;
     uint64_t lastSampleRelativeToTransactionStart = lastSampleAbsoluteTime - startSystemTime;
-    SENTRY_LOG_DEBUG(@"[slice %@] Could not find any%@ sample taken during the transaction "
-                     @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
-                     @"%llu; first sample relative to transaction start: %lld; last: %lld).",
+    SENTRY_PROFILING_LOG_DEBUG(
+        @"[slice %@] Could not find any%@ sample taken during the transaction "
+        @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
+        @"%llu; first sample relative to transaction start: %lld; last: %lld).",
         start ? @"start" : @"end", start ? @"" : @" other", firstSampleAbsoluteTime,
         lastSampleAbsoluteTime, startSystemTime, endSystemTime,
         firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
 }
 
-NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
-    NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime)
+NSArray<SentryProfilingSample *> *_Nullable sentry_slicedProfileSamples(
+    NSArray<SentryProfilingSample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime)
 {
     if (samples.count == 0) {
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Finding relevant samples from %lu total.", (unsigned long)samples.count);
+    SENTRY_PROFILING_LOG_DEBUG(
+        @"Finding relevant samples from %lu total.", (unsigned long)samples.count);
 
     NSUInteger firstIndex = [samples indexOfObjectPassingTest:^BOOL(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentryProfilingSample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         *stop = sample.absoluteTimestamp >= startSystemTime;
         return *stop;
     }];
@@ -62,13 +63,13 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
         _sentry_logSlicingFailureWithArray(samples, startSystemTime, endSystemTime, /*start*/ YES);
         return nil;
     } else {
-        SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
+        SENTRY_PROFILING_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
     }
 
     NSUInteger lastIndex =
         [samples indexOfObjectWithOptions:NSEnumerationReverse
-                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                  BOOL *_Nonnull stop) {
+                              passingTest:^BOOL(SentryProfilingSample *_Nonnull sample,
+                                  NSUInteger idx, BOOL *_Nonnull stop) {
                                   *stop = sample.absoluteTimestamp <= endSystemTime;
                                   return *stop;
                               }];
@@ -77,7 +78,7 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
         _sentry_logSlicingFailureWithArray(samples, startSystemTime, endSystemTime, /*start*/ NO);
         return nil;
     } else {
-        SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
+        SENTRY_PROFILING_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
     }
 
     NSRange range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
@@ -98,15 +99,16 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
         unsigned long long timestamp = obj[@"timestamp"].unsignedLongLongValue;
 
         if (!orderedChronologically(startSystemTime, timestamp)) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
-                             @"will not report it.",
+            SENTRY_PROFILING_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
+                                       @"will not report it.",
                 timestamp, startSystemTime);
             nearestPredecessorValue = obj[@"value"];
             return;
         }
 
         if (!orderedChronologically(timestamp, endSystemTime)) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
+            SENTRY_PROFILING_LOG_DEBUG(
+                @"GPU info recorded after transaction finished, won't record.");
             return;
         }
         uint64_t relativeTimestamp = getDurationNs(startSystemTime, timestamp);

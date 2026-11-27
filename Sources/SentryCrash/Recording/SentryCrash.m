@@ -42,7 +42,7 @@
 #    import "SentryDefines.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentrySwift.h"
-#    if SWIFT_PACKAGE
+#    if SWIFT_PACKAGE && !SENTRY_BUILD_XCFRAMEWORK
 @import SentryCrashV9Swift;
 #    endif
 #    import <SentryNSDataUtils.h>
