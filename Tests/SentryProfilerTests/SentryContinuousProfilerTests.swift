@@ -1,4 +1,4 @@
-#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if !SWIFT_PACKAGE && (os(iOS) || os(macOS))
 @_spi(Private) @testable import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
@@ -73,14 +73,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
 
 #if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-
-#if !SDK_V10
-    func testDoesNotStopFramesTracker_WhenAppHangsV2Enabled() throws {
-        try performContinuousProfilingTest()
-
-        XCTAssertTrue(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
-    }
-#endif // !SDK_V10
 
     // test that receiving a background notification stops the continuous
     // profiler after it has been started manually

@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@testable import SentrySwift
-#else
 @testable import Sentry
-#endif
 import XCTest
 
 final class SentryReleaseNameTests: XCTestCase {

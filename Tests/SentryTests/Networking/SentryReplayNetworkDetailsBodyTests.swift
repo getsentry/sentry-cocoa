@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 class SentryReplayNetworkDetailsBodyTests: XCTestCase {
@@ -30,9 +26,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     }
 
     func testInit_whenV10JSONHasSensitiveTopLevelKeys_shouldFilterTheirValues() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Arrange --
         let bodyData = try JSONSerialization.data(withJSONObject: [
             "authToken": "abc123",
@@ -48,13 +41,9 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(values["authToken"] as? String, "[Filtered]")
         XCTAssertEqual(values["password"] as? String, "[Filtered]")
         XCTAssertEqual(values["name"] as? String, "Jane")
-#endif
     }
 
     func testInit_whenV10JSONHasNestedSensitiveKeys_shouldNotFilterNestedValues() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Arrange --
         let bodyData = try JSONSerialization.data(withJSONObject: [
             "profile": ["token": "nested-value"],
@@ -68,7 +57,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let values = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
         let profile = try XCTUnwrap(values["profile"] as? [String: Any])
         XCTAssertEqual(profile["token"] as? String, "nested-value")
-#endif
     }
 
     func testInit_withJSONArray_shouldParseCorrectly() throws {
@@ -80,19 +68,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let body = Body(data: bodyData, contentType: "application/json")
 
         // -- Assert --
-#if SDK_V10
         XCTAssertEqual(body?.serialize()["body"] as? String, "[Filtered]")
-#else
-        if case .json(let value) = body?.content {
-            let array = value as? [String]
-            XCTAssertEqual(array?.count, 3)
-            XCTAssertEqual(array?[0], "item1")
-            XCTAssertEqual(array?[1], "item2")
-            XCTAssertEqual(array?[2], "item3")
-        } else {
-            XCTFail("Expected .json content")
-        }
-#endif
     }
 
     func testInit_withTextData_shouldStoreAsString() {
@@ -106,11 +82,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(body)
         if case .text(let string) = body?.content {
-#if SDK_V10
             XCTAssertEqual(string, "[Filtered]")
-#else
-            XCTAssertEqual(string, bodyContent)
-#endif
         } else {
             XCTFail("Expected .text content")
         }
@@ -135,11 +107,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(body)
         if case .text(let string) = body?.content {
-#if SDK_V10
             XCTAssertEqual(string, "[Filtered]")
-#else
-            XCTAssertEqual(string, invalidJSON)
-#endif
         } else {
             XCTFail("Expected text content")
         }
@@ -181,24 +149,14 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(body)
         if case .text(let string) = body?.content {
-#if SDK_V10
             XCTAssertEqual(string, "[Filtered]")
-#else
-            XCTAssertTrue(string.hasPrefix("[Body not captured"))
-            XCTAssertTrue(string.contains("8 bytes"))
-            XCTAssertTrue(string.contains("image/png"))
-#endif
         } else {
             XCTFail("Expected text content")
         }
 
         let result = try XCTUnwrap(body?.serialize())
         let bodyString = try XCTUnwrap(result["body"] as? String)
-#if SDK_V10
         XCTAssertEqual(bodyString, "[Filtered]")
-#else
-        XCTAssertTrue(bodyString.hasPrefix("[Body not captured"))
-#endif
     }
 
     func testInit_withNilContentType_shouldCreatePlaceholder() {
@@ -211,13 +169,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(body)
         if case .text(let string) = body?.content {
-#if SDK_V10
             XCTAssertEqual(string, "[Filtered]")
-#else
-            XCTAssertTrue(string.hasPrefix("[Body not captured"))
-            XCTAssertTrue(string.contains("4 bytes"))
-            XCTAssertTrue(string.contains("unknown"))
-#endif
         } else {
             XCTFail("Expected text content")
         }
@@ -233,13 +185,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(body)
         if case .text(let string) = body?.content {
-#if SDK_V10
             XCTAssertEqual(string, "[Filtered]")
-#else
-            XCTAssertTrue(string.hasPrefix("[Body not captured"))
-            XCTAssertTrue(string.contains("application/x-custom-format"))
-            XCTAssertTrue(string.contains("9 bytes"))
-#endif
         } else {
             XCTFail("Expected text content")
         }
@@ -267,9 +213,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     }
 
     func testInit_whenV10FormHasSensitiveKeys_shouldFilterTheirValues() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Act --
         let body = try XCTUnwrap(Body(
             data: Data("sessionId=abc123&name=Jane".utf8),
@@ -280,7 +223,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let values = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
         XCTAssertEqual(values["sessionId"] as? String, "[Filtered]")
         XCTAssertEqual(values["name"] as? String, "Jane")
-#endif
     }
 
     func testInit_withFormURLEncoded_duplicateKeys_shouldPromoteToArray() throws {
@@ -296,9 +238,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     }
 
     func testInit_whenV10FormHasDuplicateSensitiveKeys_shouldFilterEveryValue() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Act --
         let body = try XCTUnwrap(Body(
             data: Data("token=first&token=second&name=Jane".utf8),
@@ -309,7 +248,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let values = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
         XCTAssertEqual(values["token"] as? [String], ["[Filtered]", "[Filtered]"])
         XCTAssertEqual(values["name"] as? String, "Jane")
-#endif
     }
 
     func testInit_withFormURLEncoded_emptyValue_shouldParseAsEmptyString() throws {
@@ -335,11 +273,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         let serialized = body.serialize()
         let text = try XCTUnwrap(serialized["body"] as? String)
-#if SDK_V10
         XCTAssertEqual(text, "[Filtered]")
-#else
-        XCTAssertEqual(text, "field1=value1&malformed&field2=value2")
-#endif
         let warnings = try XCTUnwrap(serialized["warnings"] as? [String])
         XCTAssertTrue(warnings.contains("BODY_PARSE_ERROR"))
     }
@@ -367,11 +301,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
         XCTAssertEqual(dict["query"] as? String, "a=1")
-#if SDK_V10
         XCTAssertEqual(dict["token"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(dict["token"] as? String, "abc")
-#endif
     }
 
     func testInit_withFormURLEncoded_plusAsSpace_shouldDecode() throws {
@@ -402,9 +332,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     }
 
     func testInit_whenV10BodyIsNotKeyValueStructure_shouldFilterEntireBody() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         let bodies: [(Data, String?)] = [
             (Data("{ invalid json }".utf8), "application/json"),
             (try JSONSerialization.data(withJSONObject: ["item1", "item2"]), "application/json"),
@@ -422,7 +349,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
             let body = try XCTUnwrap(Body(data: data, contentType: contentType))
             XCTAssertEqual(body.serialize()["body"] as? String, "[Filtered]")
         }
-#endif
     }
 
     // MARK: - Multi-byte Truncation
@@ -438,60 +364,36 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let cjk = Data("你好".utf8)
         XCTAssertEqual(cjk.count, 6)
         let body1 = try XCTUnwrap(Body(data: cjk.prefix(5), contentType: "text/plain; charset=utf-8"))
-#if SDK_V10
         XCTAssertEqual(body1.serialize()["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(body1.serialize()["body"] as? String, "你")
-#endif
 
         // -- dropLast(2): 3-byte char split after 1 byte --
         // prefix(4) cuts second char after 1 of 3 bytes
         let body2 = try XCTUnwrap(Body(data: cjk.prefix(4), contentType: "text/plain; charset=utf-8"))
-#if SDK_V10
         XCTAssertEqual(body2.serialize()["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(body2.serialize()["body"] as? String, "你")
-#endif
 
         // -- dropLast(3): 4-byte emoji split after 1 byte --
         // "A😀" = 1 + 4 = 5 bytes; prefix(2) cuts emoji after 1 of 4 bytes
         let emoji = Data("A😀".utf8)
         XCTAssertEqual(emoji.count, 5)
         let body3 = try XCTUnwrap(Body(data: emoji.prefix(2), contentType: "text/plain; charset=utf-8"))
-#if SDK_V10
         XCTAssertEqual(body3.serialize()["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(body3.serialize()["body"] as? String, "A")
-#endif
 
         // -- no truncation needed: clean boundary --
         // prefix(3) is exactly "你", no bytes to drop
         let body4 = try XCTUnwrap(Body(data: cjk.prefix(3), contentType: "text/plain; charset=utf-8"))
-#if SDK_V10
         XCTAssertEqual(body4.serialize()["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(body4.serialize()["body"] as? String, "你")
-#endif
 
         // -- pure ASCII: never affected --
         let ascii = Data("hello".utf8)
         let body5 = try XCTUnwrap(Body(data: ascii.prefix(3), contentType: "text/plain; charset=utf-8"))
-#if SDK_V10
         XCTAssertEqual(body5.serialize()["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(body5.serialize()["body"] as? String, "hel")
-#endif
 
         // -- 2-byte char split after 1 byte --
         // "Aé" = 1 + 2 = 3 bytes; prefix(2) cuts "é" after 1 of 2 bytes
         let accented = Data("Aé".utf8)
         XCTAssertEqual(accented.count, 3)
         let body6 = try XCTUnwrap(Body(data: accented.prefix(2), contentType: "text/plain; charset=utf-8"))
-#if SDK_V10
         XCTAssertEqual(body6.serialize()["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(body6.serialize()["body"] as? String, "A")
-#endif
     }
 
     // MARK: - Serialization Tests
@@ -507,11 +409,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(result)
-#if SDK_V10
         XCTAssertEqual(result?["body"] as? String, "[Filtered]")
-#else
-        XCTAssertEqual(result?["body"] as? String, bodyContent)
-#endif
     }
 
     func testSerialize_withJSONDictionary_shouldReturnDictionary() throws {
@@ -539,13 +437,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let result = try XCTUnwrap(body?.serialize())
 
         // -- Assert --
-#if SDK_V10
         XCTAssertEqual(result["body"] as? String, "[Filtered]")
-#else
-        let bodyArray = try XCTUnwrap(result["body"] as? NSArray, "Expected body to be NSArray")
-        XCTAssertEqual(bodyArray.count, 3)
-        XCTAssertEqual(bodyArray[0] as? String, "item1")
-#endif
     }
 
     func testSerialize_withNoContentType_shouldCreatePlaceholder() {
@@ -560,11 +452,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(result)
         let bodyString = result?["body"] as? String
-#if SDK_V10
         XCTAssertEqual(bodyString, "[Filtered]")
-#else
-        XCTAssertTrue(bodyString?.hasPrefix("[Body not captured") == true)
-#endif
     }
 
     // MARK: - parseMimeAndEncoding

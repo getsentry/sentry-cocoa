@@ -1,9 +1,5 @@
 #if SWIFT_PACKAGE
-#if !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 #else
 @_spi(Private) import Sentry
 #endif
@@ -20,11 +16,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         let disabled = try Options(dictionary: base.merging(["enableScopePersistence": false]) { _, value in value })
 
         // -- Assert --
-        #if SDK_V10
         XCTAssertTrue(defaults.enableScopePersistence)
-        #else
-        XCTAssertFalse(defaults.enableScopePersistence)
-        #endif
         XCTAssertTrue(enabled.enableScopePersistence)
         XCTAssertFalse(disabled.enableScopePersistence)
     }
@@ -76,25 +68,6 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertFalse(disabled.enableDataSwizzling)
     }
 
-    func testInitWithDictionary_whenStandaloneAppStartTracingConfigured_shouldUseBooleanValue() throws {
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
-        // -- Arrange --
-        let base: [String: Any] = ["dsn": "https://username:password@sentry.io/1"]
-
-        // -- Act --
-        let defaults = try Options(dictionary: base)
-        let enabled = try Options(dictionary: base.merging(["enableStandaloneAppStartTracing": true]) { _, value in value })
-        let disabled = try Options(dictionary: base.merging(["enableStandaloneAppStartTracing": false]) { _, value in value })
-
-        // -- Assert --
-        XCTAssertFalse(defaults.enableStandaloneAppStartTracing)
-        XCTAssertTrue(enabled.enableStandaloneAppStartTracing)
-        XCTAssertFalse(disabled.enableStandaloneAppStartTracing)
-        #else
-        throw XCTSkip("Standalone app start tracing is not available on this platform or SDK version")
-        #endif
-    }
-
     func testInitWithDictionary_whenAttachAllThreadsIsBridgedValue_shouldApplyValueOrKeepDefault() throws {
         // -- Arrange --
         let cases: [(value: Any, expected: Bool)] = [
@@ -139,32 +112,6 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         }
     }
 
-    func testInitWithDictionary_whenStandaloneAppStartTracingIsBridgedValue_shouldApplyValueOrKeepDefault() throws {
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
-        // -- Arrange --
-        let cases: [(value: Any, expected: Bool)] = [
-            (NSNumber(value: 1), true),
-            (NSNumber(value: 0), false),
-            ("true", true),
-            ("false", false),
-            (NSNull(), false)
-        ]
-
-        for testCase in cases {
-            // -- Act --
-            let options = try Options(dictionary: [
-                "dsn": "https://username:password@sentry.io/1",
-                "enableStandaloneAppStartTracing": testCase.value
-            ])
-
-            // -- Assert --
-            XCTAssertEqual(options.enableStandaloneAppStartTracing, testCase.expected, "Value: \(testCase.value)")
-        }
-        #else
-        throw XCTSkip("Standalone app start tracing is not available on this platform or SDK version")
-        #endif
-    }
-
     func testInitWithDictionary_whenValidValues_shouldPopulateOptions() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [
@@ -190,9 +137,6 @@ final class SentryOptionsDictionaryTests: XCTestCase {
     }
 
     func testInitWithDictionary_whenBeforeSendTransactionIsBlock_shouldSetCallback() throws {
-    #if !SDK_V10
-        throw XCTSkip("Test is only valid for SDK v10 and above")
-    #else
         // -- Arrange --
         let callback: @convention(block) (Transaction, Hint) -> Transaction? = { transaction, _ in transaction }
 
@@ -204,7 +148,6 @@ final class SentryOptionsDictionaryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(options.beforeSendTransaction)
-    #endif // SDK_V10
     }
 
 #if canImport(WebKit) && (os(iOS) || os(macOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

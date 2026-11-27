@@ -1,7 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-#if SDK_V10
 enum HTTPHeaderSanitizer {
 
     // MARK: - Types
@@ -141,18 +140,4 @@ enum HTTPHeaderSanitizer {
         return result.isEmpty ? nil : result
     }
 }
-#else
-@objcMembers
-@_spi(Private) public final class HTTPHeaderSanitizer: NSObject {
-    public static func sanitizeHeaders(_ headers: [String: String]) -> [String: String] {
-        let _securityHeaders = Set([
-            "X-FORWARDED-FOR", "AUTHORIZATION", "COOKIE", "SET-COOKIE", "X-API-KEY", "X-REAL-IP",
-            "REMOTE-ADDR", "FORWARDED", "PROXY-AUTHORIZATION", "X-CSRF-TOKEN", "X-CSRFTOKEN",
-            "X-XSRF-TOKEN"
-        ])
-
-        return headers.filter { !_securityHeaders.contains($0.key.uppercased()) }
-    }
-}
-#endif // SDK_V10
 // swiftlint:enable missing_docs

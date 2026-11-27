@@ -29,18 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableNewURLLoaderSwizzling;
 
-#if !SDK_V10
-/**
- * When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
- * @deprecated This option will be removed in v10, where the improved watchdog termination tracking
- * mechanism is enabled by default.
- */
-@property (nonatomic) BOOL enableWatchdogTerminationsV2
-    __attribute__((deprecated("enableWatchdogTerminationsV2 is deprecated and will be removed in "
-                              "v10, where the improved watchdog termination tracking mechanism is "
-                              "enabled by default.")));
-#endif
-
 /**
  * Reduces SDK start overhead by swizzling each @c UIViewController subclass lazily, the first time
  * an instance of it is created, instead of eagerly discovering and swizzling every subclass when

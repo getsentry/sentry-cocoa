@@ -1,11 +1,7 @@
 // swiftlint:disable file_length
 
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -128,9 +124,6 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
         sut.deleteAppState()
-        #if !SDK_V10
-        sut.deleteAbnormalSession()
-        #endif // !SDK_V10
         SentryDependencyContainer.sharedInstance().dateProvider = originalDateProvider
     }
     
@@ -692,21 +685,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(actualSession.pendingUnhandled)
     }
 
-#if !SDK_V10
-    func testStoreAndReadAbnormalSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
-        // -- Arrange --
-        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
-        expectedSession.markPendingUnhandled()
-
-        // -- Act --
-        sut.storeAbnormalSession(expectedSession)
-        let actualSession = try XCTUnwrap(sut.readAbnormalSession())
-
-        // -- Assert --
-        XCTAssertTrue(actualSession.pendingUnhandled)
-    }
-#endif // !SDK_V10
-
     func testStoreAndReadCrashedSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
         // -- Arrange --
         let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
@@ -733,81 +711,6 @@ class SentryFileManagerTests: XCTestCase {
         let actualSession = sut.readCrashedSession()
         XCTAssertNil(actualSession)
     }
-    
-    #if !SDK_V10
-    func testStoreAbnormalSession() throws {
-        // Arrange
-        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
-        session.abnormalMechanism = "anr_foreground"
-        
-        // Act
-        sut.storeAbnormalSession(session)
-        
-        // Assert
-        let actualSession = try XCTUnwrap(sut.readAbnormalSession())
-        
-        // Only assert a few properties. SentrySessionTests tests the serialization
-        XCTAssertEqual(session.sessionId, actualSession.sessionId)
-        XCTAssertEqual(session.distinctId, actualSession.distinctId)
-        XCTAssertEqual(session.releaseName, actualSession.releaseName)
-        XCTAssertEqual(session.abnormalMechanism, actualSession.abnormalMechanism)
-    }
-    
-    func testDeleteAbnormalSession() throws {
-        // Arrange
-        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
-        session.abnormalMechanism = "anr_foreground"
-        sut.storeAbnormalSession(session)
-        
-        // Act
-        sut.deleteAbnormalSession()
-        
-        // Assert
-        XCTAssertNil(sut.readAbnormalSession())
-    }
-    
-    func testDeleteAbnormalSession_WhenNoAbnormalSessionStored_DoesNotCrash() throws {
-        sut.deleteAbnormalSession()
-    }
-    
-    func testReadAbnormalSession_NoSessionStored() throws {
-        XCTAssertNil(sut.readAbnormalSession())
-    }
-    
-    func testAbnormalSessionAsync_DoesNotCrash() {
-        // Arrange
-
-        // Using 100 iterations because it's still enough to find race conditions and
-        // synchronization issues that could lead to crashes, but it's small enough to not
-        // time out in CI.
-        // If you want to use this to find synchronization issues, you should increase the number of iterations.
-        let iterations = 100
-        let expectation = expectation(description: "complete all abnormal session interactions")
-        expectation.expectedFulfillmentCount = iterations * 3
-        let dispatchQueue = DispatchQueue(label: "testAbnormalSessionAsync_DoesNotCrash", qos: .userInitiated, attributes: [.concurrent])
-        
-        // Act
-        for _ in 0..<iterations {
-            dispatchQueue.async {
-                self.sut.storeAbnormalSession(SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
-                expectation.fulfill()
-            }
-            
-            dispatchQueue.async {
-                _ = self.sut.readAbnormalSession()
-                expectation.fulfill()
-            }
-            
-            dispatchQueue.async {
-                self.sut.deleteAbnormalSession()
-                expectation.fulfill()
-            }
-        }
-        
-        // Assert
-        waitForExpectations(timeout: 10)
-    }
-    #endif // !SDK_V10
     
     func testStoreAndReadTimestampLastInForeground() {
         let expectedTimestamp = TestCurrentDateProvider().date()
@@ -970,87 +873,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
     
-    #if !SDK_V10
-    func testStoreWriteAppHangEvent() throws {
-        // Arrange
-        let event = TestData.event
-        sut.storeAppHang(event)
-        
-        // Act
-        let actualEvent = try XCTUnwrap(sut.readAppHangEvent())
-        
-        // Assert
-        XCTAssertEqual(event.eventId, actualEvent.eventId)
-        XCTAssertEqual(event.timestamp, actualEvent.timestamp)
-        XCTAssertEqual(event.level, actualEvent.level)
-        XCTAssertEqual(event.message?.message, actualEvent.message?.message)
-        XCTAssertEqual(event.platform, actualEvent.platform)
-    }
-
-    func testReadAppHangEvent_WhenNoAppHangEvent_ReturnsNil() {
-        XCTAssertNil(sut.readAppHangEvent())
-    }
-
-    func testReadAppHangEvent_WithGarbage_ReturnsNil() throws {
-        // Arrange
-        let fileManager = FileManager.default
-        let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
-        
-        fileManager.createFile(atPath: appHangEventFilePath, contents: Data("garbage".utf8), attributes: nil)
-
-        // Act
-        XCTAssertNil(sut.readAppHangEvent())
-    }
-    
-    func testStoreAppHangEvent_WithInvalidJSON_ReturnsNil() {
-        // Arrange
-        let event = TestData.event
-        event.message = SentryMessage(formatted: SentryInvalidJSONString() as String)
-        
-        // Act
-        sut.storeAppHang(event)
-        
-        // Assert
-        XCTAssertNil(sut.readAppHangEvent())
-    }
-    
-    func testAppHangEventExists_WithStoredEvent_ReturnsTrue() throws {
-        // Arrange
-        let event = TestData.event
-        sut.storeAppHang(event)
-        
-        // Act && Assert
-        XCTAssertTrue(sut.appHangEventExists())
-    }
-    
-    func testAppHangEventExists_WithNoStoredEvent_ReturnsFalse() throws {
-        // Act && Assert
-        XCTAssertFalse(sut.appHangEventExists())
-    }
-    
-    func testAppHangEventExists_WithGarbage_ReturnsTrue() throws {
-        // Arrange
-        let fileManager = FileManager.default
-        let appHangEventFilePath = sut.appHangEventFilePath
-        
-        fileManager.createFile(atPath: appHangEventFilePath, contents: Data("garbage".utf8), attributes: nil)
-
-        // Act && Assert
-        XCTAssertTrue(sut.appHangEventExists())
-    }
-
-    func testDeleteAppHangEvent() {
-        // Arrange
-        sut.storeAppHang(TestData.event)
-        
-        // Act
-        sut.deleteAppHangEvent()
-        
-        // Assert
-        XCTAssertNil(sut.readAppHangEvent())
-    }
-    #endif // !SDK_V10
-
     func testSentryPathFromOptionsCacheDirectoryPath() throws {
         fixture.options.cacheDirectoryPath = "/var/tmp"
         sut = try fixture.getSut()

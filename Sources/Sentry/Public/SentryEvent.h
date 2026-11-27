@@ -6,9 +6,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 #import SENTRY_HEADER(SentryLevel)
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,11 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryUser;
 
 NS_SWIFT_NAME(Event)
-#if SDK_V10
 @interface SentryEvent : NSObject
-#else
-@interface SentryEvent : NSObject <SentrySerializable>
-#endif // SDK_V10
 
 /**
  * This will be set by the initializer.

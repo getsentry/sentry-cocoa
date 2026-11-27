@@ -1,10 +1,6 @@
 import Foundation
 
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 
 @testable import SentryObjCCompat
 import XCTest
@@ -14,11 +10,7 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
     func testEnableScopePersistence_whenSetThroughObjCOptions_shouldUpdateSDKOptions() {
         // -- Arrange --
         let options = SentryObjCOptions()
-        #if SDK_V10
         XCTAssertTrue(options.enableScopePersistence)
-        #else
-        XCTAssertFalse(options.enableScopePersistence)
-        #endif
 
         // -- Act --
         options.enableScopePersistence = false
@@ -50,7 +42,7 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
         XCTAssertEqual(options.wrapped.experimental.metrickit.hangReportingMode, .legacy)
     }
 
-    #if SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func testPrivacy_whenWrapperIsModified_shouldUpdateBaseOptions() {
         // -- Arrange --
         let options = Options()
@@ -81,7 +73,7 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
         XCTAssertFalse(options.privacy.maskAllText)
         XCTAssertTrue(privacy.maskAllText)
     }
-    #endif // SDK_V10 && UI platforms
+    #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     override func tearDown() {
         SentryObjCSDK.close()
@@ -89,9 +81,6 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
     }
 
     func testBeforeSendTransaction_whenTransactionFinishes_shouldReceiveTransactionAndHint() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let callbackInvoked = expectation(description: "beforeSendTransaction invoked")
         var receivedTransaction: SentryObjCTransaction?
@@ -117,13 +106,9 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
         XCTAssertEqual(hint.attachments.map(\.filename), ["scope.txt"])
         XCTAssertNil(hint.originalError)
         XCTAssertNil(hint.originalException)
-#endif // !SDK_V10
     }
 
     func testBeforeSendTransaction_whenCallbackEditsHintAttachments_shouldApplyToWrappedHint() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let callbackInvoked = expectation(description: "beforeSendTransaction invoked")
         var receivedWrappedHint: Hint?
@@ -144,13 +129,9 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
         // -- Assert --
         wait(for: [callbackInvoked], timeout: 5)
         XCTAssertEqual(try XCTUnwrap(receivedWrappedHint).attachments.map(\.filename), ["hint.txt"])
-#endif // !SDK_V10
     }
 
     func testBeforeSendTransaction_whenSetToNil_shouldClearWrappedCallback() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for non SDK_V10")
-#else
         // -- Arrange --
         let options = SentryObjCOptions()
         options.beforeSendTransaction = { transaction, _ in transaction }
@@ -161,10 +142,8 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(options.wrapped.beforeSendTransaction)
-#endif // !SDK_V10
     }
 
-#if SDK_V10
     private func startSDK(
         beforeSendTransaction: @escaping (SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?
     ) {
@@ -177,5 +156,4 @@ final class SentryObjCCompatOptionsTests: XCTestCase {
             options.beforeSendTransaction = beforeSendTransaction
         }
     }
-#endif // SDK_V10
 }

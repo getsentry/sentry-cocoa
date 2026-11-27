@@ -1,8 +1,6 @@
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
-#if SDK_V10
 internal import KSCrashRecording
-#endif
 import Foundation
 
 /// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).

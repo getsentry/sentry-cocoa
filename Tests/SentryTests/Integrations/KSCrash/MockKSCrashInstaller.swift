@@ -1,11 +1,7 @@
 @_spi(Private) import SentryTestUtils
-import _SentryPrivate
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 internal import KSCrashRecording
+import _SentryPrivate
 
 final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
     typealias Installing = MockKSCrashInstaller

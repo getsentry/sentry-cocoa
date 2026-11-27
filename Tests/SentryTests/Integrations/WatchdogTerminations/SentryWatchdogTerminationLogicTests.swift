@@ -1,11 +1,7 @@
 #if os(iOS) || os(tvOS)
 
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -341,23 +337,6 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     }
     
     // MARK: - ANR Ongoing
-    
-    #if !SDK_V10
-    func testIsWatchdogTermination_whenANROngoing_shouldReturnFalse() {
-        // -- Arrange --
-        let previousAppState = fixture.createAppState()
-        previousAppState.isANROngoing = true
-        fixture.storePreviousAppState(previousAppState)
-        let currentAppState = fixture.createAppState()
-        let sut = fixture.getSut(customCurrentAppState: currentAppState)
-        
-        // -- Act --
-        let result = sut.isWatchdogTermination()
-        
-        // -- Assert --
-        XCTAssertFalse(result)
-    }
-    #endif // !SDK_V10
     
     // MARK: - SDK Started Multiple Times
     

@@ -183,17 +183,6 @@ NS_ASSUME_NONNULL_BEGIN
     return crumbs;
 }
 
-#if !SDK_V10
-- (BOOL)isAppHangEvent
-{
-    return self.exceptions.count == 1 &&
-        [SentryAppHangTypeMapper
-            isExceptionTypeAppHangWithExceptionType:SENTRY_UNWRAP_NULLABLE(
-                                                        NSString, self.exceptions.firstObject)
-                                                        .type];
-}
-#endif // !SDK_V10
-
 @end
 
 NS_ASSUME_NONNULL_END

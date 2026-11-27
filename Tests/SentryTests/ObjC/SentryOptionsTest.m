@@ -157,11 +157,7 @@
 
 - (void)testInvalidDiagnosticLevel
 {
-#if SDK_V10
     SentryLevel defaultDiagnosticLevel = kSentryLevelWarning;
-#else
-    SentryLevel defaultDiagnosticLevel = kSentryLevelDebug;
-#endif // SDK_V10
     [self testDiagnosticlevelWith:@"fatala" expected:defaultDiagnosticLevel];
     [self testDiagnosticlevelWith:@(YES) expected:defaultDiagnosticLevel];
 }
@@ -226,31 +222,13 @@
 
 - (void)testInitWithDictionary_whenFileManagerSwizzlingIsConfigured_shouldApplyValue
 {
-#if SDK_V10
     [self testBooleanField:@"enableFileManagerSwizzling" defaultValue:YES];
-#else
-    [self testBooleanField:@"enableFileManagerSwizzling" defaultValue:NO];
-#endif // SDK_V10
 }
 
 - (void)testEnableNetworkBreadcrumbs
 {
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
-
-#if !SDK_V10
-- (void)testEnableLogs
-{
-    [self testBooleanField:@"enableLogs" defaultValue:NO];
-}
-#endif // !SDK_V10
-
-#if !SDK_V10
-- (void)testEnableMetrics
-{
-    [self testBooleanField:@"enableMetrics" defaultValue:YES];
-}
-#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking
 {
@@ -573,39 +551,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(nil, options.beforeBreadcrumb);
 }
 
-#if !SDK_V10
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testOnCrashedLastRun
-{
-    __block BOOL onCrashedLastRunCalled = NO;
-    SentryOnCrashedLastRunCallback callback = ^(SentryEvent *event) {
-        onCrashedLastRunCalled = YES;
-        XCTAssertNotNil(event);
-    };
-    SentryOptions *options = [self getValidOptions:@{ @"onCrashedLastRun" : callback }];
-
-    options.onCrashedLastRun([[SentryEvent alloc] init]);
-
-    XCTAssertTrue(onCrashedLastRunCalled);
-}
-
-- (void)testDefaultOnCrashedLastRun
-{
-    SentryOptions *options = [self getValidOptions:@{ }];
-
-    XCTAssertNil(options.onCrashedLastRun);
-}
-
-- (void)testGarbageOnCrashedLastRun_ReturnsNil
-{
-    SentryOptions *options = [self getValidOptions:@{ @"onCrashedLastRun" : @"fault" }];
-
-    XCTAssertNil(options.onCrashedLastRun);
-}
-#    pragma clang diagnostic pop
-#endif
-
 - (void)testOnLastRunStatus
 {
     void (^callback)(NSInteger, SentryEvent *_Nullable)
@@ -743,9 +688,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"beforeSend" : [NSNull null],
         @"beforeSendLog" : [NSNull null],
         @"beforeBreadcrumb" : [NSNull null],
-#if !SDK_V10
-        @"onCrashedLastRun" : [NSNull null],
-#endif
         @"integrations" : [NSNull null],
         @"sampleRate" : [NSNull null],
         @"enableAutoSessionTracking" : [NSNull null],
@@ -753,18 +695,12 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"sessionTrackingIntervalMillis" : [NSNull null],
         @"attachStacktrace" : [NSNull null],
         @"maxAttachmentSize" : [NSNull null],
-#if !SDK_V10
-        @"sendDefaultPii" : [NSNull null],
-#endif // !SDK_V10
         @"enableAutoPerformanceTracing" : [NSNull null],
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracing" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
         @"sessionReplay" : [NSNull null],
 #endif // SENTRY_HAS_UIKIT
-#if !SDK_V10
-        @"enableAppHangTracking" : [NSNull null],
-#endif // !SDK_V10
         @"appHangTimeoutInterval" : [NSNull null],
         @"enableNetworkTracking" : [NSNull null],
         @"enableAutoBreadcrumbTracking" : [NSNull null],
@@ -785,9 +721,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"enableTimeToFullDisplayTracing" : [NSNull null],
         @"enableTracing" : [NSNull null],
         @"swiftAsyncStacktraces" : [NSNull null],
-#if SDK_V10
         @"dataCollection" : [NSNull null],
-#endif // SDK_V10
         @"spotlightUrl" : [NSNull null]
     }
                                                       didFailWithError:nil];
@@ -801,11 +735,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
-#if SDK_V10
     XCTAssertEqual(kSentryLevelWarning, options.diagnosticLevel);
-#else
-    XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
-#endif // SDK_V10
     XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
     XCTAssertNil(options.dist);
     XCTAssertEqual(100, options.maxBreadcrumbs);
@@ -815,12 +745,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertTrue([[self getDefaultCacheDirectoryPath] isEqualToString:options.cacheDirectoryPath]);
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
-#if !SDK_V10
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertNil(options.onCrashedLastRun);
-#    pragma clang diagnostic pop
-#endif
     XCTAssertNil(options.onLastRunStatusDetermined);
     XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
@@ -828,9 +752,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
-#if !SDK_V10
-    XCTAssertEqual(NO, options.sendDefaultPii);
-#endif // !SDK_V10
     XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracing);
@@ -845,9 +766,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
 #    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #endif // SENTRY_HAS_UIKIT
-#if !SDK_V10
-    XCTAssertTrue(options.enableAppHangTracking);
-#endif // !SDK_V10
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -859,16 +777,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqualObjects([[NSSet alloc] init], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
-#if SDK_V10
     XCTAssertTrue(options.swiftAsyncStacktraces);
-#else
-    XCTAssertFalse(options.swiftAsyncStacktraces);
-#endif // SDK_V10
 
 #if SENTRY_HAS_METRIC_KIT
-#    if !SDK_V10
-    XCTAssertEqual(NO, options.enableMetricKit);
-#    endif // !SDK_V10
     XCTAssertEqual(NO, options.enableMetricKitRawPayload);
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -959,13 +870,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
 }
 
-#if !SDK_V10
-- (void)testSendDefaultPii
-{
-    [self testBooleanField:@"sendDefaultPii" defaultValue:NO];
-}
-#endif // !SDK_V10
-
 - (void)testEnableAutoPerformanceTracing
 {
     [self testBooleanField:@"enableAutoPerformanceTracing"];
@@ -1049,34 +953,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 #if SENTRY_HAS_METRIC_KIT
 
-#    if !SDK_V10
-- (void)testEnableMetricKit
-{
-    [self testBooleanField:@"enableMetricKit" defaultValue:NO];
-}
-#    endif // !SDK_V10
-
 - (void)testenableMetricKitRawPayload
 {
     [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
 }
 #endif // SENTRY_HAS_METRIC_KIT
-
-#if !SDK_V10
-- (void)testEnableAppHangTracking
-{
-    [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
-}
-#endif // !SDK_V10
-
-#if SENTRY_UIKIT_AVAILABLE && !SDK_V10
-
-- (void)testEnableReportNonFullyBlockingAppHangs
-{
-    [self testBooleanField:@"enableReportNonFullyBlockingAppHangs" defaultValue:YES];
-}
-
-#endif // SENTRY_UIKIT_AVAILABLE && !SDK_V10
 
 - (void)testDefaultAppHangsTimeout
 {
@@ -1342,21 +1223,13 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 - (void)testDefaultSwiftAsyncStacktraces
 {
     SentryOptions *options = [[SentryOptions alloc] init];
-#if SDK_V10
     XCTAssertTrue(options.swiftAsyncStacktraces);
-#else
-    XCTAssertFalse(options.swiftAsyncStacktraces);
-#endif // SDK_V10
 }
 
 - (void)testInitialSwiftAsyncStacktraces
 {
     SentryOptions *options = [self getValidOptions:@{ }];
-#if SDK_V10
     XCTAssertTrue(options.swiftAsyncStacktraces);
-#else
-    XCTAssertFalse(options.swiftAsyncStacktraces);
-#endif // SDK_V10
 }
 
 - (void)testInitialSwiftAsyncStacktracesYes
@@ -1381,23 +1254,6 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     SentryOptions *options3 = [self getValidOptions:@{ @"spotlightUrl" : @2 }];
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
 }
-
-#if SENTRY_HAS_UIKIT && !SDK_V10
-- (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"enableAppHangTracking" : @NO }];
-    XCTAssertTrue(options.isAppHangTrackingDisabled);
-}
-
-- (void)testIsAppHangTrackingDisabled_WhenAppHangTimeoutIntervalZero
-{
-    // Setting appHangTimeoutInterval to 0 is invalid and resets it to the default, so it does not
-    // disable app hang tracking.
-    SentryOptions *options =
-        [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertFalse(options.isAppHangTrackingDisabled);
-}
-#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 #pragma mark - Strict Trace Continuation
 

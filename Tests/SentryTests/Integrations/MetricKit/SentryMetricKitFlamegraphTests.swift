@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -16,9 +12,6 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
@@ -71,9 +64,6 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
@@ -106,9 +96,6 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
         let options = Options()
-        #if !SDK_V10
-        options.enableMetricKit = true
-        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer { sut.uninstall() }
         let diagnostic = TestMXHangDiagnostic()

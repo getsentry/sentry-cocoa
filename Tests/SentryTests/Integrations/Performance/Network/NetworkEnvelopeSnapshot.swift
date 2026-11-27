@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import SentryTestUtilsObjC
 import XCTest
 
@@ -68,11 +64,7 @@ struct NetworkEnvelopeSnapshot {
 #else
 #error("Missing platform-specific network envelope snapshot")
 #endif
-#if SDK_V10
         return "\(platformResource)-v10"
-#else
-        return platformResource
-#endif
     }
 
     static func assertMatches(

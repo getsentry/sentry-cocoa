@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import Foundation
 import XCTest
 
@@ -770,51 +766,6 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(invocation.metric.traceId, traceId)
     }
 
-    #if !SDK_V10
-    // MARK: - Deprecated key-based API
-
-    @available(*, deprecated, message: "Testing the deprecated key-based API")
-    func testDeprecatedKeyBasedApi_shouldForwardToOptionsApi() throws {
-        // -- Arrange --
-        let dependencies = MockMetricsApiDependencies(
-            isSDKEnabled: true,
-            scope: scope,
-            metricsIntegration: MockMetricsIntegration()
-        )
-        let sut: SentryMetricsApiProtocol = SentryMetricsApi(dependencies: dependencies)
-
-        // -- Act --
-        sut.count(key: "test.count", value: 2, attributes: ["a": "b"])
-        sut.distribution(key: "test.distribution", value: 3, unit: .millisecond, attributes: ["c": 1])
-        sut.gauge(key: "test.gauge", value: 4, unit: .byte, attributes: ["d": true])
-
-        // -- Assert --
-        let metrics = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.invocations.map(\.metric))
-        XCTAssertEqual(metrics.map(\.name), ["test.count", "test.distribution", "test.gauge"])
-        XCTAssertEqual(metrics.map(\.value), [.counter(2), .distribution(3), .gauge(4)])
-        XCTAssertEqual(metrics.map(\.unit), [nil, .millisecond, .byte])
-        XCTAssertEqual(metrics[0].attributes["a"]?.anyValue as? String, "b")
-        XCTAssertEqual(metrics[1].attributes["c"]?.anyValue as? Int, 1)
-        XCTAssertEqual(metrics[2].attributes["d"]?.anyValue as? Bool, true)
-    }
-
-    @available(*, deprecated, message: "Testing the deprecated key-based API")
-    func testLegacyConformer_optionsApi_shouldFallBackToKeyBasedRequirements() throws {
-        // -- Arrange --
-        let sut = LegacyMetricsApi()
-
-        // -- Act --
-        sut.count("test.count", value: 2, options: SentryMetricOptions(attributes: ["a": "b"]))
-        sut.distribution("test.distribution", value: 3, options: SentryMetricOptions(unit: .millisecond))
-        sut.gauge("test.gauge", value: 4)
-
-        // -- Assert --
-        XCTAssertEqual(sut.invocations.map(\.key), ["test.count", "test.distribution", "test.gauge"])
-        XCTAssertEqual(sut.invocations.map(\.value), [2, 3, 4])
-        XCTAssertEqual(sut.invocations.map(\.unit), [nil, .millisecond, nil])
-        XCTAssertEqual(sut.invocations[0].attributes["a"] as? String, "b")
-    }
-    #endif // !SDK_V10
 }
 
 // MARK: - Mock Dependencies
@@ -847,23 +798,3 @@ fileprivate struct MockMetricsApiDependencies: SentryMetricsApiDependencies {
         self.metricsIntegration = metricsIntegration
     }
 }
-
-#if !SDK_V10
-/// A conformer written before the options-based requirements existed.
-@available(*, deprecated, message: "Testing the deprecated key-based API")
-fileprivate final class LegacyMetricsApi: SentryMetricsApiProtocol {
-    var invocations: [(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue])] = []
-
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
-        invocations.append((key, Double(value), nil, attributes))
-    }
-
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        invocations.append((key, value, unit, attributes))
-    }
-
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        invocations.append((key, value, unit, attributes))
-    }
-}
-#endif // !SDK_V10

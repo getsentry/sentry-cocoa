@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
@@ -48,20 +44,6 @@ import UIKit
     @objc public func disableOnShake() {
         wrapped.disableOnShake()
     }
-
-#if !SDK_V10
-    @available(iOSApplicationExtension, unavailable)
-    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
-    @objc public func showWidget() {
-        wrapped.showWidget()
-    }
-
-    @available(iOSApplicationExtension, unavailable)
-    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
-    @objc public func hideWidget() {
-        wrapped.hideWidget()
-    }
-#endif
 
     private func wrappedConfigure(
         _ configure: ((SentryObjCUserFeedbackConfiguration) -> Void)?

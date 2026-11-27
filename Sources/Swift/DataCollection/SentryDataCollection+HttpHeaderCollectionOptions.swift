@@ -1,4 +1,3 @@
-#if SDK_V10
 extension SentryDataCollection {
     /// Controls HTTP header collection independently for request and response directions.
     ///
@@ -45,4 +44,3 @@ extension SentryDataCollection {
         }
     }
 }
-#endif // SDK_V10

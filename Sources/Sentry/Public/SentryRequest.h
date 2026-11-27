@@ -5,34 +5,20 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if SDK_V10
 @interface SentryRequest : NSObject
-#else
-@interface SentryRequest : NSObject <SentrySerializable>
-#endif // SDK_V10
 
 /**
  * Optional: HTTP response body size.
  */
 @property (nonatomic, copy, nullable) NSNumber *bodySize;
 
-#if SDK_V10
 /**
  * Optional: Parsed cookie values.
  */
 @property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *cookies;
-#else
-/**
- * Optional: The cookie values.
- */
-@property (nonatomic, copy, nullable) NSString *cookies;
-#endif // SDK_V10
 
 /**
  * Optional: A dictionary of submitted headers.

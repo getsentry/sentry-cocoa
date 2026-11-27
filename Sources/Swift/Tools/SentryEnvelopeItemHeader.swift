@@ -67,7 +67,4 @@ import Foundation
         return target
     }
 }
-#if !SDK_V10
-extension SentryEnvelopeItemHeader: SentrySerializable { }
-#endif
 // swiftlint:enable missing_docs

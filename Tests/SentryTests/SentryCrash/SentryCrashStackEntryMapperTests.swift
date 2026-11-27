@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -61,11 +57,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         let frame = mapper.mapAddress(150)
 
         // -- Assert --
-#if SDK_V10
         XCTAssertEqual(frame.inApp, true)
-#else
-        XCTAssertEqual(frame.inApp, false)
-#endif
         XCTAssertEqual(frame.package, "/opt/bin/cli")
     }
 
@@ -119,11 +111,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         let otherFrame = mapper.mapAddress(350)
 
         // -- Assert --
-#if SDK_V10
         XCTAssertTrue(frames.allSatisfy { $0.inApp == true })
-#else
-        XCTAssertTrue(frames.allSatisfy { $0.inApp == false })
-#endif
         XCTAssertEqual(otherFrame.inApp, false)
         XCTAssertEqual(provider.refreshInvocations, refreshesAfterStart)
     }
@@ -144,11 +132,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mapper.mapAddress(150).inApp, false)
-#if SDK_V10
         XCTAssertEqual(mapper.mapAddress(350).inApp, true)
-#else
-        XCTAssertEqual(mapper.mapAddress(350).inApp, false)
-#endif
     }
 
     func testMapAddress_whenImageIsMissing_shouldNotMatchMainImageAtZeroAddress() {

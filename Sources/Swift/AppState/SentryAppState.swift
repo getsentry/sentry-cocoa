@@ -26,9 +26,6 @@ import Foundation
     @nonobjc public private(set) var runId: SentryCurrentRun.ID?
     public var isActive: Bool
     public var wasTerminated: Bool
-    #if !SDK_V10
-    public var isANROngoing: Bool
-    #endif
     public var isSDKRunning: Bool
 
     public init(releaseName: String?, osVersion: String, vendorId: String?, isDebugging: Bool, systemBootTimestamp: Date, runId: SentryCurrentRun.ID? = nil) {
@@ -45,9 +42,6 @@ import Foundation
         
         self.isActive = false
         self.wasTerminated = false
-        #if !SDK_V10
-        self.isANROngoing = false
-        #endif
         self.isSDKRunning = true
         
         super.init()
@@ -109,14 +103,6 @@ import Foundation
         }
         self.wasTerminated = wasTerminated
         
-        #if !SDK_V10
-        // Validate and extract isANROngoing
-        guard let isANROngoing = jsonObject["is_anr_ongoing"] as? Bool else {
-            return nil
-        }
-        self.isANROngoing = isANROngoing
-        #endif
-        
         // Validate and extract isSDKRunning
         if let isSDKRunning = jsonObject["is_sdk_running"] as? Bool {
             self.isSDKRunning = isSDKRunning
@@ -147,15 +133,9 @@ import Foundation
         }
         data["is_active"] = NSNumber(value: self.isActive)
         data["was_terminated"] = NSNumber(value: self.wasTerminated)
-        #if !SDK_V10
-        data["is_anr_ongoing"] = NSNumber(value: self.isANROngoing)
-        #endif
         data["is_sdk_running"] = NSNumber(value: self.isSDKRunning)
         
         return data
     }
 }
-#if !SDK_V10
-extension SentryAppState: SentrySerializable { }
-#endif
 // swiftlint:enable missing_docs

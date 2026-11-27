@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 class SentryKeyValueCollectionBehaviorTests: XCTestCase {
@@ -10,59 +6,40 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
     // MARK: - Defaults
 
     func testOff() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Act --
         let behavior: SentryDataCollection.KeyValueCollectionBehavior = .off
 
         // -- Assert --
         XCTAssertEqual(behavior, .off)
-        #endif
     }
 
     func testDenyList_withoutTerms_shouldHaveEmptyTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Act --
         let behavior: SentryDataCollection.KeyValueCollectionBehavior = .denyList()
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList(terms: []))
-        #endif
     }
 
     func testDenyList_withTerms_shouldStoreTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Act --
         let behavior: SentryDataCollection.KeyValueCollectionBehavior = .denyList(terms: ["x-custom", "secret"])
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList(terms: ["x-custom", "secret"]))
-        #endif
     }
 
     func testAllowList_shouldStoreTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Act --
         let behavior: SentryDataCollection.KeyValueCollectionBehavior = .allowList(terms: ["content-type"])
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: ["content-type"]))
-        #endif
     }
 
     // MARK: - Dictionary Init
 
     func testInitWithDictionary_whenModeIsOff_shouldReturnOff() throws {
-               #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "off"]
 
@@ -71,13 +48,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .off)
-        #endif
     }
 
     func testInitWithDictionary_whenModeIsDenyListWithTerms_shouldReturnDenyListWithTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "denyList", "terms": ["x-custom"]]
 
@@ -86,13 +59,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList(terms: ["x-custom"]))
-        #endif
     }
 
     func testInitWithDictionary_whenModeIsAllowListWithTerms_shouldReturnAllowListWithTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "allowList", "terms": ["content-type"]]
 
@@ -101,13 +70,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: ["content-type"]))
-        #endif
     }
 
     func testInitWithDictionary_whenModeIsMissing_shouldDefaultToDenyList() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["terms": ["x-custom"]]
 
@@ -116,13 +81,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList(terms: ["x-custom"]))
-        #endif
     }
 
     func testInitWithDictionary_whenModeHasWrongType_shouldDefaultToDenyList() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": 1]
 
@@ -131,13 +92,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList())
-        #endif
     }
 
     func testInitWithDictionary_whenDictionaryIsEmpty_shouldDefaultToDenyList() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = [:]
 
@@ -146,13 +103,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList())
-        #endif
     }
 
     func testInitWithDictionary_whenModeIsUnknown_shouldDefaultToDenyList() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "unknown", "terms": ["x-custom"]]
 
@@ -161,13 +114,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList())
-        #endif
     }
 
     func testInitWithDictionary_whenModeIsNSNull_shouldDefaultToDenyList() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": NSNull()]
 
@@ -176,13 +125,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList())
-        #endif
     }
 
     func testInitWithDictionary_whenTermsAreMissingForDenyList_shouldUseEmptyTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "denyList"]
 
@@ -191,13 +136,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .denyList())
-        #endif
     }
 
     func testInitWithDictionary_whenTermsAreMissingForAllowList_shouldUseEmptyTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "allowList"]
 
@@ -206,13 +147,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: []))
-        #endif
     }
 
     func testInitWithDictionary_whenTermsAreEmpty_shouldUseEmptyTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "allowList", "terms": []]
 
@@ -221,13 +158,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: []))
-        #endif
     }
 
     func testInitWithDictionary_whenTermsHaveWrongType_shouldUseEmptyTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "allowList", "terms": "content-type"]
 
@@ -236,13 +169,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: []))
-        #endif
     }
 
     func testInitWithDictionary_whenTermsAreNSNull_shouldUseEmptyTerms() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "allowList", "terms": NSNull()]
 
@@ -251,13 +180,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: []))
-        #endif
     }
 
     func testInitWithDictionary_whenTermsContainsNonStrings_shouldIgnoreNonStrings() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["mode": "allowList", "terms": ["content-type", 1, NSNull()]]
 
@@ -266,15 +191,11 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(behavior, .allowList(terms: ["content-type"]))
-        #endif
     }
 
     // MARK: - Equatable
 
     func testEquality_sameModeAndTerms_shouldBeEqual() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let a: SentryDataCollection.KeyValueCollectionBehavior = .denyList(terms: ["auth"])
         let b: SentryDataCollection.KeyValueCollectionBehavior = .denyList(terms: ["auth"])
@@ -284,13 +205,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(isEqual)
-        #endif
     }
 
     func testEquality_differentModes_shouldNotBeEqual() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let a = SentryDataCollection.KeyValueCollectionBehavior.denyList()
         let b = SentryDataCollection.KeyValueCollectionBehavior.off
@@ -300,13 +217,9 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(isEqual)
-        #endif
     }
 
     func testEquality_differentTerms_shouldNotBeEqual() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
         // -- Arrange --
         let a = SentryDataCollection.KeyValueCollectionBehavior.denyList(terms: ["a"])
         let b = SentryDataCollection.KeyValueCollectionBehavior.denyList(terms: ["b"])
@@ -316,6 +229,5 @@ class SentryKeyValueCollectionBehaviorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(isEqual)
-        #endif
     }
 }

@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 
 enum SentryObjCSDKTracking {
     private static let baseSDKName = "sentry.cocoa"

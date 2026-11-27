@@ -11,23 +11,9 @@ public class SentryReplayOptions: NSObject {
     public class DefaultValues {
         public static let sessionSampleRate: Float = 0
         public static let onErrorSampleRate: Float = 0
-        #if !SDK_V10
-        public static let maskAllText: Bool = true
-        public static let maskAllImages: Bool = true
-        #endif // !SDK_V10
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
         public static let quality: SentryReplayQuality = .medium
-
-        #if !SDK_V10
-        // The following properties are public because they are used by the SwiftUI replay views.
-
-        public static let maskedViewClasses: [AnyClass] = []
-        public static let unmaskedViewClasses: [AnyClass] = []
-
-        public static let excludedViewClasses: Set<String> = []
-        public static let includedViewClasses: Set<String> = []
-        #endif // !SDK_V10
 
         // Network capture configuration defaults
         public static let networkDetailAllowUrls: [SentryUrlMatchable] = []
@@ -132,24 +118,6 @@ public class SentryReplayOptions: NSObject {
      */
     public var onErrorSampleRate: Float
 
-    #if !SDK_V10
-    /**
-     * Indicates whether session replay should redact all text in the app
-     * by drawing a black rectangle over it.
-     *
-     * - Note: See ``SentryReplayOptions.DefaultValues.maskAllText`` for the default value.
-     */
-    public var maskAllText: Bool
-
-    /**
-     * Indicates whether session replay should redact all non-bundled images
-     * in the app by drawing a black rectangle over it.
-     *
-     * - Note: See ``SentryReplayOptions.DefaultValues.maskAllImages`` for the default value.
-     */
-    public var maskAllImages: Bool
-
-    #endif // !SDK_V10
     /**
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
@@ -157,120 +125,6 @@ public class SentryReplayOptions: NSObject {
      * - Note: See ``SentryReplayOptions.DefaultValues.quality`` for the default value.
      */
     public var quality: SentryReplayQuality
-
-    #if !SDK_V10
-    /**
-     * A list of custom UIView subclasses that need
-     * to be masked during session replay.
-     * By default Sentry already masks text and image elements from UIKit
-     * Every child of a view that is redacted will also be redacted.
-     *
-     * - Note: See ``SentryReplayOptions.DefaultValues.maskedViewClasses`` for the default value.
-     */
-    public var maskedViewClasses: [AnyClass]
-
-    /**
-     * A list of custom UIView subclasses to be ignored
-     * during masking step of the session replay.
-     * The views of given classes will not be redacted but their children may be.
-     * This property has precedence over `redactViewTypes`.
-     *
-     * - Note: See ``SentryReplayOptions.DefaultValues.unmaskedViewClasses`` for the default value.
-     */
-    public var unmaskedViewClasses: [AnyClass]
-
-    /**
-     * A set of view type identifier strings that should be excluded from subtree traversal.
-     *
-     * Views matching these types will have their subtrees skipped during redaction to avoid crashes
-     * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
-     * animations when their layers are accessed).
-     *
-     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
-     * contains any of these strings, the subtree will be ignored. For example, "MyView" will match
-     * "MyApp.MyView", "MyViewSubclass", "Some.MyView.Container", etc.
-     *
-     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
-     *         to add and remove view types, so you do not accidentally remove our defaults.
-     * - Note: The final set of excluded view types is computed by `SentryViewSubtreeTraversal` using the formula:
-     *         **Default View Classes + Excluded View Classes - Included View Classes**
-     *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
-     */
-    public var excludedViewClasses: Set<String>
-
-    /**
-     * A set of view type identifier strings that should be included in subtree traversal.
-     *
-     * View types exactly matching these strings will be removed from the excluded set, allowing their subtrees
-     * to be traversed even if they would otherwise be excluded by default or via `excludedViewClasses`.
-     *
-     * Matching uses exact string matching: the view's class name (from `type(of: view).description()`)
-     * must exactly equal one of these strings. For example, "MyApp.MyView" will only match exactly "MyApp.MyView",
-     * not "MyApp.MyViewSubclass".
-     *
-     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
-     *         to add and remove view types, so you do not accidentally remove our defaults.
-     * - Note: The final set of excluded view types is computed by `SentryViewSubtreeTraversal` using the formula:
-     *         **Default View Classes + Excluded View Classes - Included View Classes**
-     *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
-     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+
-     *         by calling ``includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")``.
-     * - Note: Included patterns use exact matching (not partial) to prevent accidental matches. For example,
-     *         if "ChromeCameraUI" is excluded and "Camera" is included, "ChromeCameraUI" will still be excluded
-     *         because "Camera" doesn't exactly match "ChromeCameraUI".
-     */
-    public var includedViewClasses: Set<String>
-
-    /**
-     * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being traversed.
-     *
-     * - Parameter viewType: The view type identifier pattern (as a string) to exclude from subtree traversal.
-     *                      Matching uses partial string containment: if a view's class name contains this string,
-     *                      the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
-     *                      "MyViewSubclass", etc.
-     *
-     * - Note: This method adds the pattern to `excludedViewClasses`, which is then combined with
-     *         default excluded types (defined in `SentryViewSubtreeTraversal`) and filtered by `includedViewClasses`
-     *         to produce the final set.
-     */
-    public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
-        excludedViewClasses.insert(viewType)
-    }
-
-    /**
-     * Adds a view type to the included set, allowing its subtree to be traversed.
-     *
-     * - Parameter viewType: The view type identifier (as a string) to include in subtree traversal.
-     *                      Must exactly match the result of `type(of: view).description()`.
-     *                      For example, "MyApp.MyView" will only match exactly "MyApp.MyView".
-     *
-     * - Note: This method adds the view type to `includedViewClasses`, which filters the combined set
-     *         of default excluded types (defined in `SentryViewSubtreeTraversal`) and `excludedViewClasses`.
-     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+.
-     * - Note: Included patterns use exact matching (not partial) to prevent accidental matches.
-     */
-    public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
-        includedViewClasses.insert(viewType)
-    }
-
-    #endif // !SDK_V10
-    #if !SDK_V10
-    /**
-     * Alias for ``enableViewRendererV2``.
-     *
-     * This flag is deprecated and will be removed in a future version.
-     * Please use ``enableViewRendererV2`` instead.
-     */
-    @available(*, deprecated, renamed: "enableViewRendererV2")
-    public var enableExperimentalViewRenderer: Bool {
-        get {
-            enableViewRendererV2
-        }
-        set {
-            enableViewRendererV2 = newValue
-        }
-    }
-    #endif
 
     /**
      * Enables the up to 5x faster new view renderer used by the Session Replay integration.
@@ -643,7 +497,6 @@ public class SentryReplayOptions: NSObject {
         )
     }
 
-    #if SDK_V10
     /**
      * Initializes a new instance of ``SentryReplayOptions`` with the specified parameters.
      *
@@ -692,61 +545,6 @@ public class SentryReplayOptions: NSObject {
         )
     }
 
-    #else
-    /**
-     * Initializes a new instance of ``SentryReplayOptions`` with the specified parameters.
-     *
-     * - Parameters:
-     *   - sessionSampleRate: Sample rate used to determine the percentage of replays of sessions that will be uploaded.
-     *   - onErrorSampleRate: Sample rate used to determine the percentage of replays of error events that will be uploaded.
-     *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
-     *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
-     *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
-     *   - enableFastViewRendering: Enables faster but incomplete view rendering. See ``SentryReplayOptions.enableFastViewRendering`` for more information.
-     *
-     * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
-     */
-    public convenience init(
-        sessionSampleRate: Float = DefaultValues.sessionSampleRate,
-        onErrorSampleRate: Float = DefaultValues.onErrorSampleRate,
-        maskAllText: Bool = DefaultValues.maskAllText,
-        maskAllImages: Bool = DefaultValues.maskAllImages,
-        enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
-        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering
-    ) {
-        // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
-        //   with default values result in a single initializer requiring all parameters.
-        // - Each parameter has a default value, so the parameter can be omitted, which is not possible for Objective-C.
-        // - Parameter values are not optional, because SDK users should not be able to set them to nil.
-        // - The publicly available property `quality` is omitted in this initializer, because adding it would break backwards compatibility
-        //   with the automatically bridged Objective-C initializer.
-        self.init(
-            sessionSampleRate: sessionSampleRate,
-            onErrorSampleRate: onErrorSampleRate,
-            maskAllText: maskAllText,
-            maskAllImages: maskAllImages,
-            enableViewRendererV2: enableViewRendererV2,
-            enableFastViewRendering: enableFastViewRendering,
-            maskedViewClasses: nil,
-            unmaskedViewClasses: nil,
-            quality: nil,
-            sdkInfo: nil,
-            frameRate: nil,
-            errorReplayDuration: nil,
-            sessionSegmentDuration: nil,
-            maximumDuration: nil,
-            excludedViewClasses: nil,
-            includedViewClasses: nil,
-            networkDetailAllowUrls: nil,
-            networkDetailDenyUrls: nil,
-            networkCaptureBodies: nil,
-            networkRequestHeaders: nil,
-            networkResponseHeaders: nil
-        )
-    }
-
-    #endif // SDK_V10
-
     // swiftlint:disable:next function_parameter_count cyclomatic_complexity
     private init(
         sessionSampleRate: Float?,
@@ -773,26 +571,14 @@ public class SentryReplayOptions: NSObject {
     ) {
         self.sessionSampleRate = sessionSampleRate ?? DefaultValues.sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate ?? DefaultValues.onErrorSampleRate
-        #if !SDK_V10
-        self.maskAllText = maskAllText ?? DefaultValues.maskAllText
-        self.maskAllImages = maskAllImages ?? DefaultValues.maskAllImages
-        #endif // !SDK_V10
         self.enableViewRendererV2 = enableViewRendererV2 ?? DefaultValues.enableViewRendererV2
         self.enableFastViewRendering = enableFastViewRendering ?? DefaultValues.enableFastViewRendering
-        #if !SDK_V10
-        self.maskedViewClasses = maskedViewClasses ?? DefaultValues.maskedViewClasses
-        self.unmaskedViewClasses = unmaskedViewClasses ?? DefaultValues.unmaskedViewClasses
-        #endif // !SDK_V10
         self.quality = quality ?? DefaultValues.quality
         self.sdkInfo = sdkInfo ?? DefaultValues.sdkInfo
         self.frameRate = frameRate ?? DefaultValues.frameRate
         self.errorReplayDuration = errorReplayDuration ?? DefaultValues.errorReplayDuration
         self.sessionSegmentDuration = sessionSegmentDuration ?? DefaultValues.sessionSegmentDuration
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
-        #if !SDK_V10
-        self.excludedViewClasses = excludedViewClasses ?? DefaultValues.excludedViewClasses
-        self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
-        #endif // !SDK_V10
         let resolvedAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
         let resolvedDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
         self.networkDetailState = SentryMutex(NetworkDetailState(
@@ -847,7 +633,4 @@ public class SentryReplayOptions: NSObject {
     }
 
 }
-#if !SDK_V10
-extension SentryReplayOptions: SentryRedactOptions {}
-#endif // !SDK_V10
 // swiftlint:enable file_length missing_docs type_body_length

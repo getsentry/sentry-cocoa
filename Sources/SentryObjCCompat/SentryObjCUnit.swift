@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 // Stored property must be pointer-sized so the compiler emits a static _OBJC_CLASS_$_ symbol

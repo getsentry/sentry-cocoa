@@ -1,4 +1,3 @@
-#if SDK_V10
 extension SentryDataCollection {
     /// Configuration for what data the SDK collects automatically.
     ///
@@ -91,4 +90,3 @@ extension SentryDataCollection {
         }
     }
 }
-#endif // SDK_V10

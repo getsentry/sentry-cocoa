@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -654,7 +650,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(childData["flag.evaluation.checkout"])
     }
     
-#if SDK_V10
     func testSetMeasurement_whenChildSpan_shouldSerializeLocallyWithoutOverwritingTransaction() throws {
         // -- Arrange --
         let tracer = fixture.getSut() as! SentryTracer
@@ -735,7 +730,6 @@ class SentrySpanTests: XCTestCase {
         let measurements = try XCTUnwrap(child.serialize()["measurements"] as? [String: [String: NSNumber]])
         XCTAssertEqual(measurements, ["count": ["value": 1]])
     }
-#endif
 
     func testAddAndRemoveTags() {
         let span = fixture.getSut()

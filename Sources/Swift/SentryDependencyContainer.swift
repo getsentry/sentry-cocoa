@@ -114,9 +114,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if DEBUG // Test support.
     var applicationOverride: SentryApplication?
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
-    var windowFactoryOverride: SentryUserFeedbackWindowFactory?
-#endif
 #endif
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
@@ -458,7 +455,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
     func getAppStartTracker(_ options: Options) -> SentryAppStartTracker {
-        #if SDK_V10
         return SentryAppStartTracker(
             appStateManager: appStateManager,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
@@ -467,18 +463,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             appStartInfoProvider: appStartInfoProvider,
             extendedAppLaunchManager: extendedAppLaunchManager
         )
-        #else
-        return SentryAppStartTracker(
-            appStateManager: appStateManager,
-            framesTracker: framesTracker,
-            enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
-            enableStandaloneAppStartTracing: options.enableStandaloneAppStartTracing,
-            dateProvider: dateProvider,
-            sysctlWrapper: sysctlWrapper,
-            appStartInfoProvider: appStartInfoProvider,
-            extendedAppLaunchManager: extendedAppLaunchManager
-        )
-        #endif
     }
 
     private var _appStartInfoProvider: AppStartInfoProvider?
@@ -550,11 +534,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                     viewRenderer = SentryDefaultViewRenderer()
                 }
 
-                #if SDK_V10
                 let redactOptions = options.privacy
-                #else
-                let redactOptions = options.screenshot
-                #endif // SDK_V10
                 let photographer = SentryViewPhotographer(
                     renderer: viewRenderer,
                     redactOptions: redactOptions,
@@ -605,24 +585,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         let release = self.startOptions?.releaseName
         return SentryAppStateManager(releaseName: release, dependencies: self)
     }
-    #if !SDK_V10
-    private var anrTracker: SentryANRTracker?
-    @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
-        getLazyVar(\.anrTracker) {
-            // A timeout of 0 or less would make the tracker thread spin in a busy loop.
-            var safeTimeout = timeout
-            if safeTimeout <= 0 {
-                SentrySDKLog.warning("Invalid ANRTracked timeout interval: The value must be greater than 0.")
-                safeTimeout = Options.defaultAppHangTimeoutInterval
-            }
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            return SentryANRTracker(helper: SentryANRTrackerV2(timeoutInterval: safeTimeout))
-        #else
-            return SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: safeTimeout))
-        #endif
-        }
-    }
-    #endif
 
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTrackerProtocol {
         let threadInspector = SentryDefaultThreadInspector(options: options)
@@ -647,18 +609,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
-#if !SDK_V10
-extension SentryDependencyContainer: WindowFactoryProvider {
-    var windowFactory: SentryUserFeedbackWindowFactory {
-#if DEBUG // Test support.
-        if let override = windowFactoryOverride {
-            return override
-        }
-#endif // DEBUG
-        return SentryUserFeedbackWidget.defaultWindowFactory
-    }
-}
-#endif // !SDK_V10
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol ClientProvider {
@@ -1099,13 +1049,6 @@ protocol ThreadInspectorProvider {
     var threadInspector: SentryThreadInspector { get }
 }
 extension SentryDependencyContainer: ThreadInspectorProvider { }
-
-#if !SDK_V10
-protocol ANRTrackerBuilder {
-    func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
-}
-extension SentryDependencyContainer: ANRTrackerBuilder { }
-#endif
 
 protocol ProcessInfoProvider {
     var processInfoWrapper: SentryProcessInfoSource { get }

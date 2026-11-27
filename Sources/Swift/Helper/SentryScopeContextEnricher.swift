@@ -354,10 +354,6 @@ final class SentryDefaultScopeContextEnricher: NSObject, SentryScopeContextEnric
         deviceData["model"] = systemInfo.machine
         deviceData["model_id"] = systemInfo.model
 
-#if !SDK_V10
-        deviceData["locale"] = Locale.autoupdatingCurrent.identifier
-#endif
-
         if processInfoWrapper.isiOSAppOnMac {
             deviceData["ios_app_on_macos"] = true
         }

@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCReplayOptions) public final class SentryObjCReplayOptions: NSObject {
@@ -27,20 +23,6 @@ import Foundation
         set { wrapped.onErrorSampleRate = newValue }
     }
 
-    #if !SDK_V10
-    @objc public var maskAllText: Bool {
-        get { wrapped.maskAllText }
-        set { wrapped.maskAllText = newValue }
-    }
-    #endif // !SDK_V10
-
-    #if !SDK_V10
-    @objc public var maskAllImages: Bool {
-        get { wrapped.maskAllImages }
-        set { wrapped.maskAllImages = newValue }
-    }
-    #endif // !SDK_V10
-
     @objc public var quality: SentryObjCReplayQuality {
         get { SentryObjCReplayQuality(wrapped.quality) }
         set { wrapped.quality = newValue.underlying }
@@ -55,20 +37,6 @@ import Foundation
         get { wrapped.enableFastViewRendering }
         set { wrapped.enableFastViewRendering = newValue }
     }
-
-    #if !SDK_V10
-    @objc public var maskedViewClasses: [AnyClass] {
-        get { wrapped.maskedViewClasses }
-        set { wrapped.maskedViewClasses = newValue }
-    }
-    #endif // !SDK_V10
-
-    #if !SDK_V10
-    @objc public var unmaskedViewClasses: [AnyClass] {
-        get { wrapped.unmaskedViewClasses }
-        set { wrapped.unmaskedViewClasses = newValue }
-    }
-    #endif // !SDK_V10
 
     @objc public var networkCaptureBodies: Bool {
         get { wrapped.networkCaptureBodies }
@@ -85,15 +53,6 @@ import Foundation
         set { wrapped.networkResponseHeaders = newValue }
     }
 
-    #if !SDK_V10
-    @objc public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
-        wrapped.excludeViewTypeFromSubtreeTraversal(viewType)
-    }
-
-    @objc public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
-        wrapped.includeViewTypeInSubtreeTraversal(viewType)
-    }
-    #endif // !SDK_V10
 }
 
 // swiftlint:enable missing_docs

@@ -7,16 +7,12 @@ extension Scope {
     func applySpan(_ span: Span?, to event: Event) {
         var context = event.context ?? [:]
         let previousTraceId = context["trace"]?["trace_id"] as? String
-        #if SDK_V10
         if event.type == SentryEnvelopeItemTypes.transaction, let transaction = event as? Transaction {
             // Transaction capture is asynchronous, so the scope may no longer hold its tracer.
             context["trace"] = transaction.trace.serialize()
         } else {
             context["trace"] = buildTraceContext(span)
         }
-        #else
-        context["trace"] = buildTraceContext(span)
-        #endif
         event.context = context
 
         guard event.type != SentryEnvelopeItemTypes.transaction else { return }
@@ -30,18 +26,11 @@ extension Scope {
     }
 
     func buildTraceContext(_ span: Span?) -> [String: Any] {
-        #if SDK_V10
         // Public spans no longer require the SDK's internal serialization contract.
         if let serializable = span as? SentryInternalSerializable {
             return normalizedTraceContext(serializable.serialize())
         }
         return propagationContext.traceContextForEvent()
-        #else
-        if let span {
-            return normalizedTraceContext(span.serialize())
-        }
-        return propagationContext.traceContextForEvent()
-        #endif
     }
 
     private func normalizedTraceContext(_ dict: [String: Any]) -> [String: Any] {

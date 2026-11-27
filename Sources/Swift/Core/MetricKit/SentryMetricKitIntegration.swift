@@ -136,16 +136,7 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
 
     private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
         let enabledDiagnosticReports = options.experimental.metrickit.enabledDiagnosticReports
-        #if SDK_V10
         return enabledDiagnosticReports
-        #else
-        // Before v10 the integration is opt-in, and enableMetricKit keeps capturing the
-        // diagnostics it always captured unless the app chooses its own set.
-        guard enabledDiagnosticReports.isEmpty else {
-            return enabledDiagnosticReports
-        }
-        return options.enableMetricKit ? [.cpuException, .diskWriteException, .hang] : []
-        #endif // SDK_V10
     }
 }
 

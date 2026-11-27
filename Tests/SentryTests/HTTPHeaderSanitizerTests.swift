@@ -1,13 +1,8 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 final class HTTPHeaderSanitizerTests: XCTestCase {
 
-#if SDK_V10
     private func sanitizeHeaders(
         _ headers: [String: String],
         headerBehavior: SentryDataCollection.KeyValueCollectionBehavior,
@@ -21,7 +16,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
             )
         )
     }
-#endif // SDK_V10
 
     func testSanitizeHeaders_whenDefaultBehavior_shouldApplyVersionSpecificFiltering() {
         // -- Arrange --
@@ -32,7 +26,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         ]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -45,9 +38,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
             "X-Api-Key": "[Filtered]"
         ])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), ["Content-Type": "application/json"])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenOptionsArePassed_shouldUseDirectionSpecificHeaderBehavior() {
@@ -55,7 +45,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["X-Request-Id": "request-id"]
 
         // -- Act & Assert --
-#if SDK_V10
         let options = SentryDataCollection.Options(
             httpHeaders: .init(
                 request: .off,
@@ -83,9 +72,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         XCTAssertEqual(objcRequestResult.cookies, requestResult.cookies)
         XCTAssertEqual(objcResponseResult.headers, responseResult.headers)
         XCTAssertEqual(objcResponseResult.cookies, responseResult.cookies)
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), headers)
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenHeaderCollectionIsOffAndCookiesAreEnabled_shouldCollectOnlyCookies() {
@@ -96,7 +82,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         ]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -105,9 +90,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, [:])
         XCTAssertEqual(result.cookies, ["theme": "dark", "session": "[Filtered]"])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), ["Content-Type": "application/json"])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieCollectionIsOffAndHeadersAreEnabled_shouldCollectOnlyOrdinaryHeaders() {
@@ -118,7 +100,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         ]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -127,9 +108,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Content-Type": "application/json"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), ["Content-Type": "application/json"])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenHeaderDenyListHasCustomTerm_shouldFilterMatchingValue() {
@@ -137,7 +115,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["X-Forwarded-For": "192.0.2.1", "Content-Type": "application/json"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(terms: ["forwarded"]),
@@ -148,9 +125,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
             "X-Forwarded-For": "[Filtered]",
             "Content-Type": "application/json"
         ])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), ["Content-Type": "application/json"])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenHeaderAllowListIsConfigured_shouldFilterNonAllowedValues() {
@@ -162,7 +136,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         ]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .allowList(terms: ["content-type", "authorization"]),
@@ -174,12 +147,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
             "X-Request-Id": "[Filtered]",
             "Authorization": "[Filtered]"
         ])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [
-            "Content-Type": "application/json",
-            "X-Request-Id": "request-id"
-        ])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieAllowListIsConfigured_shouldFilterNonAllowedAndSensitiveValues() {
@@ -187,7 +154,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme=dark; locale=en; token=secret"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -200,9 +166,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
             "locale": "[Filtered]",
             "token": "[Filtered]"
         ])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieDenyListHasCustomTerm_shouldFilterMatchingValue() {
@@ -210,7 +173,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme=dark; tracking_id=abc"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -218,9 +180,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         )
 
         XCTAssertEqual(result.cookies, ["theme": "dark", "tracking_id": "[Filtered]"])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenSetCookieHasAttributes_shouldCollectOnlyCookiePair() {
@@ -228,7 +187,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Set-Cookie": "theme=dark; Path=/; HttpOnly; Secure"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -237,9 +195,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, [:])
         XCTAssertEqual(result.cookies, ["theme": "dark"])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenSetCookieIsSensitive_shouldFilterCookieValue() {
@@ -247,7 +202,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Set-Cookie": "session=secret; HttpOnly"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -255,9 +209,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         )
 
         XCTAssertEqual(result.cookies, ["session": "[Filtered]"])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieIsUnparseable_shouldUseFilteredHeaderFallbackWhenHeadersEnabled() {
@@ -265,7 +216,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -274,9 +224,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Cookie": "[Filtered]"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenSetCookieIsUnparseable_shouldUseFilteredHeaderFallbackWhenHeadersEnabled() {
@@ -284,7 +231,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Set-Cookie": "theme; HttpOnly"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -293,14 +239,10 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Set-Cookie": "[Filtered]"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenInputIsEmpty_shouldReturnEmptyResult() {
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             [:],
             headerBehavior: .denyList(),
@@ -309,9 +251,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, [:])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders([:]), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenMalformedCookieAndHeadersAreOff_shouldOmitFallback() {
@@ -319,7 +258,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -328,9 +266,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, [:])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieNameIsEmpty_shouldUseFilteredHeaderFallback() {
@@ -338,7 +273,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "=value"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -347,9 +281,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Cookie": "[Filtered]"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieValueIsEmpty_shouldPreserveEmptyValue() {
@@ -357,7 +288,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme="]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -365,9 +295,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         )
 
         XCTAssertEqual(result.cookies, ["theme": ""])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieValueContainsEqualsSigns_shouldSplitOnlyAtFirstEqualsSign() {
@@ -375,7 +302,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "data=base64==; theme=dark"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -383,9 +309,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         )
 
         XCTAssertEqual(result.cookies, ["data": "base64==", "theme": "dark"])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieContainsWhitespaceOnlySegment_shouldUseFilteredHeaderFallback() {
@@ -393,7 +316,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme=dark; ; locale=en"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -402,9 +324,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Cookie": "[Filtered]"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieHeaderIsEmpty_shouldUseFilteredHeaderFallback() {
@@ -412,7 +331,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": ""]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -421,9 +339,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Cookie": "[Filtered]"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenSetCookieHeaderIsEmpty_shouldUseFilteredHeaderFallback() {
@@ -431,7 +346,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Set-Cookie": ""]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
@@ -440,9 +354,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.headers, ["Set-Cookie": "[Filtered]"])
         XCTAssertEqual(result.cookies, [:])
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 
     func testSanitizeHeaders_whenCookieNamesRepeatAcrossHeaders_shouldKeepOneValue() {
@@ -450,7 +361,6 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
         let headers = ["Cookie": "theme=dark", "Set-Cookie": "theme=light; HttpOnly"]
 
         // -- Act & Assert --
-#if SDK_V10
         let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
@@ -459,8 +369,5 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         XCTAssertEqual(result.cookies.count, 1)
         XCTAssertTrue(result.cookies["theme"] == "dark" || result.cookies["theme"] == "light")
-#else
-        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), [:])
-#endif // SDK_V10
     }
 }

@@ -118,9 +118,7 @@
 #    import "SentryObjCScope.h"
 #    import "SentryObjCSpan.h"
 #    import "SentryObjCTraceContext.h"
-#    if SDK_V10
-#        import "SentryObjCTransaction.h"
-#    endif // SDK_V10
+#    import "SentryObjCTransaction.h"
 #else
 #    import <SentryObjC/SentryObjCEvent.h>
 #    import <SentryObjC/SentryObjCFeedback.h>
@@ -128,9 +126,7 @@
 #    import <SentryObjC/SentryObjCScope.h>
 #    import <SentryObjC/SentryObjCSpan.h>
 #    import <SentryObjC/SentryObjCTraceContext.h>
-#    if SDK_V10
-#        import <SentryObjC/SentryObjCTransaction.h>
-#    endif // SDK_V10
+#    import <SentryObjC/SentryObjCTransaction.h>
 #endif
 
 // --- Attribute and log types ---

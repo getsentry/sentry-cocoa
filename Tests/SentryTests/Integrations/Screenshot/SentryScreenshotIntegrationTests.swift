@@ -1,10 +1,6 @@
 #if os(iOS) || os(tvOS) || os(visionOS)
 
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 @_spi(Private) @testable import SentryTestUtils
 import _SentryPrivate
 import XCTest
@@ -16,11 +12,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         let defaultOptions: Options
 
         init() {
-            #if SDK_V10
             let redactOptions = SentryPrivacyOptions()
-            #else
-            let redactOptions = SentryViewScreenshotOptions()
-            #endif // SDK_V10
             let renderer = TestSentryViewRenderer()
             let photographer = TestSentryViewPhotographer(
                 renderer: renderer,
@@ -240,31 +232,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 2)).data?.count, 3)
         
     }
-    
-    #if !SDK_V10
-    func test_backgroundForAppHangs() throws {
-        let sut = try fixture.getSut()
-        defer {
-            sut.uninstall()
-        }
-        
-        let event = Event()
-        event.exceptions = [Exception(value: "test", type: "App Hanging")]
-
-        let ex = expectation(description: "Attachment Added")
-        
-        fixture.screenshotSource.processScreenshotsCallback = {
-            XCTFail("Should not add screenshots to App Hanging events")
-        }
-        
-        DispatchQueue.global().async {
-            _ = sut.processAttachments([], for: event)
-            ex.fulfill()
-        }
-        
-        wait(for: [ex], timeout: 1)
-    }
-    #endif // !SDK_V10
     
 }
 

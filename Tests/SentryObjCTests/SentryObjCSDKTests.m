@@ -610,20 +610,6 @@
 
 #pragma mark - Crash Status
 
-#if !SDK_V10
-- (void)testCrashedLastRun_shouldReturnValidBool
-{
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // -- Arrange & Act --
-    BOOL crashed = SentryObjCSDK.crashedLastRun;
-
-    // -- Assert --
-    XCTAssertTrue(crashed || !crashed);
-#    pragma clang diagnostic pop
-}
-#endif
-
 - (void)testLastRunStatus_shouldReturnValidStatus
 {
     // -- Arrange & Act --
@@ -683,26 +669,6 @@
     // -- Act & Assert (no crash) --
     [SentryObjCSDK reportFullyDisplayed];
 }
-
-#if !SDK_V10
-- (void)testPauseAppHangTracking_shouldNotCrash
-{
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // -- Act & Assert (no crash) --
-    [SentryObjCSDK pauseAppHangTracking];
-#    pragma clang diagnostic pop
-}
-
-- (void)testResumeAppHangTracking_shouldNotCrash
-{
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // -- Act & Assert (no crash) --
-    [SentryObjCSDK resumeAppHangTracking];
-#    pragma clang diagnostic pop
-}
-#endif
 
 #pragma mark - Flush
 

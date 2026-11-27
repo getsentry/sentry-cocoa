@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -496,10 +492,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         let deviceContext = try XCTUnwrap(SentryMXDiagnosticCapturer.diagnosticDeviceContext(runningDevice: runningDevice))
 
         // -- Assert --
-        var mutableKeys: Set<String> = ["free_memory", "usable_memory"]
-#if !SDK_V10
-        mutableKeys.insert("locale")
-#endif
+        let mutableKeys: Set<String> = ["free_memory", "usable_memory"]
         XCTAssertEqual(
             Set(runningDevice.keys).subtracting(deviceContext.keys),
             mutableKeys,

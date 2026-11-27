@@ -1,10 +1,6 @@
 // swiftlint:disable file_length
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -21,13 +17,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return window
     }
 
-    #if !SDK_V10
-    private let mockWindowFactory: SentryUserFeedbackWindowFactory = { config in
-        let window = SentryUserFeedbackWidget.Window(config: config, windowScene: mockWindowScene)
-        return window
-    }
-    #endif
-
     override func tearDown() {
         super.tearDown()
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
@@ -42,11 +31,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     private struct TestDependencies: UserFeedbackIntegrationProvider {
         let screenshotSource: SentryScreenshotSource?
-        #if !SDK_V10
-        var windowFactory: SentryUserFeedbackWindowFactory {
-            SentryUserFeedbackWidget.defaultWindowFactory
-        }
-        #endif
     }
 
     private func makeScreenshotSource() -> SentryScreenshotSource {
@@ -60,77 +44,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     func testUsesCorrectName() {
         XCTAssertEqual(UserFeedbackIntegration<TestDependencies>.name, "SentryUserFeedbackIntegration")
-    }
-
-    @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetAccessibilityLabel_whenLabelTextChangedBeforeAccess_shouldUseUpdatedLabelText() throws {
-        #if SDK_V10
-        throw XCTSkip("Not available in SDK version 10")
-        #else
-        let sut = SentryUserFeedbackWidgetConfiguration()
-
-        sut.labelText = "Send Feedback"
-
-        XCTAssertEqual(sut.widgetAccessibilityLabel, "Send Feedback")
-        #endif
-    }
-
-    @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetAccessibilityLabel_whenExplicitlySetToNil_shouldRemainNil() throws {
-        #if SDK_V10
-        throw XCTSkip("Not available in SDK version 10")
-        #else
-        let sut = SentryUserFeedbackWidgetConfiguration()
-
-        sut.widgetAccessibilityLabel = nil
-
-        XCTAssertNil(sut.widgetAccessibilityLabel)
-        #endif
-    }
-
-    @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetConfiguration_whenDeprecatedPropertiesAreSet_shouldRoundTripValues() throws {
-        #if SDK_V10
-        throw XCTSkip("Not available in SDK version 10")
-        #else
-        let sut = SentryUserFeedbackWidgetConfiguration()
-        let layoutOffset = UIOffset(horizontal: 10, vertical: 20)
-        let windowLevel = UIWindow.Level.alert + 1
-
-        sut.autoInject = false
-        sut.labelText = "Send Feedback"
-        sut.showIcon = false
-        sut.widgetAccessibilityLabel = "Feedback Button"
-        sut.windowLevel = windowLevel
-        sut.location = [.top, .leading]
-        sut.layoutUIOffset = layoutOffset
-
-        XCTAssertFalse(sut.autoInject)
-        XCTAssertEqual(sut.labelText, "Send Feedback")
-        XCTAssertFalse(sut.showIcon)
-        XCTAssertEqual(sut.widgetAccessibilityLabel, "Feedback Button")
-        XCTAssertEqual(sut.windowLevel, windowLevel)
-        XCTAssertEqual(sut.location, [.top, .leading])
-        XCTAssertEqual(sut.layoutUIOffset.horizontal, layoutOffset.horizontal)
-        XCTAssertEqual(sut.layoutUIOffset.vertical, layoutOffset.vertical)
-        #endif
-    }
-
-    @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testConfigureWidget_whenSet_shouldStoreBuilder() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let sut = SentryUserFeedbackConfiguration()
-        let widgetConfig = SentryUserFeedbackWidgetConfiguration()
-
-        sut.configureWidget = { config in
-            config.autoInject = false
-        }
-        try XCTUnwrap(sut.configureWidget)(widgetConfig)
-
-        XCTAssertFalse(widgetConfig.autoInject)
-#endif
     }
 
     func testInitializerFailsWhenNoScreenshotSource() {
@@ -283,23 +196,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(config.formConfig.formTitle, "Global title")
 
         withExtendedLifetime(window) { }
-    }
-
-    func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let application = TestSentryUIApplication()
-        application.windows = []
-        SentryDependencyContainer.sharedInstance().applicationOverride = application
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-
-        sut.showForm()
-
-        XCTAssertFalse(sut.displayingForm)
-#endif
     }
 
     func testPresentingViewController_whenApplicationAndExternalDisplayWindows_shouldExcludeExternalDisplay() throws {
@@ -565,35 +461,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         SentrySDK.feedback.disableOnShake()
     }
 
-    @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testScreenshotTrigger_whenWidgetAutoInjectionDisabled_shouldUseFallbackPresenter() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let window = makeWindow()
-        let viewController = TestPresentingViewController()
-        let screenshot = UIImage()
-        let config = SentryUserFeedbackConfiguration()
-        config.animations = false
-        config.showFormForScreenshots = true
-        config.configureWidget = { widget in
-            widget.autoInject = false
-        }
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: config,
-            screenshotSource: TestScreenshotSource(screenshots: [screenshot]))
-        useFallbackPresenter(viewController, in: window)
-
-        NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
-
-        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
-        XCTAssertIdentical(form.screenshot, screenshot)
-        XCTAssertNil(widgetHost(for: sut))
-
-        withExtendedLifetime(window) { }
-#endif
-    }
-
     func testScreenshotTrigger_whenRetinaImageRendered_shouldPreserveResolution() throws {
         for enableMaskRendererV2 in [false, true] {
             for scale: CGFloat in [2, 3] {
@@ -686,29 +553,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(viewController.presentCallCount, 1)
 
         withExtendedLifetime(window) { }
-    }
-
-    func testShowForm_whenPresenterDoesNotShowForm_shouldKeepWidgetVisible() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let config = SentryUserFeedbackConfiguration()
-        config.animations = false
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: config,
-            screenshotSource: makeScreenshotSource(),
-            windowFactory: mockWindowFactory)
-        sut.showWidget()
-        let widgetHost = try XCTUnwrap(widgetHost(for: sut))
-        let presenter = DroppingPresentingViewController()
-
-        XCTAssertTrue(widgetHost.isWidgetVisible)
-
-        sut.showForm(from: presenter, screenshot: nil)
-
-        XCTAssertEqual(presenter.presentCallCount, 1)
-        XCTAssertTrue(widgetHost.isWidgetVisible)
-#endif
     }
 
     func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
@@ -807,125 +651,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertNil(removal.object)
     }
 
-    func testShowForm_whenWidgetIsPresenter_shouldHideWidgetUntilFormCloses() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let config = SentryUserFeedbackConfiguration()
-        config.animations = false
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: config,
-            screenshotSource: makeScreenshotSource(),
-            windowFactory: mockWindowFactory)
-        sut.showWidget()
-        let widgetHost = try XCTUnwrap(widgetHost(for: sut))
-
-        XCTAssertTrue(widgetHost.isWidgetVisible)
-        sut.showForm()
-
-        let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
-        form.beginAppearanceTransition(true, animated: false)
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-        let presentationController = UIPresentationController(
-            presentedViewController: form,
-            presenting: widgetHost
-        )
-
-        form.endAppearanceTransition()
-        form.presentationControllerDidDismiss(presentationController)
-
-        XCTAssertTrue(widgetHost.isWidgetVisible)
-#endif
-    }
-
-    func testShowForm_whenWidgetWasHidden_shouldKeepWidgetHiddenAfterFormCloses() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let config = SentryUserFeedbackConfiguration()
-        config.animations = false
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: config,
-            screenshotSource: makeScreenshotSource(),
-            windowFactory: mockWindowFactory)
-        sut.showWidget()
-        sut.hideWidget()
-        let widgetHost = try XCTUnwrap(widgetHost(for: sut))
-
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-        sut.showForm()
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-
-        let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
-        form.beginAppearanceTransition(true, animated: false)
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-        let presentationController = UIPresentationController(
-            presentedViewController: form,
-            presenting: widgetHost
-        )
-
-        form.endAppearanceTransition()
-        form.presentationControllerDidDismiss(presentationController)
-
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-#endif
-    }
-
-    func testFeedbackFormController_whenPresentedDirectly_shouldHideWidgetUntilFormCloses() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let integration = try installFeedbackIntegration {
-            $0.animations = false
-        }
-        integration.driver.showWidget()
-        let widgetHost = try XCTUnwrap(widgetHost(for: integration.driver))
-        let sut = SentryUserFeedbackFormController()
-
-        XCTAssertTrue(widgetHost.isWidgetVisible)
-
-        sut.beginAppearanceTransition(true, animated: false)
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-        sut.endAppearanceTransition()
-
-        let presentationController = UIPresentationController(
-            presentedViewController: sut,
-            presenting: nil
-        )
-        sut.presentationControllerDidDismiss(presentationController)
-
-        XCTAssertTrue(widgetHost.isWidgetVisible)
-#endif
-    }
-
-    func testFeedbackFormController_whenWidgetWasHiddenBeforeDirectPresentation_shouldKeepWidgetHiddenAfterFormCloses() throws {
-#if SDK_V10
-        throw XCTSkip("Widget is not available in V10")
-#else
-        let integration = try installFeedbackIntegration {
-            $0.animations = false
-        }
-        integration.driver.showWidget()
-        integration.driver.hideWidget()
-        let widgetHost = try XCTUnwrap(widgetHost(for: integration.driver))
-        let sut = SentryUserFeedbackFormController()
-
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-
-        sut.beginAppearanceTransition(true, animated: false)
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-        sut.endAppearanceTransition()
-
-        let presentationController = UIPresentationController(
-            presentedViewController: sut,
-            presenting: nil
-        )
-        sut.presentationControllerDidDismiss(presentationController)
-
-        XCTAssertFalse(widgetHost.isWidgetVisible)
-#endif
-    }
-
     // MARK: - Helpers
 
     private func installFeedbackIntegration(
@@ -934,9 +659,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let options = Options()
         options.configureUserFeedback = configure
         SentrySDK.setStart(with: options)
-        #if !SDK_V10
-        SentryDependencyContainer.sharedInstance().windowFactoryOverride = mockWindowFactory
-        #endif
         let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
             with: options,
             dependencies: SentryDependencyContainer.sharedInstance()))
@@ -946,22 +668,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return integration
     }
 
-    #if !SDK_V10
-    private func widgetHost(for driver: SentryUserFeedbackIntegrationDriver) -> SentryUserFeedbackWidget.RootViewController? {
-        let widget = Mirror(reflecting: driver)
-            .children
-            .first { $0.label == "widget" }?
-            .value as? SentryUserFeedbackWidget
-        return widget?.rootVC
-    }
-    #endif
-
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
-        #if !SDK_V10
-        let customButton = UIButton()
-        configuration._customButton = customButton
-        viewController.view.addSubview(customButton)
-        #endif
     }
 
     private func useFallbackPresenter(_ viewController: UIViewController, in window: UIWindow) {

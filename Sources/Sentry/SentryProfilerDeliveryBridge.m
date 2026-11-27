@@ -61,9 +61,6 @@ static NSMutableDictionary<NSString *, id> *_Nullable _sentry_enrichedTraceProfi
         @"is_emulator" : @(isEmulated),
         @"manufacturer" : @"Apple",
     }];
-#    if !SDK_V10
-    deviceDict[@"locale"] = NSLocale.currentLocale.localeIdentifier;
-#    endif
     NSString *_Nullable deviceModel
         = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
     if (deviceModel != nil) {

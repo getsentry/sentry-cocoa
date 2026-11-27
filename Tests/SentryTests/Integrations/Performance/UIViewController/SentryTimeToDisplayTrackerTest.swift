@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import Foundation
 import XCTest
@@ -585,7 +581,6 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0, "Frames tracker listener should be removed")
     }
 
-#if SDK_V10
     func testReportDisplay_whenFinishingTransaction_shouldKeepSpanAndTransactionMeasurements() throws {
         // -- Arrange --
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
@@ -614,7 +609,6 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
     }
-#endif
 
     private func assertMeasurement(
         tracer: SentryTracer,

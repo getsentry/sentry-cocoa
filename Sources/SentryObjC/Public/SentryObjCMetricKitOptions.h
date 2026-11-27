@@ -24,7 +24,6 @@ typedef NS_ENUM(NSInteger, SentryObjCMetricKitHangReportingMode) {
 @interface SentryObjCMetricKitOptions : NSObject
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
-#    if SDK_V10
 /**
  * The MetricKit diagnostic reports the SDK captures as events.
  *
@@ -34,16 +33,6 @@ typedef NS_ENUM(NSInteger, SentryObjCMetricKitHangReportingMode) {
  * @c SentryObjCMetricKitDiagnosticReportHang and
  * @c SentryObjCMetricKitDiagnosticReportAppLaunch.
  */
-#    else
-/**
- * The MetricKit diagnostic reports the SDK captures as events.
- *
- * Any report other than @c SentryObjCMetricKitDiagnosticReportNone enables the MetricKit
- * integration and captures exactly these reports, regardless of @c enableMetricKit. When no report
- * is set, @c enableMetricKit decides whether the integration is enabled.
- * @note Defaults to @c SentryObjCMetricKitDiagnosticReportNone.
- */
-#    endif // SDK_V10
 @property (nonatomic) SentryObjCMetricKitDiagnosticReport enabledDiagnosticReports;
 
 /**

@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCMetricsApi) public final class SentryObjCMetricsApi: NSObject {
@@ -40,48 +36,6 @@ import Foundation
     @objc(gauge:value:) public func gauge(_ name: String, value: Double) {
         api.gauge(name, value: value, options: SentryMetricOptions())
     }
-
-    #if !SDK_V10
-    // Deprecated in SentryObjCMetricsApi.h. They forward to the options-based Swift API so the
-    // wrapper doesn't call the deprecated Swift methods.
-
-    @objc public func count(key: String, value: UInt, attributes: [String: SentryObjCAttributeContent]) {
-        api.count(key, value: value, options: SentryMetricOptions(attributes: mapAttributes(attributes)))
-    }
-
-    @objc public func count(key: String, value: UInt) {
-        api.count(key, value: value, options: SentryMetricOptions())
-    }
-
-    @objc public func count(key: String) {
-        api.count(key, value: 1, options: SentryMetricOptions())
-    }
-
-    @objc public func distribution(key: String, value: Double, unit: SentryObjCUnit?, attributes: [String: SentryObjCAttributeContent]) {
-        api.distribution(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes)))
-    }
-
-    @objc public func distribution(key: String, value: Double, unit: SentryObjCUnit?) {
-        api.distribution(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit()))
-    }
-
-    @objc public func distribution(key: String, value: Double) {
-        api.distribution(key, value: value, options: SentryMetricOptions())
-    }
-
-    @objc public func gauge(key: String, value: Double, unit: SentryObjCUnit?, attributes: [String: SentryObjCAttributeContent]) {
-        api.gauge(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes)))
-    }
-
-    @objc public func gauge(key: String, value: Double, unit: SentryObjCUnit?) {
-        api.gauge(key, value: value, options: SentryMetricOptions(unit: unit?.toSentryUnit()))
-    }
-
-    @objc public func gauge(key: String, value: Double) {
-        api.gauge(key, value: value, options: SentryMetricOptions())
-    }
-
-    #endif // !SDK_V10
 
     private func mapAttributes(_ attributes: [String: SentryObjCAttributeContent]) -> [String: any SentryAttributeValue] {
         attributes.mapValues { $0.toAttributeContent().asAttributeValue }

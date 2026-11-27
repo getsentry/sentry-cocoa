@@ -1,10 +1,6 @@
-#if SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCPrivacyOptions) public final class SentryObjCPrivacyOptions: NSObject {
@@ -55,4 +51,4 @@ import Foundation
     }
 }
 // swiftlint:enable missing_docs
-#endif // SDK_V10 && UI platforms
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

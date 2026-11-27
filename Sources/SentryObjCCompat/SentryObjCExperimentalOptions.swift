@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCExperimentalOptions) public final class SentryObjCExperimentalOptions: NSObject {
@@ -25,14 +21,6 @@ import Foundation
         get { wrapped.enableNewURLLoaderSwizzling }
         set { wrapped.enableNewURLLoaderSwizzling = newValue }
     }
-
-    #if !SDK_V10
-    @objc public var enableWatchdogTerminationsV2: Bool {
-        get { wrapped.enableWatchdogTerminationsV2 }
-        @available(*, deprecated, message: "enableWatchdogTerminationsV2 is deprecated and will be removed in v10, where the improved watchdog termination tracking mechanism is enabled by default.")
-        set { wrapped.enableWatchdogTerminationsV2 = newValue }
-    }
-    #endif
 
     @objc public var enableUIViewControllerInitSwizzling: Bool {
         get { wrapped.enableUIViewControllerInitSwizzling }

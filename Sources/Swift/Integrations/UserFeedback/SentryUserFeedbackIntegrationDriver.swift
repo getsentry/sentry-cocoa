@@ -15,55 +15,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     private var isObservingShakeGesture = false
     let screenshotSource: SentryScreenshotSource
     private let notificationCenter: SentryNSNotificationCenterWrapper
-    #if !SDK_V10
-    private var widget: SentryUserFeedbackWidget?
-    private var shouldRestoreWidgetOnFormClose = false
-    weak var customButton: UIButton?
-    let windowFactory: SentryUserFeedbackWindowFactory
-    #endif
     
-#if !SDK_V10
-    init(
-        configuration: SentryUserFeedbackConfiguration,
-        screenshotSource: SentryScreenshotSource,
-        windowFactory: @escaping SentryUserFeedbackWindowFactory = SentryUserFeedbackWidget.defaultWindowFactory,
-        notificationCenter: SentryNSNotificationCenterWrapper = NotificationCenter.default
-    ) {
-        self.configuration = configuration
-        self.screenshotSource = screenshotSource
-        self.windowFactory = windowFactory
-        self.notificationCenter = notificationCenter
-        super.init()
-
-        configuration.applyConfigurationBuilders()
-
-        if let customButton = configuration.customButton {
-            self.customButton = customButton
-            customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
-        } else if let widgetConfigBuilder = configuration.configureWidget {
-            widgetConfigBuilder(configuration.widgetConfig)
-            validate(configuration.widgetConfig)
-
-            /*
-             * We cannot currently automatically inject a widget into a SwiftUI application, because at the recommended time to start the Sentry SDK (SwiftUIApp.init) there is nowhere to put a UIWindow overlay. SwiftUI apps must currently declare a UIApplicationDelegateAdaptor that returns a UISceneConfiguration, which we can then extract a connected UIScene from into which we can inject a UIWindow.
-             *
-             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget. The managed widget is deprecated; prefer presenting the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:).
-             */
-            if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
-                observeScreenshots()
-                observeShakeGesture()
-                return
-            }
-
-            if configuration.widgetConfig.autoInject {
-                widget = SentryUserFeedbackWidget(config: configuration, delegate: self, windowFactory: windowFactory)
-            }
-        }
-
-        observeScreenshots()
-        observeShakeGesture()
-    }
-    #else
     init(
         configuration: SentryUserFeedbackConfiguration,
         screenshotSource: SentryScreenshotSource,
@@ -79,29 +31,11 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         observeScreenshots()
         observeShakeGesture()
     }
-    #endif
 
     deinit {
-        #if !SDK_V10
-        customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
-        #endif
         SentryShakeDetector.disable()
         notificationCenter.removeObserver(self, name: nil, object: nil)
     }
-
-    #if !SDK_V10
-    func showWidget() {
-        if widget == nil {
-            widget = SentryUserFeedbackWidget(config: configuration, delegate: self, windowFactory: windowFactory)
-        }
-
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
-    }
-
-    func hideWidget() {
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
-    }
-    #endif
 
     @objc func showForm(sender: UIButton) {
         showForm(screenshot: nil)
@@ -111,23 +45,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         return activeForm != nil
     }
 
-    #if !SDK_V10
-    private func hideWidgetForFormPresentation(_ form: SentryUserFeedbackFormController) {
-        shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
-        widget?.rootVC.setWidget(visible: false, animated: form.config.animations)
-    }
-    #endif
 }
-
-#if !SDK_V10
-// MARK: SentryUserFeedbackWidgetDelegate
-@available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
-    func showForm() {
-        showForm(screenshot: nil)
-    }
-}
-#endif
 
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
@@ -142,22 +60,12 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
             activeForm = form
         }
 
-        #if !SDK_V10
-        hideWidgetForFormPresentation(form)
-        #endif
     }
 
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
         guard activeForm === form else { return }
 
         activeForm = nil
-        #if !SDK_V10
-        let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
-        shouldRestoreWidgetOnFormClose = false
-        if shouldRestoreWidget {
-            widget?.rootVC.setWidget(visible: true, animated: form.config.animations)
-        }
-        #endif
     }
 }
 
@@ -215,27 +123,6 @@ private extension SentryUserFeedbackIntegrationDriver {
         showForm(from: presenter, screenshot: screenshot)
     }
 
-    #if !SDK_V10
-    func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
-        let noOpposingHorizontals = config.location.contains(.trailing) && !config.location.contains(.leading)
-        || !config.location.contains(.trailing) && config.location.contains(.leading)
-        let noOpposingVerticals = config.location.contains(.top) && !config.location.contains(.bottom)
-        || !config.location.contains(.top) && config.location.contains(.bottom)
-        let atLeastOneLocation = config.location.contains(.trailing)
-        || config.location.contains(.leading)
-        || config.location.contains(.top)
-        || config.location.contains(.bottom)
-        let notAll = !config.location.contains(.all)
-        let valid = noOpposingVerticals && noOpposingHorizontals && atLeastOneLocation && notAll
-#if DEBUG
-        assert(valid, "Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
-#endif // DEBUG
-        if !valid {
-            SentrySDKLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
-        }
-    }
-    #endif
-
     func observeScreenshots() {
         if configuration.showFormForScreenshots {
             notificationCenter.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
@@ -267,15 +154,6 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     var presenter: UIViewController? {
-        #if !SDK_V10
-        if let customButton = configuration.customButton?.controller {
-            return customButton
-        }
-
-        if let widgetRootViewController = widget?.rootVC {
-            return widgetRootViewController
-        }
-        #endif
 
         return SentryFeedbackFormPresenter.presentingViewController()
     }

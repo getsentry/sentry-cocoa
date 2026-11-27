@@ -20,27 +20,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      */
     public var animations: Bool = true
 
-    #if !SDK_V10
-    /**
-     * Configuration settings specific to the managed widget that displays the UI form.
-     * - note: Default: `nil`. Set this only to configure the managed widget; unspecified widget values use the default widget settings.
-     * - deprecated: The managed widget is deprecated and will be removed in v10. Present the
-     * feedback form from your own UI instead.
-     */
-    public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)? {
-        @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
-        set {
-            _configureWidget = newValue
-        }
-        get {
-            _configureWidget
-        }
-    }
-    var _configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
-
-    lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
-    #endif
-
     /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
@@ -54,25 +33,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
     public var showFormForScreenshots: Bool = false
-
-    #if !SDK_V10
-    /**
-     * Install a hook for the specified button to show the form when it is pressed.
-     * - note: If this is set, `configureWidget` is ignored.
-     * - note: Default: `nil`
-     * - deprecated: The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call `SentrySDK.feedback.show()` instead.
-     */
-    public var customButton: UIButton? {
-        get {
-            _customButton
-        }
-        @available(*, deprecated, message: "The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call SentrySDK.feedback.show() instead.")
-        set {
-            _customButton = newValue
-        }
-    }
-    @nonobjc var _customButton: UIButton?
-    #endif
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.
@@ -126,25 +86,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
 
     lazy var theme = SentryUserFeedbackThemeConfiguration()
 
-    #if !SDK_V10
-    /**
-     * Builder for dark mode theme overrides. If your app does not deploy a different theme for dark
-     * mode, but you still want to override some theme settings, assign the same builder to this
-     * property as you do for `configureTheme`.
-     * - note: Default: `nil`
-     */
-    public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)? {
-        @available(*, deprecated, message: "Use dynamic UIColor instead of the dark theme.")
-        set {
-            _configureDarkTheme = newValue
-        }
-        get {
-            _configureDarkTheme
-        }
-    }
-    var _configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
-    #endif
-
     lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
 
     // MARK: Derived properties
@@ -188,9 +129,6 @@ extension SentryUserFeedbackConfiguration {
     func applyConfigurationBuilders() {
         configureForm?(formConfig)
         configureTheme?(theme)
-        #if !SDK_V10
-        _configureDarkTheme?(darkTheme)
-        #endif
     }
 
     func configurationForPresentation(
@@ -222,11 +160,6 @@ extension SentryUserFeedbackConfiguration {
     }
 
     func resetGlobalOnlyOptionsForPresentation() {
-        #if !SDK_V10
-        _configureWidget = nil
-        _customButton = nil
-        widgetConfig = SentryUserFeedbackWidgetConfiguration()
-        #endif
         useShakeGesture = false
         showFormForScreenshots = false
     }

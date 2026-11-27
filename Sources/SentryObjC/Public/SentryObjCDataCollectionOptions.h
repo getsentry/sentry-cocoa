@@ -1,10 +1,9 @@
-#if SDK_V10
-#    import <Foundation/Foundation.h>
-#    if !__has_include(<SentryObjC/SentryObjCDefines.h>)
-#        import "SentryObjCDataCollectionHttpBodyType.h"
-#    else
-#        import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
-#    endif
+#import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDataCollectionHttpBodyType.h"
+#else
+#    import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
+#endif
 
 @class SentryObjCDataCollectionKeyValueCollectionBehavior;
 @class SentryObjCDataCollectionHttpHeaderCollectionOptions;
@@ -44,4 +43,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-#endif // SDK_V10

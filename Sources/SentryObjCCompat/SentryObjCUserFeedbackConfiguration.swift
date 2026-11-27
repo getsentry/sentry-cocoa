@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
@@ -34,14 +30,6 @@ import UIKit
         get { wrapped.showFormForScreenshots }
         set { wrapped.showFormForScreenshots = newValue }
     }
-
-#if !SDK_V10
-    @objc public var customButton: UIButton? {
-        get { wrapped.customButton }
-        @available(*, deprecated, message: "The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call [[SentryObjCSDK feedback] show] instead.")
-        set { wrapped.customButton = newValue }
-    }
-#endif
 
     @objc public var configureForm: ((SentryObjCUserFeedbackFormConfiguration) -> Void)? {
         get {

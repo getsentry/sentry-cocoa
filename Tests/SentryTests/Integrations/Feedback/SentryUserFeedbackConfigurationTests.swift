@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 #if os(iOS)
@@ -171,29 +167,6 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         XCTAssertEqual(result.theme.outlineStyle.cornerRadius, 9)
         XCTAssertEqual(result.theme.outlineStyle.outlineWidth, 2)
     }
-
-    #if !SDK_V10
-    @available(*, deprecated, message: "Testing deprecated feedback button and widget configuration")
-    func testConfigurationForPresentation_whenGlobalOnlyFieldsAreSet_shouldIgnoreThem() {
-        let button = UIButton()
-        let sut = SentryUserFeedbackConfiguration()
-
-        let result = sut.configurationForPresentation { config in
-            config.useShakeGesture = true
-            config.showFormForScreenshots = true
-            config.customButton = button
-            config.configureWidget = { widget in
-                widget.autoInject = false
-            }
-        }
-
-        XCTAssertFalse(result.useShakeGesture)
-        XCTAssertFalse(result.showFormForScreenshots)
-        XCTAssertNil(result.customButton)
-        XCTAssertNil(result.configureWidget)
-        XCTAssertTrue(result.widgetConfig.autoInject)
-    }
-    #endif
 
     func testConfigurationForPresentation_whenBuildersAppendValues_shouldNotReapplyGlobalBuilders() {
         let sut = SentryUserFeedbackConfiguration()

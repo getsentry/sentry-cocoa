@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -118,11 +114,7 @@ class SentrySDKInternalTests: XCTestCase {
         startForUserPersistence(options)
 
         // -- Assert --
-        #if SDK_V10
         XCTAssertEqual(SentrySDKInternal.currentHub().scope.userObject?.userId, "persisted-user")
-        #else
-        XCTAssertNil(SentrySDKInternal.currentHub().scope.userObject)
-        #endif
     }
 
     func testStart_whenUserPersistenceEnabled_shouldRestoreExplicitUserAcrossLaunches() throws {
@@ -359,11 +351,7 @@ class SentrySDKInternalTests: XCTestCase {
     func testStart_whenAutomaticUserCollectionDisabled_shouldRestoreExplicitUser() throws {
         // -- Arrange --
         let options = try userPersistenceOptions()
-        #if SDK_V10
         options.dataCollection.userInfo = false
-        #else
-        options.sendDefaultPii = false
-        #endif
         defer { SentrySDK.close() }
         startForUserPersistence(options)
         SentrySDK.setUser(User(userId: "persisted-user"))
@@ -861,51 +849,6 @@ class SentrySDKInternalTests: XCTestCase {
 #endif
     }
 #endif
-
-#if !SDK_V10
-    @available(*, deprecated, message: "Testing deprecated App Hang tracking API")
-    func testResumeAndPauseAppHangTracking() throws {
-        if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
-            throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
-        }
-
-        SentrySDK.start { options in
-            options.dsn = SentrySDKInternalTests.dsnAsString
-            options.removeAllIntegrations()
-            options.enableAppHangTracking = true
-        }
-
-        let client = fixture.client
-        SentrySDKInternal.currentHub().bindClient(client)
-
-        let anrTrackingIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
-
-        SentrySDK.pauseAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
-        XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
-
-        SentrySDK.resumeAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
-
-        XCTAssertEqual(1, client.captureEventWithScopeInvocations.count, "The SDK should capture an AppHang after resuming the tracking, but it didn't.")
-    }
-
-    @available(*, deprecated, message: "Testing deprecated App Hang tracking API")
-    func testResumeAndPauseAppHangTracking_ANRTrackingNotInstalled() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKInternalTests.dsnAsString
-            options.removeAllIntegrations()
-        }
-
-        let client = fixture.client
-        SentrySDKInternal.currentHub().bindClient(client)
-
-        // Both invocations do nothing
-        SentrySDK.pauseAppHangTracking()
-        SentrySDK.resumeAppHangTracking()
-    }
-
-#endif // !SDK_V10
 
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in

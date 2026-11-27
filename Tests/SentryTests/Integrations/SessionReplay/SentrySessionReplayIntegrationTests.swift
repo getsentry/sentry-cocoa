@@ -2,11 +2,7 @@
 #if canImport(UIKit)
 import UIKit
 #endif
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 // swiftlint:disable file_length
 import Foundation
@@ -1248,11 +1244,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         class AnotherLabel: UILabel {}
 
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            #if SDK_V10
             options.privacy.maskedViewClasses = [AnotherLabel.self]
-            #else
-            options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
-            #endif // SDK_V10
         }
 
         // -- Act --
@@ -1267,11 +1259,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         class AnotherLabel: UILabel {}
 
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            #if SDK_V10
             options.privacy.unmaskedViewClasses = [AnotherLabel.self]
-            #else
-            options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
-            #endif // SDK_V10
         }
 
         // -- Act --
@@ -2031,11 +2019,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     /// V9 persists the checkpoint from `SentryCrashC.onCrash`; V10 goes through KSCrash
     /// `didWriteReport` instead of calling `writeInfo` directly.
     private func writeReplayCheckpointFromCrashCallback() {
-#if SDK_V10
         sentrykscrash_test_invokeDidWriteReport(true, false, false, 1)
-#else
-        sentrySessionReplaySync_writeInfo()
-#endif
     }
 }
 

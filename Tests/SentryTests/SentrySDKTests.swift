@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -143,22 +139,12 @@ class SentrySDKTests: XCTestCase {
             "SentryMetricsIntegration",
             "SentryNetworkTrackingIntegration"
         ]
-#if !SDK_V10
-        if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
-            expectedIntegrations.append("SentryANRTrackingIntegration")
-        }
-#endif
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
-        expectedIntegrations.append("SentryFramesTrackingIntegration")
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         expectedIntegrations.append("SentrySessionReplayIntegration")
 #endif
         expectedIntegrations.append("SentryKSCrashIntegration")
-        #if SDK_V10
         expectedIntegrations.append("SentrySwiftAsyncIntegration")
-        #endif
-#if canImport(MetricKit) && !os(tvOS) && SDK_V10
+#if canImport(MetricKit) && !os(tvOS)
         expectedIntegrations.append("SentryMetricKitIntegration")
 #endif
 
@@ -333,16 +319,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(2, SentrySDKInternal.startInvocations)
         XCTAssertEqual(fixture.options, SentrySDK.startOption)
     }
-
-    #if !SDK_V10
-    @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
-    func testCrashedLastRun() {
-        XCTAssertEqual(
-            SentryDependencyContainer.sharedInstance().activeCrashReporterState.crashedLastLaunch,
-            SentrySDK.crashedLastRun
-        )
-    }
-    #endif
 
     // MARK: - lastRunStatus
 
@@ -721,9 +697,6 @@ class SentrySDKTests: XCTestCase {
     // MARK: - Logger Flush Tests
     
     func testFlush_CallsLoggerCaptureLogs() {
-        #if !SDK_V10
-        fixture.client.options.enableLogs = true
-        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
         
@@ -742,9 +715,6 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testClose_CallsLoggerCaptureLogs() {
-        #if !SDK_V10
-        fixture.client.options.enableLogs = true
-        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
         

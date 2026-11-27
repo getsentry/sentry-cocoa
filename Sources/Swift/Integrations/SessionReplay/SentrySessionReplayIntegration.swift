@@ -30,9 +30,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var currentScreenshotProvider: SentryViewScreenshotProvider?
     private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     private var previewView: SentryMaskingPreviewView?
-    #if SDK_V10
     private let privacyOptions: SentryPrivacyOptions
-    #endif // SDK_V10
     private let dateProvider: SentryCurrentDateProvider
     private let debuggerStatusProvider: SentryDebuggerStatusProvider
     private let replayFileManager: SessionReplayFileManager
@@ -80,9 +78,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     init(nonOptionalWith options: Options, dependencies: SessionReplayIntegrationScope) {
         self.replayOptions = options.sessionReplay
-        #if SDK_V10
         self.privacyOptions = options.privacy
-        #endif // SDK_V10
         self.experimentalOptions = options.experimental
         self.notificationCenter = dependencies.notificationCenterWrapper
         self.rateLimits = dependencies.rateLimits
@@ -157,11 +153,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
         // just introduce another option without affecting the SDK user experience.
-        #if SDK_V10
         let redactOptions = options.privacy
-        #else
-        let redactOptions = options.sessionReplay
-        #endif // SDK_V10
         return SentryViewPhotographer(
             renderer: viewRenderer,
             redactOptions: redactOptions,
@@ -353,9 +345,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayMaker: replayMaker, breadcrumbConverter: breadcrumbConverter, touchTracker: touchTracker,
             dateProvider: dateProvider, delegate: self, captureScheduler: captureScheduler)
 
-        #if SDK_V10
         newSessionReplay.privacyOptions = privacyOptions
-        #endif // SDK_V10
         newSessionReplay.replayTags = replayTags.withLock { $0 }
         self.sessionReplay = newSessionReplay
         touchTracker?.enable()
@@ -550,11 +540,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             SentrySDKLog.debug("[Session Replay] No UIWindow available to display preview")
             return 
         }
-        #if SDK_V10
         if previewView == nil { previewView = SentryMaskingPreviewView(redactOptions: privacyOptions) }
-        #else
-        if previewView == nil { previewView = SentryMaskingPreviewView(redactOptions: replayOptions) }
-        #endif // SDK_V10
         previewView?.opacity = opacity
         previewView?.frame = window.bounds
         if let pv = previewView { window.addSubview(pv) }

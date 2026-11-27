@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import SentryTestUtils
 import XCTest
 
@@ -374,22 +370,14 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testInitWithOptions_whenDataCollectionUserInfoIsEnabledByDefault_shouldAutoInferIP() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         XCTAssertTrue(SentrySdkInfo(withOptions: Options()).settings.autoInferIP)
-#endif
     }
 
     func testInitWithOptions_whenDataCollectionUserInfoIsDisabled_shouldNotAutoInferIP() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
         let options = Options()
         options.dataCollection.userInfo = false
 
         XCTAssertFalse(SentrySdkInfo(withOptions: options).settings.autoInferIP)
-#endif
     }
 
     func testSerializationIncludesSettings() {

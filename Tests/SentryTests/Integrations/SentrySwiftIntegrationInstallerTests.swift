@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import XCTest
 
@@ -38,23 +34,12 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAutoSessionTracking = false
         options.enableAutoPerformanceTracing = false
         options.tracesSampleRate = 0
-        #if !SDK_V10
-        options.enableAppHangTracking = false
-        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
-        #if SDK_V10
         options.experimental.metrickit.enabledDiagnosticReports = []
-        #else
-        options.enableMetricKit = false
-        #endif // SDK_V10
         #endif
-        #if !SDK_V10
-        // Metrics stays installed even when enableMetrics is false so manual APIs keep working.
-        options.enableMetrics = false
-        #endif // !SDK_V10
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -85,23 +70,12 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAutoSessionTracking = false
         options.enableAutoPerformanceTracing = false
         options.tracesSampleRate = 0
-        #if !SDK_V10
-        options.enableAppHangTracking = false
-        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
-        #if SDK_V10
         options.experimental.metrickit.enabledDiagnosticReports = []
-        #else
-        options.enableMetricKit = false
-        #endif // SDK_V10
         #endif
-        #if !SDK_V10
-        // Metrics remains installed regardless of enableMetrics.
-        options.enableMetrics = false
-        #endif // !SDK_V10
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)

@@ -214,11 +214,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        #if SDK_V10
         let safeUrl = UrlSanitized(URL: url, options: options.dataCollection)
-        #else
-        let safeUrl = UrlSanitized(URL: url)
-        #endif
 
         let shouldCreateSpan = sessionTask.withNetworkTrackerState { state in
             guard case .idle = state.spanState else {
@@ -235,13 +231,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         var networkSpan: Span?
 
         if let currentSpan {
-            #if SDK_V10
             // Span descriptions exclude query strings and fragments. See
             // https://develop.sentry.dev/sdk/foundations/client/data-collection/#urls
             let descriptionUrl = safeUrl.sanitizedBaseUrl
-            #else
-            let descriptionUrl = safeUrl.sanitizedUrl
-            #endif
 
             networkSpan = currentSpan.startChild(
                 operation: SentrySpanOperationNetworkRequestOperation,
@@ -526,11 +518,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         let request = SentryRequest()
-        #if SDK_V10
         let sanitizedURL = UrlSanitized(URL: requestURL, options: options.dataCollection)
-        #else
-        let sanitizedURL = UrlSanitized(URL: requestURL)
-        #endif
 
         request.url = sanitizedURL.sanitizedUrl
         request.method = currentRequest.httpMethod
@@ -541,7 +529,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         // swiftlint:disable avoid_all_header_fields
         if let headers = currentRequest.allHTTPHeaderFields {
             // swiftlint:enable avoid_all_header_fields
-            #if SDK_V10
             let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeRequestHeaders(
                 headers,
                 options: options.dataCollection
@@ -550,9 +537,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
                 request.headers = sanitizedHeaders.headers
             }
             request.cookies = sanitizedHeaders.cookies
-            #else
-            request.headers = HTTPHeaderSanitizer.sanitizeHeaders(headers)
-            #endif
         }
 
         event.exceptions = [exception]
@@ -568,7 +552,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             result[key] = value
         }
         // swiftlint:enable avoid_all_header_fields
-        #if SDK_V10
         let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeResponseHeaders(
             responseHeaders,
             options: options.dataCollection
@@ -577,9 +560,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             responseContext["headers"] = sanitizedHeaders.headers
         }
         responseContext["cookies"] = sanitizedHeaders.cookies
-        #else
-        responseContext["headers"] = HTTPHeaderSanitizer.sanitizeHeaders(responseHeaders)
-        #endif
         if sessionTask.countOfBytesReceived != 0 {
             responseContext["body_size"] = sessionTask.countOfBytesReceived
         }
@@ -637,11 +617,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         let responseStatusCode = urlResponseStatusCode(sessionTask.response)
         let level = breadcrumbLevel(for: sessionTask, responseStatusCode: responseStatusCode)
 
-        #if SDK_V10
         let urlComponents = UrlSanitized(URL: requestURL, options: options.dataCollection)
-        #else
-        let urlComponents = UrlSanitized(URL: requestURL)
-        #endif
 
         var data: [String: Any] = [
             "request_body_size": sessionTask.countOfBytesSent,

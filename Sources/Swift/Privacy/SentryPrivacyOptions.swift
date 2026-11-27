@@ -1,4 +1,3 @@
-#if SDK_V10
 import Foundation
 
 /// Shared masking and view traversal settings for session replay and screenshot attachments.
@@ -146,4 +145,3 @@ public struct SentryPrivacyOptions: SentryRedactOptions {
         }
     }
 }
-#endif // SDK_V10

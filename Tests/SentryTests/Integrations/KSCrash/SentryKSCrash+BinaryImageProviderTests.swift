@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 #if !SWIFT_PACKAGE || SENTRY_PACKAGE_TEST_FIXTURES
 internal import KSCrashRecordingCore
 #endif

@@ -1,11 +1,7 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import PhotosUI
 import UniformTypeIdentifiers
@@ -27,9 +23,6 @@ class SentryFeedbackTests: XCTestCase {
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             config.configureForm?(config.formConfig)
             config.configureTheme?(config.theme)
-            #if !SDK_V10
-            config._configureDarkTheme?(config.darkTheme)
-            #endif
             self.config = config
             self.testCaseConfig = testCaseConfig
         }

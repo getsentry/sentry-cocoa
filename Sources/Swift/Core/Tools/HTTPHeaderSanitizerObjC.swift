@@ -1,4 +1,3 @@
-#if SDK_V10
 import Foundation
 
 /// Objective-C facade for HTTP header and cookie sanitization.
@@ -31,4 +30,3 @@ import Foundation
         )
     }
 }
-#endif // SDK_V10

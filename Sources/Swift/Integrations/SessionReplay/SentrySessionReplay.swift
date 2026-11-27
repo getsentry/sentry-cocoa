@@ -155,9 +155,7 @@ private struct SessionSegmentState {
     /// Guarded independently of `state` because it is a distinct concern with its own callers.
     private let traceIdBuffer = SentryMutex<[SentryId]>([])
 
-    #if SDK_V10
     var privacyOptions = SentryPrivacyOptions()
-    #endif // SDK_V10
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
     private let dateProvider: SentryCurrentDateProvider
@@ -176,11 +174,7 @@ private struct SessionSegmentState {
     }
 
     private var redactOptions: SentryRedactOptions {
-        #if SDK_V10
         return privacyOptions
-        #else
-        return replayOptions
-        #endif // SDK_V10
     }
 
     public var screenshotProvider: SentryViewScreenshotProvider

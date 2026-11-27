@@ -24,7 +24,4 @@
     let discardedEvents: [SentryDiscardedEvent]
     
 }
-#if !SDK_V10
-extension SentryClientReport: SentrySerializable { }
-#endif
 // swiftlint:enable missing_docs

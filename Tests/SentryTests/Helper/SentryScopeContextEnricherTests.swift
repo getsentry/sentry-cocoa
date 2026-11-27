@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 private final class TestSystemInfoProvider: SentrySystemInfoProvider {
@@ -103,11 +99,7 @@ final class SentryDefaultScopeContextEnricherTests: XCTestCase {
         XCTAssertEqual(context["free_memory"] as? UInt64, 1_073_741_824)
         XCTAssertEqual(context["usable_memory"] as? UInt64, 4_294_967_296)
         XCTAssertEqual(context["memory_size"] as? UInt64, 6_442_450_944)
-#if SDK_V10
         XCTAssertNil(context["locale"])
-#else
-        XCTAssertNotNil(context["locale"])
-#endif
 #if targetEnvironment(simulator)
         XCTAssertEqual(context["simulator"] as? Bool, true)
 #else

@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 import Foundation
 
 @objc(SentryObjCRequest) public final class SentryObjCRequest: NSObject {
@@ -22,17 +18,10 @@ import Foundation
         set { wrapped.bodySize = newValue }
     }
 
-#if SDK_V10
     @objc public var cookies: [String: String]? {
         get { wrapped.cookies }
         set { wrapped.cookies = newValue }
     }
-#else
-    @objc public var cookies: String? {
-        get { wrapped.cookies }
-        set { wrapped.cookies = newValue }
-    }
-#endif // SDK_V10
 
     @objc public var headers: [String: String]? {
         get { wrapped.headers }

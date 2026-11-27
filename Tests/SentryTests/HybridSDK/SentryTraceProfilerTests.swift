@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 @_spi(Private) @testable import SentryTestUtils
 import _SentryPrivate
 import SentryTestUtilsObjCpp
@@ -380,11 +376,7 @@ final class SentryTraceProfilerTests: XCTestCase {
         XCTAssertEqual(device["manufacturer"] as? String, "Apple")
         XCTAssertNotNil(device["architecture"])
         XCTAssertNotNil(device["is_emulator"])
-#if SDK_V10
         XCTAssertNil(device["locale"])
-#else
-        XCTAssertEqual(device["locale"] as? String, Locale.current.identifier)
-#endif
         XCTAssertTrue(fixture.client.recordLostEvents.isEmpty)
     }
 

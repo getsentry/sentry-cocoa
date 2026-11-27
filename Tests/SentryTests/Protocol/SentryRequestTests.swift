@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 class SentryRequestTests: XCTestCase {
@@ -14,11 +10,7 @@ class SentryRequestTests: XCTestCase {
         XCTAssertEqual(request.url, actual["url"] as? String)
         XCTAssertEqual(request.queryString, actual["query_string"] as? String)
         XCTAssertEqual(request.fragment, actual["fragment"] as? String)
-#if SDK_V10
         XCTAssertEqual(request.cookies, actual["cookies"] as? [String: String])
-#else
-        XCTAssertEqual(request.cookies, actual["cookies"] as? String)
-#endif // SDK_V10
         XCTAssertEqual(request.method, actual["method"] as? String)
         XCTAssertEqual(request.bodySize, actual["body_size"] as? NSNumber)
 
@@ -26,9 +18,6 @@ class SentryRequestTests: XCTestCase {
     }
 
     func testSerialize_whenV10_shouldSerializeCookieDictionary() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test only applies to SDK_V10")
-        #else
         // -- Arrange --
         let request = SentryRequest()
         request.cookies = ["theme": "dark", "session": "[Filtered]"]
@@ -38,13 +27,9 @@ class SentryRequestTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(actual["cookies"] as? [String: String], request.cookies)
-        #endif
     }
 
     func testDecode_whenV10CookieDictionary_shouldDecodeCookieDictionary() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test only applies to SDK_V10")
-        #else
         // -- Arrange --
         let request = SentryRequest()
         request.cookies = ["theme": "dark"]
@@ -55,7 +40,6 @@ class SentryRequestTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(decoded.cookies, ["theme": "dark"])
-        #endif
     }
 
     func testNoHeaders() {

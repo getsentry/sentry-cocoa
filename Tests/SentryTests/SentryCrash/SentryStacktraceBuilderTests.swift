@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import _SentryPrivate
 import SentryTestUtils
 import XCTest
@@ -122,7 +118,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
-    #if SDK_V10
     func testClose_whenSwiftAsyncStitchingEnabled_shouldPreserveStitching() {
         // -- Arrange --
         SentrySDK.start { options in
@@ -172,7 +167,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         }
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
-    #endif
 
     private func firstFrame() async -> Int {
         print("\(Date()) [Sentry] [TEST] first async frame about to await...")

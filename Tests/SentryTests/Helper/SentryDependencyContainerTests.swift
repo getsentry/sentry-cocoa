@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 final class SentryDependencyContainerTests: XCTestCase {
@@ -22,15 +18,6 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         XCTAssertFalse(framesTracker.isRunning)
     }
-
-#if !SDK_V10
-    func testGetANRTrackerV2() {
-        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
-        XCTAssertTrue(instance.helper is SentryANRTrackerV2)
-
-        SentryDependencyContainer.reset()
-    }
-#endif
 
     func testApplicationStateProvider_whenUsingUIKit_shouldUseThreadsafeApplication() {
         let container = SentryDependencyContainer.sharedInstance()
@@ -68,16 +55,6 @@ final class SentryDependencyContainerTests: XCTestCase {
         SentryDependencyContainer.reset()
     }
 #endif
-
-#if os(macOS) && !SDK_V10
-    func testGetANRTrackerV1() {
-        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
-        XCTAssertTrue(instance.helper is SentryANRTrackerV1)
-
-        SentryDependencyContainer.reset()
-    }
-
-#endif // os(macOS)
 
     func testDebuggerStatusProvider_whenUsingDefaultDependencies_shouldUseSysctlWrapper() {
         let container = SentryDependencyContainer.sharedInstance()
@@ -212,10 +189,6 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().kscrashQuery)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopePersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
-
-#if !SDK_V10
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
-#endif
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().timerFactory)

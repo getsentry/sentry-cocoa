@@ -34,15 +34,11 @@
 
 #pragma mark - Bool properties
 
-#if !SDK_V10 || ((TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT)
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testMaskAllText_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
-#    if SDK_V10
     SentryObjCPrivacyOptions *options = [[SentryObjCPrivacyOptions alloc] init];
-#    else
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-#    endif // SDK_V10
 
     // -- Act --
     options.maskAllText = YES;
@@ -52,15 +48,11 @@
 }
 #endif
 
-#if !SDK_V10 || ((TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT)
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testMaskAllImages_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
-#    if SDK_V10
     SentryObjCPrivacyOptions *options = [[SentryObjCPrivacyOptions alloc] init];
-#    else
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-#    endif // SDK_V10
 
     // -- Act --
     options.maskAllImages = YES;
@@ -122,15 +114,11 @@
 
 #pragma mark - Collection properties
 
-#if !SDK_V10 || ((TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT)
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testMaskedViewClasses_whenSet_shouldReturnCorrectCount
 {
     // -- Arrange --
-#    if SDK_V10
     SentryObjCPrivacyOptions *options = [[SentryObjCPrivacyOptions alloc] init];
-#    else
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-#    endif // SDK_V10
 
     // -- Act --
     options.maskedViewClasses = @[ [NSObject class] ];
@@ -140,15 +128,11 @@
 }
 #endif
 
-#if !SDK_V10 || ((TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT)
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testUnmaskedViewClasses_whenSet_shouldReturnCorrectCount
 {
     // -- Arrange --
-#    if SDK_V10
     SentryObjCPrivacyOptions *options = [[SentryObjCPrivacyOptions alloc] init];
-#    else
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-#    endif // SDK_V10
 
     // -- Act --
     options.unmaskedViewClasses = @[ [NSString class] ];
@@ -184,15 +168,11 @@
 
 #pragma mark - Methods (no-crash tests)
 
-#if !SDK_V10 || ((TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT)
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testExcludeViewTypeFromSubtreeTraversal_whenCalled_shouldNotCrash
 {
     // -- Arrange --
-#    if SDK_V10
     SentryObjCPrivacyOptions *options = [[SentryObjCPrivacyOptions alloc] init];
-#    else
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-#    endif // SDK_V10
 
     // -- Act --
     [options excludeViewTypeFromSubtreeTraversal:@"SomeView"];
@@ -202,15 +182,11 @@
 }
 #endif
 
-#if !SDK_V10 || ((TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT)
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testIncludeViewTypeInSubtreeTraversal_whenCalled_shouldNotCrash
 {
     // -- Arrange --
-#    if SDK_V10
     SentryObjCPrivacyOptions *options = [[SentryObjCPrivacyOptions alloc] init];
-#    else
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-#    endif // SDK_V10
 
     // -- Act --
     [options includeViewTypeInSubtreeTraversal:@"SomeView"];
@@ -220,7 +196,7 @@
 }
 #endif
 
-#if SDK_V10 && (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 - (void)testPrivacy_whenConfiguredThroughOptions_shouldUpdateSharedSettings
 {
     // -- Arrange --

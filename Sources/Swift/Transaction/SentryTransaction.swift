@@ -82,25 +82,15 @@ public class Transaction: Event {
         }
     }
 
-#if SDK_V10
     @objc override func serialize() -> [String: Any] {
         serializeTransaction()
     }
-#else
-    @_spi(Private) public override func serialize() -> [String: Any] {
-        serializeTransaction()
-    }
-#endif
 
     private func serializeTransaction() -> [String: Any] {
         var serializedData = super.serialize()
-#if SDK_V10
         serializedData["spans"] = spans.compactMap {
             ($0 as? SentryInternalSerializable)?.serialize()
         }
-#else
-        serializedData["spans"] = spans.map { $0.serialize() }
-#endif
 
         var mutableContext = serializedData["contexts"] as? [String: Any] ?? [:]
 

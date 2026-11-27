@@ -33,20 +33,6 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         captureMetric(name: name, value: .gauge(value), unit: options.unit, options: options)
     }
 
-    #if !SDK_V10
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
-        count(key, value: value, options: SentryMetricOptions(attributes: attributes))
-    }
-
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        distribution(key, value: value, options: SentryMetricOptions(unit: unit, attributes: attributes))
-    }
-
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        gauge(key, value: value, options: SentryMetricOptions(unit: unit, attributes: attributes))
-    }
-    #endif // !SDK_V10
-
     // MARK: - Capture
 
     // Internal rather than private so the overloads in SentryMetricsApi+Internal.swift can reach

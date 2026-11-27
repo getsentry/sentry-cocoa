@@ -126,7 +126,6 @@
     XCTAssertEqualObjects(crumb.origin, @"auto.ui");
 }
 
-#if SDK_V10
 - (void)testData_whenReadOnly_shouldNotExposeWholeDictionarySetter
 {
     // -- Arrange --
@@ -135,40 +134,6 @@
     // -- Assert --
     XCTAssertFalse([crumb respondsToSelector:NSSelectorFromString(@"setData:")]);
 }
-#else
-- (void)testData_whenSet_shouldReturnValue
-{
-    // -- Arrange --
-    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] initWithLevel:SentryObjCLevelInfo
-                                                                     category:@"test"];
-
-    // -- Act --
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    crumb.data = @{ @"url" : @"/home" };
-#    pragma clang diagnostic pop
-
-    // -- Assert --
-    XCTAssertEqualObjects(crumb.data[@"url"], @"/home");
-}
-
-- (void)testData_whenSetToNil_shouldReturnNil
-{
-    // -- Arrange --
-    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] initWithLevel:SentryObjCLevelInfo
-                                                                     category:@"test"];
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    crumb.data = @{ @"key" : @"value" };
-
-    // -- Act --
-    crumb.data = nil;
-#    pragma clang diagnostic pop
-
-    // -- Assert --
-    XCTAssertNil(crumb.data);
-}
-#endif
 
 - (void)testSetDataValueForKey_whenUpdatingData_shouldMergeAndRemoveValues
 {

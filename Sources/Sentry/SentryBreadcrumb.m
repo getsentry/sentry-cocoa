@@ -8,43 +8,6 @@
 #import "SentrySanitizerUtils.h"
 #import "SentrySwift.h"
 
-#if !SDK_V10
-/**
- * Recursively copies a value, producing immutable collections at every level.
- * For @c NSDictionary / @c NSArray (including mutable subclasses) a new immutable copy is
- * returned with all nested containers copied as well. Other values are returned as-is.
- * This prevents the SDK from holding references to caller-owned mutable objects whose
- * concurrent mutation would crash serialization (see
- * https://github.com/getsentry/sentry-cocoa/issues/2601).
- */
-static id
-sentry_deepCopyValue(id value)
-{
-    if ([value isKindOfClass:[NSDictionary class]]) {
-        // Defensive copy to prevent mutation during enumeration.
-        NSDictionary *dictionaryCopy = [(NSDictionary *)value copy];
-        NSMutableDictionary *result =
-            [NSMutableDictionary dictionaryWithCapacity:dictionaryCopy.count];
-        for (id key in dictionaryCopy) {
-            id v = dictionaryCopy[key];
-            if (v != nil) {
-                result[key] = sentry_deepCopyValue(v);
-            }
-        }
-        return [result copy]; // immutable
-    } else if ([value isKindOfClass:[NSArray class]]) {
-        // Defensive copy to prevent mutation during enumeration.
-        NSArray *arrayCopy = [(NSArray *)value copy];
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:arrayCopy.count];
-        for (id item in arrayCopy) {
-            [result addObject:sentry_deepCopyValue(item)];
-        }
-        return [result copy]; // immutable
-    }
-    return value;
-}
-#endif
-
 @implementation SentryBreadcrumb {
     // Mutable so setDataValue:forKey: can update in place.
     NSMutableDictionary<NSString *, id> *_data;
@@ -144,15 +107,6 @@ sentry_deepCopyValue(id value)
     }
 }
 
-#if !SDK_V10
-- (void)setData:(NSDictionary<NSString *, id> *)data
-{
-    @synchronized(self) {
-        _data = data ? [sentry_deepCopyValue(data) mutableCopy] : nil;
-    }
-}
-#endif
-
 - (NSDictionary<NSString *, id> *)data
 {
     @synchronized(self) {
@@ -202,13 +156,7 @@ sentry_deepCopyValue(id value)
             } else if ([key isEqualToString:@"message"] && isString) {
                 self.message = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
-#if SDK_V10
                 _data = [value mutableCopy];
-#else
-                ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-                self.data = value;
-                ALLOW_DEPRECATED_DECLARATIONS_END
-#endif
             }
         }
     }

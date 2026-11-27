@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 /// This test validates that all public properties in Options.swift have corresponding
@@ -26,20 +22,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
 
-        #if !SDK_V10
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        options.insert("enableReportNonFullyBlockingAppHangsValue") // Internal backing for deprecated enableReportNonFullyBlockingAppHangs
-        #endif
-        #endif
-
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
-        #if SDK_V10
         options.insert("privacy") // Shared V10 masking options. Docs update pending for the major release.
-        #endif
-        #if !SDK_V10
-        options.insert("enableStandaloneAppStartTracing")
-        #endif
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
@@ -61,11 +46,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         options.insert("enableUnhandledCPPExceptionsV2") // Stable in v10; docs update pending
-        #if SDK_V10
         options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
-        #endif
 
         return options
     }

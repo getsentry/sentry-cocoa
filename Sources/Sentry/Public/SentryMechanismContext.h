@@ -6,9 +6,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V10
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V10
 
 @class SentryNSError;
 
@@ -20,11 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://develop.sentry.dev/sdk/event-payloads/exception/#meta-information.
  */
 NS_SWIFT_NAME(MechanismContext)
-#if SDK_V10
 @interface SentryMechanismContext : NSObject
-#else
-@interface SentryMechanismContext : NSObject <SentrySerializable>
-#endif // SDK_V10
 
 - (instancetype)init;
 

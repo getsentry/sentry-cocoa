@@ -1,9 +1,5 @@
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) internal import SentrySwift
-#else
 @_spi(Private) internal import Sentry
-#endif
 import Foundation
 
 // See Box.swift for why resilient value types are boxed in ObjC wrapper classes.

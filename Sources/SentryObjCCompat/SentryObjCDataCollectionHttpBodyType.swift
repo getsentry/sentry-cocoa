@@ -1,10 +1,5 @@
-#if SDK_V10
 // swiftlint:disable missing_docs
-#if SWIFT_PACKAGE && !SDK_V10
-internal import SentrySwift
-#else
 internal import Sentry
-#endif
 
 public typealias SentryObjCDataCollectionHttpBodyType = UInt
 
@@ -19,4 +14,3 @@ extension SentryObjCDataCollectionHttpBodyType {
 }
 
 // swiftlint:enable missing_docs
-#endif // SDK_V10

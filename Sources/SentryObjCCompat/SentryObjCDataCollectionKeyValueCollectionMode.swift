@@ -1,4 +1,3 @@
-#if SDK_V10
 // swiftlint:disable missing_docs
 
 @objc public enum SentryObjCDataCollectionKeyValueCollectionMode: Int {
@@ -8,4 +7,3 @@
 }
 
 // swiftlint:enable missing_docs
-#endif // SDK_V10

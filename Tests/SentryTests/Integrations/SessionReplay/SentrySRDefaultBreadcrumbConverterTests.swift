@@ -1,15 +1,10 @@
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import Foundation
 import XCTest
 
 class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
     
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testNavigationBreadcrumbAppLifecycleForeground() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
@@ -25,28 +20,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
         XCTAssertEqual(eventPayload?["category"] as? String, "app.foreground")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testNavigationBreadcrumbAppLifecycleForeground() {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
-        crumb.type = "navigation"
-        crumb.data = ["state": "foreground"]
-        let result = sut.convert(from: crumb)
-
-        let event = result?.serialize()
-        let eventData = event?["data"] as? [String: Any]
-        let eventPayload = eventData?["payload"] as? [String: Any]
-
-        XCTAssertEqual(event?["type"] as? Int, 5)
-        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
-        XCTAssertEqual(eventPayload?["category"] as? String, "app.foreground")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testNavigationBreadcrumbAppLifecycleActive() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
@@ -62,28 +38,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
         XCTAssertEqual(eventPayload?["category"] as? String, "app.active")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testNavigationBreadcrumbAppLifecycleActive() {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
-        crumb.type = "navigation"
-        crumb.data = ["state": "active"]
-        let result = sut.convert(from: crumb)
-
-        let event = result?.serialize()
-        let eventData = event?["data"] as? [String: Any]
-        let eventPayload = eventData?["payload"] as? [String: Any]
-
-        XCTAssertEqual(event?["type"] as? Int, 5)
-        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
-        XCTAssertEqual(eventPayload?["category"] as? String, "app.active")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testNavigationBreadcrumbAppLifecycleInactive() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
@@ -99,28 +56,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
         XCTAssertEqual(eventPayload?["category"] as? String, "app.inactive")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testNavigationBreadcrumbAppLifecycleInactive() {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
-        crumb.type = "navigation"
-        crumb.data = ["state": "inactive"]
-        let result = sut.convert(from: crumb)
-
-        let event = result?.serialize()
-        let eventData = event?["data"] as? [String: Any]
-        let eventPayload = eventData?["payload"] as? [String: Any]
-
-        XCTAssertEqual(event?["type"] as? Int, 5)
-        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
-        XCTAssertEqual(eventPayload?["category"] as? String, "app.inactive")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testNavigationBreadcrumbAppLifecycleBackground() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
@@ -136,28 +74,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
         XCTAssertEqual(eventPayload?["category"] as? String, "app.background")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testNavigationBreadcrumbAppLifecycleBackground() {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
-        crumb.type = "navigation"
-        crumb.data = ["state": "background"]
-        let result = sut.convert(from: crumb)
-
-        let event = result?.serialize()
-        let eventData = event?["data"] as? [String: Any]
-        let eventPayload = eventData?["payload"] as? [String: Any]
-
-        XCTAssertEqual(event?["type"] as? Int, 5)
-        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
-        XCTAssertEqual(eventPayload?["category"] as? String, "app.background")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
     
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testNavigationBreadcrumbOrientation() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "device.orientation")
@@ -175,30 +94,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(eventPayload?["category"] as? String, "device.orientation")
         XCTAssertEqual(payloadData?["position"] as? String, "portrait")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testNavigationBreadcrumbOrientation() {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let crumb = Breadcrumb(level: .info, category: "device.orientation")
-        crumb.type = "navigation"
-        crumb.data = ["position": "portrait"]
-        let result = sut.convert(from: crumb)
-
-        let event = result?.serialize()
-        let eventData = event?["data"] as? [String: Any]
-        let eventPayload = eventData?["payload"] as? [String: Any]
-        let payloadData = eventPayload?["data"] as? [String: Any]
-
-        XCTAssertEqual(event?["type"] as? Int, 5)
-        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
-        XCTAssertEqual(eventPayload?["category"] as? String, "device.orientation")
-        XCTAssertEqual(payloadData?["position"] as? String, "portrait")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
     
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testNavigationBreadcrumbNavigate() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "ui.lifecycle")
@@ -216,30 +114,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(eventPayload?["category"] as? String, "navigation")
         XCTAssertEqual(payloadData?["to"] as? String, "TestViewController")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testNavigationBreadcrumbNavigate() {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let crumb = Breadcrumb(level: .info, category: "ui.lifecycle")
-        crumb.type = "navigation"
-        crumb.data = ["screen": "TestViewController"]
-        let result = sut.convert(from: crumb)
-
-        let event = result?.serialize()
-        let eventData = event?["data"] as? [String: Any]
-        let eventPayload = eventData?["payload"] as? [String: Any]
-        let payloadData = eventPayload?["data"] as? [String: Any]
-
-        XCTAssertEqual(event?["type"] as? Int, 5)
-        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
-        XCTAssertEqual(eventPayload?["category"] as? String, "navigation")
-        XCTAssertEqual(payloadData?["to"] as? String, "TestViewController")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
     
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testHttpBreadcrumb() throws {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "http")
@@ -270,39 +147,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payloadData["query"] as? String, "query=value")
         XCTAssertEqual(payloadData["fragment"] as? String, "frag")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testHttpBreadcrumb() throws {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let breadcrumb = Breadcrumb(level: .info, category: "http")
-        let start = Date(timeIntervalSince1970: 5)
-
-        breadcrumb.data = [
-            "url": "https://test.com",
-            "method": "GET",
-            "response_body_size": 1_024,
-            "http.query": "query=value",
-            "http.fragment": "frag",
-            "status_code": 200,
-            "request_start": start
-        ]
-        
-        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebSpanEvent)
-        let crumbData = try XCTUnwrap(result.data)
-        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
-        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
-        
-        XCTAssertEqual(result.timestamp, start)
-        XCTAssertEqual(crumbData["tag"] as? String, "performanceSpan")
-        XCTAssertEqual(payload["description"] as? String, "https://test.com")
-        XCTAssertEqual(payload["op"] as? String, "resource.http")
-        XCTAssertEqual(payload["startTimestamp"] as? Double, start.timeIntervalSince1970)
-        XCTAssertEqual(payload["endTimestamp"] as? Double, breadcrumb.timestamp?.timeIntervalSince1970)
-        XCTAssertEqual(payloadData["statusCode"] as? Int, 200)
-        XCTAssertEqual(payloadData["query"] as? String, "query=value")
-        XCTAssertEqual(payloadData["fragment"] as? String, "frag")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     func testTouchBreadcrumb() throws {
@@ -319,7 +163,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
     }
     
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     func testConnectivityBreadcrumb() throws {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "device.connectivity")
@@ -334,25 +177,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payload["category"] as? String, "device.connectivity")
         XCTAssertEqual(payloadData["state"] as? String, "Wifi")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testConnectivityBreadcrumb() throws {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let breadcrumb = Breadcrumb(level: .info, category: "device.connectivity")
-        breadcrumb.type = "connectivity"
-        breadcrumb.data = ["connectivity": "Wifi"]
-        
-        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
-        let crumbData = try XCTUnwrap(result.data)
-        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
-        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
-        
-        XCTAssertEqual(payload["category"] as? String, "device.connectivity")
-        XCTAssertEqual(payloadData["state"] as? String, "Wifi")
-    }
-#endif
     
-#if SDK_V10
     func testBatteryBreadcrumb() throws {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "device.event")
@@ -368,26 +193,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payloadData["level"] as? Double, 0.5)
         XCTAssertEqual(payloadData["charging"] as? Bool, true)
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testBatteryBreadcrumb() throws {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let breadcrumb = Breadcrumb(level: .info, category: "device.event")
-        breadcrumb.type = "system"
-        breadcrumb.data = ["level": 0.5, "plugged": true, "action": "BATTERY_STATE_CHANGE"]
-        
-        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
-        let crumbData = try XCTUnwrap(result.data)
-        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
-        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
-        
-        XCTAssertEqual(payload["category"] as? String, "device.battery")
-        XCTAssertEqual(payloadData["level"] as? Double, 0.5)
-        XCTAssertEqual(payloadData["charging"] as? Bool, true)
-    }
-#endif
     
-#if SDK_V10
     func testCustomBreadcrumbs() throws {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "MyApp.MyBreadcrumb")
@@ -404,25 +210,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payload["message"] as? String, "Custom message")
         XCTAssertEqual(payloadData["SomeInfo"] as? String, "Info")
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    func testCustomBreadcrumbs() throws {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let breadcrumb = Breadcrumb(level: .info, category: "MyApp.MyBreadcrumb")
-        breadcrumb.type = "interation"
-        breadcrumb.data = ["SomeInfo": "Info"]
-        breadcrumb.message = "Custom message"
-        
-        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
-        let crumbData = try XCTUnwrap(result.data)
-        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
-        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
-        
-        XCTAssertEqual(payload["category"] as? String, "MyApp.MyBreadcrumb")
-        XCTAssertEqual(payload["message"] as? String, "Custom message")
-        XCTAssertEqual(payloadData["SomeInfo"] as? String, "Info")
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // MARK: - Network Details (partial data)
@@ -500,9 +287,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
 
     @available(*, deprecated, message: "Testing deprecated convertHttpBreadcrumbWithNetworkDetails")
     func testHttpBreadcrumb_whenV10NetworkDetailsContainCookies_shouldIncludeCookies() throws {
-#if !SDK_V10
-        throw XCTSkip("Test only runs with SDK_V10")
-#else
         // -- Act --
         let payloadData = try convertHttpBreadcrumbWithNetworkDetails { details in
             details.setRequest(
@@ -520,7 +304,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
             "session": "[Filtered]",
             "theme": "dark"
         ])
-#endif // SDK_V10
     }
 
     // MARK: - Helpers
@@ -530,7 +313,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
     ///
     /// - Parameter method: Optional HTTP method to set on the network details.
     // swiftlint:disable no_breadcrumb_data_setter
-#if SDK_V10
     private func convertHttpBreadcrumbWithNetworkDetails(
         method: String? = nil,
         configure: (SentryReplayNetworkDetails) -> Void
@@ -549,31 +331,6 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         return try XCTUnwrap(payload["data"] as? [String: Any])
     }
-#else
-    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
-    private func convertHttpBreadcrumbWithNetworkDetails(
-        method: String? = nil,
-        configure: (SentryReplayNetworkDetails) -> Void
-    ) throws -> [String: Any] {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let breadcrumb = Breadcrumb(level: .info, category: "http")
-        let start = Date(timeIntervalSince1970: 5)
-
-        let networkDetails = SentryReplayNetworkDetails(method: method)
-        configure(networkDetails)
-
-        breadcrumb.data = [
-            "url": "https://test.com",
-            "request_start": start,
-            SentryReplayNetworkDetails.replayNetworkDetailsKey: networkDetails
-        ]
-
-        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebSpanEvent)
-        let crumbData = try XCTUnwrap(result.data)
-        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
-        return try XCTUnwrap(payload["data"] as? [String: Any])
-    }
-#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     func testSerializedSRBreadcrumbLevelIsString() throws {

@@ -1,9 +1,5 @@
 @_spi(Private) import SentryTestUtils
-#if SWIFT_PACKAGE && !SDK_V10
-@_spi(Private) @testable import SentrySwift
-#else
 @_spi(Private) @testable import Sentry
-#endif
 import XCTest
 
 final class TelemetryScopeApplierTests: XCTestCase {
@@ -644,11 +640,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
-#if SDK_V10
         XCTAssertNil(item.attributesDict["user.id"])
-#else
-        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-456"))
-#endif // SDK_V10
         XCTAssertNil(item.attributesDict["user.name"])
         XCTAssertNil(item.attributesDict["user.email"])
     }
