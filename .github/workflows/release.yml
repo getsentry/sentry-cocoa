@@ -369,6 +369,7 @@ jobs:
 
   validate-spm-sdk:
     name: Validate SPM SDK (advisory)
+    # Validate even after packaging fails so missing artifacts are reported.
     if: >-
       always() && !cancelled() && needs.files-changed.result == 'success' &&
       (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true')
