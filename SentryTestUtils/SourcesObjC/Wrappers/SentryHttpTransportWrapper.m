@@ -34,4 +34,14 @@
 {
     return [SentryHttpTransport class];
 }
+
+#if defined(DEBUG) // Test support.
++ (void)setFlushWaitFinishedCallback:(nullable void (^)(void))callback
+                         onTransport:(SENTRY_SWIFT_MIGRATION_ID(id<SentryTransport>))transport
+{
+    NSCAssert([(NSObject *)transport isKindOfClass:[SentryHttpTransport class]],
+        @"Only SentryHttpTransport has a flush wait callback.");
+    [(SentryHttpTransport *)transport setFlushWaitFinishedCallback:callback];
+}
+#endif // defined(DEBUG)
 @end

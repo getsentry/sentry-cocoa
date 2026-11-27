@@ -23,5 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
                 reachability:(SENTRY_SWIFT_MIGRATION_ID(SentryReachability))reachability;
 
 + (Class)httpTransportClass;
+
+#if defined(DEBUG) // Test support.
++ (void)setFlushWaitFinishedCallback:(nullable void (^)(void))callback
+                         onTransport:(SENTRY_SWIFT_MIGRATION_ID(id<SentryTransport>))transport;
+#endif // defined(DEBUG)
 @end
 NS_ASSUME_NONNULL_END

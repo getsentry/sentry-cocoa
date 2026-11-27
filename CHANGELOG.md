@@ -6,6 +6,7 @@
 
 - Fix new breadcrumbs being dropped after copying a scope whose breadcrumb buffer is full (#9756)
 - Reject invalid UTF-8 sequences and trim truncated multi-byte UTF-8 characters when writing introspected memory strings in `SentryCrash`, preventing malformed crash report JSON (#9760)
+- Fix `flush` returning success before envelopes captured just before it were stored, when a cache drain queued ahead of it, or left over from a flush that timed out, found no envelopes (#9706)
 - Disable app hang tracking and watchdog termination tracking by default in Contact Provider extensions, and detect ExtensionKit extensions, which declare their extension point under `EXAppExtensionAttributes` instead of `NSExtension`. The SDK reported false fully blocking app hangs after the system suspended and resumed the extension (#9768)
 
 ## 9.36.0
