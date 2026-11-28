@@ -324,6 +324,26 @@ NS_ASSUME_NONNULL_BEGIN
     return [client captureFatalEvent:event withScope:scope];
 }
 
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+                                withScope:(SENTRY_SWIFT_MIGRATION_ID(SentryScope))scope
+                           crashedSession:
+                               (SENTRY_SWIFT_MIGRATION_ID(SentrySession)_Nullable)crashedSession
+{
+    event.isFatalEvent = YES;
+
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        return SentryId.empty;
+    }
+
+    if (crashedSession != nil) {
+        return [client captureFatalEvent:event
+                             withSession:(SentrySession *_Nonnull)crashedSession
+                               withScope:scope];
+    }
+    return [client captureFatalEvent:event withScope:scope];
+}
+
 - (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client
 {
     if (![eventId isEqual:SentryId.empty]) {

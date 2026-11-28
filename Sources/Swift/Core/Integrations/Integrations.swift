@@ -44,6 +44,18 @@ private struct AnyIntegration {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
+        // Before any integration is installed, so the coordinator knows which reports to hold
+        // before the first source reports, in whichever order the integrations install.
+        let eventSourceCoordinator = dependencies.eventSourceCoordinator
+        eventSourceCoordinator.use(SentryEventSourceOrchestrator.enabled(for: options))
+        // A report that is still held is a fatal event this launch sends, like a crash or a
+        // watchdog termination an integration detects. Without this, the SDK reports that the
+        // last run didn't crash and then sends a fatal event without the callbacks for it. Only
+        // checks that the file exists, because this is usually the main thread.
+        if eventSourceCoordinator.hasHeldReport {
+            SentrySDKInternal.fatalDetected = true
+        }
+
         // The order of integrations here is important.
         // KSCrash needs to be initialized before SentryAutoSessionTrackingIntegration,
         // and after SentrySessionReplayIntegration.
@@ -105,6 +117,13 @@ private struct AnyIntegration {
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
             SentrySDKInternal.currentHub().addInstalledIntegration(integration, name: anyIntegration.name)
+        }
+
+        // A fatal report a previous launch held is sent at every start, whichever integrations
+        // are installed now. Otherwise it stays on disk when this launch neither holds reports
+        // nor reports a fatal run. Off the calling thread, which is usually the main thread.
+        dependencies.dispatchQueueWrapper.dispatchAsync {
+            eventSourceCoordinator.sendHeldReportOfPreviousLaunch()
         }
     }
 }

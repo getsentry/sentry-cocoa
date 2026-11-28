@@ -134,6 +134,16 @@ final class SentryMetricKitIntegration<Dependencies: SysctlProvider & EventSourc
         return nil
     }
 
+    /// Whether the integration reports how runs ended with these options, which a crash
+    /// diagnostic does with the termination reason and a memory exception diagnostic with the
+    /// memory limit.
+    ///
+    /// ``SentryEventSourceOrchestrator`` asks this to tell whether a report that waits for MetricKit
+    /// can get an answer.
+    static func reportsRunEnds(with options: Options) -> Bool {
+        !enabledDiagnostics(for: options).isDisjoint(with: [.crash, .memoryException])
+    }
+
     private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
         let enabledDiagnosticReports = options.experimental.metrickit.enabledDiagnosticReports
         #if SDK_V10

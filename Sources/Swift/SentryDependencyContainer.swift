@@ -180,7 +180,10 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryEventSourceCoordinator(
             downstream: SentryHubEventSourceSink(dependencies: SentrySDKCurrentHubProvider()),
             fatalRunRecordStore: fileManager.map { SentryFatalRunRecordStore(fileManager: $0, dateProvider: dateProvider) },
-            dateProvider: dateProvider
+            heldFatalReportStore: fileManager.map { SentryHeldFatalReportStore(fileManager: $0) },
+            dateProvider: dateProvider,
+            dispatchQueueWrapper: dispatchQueueWrapper,
+            notificationCenter: notificationCenterWrapper
         )
     }
     private var _crashHandlerEventSource: SentryCrashHandlerEventSource?

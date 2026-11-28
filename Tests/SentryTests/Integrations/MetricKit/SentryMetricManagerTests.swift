@@ -68,6 +68,28 @@ final class SentryMetricManagerTests: SentrySDKIntegrationTestsBase {
         try assertSameEvent(legacyPayload: legacyPayload, report: report, exceptionType: "MXCrashDiagnostic")
     }
 
+    func testDiagnostic_whenCrashReportHasATerminationReason_shouldSayTheRunEndedWithThatReason() throws {
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
+        // -- Arrange --
+        let report = try givenReport(result: "crashDiagnostic", diagnostic: [
+            "callStackTree": try callStackTree(fromLegacyResource: "MetricKitCallstacks/per-thread"),
+            "terminationReason": "Namespace SPRINGBOARD, Code 0x8badf00d"
+        ])
+        guard case .crash(let crash) = report.result else {
+            return XCTFail("Expected a crash diagnostic")
+        }
+
+        // -- Act --
+        let diagnostic = SentryMXCrashDiagnosticProcessor.diagnostic(of: crash, in: report)
+
+        // -- Assert --
+        XCTAssertEqual(diagnostic.terminationReason, "Namespace SPRINGBOARD, Code 0x8badf00d")
+        guard case .crash(let terminationReason) = diagnostic.runEnd else {
+            return XCTFail("Expected the run to end with a crash")
+        }
+        XCTAssertEqual(terminationReason, "Namespace SPRINGBOARD, Code 0x8badf00d")
+    }
+
     func testProcess_whenCPUExceptionReport_shouldCaptureSameEventAsLegacyDiagnostic() throws {
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else { return }
         // -- Arrange --

@@ -85,6 +85,56 @@ final class SentryMetricKitIntegrationInitTests: XCTestCase {
         XCTAssertEqual(record.threadCrumbAddresses.count, 32)
     }
 
+    func testReportsRunEnds_whenCrashDiagnosticsAreEnabled_shouldReturnTrue() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.crash]
+
+        // -- Act & Assert --
+        XCTAssertTrue(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
+    }
+
+    func testReportsRunEnds_whenMemoryExceptionDiagnosticsAreEnabled_shouldReturnTrue() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.memoryException]
+
+        // -- Act & Assert --
+        XCTAssertTrue(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
+    }
+
+    func testReportsRunEnds_whenOnlyOtherDiagnosticsAreEnabled_shouldReturnFalse() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = [.hang, .cpuException, .diskWriteException, .appLaunch]
+
+        // -- Act & Assert --
+        XCTAssertFalse(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
+    }
+
+    func testReportsRunEnds_whenOnlyMetricReportsAreEnabled_shouldReturnFalse() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.metrickit.enabledDiagnosticReports = []
+        options.experimental.metrickit.enabledMetricReports = [.exitForegroundWatchdog]
+
+        // -- Act & Assert --
+        XCTAssertFalse(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
+    }
+
+    #if !SDK_V10
+    func testReportsRunEnds_whenOnlyEnableMetricKitIsSet_shouldReturnFalse() {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = true
+
+        // -- Act & Assert --
+        // enableMetricKit alone captures CPU, disk write and hang diagnostics, none of which says
+        // how a run ended.
+        XCTAssertFalse(SentryMetricKitIntegration<SentryDependencyContainer>.reportsRunEnds(with: options))
+    }
+    #endif // !SDK_V10
+
     func testInit_whenDiagnosticsAreDisabled_shouldNotRecordTheRunId() throws {
         // -- Arrange --
         let options = Options()
