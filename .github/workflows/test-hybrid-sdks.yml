@@ -1,7 +1,11 @@
 name: Test Hybrid SDKs
 
-# Builds and tests hybrid SDKs against the xcframework built from the current source code,
-# so breaking changes for them surface before a release. Called by the nightly test workflow.
+# Builds and tests hybrid SDKs against an xcframework built from source, so breaking changes
+# for them surface before a release. Called by the nightly test workflow.
+#
+# The hybrid SDKs have not migrated to v10 yet, so every sentry-cocoa checkout below uses
+# the v9.x branch and builds the v9 "Sentry" scheme. Switch back to the triggering ref
+# and the v10 build once sentry-dart and sentry-react-native support v10.
 on:
   workflow_call:
     secrets:
@@ -10,16 +14,21 @@ on:
       GIT_SSH_KEY_PASSPHRASE:
         required: false
 
+env:
+  SENTRY_COCOA_REF: v9.x
+
 jobs:
   # Hybrid SDKs consume the prebuilt "Sentry" product, so build its Static variant once
   # and share it across the jobs below.
   build-xcframework:
     name: Build XCFramework
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 30
     steps:
       # === Checkout and independent preparation ===
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SENTRY_COCOA_REF }}
       - name: Setup Git access
         uses: ./.github/actions/setup-git-access
         with:
@@ -30,7 +39,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "26"
+          version: "16"
           resolve-simulators: "false"
       - name: Warm CoreSimulator
         id: warm-coresimulator
@@ -43,11 +52,7 @@ jobs:
         wait: warm-coresimulator
       - name: Build XCFramework (Static)
         run: |
-          ./scripts/build-xcframework-v10.sh --mach-o-type staticlib --sdks iphonesimulator --slices-only
-          ./scripts/assemble-xcframework.sh \
-            --scheme SentryV10 --product-name Sentry --sdks iphonesimulator \
-            --archive-template "$PWD/XCFrameworkBuildPath/archive/SentryV10/SDK_NAME.xcarchive" \
-            --output Sentry.xcframework
+          ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "iphonesimulator"
           ./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
           ./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
 
@@ -64,7 +69,7 @@ jobs:
   test-sentry-dart:
     name: Test sentry-dart
     needs: build-xcframework
-    runs-on: ["bitrise_pool_name:tahoe"]
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 45
     steps:
       # === Checkout and independent preparation ===
@@ -73,6 +78,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: sentry-cocoa
+          ref: ${{ env.SENTRY_COCOA_REF }}
       - name: Download XCFramework
         id: download-xcframework
         background: true
@@ -96,7 +102,7 @@ jobs:
       - name: Setup Xcode
         uses: ./sentry-cocoa/.github/actions/setup-xcode
         with:
-          version: "26"
+          version: "16"
           resolve-simulators: "false"
       - name: Remove versioned Package files
         working-directory: sentry-cocoa
@@ -196,6 +202,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: sentry-cocoa
+          ref: ${{ env.SENTRY_COCOA_REF }}
       - name: Download XCFramework
         id: download-xcframework
         background: true
