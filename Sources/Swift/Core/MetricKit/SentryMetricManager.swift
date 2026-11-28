@@ -141,6 +141,7 @@ extension SentryMXDiagnostic {
     /// Converts a diagnostic of a `MetricManager` report.
     init(
         _ diagnosticReport: SentryMetricKit.DiagnosticReport,
+        exceptionTypeOverride: String? = nil,
         exceptionValue: @autoclosure @escaping () -> String,
         level: SentryLevel? = nil,
         callStackTree: MetricKit.CallStackTree,
@@ -148,6 +149,7 @@ extension SentryMXDiagnostic {
     ) {
         self.init(
             report: diagnosticReport,
+            exceptionTypeOverride: exceptionTypeOverride,
             exceptionValue: exceptionValue,
             level: level,
             timestamp: report.timeRange.start,
